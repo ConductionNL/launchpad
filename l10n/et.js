@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Leitud sellest serverist",
     "Apps this server runs for you. One click places one as a tile." : "Rakendused, mida see server sinu jaoks käitab. Üks klõps teeb neist paani.",
+    "Office tiles" : "Kontoripaanid",
+    "Ready-made tiles" : "Valmis paanid",
+    "One container with a tile for each kind of new document and each office app on this server." : "Üks konteiner, milles on paan iga uue dokumendi liigi ja selle serveri iga kontorirakenduse jaoks.",
+    "This server has no office apps to make tiles for." : "Selles serveris pole kontorirakendusi, millele paane teha.",
+    "The office tiles could not be added." : "Kontoripaane ei õnnestunud lisada.",
+    "File name" : "Faili nimi",
+    "The file could not be created." : "Faili ei õnnestunud luua.",
     "On this dashboard" : "Sellel töölaual",
     "Statistics" : "Statistika",
     "Count my visits" : "Loe minu külastusi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
-    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada."
+    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada.",
+    "Active filters" : "Aktiivsed filtrid",
+    "Pinned filter" : "Kinnitatud filter",
+    "Remove filter: {label}" : "Eemalda filter: {label}",
+    "Reset filters" : "Lähtesta filtrid"
 },
 "nplurals=2; plural=(n != 1);"
 );

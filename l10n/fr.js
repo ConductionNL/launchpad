@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trouvé sur ce serveur",
     "Apps this server runs for you. One click places one as a tile." : "Les applications que ce serveur exécute pour vous. Un clic en fait une tuile.",
+    "Office tiles" : "Tuiles bureautiques",
+    "Ready-made tiles" : "Tuiles prêtes à l'emploi",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un conteneur avec une tuile pour chaque type de nouveau document et chaque application bureautique de ce serveur.",
+    "This server has no office apps to make tiles for." : "Ce serveur n'a aucune application bureautique pour laquelle créer des tuiles.",
+    "The office tiles could not be added." : "Les tuiles bureautiques n'ont pas pu être ajoutées.",
+    "File name" : "Nom du fichier",
+    "The file could not be created." : "Le fichier n'a pas pu être créé.",
     "On this dashboard" : "Sur ce tableau de bord",
     "Statistics" : "Statistiques",
     "Count my visits" : "Compter mes visites",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Lorsque cette option est désactivée, vos visites des tableaux de bord et vos clics sur les tuiles ne sont pas comptés dans les statistiques de consultation.",
-    "Your choice could not be saved." : "Votre choix n'a pas pu être enregistré."
+    "Your choice could not be saved." : "Votre choix n'a pas pu être enregistré.",
+    "Active filters" : "Filtres actifs",
+    "Pinned filter" : "Filtre épinglé",
+    "Remove filter: {label}" : "Retirer le filtre : {label}",
+    "Reset filters" : "Réinitialiser les filtres"
 },
 "nplurals=2; plural=(n > 1);"
 );

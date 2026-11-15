@@ -19,6 +19,8 @@
  *                         CnChartWidget's apexcharts props)
  *       - `stats-block` → StatsBlockHost  (maps `content` onto CnStatsBlockWidget's
  *                         separate props)
+ *       - `tile`        → TileHost        (a `create` office tile opens the new-file
+ *                         dialog; every other tile renders through CnDashTileWidget)
  *     `files` keeps the communal CnFilesWidget renderer — its launchpad backend
  *     `apiBase` is injected by WidgetRenderer.rendererProps, not the registry.
  *
@@ -100,6 +102,7 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import TileHost from '../components/Widgets/Renderers/TileHost.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
@@ -124,6 +127,9 @@ const RENDERER_OVERRIDES = {
 	container: ContainerWidget,
 	chart: ChartHost,
 	'stats-block': StatsBlockHost,
+	// integrations-office-tiles: a `create` tile opens the new-file dialog;
+	// every other tile still renders through CnDashTileWidget.
+	tile: TileHost,
 }
 
 /**

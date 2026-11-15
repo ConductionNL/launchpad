@@ -1353,6 +1353,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Discovered on this server",
     "Apps this server runs for you. One click places one as a tile." : "Apps this server runs for you. One click places one as a tile.",
+    "Office tiles" : "Office tiles",
+    "Ready-made tiles" : "Ready-made tiles",
+    "One container with a tile for each kind of new document and each office app on this server." : "One container with a tile for each kind of new document and each office app on this server.",
+    "This server has no office apps to make tiles for." : "This server has no office apps to make tiles for.",
+    "The office tiles could not be added." : "The office tiles could not be added.",
+    "File name" : "File name",
+    "The file could not be created." : "The file could not be created.",
     "On this dashboard" : "On this dashboard",
     "Statistics" : "Statistics",
     "Count my visits" : "Count my visits",
@@ -1377,7 +1384,11 @@ OC.L10N.register(
     "At most {max} conversations can be pinned." : "At most {max} conversations can be pinned.",
     "The pinned communities could not be saved." : "The pinned communities could not be saved.",
     "Open" : "Open",
-    "_%n member_::_%n members_" : ["%n member", "%n members"]
+    "_%n member_::_%n members_" : ["%n member", "%n members"],
+    "Active filters" : "Active filters",
+    "Pinned filter" : "Pinned filter",
+    "Remove filter: {label}" : "Remove filter: {label}",
+    "Reset filters" : "Reset filters"
 },
 "nplurals=2; plural=(n != 1);"
 );

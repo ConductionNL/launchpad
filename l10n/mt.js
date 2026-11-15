@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Instab fuq dan is-server",
     "Apps this server runs for you. One click places one as a tile." : "Apps li dan is-server iħaddem għalik. Klikk wieħed jagħmilhom madum.",
+    "Office tiles" : "Madum tal-uffiċċju",
+    "Ready-made tiles" : "Madum lest",
+    "One container with a tile for each kind of new document and each office app on this server." : "Kontenitur wieħed b'madum għal kull tip ta' dokument ġdid u għal kull app tal-uffiċċju fuq dan is-server.",
+    "This server has no office apps to make tiles for." : "Dan is-server m'għandu l-ebda app tal-uffiċċju biex isir madum għaliha.",
+    "The office tiles could not be added." : "Il-madum tal-uffiċċju ma setax jiżdied.",
+    "File name" : "Isem il-fajl",
+    "The file could not be created." : "Il-fajl ma setax jinħoloq.",
     "On this dashboard" : "Fuq dan id-dashboard",
     "Statistics" : "Statistika",
     "Count my visits" : "Għodd iż-żjarat tiegħi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Meta dan ikun mitfi, iż-żjarat tiegħek fid-dashboards u l-klikks fuq il-madum ma jingħaddux fin-numru ta' dehriet.",
-    "Your choice could not be saved." : "L-għażla tiegħek ma setgħetx tiġi ssejvjata."
+    "Your choice could not be saved." : "L-għażla tiegħek ma setgħetx tiġi ssejvjata.",
+    "Active filters" : "Filtri attivi",
+    "Pinned filter" : "Filtru mwaħħal",
+    "Remove filter: {label}" : "Neħħi l-filtru: {label}",
+    "Reset filters" : "Erġa' ssettja l-filtri"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

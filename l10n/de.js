@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Auf diesem Server gefunden",
     "Apps this server runs for you. One click places one as a tile." : "Apps, die dieser Server für Sie ausführt. Ein Klick macht daraus eine Kachel.",
+    "Office tiles" : "Office-Kacheln",
+    "Ready-made tiles" : "Fertige Kacheln",
+    "One container with a tile for each kind of new document and each office app on this server." : "Ein Container mit einer Kachel für jede Art von neuem Dokument und jede Office-App auf diesem Server.",
+    "This server has no office apps to make tiles for." : "Dieser Server hat keine Office-Apps, für die Kacheln erstellt werden können.",
+    "The office tiles could not be added." : "Die Office-Kacheln konnten nicht hinzugefügt werden.",
+    "File name" : "Dateiname",
+    "The file could not be created." : "Die Datei konnte nicht erstellt werden.",
     "On this dashboard" : "Auf diesem Dashboard",
     "Statistics" : "Statistik",
     "Count my visits" : "Meine Besuche zählen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Wenn das aus ist, werden deine Dashboard-Besuche und Klicks auf Kacheln nicht in den Aufrufzahlen mitgezählt.",
-    "Your choice could not be saved." : "Deine Auswahl konnte nicht gespeichert werden."
+    "Your choice could not be saved." : "Deine Auswahl konnte nicht gespeichert werden.",
+    "Active filters" : "Aktive Filter",
+    "Pinned filter" : "Angehefteter Filter",
+    "Remove filter: {label}" : "Filter entfernen: {label}",
+    "Reset filters" : "Filter zurücksetzen"
 },
 "nplurals=2; plural=(n != 1);"
 );

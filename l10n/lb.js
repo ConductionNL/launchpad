@@ -1364,11 +1364,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Op dësem Server fonnt",
     "Apps this server runs for you. One click places one as a tile." : "Apps, déi dësen Server fir Iech leeft. Ee Klick mécht eng Kachel draus.",
+    "Office tiles" : "Büro-Kacheln",
+    "Ready-made tiles" : "Fäerdeg Kacheln",
+    "One container with a tile for each kind of new document and each office app on this server." : "Ee Container mat enger Kachel fir all Zort neit Dokument an all Büro-App op dësem Server.",
+    "This server has no office apps to make tiles for." : "Dëse Server huet keng Büro-Appe fir déi Kachele gemaach kënne ginn.",
+    "The office tiles could not be added." : "D'Büro-Kachele konnten net derbäigesat ginn.",
+    "File name" : "Dateinumm",
+    "The file could not be created." : "D'Datei konnt net erstallt ginn.",
     "On this dashboard" : "Op dësem Dashboard",
     "Statistics" : "Statistiken",
     "Count my visits" : "Meng Visitten zielen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Wann dat aus ass, ginn deng Visitte vun Dashboarden an d'Klicken op Kachelen net an den Opruffzuelen matgezielt.",
-    "Your choice could not be saved." : "Deng Wiel konnt net gespäichert ginn."
+    "Your choice could not be saved." : "Deng Wiel konnt net gespäichert ginn.",
+    "Active filters" : "Aktiv Filteren",
+    "Pinned filter" : "Fixéierte Filter",
+    "Remove filter: {label}" : "Filter ewechhuelen: {label}",
+    "Reset filters" : "Filteren zrécksetzen"
 },
 "nplurals=2; plural=(n != 1);"
 );

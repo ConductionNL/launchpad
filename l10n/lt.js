@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Rasta šiame serveryje",
     "Apps this server runs for you. One click places one as a tile." : "Programos, kurias šis serveris paleidžia jums. Vienu spustelėjimu iš jų padaroma plytelė.",
+    "Office tiles" : "Biuro plytelės",
+    "Ready-made tiles" : "Paruoštos plytelės",
+    "One container with a tile for each kind of new document and each office app on this server." : "Vienas konteineris su plytele kiekvienai naujo dokumento rūšiai ir kiekvienai šio serverio biuro programai.",
+    "This server has no office apps to make tiles for." : "Šiame serveryje nėra biuro programų, kurioms būtų galima sukurti plyteles.",
+    "The office tiles could not be added." : "Nepavyko pridėti biuro plytelių.",
+    "File name" : "Failo pavadinimas",
+    "The file could not be created." : "Nepavyko sukurti failo.",
     "On this dashboard" : "Šiame skydelyje",
     "Statistics" : "Statistika",
     "Count my visits" : "Skaičiuoti mano apsilankymus",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kai tai išjungta, jūsų apsilankymai skydeliuose ir paspaudimai ant plytelių neįskaičiuojami į peržiūrų skaičių.",
-    "Your choice could not be saved." : "Nepavyko išsaugoti jūsų pasirinkimo."
+    "Your choice could not be saved." : "Nepavyko išsaugoti jūsų pasirinkimo.",
+    "Active filters" : "Aktyvūs filtrai",
+    "Pinned filter" : "Prisegtas filtras",
+    "Remove filter: {label}" : "Pašalinti filtrą: {label}",
+    "Reset filters" : "Atstatyti filtrus"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

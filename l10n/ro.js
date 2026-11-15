@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Găsite pe acest server",
     "Apps this server runs for you. One click places one as a tile." : "Aplicații pe care acest server le rulează pentru dvs. Un clic le transformă într-o dală.",
+    "Office tiles" : "Plăci de birou",
+    "Ready-made tiles" : "Plăci gata făcute",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un container cu o placă pentru fiecare tip de document nou și fiecare aplicație de birou de pe acest server.",
+    "This server has no office apps to make tiles for." : "Acest server nu are aplicații de birou pentru care să se creeze plăci.",
+    "The office tiles could not be added." : "Plăcile de birou nu au putut fi adăugate.",
+    "File name" : "Numele fișierului",
+    "The file could not be created." : "Fișierul nu a putut fi creat.",
     "On this dashboard" : "Pe acest panou",
     "Statistics" : "Statistici",
     "Count my visits" : "Numără vizitele mele",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Când aceasta este dezactivată, vizitele tale pe panouri și clicurile pe dale nu sunt incluse în numărul de vizualizări.",
-    "Your choice could not be saved." : "Alegerea ta nu a putut fi salvată."
+    "Your choice could not be saved." : "Alegerea ta nu a putut fi salvată.",
+    "Active filters" : "Filtre active",
+    "Pinned filter" : "Filtru fixat",
+    "Remove filter: {label}" : "Elimină filtrul: {label}",
+    "Reset filters" : "Resetează filtrele"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Найдено на этом сервере",
     "Apps this server runs for you. One click places one as a tile." : "Приложения, которые этот сервер запускает для вас. Один щелчок превращает их в плитку.",
+    "Office tiles" : "Офисные плитки",
+    "Ready-made tiles" : "Готовые плитки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Один контейнер с плиткой для каждого вида нового документа и каждого офисного приложения на этом сервере.",
+    "This server has no office apps to make tiles for." : "На этом сервере нет офисных приложений, для которых можно создать плитки.",
+    "The office tiles could not be added." : "Не удалось добавить офисные плитки.",
+    "File name" : "Имя файла",
+    "The file could not be created." : "Не удалось создать файл.",
     "On this dashboard" : "На этой панели",
     "Statistics" : "Статистика",
     "Count my visits" : "Учитывать мои посещения",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Когда это выключено, ваши посещения панелей и нажатия на плитки не учитываются в числе просмотров.",
-    "Your choice could not be saved." : "Не удалось сохранить ваш выбор."
+    "Your choice could not be saved." : "Не удалось сохранить ваш выбор.",
+    "Active filters" : "Активные фильтры",
+    "Pinned filter" : "Закреплённый фильтр",
+    "Remove filter: {label}" : "Удалить фильтр: {label}",
+    "Reset filters" : "Сбросить фильтры"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

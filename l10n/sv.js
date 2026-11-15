@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Hittat på den här servern",
     "Apps this server runs for you. One click places one as a tile." : "Appar som den här servern kör åt dig. Ett klick gör en till en ruta.",
+    "Office tiles" : "Kontorsrutor",
+    "Ready-made tiles" : "Färdiga rutor",
+    "One container with a tile for each kind of new document and each office app on this server." : "En behållare med en ruta för varje sorts nytt dokument och varje kontorsapp på den här servern.",
+    "This server has no office apps to make tiles for." : "Den här servern har inga kontorsappar att skapa rutor för.",
+    "The office tiles could not be added." : "Kontorsrutorna kunde inte läggas till.",
+    "File name" : "Filnamn",
+    "The file could not be created." : "Filen kunde inte skapas.",
     "On this dashboard" : "På den här instrumentpanelen",
     "Statistics" : "Statistik",
     "Count my visits" : "Räkna mina besök",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "När detta är avstängt räknas dina besök på instrumentpaneler och klick på rutor inte med i visningsantalet.",
-    "Your choice could not be saved." : "Ditt val kunde inte sparas."
+    "Your choice could not be saved." : "Ditt val kunde inte sparas.",
+    "Active filters" : "Aktiva filter",
+    "Pinned filter" : "Fäst filter",
+    "Remove filter: {label}" : "Ta bort filter: {label}",
+    "Reset filters" : "Återställ filter"
 },
 "nplurals=2; plural=(n != 1);"
 );

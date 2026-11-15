@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trobat en aquest servidor",
     "Apps this server runs for you. One click places one as a tile." : "Aplicacions que aquest servidor executa per a vostè. Un clic en fa una rajola.",
+    "Office tiles" : "Rajoles d'oficina",
+    "Ready-made tiles" : "Rajoles preparades",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un contenidor amb una rajola per a cada tipus de document nou i cada aplicació d'oficina d'aquest servidor.",
+    "This server has no office apps to make tiles for." : "Aquest servidor no té aplicacions d'oficina per a les quals crear rajoles.",
+    "The office tiles could not be added." : "No s'han pogut afegir les rajoles d'oficina.",
+    "File name" : "Nom del fitxer",
+    "The file could not be created." : "No s'ha pogut crear el fitxer.",
     "On this dashboard" : "En aquest tauler",
     "Statistics" : "Estadístiques",
     "Count my visits" : "Compta les meves visites",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quan això està desactivat, les teves visites als taulers i els clics a les rajoles no es tenen en compte en el recompte de visualitzacions.",
-    "Your choice could not be saved." : "No s'ha pogut desar la teva tria."
+    "Your choice could not be saved." : "No s'ha pogut desar la teva tria.",
+    "Active filters" : "Filtres actius",
+    "Pinned filter" : "Filtre fixat",
+    "Remove filter: {label}" : "Elimina el filtre: {label}",
+    "Reset filters" : "Restableix els filtres"
 },
 "nplurals=2; plural=(n != 1);"
 );

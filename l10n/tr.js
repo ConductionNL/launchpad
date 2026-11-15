@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Bu sunucuda bulundu",
     "Apps this server runs for you. One click places one as a tile." : "Bu sunucunun sizin için çalıştırdığı uygulamalar. Tek tıklama onları bir kutucuğa dönüştürür.",
+    "Office tiles" : "Ofis kutucukları",
+    "Ready-made tiles" : "Hazır kutucuklar",
+    "One container with a tile for each kind of new document and each office app on this server." : "Bu sunucudaki her yeni belge türü ve her ofis uygulaması için birer kutucuk içeren tek bir kapsayıcı.",
+    "This server has no office apps to make tiles for." : "Bu sunucuda kutucuk oluşturulacak ofis uygulaması yok.",
+    "The office tiles could not be added." : "Ofis kutucukları eklenemedi.",
+    "File name" : "Dosya adı",
+    "The file could not be created." : "Dosya oluşturulamadı.",
     "On this dashboard" : "Bu panoda",
     "Statistics" : "İstatistikler",
     "Count my visits" : "Ziyaretlerimi say",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Bu kapalıyken pano ziyaretleriniz ve kutucuklara tıklamalarınız görüntülenme sayılarına dahil edilmez.",
-    "Your choice could not be saved." : "Seçiminiz kaydedilemedi."
+    "Your choice could not be saved." : "Seçiminiz kaydedilemedi.",
+    "Active filters" : "Etkin filtreler",
+    "Pinned filter" : "Sabitlenmiş filtre",
+    "Remove filter: {label}" : "Filtreyi kaldır: {label}",
+    "Reset filters" : "Filtreleri sıfırla"
 },
 "nplurals=2; plural=(n != 1);"
 );

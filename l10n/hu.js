@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Ezen a szerveren található",
     "Apps this server runs for you. One click places one as a tile." : "Alkalmazások, amelyeket ez a szerver futtat Önnek. Egy kattintással csempe lesz belőlük.",
+    "Office tiles" : "Irodai csempék",
+    "Ready-made tiles" : "Kész csempék",
+    "One container with a tile for each kind of new document and each office app on this server." : "Egy tároló, benne egy csempével minden új dokumentumtípushoz és minden irodai alkalmazáshoz ezen a kiszolgálón.",
+    "This server has no office apps to make tiles for." : "Ezen a kiszolgálón nincs olyan irodai alkalmazás, amelyhez csempét lehetne készíteni.",
+    "The office tiles could not be added." : "Az irodai csempéket nem sikerült hozzáadni.",
+    "File name" : "Fájlnév",
+    "The file could not be created." : "A fájlt nem sikerült létrehozni.",
     "On this dashboard" : "Ezen az irányítópulton",
     "Statistics" : "Statisztika",
     "Count my visits" : "Látogatásaim számolása",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
-    "Your choice could not be saved." : "A választásodat nem sikerült menteni."
+    "Your choice could not be saved." : "A választásodat nem sikerült menteni.",
+    "Active filters" : "Aktív szűrők",
+    "Pinned filter" : "Rögzített szűrő",
+    "Remove filter: {label}" : "Szűrő eltávolítása: {label}",
+    "Reset filters" : "Szűrők visszaállítása"
 },
 "nplurals=2; plural=(n != 1);"
 );

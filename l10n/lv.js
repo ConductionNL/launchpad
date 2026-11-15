@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Atrasts šajā serverī",
     "Apps this server runs for you. One click places one as a tile." : "Lietotnes, ko šis serveris darbina jums. Viens klikšķis padara to par flīzi.",
+    "Office tiles" : "Biroja flīzes",
+    "Ready-made tiles" : "Gatavas flīzes",
+    "One container with a tile for each kind of new document and each office app on this server." : "Viens konteiners ar flīzi katram jauna dokumenta veidam un katrai šī servera biroja lietotnei.",
+    "This server has no office apps to make tiles for." : "Šajā serverī nav biroja lietotņu, kurām izveidot flīzes.",
+    "The office tiles could not be added." : "Biroja flīzes neizdevās pievienot.",
+    "File name" : "Faila nosaukums",
+    "The file could not be created." : "Failu neizdevās izveidot.",
     "On this dashboard" : "Šajā informācijas panelī",
     "Statistics" : "Statistika",
     "Count my visits" : "Skaitīt manus apmeklējumus",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kad tas ir izslēgts, jūsu informācijas paneļu apmeklējumi un klikšķi uz flīzēm netiek ieskaitīti skatījumu skaitā.",
-    "Your choice could not be saved." : "Jūsu izvēli neizdevās saglabāt."
+    "Your choice could not be saved." : "Jūsu izvēli neizdevās saglabāt.",
+    "Active filters" : "Aktīvie filtri",
+    "Pinned filter" : "Piesprausts filtrs",
+    "Remove filter: {label}" : "Noņemt filtru: {label}",
+    "Reset filters" : "Atiestatīt filtrus"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

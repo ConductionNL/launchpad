@@ -1364,11 +1364,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Пронајдено на овој сервер",
     "Apps this server runs for you. One click places one as a tile." : "Апликации што овој сервер ги извршува за вас. Еден клик ги прави плочка.",
+    "Office tiles" : "Канцелариски плочки",
+    "Ready-made tiles" : "Готови плочки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Еден контејнер со плочка за секој вид нов документ и секоја канцелариска апликација на овој сервер.",
+    "This server has no office apps to make tiles for." : "Овој сервер нема канцелариски апликации за кои би се направиле плочки.",
+    "The office tiles could not be added." : "Канцелариските плочки не можеа да се додадат.",
+    "File name" : "Име на датотека",
+    "The file could not be created." : "Датотеката не можеше да се создаде.",
     "On this dashboard" : "На оваа контролна табла",
     "Statistics" : "Статистика",
     "Count my visits" : "Број ги моите посети",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Кога ова е исклучено, вашите посети на контролните табли и кликовите на плочките не се бројат во прегледите.",
-    "Your choice could not be saved." : "Вашиот избор не може да се зачува."
+    "Your choice could not be saved." : "Вашиот избор не може да се зачува.",
+    "Active filters" : "Активни филтри",
+    "Pinned filter" : "Закачен филтер",
+    "Remove filter: {label}" : "Отстрани филтер: {label}",
+    "Reset filters" : "Ресетирај ги филтрите"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

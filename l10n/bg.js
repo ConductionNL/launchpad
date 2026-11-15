@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Открити на този сървър",
     "Apps this server runs for you. One click places one as a tile." : "Приложения, които този сървър изпълнява за вас. Едно щракване ги превръща в плочка.",
+    "Office tiles" : "Офис плочки",
+    "Ready-made tiles" : "Готови плочки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Един контейнер с плочка за всеки вид нов документ и всяко офис приложение на този сървър.",
+    "This server has no office apps to make tiles for." : "Този сървър няма офис приложения, за които да се създадат плочки.",
+    "The office tiles could not be added." : "Офис плочките не можаха да бъдат добавени.",
+    "File name" : "Име на файла",
+    "The file could not be created." : "Файлът не можа да бъде създаден.",
     "On this dashboard" : "На това табло",
     "Statistics" : "Статистика",
     "Count my visits" : "Отчитай посещенията ми",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Когато това е изключено, посещенията ви на таблата и щракванията върху плочки не се включват в броя на прегледите.",
-    "Your choice could not be saved." : "Изборът ви не можа да бъде запазен."
+    "Your choice could not be saved." : "Изборът ви не можа да бъде запазен.",
+    "Active filters" : "Активни филтри",
+    "Pinned filter" : "Закачен филтър",
+    "Remove filter: {label}" : "Премахване на филтър: {label}",
+    "Reset filters" : "Нулиране на филтрите"
 },
 "nplurals=2; plural=(n != 1);"
 );

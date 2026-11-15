@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Funnet på denne serveren",
     "Apps this server runs for you. One click places one as a tile." : "Apper denne serveren kjører for deg. Ett klikk gjør en til en flis.",
+    "Office tiles" : "Kontorfliser",
+    "Ready-made tiles" : "Ferdige fliser",
+    "One container with a tile for each kind of new document and each office app on this server." : "Én beholder med en flis for hver type nytt dokument og hver kontorapp på denne serveren.",
+    "This server has no office apps to make tiles for." : "Denne serveren har ingen kontorapper å lage fliser for.",
+    "The office tiles could not be added." : "Kontorflisene kunne ikke legges til.",
+    "File name" : "Filnavn",
+    "The file could not be created." : "Filen kunne ikke opprettes.",
     "On this dashboard" : "På dette dashbordet",
     "Statistics" : "Statistikk",
     "Count my visits" : "Tell besøkene mine",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Når dette er slått av, telles ikke besøkene dine på dashbord og klikk på fliser med i visningstallene.",
-    "Your choice could not be saved." : "Valget ditt kunne ikke lagres."
+    "Your choice could not be saved." : "Valget ditt kunne ikke lagres.",
+    "Active filters" : "Aktive filtre",
+    "Pinned filter" : "Festet filter",
+    "Remove filter: {label}" : "Fjern filter: {label}",
+    "Reset filters" : "Tilbakestill filtre"
 },
 "nplurals=2; plural=(n != 1);"
 );

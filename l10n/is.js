@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Fundið á þessum þjóni",
     "Apps this server runs for you. One click places one as a tile." : "Forrit sem þessi þjónn keyrir fyrir þig. Einn smellur gerir reit úr því.",
+    "Office tiles" : "Skrifstofuflísar",
+    "Ready-made tiles" : "Tilbúnar flísar",
+    "One container with a tile for each kind of new document and each office app on this server." : "Eitt hólf með flís fyrir hverja tegund nýs skjals og hvert skrifstofuforrit á þessum þjóni.",
+    "This server has no office apps to make tiles for." : "Þessi þjónn hefur engin skrifstofuforrit til að búa til flísar fyrir.",
+    "The office tiles could not be added." : "Ekki tókst að bæta skrifstofuflísunum við.",
+    "File name" : "Skráarheiti",
+    "The file could not be created." : "Ekki tókst að búa til skrána.",
     "On this dashboard" : "Á þessu stjórnborði",
     "Statistics" : "Tölfræði",
     "Count my visits" : "Telja heimsóknir mínar",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
-    "Your choice could not be saved." : "Ekki tókst að vista valið þitt."
+    "Your choice could not be saved." : "Ekki tókst að vista valið þitt.",
+    "Active filters" : "Virkar síur",
+    "Pinned filter" : "Fest sía",
+    "Remove filter: {label}" : "Fjarlægja síu: {label}",
+    "Reset filters" : "Hreinsa síur"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

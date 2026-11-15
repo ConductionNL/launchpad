@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Βρέθηκαν σε αυτόν τον διακομιστή",
     "Apps this server runs for you. One click places one as a tile." : "Εφαρμογές που εκτελεί αυτός ο διακομιστής για εσάς. Ένα κλικ τις κάνει πλακίδιο.",
+    "Office tiles" : "Πλακίδια γραφείου",
+    "Ready-made tiles" : "Έτοιμα πλακίδια",
+    "One container with a tile for each kind of new document and each office app on this server." : "Ένα κοντέινερ με ένα πλακίδιο για κάθε είδος νέου εγγράφου και κάθε εφαρμογή γραφείου σε αυτόν τον διακομιστή.",
+    "This server has no office apps to make tiles for." : "Αυτός ο διακομιστής δεν έχει εφαρμογές γραφείου για τις οποίες να δημιουργηθούν πλακίδια.",
+    "The office tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων γραφείου.",
+    "File name" : "Όνομα αρχείου",
+    "The file could not be created." : "Δεν ήταν δυνατή η δημιουργία του αρχείου.",
     "On this dashboard" : "Σε αυτόν τον πίνακα",
     "Statistics" : "Στατιστικά",
     "Count my visits" : "Καταμέτρηση των επισκέψεών μου",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
-    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
+    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας.",
+    "Active filters" : "Ενεργά φίλτρα",
+    "Pinned filter" : "Καρφιτσωμένο φίλτρο",
+    "Remove filter: {label}" : "Αφαίρεση φίλτρου: {label}",
+    "Reset filters" : "Επαναφορά φίλτρων"
 },
 "nplurals=2; plural=(n != 1);"
 );

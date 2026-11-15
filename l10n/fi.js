@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Löytyi tältä palvelimelta",
     "Apps this server runs for you. One click places one as a tile." : "Sovellukset, joita tämä palvelin ajaa sinulle. Yksi napsautus tekee niistä ruudun.",
+    "Office tiles" : "Toimistoruudut",
+    "Ready-made tiles" : "Valmiit ruudut",
+    "One container with a tile for each kind of new document and each office app on this server." : "Yksi säiliö, jossa on ruutu jokaiselle uuden asiakirjan tyypille ja jokaiselle tämän palvelimen toimistosovellukselle.",
+    "This server has no office apps to make tiles for." : "Tällä palvelimella ei ole toimistosovelluksia, joille ruutuja voisi tehdä.",
+    "The office tiles could not be added." : "Toimistoruutuja ei voitu lisätä.",
+    "File name" : "Tiedostonimi",
+    "The file could not be created." : "Tiedostoa ei voitu luoda.",
     "On this dashboard" : "Tällä kojelaudalla",
     "Statistics" : "Tilastot",
     "Count my visits" : "Laske käyntini",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
-    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa."
+    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa.",
+    "Active filters" : "Aktiiviset suodattimet",
+    "Pinned filter" : "Kiinnitetty suodatin",
+    "Remove filter: {label}" : "Poista suodatin: {label}",
+    "Reset filters" : "Tyhjennä suodattimet"
 },
 "nplurals=2; plural=(n != 1);"
 );

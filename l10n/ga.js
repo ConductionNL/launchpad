@@ -1373,11 +1373,22 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Aimsithe ar an bhfreastalaí seo",
     "Apps this server runs for you. One click places one as a tile." : "Aipeanna a ritheann an freastalaí seo duit. Cuireann cliceáil amháin ina tíl iad.",
+    "Office tiles" : "Tíleanna oifige",
+    "Ready-made tiles" : "Tíleanna réamhdhéanta",
+    "One container with a tile for each kind of new document and each office app on this server." : "Coimeádán amháin le tíl do gach cineál doiciméid nua agus do gach aip oifige ar an bhfreastalaí seo.",
+    "This server has no office apps to make tiles for." : "Níl aon aipeanna oifige ar an bhfreastalaí seo le tíleanna a dhéanamh dóibh.",
+    "The office tiles could not be added." : "Níorbh fhéidir na tíleanna oifige a chur leis.",
+    "File name" : "Ainm an chomhaid",
+    "The file could not be created." : "Níorbh fhéidir an comhad a chruthú.",
     "On this dashboard" : "Ar an deais seo",
     "Statistics" : "Staitisticí",
     "Count my visits" : "Comhair mo chuairteanna",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
-    "Your choice could not be saved." : "Níorbh fhéidir do rogha a shábháil."
+    "Your choice could not be saved." : "Níorbh fhéidir do rogha a shábháil.",
+    "Active filters" : "Scagairí gníomhacha",
+    "Pinned filter" : "Scagaire greamaithe",
+    "Remove filter: {label}" : "Bain an scagaire: {label}",
+    "Reset filters" : "Athshocraigh na scagairí"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

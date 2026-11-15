@@ -1364,10 +1364,21 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Знойдзена на гэтым серверы",
     "Apps this server runs for you. One click places one as a tile." : "Праграмы, якія гэты сервер запускае для вас. Адзін клік робіць з іх плітку.",
+    "Office tiles" : "Афісныя пліткі",
+    "Ready-made tiles" : "Гатовыя пліткі",
+    "One container with a tile for each kind of new document and each office app on this server." : "Адзін кантэйнер з пліткай для кожнага віду новага дакумента і кожнай афіснай праграмы на гэтым серверы.",
+    "This server has no office apps to make tiles for." : "На гэтым серверы няма афісных праграм, для якіх можна стварыць пліткі.",
+    "The office tiles could not be added." : "Не ўдалося дадаць афісныя пліткі.",
+    "File name" : "Імя файла",
+    "The file could not be created." : "Не ўдалося стварыць файл.",
     "On this dashboard" : "На гэтай панэлі",
     "Statistics" : "Статыстыка",
     "Count my visits" : "Улічваць мае наведванні",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
-    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар."
+    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар.",
+    "Active filters" : "Актыўныя фільтры",
+    "Pinned filter" : "Замацаваны фільтр",
+    "Remove filter: {label}" : "Выдаліць фільтр: {label}",
+    "Reset filters" : "Скінуць фільтры"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

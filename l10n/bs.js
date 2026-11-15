@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Postavite zadani nivo dozvole koji se primjenjuje na nova dijeljenja i grupe s kojima se svaka kontrolna tabla automatski dijeli.",
     "Default share permission level" : "Zadani nivo dozvole dijeljenja",
     "Forced share groups" : "Prisilne grupe dijeljenja",
+    "Groups that may share" : "Grupe koje smiju dijeliti",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Samo članovi ovih grupa mogu dijeliti svoje kontrolne table. Ostavite prazno da svi mogu dijeliti.",
+    "Who can receive a share" : "Ko može primiti dijeljenje",
+    "Only people who share a group with the sharer" : "Samo osobe koje dijele grupu s onim ko dijeli",
     "Select groups (leave empty for none)" : "Odaberite grupe (ostavite prazno za nijednu)",
     "Members of these groups always receive every newly created dashboard." : "Članovi ovih grupa uvijek primaju svaku novostvorenu kontrolnu tablu.",
     "Prometheus metrics" : "Prometheus metrika",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Pronađeno na ovom serveru",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacije koje ovaj server pokreće za vas. Jednim klikom postaju pločica.",
+    "Office tiles" : "Kancelarijske pločice",
+    "Ready-made tiles" : "Gotove pločice",
+    "One container with a tile for each kind of new document and each office app on this server." : "Jedan kontejner s pločicom za svaku vrstu novog dokumenta i svaku kancelarijsku aplikaciju na ovom serveru.",
+    "This server has no office apps to make tiles for." : "Ovaj server nema kancelarijskih aplikacija za koje bi se mogle napraviti pločice.",
+    "The office tiles could not be added." : "Kancelarijske pločice nije bilo moguće dodati.",
+    "File name" : "Naziv datoteke",
+    "The file could not be created." : "Datoteku nije bilo moguće kreirati.",
     "On this dashboard" : "Na ovoj kontrolnoj ploči",
     "Statistics" : "Statistika",
     "Count my visits" : "Broji moje posjete",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Pošalji zahtjev",
     "Your request was sent to IT" : "Vaš zahtjev je poslan IT-u",
     "You have 10 open requests. Wait for an answer first." : "Imate 10 otvorenih zahtjeva. Najprije sačekajte odgovor.",
-    "Your request could not be sent. Try again later." : "Vaš zahtjev nije moguće poslati. Pokušajte ponovo kasnije."
+    "Your request could not be sent. Try again later." : "Vaš zahtjev nije moguće poslati. Pokušajte ponovo kasnije.",
+    "Active filters" : "Aktivni filteri",
+    "Pinned filter" : "Zakačeni filter",
+    "Remove filter: {label}" : "Ukloni filter: {label}",
+    "Reset filters" : "Poništi filtere"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

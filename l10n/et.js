@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Määrake uutele jagamistele rakendatav vaikimisi õiguste tase ja grupid, kellega iga töölaud automaatselt jagatakse.",
     "Default share permission level" : "Vaikimisi jagamise õiguste tase",
     "Forced share groups" : "Sunnitud jagamise grupid",
+    "Groups that may share" : "Rühmad, kes tohivad jagada",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Oma töölaudu saavad jagada ainult nende rühmade liikmed. Jäta tühjaks, et kõik saaksid jagada.",
+    "Who can receive a share" : "Kes saab jagamise vastu võtta",
+    "Only people who share a group with the sharer" : "Ainult inimesed, kellel on jagajaga ühine rühm",
     "Select groups (leave empty for none)" : "Vali grupid (jäta tühjaks ühegi jaoks)",
     "Members of these groups always receive every newly created dashboard." : "Nende gruppide liikmed saavad alati iga äsja loodud töölaua.",
     "Prometheus metrics" : "Prometheuse mõõdikud",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Leitud sellest serverist",
     "Apps this server runs for you. One click places one as a tile." : "Rakendused, mida see server sinu jaoks käitab. Üks klõps teeb neist paani.",
+    "Office tiles" : "Kontoripaanid",
+    "Ready-made tiles" : "Valmis paanid",
+    "One container with a tile for each kind of new document and each office app on this server." : "Üks konteiner, milles on paan iga uue dokumendi liigi ja selle serveri iga kontorirakenduse jaoks.",
+    "This server has no office apps to make tiles for." : "Selles serveris pole kontorirakendusi, millele paane teha.",
+    "The office tiles could not be added." : "Kontoripaane ei õnnestunud lisada.",
+    "File name" : "Faili nimi",
+    "The file could not be created." : "Faili ei õnnestunud luua.",
     "On this dashboard" : "Sellel töölaual",
     "Statistics" : "Statistika",
     "Count my visits" : "Loe minu külastusi",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Saada taotlus",
     "Your request was sent to IT" : "Teie taotlus saadeti IT-osakonnale",
     "You have 10 open requests. Wait for an answer first." : "Teil on 10 avatud taotlust. Oodake esmalt vastust.",
-    "Your request could not be sent. Try again later." : "Teie taotlust ei õnnestunud saata. Proovige hiljem uuesti."
+    "Your request could not be sent. Try again later." : "Teie taotlust ei õnnestunud saata. Proovige hiljem uuesti.",
+    "Active filters" : "Aktiivsed filtrid",
+    "Pinned filter" : "Kinnitatud filter",
+    "Remove filter: {label}" : "Eemalda filter: {label}",
+    "Reset filters" : "Lähtesta filtrid"
 },
 "nplurals=2; plural=(n != 1);"
 );

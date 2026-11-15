@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Establiu el nivell de permís predeterminat que s'aplica als nous elements compartits i els grups amb què es comparteix automàticament cada tauler.",
     "Default share permission level" : "Nivell de permís de compartició predeterminat",
     "Forced share groups" : "Grups de compartició forçada",
+    "Groups that may share" : "Grups que poden compartir",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Només els membres d'aquests grups poden compartir els seus taulers. Deixeu-ho buit perquè tothom pugui compartir.",
+    "Who can receive a share" : "Qui pot rebre una compartició",
+    "Only people who share a group with the sharer" : "Només les persones que comparteixen un grup amb qui comparteix",
     "Select groups (leave empty for none)" : "Selecciona grups (deixeu-ho buit per a cap)",
     "Members of these groups always receive every newly created dashboard." : "Els membres d'aquests grups sempre reben cada tauler de nova creació.",
     "Prometheus metrics" : "Mètriques de Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trobat en aquest servidor",
     "Apps this server runs for you. One click places one as a tile." : "Aplicacions que aquest servidor executa per a vostè. Un clic en fa una rajola.",
+    "Office tiles" : "Rajoles d'oficina",
+    "Ready-made tiles" : "Rajoles preparades",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un contenidor amb una rajola per a cada tipus de document nou i cada aplicació d'oficina d'aquest servidor.",
+    "This server has no office apps to make tiles for." : "Aquest servidor no té aplicacions d'oficina per a les quals crear rajoles.",
+    "The office tiles could not be added." : "No s'han pogut afegir les rajoles d'oficina.",
+    "File name" : "Nom del fitxer",
+    "The file could not be created." : "No s'ha pogut crear el fitxer.",
     "On this dashboard" : "En aquest tauler",
     "Statistics" : "Estadístiques",
     "Count my visits" : "Compta les meves visites",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Envia la sol·licitud",
     "Your request was sent to IT" : "S'ha enviat la vostra sol·licitud al servei d'informàtica",
     "You have 10 open requests. Wait for an answer first." : "Teniu 10 sol·licituds obertes. Espereu primer una resposta.",
-    "Your request could not be sent. Try again later." : "No s'ha pogut enviar la vostra sol·licitud. Torneu-ho a provar més tard."
+    "Your request could not be sent. Try again later." : "No s'ha pogut enviar la vostra sol·licitud. Torneu-ho a provar més tard.",
+    "Active filters" : "Filtres actius",
+    "Pinned filter" : "Filtre fixat",
+    "Remove filter: {label}" : "Elimina el filtre: {label}",
+    "Reset filters" : "Restableix els filtres"
 },
 "nplurals=2; plural=(n != 1);"
 );

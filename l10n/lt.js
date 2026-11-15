@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Nustatykite numatytąjį leidimų lygį, taikomą naujiems bendrinimams, ir grupes, su kuriomis automatiškai bendrinamas kiekvienas valdymo skydas.",
     "Default share permission level" : "Numatytasis bendrinimo leidimų lygis",
     "Forced share groups" : "Priverstinio bendrinimo grupės",
+    "Groups that may share" : "Grupės, kurioms leidžiama bendrinti",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Savo valdymo skydus gali bendrinti tik šių grupių nariai. Palikite tuščią, kad bendrinti galėtų visi.",
+    "Who can receive a share" : "Kas gali gauti bendrinimą",
+    "Only people who share a group with the sharer" : "Tik žmonės, turintys bendrą grupę su bendrinančiuoju",
     "Select groups (leave empty for none)" : "Pasirinkite grupes (palikite tuščią nė vienai)",
     "Members of these groups always receive every newly created dashboard." : "Šių grupių nariai visada gauna kiekvieną naujai sukurtą valdymo skydą.",
     "Prometheus metrics" : "Prometheus metrikos",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Rasta šiame serveryje",
     "Apps this server runs for you. One click places one as a tile." : "Programos, kurias šis serveris paleidžia jums. Vienu spustelėjimu iš jų padaroma plytelė.",
+    "Office tiles" : "Biuro plytelės",
+    "Ready-made tiles" : "Paruoštos plytelės",
+    "One container with a tile for each kind of new document and each office app on this server." : "Vienas konteineris su plytele kiekvienai naujo dokumento rūšiai ir kiekvienai šio serverio biuro programai.",
+    "This server has no office apps to make tiles for." : "Šiame serveryje nėra biuro programų, kurioms būtų galima sukurti plyteles.",
+    "The office tiles could not be added." : "Nepavyko pridėti biuro plytelių.",
+    "File name" : "Failo pavadinimas",
+    "The file could not be created." : "Nepavyko sukurti failo.",
     "On this dashboard" : "Šiame skydelyje",
     "Statistics" : "Statistika",
     "Count my visits" : "Skaičiuoti mano apsilankymus",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Siųsti užklausą",
     "Your request was sent to IT" : "Jūsų užklausa išsiųsta IT skyriui",
     "You have 10 open requests. Wait for an answer first." : "Turite 10 atvirų užklausų. Pirmiausia palaukite atsakymo.",
-    "Your request could not be sent. Try again later." : "Nepavyko išsiųsti jūsų užklausos. Bandykite vėliau dar kartą."
+    "Your request could not be sent. Try again later." : "Nepavyko išsiųsti jūsų užklausos. Bandykite vėliau dar kartą.",
+    "Active filters" : "Aktyvūs filtrai",
+    "Pinned filter" : "Prisegtas filtras",
+    "Remove filter: {label}" : "Pašalinti filtrą: {label}",
+    "Reset filters" : "Atstatyti filtrus"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

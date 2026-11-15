@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Setjið sjálfgefna heimildastigið sem beitt er á nýjar deilingar og hópana sem sérhvert stjórnborð er sjálfvirkt deilt með.",
     "Default share permission level" : "Sjálfgefið heimildastig deilingar",
     "Forced share groups" : "Þvingaðir deilingarhópar",
+    "Groups that may share" : "Hópar sem mega deila",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Aðeins meðlimir þessara hópa geta deilt stjórnborðum sínum. Skildu eftir autt til að leyfa öllum að deila.",
+    "Who can receive a share" : "Hver getur tekið við deilingu",
+    "Only people who share a group with the sharer" : "Aðeins fólk sem á sameiginlegan hóp með þeim sem deilir",
     "Select groups (leave empty for none)" : "Velja hópa (skiljið eftir autt fyrir engan)",
     "Members of these groups always receive every newly created dashboard." : "Meðlimir þessara hópa fá alltaf sérhvert nýstofnað stjórnborð.",
     "Prometheus metrics" : "Prometheus-mælikvarðar",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Fundið á þessum þjóni",
     "Apps this server runs for you. One click places one as a tile." : "Forrit sem þessi þjónn keyrir fyrir þig. Einn smellur gerir reit úr því.",
+    "Office tiles" : "Skrifstofuflísar",
+    "Ready-made tiles" : "Tilbúnar flísar",
+    "One container with a tile for each kind of new document and each office app on this server." : "Eitt hólf með flís fyrir hverja tegund nýs skjals og hvert skrifstofuforrit á þessum þjóni.",
+    "This server has no office apps to make tiles for." : "Þessi þjónn hefur engin skrifstofuforrit til að búa til flísar fyrir.",
+    "The office tiles could not be added." : "Ekki tókst að bæta skrifstofuflísunum við.",
+    "File name" : "Skráarheiti",
+    "The file could not be created." : "Ekki tókst að búa til skrána.",
     "On this dashboard" : "Á þessu stjórnborði",
     "Statistics" : "Tölfræði",
     "Count my visits" : "Telja heimsóknir mínar",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Senda beiðni",
     "Your request was sent to IT" : "Beiðnin þín var send til tölvudeildar",
     "You have 10 open requests. Wait for an answer first." : "Þú ert með 10 opnar beiðnir. Bíddu fyrst eftir svari.",
-    "Your request could not be sent. Try again later." : "Ekki tókst að senda beiðnina þína. Reyndu aftur síðar."
+    "Your request could not be sent. Try again later." : "Ekki tókst að senda beiðnina þína. Reyndu aftur síðar.",
+    "Active filters" : "Virkar síur",
+    "Pinned filter" : "Fest sía",
+    "Remove filter: {label}" : "Fjarlægja síu: {label}",
+    "Reset filters" : "Hreinsa síur"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

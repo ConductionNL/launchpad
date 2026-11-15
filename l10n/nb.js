@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Angi standard tillatelsesnivå som brukes på nye delinger og gruppene hvert kontrollpanel automatisk deles med.",
     "Default share permission level" : "Standard delingstillatelsesnivå",
     "Forced share groups" : "Tvungne delingsgrupper",
+    "Groups that may share" : "Grupper som kan dele",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Bare medlemmer av disse gruppene kan dele kontrollpanelene sine. La feltet stå tomt for å la alle dele.",
+    "Who can receive a share" : "Hvem kan motta en deling",
+    "Only people who share a group with the sharer" : "Bare personer som har en gruppe felles med den som deler",
     "Select groups (leave empty for none)" : "Velg grupper (la stå tom for ingen)",
     "Members of these groups always receive every newly created dashboard." : "Medlemmer av disse gruppene mottar alltid hvert nyopprettet kontrollpanel.",
     "Prometheus metrics" : "Prometheus-målinger",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Funnet på denne serveren",
     "Apps this server runs for you. One click places one as a tile." : "Apper denne serveren kjører for deg. Ett klikk gjør en til en flis.",
+    "Office tiles" : "Kontorfliser",
+    "Ready-made tiles" : "Ferdige fliser",
+    "One container with a tile for each kind of new document and each office app on this server." : "Én beholder med en flis for hver type nytt dokument og hver kontorapp på denne serveren.",
+    "This server has no office apps to make tiles for." : "Denne serveren har ingen kontorapper å lage fliser for.",
+    "The office tiles could not be added." : "Kontorflisene kunne ikke legges til.",
+    "File name" : "Filnavn",
+    "The file could not be created." : "Filen kunne ikke opprettes.",
     "On this dashboard" : "På dette dashbordet",
     "Statistics" : "Statistikk",
     "Count my visits" : "Tell besøkene mine",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Send forespørsel",
     "Your request was sent to IT" : "Forespørselen din er sendt til IT",
     "You have 10 open requests. Wait for an answer first." : "Du har 10 åpne forespørsler. Vent på svar først.",
-    "Your request could not be sent. Try again later." : "Forespørselen din kunne ikke sendes. Prøv igjen senere."
+    "Your request could not be sent. Try again later." : "Forespørselen din kunne ikke sendes. Prøv igjen senere.",
+    "Active filters" : "Aktive filtre",
+    "Pinned filter" : "Festet filter",
+    "Remove filter: {label}" : "Fjern filter: {label}",
+    "Reset filters" : "Tilbakestill filtre"
 },
 "nplurals=2; plural=(n != 1);"
 );

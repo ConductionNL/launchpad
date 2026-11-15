@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Állítsa be az új megosztásokra alkalmazott alapértelmezett jogosultsági szintet és azokat a csoportokat, amelyekkel minden irányítópult automatikusan megosztásra kerül.",
     "Default share permission level" : "Alapértelmezett megosztási jogosultsági szint",
     "Forced share groups" : "Kényszerített megosztási csoportok",
+    "Groups that may share" : "Megosztásra jogosult csoportok",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Csak e csoportok tagjai oszthatják meg irányítópultjaikat. Hagyja üresen, hogy mindenki megoszthasson.",
+    "Who can receive a share" : "Ki kaphat megosztást",
+    "Only people who share a group with the sharer" : "Csak azok, akiknek van közös csoportjuk a megosztóval",
     "Select groups (leave empty for none)" : "Csoportok kiválasztása (hagyja üresen, ha egyik sem)",
     "Members of these groups always receive every newly created dashboard." : "E csoportok tagjai mindig megkapnak minden újonnan létrehozott irányítópultot.",
     "Prometheus metrics" : "Prometheus metrikák",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Ezen a szerveren található",
     "Apps this server runs for you. One click places one as a tile." : "Alkalmazások, amelyeket ez a szerver futtat Önnek. Egy kattintással csempe lesz belőlük.",
+    "Office tiles" : "Irodai csempék",
+    "Ready-made tiles" : "Kész csempék",
+    "One container with a tile for each kind of new document and each office app on this server." : "Egy tároló, benne egy csempével minden új dokumentumtípushoz és minden irodai alkalmazáshoz ezen a kiszolgálón.",
+    "This server has no office apps to make tiles for." : "Ezen a kiszolgálón nincs olyan irodai alkalmazás, amelyhez csempét lehetne készíteni.",
+    "The office tiles could not be added." : "Az irodai csempéket nem sikerült hozzáadni.",
+    "File name" : "Fájlnév",
+    "The file could not be created." : "A fájlt nem sikerült létrehozni.",
     "On this dashboard" : "Ezen az irányítópulton",
     "Statistics" : "Statisztika",
     "Count my visits" : "Látogatásaim számolása",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Kérelem küldése",
     "Your request was sent to IT" : "Kérelmét elküldtük az IT-nak",
     "You have 10 open requests. Wait for an answer first." : "10 nyitott kérelme van. Először várja meg a választ.",
-    "Your request could not be sent. Try again later." : "A kérelmét nem sikerült elküldeni. Próbálja újra később."
+    "Your request could not be sent. Try again later." : "A kérelmét nem sikerült elküldeni. Próbálja újra később.",
+    "Active filters" : "Aktív szűrők",
+    "Pinned filter" : "Rögzített szűrő",
+    "Remove filter: {label}" : "Szűrő eltávolítása: {label}",
+    "Reset filters" : "Szűrők visszaállítása"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Définissez le niveau d'autorisation par défaut appliqué aux nouveaux partages et les groupes avec lesquels chaque tableau de bord est automatiquement partagé.",
     "Default share permission level" : "Niveau d'autorisation de partage par défaut",
     "Forced share groups" : "Groupes de partage forcé",
+    "Groups that may share" : "Groupes autorisés à partager",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Seuls les membres de ces groupes peuvent partager leurs tableaux de bord. Laissez vide pour que tout le monde puisse partager.",
+    "Who can receive a share" : "Qui peut recevoir un partage",
+    "Only people who share a group with the sharer" : "Uniquement les personnes qui ont un groupe en commun avec la personne qui partage",
     "Select groups (leave empty for none)" : "Sélectionner des groupes (laisser vide pour aucun)",
     "Members of these groups always receive every newly created dashboard." : "Les membres de ces groupes reçoivent toujours chaque tableau de bord nouvellement créé.",
     "Prometheus metrics" : "Métriques Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trouvé sur ce serveur",
     "Apps this server runs for you. One click places one as a tile." : "Les applications que ce serveur exécute pour vous. Un clic en fait une tuile.",
+    "Office tiles" : "Tuiles bureautiques",
+    "Ready-made tiles" : "Tuiles prêtes à l'emploi",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un conteneur avec une tuile pour chaque type de nouveau document et chaque application bureautique de ce serveur.",
+    "This server has no office apps to make tiles for." : "Ce serveur n'a aucune application bureautique pour laquelle créer des tuiles.",
+    "The office tiles could not be added." : "Les tuiles bureautiques n'ont pas pu être ajoutées.",
+    "File name" : "Nom du fichier",
+    "The file could not be created." : "Le fichier n'a pas pu être créé.",
     "On this dashboard" : "Sur ce tableau de bord",
     "Statistics" : "Statistiques",
     "Count my visits" : "Compter mes visites",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Envoyer la demande",
     "Your request was sent to IT" : "Votre demande a été envoyée au service informatique",
     "You have 10 open requests. Wait for an answer first." : "Vous avez 10 demandes en attente. Attendez d'abord une réponse.",
-    "Your request could not be sent. Try again later." : "Votre demande n'a pas pu être envoyée. Réessayez plus tard."
+    "Your request could not be sent. Try again later." : "Votre demande n'a pas pu être envoyée. Réessayez plus tard.",
+    "Active filters" : "Filtres actifs",
+    "Pinned filter" : "Filtre épinglé",
+    "Remove filter: {label}" : "Retirer le filtre : {label}",
+    "Reset filters" : "Réinitialiser les filtres"
 },
 "nplurals=2; plural=(n > 1);"
 );

@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Establezca el nivel de permiso predeterminado que se aplica a los nuevos recursos compartidos y los grupos con los que se comparte automáticamente cada panel.",
     "Default share permission level" : "Nivel de permiso de compartición predeterminado",
     "Forced share groups" : "Grupos de compartición forzada",
+    "Groups that may share" : "Grupos que pueden compartir",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Solo los miembros de estos grupos pueden compartir sus paneles. Déjelo vacío para que todos puedan compartir.",
+    "Who can receive a share" : "Quién puede recibir un panel compartido",
+    "Only people who share a group with the sharer" : "Solo las personas que comparten un grupo con quien comparte",
     "Select groups (leave empty for none)" : "Seleccionar grupos (dejar vacío para ninguno)",
     "Members of these groups always receive every newly created dashboard." : "Los miembros de estos grupos siempre reciben cada panel recién creado.",
     "Prometheus metrics" : "Métricas de Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Encontrado en este servidor",
     "Apps this server runs for you. One click places one as a tile." : "Aplicaciones que este servidor ejecuta para usted. Un clic las convierte en un mosaico.",
+    "Office tiles" : "Mosaicos de oficina",
+    "Ready-made tiles" : "Mosaicos predefinidos",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un contenedor con un mosaico para cada tipo de documento nuevo y cada aplicación de oficina de este servidor.",
+    "This server has no office apps to make tiles for." : "Este servidor no tiene aplicaciones de oficina para las que crear mosaicos.",
+    "The office tiles could not be added." : "No se pudieron añadir los mosaicos de oficina.",
+    "File name" : "Nombre del archivo",
+    "The file could not be created." : "No se pudo crear el archivo.",
     "On this dashboard" : "En este panel",
     "Statistics" : "Estadísticas",
     "Count my visits" : "Contar mis visitas",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Enviar solicitud",
     "Your request was sent to IT" : "Su solicitud se ha enviado al departamento de TI",
     "You have 10 open requests. Wait for an answer first." : "Tiene 10 solicitudes pendientes. Espere primero una respuesta.",
-    "Your request could not be sent. Try again later." : "No se pudo enviar su solicitud. Inténtelo de nuevo más tarde."
+    "Your request could not be sent. Try again later." : "No se pudo enviar su solicitud. Inténtelo de nuevo más tarde.",
+    "Active filters" : "Filtros activos",
+    "Pinned filter" : "Filtro fijado",
+    "Remove filter: {label}" : "Quitar filtro: {label}",
+    "Reset filters" : "Restablecer filtros"
 },
 "nplurals=2; plural=(n != 1);"
 );

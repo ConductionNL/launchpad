@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Legen Sie die Standard-Berechtigungsstufe für neue Freigaben fest sowie die Gruppen, mit denen jedes Dashboard automatisch geteilt wird.",
     "Default share permission level" : "Standard-Berechtigungsstufe für Freigaben",
     "Forced share groups" : "Erzwungene Freigabegruppen",
+    "Groups that may share" : "Gruppen, die teilen dürfen",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Nur Mitglieder dieser Gruppen können ihre Dashboards teilen. Leer lassen, damit alle teilen können.",
+    "Who can receive a share" : "Wer eine Freigabe erhalten kann",
+    "Only people who share a group with the sharer" : "Nur Personen, die mit der teilenden Person eine Gruppe gemeinsam haben",
     "Select groups (leave empty for none)" : "Gruppen auswählen (leer lassen für keine)",
     "Members of these groups always receive every newly created dashboard." : "Mitglieder dieser Gruppen erhalten immer jedes neu erstellte Dashboard.",
     "Prometheus metrics" : "Prometheus-Metriken",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Auf diesem Server gefunden",
     "Apps this server runs for you. One click places one as a tile." : "Apps, die dieser Server für Sie ausführt. Ein Klick macht daraus eine Kachel.",
+    "Office tiles" : "Office-Kacheln",
+    "Ready-made tiles" : "Fertige Kacheln",
+    "One container with a tile for each kind of new document and each office app on this server." : "Ein Container mit einer Kachel für jede Art von neuem Dokument und jede Office-App auf diesem Server.",
+    "This server has no office apps to make tiles for." : "Dieser Server hat keine Office-Apps, für die Kacheln erstellt werden können.",
+    "The office tiles could not be added." : "Die Office-Kacheln konnten nicht hinzugefügt werden.",
+    "File name" : "Dateiname",
+    "The file could not be created." : "Die Datei konnte nicht erstellt werden.",
     "On this dashboard" : "Auf diesem Dashboard",
     "Statistics" : "Statistik",
     "Count my visits" : "Meine Besuche zählen",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Anfrage senden",
     "Your request was sent to IT" : "Ihre Anfrage wurde an die IT gesendet",
     "You have 10 open requests. Wait for an answer first." : "Sie haben 10 offene Anfragen. Warten Sie zuerst auf eine Antwort.",
-    "Your request could not be sent. Try again later." : "Ihre Anfrage konnte nicht gesendet werden. Versuchen Sie es später erneut."
+    "Your request could not be sent. Try again later." : "Ihre Anfrage konnte nicht gesendet werden. Versuchen Sie es später erneut.",
+    "Active filters" : "Aktive Filter",
+    "Pinned filter" : "Angehefteter Filter",
+    "Remove filter: {label}" : "Filter entfernen: {label}",
+    "Reset filters" : "Filter zurücksetzen"
 },
 "nplurals=2; plural=(n != 1);"
 );

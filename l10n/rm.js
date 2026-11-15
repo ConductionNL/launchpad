@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Definir il nivel da permissiun da standard applitgà a las novas cundivisiuns e las gruppas cun las qualas mintga tabla da cumond vegn cundividida automaticamain.",
     "Default share permission level" : "Nivel da permissiun da cundivisiun da standard",
     "Forced share groups" : "Gruppas da cundivisiun sfurzada",
+    "Groups that may share" : "Gruppas che dastgan parter",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Mo ils commembers da questas gruppas pon parter lur tablas da cumond. Laschai vid per che tuts possian parter.",
+    "Who can receive a share" : "Tgi che po retschaiver ina partiziun",
+    "Only people who share a group with the sharer" : "Mo persunas che han ina gruppa en cumin cun la persuna che parta",
     "Select groups (leave empty for none)" : "Tscherner gruppas (laschar vid per nagina)",
     "Members of these groups always receive every newly created dashboard." : "Ils commembers da questas gruppas survegnan adina mintga tabla da cumond nouvamain creada.",
     "Prometheus metrics" : "Metricas da Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Chattà sin quest server",
     "Apps this server runs for you. One click places one as a tile." : "Apps che quest server exequescha per Vus. In clic fa ina plattina.",
+    "Office tiles" : "Plattinas da biro",
+    "Ready-made tiles" : "Plattinas preparadas",
+    "One container with a tile for each kind of new document and each office app on this server." : "In container cun ina plattina per mintga gener da document nov e mintga app da biro sin quest server.",
+    "This server has no office apps to make tiles for." : "Quest server n'ha naginas apps da biro per las qualas far plattinas.",
+    "The office tiles could not be added." : "Las plattinas da biro n'han betg pudì vegnir agiuntadas.",
+    "File name" : "Num da la datoteca",
+    "The file could not be created." : "La datoteca n'ha betg pudì vegnir creada.",
     "On this dashboard" : "Sin quest dashboard",
     "Statistics" : "Statisticas",
     "Count my visits" : "Dumbrar mias visitas",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Trametter la dumonda",
     "Your request was sent to IT" : "Sia dumonda è vegnida tramessa a l'IT",
     "You have 10 open requests. Wait for an answer first." : "Els avais 10 dumondas avertas. Spetgai l'emprim ina resposta.",
-    "Your request could not be sent. Try again later." : "Sia dumonda n'ha betg pudì vegnir tramessa. Empruvai pli tard anc ina giada."
+    "Your request could not be sent. Try again later." : "Sia dumonda n'ha betg pudì vegnir tramessa. Empruvai pli tard anc ina giada.",
+    "Active filters" : "Filters activs",
+    "Pinned filter" : "Filter fixà",
+    "Remove filter: {label}" : "Allontanar il filter: {label}",
+    "Reset filters" : "Reinizialisar ils filters"
 },
 "nplurals=2; plural=(n != 1);"
 );

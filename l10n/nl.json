@@ -1691,6 +1691,14 @@
         "Add it as a tile from Add on your dashboard": "Voeg de app als tegel toe via ‘Toevoegen’ op je dashboard",
         "Your request for **%1$s** was declined: %2$s": "Je verzoek om **%1$s** is afgewezen: %2$s",
         "Your request for %1$s was declined: %2$s": "Je verzoek om %1$s is afgewezen: %2$s",
-        "An administrator decided on your request in the app catalogue": "Een beheerder heeft over je verzoek in de app-catalogus beslist"
+        "An administrator decided on your request in the app catalogue": "Een beheerder heeft over je verzoek in de app-catalogus beslist",
+        "Admin settings tour": "Rondleiding beheerinstellingen",
+        "General settings": "Algemene instellingen",
+        "Roles and permissions": "Rollen en rechten",
+        "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. Changes save as you make them.": "De standaardinstellingen waarmee elk dashboard begint: wie dashboards mag maken, het rechtenniveau en het raster. Wijzigingen worden direct opgeslagen.",
+        "Under Templates you build the dashboards that groups and new users get.": "Onder Sjablonen maak je de dashboards die groepen en nieuwe gebruikers krijgen.",
+        "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.": "Onder Rollen en rechten kies je wie LaunchPad mag beheren en wat elke rol mag wijzigen.",
+        "Under Sharing you set who may share dashboards and with whom.": "Onder Delen stel je in wie dashboards mag delen en met wie.",
+        "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports."
     }
 }

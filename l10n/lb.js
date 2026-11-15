@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Setzt de Standard-Berechtegungsniveau, deen op nei Deelungen ugewannt gëtt, an d'Gruppen, mat deenen all Dashboard automatesch gedeelt gëtt.",
     "Default share permission level" : "Standard-Deelungs-Berechtegungsniveau",
     "Forced share groups" : "Erforéngten Deelungsgruppen",
+    "Groups that may share" : "Gruppen, déi deele däerfen",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Nëmmen d'Membere vun dëse Gruppe kënnen hir Dashboarden deelen. Eidel loossen, fir datt jiddereen deele kann.",
+    "Who can receive a share" : "Wien eng Deelung kréie kann",
+    "Only people who share a group with the sharer" : "Nëmme Leit, déi mat där Persoun, déi deelt, e Grupp gemeinsam hunn",
     "Select groups (leave empty for none)" : "Gruppen auswielen (eidel loosse fir keng)",
     "Members of these groups always receive every newly created dashboard." : "D'Membere vun dëse Gruppe kréien ëmmer all nei erstallten Dashboard.",
     "Prometheus metrics" : "Prometheus-Metriken",
@@ -1360,6 +1364,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Op dësem Server fonnt",
     "Apps this server runs for you. One click places one as a tile." : "Apps, déi dësen Server fir Iech leeft. Ee Klick mécht eng Kachel draus.",
+    "Office tiles" : "Büro-Kacheln",
+    "Ready-made tiles" : "Fäerdeg Kacheln",
+    "One container with a tile for each kind of new document and each office app on this server." : "Ee Container mat enger Kachel fir all Zort neit Dokument an all Büro-App op dësem Server.",
+    "This server has no office apps to make tiles for." : "Dëse Server huet keng Büro-Appe fir déi Kachele gemaach kënne ginn.",
+    "The office tiles could not be added." : "D'Büro-Kachele konnten net derbäigesat ginn.",
+    "File name" : "Dateinumm",
+    "The file could not be created." : "D'Datei konnt net erstallt ginn.",
     "On this dashboard" : "Op dësem Dashboard",
     "Statistics" : "Statistiken",
     "Count my visits" : "Meng Visitten zielen",
@@ -1408,7 +1419,11 @@ OC.L10N.register(
     "Send request" : "Ufro schécken",
     "Your request was sent to IT" : "Är Ufro gouf un d'IT geschéckt",
     "You have 10 open requests. Wait for an answer first." : "Dir hutt 10 oppen Ufroen. Waart fir d'éischt op eng Äntwert.",
-    "Your request could not be sent. Try again later." : "Är Ufro konnt net geschéckt ginn. Probéiert et méi spéit nach eng Kéier."
+    "Your request could not be sent. Try again later." : "Är Ufro konnt net geschéckt ginn. Probéiert et méi spéit nach eng Kéier.",
+    "Active filters" : "Aktiv Filteren",
+    "Pinned filter" : "Fixéierte Filter",
+    "Remove filter: {label}" : "Filter ewechhuelen: {label}",
+    "Reset filters" : "Filteren zrécksetzen"
 },
 "nplurals=2; plural=(n != 1);"
 );

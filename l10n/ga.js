@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Socraigh an leibhéal ceada réamhshocraithe a chuirtear i bhfeidhm ar chomhroinntí nua agus na grúpaí a gcomhroinntear gach deais leo go huathoibríoch.",
     "Default share permission level" : "Leibhéal réamhshocraithe ceada comhroinnte",
     "Forced share groups" : "Grúpaí comhroinnte éigeantacha",
+    "Groups that may share" : "Grúpaí a bhfuil cead acu comhroinnt",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Ní féidir ach le baill na ngrúpaí seo a ndeaiseanna a chomhroinnt. Fág folamh chun ligean do gach duine comhroinnt.",
+    "Who can receive a share" : "Cé atá in ann comhroinnt a fháil",
+    "Only people who share a group with the sharer" : "Daoine a bhfuil grúpa i gcoiteann acu leis an té atá ag comhroinnt amháin",
     "Select groups (leave empty for none)" : "Roghnaigh grúpaí (fág folamh do cheann ar bith)",
     "Members of these groups always receive every newly created dashboard." : "Faigheann baill na ngrúpaí seo gach deais nuachruthaithe i gcónaí.",
     "Prometheus metrics" : "Méadrachtaí Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Aimsithe ar an bhfreastalaí seo",
     "Apps this server runs for you. One click places one as a tile." : "Aipeanna a ritheann an freastalaí seo duit. Cuireann cliceáil amháin ina tíl iad.",
+    "Office tiles" : "Tíleanna oifige",
+    "Ready-made tiles" : "Tíleanna réamhdhéanta",
+    "One container with a tile for each kind of new document and each office app on this server." : "Coimeádán amháin le tíl do gach cineál doiciméid nua agus do gach aip oifige ar an bhfreastalaí seo.",
+    "This server has no office apps to make tiles for." : "Níl aon aipeanna oifige ar an bhfreastalaí seo le tíleanna a dhéanamh dóibh.",
+    "The office tiles could not be added." : "Níorbh fhéidir na tíleanna oifige a chur leis.",
+    "File name" : "Ainm an chomhaid",
+    "The file could not be created." : "Níorbh fhéidir an comhad a chruthú.",
     "On this dashboard" : "Ar an deais seo",
     "Statistics" : "Staitisticí",
     "Count my visits" : "Comhair mo chuairteanna",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Seol iarratas",
     "Your request was sent to IT" : "Seoladh d'iarratas chuig IT",
     "You have 10 open requests. Wait for an answer first." : "Tá 10 n-iarratas oscailte agat. Fan ar fhreagra ar dtús.",
-    "Your request could not be sent. Try again later." : "Níorbh fhéidir d'iarratas a sheoladh. Bain triail eile as ar ball."
+    "Your request could not be sent. Try again later." : "Níorbh fhéidir d'iarratas a sheoladh. Bain triail eile as ar ball.",
+    "Active filters" : "Scagairí gníomhacha",
+    "Pinned filter" : "Scagaire greamaithe",
+    "Remove filter: {label}" : "Bain an scagaire: {label}",
+    "Reset filters" : "Athshocraigh na scagairí"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Nastavte predvolenú úroveň oprávnení použitú na nové zdieľania a skupiny, s ktorými sa každá nástenka automaticky zdieľa.",
     "Default share permission level" : "Predvolená úroveň oprávnení zdieľania",
     "Forced share groups" : "Vynútené skupiny zdieľania",
+    "Groups that may share" : "Skupiny, ktoré môžu zdieľať",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Svoje nástenky môžu zdieľať iba členovia týchto skupín. Ponechajte prázdne, aby mohol zdieľať každý.",
+    "Who can receive a share" : "Kto môže prijať zdieľanie",
+    "Only people who share a group with the sharer" : "Iba ľudia, ktorí majú so zdieľajúcim spoločnú skupinu",
     "Select groups (leave empty for none)" : "Vyberte skupiny (ponechajte prázdne pre žiadne)",
     "Members of these groups always receive every newly created dashboard." : "Členovia týchto skupín vždy dostanú každú novovytvorenú nástenku.",
     "Prometheus metrics" : "Metriky Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Nájdené na tomto serveri",
     "Apps this server runs for you. One click places one as a tile." : "Aplikácie, ktoré pre vás tento server prevádzkuje. Jedným kliknutím z nich urobíte dlaždicu.",
+    "Office tiles" : "Kancelárske dlaždice",
+    "Ready-made tiles" : "Hotové dlaždice",
+    "One container with a tile for each kind of new document and each office app on this server." : "Jeden kontajner s dlaždicou pre každý druh nového dokumentu a každú kancelársku aplikáciu na tomto serveri.",
+    "This server has no office apps to make tiles for." : "Tento server nemá žiadne kancelárske aplikácie, pre ktoré by sa dali vytvoriť dlaždice.",
+    "The office tiles could not be added." : "Kancelárske dlaždice sa nepodarilo pridať.",
+    "File name" : "Názov súboru",
+    "The file could not be created." : "Súbor sa nepodarilo vytvoriť.",
     "On this dashboard" : "Na tejto nástenke",
     "Statistics" : "Štatistiky",
     "Count my visits" : "Započítavať moje návštevy",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Odoslať žiadosť",
     "Your request was sent to IT" : "Vaša žiadosť bola odoslaná na IT oddelenie",
     "You have 10 open requests. Wait for an answer first." : "Máte 10 otvorených žiadostí. Najprv počkajte na odpoveď.",
-    "Your request could not be sent. Try again later." : "Vašu žiadosť sa nepodarilo odoslať. Skúste to znova neskôr."
+    "Your request could not be sent. Try again later." : "Vašu žiadosť sa nepodarilo odoslať. Skúste to znova neskôr.",
+    "Active filters" : "Aktívne filtre",
+    "Pinned filter" : "Pripnutý filter",
+    "Remove filter: {label}" : "Odstrániť filter: {label}",
+    "Reset filters" : "Zrušiť filtre"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

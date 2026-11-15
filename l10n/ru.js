@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Установите уровень разрешений по умолчанию, применяемый к новым общим ресурсам, и группы, с которыми автоматически предоставляется доступ к каждой панели управления.",
     "Default share permission level" : "Уровень разрешений общего доступа по умолчанию",
     "Forced share groups" : "Принудительные группы общего доступа",
+    "Groups that may share" : "Группы, которым разрешено делиться",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Делиться своими панелями управления могут только участники этих групп. Оставьте пустым, чтобы делиться могли все.",
+    "Who can receive a share" : "Кто может получить доступ",
+    "Only people who share a group with the sharer" : "Только люди, состоящие в общей группе с тем, кто делится",
     "Select groups (leave empty for none)" : "Выберите группы (оставьте пустым, чтобы не выбирать)",
     "Members of these groups always receive every newly created dashboard." : "Участники этих групп всегда получают каждую вновь созданную панель управления.",
     "Prometheus metrics" : "Метрики Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Найдено на этом сервере",
     "Apps this server runs for you. One click places one as a tile." : "Приложения, которые этот сервер запускает для вас. Один щелчок превращает их в плитку.",
+    "Office tiles" : "Офисные плитки",
+    "Ready-made tiles" : "Готовые плитки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Один контейнер с плиткой для каждого вида нового документа и каждого офисного приложения на этом сервере.",
+    "This server has no office apps to make tiles for." : "На этом сервере нет офисных приложений, для которых можно создать плитки.",
+    "The office tiles could not be added." : "Не удалось добавить офисные плитки.",
+    "File name" : "Имя файла",
+    "The file could not be created." : "Не удалось создать файл.",
     "On this dashboard" : "На этой панели",
     "Statistics" : "Статистика",
     "Count my visits" : "Учитывать мои посещения",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Отправить запрос",
     "Your request was sent to IT" : "Ваш запрос отправлен в ИТ-отдел",
     "You have 10 open requests. Wait for an answer first." : "У вас 10 открытых запросов. Сначала дождитесь ответа.",
-    "Your request could not be sent. Try again later." : "Не удалось отправить ваш запрос. Повторите попытку позже."
+    "Your request could not be sent. Try again later." : "Не удалось отправить ваш запрос. Повторите попытку позже.",
+    "Active filters" : "Активные фильтры",
+    "Pinned filter" : "Закреплённый фильтр",
+    "Remove filter: {label}" : "Удалить фильтр: {label}",
+    "Reset filters" : "Сбросить фильтры"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Setați nivelul de permisiune implicit aplicat partajărilor noi și grupurilor cu care este partajat automat fiecare tablou de bord.",
     "Default share permission level" : "Nivelul de permisiune implicit pentru partajare",
     "Forced share groups" : "Grupuri de partajare forțată",
+    "Groups that may share" : "Grupuri care pot partaja",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Doar membrii acestor grupuri își pot partaja tablourile de bord. Lăsați gol pentru ca toată lumea să poată partaja.",
+    "Who can receive a share" : "Cine poate primi o partajare",
+    "Only people who share a group with the sharer" : "Doar persoanele care au un grup comun cu cel care partajează",
     "Select groups (leave empty for none)" : "Selectați grupuri (lăsați gol pentru niciunul)",
     "Members of these groups always receive every newly created dashboard." : "Membrii acestor grupuri primesc întotdeauna fiecare tablou de bord nou creat.",
     "Prometheus metrics" : "Metrici Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Găsite pe acest server",
     "Apps this server runs for you. One click places one as a tile." : "Aplicații pe care acest server le rulează pentru dvs. Un clic le transformă într-o dală.",
+    "Office tiles" : "Plăci de birou",
+    "Ready-made tiles" : "Plăci gata făcute",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un container cu o placă pentru fiecare tip de document nou și fiecare aplicație de birou de pe acest server.",
+    "This server has no office apps to make tiles for." : "Acest server nu are aplicații de birou pentru care să se creeze plăci.",
+    "The office tiles could not be added." : "Plăcile de birou nu au putut fi adăugate.",
+    "File name" : "Numele fișierului",
+    "The file could not be created." : "Fișierul nu a putut fi creat.",
     "On this dashboard" : "Pe acest panou",
     "Statistics" : "Statistici",
     "Count my visits" : "Numără vizitele mele",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Trimiteți cererea",
     "Your request was sent to IT" : "Cererea dumneavoastră a fost trimisă către IT",
     "You have 10 open requests. Wait for an answer first." : "Aveți 10 cereri deschise. Așteptați mai întâi un răspuns.",
-    "Your request could not be sent. Try again later." : "Cererea dumneavoastră nu a putut fi trimisă. Încercați din nou mai târziu."
+    "Your request could not be sent. Try again later." : "Cererea dumneavoastră nu a putut fi trimisă. Încercați din nou mai târziu.",
+    "Active filters" : "Filtre active",
+    "Pinned filter" : "Filtru fixat",
+    "Remove filter: {label}" : "Elimină filtrul: {label}",
+    "Reset filters" : "Resetează filtrele"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Поставете го стандардното ниво на дозвола што се применува на новите споделувања и групите со кои секоја контролна табла автоматски се споделува.",
     "Default share permission level" : "Стандардно ниво на дозвола за споделување",
     "Forced share groups" : "Принудни групи за споделување",
+    "Groups that may share" : "Групи што смеат да споделуваат",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Само членовите на овие групи можат да ги споделуваат своите контролни табли. Оставете празно за сите да можат да споделуваат.",
+    "Who can receive a share" : "Кој може да прими споделување",
+    "Only people who share a group with the sharer" : "Само луѓе што имаат заедничка група со тој што споделува",
     "Select groups (leave empty for none)" : "Изберете групи (оставете празно за ниту една)",
     "Members of these groups always receive every newly created dashboard." : "Членовите на овие групи секогаш ја добиваат секоја новосоздадена контролна табла.",
     "Prometheus metrics" : "Prometheus метрики",
@@ -1360,6 +1364,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Пронајдено на овој сервер",
     "Apps this server runs for you. One click places one as a tile." : "Апликации што овој сервер ги извршува за вас. Еден клик ги прави плочка.",
+    "Office tiles" : "Канцелариски плочки",
+    "Ready-made tiles" : "Готови плочки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Еден контејнер со плочка за секој вид нов документ и секоја канцелариска апликација на овој сервер.",
+    "This server has no office apps to make tiles for." : "Овој сервер нема канцелариски апликации за кои би се направиле плочки.",
+    "The office tiles could not be added." : "Канцелариските плочки не можеа да се додадат.",
+    "File name" : "Име на датотека",
+    "The file could not be created." : "Датотеката не можеше да се создаде.",
     "On this dashboard" : "На оваа контролна табла",
     "Statistics" : "Статистика",
     "Count my visits" : "Број ги моите посети",
@@ -1408,7 +1419,11 @@ OC.L10N.register(
     "Send request" : "Испрати барање",
     "Your request was sent to IT" : "Вашето барање е испратено до ИТ",
     "You have 10 open requests. Wait for an answer first." : "Имате 10 отворени барања. Прво почекајте одговор.",
-    "Your request could not be sent. Try again later." : "Вашето барање не може да се испрати. Обидете се повторно подоцна."
+    "Your request could not be sent. Try again later." : "Вашето барање не може да се испрати. Обидете се повторно подоцна.",
+    "Active filters" : "Активни филтри",
+    "Pinned filter" : "Закачен филтер",
+    "Remove filter: {label}" : "Отстрани филтер: {label}",
+    "Reset filters" : "Ресетирај ги филтрите"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

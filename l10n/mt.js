@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Issettja l-livell ta' permess prestabbilit applikat lil kondiviżjonijiet ġodda u l-gruppi li magħhom jiġi kondiviż awtomatikament kull dashboard.",
     "Default share permission level" : "Livell ta' permess prestabbilit ta' kondiviżjoni",
     "Forced share groups" : "Gruppi ta' kondiviżjoni mġiegħla",
+    "Groups that may share" : "Gruppi li jistgħu jaqsmu",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Il-membri ta' dawn il-gruppi biss jistgħu jaqsmu d-dashboards tagħhom. Ħalli vojt biex kulħadd ikun jista' jaqsam.",
+    "Who can receive a share" : "Min jista' jirċievi qsim",
+    "Only people who share a group with the sharer" : "Nies li għandhom grupp komuni ma' min qed jaqsam biss",
     "Select groups (leave empty for none)" : "Agħżel gruppi (ħalli vojt għal ebda)",
     "Members of these groups always receive every newly created dashboard." : "Il-membri ta' dawn il-gruppi dejjem jirċievu kull dashboard maħluq ġdid.",
     "Prometheus metrics" : "Metriċi Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Instab fuq dan is-server",
     "Apps this server runs for you. One click places one as a tile." : "Apps li dan is-server iħaddem għalik. Klikk wieħed jagħmilhom madum.",
+    "Office tiles" : "Madum tal-uffiċċju",
+    "Ready-made tiles" : "Madum lest",
+    "One container with a tile for each kind of new document and each office app on this server." : "Kontenitur wieħed b'madum għal kull tip ta' dokument ġdid u għal kull app tal-uffiċċju fuq dan is-server.",
+    "This server has no office apps to make tiles for." : "Dan is-server m'għandu l-ebda app tal-uffiċċju biex isir madum għaliha.",
+    "The office tiles could not be added." : "Il-madum tal-uffiċċju ma setax jiżdied.",
+    "File name" : "Isem il-fajl",
+    "The file could not be created." : "Il-fajl ma setax jinħoloq.",
     "On this dashboard" : "Fuq dan id-dashboard",
     "Statistics" : "Statistika",
     "Count my visits" : "Għodd iż-żjarat tiegħi",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Ibgħat talba",
     "Your request was sent to IT" : "It-talba tiegħek intbagħtet lill-IT",
     "You have 10 open requests. Wait for an answer first." : "Għandek 10 talbiet miftuħa. Stenna tweġiba l-ewwel.",
-    "Your request could not be sent. Try again later." : "It-talba tiegħek ma setgħetx tintbagħat. Erġa' pprova aktar tard."
+    "Your request could not be sent. Try again later." : "It-talba tiegħek ma setgħetx tintbagħat. Erġa' pprova aktar tard.",
+    "Active filters" : "Filtri attivi",
+    "Pinned filter" : "Filtru mwaħħal",
+    "Remove filter: {label}" : "Neħħi l-filtru: {label}",
+    "Reset filters" : "Erġa' ssettja l-filtri"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

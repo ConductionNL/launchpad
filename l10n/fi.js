@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Aseta oletuskäyttöoikeustaso, jota sovelletaan uusiin jakoihin, ja ryhmät, joiden kanssa jokainen kojelauta jaetaan automaattisesti.",
     "Default share permission level" : "Jaon oletuskäyttöoikeustaso",
     "Forced share groups" : "Pakotetut jakoryhmät",
+    "Groups that may share" : "Ryhmät, jotka saavat jakaa",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Vain näiden ryhmien jäsenet voivat jakaa kojelautojaan. Jätä tyhjäksi, jotta kaikki voivat jakaa.",
+    "Who can receive a share" : "Kuka voi vastaanottaa jaon",
+    "Only people who share a group with the sharer" : "Vain henkilöt, joilla on yhteinen ryhmä jakajan kanssa",
     "Select groups (leave empty for none)" : "Valitse ryhmät (jätä tyhjäksi, jos ei mitään)",
     "Members of these groups always receive every newly created dashboard." : "Näiden ryhmien jäsenet vastaanottavat aina jokaisen uuden luodun kojelaudan.",
     "Prometheus metrics" : "Prometheus-mittarit",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Löytyi tältä palvelimelta",
     "Apps this server runs for you. One click places one as a tile." : "Sovellukset, joita tämä palvelin ajaa sinulle. Yksi napsautus tekee niistä ruudun.",
+    "Office tiles" : "Toimistoruudut",
+    "Ready-made tiles" : "Valmiit ruudut",
+    "One container with a tile for each kind of new document and each office app on this server." : "Yksi säiliö, jossa on ruutu jokaiselle uuden asiakirjan tyypille ja jokaiselle tämän palvelimen toimistosovellukselle.",
+    "This server has no office apps to make tiles for." : "Tällä palvelimella ei ole toimistosovelluksia, joille ruutuja voisi tehdä.",
+    "The office tiles could not be added." : "Toimistoruutuja ei voitu lisätä.",
+    "File name" : "Tiedostonimi",
+    "The file could not be created." : "Tiedostoa ei voitu luoda.",
     "On this dashboard" : "Tällä kojelaudalla",
     "Statistics" : "Tilastot",
     "Count my visits" : "Laske käyntini",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Lähetä pyyntö",
     "Your request was sent to IT" : "Pyyntösi lähetettiin IT:lle",
     "You have 10 open requests. Wait for an answer first." : "Sinulla on 10 avointa pyyntöä. Odota ensin vastausta.",
-    "Your request could not be sent. Try again later." : "Pyyntöäsi ei voitu lähettää. Yritä myöhemmin uudelleen."
+    "Your request could not be sent. Try again later." : "Pyyntöäsi ei voitu lähettää. Yritä myöhemmin uudelleen.",
+    "Active filters" : "Aktiiviset suodattimet",
+    "Pinned filter" : "Kiinnitetty suodatin",
+    "Remove filter: {label}" : "Poista suodatin: {label}",
+    "Reset filters" : "Tyhjennä suodattimet"
 },
 "nplurals=2; plural=(n != 1);"
 );

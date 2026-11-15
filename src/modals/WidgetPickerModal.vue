@@ -102,6 +102,27 @@
 				</button>
 
 				<section
+					v-if="showOfficePack"
+					class="widget-picker__section"
+					data-testid="widget-picker-office">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'Ready-made tiles') }}
+					</h3>
+					<p class="widget-picker__section-description">
+						{{ t('launchpad', 'One container with a tile for each kind of new document and each office app on this server.') }}
+					</p>
+					<button
+						type="button"
+						class="widget-picker__widget"
+						data-testid="widget-picker-office-pack"
+						@click="$emit('addOfficePack')">
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ officePackLabel }}</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+				<section
 					v-if="filteredApps.length > 0"
 					class="widget-picker__section"
 					data-testid="widget-picker-discovered">
@@ -135,7 +156,7 @@
 				</section>
 
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0"
+					v-if="filteredWidgets.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
@@ -248,7 +269,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'add', 'addApp', 'addCatalogueApp'],
+	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addOfficePack'],
 
 	data() {
 		return {
@@ -263,6 +284,27 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The office pack's label in the picker.
+		 *
+		 * @return {string} "Office tiles".
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+		 */
+		officePackLabel() {
+			return t('launchpad', 'Office tiles')
+		},
+
+		/**
+		 * The office pack is offered unless a search leaves it out.
+		 *
+		 * @return {boolean} Whether to show "Office tiles".
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+		 */
+		showOfficePack() {
+			const query = this.searchQuery.toLowerCase()
+			return !query || this.officePackLabel.toLowerCase().includes(query)
+		},
+
 		/** @spec openspec/specs/widgets/spec.md */
 		filteredWidgets() {
 			if (!this.searchQuery) {

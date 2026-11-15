@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Yeni paylaşımlara uygulanan varsayılan izin düzeyini ve her panonun otomatik olarak paylaşıldığı grupları ayarlayın.",
     "Default share permission level" : "Varsayılan paylaşım izni düzeyi",
     "Forced share groups" : "Zorunlu paylaşım grupları",
+    "Groups that may share" : "Paylaşabilecek gruplar",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Yalnızca bu grupların üyeleri panolarını paylaşabilir. Herkesin paylaşabilmesi için boş bırakın.",
+    "Who can receive a share" : "Paylaşımı kimler alabilir",
+    "Only people who share a group with the sharer" : "Yalnızca paylaşan kişiyle ortak bir grubu olan kişiler",
     "Select groups (leave empty for none)" : "Grupları seçin (hiçbiri için boş bırakın)",
     "Members of these groups always receive every newly created dashboard." : "Bu grupların üyeleri, yeni oluşturulan her panoyu her zaman alır.",
     "Prometheus metrics" : "Prometheus ölçümleri",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Bu sunucuda bulundu",
     "Apps this server runs for you. One click places one as a tile." : "Bu sunucunun sizin için çalıştırdığı uygulamalar. Tek tıklama onları bir kutucuğa dönüştürür.",
+    "Office tiles" : "Ofis kutucukları",
+    "Ready-made tiles" : "Hazır kutucuklar",
+    "One container with a tile for each kind of new document and each office app on this server." : "Bu sunucudaki her yeni belge türü ve her ofis uygulaması için birer kutucuk içeren tek bir kapsayıcı.",
+    "This server has no office apps to make tiles for." : "Bu sunucuda kutucuk oluşturulacak ofis uygulaması yok.",
+    "The office tiles could not be added." : "Ofis kutucukları eklenemedi.",
+    "File name" : "Dosya adı",
+    "The file could not be created." : "Dosya oluşturulamadı.",
     "On this dashboard" : "Bu panoda",
     "Statistics" : "İstatistikler",
     "Count my visits" : "Ziyaretlerimi say",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "İstek gönder",
     "Your request was sent to IT" : "İsteğiniz BT birimine gönderildi",
     "You have 10 open requests. Wait for an answer first." : "10 açık isteğiniz var. Önce bir yanıt bekleyin.",
-    "Your request could not be sent. Try again later." : "İsteğiniz gönderilemedi. Daha sonra yeniden deneyin."
+    "Your request could not be sent. Try again later." : "İsteğiniz gönderilemedi. Daha sonra yeniden deneyin.",
+    "Active filters" : "Etkin filtreler",
+    "Pinned filter" : "Sabitlenmiş filtre",
+    "Remove filter: {label}" : "Filtreyi kaldır: {label}",
+    "Reset filters" : "Filtreleri sıfırla"
 },
 "nplurals=2; plural=(n != 1);"
 );

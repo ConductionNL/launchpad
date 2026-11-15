@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Встановіть усталений рівень дозволу, що застосовується до нових спільних ресурсів, і групи, з якими автоматично надається доступ до кожної інформаційної панелі.",
     "Default share permission level" : "Усталений рівень дозволу спільного доступу",
     "Forced share groups" : "Примусові групи спільного доступу",
+    "Groups that may share" : "Групи, яким дозволено ділитися",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Ділитися своїми інформаційними панелями можуть лише учасники цих груп. Залиште порожнім, щоб ділитися могли всі.",
+    "Who can receive a share" : "Хто може отримати доступ",
+    "Only people who share a group with the sharer" : "Лише люди, які мають спільну групу з тим, хто ділиться",
     "Select groups (leave empty for none)" : "Виберіть групи (залиште порожнім для жодної)",
     "Members of these groups always receive every newly created dashboard." : "Учасники цих груп завжди отримують кожну новостворену інформаційну панель.",
     "Prometheus metrics" : "Метрики Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Знайдено на цьому сервері",
     "Apps this server runs for you. One click places one as a tile." : "Застосунки, які цей сервер запускає для вас. Один клік робить із них плитку.",
+    "Office tiles" : "Офісні плитки",
+    "Ready-made tiles" : "Готові плитки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Один контейнер із плиткою для кожного виду нового документа й кожного офісного застосунку на цьому сервері.",
+    "This server has no office apps to make tiles for." : "На цьому сервері немає офісних застосунків, для яких можна створити плитки.",
+    "The office tiles could not be added." : "Не вдалося додати офісні плитки.",
+    "File name" : "Назва файлу",
+    "The file could not be created." : "Не вдалося створити файл.",
     "On this dashboard" : "На цій панелі",
     "Statistics" : "Статистика",
     "Count my visits" : "Враховувати мої відвідування",
@@ -1417,7 +1428,11 @@ OC.L10N.register(
     "Send request" : "Надіслати запит",
     "Your request was sent to IT" : "Ваш запит надіслано до ІТ-відділу",
     "You have 10 open requests. Wait for an answer first." : "У вас 10 відкритих запитів. Спершу дочекайтеся відповіді.",
-    "Your request could not be sent. Try again later." : "Не вдалося надіслати ваш запит. Спробуйте пізніше."
+    "Your request could not be sent. Try again later." : "Не вдалося надіслати ваш запит. Спробуйте пізніше.",
+    "Active filters" : "Активні фільтри",
+    "Pinned filter" : "Закріплений фільтр",
+    "Remove filter: {label}" : "Видалити фільтр: {label}",
+    "Reset filters" : "Скинути фільтри"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

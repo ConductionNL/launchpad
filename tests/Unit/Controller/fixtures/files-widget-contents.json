@@ -1,0 +1,114 @@
+{
+    "no session": {
+        "status": 401,
+        "data": {
+            "status": "error",
+            "error": "unauthorized",
+            "message": "Authentication required",
+            "items": []
+        }
+    },
+    "unknown placement": {
+        "status": 403,
+        "data": {
+            "status": "error",
+            "error": "forbidden",
+            "items": []
+        }
+    },
+    "no permission": {
+        "status": 403,
+        "data": {
+            "status": "error",
+            "error": "forbidden",
+            "items": []
+        }
+    },
+    "other user": {
+        "status": 403,
+        "data": {
+            "status": "error",
+            "error": "forbidden",
+            "items": []
+        }
+    },
+    "defaults": {
+        "status": 200,
+        "data": {
+            "items": [
+                "f01.txt",
+                "f02.txt",
+                "f03.txt",
+                "f04.txt",
+                "f05.txt",
+                "f06.txt",
+                "f07.txt",
+                "f08.txt",
+                "f09.txt",
+                "f10.txt",
+                "f11.txt",
+                "f12.txt",
+                "f13.txt",
+                "f14.txt",
+                "f15.txt",
+                "f16.txt",
+                "f17.txt",
+                "f18.txt",
+                "f19.txt",
+                "f20.txt",
+                "f21.txt",
+                "f22.txt",
+                "f23.txt",
+                "f24.txt",
+                "f25.txt",
+                "f26.txt",
+                "f27.txt",
+                "f28.txt",
+                "f29.txt",
+                "f30.txt"
+            ],
+            "nextCursor": null
+        }
+    },
+    "page and cursor": {
+        "status": 200,
+        "data": {
+            "items": [
+                "f09.txt",
+                "f10.txt",
+                "f11.txt",
+                "f12.txt"
+            ],
+            "nextCursor": "12"
+        }
+    },
+    "sub folder": {
+        "status": 200,
+        "data": {
+            "items": [],
+            "nextCursor": null
+        }
+    },
+    "missing folder": {
+        "status": 404,
+        "data": {
+            "status": "error",
+            "error": "folder_not_found",
+            "message": "The configured folder no longer exists",
+            "items": []
+        }
+    },
+    "all of them": {
+        "status": 200,
+        "data": {
+            "items": [
+                "f26.txt",
+                "f27.txt",
+                "f28.txt",
+                "f29.txt",
+                "f30.txt"
+            ],
+            "nextCursor": null
+        }
+    }
+}

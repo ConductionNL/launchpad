@@ -27,6 +27,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -35,6 +36,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<DashboardView>
  */
 class DashboardViewMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -60,22 +63,8 @@ class DashboardViewMapper extends QBMapper {
 		string $dashboardUuid,
 		string $viewBucket,
 	): ?DashboardView {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $viewBucket)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'view_bucket' => $viewBucket]);
+		$qb->setMaxResults(maxResults: 1);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -99,26 +88,12 @@ class DashboardViewMapper extends QBMapper {
 		string $startDate,
 		string $endDate,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere(
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
-			)
-			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->orderBy(sort: 'view_bucket', order: 'ASC');
 
@@ -157,21 +132,26 @@ class DashboardViewMapper extends QBMapper {
 			)
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->groupBy('dashboard_uuid')
 			->orderBy(sort: 'view_count_sum', order: 'DESC')
 			->setMaxResults(maxResults: $limit);
 
+		return $this->fetchTopDashboardRows(qb: $qb);
+	}//end findTopDashboardsInRange()
+
+	/**
+	 * Run the top-dashboards query and map its aggregate rows.
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchTopDashboardRows(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$rows = [];
 		while (($row = $cursor->fetch()) !== false) {
@@ -185,7 +165,7 @@ class DashboardViewMapper extends QBMapper {
 		$cursor->closeCursor();
 
 		return $rows;
-	}//end findTopDashboardsInRange()
+	}//end fetchTopDashboardRows()
 
 	/**
 	 * Compute instance-wide totals across an inclusive date range
@@ -218,18 +198,23 @@ class DashboardViewMapper extends QBMapper {
 			)
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			);
 
+		return $this->fetchInstanceSummary(qb: $qb);
+	}//end findInstanceSummaryInRange()
+
+	/**
+	 * Run the instance-summary query and map its single row (zeros when there is none).
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchInstanceSummary(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
@@ -247,7 +232,7 @@ class DashboardViewMapper extends QBMapper {
 			'totalUniqueViewers' => (int)($row['total_unique'] ?? 0),
 			'dashboardCount' => (int)($row['dashboard_count'] ?? 0),
 		];
-	}//end findInstanceSummaryInRange()
+	}//end fetchInstanceSummary()
 
 	/**
 	 * Find every aggregate row in an inclusive date range, ordered
@@ -267,16 +252,10 @@ class DashboardViewMapper extends QBMapper {
 		$qb->select('*')
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->orderBy(sort: 'dashboard_uuid', order: 'ASC')
 			->addOrderBy(sort: 'view_bucket', order: 'ASC');
@@ -359,15 +338,38 @@ class DashboardViewMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByDashboard(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboard()
+
+	/**
+	 * The `view_bucket >= startDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb        The query being built.
+	 * @param string        $startDate Inclusive lower bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketFrom(IQueryBuilder $qb, string $startDate): string {
+		return $qb->expr()->gte(
+			x: 'view_bucket',
+			y: $qb->createNamedParameter(value: $startDate)
+		);
+	}//end bucketFrom()
+
+	/**
+	 * The `view_bucket <= endDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb      The query being built.
+	 * @param string        $endDate Inclusive upper bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketUntil(IQueryBuilder $qb, string $endDate): string {
+		return $qb->expr()->lte(
+			x: 'view_bucket',
+			y: $qb->createNamedParameter(value: $endDate)
+		);
+	}//end bucketUntil()
 }//end class

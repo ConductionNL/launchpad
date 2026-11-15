@@ -1,0 +1,137 @@
+{
+    "DashboardSharesListener": {
+        "deleted": [
+            "DashboardShareMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad DashboardSharesListener: deleted 3 share row(s) for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "DashboardShareMapper.deleteByDashboardId [12]",
+            "LoggerInterface.debug [\"launchpad DashboardSharesListener: deleted 3 share row(s) for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "DashboardShareMapper.deleteByDashboardId [12]",
+            "LoggerInterface.warning [\"launchpad DashboardSharesListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "LocksListener": {
+        "deleted": [
+            "DashboardLockMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad LocksListener: deleted 3 lock rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "DashboardLockMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad LocksListener: deleted 3 lock rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "DashboardLockMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad LocksListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "MetadataValuesListener": {
+        "deleted": [
+            "MetadataValueMapper.deleteByDashboard [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad MetadataValuesListener: deleted 3 metadata rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "MetadataValueMapper.deleteByDashboard [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad MetadataValuesListener: deleted 3 metadata rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "MetadataValueMapper.deleteByDashboard [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad MetadataValuesListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "PublicSharesListener": {
+        "deleted": [
+            "PublicShareMapper.revokeByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad PublicSharesListener: soft-revoked 3 share(s) for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "PublicShareMapper.revokeByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad PublicSharesListener: soft-revoked 3 share(s) for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "PublicShareMapper.revokeByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad PublicSharesListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "ReactionsListener": {
+        "deleted": [
+            "ReactionService.deleteReactionsByDashboard [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad ReactionsListener: deleted 3 reactions for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "ReactionService.deleteReactionsByDashboard [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad ReactionsListener: deleted 3 reactions for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "ReactionService.deleteReactionsByDashboard [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad ReactionsListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "TranslationsListener": {
+        "deleted": [
+            "DashboardTranslationMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad TranslationsListener: deleted 3 translation rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "DashboardTranslationMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad TranslationsListener: deleted 3 translation rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "DashboardTranslationMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad TranslationsListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "VersionsListener": {
+        "deleted": [
+            "DashboardVersionMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad VersionsListener: deleted 3 version rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "DashboardVersionMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad VersionsListener: deleted 3 version rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "DashboardVersionMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad VersionsListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "ViewAnalyticsListener": {
+        "deleted": [
+            "DashboardViewMapper.deleteByDashboard [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad ViewAnalyticsListener: deleted 3 view rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "DashboardViewMapper.deleteByDashboard [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad ViewAnalyticsListener: deleted 3 view rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "DashboardViewMapper.deleteByDashboard [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad ViewAnalyticsListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    },
+    "WidgetPlacementsListener": {
+        "deleted": [
+            "WidgetPlacementMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad WidgetPlacementsListener: deleted 3 placement rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "deleted with id": [
+            "WidgetPlacementMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.debug [\"launchpad WidgetPlacementsListener: deleted 3 placement rows for dashboard d-1\",{\"app\":\"launchpad\"}]"
+        ],
+        "failing": [
+            "WidgetPlacementMapper.deleteByDashboardUuid [\"d-1\"]",
+            "LoggerInterface.warning [\"launchpad WidgetPlacementsListener: failed for dashboard d-1: boom\",{\"app\":\"launchpad\"}]"
+        ],
+        "other event": []
+    }
+}

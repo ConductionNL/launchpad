@@ -89,10 +89,7 @@ class DemoShowcasesInstallCommand extends Command {
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$id = (string)$input->getArgument(name: 'id');
 		$lang = (string)($input->getOption(name: 'lang') ?? 'nl');
 		$force = (bool)$input->getOption(name: 'force');
@@ -103,33 +100,57 @@ class DemoShowcasesInstallCommand extends Command {
 				lang: $lang,
 				force: $force
 			);
-		} catch (ShowcaseNotFoundException) {
-			$output->writeln(messages: '<error>Showcase not found: ' . $id . '</error>');
-			return self::FAILURE;
 		} catch (Throwable $e) {
-			$output->writeln(messages: '<error>Installation failed: ' . $e->getMessage() . '</error>');
+			$output->writeln(messages: self::failureLine(exception: $e, showcaseId: $id));
 			return self::FAILURE;
 		}
 
-		if ($result['alreadyInstalled'] === true) {
-			$output->writeln(
-				messages: 'Showcase ' . $id . ' is already installed (UUID: ' . $result['installedDashboardUuid'] . ').'
-			);
-			$output->writeln(messages: 'Use --force to reinstall.');
-			return self::SUCCESS;
-		}
-
-		$output->writeln(
-			messages: 'Installed dashboard ' . $result['installedDashboardUuid']
-		);
-
-		$skipped = $result['skippedWidgets'];
-		if ($skipped !== []) {
-			$output->writeln(
-				messages: '<comment>Skipped unknown widgets: ' . implode(separator: ', ', array: $skipped) . '</comment>'
-			);
+		foreach (self::installedLines(showcaseId: $id, result: $result) as $line) {
+			$output->writeln(messages: $line);
 		}
 
 		return self::SUCCESS;
 	}//end execute()
+
+	/**
+	 * The error line of a failed install.
+	 *
+	 * @param Throwable $exception  The failure.
+	 * @param string    $showcaseId The showcase id.
+	 *
+	 * @return string The line.
+	 */
+	private static function failureLine(Throwable $exception, string $showcaseId): string {
+		if ($exception instanceof ShowcaseNotFoundException) {
+			return '<error>Showcase not found: ' . $showcaseId . '</error>';
+		}
+
+		return '<error>Installation failed: ' . $exception->getMessage() . '</error>';
+	}//end failureLine()
+
+	/**
+	 * The lines of an install: already installed (with the --force hint),
+	 * or the new dashboard and any skipped widgets.
+	 *
+	 * @param string               $showcaseId The showcase id.
+	 * @param array<string, mixed> $result     The install result.
+	 *
+	 * @return list<string> The lines.
+	 */
+	private static function installedLines(string $showcaseId, array $result): array {
+		if ($result['alreadyInstalled'] === true) {
+			return [
+				'Showcase ' . $showcaseId . ' is already installed (UUID: ' . $result['installedDashboardUuid'] . ').',
+				'Use --force to reinstall.',
+			];
+		}
+
+		$lines = ['Installed dashboard ' . $result['installedDashboardUuid']];
+		$skipped = $result['skippedWidgets'];
+		if ($skipped !== []) {
+			$lines[] = '<comment>Skipped unknown widgets: ' . implode(separator: ', ', array: $skipped) . '</comment>';
+		}
+
+		return $lines;
+	}//end installedLines()
 }//end class

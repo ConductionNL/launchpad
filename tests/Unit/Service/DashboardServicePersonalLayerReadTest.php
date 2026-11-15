@@ -31,6 +31,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -166,20 +171,30 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 		$this->layers = new PersonalLayerService($this->layerMapper());
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->createMock(AdminSettingMapper::class),
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $this->dashResolver,
-			treeService: $this->createMock(DashboardTreeService::class),
-			groupManager: $groupManager,
-			adminTemplateService: $adminTemplateService,
-			db: $this->createMock(IDBConnection::class),
-			config: $config,
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->layers,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->dashResolver,
+				adminTemplateService: $adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(DashboardTreeService::class),
+				personalLayers: $this->layers
+			),
+			platform: new DashboardPlatform(
+				groupManager: $groupManager,
+				db: $this->createMock(IDBConnection::class),
+				config: $config,
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 	}//end setUp()
 

@@ -33,7 +33,7 @@ feature.
 
 @e2e exclude proposed/unimplemented widget — `launchpad_spend_analytics` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, financeq/procest GraphQL routing, openconnector narrative gating, deep-links, and Specter-sourced rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
-### REQ-SAW-001: The system SHALL register a `launchpad_spend_analytics` widget type discoverable via the unified Add Widget modal
+### Requirement: REQ-SAW-001: The system SHALL register a `launchpad_spend_analytics` widget type discoverable via the unified Add Widget modal
 
 The widget MUST appear in `src/constants/widgetRegistry.js` (per the
 widgets capability REQ-WDG-014 single-source-of-truth rule) and MUST
@@ -61,7 +61,7 @@ the runtime GraphQL endpoints it consumes — never an entry in
   type
 - **AND** selecting it MUST mount the `SpendAnalyticsForm` sub-form
 
-### REQ-SAW-002: The widget SHALL declare a `launchpad_spend_analytics` entry in `src/manifest.json` with a soft `requires` clause
+### Requirement: REQ-SAW-002: The widget SHALL declare a `launchpad_spend_analytics` entry in `src/manifest.json` with a soft `requires` clause
 
 The manifest entry MUST live in `widgets[]` (per ADR-024 + the launchpad
 widget convention). It MUST set `requires.graphql` listing the
@@ -86,7 +86,7 @@ behaviour, not install.
 - **THEN** the manifest MUST pass schema validation with the
   spend-analytics widget entry present
 
-### REQ-SAW-003: The widget content shape SHALL be the persisted JSON contract for placements
+### Requirement: REQ-SAW-003: The widget content shape SHALL be the persisted JSON contract for placements
 
 The placement MUST persist `{type: 'spend-analytics', content: {...}}` in `oc_launchpad_widget_placements.content` (per the widgets capability
 REQ-WDG-010 emit shape). The `content` object MUST carry:
@@ -116,7 +116,7 @@ REQ-WDG-010 emit shape). The `content` object MUST carry:
 - **THEN** validation MUST return a non-empty error array
 - **AND** the modal MUST keep the Add/Save button disabled
 
-### REQ-SAW-004: The widget SHALL fetch spend data via runtime GraphQL against financeq + procest
+### Requirement: REQ-SAW-004: The widget SHALL fetch spend data via runtime GraphQL against financeq + procest
 
 The renderer MUST issue GraphQL operations to the sibling apps'
 OR-mounted `/graphql` endpoints via the shared client from
@@ -153,7 +153,7 @@ NOT call OR endpoints directly via `axios` from launchpad code.
 - **THEN** zero matches MUST exist — every cross-app call MUST
   route through the shared GraphQL client
 
-### REQ-SAW-005: The widget SHALL render an empty-state without throwing when a required sibling app is absent
+### Requirement: REQ-SAW-005: The widget SHALL render an empty-state without throwing when a required sibling app is absent
 
 When any required GraphQL endpoint returns 404 (sibling app not installed) or an empty result, the widget MUST render an empty-state
 panel naming the missing source and a hint for the admin. The
@@ -187,7 +187,7 @@ client-side (install is an admin action).
 - **AND** the vendor breakdown panel MUST render its own empty-state
   inline without disabling the rest of the widget
 
-### REQ-SAW-006: The widget SHALL surface AI-generated narrative via the openconnector LLM source — never a direct LLM client in launchpad
+### Requirement: REQ-SAW-006: The widget SHALL surface AI-generated narrative via the openconnector LLM source — never a direct LLM client in launchpad
 
 When `content.aiInsights.enabled === true`, the widget MUST issue an
 inference call through the openconnector LLM source registered as
@@ -224,7 +224,7 @@ pattern from `project_ai-chat-companion-end-to-end` (ADR-034 chain).
   `from 'openai'`, `from '@anthropic-ai/'`, or `LLPhant`
 - **THEN** zero matches MUST exist
 
-### REQ-SAW-007: Drill-through SHALL navigate to the sibling app's detail surface — launchpad MUST NOT mirror sibling-app pages
+### Requirement: REQ-SAW-007: Drill-through SHALL navigate to the sibling app's detail surface — launchpad MUST NOT mirror sibling-app pages
 
 Clicking a row in the widget (transaction, vendor, case) MUST
 navigate via deep-link to the owning sibling app's detail surface
@@ -258,7 +258,7 @@ data.
   cell — still served by the sibling app's GraphQL, not a launchpad
   copy
 
-### REQ-SAW-008: Evidence attachments SHALL be consumed via OR's `object-interactions` integration registry
+### Requirement: REQ-SAW-008: Evidence attachments SHALL be consumed via OR's `object-interactions` integration registry
 
 When `content.attachEvidence === true`, each spend row (transaction, case) MUST surface its docudesk-attached evidence (invoices,
 contracts) using OR's `object-interactions` files integration per

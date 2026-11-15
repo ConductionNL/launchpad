@@ -17,6 +17,10 @@
 </template>
 
 <script>
+import {
+	FLAG_PROP,
+	REQUIRED_OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { getWidgetTypeEntry } from '../../../constants/widgetRegistry.js'
 import {
 	buildRendererExtraProps,
@@ -61,15 +65,9 @@ export default {
 	},
 
 	props: {
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 	},
 
 	computed: {

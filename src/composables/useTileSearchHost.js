@@ -112,24 +112,49 @@ export function buildSearchableTiles(placements, availableWidgets) {
  * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
  */
 export function activateSearchResult(item) {
-	const placementId = String(item?.placement?.id ?? '')
-	const grid = gridContainer()
-	if (!placementId || !grid) {
-		return false
-	}
-	const el = grid.querySelector(
-		`.launchpad-grid-item[data-placement-id="${placementId.replace(/"/g, '\\"')}"]`,
-	)
+	const el = resultTile(item)
 	if (!el) {
 		return false
 	}
 	if (typeof el.scrollIntoView === 'function') {
 		el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 	}
+	openTile(el)
+	return true
+}
+
+/**
+ * The rendered grid item of an opened search result, or null when the page
+ * has no grid or the result names no placement the grid shows.
+ *
+ * @param {{placement: object}} item the opened result.
+ * @return {HTMLElement|null} the grid item.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
+ */
+function resultTile(item) {
+	const placementId = String(item?.placement?.id ?? '')
+	const grid = gridContainer()
+	if (!placementId || !grid) {
+		return null
+	}
+	return grid.querySelector(
+		`.launchpad-grid-item[data-placement-id="${placementId.replace(/"/g, '\\"')}"]`,
+	)
+}
+
+/**
+ * Open a grid item: follow its link when it has one, otherwise focus the
+ * item itself (made focusable first when it is not).
+ *
+ * @param {HTMLElement} el the grid item.
+ * @return {void}
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
+ */
+function openTile(el) {
 	const link = el.querySelector('a[href]')
 	if (link && typeof link.click === 'function') {
 		link.click()
-		return true
+		return
 	}
 	if (typeof el.focus === 'function') {
 		if (!el.hasAttribute('tabindex')) {
@@ -137,7 +162,6 @@ export function activateSearchResult(item) {
 		}
 		el.focus({ preventScroll: true })
 	}
-	return true
 }
 
 /**

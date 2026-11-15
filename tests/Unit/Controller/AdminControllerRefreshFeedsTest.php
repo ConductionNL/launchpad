@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
+use OCA\LaunchPad\Controller\AdminSettingsTools;
+use OCA\LaunchPad\Controller\AdminTemplateTools;
 use OCA\LaunchPad\Controller\AdminController;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
@@ -66,18 +69,24 @@ class AdminControllerRefreshFeedsTest extends TestCase {
 
 		$this->controller = new AdminController(
 			request: $this->request,
-			templateService: $this->templateService,
-			settingsService: $this->settingsService,
-			groupManager: $this->groupManager,
-			userSession: $this->userSession,
-			exportService: $this->createMock(\OCA\LaunchPad\Service\ExportService::class),
-			importService: $this->createMock(\OCA\LaunchPad\Service\ImportService::class),
-			roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-			feedRefresh: $this->feedRefresh,
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
-			setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class),
-			actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class),
-			resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class),
+			templates: new AdminTemplateTools(
+				templateService: $this->templateService,
+				exportService: $this->createMock(\OCA\LaunchPad\Service\ExportService::class),
+				importService: $this->createMock(\OCA\LaunchPad\Service\ImportService::class),
+				resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class)
+			),
+			settings: new AdminSettingsTools(
+				settingsService: $this->settingsService,
+				groupManager: $this->groupManager,
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
+			),
+			caller: new AdminCallerAndRoles(
+				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
+				feedRefresh: $this->feedRefresh,
+				userSession: $this->userSession,
+				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
+			)
 		);
 	}//end setUp()
 

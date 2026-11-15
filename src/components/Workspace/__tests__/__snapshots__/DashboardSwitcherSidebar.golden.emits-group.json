@@ -1,0 +1,81 @@
+{
+ "update:open": [
+  [
+   false
+  ],
+  [
+   false
+  ],
+  [
+   false
+  ]
+ ],
+ "switch": [
+  [
+   1,
+   "group"
+  ],
+  [
+   1,
+   "group"
+  ],
+  [
+   1,
+   "group"
+  ]
+ ],
+ "toggleEdit": [
+  [
+   {
+    "id": 1,
+    "uuid": "ug",
+    "name": "Team Board",
+    "icon": "Star",
+    "source": "group"
+   },
+   "group"
+  ]
+ ],
+ "openConfig": [
+  [
+   {
+    "id": 1,
+    "uuid": "ug",
+    "name": "Team Board",
+    "icon": "Star",
+    "source": "group"
+   },
+   "group"
+  ]
+ ],
+ "addCustomWidget": [
+  [
+   {
+    "id": 1,
+    "uuid": "ug",
+    "name": "Team Board",
+    "icon": "Star",
+    "source": "group"
+   },
+   "group"
+  ]
+ ],
+ "deleteDashboard": [
+  [
+   1,
+   "group"
+  ]
+ ],
+ "setDefault": [
+  [
+   {
+    "id": 1,
+    "uuid": "ug",
+    "name": "Team Board",
+    "icon": "Star",
+    "source": "group"
+   },
+   "group"
+  ]
+ ]
+}

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\LockApiCaller;
+use OCA\LaunchPad\Controller\LockSources;
 use OCA\LaunchPad\Controller\DashboardLockApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardLock;
@@ -34,6 +36,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Service\RequestGuard;
+use OCP\IGroupManager;
 
 class DashboardLockApiControllerTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -69,12 +73,15 @@ class DashboardLockApiControllerTest extends TestCase {
 
 		return new DashboardLockApiController(
 			request: $this->request,
-			lockService: $this->lockService,
+			caller: new LockApiCaller(
+				sources: new LockSources(
+					lockService: $this->lockService,
+					dashboardMapper: $this->dashboardMapper
+				),
+				guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->createMock(IGroupManager::class), actionAuth: $this->actionAuth)
+			),
 			permissionService: $this->permissionService,
-			dashboardMapper: $this->dashboardMapper,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			userId: $userId,
+			userId: $userId
 		);
 	}
 

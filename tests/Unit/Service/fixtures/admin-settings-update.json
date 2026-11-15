@@ -1,0 +1,155 @@
+{
+    "nothing": {
+        "writes": [],
+        "error": null
+    },
+    "all": {
+        "writes": [
+            [
+                "default_permission_level",
+                "view_only"
+            ],
+            [
+                "allow_user_dashboards",
+                true
+            ],
+            [
+                "allow_multiple_dashboards",
+                false
+            ],
+            [
+                "default_grid_columns",
+                6
+            ],
+            [
+                "link_create_file_extensions",
+                [
+                    "txt",
+                    "md",
+                    "docx"
+                ]
+            ],
+            [
+                "max_dashboards_per_user",
+                10000
+            ],
+            [
+                "max_widgets_per_dashboard",
+                0
+            ],
+            [
+                "quicksearch_fallback_target",
+                "unified-search"
+            ],
+            [
+                "default_share_permission_level",
+                "full"
+            ],
+            [
+                "forced_share_groups",
+                [
+                    "staff",
+                    "board"
+                ]
+            ],
+            [
+                "legacy_widget_bridge_enabled",
+                true
+            ],
+            [
+                "start_page_without_navigation",
+                true
+            ]
+        ],
+        "error": null
+    },
+    "all false and zero": {
+        "writes": [
+            [
+                "allow_user_dashboards",
+                false
+            ],
+            [
+                "allow_multiple_dashboards",
+                true
+            ],
+            [
+                "default_grid_columns",
+                0
+            ],
+            [
+                "max_dashboards_per_user",
+                0
+            ],
+            [
+                "legacy_widget_bridge_enabled",
+                false
+            ],
+            [
+                "start_page_without_navigation",
+                false
+            ]
+        ],
+        "error": null
+    },
+    "nulls": {
+        "writes": [],
+        "error": null
+    },
+    "empty lists": {
+        "writes": [
+            [
+                "link_create_file_extensions",
+                [
+                    "txt",
+                    "md",
+                    "docx",
+                    "xlsx",
+                    "csv",
+                    "odt"
+                ]
+            ],
+            [
+                "forced_share_groups",
+                []
+            ]
+        ],
+        "error": null
+    },
+    "url fallback": {
+        "writes": [
+            [
+                "quicksearch_fallback_target",
+                "https://example.org/?q={query}"
+            ]
+        ],
+        "error": null
+    },
+    "bad fallback": {
+        "writes": [
+            [
+                "default_permission_level",
+                "full"
+            ]
+        ],
+        "error": "Invalid value for quicksearchFallbackTarget. Must be 'none', 'unified-search', or an https URL template containing '{query}'."
+    },
+    "bad share level": {
+        "writes": [
+            [
+                "allow_user_dashboards",
+                true
+            ]
+        ],
+        "error": "Invalid value for defaultSharePermissionLevel. Must be 'view_only', 'add_only' or 'full'."
+    },
+    "only last": {
+        "writes": [
+            [
+                "start_page_without_navigation",
+                true
+            ]
+        ],
+        "error": null
+    }
+}

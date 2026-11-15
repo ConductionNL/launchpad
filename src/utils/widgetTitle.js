@@ -66,40 +66,66 @@ export function resolveWidgetTitle(placement, availableWidgets) {
 	if (!placement) {
 		return t('launchpad', 'Widget')
 	}
+	return (
+		ownTitle(placement)
+		|| catalogTitle(placement, availableWidgets || [])
+		|| typeTitle(placement)
+	)
+}
 
+/**
+ * The title a placement carries itself: a launcher tile's own title (or the
+ * generic word "Tile"), else the author's per-placement override.
+ *
+ * An empty string is a real stored value for the override (the add-widget
+ * modal writes `''` when the author leaves the field alone), so truthiness is
+ * the right test: `!= null` would return the empty string and blank the header.
+ *
+ * @param {object} placement The widget placement.
+ * @return {string|null} The title, or null when the placement has none.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ */
+function ownTitle(placement) {
 	if (placement.tileType === 'custom') {
 		return placement.tileTitle || t('launchpad', 'Tile')
 	}
+	return placement.customTitle || null
+}
 
-	// An empty string is a real stored value here (the add-widget modal writes
-	// `''` when the author leaves the field alone), so truthiness is the right
-	// test — `!= null` would return the empty string and blank the header.
-	if (placement.customTitle) {
-		return placement.customTitle
-	}
-
-	const catalog = availableWidgets || []
-
+/**
+ * The catalog title of the Nextcloud Dashboard widget a placement IS, else
+ * of the widget an `nc-widget` placement PROXIES through `content.widgetId`.
+ *
+ * @param {object} placement The widget placement.
+ * @param {Array<object>} catalog The `{id, title}` widget catalog.
+ * @return {string|null} The title, or null when the catalog has none.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ */
+function catalogTitle(placement, catalog) {
 	const direct = catalog.find((w) => w.id === placement.widgetId)
 	if (direct?.title) {
 		return direct.title
 	}
-
 	const proxiedId = placement.content?.widgetId
-	if (proxiedId) {
-		const proxied = catalog.find((w) => w.id === proxiedId)
-		if (proxied?.title) {
-			return proxied.title
-		}
+	if (!proxiedId) {
+		return null
 	}
+	return catalog.find((w) => w.id === proxiedId)?.title || null
+}
 
-	// The communal registration stores a plain English label; re-localise it
-	// the same way `widgetRegistry.js::decorate()` does, so the picker, the
-	// grid header and the search results all read identically.
+/**
+ * The widget type's display name, re-localised the same way
+ * `widgetRegistry.js::decorate()` does so the picker, the grid header and the
+ * search results all read identically; else the generic word "Widget".
+ *
+ * @param {object} placement The widget placement.
+ * @return {string} The title.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ */
+function typeTitle(placement) {
 	const displayName = dashboardWidgetRegistry?.[placement.widgetId]?.displayName
 	if (displayName) {
 		return t('launchpad', displayName)
 	}
-
 	return t('launchpad', 'Widget')
 }

@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ResyncStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
@@ -63,6 +64,13 @@ class TemplateResyncServiceTest extends TestCase {
 	/** @var ActivityPublisher&MockObject */
 	private $activityPublisher;
 
+	/**
+	 * Audit rows whose checks ran.
+	 *
+	 * @var int
+	 */
+	private int $audited = 0;
+
 	/** @var INotificationManager&MockObject */
 	private $notificationManager;
 
@@ -86,13 +94,15 @@ class TemplateResyncServiceTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new TemplateResyncService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			db: $this->db,
+			stores: new ResyncStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				jobList: $this->jobList
+			),
 			activityPublisher: $this->activityPublisher,
 			notificationManager: $this->notificationManager,
-			jobList: $this->jobList,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 	}
 
@@ -562,19 +572,17 @@ class TemplateResyncServiceTest extends TestCase {
 
 		$this->activityPublisher->expects($this->once())
 			->method('publish')
-			->willReturnCallback(function (
-				string $type,
-				string $actorUserId,
-				string $recipientUserId,
-				string $dashboardUuid,
-				string $dashboardName,
-				string $dashboardLink,
-				array $extraParams = [],
-			) {
-				$this->assertSame('admin1', $actorUserId);
-				$this->assertSame(1, $extraParams['templateId']);
-				$this->assertSame(TemplateResyncService::STRATEGY_MERGE, $extraParams['strategy']);
-				$this->assertSame(12, $extraParams['affectedCount']);
+			->willReturnCallback(function (\OCA\LaunchPad\Activity\ActivityRow $row, string $recipientUserId) {
+				$this->assertSame('admin1', $row->actorUserId);
+				$this->assertSame('admin1', $recipientUserId);
+				$this->assertSame('template-resync-1', $row->dashboard->uuid);
+				$this->assertSame('Template resync: Marketing Dashboard (merge, 12 copies)', $row->dashboard->name);
+				$this->assertSame(\OCA\LaunchPad\Activity\Extension::EVENT_UPDATED, $row->type);
+				$this->assertSame(
+					['templateResync' => true, 'templateId' => 1, 'strategy' => TemplateResyncService::STRATEGY_MERGE, 'affectedCount' => 12],
+					$row->extraParams
+				);
+				$this->audited++;
 				return true;
 			});
 
@@ -585,6 +593,31 @@ class TemplateResyncServiceTest extends TestCase {
 		);
 
 		$this->assertSame(12, $result['affectedCount']);
+		$this->assertSame(1, $this->audited, 'the audit row reached the publisher and its checks ran');
+	}
+
+	/**
+	 * A failing audit write is logged with the template id and does not
+	 * stop the run.
+	 */
+	public function testAFailedAuditRowIsLoggedAndTheRunCompletes(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->makeTemplate(id: 3));
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([]);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$failure = new \RuntimeException('activity down');
+		$this->activityPublisher->method('publish')->willThrowException($failure);
+		$this->logger->expects($this->once())->method('warning')->with(
+			'launchpad.template_resync.audit_event_failed',
+			['templateId' => 3, 'exception' => $failure]
+		);
+
+		$result = $this->service->applyResync(
+			templateId: 3,
+			strategy: TemplateResyncService::STRATEGY_OVERWRITE,
+			actingAdminId: 'admin1'
+		);
+
+		$this->assertSame(0, $result['affectedCount']);
 	}
 
 	public function testAffectedUsersAreNotified(): void {
@@ -670,6 +703,99 @@ class TemplateResyncServiceTest extends TestCase {
 		$this->assertTrue($result['async']);
 		$this->assertTrue($result['accepted']);
 		$this->assertSame($copyCount, $result['totalCopies']);
+	}
+
+	/**
+	 * The applied report, the audit row and the notifications for a run
+	 * with an unchanged copy, a copy that takes the change and a copy whose
+	 * write fails (pinned before applyResync() was split).
+	 */
+	public function testAppliedReportAuditAndNotificationsOfAMixedRun(): void {
+		$template = $this->makeTemplate();
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$templatePlacement = $this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links');
+		$unchanged = $this->makeCopy(id: 101, userId: 'amy');
+		$changed = $this->makeCopy(id: 102, userId: 'bob');
+		$failing = $this->makeCopy(id: 103, userId: 'cas');
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$unchanged, $changed, $failing]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, [$templatePlacement]],
+			[101, [$this->makePlacement(id: 201, dashboardId: 101, widgetId: 'links', templatePlacementId: 10)]],
+			[102, []],
+			[103, []],
+		]);
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement): WidgetPlacement {
+				if ($placement->getDashboardId() === 103) {
+					throw new \RuntimeException('disk full');
+				}
+				return $placement;
+			}
+		);
+
+		$published = [];
+		$this->activityPublisher->method('publish')->willReturnCallback(
+			static function ($row, string $recipientUserId) use (&$published): void {
+				$published[] = [$row->dashboard->name, $row->extraParams, $recipientUserId];
+			}
+		);
+		$notified = [];
+		$this->notificationManager->method('createNotification')->willReturnCallback(function () use (&$notified) {
+			$notification = $this->createMock(INotification::class);
+			foreach (['setApp', 'setDateTime', 'setObject', 'setSubject'] as $method) {
+				$notification->method($method)->willReturnSelf();
+			}
+			$notification->method('setUser')->willReturnCallback(
+				function (string $user) use (&$notified, $notification) {
+					$notified[] = $user;
+					return $notification;
+				}
+			);
+			return $notification;
+		});
+
+		$result = $this->service->applyResync(templateId: 1, strategy: TemplateResyncService::STRATEGY_MERGE, actingAdminId: 'admin1');
+
+		$this->assertSame(['templateId', 'strategy', 'dryRun', 'async', 'totalCopies', 'affectedCount', 'copies'], array_keys($result));
+		$this->assertSame([1, TemplateResyncService::STRATEGY_MERGE, false, false, 3, 1], array_slice(array_values($result), 0, 6));
+		$this->assertSame([101, 102, 103], array_map(static fn (array $c) => $c['dashboardId'], $result['copies']));
+		$this->assertTrue($this->findCopyReport($result['copies'], 101)['applied']);
+		$this->assertTrue($this->findCopyReport($result['copies'], 102)['applied']);
+		$this->assertFalse($this->findCopyReport($result['copies'], 103)['applied']);
+		$this->assertNotNull($this->findCopyReport($result['copies'], 103)['error']);
+		$this->assertSame(
+			[['Template resync: ' . $template->getName() . ' (merge, 1 copies)', ['templateResync' => true, 'templateId' => 1, 'strategy' => 'merge', 'affectedCount' => 1], 'admin1']],
+			$published
+		);
+		$this->assertSame(['bob'], $notified);
+	}
+
+	/**
+	 * The dry-run and the accepted async report shapes.
+	 */
+	public function testDryRunAndAsyncReportShapes(): void {
+		$template = $this->makeTemplate();
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$templatePlacement = $this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links');
+		$copies = [];
+		$map = [[1, [$templatePlacement]]];
+		for ($i = 1; $i <= TemplateResyncService::ASYNC_THRESHOLD + 1; $i++) {
+			$copies[] = $this->makeCopy(id: 1000 + $i, userId: 'u' . $i);
+			$map[] = [1000 + $i, ($i % 2 === 0 ? [] : [$this->makePlacement(id: 5000 + $i, dashboardId: 1000 + $i, widgetId: 'links', templatePlacementId: 10)])];
+		}
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn($copies);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap($map);
+
+		$dry = $this->service->resync(templateId: 1, strategy: TemplateResyncService::STRATEGY_MERGE, dryRun: true, actingAdminId: 'admin1');
+		$this->assertTrue($dry['dryRun']);
+		$this->assertFalse($dry['async']);
+		$this->assertSame(25, $dry['affectedCount']);
+
+		$async = $this->service->resync(templateId: 1, strategy: TemplateResyncService::STRATEGY_MERGE, dryRun: false, actingAdminId: 'admin1');
+		$this->assertSame(
+			['templateId' => 1, 'strategy' => 'merge', 'dryRun' => false, 'async' => true, 'accepted' => true, 'totalCopies' => 51, 'affectedCount' => 25],
+			$async
+		);
 	}
 
 	// ---------------------------------------------------------------

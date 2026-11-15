@@ -27,6 +27,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
@@ -164,21 +169,31 @@ class DashboardServiceAllowFlagTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->settingMapper,
-			templateService: $this->templateService,
-			dashboardFactory: $this->dashboardFactory,
-			dashResolver: $this->dashResolver,
-			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-			groupManager: $this->groupManager,
-			adminTemplateService: $this->adminTemplateService,
-			db: $this->db,
-			config: $this->config,
-			l10nFactory: $this->l10nFactory,
-			logger: $this->logger,
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->settingMapper
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->templateService,
+				dashboardFactory: $this->dashboardFactory,
+				dashResolver: $this->dashResolver,
+				adminTemplateService: $this->adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->db,
+				config: $this->config,
+				l10nFactory: $this->l10nFactory
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->logger
+			)
 		);
 	}//end setUp()
 

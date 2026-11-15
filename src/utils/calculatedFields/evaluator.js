@@ -399,6 +399,37 @@ function matching(values, keys, value, what) {
 }
 
 /**
+ * A divisor that is not zero, or a runtime error.
+ *
+ * @param {unknown} b The divisor.
+ * @param {string} op The operator.
+ * @return {number} The divisor.
+ */
+function divisor(b, op) {
+	if (num(b, op) === 0) throw new EvaluationError('division by zero')
+	return b
+}
+
+/**
+ * The arithmetic and equality operators, on evaluated, non-null operands.
+ */
+const BINARY_OPERATORS = {
+	'+': (a, b) => finite(num(a, '+') + num(b, '+')),
+	'-': (a, b) => finite(num(a, '-') - num(b, '-')),
+	'*': (a, b) => finite(num(a, '*') * num(b, '*')),
+	'/': (a, b) => {
+		const d = divisor(b, '/')
+		return finite(num(a, '/') / d)
+	},
+	'%': (a, b) => {
+		const d = divisor(b, '%')
+		return num(a, '%') % d
+	},
+	'==': (a, b) => a === b,
+	'!=': (a, b) => a !== b,
+}
+
+/**
  * Apply a binary operator to two evaluated, non-null operands.
  *
  * @param {string} op The operator.
@@ -407,25 +438,11 @@ function matching(values, keys, value, what) {
  * @return {unknown} The result.
  */
 function applyBinary(op, a, b) {
-	switch (op) {
-	case '+': return finite(num(a, '+') + num(b, '+'))
-	case '-': return finite(num(a, '-') - num(b, '-'))
-	case '*': return finite(num(a, '*') * num(b, '*'))
-	case '/':
-		if (num(b, '/') === 0) throw new EvaluationError('division by zero')
-		return finite(num(a, '/') / b)
-	case '%':
-		if (num(b, '%') === 0) throw new EvaluationError('division by zero')
-		return num(a, '%') % b
-	case '==': return a === b
-	case '!=': return a !== b
-	default: {
-		if (typeof a !== typeof b || (typeof a !== 'number' && typeof a !== 'string')) {
-			throw new EvaluationError(`'${op}' needs two numbers, two strings or two dates`)
-		}
-		return { '<': a < b, '<=': a <= b, '>': a > b, '>=': a >= b }[op]
+	if (Object.hasOwn(BINARY_OPERATORS, op)) return BINARY_OPERATORS[op](a, b)
+	if (typeof a !== typeof b || (typeof a !== 'number' && typeof a !== 'string')) {
+		throw new EvaluationError(`'${op}' needs two numbers, two strings or two dates`)
 	}
-	}
+	return { '<': a < b, '<=': a <= b, '>': a > b, '>=': a >= b }[op]
 }
 
 /**
@@ -441,6 +458,94 @@ function bool(value, what) {
 }
 
 /**
+ * The value of a field reference: the row's own field, or another widget's
+ * calculated value or data field.
+ *
+ * @param {object} node The fieldRef node.
+ * @param {object} env The evaluation environment.
+ * @return {unknown} The value.
+ */
+function fieldValue(node, env) {
+	if (node.source === 'self') return readPath(env.row, node.path)
+	const id = node.source.slice('widget:'.length)
+	const calculated = env.widgetCalculated[id]
+	if (calculated && Object.hasOwn(calculated, node.path)) return calculated[node.path]
+	return readPath(env.widgets[id] ?? null, node.path)
+}
+
+/**
+ * The value of a unary expression; null stays null.
+ *
+ * @param {object} node The unary node.
+ * @param {object} env The evaluation environment.
+ * @return {unknown} The value.
+ */
+function unaryValue(node, env) {
+	const v = env.run(node.operand)
+	if (v === null) return null
+	return node.op === 'not' ? !bool(v, 'not') : -num(v, '-')
+}
+
+/**
+ * The value of a binary expression; a null operand makes it null.
+ *
+ * @param {object} node The binary node.
+ * @param {object} env The evaluation environment.
+ * @return {unknown} The value.
+ */
+function binaryValue(node, env) {
+	const a = env.run(node.left)
+	const b = env.run(node.right)
+	if (a === null || b === null) return null
+	if (node.op === 'and') return bool(a, 'and') && bool(b, 'and')
+	if (node.op === 'or') return bool(a, 'or') || bool(b, 'or')
+	return applyBinary(node.op, a, b)
+}
+
+/**
+ * The value of an if expression; a null condition makes it null.
+ *
+ * @param {object} node The if node.
+ * @param {object} env The evaluation environment.
+ * @return {unknown} The value.
+ */
+function ifValue(node, env) {
+	const cond = env.run(node.cond)
+	if (cond === null) return null
+	return bool(cond, 'if') ? env.run(node.then) : env.run(node.else)
+}
+
+/**
+ * The value of a function call; a null argument makes it null unless the
+ * function handles nulls itself.
+ *
+ * @param {object} node The call node.
+ * @param {object} env The evaluation environment.
+ * @return {unknown} The value.
+ */
+function callValue(node, env) {
+	const impl = IMPLEMENTATIONS[node.name]
+	if (!impl) throw new EvaluationError(`unknown function '${node.name}'`)
+	const args = node.args.map(env.run)
+	if (!NULL_AWARE.has(node.name) && args.some((v) => v === null)) return null
+	const result = impl(args, env.ctx)
+	return result === undefined ? null : result
+}
+
+/**
+ * How each node type is evaluated.
+ */
+const NODE_EVALUATORS = {
+	literal: (node) => node.value,
+	fieldRef: fieldValue,
+	calculatedRef: (node, env) => (Object.hasOwn(env.calculated, node.name) ? env.calculated[node.name] : null),
+	unary: unaryValue,
+	binary: binaryValue,
+	if: ifValue,
+	call: callValue,
+}
+
+/**
  * Evaluate an AST on a row.
  *
  * @param {object} ast The compiled expression.
@@ -451,55 +556,57 @@ function bool(value, what) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-005-identical-results-between-evaluators
  */
 export function evaluate(ast, context = {}, options = {}) {
-	const ctx = { now: Number.isFinite(options.now) ? options.now : Date.now() }
-	const row = context.row ?? {}
-	const calculated = context.calculated ?? {}
-	const widgets = context.widgets ?? {}
-	const widgetCalculated = context.widgetCalculated ?? {}
-
-	const run = (node) => {
-		switch (node.type) {
-		case 'literal':
-			return node.value
-		case 'fieldRef': {
-			if (node.source === 'self') return readPath(row, node.path)
-			const id = node.source.slice('widget:'.length)
-			if (widgetCalculated[id] && Object.hasOwn(widgetCalculated[id], node.path)) return widgetCalculated[id][node.path]
-			return readPath(widgets[id] ?? null, node.path)
-		}
-		case 'calculatedRef':
-			return Object.hasOwn(calculated, node.name) ? calculated[node.name] : null
-		case 'unary': {
-			const v = run(node.operand)
-			if (v === null) return null
-			return node.op === 'not' ? !bool(v, 'not') : -num(v, '-')
-		}
-		case 'binary': {
-			const a = run(node.left)
-			const b = run(node.right)
-			if (a === null || b === null) return null
-			if (node.op === 'and') return bool(a, 'and') && bool(b, 'and')
-			if (node.op === 'or') return bool(a, 'or') || bool(b, 'or')
-			return applyBinary(node.op, a, b)
-		}
-		case 'if': {
-			const cond = run(node.cond)
-			if (cond === null) return null
-			return bool(cond, 'if') ? run(node.then) : run(node.else)
-		}
-		case 'call': {
-			const impl = IMPLEMENTATIONS[node.name]
-			if (!impl) throw new EvaluationError(`unknown function '${node.name}'`)
-			const args = node.args.map(run)
-			if (!NULL_AWARE.has(node.name) && args.some((v) => v === null)) return null
-			const result = impl(args, ctx)
-			return result === undefined ? null : result
-		}
-		default:
-			throw new EvaluationError(`unknown node '${node.type}'`)
-		}
+	const env = {
+		ctx: { now: Number.isFinite(options.now) ? options.now : Date.now() },
+		row: context.row ?? {},
+		calculated: context.calculated ?? {},
+		widgets: context.widgets ?? {},
+		widgetCalculated: context.widgetCalculated ?? {},
 	}
-	return run(ast)
+	env.run = (node) => {
+		if (!Object.hasOwn(NODE_EVALUATORS, node.type)) throw new EvaluationError(`unknown node '${node.type}'`)
+		return NODE_EVALUATORS[node.type](node, env)
+	}
+	return env.run(ast)
+}
+
+/**
+ * The value one field reference reads, or null when it cannot be read.
+ *
+ * @param {{source: string, path: string}} ref The reference.
+ * @param {object} context As for {@link evaluate}.
+ * @param {object} options As for {@link evaluate}.
+ * @return {unknown} The value.
+ */
+function inputValue(ref, context, options) {
+	try {
+		return evaluate({ type: 'fieldRef', source: ref.source, path: ref.path }, context, options)
+	} catch {
+		return null
+	}
+}
+
+/**
+ * The values an expression reads, by field path and calculated-field name,
+ * for the inline error of a failed field.
+ *
+ * @param {object|undefined} ast The compiled expression.
+ * @param {object} context As for {@link evaluate}.
+ * @param {object} options As for {@link evaluate}.
+ * @return {object} The inputs.
+ */
+function inputsOf(ast, context, options) {
+	const inputs = {}
+	const refs = ast ? referencesOf(ast) : { fields: [], calculated: [] }
+	for (const ref of refs.fields) {
+		const key = ref.source === 'self' ? ref.path : `${ref.source}.${ref.path}`
+		inputs[key] = inputValue(ref, context, options)
+	}
+	const calculated = context.calculated ?? {}
+	for (const name of refs.calculated) {
+		inputs[name] = Object.hasOwn(calculated, name) ? calculated[name] : null
+	}
+	return inputs
 }
 
 /**
@@ -518,23 +625,10 @@ export function evaluateField(field, context = {}, options = {}) {
 	try {
 		return { value: evaluate(field.compiledExpression, context, options) }
 	} catch (e) {
-		const inputs = {}
-		const refs = field.compiledExpression ? referencesOf(field.compiledExpression) : { fields: [], calculated: [] }
-		for (const ref of refs.fields) {
-			const key = ref.source === 'self' ? ref.path : `${ref.source}.${ref.path}`
-			try {
-				inputs[key] = evaluate({ type: 'fieldRef', source: ref.source, path: ref.path }, context, options)
-			} catch {
-				inputs[key] = null
-			}
-		}
-		for (const name of refs.calculated) {
-			inputs[name] = Object.hasOwn(context.calculated ?? {}, name) ? context.calculated[name] : null
-		}
 		return {
 			error: e instanceof EvaluationError ? e.message : 'evaluation failed',
 			expression: field.expression ?? '',
-			inputs,
+			inputs: inputsOf(field.compiledExpression, context, options),
 		}
 	}
 }

@@ -158,6 +158,27 @@ function signatureError(name, index, node, actual, allowed) {
 }
 
 /**
+ * The calculated-field type of each JSON-schema type other than string.
+ */
+const PROPERTY_TYPES = {
+	number: 'number',
+	integer: 'number',
+	boolean: 'boolean',
+	array: 'list',
+	date: 'date',
+	duration: 'duration',
+}
+
+/**
+ * The calculated-field type of a string property, by its format.
+ */
+const STRING_FORMAT_TYPES = {
+	date: 'date',
+	'date-time': 'date',
+	duration: 'duration',
+}
+
+/**
  * The type of a schema property: number, string, boolean, date, duration,
  * list, or any when the schema does not say.
  *
@@ -168,16 +189,8 @@ function signatureError(name, index, node, actual, allowed) {
 export function typeOfProperty(property) {
 	const spec = typeof property === 'string' ? { type: property } : (property || {})
 	const type = Array.isArray(spec.type) ? spec.type.find((t) => t !== 'null') : spec.type
-	if (type === 'number' || type === 'integer') return 'number'
-	if (type === 'boolean') return 'boolean'
-	if (type === 'array') return 'list'
-	if (type === 'date' || type === 'duration') return type
-	if (type === 'string') {
-		if (spec.format === 'date' || spec.format === 'date-time') return 'date'
-		if (spec.format === 'duration') return 'duration'
-		return 'string'
-	}
-	return 'any'
+	if (type === 'string') return Object.hasOwn(STRING_FORMAT_TYPES, spec.format) ? STRING_FORMAT_TYPES[spec.format] : 'string'
+	return Object.hasOwn(PROPERTY_TYPES, type) ? PROPERTY_TYPES[type] : 'any'
 }
 
 /**
@@ -219,19 +232,25 @@ function binaryType(node, left, right) {
 		operands: [describeNode(node.left), describeNode(node.right)],
 	})
 	const known = [left, right].filter((type) => type !== 'any' && type !== 'null')
-	if (ARITHMETIC.includes(node.op)) {
-		if (known.every((type) => type === 'number')) return 'number'
-		throw refuse()
-	}
-	if (node.op === 'and' || node.op === 'or') {
-		if (known.every((type) => type === 'boolean')) return 'boolean'
-		throw refuse()
-	}
-	if (ORDERING.includes(node.op) && known.some((type) => !ORDERABLE.includes(type))) {
-		throw refuse()
-	}
-	if (known.length === 2 && known[0] !== known[1]) throw refuse()
-	return 'boolean'
+	const result = operatorResult(node.op, known)
+	if (result === null) throw refuse()
+	return result
+}
+
+/**
+ * The result type of a binary operator on its known operand types, or null
+ * when it does not take them: arithmetic on numbers, and/or on booleans,
+ * ordering on orderable types, and comparison on two of the same type.
+ *
+ * @param {string} op The operator.
+ * @param {string[]} known The operand types that are not any or null.
+ * @return {string|null} The result type, or null.
+ */
+function operatorResult(op, known) {
+	if (ARITHMETIC.includes(op)) return known.every((type) => type === 'number') ? 'number' : null
+	if (op === 'and' || op === 'or') return known.every((type) => type === 'boolean') ? 'boolean' : null
+	if (ORDERING.includes(op) && known.some((type) => !ORDERABLE.includes(type))) return null
+	return known.length === 2 && known[0] !== known[1] ? null : 'boolean'
 }
 
 /**
@@ -259,6 +278,63 @@ function callType(node, types) {
 }
 
 /**
+ * The type of a unary expression: not takes a boolean, minus a number or a duration.
+ *
+ * @param {object} node The unary node.
+ * @param {object} env The inference environment.
+ * @return {string} The type.
+ * @throws {CalculatedFieldError} `typeError` naming the operand.
+ */
+function unaryType(node, env) {
+	const type = env.infer(node.operand)
+	const allowed = node.op === 'not' ? ['boolean'] : ['number', 'duration']
+	if (!fits(type, allowed)) {
+		throw new CalculatedFieldError({
+			error: 'typeError',
+			message: `Cannot apply '${node.op}' to ${describeNode(node.operand)} (${type})`,
+			operands: [describeNode(node.operand)],
+		})
+	}
+	if (node.op === 'not') return 'boolean'
+	return type === 'duration' ? 'duration' : 'number'
+}
+
+/**
+ * The type of an if expression: a boolean condition and the unified branches.
+ *
+ * @param {object} node The if node.
+ * @param {object} env The inference environment.
+ * @return {string} The type.
+ * @throws {CalculatedFieldError} `typeError` for a condition that is not boolean.
+ */
+function ifType(node, env) {
+	const cond = env.infer(node.cond)
+	if (!fits(cond, ['boolean'])) {
+		throw new CalculatedFieldError({
+			error: 'typeError',
+			message: `The condition ${describeNode(node.cond)} must be boolean, got ${cond}`,
+			operands: [describeNode(node.cond)],
+		})
+	}
+	return unify([env.infer(node.then), env.infer(node.else)], [node.then, node.else])
+}
+
+/**
+ * How the type of each node type is inferred.
+ */
+const NODE_TYPES = {
+	literal: (node) => node.valueType,
+	fieldRef: (node, env) => (node.source === 'self'
+		? typeOfPath(env.fieldSchema, node.path)
+		: typeOfPath(env.widgetSchemas[node.source.slice('widget:'.length)], node.path)),
+	calculatedRef: (node, env) => env.calculatedTypes[node.name] || 'any',
+	unary: unaryType,
+	binary: (node, env) => binaryType(node, env.infer(node.left), env.infer(node.right)),
+	if: ifType,
+	call: (node, env) => callType(node, node.args.map(env.infer)),
+}
+
+/**
  * Infer the type of an expression, refusing one whose operators or functions
  * get arguments they do not take.
  *
@@ -270,46 +346,16 @@ function callType(node, types) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-002-type-checking-at-save-time
  */
 export function inferType(ast, fieldSchema, options = {}) {
-	const calculatedTypes = options.calculatedTypes || {}
-	const widgetSchemas = options.widgetSchemas || {}
-	const infer = (node) => {
-		switch (node.type) {
-		case 'literal':
-			return node.valueType
-		case 'fieldRef':
-			return node.source === 'self'
-				? typeOfPath(fieldSchema, node.path)
-				: typeOfPath(widgetSchemas[node.source.slice('widget:'.length)], node.path)
-		case 'calculatedRef':
-			return calculatedTypes[node.name] || 'any'
-		case 'unary': {
-			const type = infer(node.operand)
-			const allowed = node.op === 'not' ? ['boolean'] : ['number', 'duration']
-			if (fits(type, allowed)) return node.op === 'not' ? 'boolean' : (type === 'duration' ? 'duration' : 'number')
-			throw new CalculatedFieldError({
-				error: 'typeError',
-				message: `Cannot apply '${node.op}' to ${describeNode(node.operand)} (${type})`,
-				operands: [describeNode(node.operand)],
-			})
-		}
-		case 'binary':
-			return binaryType(node, infer(node.left), infer(node.right))
-		case 'if': {
-			const cond = infer(node.cond)
-			if (!fits(cond, ['boolean'])) {
-				throw new CalculatedFieldError({
-					error: 'typeError',
-					message: `The condition ${describeNode(node.cond)} must be boolean, got ${cond}`,
-					operands: [describeNode(node.cond)],
-				})
-			}
-			return unify([infer(node.then), infer(node.else)], [node.then, node.else])
-		}
-		case 'call':
-			return callType(node, node.args.map(infer))
-		default:
+	const env = {
+		fieldSchema,
+		calculatedTypes: options.calculatedTypes || {},
+		widgetSchemas: options.widgetSchemas || {},
+	}
+	env.infer = (node) => {
+		if (!Object.hasOwn(NODE_TYPES, node.type)) {
 			throw new CalculatedFieldError({ error: 'typeError', message: `Unknown node '${node.type}'` })
 		}
+		return NODE_TYPES[node.type](node, env)
 	}
-	return infer(ast)
+	return env.infer(ast)
 }

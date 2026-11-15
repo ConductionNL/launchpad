@@ -174,6 +174,12 @@ function readNumber(source, i) {
 }
 
 /**
+ * A keyword or a name: letters, digits and underscores, an optional
+ * `:source` part, and dotted parts.
+ */
+const WORD_PATTERN = new RegExp(String.raw`^[A-Za-z_][A-Za-z0-9_]*(?::[A-Za-z0-9_-]+)?(?:\.[A-Za-z_][A-Za-z0-9_]*)*`)
+
+/**
  * A keyword or a (dotted, optionally source-prefixed) name.
  *
  * @param {string} source - The expression.
@@ -181,7 +187,7 @@ function readNumber(source, i) {
  * @return {object|null}
  */
 function readWord(source, i) {
-	const word = /^[A-Za-z_][A-Za-z0-9_]*(?::[A-Za-z0-9_-]+)?(?:\.[A-Za-z_][A-Za-z0-9_]*)*/.exec(source.slice(i))
+	const word = WORD_PATTERN.exec(source.slice(i))
 	if (!word) {
 		return null
 	}

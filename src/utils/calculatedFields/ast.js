@@ -77,6 +77,19 @@ export function isAstNode(node) {
 }
 
 /**
+ * How each node type is named in an error message.
+ */
+const NODE_DESCRIPTIONS = {
+	fieldRef: (node) => (node.source === 'self' ? node.path : `${node.source}.${node.path}`),
+	calculatedRef: (node) => node.name,
+	literal: (node) => (node.valueType === 'string' ? JSON.stringify(node.value) : String(node.value)),
+	call: (node) => `${node.name}(…)`,
+	binary: (node) => `(… ${node.op} …)`,
+	unary: (node) => `${node.op} …`,
+	if: () => 'if(…)',
+}
+
+/**
  * A short, readable name of a node for an error message: the field or
  * calculated-field name, a literal's value, or the called function.
  *
@@ -85,22 +98,6 @@ export function isAstNode(node) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-002-type-checking-at-save-time
  */
 export function describeNode(node) {
-	switch (node?.type) {
-	case 'fieldRef':
-		return node.source === 'self' ? node.path : `${node.source}.${node.path}`
-	case 'calculatedRef':
-		return node.name
-	case 'literal':
-		return node.valueType === 'string' ? JSON.stringify(node.value) : String(node.value)
-	case 'call':
-		return `${node.name}(…)`
-	case 'binary':
-		return `(… ${node.op} …)`
-	case 'unary':
-		return `${node.op} …`
-	case 'if':
-		return 'if(…)'
-	default:
-		return '?'
-	}
+	const type = node?.type
+	return Object.hasOwn(NODE_DESCRIPTIONS, type) ? NODE_DESCRIPTIONS[type](node) : '?'
 }

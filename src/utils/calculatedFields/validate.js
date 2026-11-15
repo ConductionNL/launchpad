@@ -31,6 +31,65 @@ function forField(error, field) {
 }
 
 /**
+ * Refuse a widget that declares a calculated field name twice.
+ *
+ * @param {string[]} names The declared names, in order.
+ * @return {void}
+ * @throws {CalculatedFieldError} `duplicateField`.
+ */
+function assertUniqueNames(names) {
+	const duplicate = names.find((name, i) => names.indexOf(name) !== i)
+	if (duplicate !== undefined) {
+		throw new CalculatedFieldError({ error: 'duplicateField', field: duplicate, message: `The calculated field '${duplicate}' is declared twice` })
+	}
+}
+
+/**
+ * One declared field with its compiled expression.
+ *
+ * @param {{name: string, expression: string}} field The declared field.
+ * @param {string[]} names The widget's calculated field names.
+ * @param {Set<string>|null} allowed The allowed functions.
+ * @return {object} The field with `compiledExpression`.
+ * @throws {CalculatedFieldError} The parse error, naming the field.
+ */
+function compileField(field, names, allowed) {
+	try {
+		return { ...field, compiledExpression: parse(field.expression, { calculatedNames: names, allowedFunctions: allowed }) }
+	} catch (e) {
+		throw forField(e, field.name)
+	}
+}
+
+/**
+ * Type-check this widget's fields in evaluation order, setting each field's
+ * `returnType` so later fields see the types of the ones they read.
+ *
+ * @param {string} id The widget id.
+ * @param {Array<object>} fields The compiled fields.
+ * @param {string[]} order The dashboard's evaluation order.
+ * @param {object} options As for {@link parseAndValidate}.
+ * @return {void}
+ * @throws {CalculatedFieldError} The type error, naming the field.
+ */
+function typeFields(id, fields, order, options) {
+	const calculatedTypes = {}
+	const byName = new Map(fields.map((field) => [field.name, field]))
+	for (const node of order.filter((entry) => entry.startsWith(`${id}.`))) {
+		const field = byName.get(node.slice(id.length + 1))
+		try {
+			field.returnType = inferType(field.compiledExpression, options.fieldSchema ?? null, {
+				calculatedTypes,
+				widgetSchemas: options.widgetSchemas ?? {},
+			})
+		} catch (e) {
+			throw forField(e, field.name)
+		}
+		calculatedTypes[field.name] = field.returnType
+	}
+}
+
+/**
  * Parse, cycle-check and type-check a widget's calculated fields.
  *
  * @param {{id: string|number, calculatedFields?: Array<{name: string, expression: string}>}} widget The widget being saved.
@@ -43,36 +102,12 @@ export function parseAndValidate(widget, options = {}) {
 	const id = String(widget.id)
 	const declared = Array.isArray(widget.calculatedFields) ? widget.calculatedFields : []
 	const names = declared.map((field) => field.name)
-	const duplicate = names.find((name, i) => names.indexOf(name) !== i)
-	if (duplicate !== undefined) {
-		throw new CalculatedFieldError({ error: 'duplicateField', field: duplicate, message: `The calculated field '${duplicate}' is declared twice` })
-	}
+	assertUniqueNames(names)
 	const allowed = allowedFunctions(options.setting)
-	const fields = declared.map((field) => {
-		try {
-			return { ...field, compiledExpression: parse(field.expression, { calculatedNames: names, allowedFunctions: allowed }) }
-		} catch (e) {
-			throw forField(e, field.name)
-		}
-	})
+	const fields = declared.map((field) => compileField(field, names, allowed))
 
 	const others = (options.otherWidgets || []).filter((other) => String(other.id) !== id)
 	const order = assertAcyclic([{ id, calculatedFields: fields }, ...others])
-
-	const calculatedTypes = {}
-	const byName = new Map(fields.map((field) => [field.name, field]))
-	for (const node of order) {
-		if (!node.startsWith(`${id}.`)) continue
-		const field = byName.get(node.slice(id.length + 1))
-		try {
-			field.returnType = inferType(field.compiledExpression, options.fieldSchema ?? null, {
-				calculatedTypes,
-				widgetSchemas: options.widgetSchemas ?? {},
-			})
-		} catch (e) {
-			throw forField(e, field.name)
-		}
-		calculatedTypes[field.name] = field.returnType
-	}
+	typeFields(id, fields, order, options)
 	return { fields, order }
 }

@@ -15,6 +15,9 @@
 			<LegacyWidgetBridgeToggle />
 		</div>
 		<div class="operations-tab__section">
+			<EmbedTelemetryToggle />
+		</div>
+		<div class="operations-tab__section">
 			<DashboardExportImport />
 		</div>
 		<div class="operations-tab__section" data-testid="admin-bulk-section">
@@ -30,6 +33,7 @@
 import ConfluenceImport from '../ConfluenceImport.vue'
 import DashboardBulkOperations from '../DashboardBulkOperations.vue'
 import DashboardExportImport from '../DashboardExportImport.vue'
+import EmbedTelemetryToggle from '../EmbedTelemetryToggle.vue'
 import HealthPanel from '../HealthPanel.vue'
 import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
 import PrometheusMetricsPanel from '../PrometheusMetricsPanel.vue'
@@ -37,7 +41,8 @@ import PrometheusMetricsPanel from '../PrometheusMetricsPanel.vue'
 /**
  * OperationsTab — Beheer ▸ Operations tab. Aggregates instance health
  * (prometheus-metrics spec), the Prometheus metrics panel, the legacy widget
- * bridge toggle (legacy-widget-bridge spec), and the relocated export/import,
+ * bridge toggle (legacy-widget-bridge spec), the embed telemetry switch
+ * (embedded-analytics), and the relocated export/import,
  * bulk-operations, and Confluence-import surfaces previously stacked inside
  * the monolithic `AdminSettings.vue`.
  */
@@ -48,6 +53,7 @@ export default {
 		HealthPanel,
 		PrometheusMetricsPanel,
 		LegacyWidgetBridgeToggle,
+		EmbedTelemetryToggle,
 		DashboardExportImport,
 		DashboardBulkOperations,
 		ConfluenceImport,

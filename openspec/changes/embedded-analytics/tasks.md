@@ -253,13 +253,13 @@
   - No individual-user rows (aggregation only)
   > Partly built: `UsageTelemetryService::report()` aggregates the last 7 days by date, host origin, viewport, browser (top 10), interaction and status, and counts use after revocation (REQ-EMB-009 9.4). Served at `GET /api/embed-tokens/{id}/usage` by `Controller/EmbedTokenApiController`, which is also the admin API the token manager needs: list, show, create (201 with the JWT once), update, revoke, unrevoke, re-issue, purge-cache, and `GET`/`PUT /api/embed-settings/telemetry` (admin-only, 503 without OpenRegister; documented in `openapi.json` as internal). Tests: `EmbedTokenApiControllerTest` (5).
 
-- [ ] Task 30: Implement telemetry kill-switch:
+- [x] Task 30: Implement telemetry kill-switch:
   - Add org setting: `embed_telemetry_enabled` (boolean, default true)
   - In render route, check setting before writing `embed_usage_event`
   - If disabled, skip event capture (no row written)
   - Audit log when toggle is changed
   - Admin UI: Settings page checkbox for "Collect embed usage telemetry"
-  > Partly built: `embed_telemetry_enabled` (IAppConfig, default on), checked by `record()`, and `setEnabled()` dispatches a `CriticalActionPerformedEvent` for the audit log on each change. The admin checkbox is still to do.
+  > `embed_telemetry_enabled` (IAppConfig, default on), checked by `record()`, and `setEnabled()` dispatches a `CriticalActionPerformedEvent` for the audit log on each change. The admin switch is `src/components/admin/EmbedTelemetryToggle.vue` in Admin settings ▸ Operations ("Collect embed usage telemetry"), over `src/services/embedApi.js`; it rolls back when saving fails. Tests: `EmbedTelemetryToggle.spec.js` (5).
 
 ## Testing & Documentation
 
@@ -304,12 +304,13 @@
   - Verify rate limiting (429 after quota exceeded)
   - Verify revocation takes effect within 60s
 
-- [ ] Task 36: Create documentation:
+- [x] Task 36: Create documentation:
   - `docs/embed/overview.md` — Purpose + use cases + security model
   - `docs/embed/admin-guide.md` — Token creation, revocation, theming, usage analytics
   - `docs/embed/integration-guide.md` — How to integrate SDK (iframe + JS-SDK form factors)
   - `docs/embed/sdk-reference.md` — JS-SDK API (render, on, resize, event types)
   - `docs/embed/troubleshooting.md` — Common issues (CSP errors, CORS, origin mismatch)
+  > Written as `docs/embed/overview.md`, `admin-guide.md` (the admin API, since the token manager UI of Tasks 15-18 is still to come), `integration-guide.md`, `sdk-reference.md` and `troubleshooting.md` (every refusal code).
 
 - [ ] Task 37: i18n for new UI strings:
   - Token manager: create, revoke, re-issue, usage, accessibility warning

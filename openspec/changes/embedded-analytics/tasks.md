@@ -10,13 +10,13 @@
   Include seed data per design.md (3–5 objects per schema with Dutch values)
   > Built as the ADR-037 fragment `lib/Settings/register.d/embedded-analytics.json` (merged onto `launchpad_register.json` at import; `ImportLaunchpadRegister::REGISTER_VERSION` 1.0.3 so existing installs take the new schemas). `embed_token` also carries `keyId`, `revocationNotes` and `revokedBy` (REQ-EMB-009 9.2); `signing_key` carries `kid`. No seed objects ship: the register is imported on every install, and seeded tokens, signing keys or Zeist/Amsterdam themes would land in production. Tests: `EmbeddedAnalyticsSchemasTest` (4).
 
-- [ ] Task 2: Create entity mapping classes under `lib/Entity/`:
+- [x] Task 2: Create entity mapping classes under `lib/Entity/`:
   - `EmbedToken.php` (OpenRegister mapper)
   - `TenantTheme.php` (OpenRegister mapper)
   - `EmbedUsageEvent.php` (OpenRegister mapper)
   - `SigningKey.php` (OpenRegister mapper)
   Plus exception classes: `EmbedTokenException`, `InvalidTokenException`, `TokenExpiredException`, `TokenRevokedException`
-  > Partly built: the four exception classes exist under `lib/Exception/` (`InvalidTokenException`, `TokenExpiredException` and `TokenRevokedException` extend `EmbedTokenException`). `lib/Entity/EmbedToken.php` and `lib/Entity/SigningKey.php` are built over `Service/Embed/EmbedObjectStore` (OpenRegister's published object service, looked up by name so LaunchPad boots without it). `TenantTheme` and `EmbedUsageEvent` still to do.
+  > Partly built: the four exception classes exist under `lib/Exception/` (`InvalidTokenException`, `TokenExpiredException` and `TokenRevokedException` extend `EmbedTokenException`). `lib/Entity/EmbedToken.php` and `lib/Entity/SigningKey.php` are built over `Service/Embed/EmbedObjectStore` (OpenRegister's published object service, looked up by name so LaunchPad boots without it). `lib/Entity/TenantTheme.php` (Task 11) and `lib/Entity/EmbedUsageEvent.php` (Task 28) complete the four.
 
 - [x] Task 3: Create `lib/Service/JwtSigningService.php` for JWT lifecycle:
   - Generate RS256 and ES256 key pairs (minimum 2048-bit RSA, P-256 for ECDSA)
@@ -82,11 +82,12 @@
 
 ## Theming & Accessibility
 
-- [ ] Task 11: Create `lib/Service/TenantThemeService.php`:
+- [x] Task 11: Create `lib/Service/TenantThemeService.php`:
   - `createTheme(name, cssVariables, logoUrl, customCss)`: Validate CSS, persist theme
   - `validateCss(customCss)`: Reject non-:root selectors (CSSTidy or simple regex)
   - `validateContrastRatio(primaryColor, surfaceColor)`: Use WCAG luminance formula, enforce 4.5:1
   - Unit tests: CSS validation, contrast computation, color parsing
+  > Built as `lib/Service/Embed/TenantThemeService.php` over the existing `TenantThemeValidator`: create and update refuse bad custom-property names or values, non-:root custom CSS (5.3 body), a non-https logo, and primary or text colours under 4.5:1 on `--c-surface` (10.2 body, ratio rounded down); `listThemes()` counts the tokens using each theme; `rootCss()` gives the :root block an embed injects, '' without a theme (5.4). The `/api/tenant-themes` routes come with the theme manager (Task 16). Tests: `TenantThemeServiceTest` (5).
 
 - [ ] Task 12: Add axe-core integration to build pipeline:
   - In `npm run build`, add a linting step that:

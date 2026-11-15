@@ -34,12 +34,10 @@ use Throwable;
 /**
  * Object CRUD on the `launchpad` register for the scheduled-export schemas.
  *
- * Every call takes `$system`: the background runner and janitor run without
- * a session user, and OpenRegister denies an anonymous caller, so they read
- * and write with RBAC off. Request paths keep it on and check visibility in
- * {@see ScheduledExportService} as well.
- *
- * @SuppressWarnings(PHPMD.BooleanArgumentFlag) RBAC on is the default every request path gets.
+ * Every call reads and writes with OpenRegister's RBAC off: the background
+ * runner and janitor run without a session user, which OpenRegister denies,
+ * and every request path checks visibility itself in
+ * {@see ScheduledExportService} (owner or admin) before it reaches the store.
  *
  * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md
  */
@@ -70,13 +68,12 @@ class ExportObjectStore {
 	 *
 	 * @param string               $schema  The schema slug.
 	 * @param array<string, mixed> $filters Property filters; metadata filters nested under `@self`.
-	 * @param bool                 $system  Read with RBAC off (background jobs).
 	 *
 	 * @return list<array<string, mixed>> The objects, each with its `id` and `owner`.
 	 *
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-3
 	 */
-	public function findAll(string $schema, array $filters = [], bool $system = false): array {
+	public function findAll(string $schema, array $filters = []): array {
 		$service = $this->objectService();
 		if ($service === null) {
 			return [];
@@ -84,7 +81,7 @@ class ExportObjectStore {
 
 		$filters['register'] = self::REGISTER;
 		$filters['schema']   = $schema;
-		$rows = $service->findAll(config: ['filters' => $filters, 'limit' => 1000], _rbac: $system === false);
+		$rows = $service->findAll(config: ['filters' => $filters, 'limit' => 1000], _rbac: false);
 		if (is_array($rows) === false) {
 			return [];
 		}
@@ -97,13 +94,12 @@ class ExportObjectStore {
 	 *
 	 * @param string $schema The schema slug.
 	 * @param string $uuid   The object uuid.
-	 * @param bool   $system Read with RBAC off (background jobs).
 	 *
 	 * @return array<string, mixed>|null
 	 *
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-3
 	 */
-	public function find(string $schema, string $uuid, bool $system = false): ?array {
+	public function find(string $schema, string $uuid): ?array {
 		$service = $this->objectService();
 		if ($service === null || $uuid === '') {
 			return null;
@@ -111,7 +107,7 @@ class ExportObjectStore {
 
 		$options = $this->value(name: 'ObjectFindOptions', args: ['register' => self::REGISTER, 'schema' => $schema]);
 		try {
-			$row = $service->find(id: $uuid, options: $options, _rbac: $system === false);
+			$row = $service->find(id: $uuid, options: $options, _rbac: false);
 		} catch (Throwable) {
 			return null;
 		}
@@ -129,7 +125,6 @@ class ExportObjectStore {
 	 *
 	 * @param string               $schema The schema slug.
 	 * @param array<string, mixed> $data   The object's properties; an `id` updates that object.
-	 * @param bool                 $system Write with RBAC off (background jobs).
 	 *
 	 * @return array<string, mixed> The saved object.
 	 *
@@ -137,7 +132,7 @@ class ExportObjectStore {
 	 *
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-3
 	 */
-	public function save(string $schema, array $data, bool $system = false): array {
+	public function save(string $schema, array $data): array {
 		$service = $this->objectService();
 		if ($service === null) {
 			throw new RuntimeException('OpenRegister is not available');
@@ -152,7 +147,7 @@ class ExportObjectStore {
 
 		$target  = $this->value(name: 'ObjectFindTarget', args: ['register' => self::REGISTER, 'schema' => $schema]);
 		$options = $this->value(name: 'ObjectSaveOptions', args: ['target' => $target, 'uuid' => $uuid]);
-		$saved   = $service->saveObject(object: $data, options: $options, _rbac: $system === false);
+		$saved   = $service->saveObject(object: $data, options: $options, _rbac: false);
 
 		return $this->normalise(item: $saved);
 	}//end save()
@@ -161,20 +156,19 @@ class ExportObjectStore {
 	 * Soft-delete an object (OpenRegister's standard delete).
 	 *
 	 * @param string $uuid   The object uuid.
-	 * @param bool   $system Delete with RBAC off (the janitor).
 	 *
 	 * @return bool Whether it was deleted.
 	 *
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-3
 	 */
-	public function delete(string $uuid, bool $system = false): bool {
+	public function delete(string $uuid): bool {
 		$service = $this->objectService();
 		if ($service === null) {
 			return false;
 		}
 
 		$deletion = $this->value(name: 'ObjectDeletion', args: ['uuid' => $uuid]);
-		return $service->deleteObject(deletion: $deletion, _rbac: $system === false) === true;
+		return $service->deleteObject(deletion: $deletion, _rbac: false) === true;
 	}//end delete()
 
 	/**

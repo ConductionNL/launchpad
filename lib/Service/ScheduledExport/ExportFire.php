@@ -77,14 +77,14 @@ class ExportFire {
 	public function fire(array $export, FireTrigger $trigger): array {
 		$now = $this->support->time->now();
 		if ($this->inProgress(exportId: (string)($export['id'] ?? '')) === true) {
-			$run = $this->log->skipped(export: $export, trigger: $trigger, status: 'partial', reason: self::REASON_OVERLAP);
+			$run = $this->log->skipped(export: $export, trigger: $trigger, skip: ['status' => 'partial', 'reason' => self::REASON_OVERLAP]);
 			$this->finish(export: $export, run: $run, trigger: $trigger);
 			return $run;
 		}
 
 		$creator = $this->support->users->get((string)($export['createdBy'] ?? ''));
 		if ($creator === null || $creator->isEnabled() === false) {
-			$run = $this->log->skipped(export: $export, trigger: $trigger, status: 'failed', reason: self::REASON_CREATOR_DISABLED);
+			$run = $this->log->skipped(export: $export, trigger: $trigger, skip: ['status' => 'failed', 'reason' => self::REASON_CREATOR_DISABLED]);
 			$this->support->notifier->failed(export: $export + ['creatorEnabled' => false], reason: self::REASON_CREATOR_DISABLED);
 			$this->finish(export: $export, run: $run, trigger: $trigger);
 			return $run;

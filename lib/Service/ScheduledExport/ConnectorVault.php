@@ -73,15 +73,7 @@ class ConnectorVault {
 			throw new DeliveryException('The credential vault is not available');
 		}
 
-		try {
-			$source = $this->container->get(self::OBJECT_SERVICE)->find(id: $sourceId, _rbac: false);
-		} catch (Throwable) {
-			$source = null;
-		}
-
-		if ($source === null) {
-			throw new DeliveryException('Unknown credential vault source: ' . $sourceId);
-		}
+		$source = $this->source(sourceId: $sourceId);
 
 		try {
 			$log = $calls->call(
@@ -94,6 +86,42 @@ class ConnectorVault {
 			throw new DeliveryException('The credential vault call failed: ' . $e->getMessage());
 		}
 
+		return self::reference(log: $log);
+	}//end send()
+
+	/**
+	 * The vault source by id.
+	 *
+	 * @param string $sourceId The source's id.
+	 *
+	 * @return mixed The source.
+	 *
+	 * @throws DeliveryException When it does not exist or cannot be read.
+	 */
+	private function source(string $sourceId): mixed {
+		try {
+			$source = $this->container->get(self::OBJECT_SERVICE)->find(id: $sourceId, _rbac: false);
+		} catch (Throwable) {
+			$source = null;
+		}
+
+		if ($source === null) {
+			throw new DeliveryException('Unknown credential vault source: ' . $sourceId);
+		}
+
+		return $source;
+	}//end source()
+
+	/**
+	 * The call log's reference, or `vault` when it carries none.
+	 *
+	 * @param mixed $log What the vault call returned.
+	 *
+	 * @return string The reference.
+	 *
+	 * @throws DeliveryException When the call answered an HTTP error.
+	 */
+	private static function reference(mixed $log): string {
 		$data = [];
 		if (is_object($log) === true && method_exists($log, 'jsonSerialize') === true) {
 			$data = (array)$log->jsonSerialize();
@@ -105,5 +133,5 @@ class ConnectorVault {
 		}
 
 		return (string)($data['@self']['id'] ?? $data['uuid'] ?? $data['id'] ?? 'vault');
-	}//end send()
+	}//end reference()
 }//end class

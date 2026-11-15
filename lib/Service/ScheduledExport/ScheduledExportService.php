@@ -102,7 +102,7 @@ class ScheduledExportService {
 			$filters['@self'] = ['owner' => $userId];
 		}
 
-		$exports = $this->store->findAll(schema: ExportObjectStore::SCHEMA_EXPORT, filters: $filters, system: true);
+		$exports = $this->store->findAll(schema: ExportObjectStore::SCHEMA_EXPORT, filters: $filters);
 		$visible = array_filter($exports, fn (array $export): bool => $this->isVisibleTo(export: $export, userId: $userId));
 
 		return array_values(array_map(fn (array $export): array => $this->redact(export: $export), $visible));
@@ -149,13 +149,8 @@ class ScheduledExportService {
 			unset($export[$field]);
 		}
 
-		$merged = array_merge($existing ?? [], $export);
-		$merged['enabled']     = ($merged['enabled'] ?? true) !== false;
-		if (is_string($merged['runTimezone'] ?? null) === false || $merged['runTimezone'] === '') {
-			$merged['runTimezone'] = self::DEFAULT_TIMEZONE;
-		}
-
-		$merged['createdBy']   = $existing['createdBy'] ?? $userId;
+		$merged = self::withDefaults(export: array_merge($existing ?? [], $export));
+		$merged['createdBy'] = $existing['createdBy'] ?? $userId;
 
 		$errors = $this->validate(export: $merged);
 		if ($errors !== []) {
@@ -163,17 +158,46 @@ class ScheduledExportService {
 		}
 
 		$merged['recipients'] = $this->sealSecrets(recipients: $merged['recipients'], stored: $existing['recipients'] ?? []);
-
-		$rescheduled = $existing === null
-			|| ($existing['recurrence'] ?? null) !== $merged['recurrence']
-			|| ($existing['runTimezone'] ?? null) !== $merged['runTimezone']
-			|| empty($existing['nextRunAt']) === true;
-		if ($rescheduled === true) {
+		if (self::needsReschedule(existing: $existing, merged: $merged) === true) {
 			$merged['nextRunAt'] = $this->nextRunAfter(export: $merged, after: $this->time->now());
 		}
 
-		return $this->redact(export: $this->store->save(schema: ExportObjectStore::SCHEMA_EXPORT, data: $merged, system: true));
+		return $this->redact(export: $this->store->save(schema: ExportObjectStore::SCHEMA_EXPORT, data: $merged));
 	}//end save()
+
+	/**
+	 * The export with `enabled` defaulting to true and the run time zone to the default.
+	 *
+	 * @param array<string, mixed> $export The export being saved.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function withDefaults(array $export): array {
+		$export['enabled'] = ($export['enabled'] ?? true) !== false;
+		if (is_string($export['runTimezone'] ?? null) === false || $export['runTimezone'] === '') {
+			$export['runTimezone'] = self::DEFAULT_TIMEZONE;
+		}
+
+		return $export;
+	}//end withDefaults()
+
+	/**
+	 * Whether the next run must be computed again: a new export, a changed
+	 * recurrence or time zone, or no next run yet.
+	 *
+	 * @param array<string, mixed>|null $existing The stored export, null for a new one.
+	 * @param array<string, mixed>      $merged   The export being saved.
+	 *
+	 * @return bool
+	 */
+	private static function needsReschedule(?array $existing, array $merged): bool {
+		if ($existing === null || empty($existing['nextRunAt']) === true) {
+			return true;
+		}
+
+		return ($existing['recurrence'] ?? null) !== $merged['recurrence']
+			|| ($existing['runTimezone'] ?? null) !== $merged['runTimezone'];
+	}//end needsReschedule()
 
 	/**
 	 * Soft-delete an export the user may see.
@@ -189,7 +213,7 @@ class ScheduledExportService {
 	 */
 	public function delete(string $id, string $userId): void {
 		$this->stored(id: $id, userId: $userId);
-		$this->store->delete(uuid: $id, system: true);
+		$this->store->delete(uuid: $id);
 	}//end delete()
 
 	/**
@@ -219,7 +243,7 @@ class ScheduledExportService {
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-010-header-signing-and-credential-vaulting
 	 */
 	public function forDispatch(string $id): ?array {
-		$export = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: $id, system: true);
+		$export = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: $id);
 		if ($export === null) {
 			return null;
 		}
@@ -239,7 +263,7 @@ class ScheduledExportService {
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
 	public function due(DateTimeInterface $now): array {
-		$exports = $this->store->findAll(schema: ExportObjectStore::SCHEMA_EXPORT, filters: ['enabled' => true], system: true);
+		$exports = $this->store->findAll(schema: ExportObjectStore::SCHEMA_EXPORT, filters: ['enabled' => true]);
 
 		return array_values(array_filter($exports, static function (array $export) use ($now): bool {
 			$next = false;
@@ -262,10 +286,10 @@ class ScheduledExportService {
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
 	public function recordFire(array $export, array $fields): array {
-		$stored = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: (string)($export['id'] ?? ''), system: true) ?? $export;
+		$stored = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: (string)($export['id'] ?? '')) ?? $export;
 		$keep   = array_intersect_key($fields, array_flip(['lastRunAt', 'lastRunStatus', 'nextRunAt']));
 
-		return $this->store->save(schema: ExportObjectStore::SCHEMA_EXPORT, data: array_merge($stored, $keep), system: true);
+		return $this->store->save(schema: ExportObjectStore::SCHEMA_EXPORT, data: array_merge($stored, $keep));
 	}//end recordFire()
 
 	/**
@@ -315,24 +339,10 @@ class ScheduledExportService {
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-3
 	 */
 	public function validate(array $export): array {
-		$errors = [];
-		$name   = $export['name'] ?? null;
-		if (is_string($name) === false || trim($name) === '' || mb_strlen($name) > 255) {
-			$errors[] = 'The name is required and at most 255 characters.';
-		}
-
-		if (in_array($export['subjectType'] ?? null, ['dashboard', 'widget'], true) === false) {
-			$errors[] = 'The subject type must be dashboard or widget.';
-		}
-
-		if (is_string($export['subjectId'] ?? null) === false || $export['subjectId'] === '') {
-			$errors[] = 'The subject is required.';
-		}
-
 		$errors = array_merge(
-			$errors,
-			$this->listErrors(items: $export['renderTargets'] ?? null, key: 'format', allowed: self::FORMATS, label: 'render target'),
-			$this->listErrors(items: $export['recipients'] ?? null, key: 'channel', allowed: self::CHANNELS, label: 'recipient')
+			self::identityErrors(export: $export),
+			self::listErrors(items: $export['renderTargets'] ?? null, rule: ['key' => 'format', 'allowed' => self::FORMATS, 'label' => 'render target']),
+			self::listErrors(items: $export['recipients'] ?? null, rule: ['key' => 'channel', 'allowed' => self::CHANNELS, 'label' => 'recipient'])
 		);
 
 		if (is_array($export['recurrence'] ?? null) === false) {
@@ -349,23 +359,48 @@ class ScheduledExportService {
 	}//end validate()
 
 	/**
-	 * Problems with a non-empty list of objects that each carry an allowed value under a key.
+	 * Problems with the export's name, subject type and subject.
 	 *
-	 * @param mixed        $items   The list.
-	 * @param string       $key     The discriminating key.
-	 * @param list<string> $allowed Its allowed values.
-	 * @param string       $label   What one item is called in the message.
+	 * @param array<string, mixed> $export The export.
 	 *
 	 * @return list<string>
 	 */
-	private function listErrors(mixed $items, string $key, array $allowed, string $label): array {
+	private static function identityErrors(array $export): array {
+		$errors = [];
+		$name   = $export['name'] ?? null;
+		if (is_string($name) === false || trim($name) === '' || mb_strlen($name) > 255) {
+			$errors[] = 'The name is required and at most 255 characters.';
+		}
+
+		if (in_array($export['subjectType'] ?? null, ['dashboard', 'widget'], true) === false) {
+			$errors[] = 'The subject type must be dashboard or widget.';
+		}
+
+		if (is_string($export['subjectId'] ?? null) === false || $export['subjectId'] === '') {
+			$errors[] = 'The subject is required.';
+		}
+
+		return $errors;
+	}//end identityErrors()
+
+	/**
+	 * Problems with a non-empty list of objects that each carry an allowed value under a key.
+	 *
+	 * @param mixed                                                    $items The list.
+	 * @param array{key: string, allowed: list<string>, label: string} $rule  The discriminating key,
+	 *                                                                        its allowed values and
+	 *                                                                        what one item is called.
+	 *
+	 * @return list<string>
+	 */
+	private static function listErrors(mixed $items, array $rule): array {
 		if (is_array($items) === false || $items === [] || array_is_list($items) === false) {
-			return ['At least one ' . $label . ' is required.'];
+			return ['At least one ' . $rule['label'] . ' is required.'];
 		}
 
 		foreach ($items as $item) {
-			if (is_array($item) === false || in_array($item[$key] ?? null, $allowed, true) === false) {
-				return ['Every ' . $label . ' needs a ' . $key . ' of ' . implode(', ', $allowed) . '.'];
+			if (is_array($item) === false || in_array($item[$rule['key']] ?? null, $rule['allowed'], true) === false) {
+				return ['Every ' . $rule['label'] . ' needs a ' . $rule['key'] . ' of ' . implode(', ', $rule['allowed']) . '.'];
 			}
 		}
 
@@ -383,7 +418,7 @@ class ScheduledExportService {
 	 * @throws DoesNotExistException When it does not exist or is not the user's to see.
 	 */
 	private function stored(string $id, string $userId): array {
-		$export = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: $id, system: true);
+		$export = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: $id);
 		if ($export === null || $this->isVisibleTo(export: $export, userId: $userId) === false) {
 			throw new DoesNotExistException('Scheduled export not found');
 		}
@@ -407,31 +442,49 @@ class ScheduledExportService {
 				$config = $recipient['channelConfig'];
 			}
 
-			foreach (self::SECRET_KEYS as $key) {
-				if (is_string($config[$key] ?? null) === false || $config[$key] === '') {
-					continue;
-				}
+			$previous = [];
+			if (is_array($stored[$index]['channelConfig'] ?? null) === true) {
+				$previous = $stored[$index]['channelConfig'];
+			}
 
-				if ($config[$key] === self::REDACTED) {
-					unset($config[$key]);
-					$previous = $stored[$index]['channelConfig'][$key] ?? null;
-					if (is_string($previous) === true) {
-						$config[$key] = $previous;
-					}
-
-					continue;
-				}
-
-				if (str_starts_with($config[$key], self::ENCRYPTED_PREFIX) === false) {
-					$config[$key] = self::ENCRYPTED_PREFIX . $this->crypto->encrypt($config[$key]);
-				}
-			}//end foreach
-
-			$recipients[$index]['channelConfig'] = $config;
-		}//end foreach
+			$recipients[$index]['channelConfig'] = $this->sealConfig(config: $config, previous: $previous);
+		}
 
 		return $recipients;
 	}//end sealSecrets()
+
+	/**
+	 * One channel config with every new secret encrypted, and a redacted
+	 * placeholder replaced by the stored secret (or dropped without one).
+	 *
+	 * @param array<string, mixed> $config   The config being saved.
+	 * @param array<string, mixed> $previous The config as stored.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function sealConfig(array $config, array $previous): array {
+		foreach (self::SECRET_KEYS as $key) {
+			$value = $config[$key] ?? null;
+			if (is_string($value) === false || $value === '') {
+				continue;
+			}
+
+			if ($value === self::REDACTED) {
+				unset($config[$key]);
+				if (is_string($previous[$key] ?? null) === true) {
+					$config[$key] = $previous[$key];
+				}
+
+				continue;
+			}
+
+			if (str_starts_with($value, self::ENCRYPTED_PREFIX) === false) {
+				$config[$key] = self::ENCRYPTED_PREFIX . $this->crypto->encrypt($value);
+			}
+		}
+
+		return $config;
+	}//end sealConfig()
 
 	/**
 	 * The export as the API shows it: every secret replaced by the placeholder.

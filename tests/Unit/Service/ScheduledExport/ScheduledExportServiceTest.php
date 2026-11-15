@@ -97,7 +97,7 @@ class ScheduledExportServiceTest extends TestCase {
 	public function testCreateSchedulesEncryptsAndRedacts(): void {
 		$saved = null;
 		$this->store->expects($this->once())->method('save')
-			->with(ExportObjectStore::SCHEMA_EXPORT, $this->anything(), true)
+			->with(ExportObjectStore::SCHEMA_EXPORT, $this->anything())
 			->willReturnCallback(static function (string $schema, array $data) use (&$saved): array {
 				$saved = $data;
 				return $data + ['id' => 'e1'];
@@ -252,7 +252,7 @@ class ScheduledExportServiceTest extends TestCase {
 	public function testSetEnabledAndDelete(): void {
 		$this->store->method('find')->willReturn($this->export() + ['id' => 'e1', 'owner' => 'alice', 'nextRunAt' => '2026-11-16T09:00:00+01:00']);
 		$this->store->method('save')->willReturnArgument(1);
-		$this->store->expects($this->once())->method('delete')->with('e1', true)->willReturn(true);
+		$this->store->expects($this->once())->method('delete')->with('e1')->willReturn(true);
 
 		$this->assertFalse($this->service->setEnabled(id: 'e1', enabled: false, userId: 'alice')['enabled']);
 		$this->service->delete(id: 'e1', userId: 'alice');
@@ -300,7 +300,7 @@ class ScheduledExportServiceTest extends TestCase {
 	public function testRecordFireWritesOnlyRunnerFields(): void {
 		$this->store->method('find')->willReturn(['id' => 'e1', 'name' => 'Stored']);
 		$this->store->expects($this->once())->method('save')
-			->with(ExportObjectStore::SCHEMA_EXPORT, ['id' => 'e1', 'name' => 'Stored', 'lastRunAt' => 'T', 'lastRunStatus' => 'success'], true)
+			->with(ExportObjectStore::SCHEMA_EXPORT, ['id' => 'e1', 'name' => 'Stored', 'lastRunAt' => 'T', 'lastRunStatus' => 'success'])
 			->willReturnArgument(1);
 
 		$this->service->recordFire(export: ['id' => 'e1'], fields: ['lastRunAt' => 'T', 'lastRunStatus' => 'success', 'name' => 'Hacked']);

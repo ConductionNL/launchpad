@@ -93,7 +93,7 @@ class SubjectTables {
 	private function widgets(array $export): array {
 		$subjectId = (string)($export['subjectId'] ?? '');
 		if (($export['subjectType'] ?? null) === 'dashboard') {
-			$dashboard = $this->store->find(schema: 'dashboard', uuid: $subjectId, system: true);
+			$dashboard = $this->store->find(schema: 'dashboard', uuid: $subjectId);
 			if ($dashboard === null) {
 				throw new RenderException('The dashboard of this export no longer exists');
 			}
@@ -102,7 +102,7 @@ class SubjectTables {
 		}
 
 		$owner = (string)($export['createdBy'] ?? '');
-		foreach ($this->store->findAll(schema: 'dashboard', filters: ['@self' => ['owner' => $owner]], system: true) as $dashboard) {
+		foreach ($this->store->findAll(schema: 'dashboard', filters: ['@self' => ['owner' => $owner]]) as $dashboard) {
 			foreach ((array)($dashboard['widgets'] ?? []) as $widget) {
 				if (is_array($widget) === true && in_array($subjectId, [(string)($widget['id'] ?? ''), (string)($widget['widgetId'] ?? '')], true) === true) {
 					return [$widget];

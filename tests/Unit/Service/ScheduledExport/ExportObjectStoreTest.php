@@ -4,8 +4,7 @@
  * ExportObjectStoreTest
  *
  * The OpenRegister adapter of scheduled exports (tasks.md task 3): the
- * launchpad register and schema on every call, RBAC off only for system
- * calls, `id`/`owner` lifted from `@self`, and an absent OpenRegister read
+ * launchpad register and schema on every call, RBAC off on every call, `id`/`owner` lifted from `@self`, and an absent OpenRegister read
  * as no objects.
  *
  * @category  Test
@@ -103,7 +102,7 @@ class ExportObjectStoreTest extends TestCase {
 	}//end store()
 
 	/**
-	 * findAll scopes to the register and schema, keeps RBAC on for a user call and normalises the rows.
+	 * findAll scopes to the register and schema, reads with RBAC off and normalises the rows.
 	 *
 	 * @return void
 	 */
@@ -113,10 +112,7 @@ class ExportObjectStoreTest extends TestCase {
 
 		$this->assertSame([['name' => 'A', 'id' => 'u1', 'owner' => 'alice']], $rows);
 		$this->assertSame(['enabled' => true, 'register' => 'launchpad', 'schema' => 'scheduled_export'], $service->calls[0][1]['filters']);
-		$this->assertTrue($service->calls[0][2]);
-
-		$this->store($service)->findAll(schema: 'scheduled_export_run', system: true);
-		$this->assertFalse($service->calls[1][2]);
+		$this->assertFalse($service->calls[0][2]);
 	}//end testFindAllScopesAndNormalises()
 
 	/**
@@ -129,7 +125,7 @@ class ExportObjectStoreTest extends TestCase {
 		$service->found = ['name' => 'B', '@self' => ['uuid' => 'u2']];
 		$store          = $this->store($service);
 
-		$this->assertSame(['name' => 'B', 'id' => 'u2', 'owner' => null], $store->find(schema: 'scheduled_export', uuid: 'u2', system: true));
+		$this->assertSame(['name' => 'B', 'id' => 'u2', 'owner' => null], $store->find(schema: 'scheduled_export', uuid: 'u2'));
 		$this->assertSame('launchpad', $service->calls[0][2]->register);
 		$this->assertSame('scheduled_export', $service->calls[0][2]->schema);
 		$this->assertFalse($service->calls[0][3]);
@@ -146,7 +142,7 @@ class ExportObjectStoreTest extends TestCase {
 	 */
 	public function testSaveUpdatesByUuidWithoutMetadata(): void {
 		$service = $this->objectService();
-		$saved   = $this->store($service)->save(schema: 'scheduled_export_run', data: ['id' => 'u3', 'owner' => 'x', '@self' => [], 'status' => 'running'], system: true);
+		$saved   = $this->store($service)->save(schema: 'scheduled_export_run', data: ['id' => 'u3', 'owner' => 'x', '@self' => [], 'status' => 'running']);
 
 		$this->assertSame(['status' => 'running'], $service->calls[0][1]);
 		$this->assertSame('u3', $service->calls[0][2]->uuid);
@@ -156,7 +152,7 @@ class ExportObjectStoreTest extends TestCase {
 
 		$this->store($service)->save(schema: 'scheduled_export', data: ['name' => 'n']);
 		$this->assertNull($service->calls[1][2]->uuid);
-		$this->assertTrue($service->calls[1][3]);
+		$this->assertFalse($service->calls[1][3]);
 	}//end testSaveUpdatesByUuidWithoutMetadata()
 
 	/**
@@ -166,7 +162,7 @@ class ExportObjectStoreTest extends TestCase {
 	 */
 	public function testDelete(): void {
 		$service = $this->objectService();
-		$this->assertTrue($this->store($service)->delete(uuid: 'u4', system: true));
+		$this->assertTrue($this->store($service)->delete(uuid: 'u4'));
 		$this->assertSame(['delete', 'u4', false], $service->calls[0]);
 	}//end testDelete()
 

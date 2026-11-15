@@ -79,7 +79,7 @@ class RetentionJanitor {
 			}
 
 			$exportId             = (string)($run['exportId'] ?? '');
-			$exports[$exportId] ??= $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: $exportId, system: true) ?? [];
+			$exports[$exportId] ??= $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: $exportId) ?? [];
 			$retention            = (array)($exports[$exportId]['retention'] ?? []);
 			$ageDays              = ($now - $started) / 86400;
 

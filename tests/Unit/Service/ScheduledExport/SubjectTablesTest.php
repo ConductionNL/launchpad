@@ -59,7 +59,7 @@ class SubjectTablesTest extends TestCase {
 	 */
 	public function testDashboardGivesOneTablePerWidget(): void {
 		$store = $this->createMock(ExportObjectStore::class);
-		$store->expects($this->once())->method('find')->with('dashboard', 'd1', true)->willReturn($this->dashboard());
+		$store->expects($this->once())->method('find')->with('dashboard', 'd1')->willReturn($this->dashboard());
 
 		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: []);
 
@@ -105,7 +105,7 @@ class SubjectTablesTest extends TestCase {
 	 */
 	public function testWidgetSubjectIsFoundInTheCreatorsDashboards(): void {
 		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('findAll')->with('dashboard', ['@self' => ['owner' => 'alice']], true)->willReturn([$this->dashboard()]);
+		$store->method('findAll')->with('dashboard', ['@self' => ['owner' => 'alice']])->willReturn([$this->dashboard()]);
 		$tables = new SubjectTables($store);
 
 		$found = $tables->tables(export: ['subjectType' => 'widget', 'subjectId' => 'w2', 'createdBy' => 'alice'], filterContext: []);

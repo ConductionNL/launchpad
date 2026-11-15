@@ -86,33 +86,44 @@ class ScheduledExportController extends Controller {
 	/**
 	 * `GET /api/exports`: the caller's exports, sorted and paged.
 	 *
-	 * @param int    $limit  Page size, 1-200.
-	 * @param int    $offset Rows to skip.
-	 * @param string $sort   `name`, `nextRunAt` or `lastRunAt`.
-	 * @param string $order  `asc` or `desc`.
+	 * Query parameters: `limit` (page size, 1-200, default 50), `offset`
+	 * (rows to skip), `sort` (`name`, `nextRunAt` or `lastRunAt`) and
+	 * `order` (`asc` or `desc`).
 	 *
 	 * @return Response `{results, total, limit, offset}`.
 	 *
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-10
 	 */
 	#[NoAdminRequired]
-	public function index(int $limit = 50, int $offset = 0, string $sort = 'name', string $order = 'asc'): Response {
+	public function index(): Response {
 		$refusal = $this->guard->actionRefusal(action: 'scheduled-exports.list');
-		return $this->guarded(refusal: $refusal, work: function (string $uid) use ($limit, $offset, $sort, $order): JSONResponse {
-			$rows = $this->exports->findVisible(userId: $uid);
-			$key  = 'name';
-			if (in_array($sort, self::SORTABLE, true) === true) {
-				$key = $sort;
-			}
+		return $this->guarded(refusal: $refusal, work: function (string $uid): JSONResponse {
+			$rows = $this->sorted(rows: $this->exports->findVisible(userId: $uid));
 
-			usort($rows, static fn (array $a, array $b): int => strcmp((string)($a[$key] ?? ''), (string)($b[$key] ?? '')));
-			if (strtolower($order) === 'desc') {
-				$rows = array_reverse($rows);
-			}
-
-			return $this->page(rows: $rows, limit: $limit, offset: $offset);
+			return $this->page(rows: $rows, limit: (int)$this->request->getParam('limit', 50), offset: (int)$this->request->getParam('offset', 0));
 		});
 	}//end index()
+
+	/**
+	 * The rows sorted by the asked `sort` key (`name` for any other) in the asked `order`.
+	 *
+	 * @param list<array<string, mixed>> $rows The exports.
+	 *
+	 * @return list<array<string, mixed>> The sorted exports.
+	 */
+	private function sorted(array $rows): array {
+		$key = (string)$this->request->getParam('sort', 'name');
+		if (in_array($key, self::SORTABLE, true) === false) {
+			$key = 'name';
+		}
+
+		usort($rows, static fn (array $a, array $b): int => strcmp((string)($a[$key] ?? ''), (string)($b[$key] ?? '')));
+		if (strtolower((string)$this->request->getParam('order', 'asc')) === 'desc') {
+			$rows = array_reverse($rows);
+		}
+
+		return $rows;
+	}//end sorted()
 
 	/**
 	 * `POST /api/exports`: create an export.
@@ -203,33 +214,25 @@ class ScheduledExportController extends Controller {
 	 * context without delivering and without a run-row. With a `format` the
 	 * file itself is returned; without, every target as base64 JSON.
 	 *
-	 * @param string $id          The export uuid.
-	 * @param string $recipientId The recipient whose filter context applies; empty for none.
-	 * @param string $format      `pdf`, `png`, `csv` or `xlsx`; empty for every target.
+	 * Request parameters: `recipientId` (the recipient whose filter context
+	 * applies; empty for none) and `format` (`pdf`, `png`, `csv` or `xlsx`;
+	 * empty for every target).
+	 *
+	 * @param string $id The export uuid.
 	 *
 	 * @return Response The file, or `{artefacts}`; 404; 422 when the render fails.
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-009-manual-run-now-and-preview-actions
 	 */
 	#[NoAdminRequired]
-	public function preview(string $id, string $recipientId = '', string $format = ''): Response {
+	public function preview(string $id): Response {
 		$refusal = $this->guard->actionRefusal(action: 'scheduled-exports.preview');
-		return $this->guarded(refusal: $refusal, work: function (string $uid) use ($id, $recipientId, $format): Response {
+		return $this->guarded(refusal: $refusal, work: function (string $uid) use ($id): Response {
 			$export  = $this->exports->findOne(id: $id, userId: $uid);
-			$context = [];
-			foreach ((array)($export['recipients'] ?? []) as $index => $recipient) {
-				if ($recipientId !== '' && (string)($recipient['id'] ?? $index) === $recipientId) {
-					$context = (array)($recipient['filterContext'] ?? []);
-				}
-			}
-
+			$format  = (string)$this->request->getParam('format', '');
+			$context = self::recipientContext(export: $export, recipientId: (string)$this->request->getParam('recipientId', ''));
 			if ($format !== '') {
-				$targets = array_values(array_filter((array)$export['renderTargets'], static fn ($t): bool => ($t['format'] ?? null) === $format));
-				$export['renderTargets'] = [['format' => $format]];
-				if ($targets !== []) {
-					$export['renderTargets'] = [$targets[0]];
-				}
-
+				$export['renderTargets'] = [self::targetFor(export: $export, format: $format)];
 			}
 
 			$results = $this->render->preview(export: $export, filterContext: $context);
@@ -245,6 +248,43 @@ class ScheduledExportController extends Controller {
 			return new JSONResponse(['artefacts' => array_map($encode, $results)]);
 		});
 	}//end preview()
+
+	/**
+	 * The filter context of the export's recipient with this id (or index); [] for none.
+	 *
+	 * @param array<string, mixed> $export      The export.
+	 * @param string               $recipientId The recipient id; empty for none.
+	 *
+	 * @return array<string, mixed> The filter context.
+	 */
+	private static function recipientContext(array $export, string $recipientId): array {
+		$context = [];
+		foreach ((array)($export['recipients'] ?? []) as $index => $recipient) {
+			if ($recipientId !== '' && (string)($recipient['id'] ?? $index) === $recipientId) {
+				$context = (array)($recipient['filterContext'] ?? []);
+			}
+		}
+
+		return $context;
+	}//end recipientContext()
+
+	/**
+	 * The export's first render target of this format, or a bare target of it.
+	 *
+	 * @param array<string, mixed> $export The export.
+	 * @param string               $format The format asked for.
+	 *
+	 * @return array<string, mixed> The render target.
+	 */
+	private static function targetFor(array $export, string $format): array {
+		foreach ((array)($export['renderTargets'] ?? []) as $target) {
+			if (($target['format'] ?? null) === $format) {
+				return $target;
+			}
+		}
+
+		return ['format' => $format];
+	}//end targetFor()
 
 	/**
 	 * `GET /api/exports/{id}/runs`: the run history, newest first, paged.

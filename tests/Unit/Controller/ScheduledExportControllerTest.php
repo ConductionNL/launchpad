@@ -55,6 +55,13 @@ class ScheduledExportControllerTest extends TestCase {
 
 	private IRequest&MockObject $request;
 
+	/**
+	 * The request parameters getParam() answers with.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private array $params = [];
+
 	private RequestGuard&MockObject $guard;
 
 	private ScheduledExportService&MockObject $exports;
@@ -74,6 +81,8 @@ class ScheduledExportControllerTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
+		$this->params  = [];
+		$this->request->method('getParam')->willReturnCallback(fn (string $key, mixed $default = null): mixed => ($this->params[$key] ?? $default));
 		$this->guard   = $this->createMock(RequestGuard::class);
 		$alice         = $this->createMock(IUser::class);
 		$alice->method('getUID')->willReturn('alice');
@@ -106,9 +115,14 @@ class ScheduledExportControllerTest extends TestCase {
 	public function testIndexSortsAndPages(): void {
 		$this->exports->method('findVisible')->with('alice')->willReturn([['name' => 'b'], ['name' => 'c'], ['name' => 'a']]);
 
-		$data = $this->controller->index(limit: 2, offset: 0, sort: 'name', order: 'desc')->getData();
+		$this->params = ['limit' => '2', 'offset' => '0', 'sort' => 'name', 'order' => 'desc'];
+		$data = $this->controller->index()->getData();
 		$this->assertSame(['results' => [['name' => 'c'], ['name' => 'b']], 'total' => 3, 'limit' => 2, 'offset' => 0], $data);
-		$this->assertSame(200, $this->controller->index(limit: 999)->getData()['limit']);
+
+		$this->params = ['limit' => '999', 'sort' => 'unknown'];
+		$data = $this->controller->index()->getData();
+		$this->assertSame(200, $data['limit']);
+		$this->assertSame([['name' => 'a'], ['name' => 'b'], ['name' => 'c']], $data['results']);
 	}//end testIndexSortsAndPages()
 
 	/**
@@ -200,7 +214,8 @@ class ScheduledExportControllerTest extends TestCase {
 		// HeaderUtils from a booted Nextcloud; under this suite's OCP bootstrap
 		// it throws, so only what was rendered is asserted for that branch.
 		try {
-			$file = $this->controller->preview(id: 'e1', recipientId: 'gm', format: 'csv');
+			$this->params = ['recipientId' => 'gm', 'format' => 'csv'];
+			$file = $this->controller->preview(id: 'e1');
 			$this->assertInstanceOf(DataDownloadResponse::class, $file);
 		} catch (\Error $e) {
 			$this->assertStringContainsString('HeaderUtils', $e->getMessage());
@@ -208,6 +223,7 @@ class ScheduledExportControllerTest extends TestCase {
 
 		$this->assertSame([[['format' => 'csv', 'formatOptions' => ['delimiter' => ';']]], ['gemeenteCode' => 'GM0355']], $calls[0]);
 
+		$this->params = [];
 		$all = $this->controller->preview(id: 'e1');
 		$this->assertSame(['w.pdf', 'w.csv'], array_column($all->getData()['artefacts'], 'filename'));
 		$this->assertSame(base64_encode('X'), $all->getData()['artefacts'][0]['content']);
@@ -223,7 +239,8 @@ class ScheduledExportControllerTest extends TestCase {
 		$this->exports->method('findOne')->willReturn(['renderTargets' => [['format' => 'pdf']], 'recipients' => []]);
 		$this->render->method('preview')->willThrowException(new RenderException('No headless browser is configured for PDF and PNG exports'));
 
-		$response = $this->controller->preview(id: 'e1', format: 'pdf');
+		$this->params = ['format' => 'pdf'];
+		$response = $this->controller->preview(id: 'e1');
 		$this->assertSame(422, $response->getStatus());
 		$this->assertSame('No headless browser is configured for PDF and PNG exports', $response->getData()['message']);
 	}//end testPreviewRenderFailure()

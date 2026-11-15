@@ -191,7 +191,7 @@ class ExportFireTest extends TestCase {
 			[['id' => 'r0', 'status' => 'running', 'deliveries' => []]],
 			[['id' => 'r0', 'status' => 'running', 'deliveries' => [['status' => 'retrying']]]]
 		);
-		$this->log->expects($this->once())->method('skipped')->with($this->anything(), $this->anything(), 'partial', ExportFire::REASON_OVERLAP)->willReturn(['status' => 'partial', 'startedAt' => 'T']);
+		$this->log->expects($this->once())->method('skipped')->with($this->anything(), $this->anything(), ['status' => 'partial', 'reason' => ExportFire::REASON_OVERLAP])->willReturn(['status' => 'partial', 'startedAt' => 'T']);
 		$this->log->expects($this->once())->method('start');
 		$this->render->expects($this->never())->method('render');
 
@@ -205,7 +205,7 @@ class ExportFireTest extends TestCase {
 	 * @return void
 	 */
 	public function testDisabledCreatorIsSkipped(): void {
-		$this->log->expects($this->once())->method('skipped')->with($this->anything(), $this->anything(), 'failed', ExportFire::REASON_CREATOR_DISABLED)->willReturn(['status' => 'failed', 'startedAt' => 'T']);
+		$this->log->expects($this->once())->method('skipped')->with($this->anything(), $this->anything(), ['status' => 'failed', 'reason' => ExportFire::REASON_CREATOR_DISABLED])->willReturn(['status' => 'failed', 'startedAt' => 'T']);
 		$this->notifier->expects($this->once())->method('failed')->with($this->callback(static fn (array $e): bool => $e['creatorEnabled'] === false), ExportFire::REASON_CREATOR_DISABLED);
 		$this->exports->expects($this->once())->method('recordFire')->with($this->anything(), ['lastRunAt' => 'T', 'lastRunStatus' => 'failed', 'nextRunAt' => '2026-11-23T09:00:00+01:00']);
 		$this->render->expects($this->never())->method('render');

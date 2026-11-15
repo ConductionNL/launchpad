@@ -75,7 +75,7 @@ class AuditLogTest extends TestCase {
 			'triggeredByUser' => 'alice',
 			'correlationId' => 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',
 			'status' => 'running',
-		], true)->willReturnArgument(1);
+		])->willReturnArgument(1);
 
 		$this->log->start(export: ['id' => 'e1'], trigger: FireTrigger::manual(userId: 'alice'));
 	}//end testStartOpensARunningRow()
@@ -109,7 +109,7 @@ class AuditLogTest extends TestCase {
 	 */
 	public function testSkippedRecordsTheReason(): void {
 		$this->store->method('save')->willReturnArgument(1);
-		$row = $this->log->skipped(export: ['id' => 'e1'], trigger: FireTrigger::schedule(), status: 'partial', reason: 'The previous run is still running.');
+		$row = $this->log->skipped(export: ['id' => 'e1'], trigger: FireTrigger::schedule(), skip: ['status' => 'partial', 'reason' => 'The previous run is still running.']);
 
 		$this->assertSame('partial', $row['status']);
 		$this->assertSame('schedule', $row['triggeredBy']);
@@ -126,7 +126,7 @@ class AuditLogTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunsOfAndRunOf(): void {
-		$this->store->method('findAll')->with(ExportObjectStore::SCHEMA_RUN, ['exportId' => 'e1'], true)->willReturn([
+		$this->store->method('findAll')->with(ExportObjectStore::SCHEMA_RUN, ['exportId' => 'e1'])->willReturn([
 			['id' => 'old', 'exportId' => 'e1', 'startedAt' => '2026-11-09T09:00:00+01:00'],
 			['id' => 'other', 'exportId' => 'e2', 'startedAt' => '2026-11-15T09:00:00+01:00'],
 			['id' => 'new', 'exportId' => 'e1', 'startedAt' => '2026-11-16T09:00:00+01:00'],
@@ -144,9 +144,9 @@ class AuditLogTest extends TestCase {
 	 * @return void
 	 */
 	public function testUpdateAndDelete(): void {
-		$this->store->expects($this->once())->method('save')->with(ExportObjectStore::SCHEMA_RUN, ['id' => 'r1'], true)->willReturnArgument(1);
-		$this->store->expects($this->once())->method('delete')->with('r1', true)->willReturn(true);
-		$this->store->expects($this->once())->method('findAll')->with(ExportObjectStore::SCHEMA_RUN, [], true)->willReturn([]);
+		$this->store->expects($this->once())->method('save')->with(ExportObjectStore::SCHEMA_RUN, ['id' => 'r1'])->willReturnArgument(1);
+		$this->store->expects($this->once())->method('delete')->with('r1')->willReturn(true);
+		$this->store->expects($this->once())->method('findAll')->with(ExportObjectStore::SCHEMA_RUN, [])->willReturn([]);
 
 		$this->log->update(run: ['id' => 'r1']);
 		$this->assertTrue($this->log->delete(runId: 'r1'));

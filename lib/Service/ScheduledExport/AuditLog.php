@@ -67,7 +67,7 @@ class AuditLog {
 	 */
 	public function start(array $export, FireTrigger $trigger): array {
 		$row = $this->fresh(export: $export, trigger: $trigger) + ['status' => 'running'];
-		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $row, system: true);
+		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $row);
 	}//end start()
 
 	/**
@@ -90,7 +90,7 @@ class AuditLog {
 			$run['finishedAt'] = $this->now();
 		}
 
-		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $run, system: true);
+		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $run);
 	}//end record()
 
 	/**
@@ -98,23 +98,24 @@ class AuditLog {
 	 *
 	 * @param array<string, mixed> $export The export.
 	 * @param FireTrigger          $trigger     Who or what fired it.
-	 * @param string               $status `partial` for an overlap, `failed` for a blocked creator.
-	 * @param string               $reason Why it was skipped.
+	 * @param array{status: string, reason: string} $skip The row's `status` (`partial` for an
+	 *                                                    overlap, `failed` for a blocked creator)
+	 *                                                    and why it was skipped.
 	 *
 	 * @return array<string, mixed> The saved row.
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
-	public function skipped(array $export, FireTrigger $trigger, string $status, string $reason): array {
+	public function skipped(array $export, FireTrigger $trigger, array $skip): array {
 		$row = $this->fresh(export: $export, trigger: $trigger) + [
-			'status' => $status,
+			'status' => $skip['status'],
 			'finishedAt' => $this->now(),
-			'skipReason' => $reason,
+			'skipReason' => $skip['reason'],
 			'renderArtefacts' => [],
 			'deliveries' => [],
 		];
 
-		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $row, system: true);
+		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $row);
 	}//end skipped()
 
 	/**
@@ -127,7 +128,7 @@ class AuditLog {
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-7
 	 */
 	public function runsOf(string $exportId): array {
-		$runs = $this->store->findAll(schema: ExportObjectStore::SCHEMA_RUN, filters: ['exportId' => $exportId], system: true);
+		$runs = $this->store->findAll(schema: ExportObjectStore::SCHEMA_RUN, filters: ['exportId' => $exportId]);
 		$runs = array_values(array_filter($runs, static fn (array $run): bool => ($run['exportId'] ?? null) === $exportId));
 		usort($runs, static fn (array $a, array $b): int => strcmp((string)($b['startedAt'] ?? ''), (string)($a['startedAt'] ?? '')));
 
@@ -142,7 +143,7 @@ class AuditLog {
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-7
 	 */
 	public function allRuns(): array {
-		return $this->store->findAll(schema: ExportObjectStore::SCHEMA_RUN, system: true);
+		return $this->store->findAll(schema: ExportObjectStore::SCHEMA_RUN);
 	}//end allRuns()
 
 	/**
@@ -156,7 +157,7 @@ class AuditLog {
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-7
 	 */
 	public function runOf(string $exportId, string $runId): ?array {
-		$run = $this->store->find(schema: ExportObjectStore::SCHEMA_RUN, uuid: $runId, system: true);
+		$run = $this->store->find(schema: ExportObjectStore::SCHEMA_RUN, uuid: $runId);
 		if ($run === null || ($run['exportId'] ?? null) !== $exportId) {
 			return null;
 		}
@@ -174,7 +175,7 @@ class AuditLog {
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-7
 	 */
 	public function update(array $run): array {
-		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $run, system: true);
+		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $run);
 	}//end update()
 
 	/**
@@ -187,7 +188,7 @@ class AuditLog {
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-7
 	 */
 	public function delete(string $runId): bool {
-		return $this->store->delete(uuid: $runId, system: true);
+		return $this->store->delete(uuid: $runId);
 	}//end delete()
 
 	/**

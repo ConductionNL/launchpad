@@ -160,6 +160,13 @@ class NotifierTest extends TestCase {
 				'setParsedMessage ["[The dashboard template you received was updated by an administrator]"]',
 				'setLink ["https:\/\/host\/apps\/launchpad\/?dashboard=u+7"]',
 			]],
+			['announcement_published', '11111111-2222-4333-8444-555555555555', ['Privacy', 'Nieuwe privacyverklaring'], [
+				'setRichSubject ["[New announcement in Privacy: **Nieuwe privacyverklaring**]",[]]',
+				'setParsedSubject ["[New announcement in Privacy: Nieuwe privacyverklaring]"]',
+				'setRichMessage ["[Open LaunchPad to read the announcement]",[]]',
+				'setParsedMessage ["[Open LaunchPad to read the announcement]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
 		];
 		foreach ($cases as [$subject, $objectId, $params, $expected]) {
 			$notification = $this->notification(subject: $subject, objectId: $objectId, params: $params);

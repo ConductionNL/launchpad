@@ -322,6 +322,7 @@
 							:tile="getTileData(item)"
 							:editMode="isEditMode"
 							:placementId="item.id"
+							:content="item.content || null"
 							:healthPingEnabled="
 								item.content
 								&& item.content.healthPingEnabled === true
@@ -560,6 +561,7 @@ import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/dis
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { logger } from '../utils/logger.js'
 import { officePackContainer } from '../utils/officeTiles.js'
+import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -2504,6 +2506,8 @@ export default {
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// launcher-tile-launch-types: remote-desktop and sso settings.
+				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
 			this.openTileEditor(tileData)
 		},
@@ -2531,6 +2535,9 @@ export default {
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
 			}
+			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
+			// settings in the same blob, checked by the server with the link.
+			const content = { ...healthPingContent, ...launchContent(tileData) }
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -2541,23 +2548,52 @@ export default {
 						tileTextColor: tileData.textColor,
 						tileLinkType: tileData.linkType,
 						tileLinkValue: tileData.linkValue,
-						content: healthPingContent,
+						content,
 					})
 				} else {
-					const newPlacement = await this.addTileToDashboard(tileData)
-					// `addTile` has no `content` parameter (mirrors the
-					// `addWidget` create-then-patch pattern above) — persist
-					// the health-ping block with a follow-up patch only when
-					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
-						await this.updateWidgetPlacement(newPlacement.id, {
-							content: healthPingContent,
-						})
-					}
+					await this.createTile(tileData, content)
 				}
 				this.closeTileEditor()
 			} catch (error) {
-				logger.error('[Views] Failed to save tile:', error)
+				this.reportTileSaveError(tileData, error)
+			}
+		},
+
+		/**
+		 * Create a launcher tile from the editor's form state.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {object} content The placement's content blob.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		async createTile(tileData, content) {
+			// A launch tile is checked on create, so it carries its content.
+			const newPlacement = await this.addTileToDashboard(
+				isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
+			)
+			// `addTile` has no `content` parameter (mirrors the
+			// `addWidget` create-then-patch pattern above) — persist
+			// the health-ping block with a follow-up patch only when
+			// the author actually enabled it.
+			if (newPlacement?.id && content.healthPingEnabled) {
+				await this.updateWidgetPlacement(newPlacement.id, {
+					content,
+				})
+			}
+		},
+
+		/**
+		 * Log a failed tile save, and tell the author when the server refused a launch tile's settings.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {Error} error The failure.
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		reportTileSaveError(tileData, error) {
+			logger.error('[Views] Failed to save tile:', error)
+			if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {
+				showError(t('launchpad', 'The tile was not saved: check its address or settings.'))
 			}
 		},
 

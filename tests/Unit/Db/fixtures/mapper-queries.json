@@ -327,6 +327,220 @@
             "outcome": "returned null"
         }
     },
+    "AnnouncementFollowMapper": {
+        "findByUser all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_follows\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByUser rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_follows\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementFollow {\\\"id\\\":5,\\\"userId\\\":null,\\\"category\\\":null,\\\"createdAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementFollow {\\\"id\\\":6,\\\"userId\\\":null,\\\"category\\\":null,\\\"createdAt\\\":null}\"]"
+        },
+        "findByCategory all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_follows\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-category\", 2, null)",
+                "qb1.expr.eq(\"category\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"category\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByCategory rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_follows\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-category\", 2, null)",
+                "qb1.expr.eq(\"category\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"category\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementFollow {\\\"id\\\":5,\\\"userId\\\":null,\\\"category\\\":null,\\\"createdAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementFollow {\\\"id\\\":6,\\\"userId\\\":null,\\\"category\\\":null,\\\"createdAt\\\":null}\"]"
+        },
+        "unfollow all": {
+            "calls": [
+                "qb1 new",
+                "qb1.delete(\"launchpad_ann_follows\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-category\", 2, null)",
+                "qb1.expr.eq(\"category\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"category\\\", \\\":p2\\\", null)\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned null"
+        },
+        "unfollow rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.delete(\"launchpad_ann_follows\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-category\", 2, null)",
+                "qb1.expr.eq(\"category\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"category\\\", \\\":p2\\\", null)\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned null"
+        }
+    },
+    "AnnouncementMapper": {
+        "findByUuid all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\DoesNotExistException: Did expect one result but found none when executing: query \"sql\"; "
+        },
+        "findByUuid rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
+        },
+        "findLive all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"published\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"publish_at\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(DateTime, \"datetime\", null)",
+                "qb1.expr.lte(\"publish_at\", \":p2\", null)",
+                "qb1.expr.orX(\"isNull(\\\"publish_at\\\")\", \"lte(\\\"publish_at\\\", \\\":p2\\\", null)\")",
+                "qb1.andWhere(orX(\"isNull(\\\"publish_at\\\")\", \"lte(\\\"publish_at\\\", \\\":p2\\\", null)\"))",
+                "qb1.expr()",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"expires_at\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(DateTime, \"datetime\", null)",
+                "qb1.expr.gt(\"expires_at\", \":p3\", null)",
+                "qb1.expr.orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p3\\\", null)\")",
+                "qb1.andWhere(orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p3\\\", null)\"))",
+                "qb1.orderBy(\"publish_at\", \"DESC\")",
+                "qb1.addOrderBy(\"id\", \"DESC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findLive rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"published\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"publish_at\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(DateTime, \"datetime\", null)",
+                "qb1.expr.lte(\"publish_at\", \":p2\", null)",
+                "qb1.expr.orX(\"isNull(\\\"publish_at\\\")\", \"lte(\\\"publish_at\\\", \\\":p2\\\", null)\")",
+                "qb1.andWhere(orX(\"isNull(\\\"publish_at\\\")\", \"lte(\\\"publish_at\\\", \\\":p2\\\", null)\"))",
+                "qb1.expr()",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"expires_at\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(DateTime, \"datetime\", null)",
+                "qb1.expr.gt(\"expires_at\", \":p3\", null)",
+                "qb1.expr.orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p3\\\", null)\")",
+                "qb1.andWhere(orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p3\\\", null)\"))",
+                "qb1.orderBy(\"publish_at\", \"DESC\")",
+                "qb1.addOrderBy(\"id\", \"DESC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        },
+        "findDrafts all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"draft\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-authorId\", 2, null)",
+                "qb1.expr.eq(\"author_id\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"author_id\\\", \\\":p2\\\", null)\")",
+                "qb1.orderBy(\"updated_at\", \"DESC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findDrafts rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"draft\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-authorId\", 2, null)",
+                "qb1.expr.eq(\"author_id\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"author_id\\\", \\\":p2\\\", null)\")",
+                "qb1.orderBy(\"updated_at\", \"DESC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        }
+    },
     "ConditionalRuleMapper": {
         "find all": {
             "calls": [

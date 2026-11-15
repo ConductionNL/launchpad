@@ -57,6 +57,8 @@ enum AdminSettingKey: string {
 	case SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
 	case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
 	case FORCED_SHARE_GROUPS = 'forced_share_groups';
+	// Engagement-announcements D6: groups whose members may write announcements, besides administrators.
+	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 	case SHARING_ALLOWED_GROUPS = 'sharing_allowed_groups';
 	case SHARING_RECIPIENT_SCOPE = 'sharing_recipient_scope';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';

@@ -7,6 +7,8 @@
 	<div class="sharing-tab" data-test="sharing-tab">
 		<DashboardSharingPolicy :groups="groups" />
 		<div class="sharing-tab__spacer" />
+		<AnnouncementEditorsPolicy :groups="groups" />
+		<div class="sharing-tab__spacer" />
 		<GroupPriorityOrder :initialActive="configuredGroups" />
 		<div class="sharing-tab__spacer" />
 		<DashboardRegistrySettings />
@@ -16,6 +18,7 @@
 </template>
 
 <script>
+import AnnouncementEditorsPolicy from '../AnnouncementEditorsPolicy.vue'
 import DashboardRegistrySettings from '../DashboardRegistrySettings.vue'
 import DashboardSharingPolicy from '../DashboardSharingPolicy.vue'
 import GroupPriorityOrder from '../GroupPriorityOrder.vue'
@@ -33,6 +36,7 @@ export default {
 	name: 'SharingTab',
 
 	components: {
+		AnnouncementEditorsPolicy,
 		DashboardRegistrySettings,
 		DashboardSharingPolicy,
 		GroupPriorityOrder,

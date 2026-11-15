@@ -116,3 +116,28 @@ describe('WidgetBridge OCA.Dashboard exposure (CnNcWidgetWidget contract)', () =
 		expect(() => widgetBridge.setWidgetMetadata(null)).not.toThrow()
 	})
 })
+
+describe('WidgetBridge mounting clears the container without HTML injection', () => {
+	it('removes the previous content before calling a dashboard widget callback', () => {
+		const container = document.createElement('div')
+		container.appendChild(document.createElement('span'))
+		const seen = []
+		widgetBridge.widgetCallbacks.set('notes', (el) => seen.push(el.childNodes.length))
+
+		widgetBridge.mountWidget('notes', container, {})
+
+		expect(seen).toEqual([0])
+	})
+
+	it('removes the previous content before calling a status widget callback', () => {
+		const container = document.createElement('div')
+		container.appendChild(document.createElement('span'))
+		const seen = []
+		widgetBridge.statusCallbacks.set('weather', (el) => seen.push(el.childNodes.length))
+
+		widgetBridge.mountStatusWidget('weather', container)
+
+		expect(seen).toEqual([0])
+		widgetBridge.statusCallbacks.delete('weather')
+	})
+})

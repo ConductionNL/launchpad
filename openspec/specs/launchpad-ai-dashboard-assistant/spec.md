@@ -19,7 +19,7 @@ Decided on 29 Sep 2026 (DECISIONS row 16, row `a-assistant`), replacing the earl
 
 @e2e exclude a live answer needs a running hermiq with a model on the instance; the widget is asserted in src/components/Widgets/Renderers/__tests__/AiAssistantWidget.spec.js and src/components/Widgets/Renderers/__tests__/noModelClient.spec.js, the registry in src/constants/__tests__/widgetRegistry.completeness.spec.js
 
-### REQ-ADA-001: The system SHALL register an `ai-assistant` widget type
+### Requirement: REQ-ADA-001: The system SHALL register an `ai-assistant` widget type
 
 The widget MUST be registered in `src/constants/widgetRegistry.js` with `renderer`, `form`, `defaultContent`, `displayName` and `icon`, and listed in `lib/widget-types.json`, like every LaunchPad-rendered widget type.
 
@@ -29,7 +29,7 @@ The widget MUST be registered in `src/constants/widgetRegistry.js` with `rendere
 - **WHEN** it runs
 - **THEN** `ai-assistant` is in `lib/widget-types.json` and surfaces in `listWidgetTypes()` with a form and a renderer
 
-### REQ-ADA-002: The widget content SHALL name only the hermiq agent
+### Requirement: REQ-ADA-002: The widget content SHALL name only the hermiq agent
 
 The placement MUST persist `{type: 'ai-assistant', content: {agentUuid}}`. `agentUuid` is optional; empty means hermiq's default agent.
 
@@ -39,7 +39,7 @@ The placement MUST persist `{type: 'ai-assistant', content: {agentUuid}}`. `agen
 - **WHEN** a question is sent
 - **THEN** the request carries `agentUuid: ''` and hermiq answers with its default agent
 
-### REQ-ADA-003: There SHALL be no manifest entry for the widget
+### Requirement: REQ-ADA-003: There SHALL be no manifest entry for the widget
 
 LaunchPad-rendered widgets are declared in the registry, not in `src/manifest.json` `widgets[]`; the assistant follows them. The manifest's `dependencies` MUST NOT list hermiq: hermiq's presence is checked at runtime (REQ-ADA-004).
 
@@ -49,7 +49,7 @@ LaunchPad-rendered widgets are declared in the registry, not in `src/manifest.js
 - **WHEN** it runs
 - **THEN** it passes and the manifest names neither the widget nor hermiq
 
-### REQ-ADA-004: Inference SHALL route exclusively through hermiq; launchpad MUST NOT contain an LLM client
+### Requirement: REQ-ADA-004: Inference SHALL route exclusively through hermiq; launchpad MUST NOT contain an LLM client
 
 Every question MUST go to hermiq's chat endpoints (`/apps/hermiq/api/chat/stream`, falling back to `/apps/hermiq/api/chat/send`) through `useAiChatStream` with `chatAppId: 'hermiq'` and the context `{appId: 'launchpad', pageKind: 'dashboard', objectUuid: <dashboard uuid>, route}`. launchpad source MUST NOT import an LLM SDK, MUST NOT call a model URL, and MUST NOT carry a system prompt in code.
 
@@ -71,7 +71,7 @@ Every question MUST go to hermiq's chat endpoints (`/apps/hermiq/api/chat/stream
 - **WHEN** scanned for `openai`, `@anthropic-ai`, `@ollama`, `llphant` imports or a `localhost:11434` string
 - **THEN** there are no matches
 
-### REQ-ADA-005: Tool calls SHALL be governed by hermiq
+### Requirement: REQ-ADA-005: Tool calls SHALL be governed by hermiq
 
 launchpad MUST NOT pass a tool list. Which tools the model may call, and on what data, is decided by hermiq for the asking person over its governed MCP transport, under OpenRegister RBAC. `useAiChatStream` carries a fixed context shape, so a per-widget scope is not sent.
 
@@ -81,7 +81,7 @@ launchpad MUST NOT pass a tool list. Which tools the model may call, and on what
 - **WHEN** the request body is read
 - **THEN** it carries `message`, `context` and `agentUuid`, and no `tools` field
 
-### REQ-ADA-006: The widget SHALL render two reply modes, streamed chat and inline summary
+### Requirement: REQ-ADA-006: The widget SHALL render two reply modes, streamed chat and inline summary
 
 A placement of 6 grid cells or more (`gridWidth × gridHeight`) MUST render the chat: a labelled question input, the conversation and the answer as it streams. A smaller placement MUST render summary mode: one "Summarise this dashboard" button that sends the translated question "Summarise this dashboard for me." and shows the latest answer in the cell.
 
@@ -97,7 +97,7 @@ A placement of 6 grid cells or more (`gridWidth × gridHeight`) MUST render the 
 - **WHEN** the viewer clicks "Summarise this dashboard"
 - **THEN** the widget sends "Summarise this dashboard for me." to Hermiq and shows the answer in the cell, and each click asks again
 
-### REQ-ADA-007: History SHALL live in the browser session, not on a launchpad backend
+### Requirement: REQ-ADA-007: History SHALL live in the browser session, not on a launchpad backend
 
 Conversation turns MUST live only in the widget's own state for the page session. launchpad MUST NOT add a backend table or endpoint for chat history; Hermiq keeps its own conversations.
 

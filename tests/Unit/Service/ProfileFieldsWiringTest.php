@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ProfileFieldTools;
+use OCA\LaunchPad\Service\ProfileSources;
 use Exception;
 use OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob;
 use OCA\LaunchPad\Db\AdminSetting;
@@ -112,10 +114,14 @@ class ProfileFieldsWiringTest extends TestCase {
 		$this->service = new ProfileFieldService(
 			settingMapper: $settingMapper,
 			valueMapper: $this->values,
-			accountManager: $accounts,
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			ldapProviderFactory: $this->createMock(ILDAPProviderFactory::class),
-			logger: $this->logger,
+			sources: new ProfileSources(
+				accountManager: $accounts,
+				ldapProviderFactory: $this->createMock(ILDAPProviderFactory::class)
+			),
+			tools: new ProfileFieldTools(
+				adminTemplateService: $this->createMock(AdminTemplateService::class),
+				logger: $this->logger
+			)
 		);
 	}//end setUp()
 

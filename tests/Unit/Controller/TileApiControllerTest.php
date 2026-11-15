@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
+use OCA\LaunchPad\Controller\TileSources;
 use OCA\LaunchPad\Controller\TileApiController;
 use OCA\LaunchPad\Db\Tile;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -69,12 +71,16 @@ class TileApiControllerTest extends TestCase {
 
 		return new TileApiController(
 			request: $this->request,
-			tileService: $this->tileService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			l10n: $this->l10n,
-			discovery: $this->discovery,
-			userId: $userId,
+			sources: new TileSources(
+				tileService: $this->tileService,
+				l10n: $this->l10n,
+				discovery: $this->discovery
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
+			userId: $userId
 		);
 	}
 

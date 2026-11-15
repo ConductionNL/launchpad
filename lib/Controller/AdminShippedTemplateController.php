@@ -26,17 +26,13 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
-use OCA\LaunchPad\Service\ShippedTemplateService;
-use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -54,53 +50,22 @@ use Throwable;
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
 class AdminShippedTemplateController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest               $request      The request.
-	 * @param ShippedTemplateService       $templates    Shipped template service.
-	 * @param ShippedTemplateUpdateService $updates      Updates an installed template in place.
-	 * @param IUserSession           $userSession  The user session.
-	 * @param IGroupManager          $groupManager The group manager.
-	 * @param LoggerInterface        $logger       Logger.
+	 * @param IRequest             $request The request.
+	 * @param ShippedTemplateTools $tools The shipped template and update services and the logger.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ShippedTemplateService $templates,
-		private readonly ShippedTemplateUpdateService $updates,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
+		private readonly ShippedTemplateTools $tools,
+		private readonly RequestGuard $guard,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * The signed-in administrator's id, or a refusal.
-	 *
-	 * @return string|JSONResponse The user id, or the 401/403 to return.
-	 */
-	private function requireAdmin(): string|JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return $user->getUID();
-	}//end requireAdmin()
 
 	/**
 	 * List the shipped templates with whether each is installed.
@@ -111,12 +76,12 @@ class AdminShippedTemplateController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		$admin = $this->requireAdmin();
+		$admin = $this->guard->adminId();
 		if ($admin instanceof JSONResponse) {
 			return $admin;
 		}
 
-		return ResponseHelper::success(data: $this->templates->listTemplates());
+		return ResponseHelper::success(data: $this->tools->templates->listTemplates());
 	}//end index()
 
 	/**
@@ -131,27 +96,21 @@ class AdminShippedTemplateController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function install(string $id, bool $force = false): JSONResponse {
-		$admin = $this->requireAdmin();
+		$admin = $this->guard->adminId();
 		if ($admin instanceof JSONResponse) {
 			return $admin;
 		}
 
 		try {
-			$result = $this->templates->install(templateId: $id, force: $force, userId: $admin);
+			$result = $this->tools->templates->install(templateId: $id, options: ['force' => $force, 'userId' => $admin]);
 		} catch (InvalidArgumentException) {
-			return new JSONResponse(
-				data: ['error' => 'Template not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'Shipped template install failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Template installation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Template installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$statusCode = Http::STATUS_CREATED;
@@ -177,32 +136,23 @@ class AdminShippedTemplateController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(string $id, bool $dryRun = false): JSONResponse {
-		$admin = $this->requireAdmin();
+		$admin = $this->guard->adminId();
 		if ($admin instanceof JSONResponse) {
 			return $admin;
 		}
 
 		try {
-			$result = $this->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
+			$result = $this->tools->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
 		} catch (InvalidArgumentException) {
-			return new JSONResponse(
-				data: ['error' => 'Template not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (TemplateNotInstalledException) {
-			return new JSONResponse(
-				data: ['error' => 'Template not installed'],
-				statusCode: Http::STATUS_CONFLICT
-			);
+			return $this->failure(message: 'Template not installed', statusCode: Http::STATUS_CONFLICT);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'Shipped template update failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Template update failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Template update failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);

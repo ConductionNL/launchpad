@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Controller;
 
+use OCA\LaunchPad\Controller\PageSettingsSources;
+use OCA\LaunchPad\Controller\PageSources;
 use OCA\LaunchPad\Controller\PageController;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
@@ -55,16 +57,22 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 	private function makeController(WidgetService $widgetService): PageController {
 		return new PageController(
 			request: $this->createMock(IRequest::class),
-			initialState: $this->createMock(IInitialState::class),
+			sources: new PageSources(
+				initialState: $this->createMock(IInitialState::class),
+				widgetService: $widgetService,
+				dashboardService: $this->createMock(DashboardService::class),
+				adminTemplateService: $this->createMock(AdminTemplateService::class)
+			),
 			userSession: $this->createMock(IUserSession::class),
-			widgetService: $widgetService,
-			dashboardService: $this->createMock(DashboardService::class),
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			adminSettingsService: $this->createMock(AdminSettingsService::class),
-			searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class),
+			settings: new PageSettingsSources(
+				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				treeService: $this->createMock(DashboardTreeService::class),
+				logger: $this->createMock(LoggerInterface::class),
+				adminSettingsService: $this->createMock(AdminSettingsService::class),
+				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class),
+				searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class)
+			)
 		);
 	}//end makeController()
 

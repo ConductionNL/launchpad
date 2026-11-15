@@ -163,15 +163,17 @@ class BookmarkImportService {
 			$created[] = $this->placements->addWidget(
 				dashboardId: $dashboardId,
 				widgetId: 'container',
-				gridX: $column,
-				gridY: $row,
-				gridWidth: self::CONTAINER_WIDTH,
-				gridHeight: $height,
-				content: [
-					'title' => $folder['name'],
-					'backgroundColor' => 'transparent',
-					'padding' => 'medium',
-					'placements' => $this->children(bookmarks: $folder['bookmarks']),
+				layout: [
+					'gridX' => $column,
+					'gridY' => $row,
+					'gridWidth' => self::CONTAINER_WIDTH,
+					'gridHeight' => $height,
+					'content' => [
+						'title' => $folder['name'],
+						'backgroundColor' => 'transparent',
+						'padding' => 'medium',
+						'placements' => $this->children(bookmarks: $folder['bookmarks']),
+					],
 				]
 			);
 			$column += self::CONTAINER_WIDTH;

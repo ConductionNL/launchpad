@@ -1,0 +1,37 @@
+{
+    "leaf": {
+        "exit": 0,
+        "writes": [
+            "placements 4",
+            "delete leaf"
+        ],
+        "output": "Deleted dashboard leaf"
+    },
+    "leaf json": {
+        "exit": 0,
+        "writes": [
+            "placements 4",
+            "delete leaf"
+        ],
+        "output": "{\"success\":true,\"exitCode\":0,\"data\":{\"uuid\":\"leaf\",\"cascade\":false,\"childCount\":0},\"errors\":[]}"
+    },
+    "parent cascade": {
+        "exit": 0,
+        "writes": [
+            "subtree parent"
+        ],
+        "output": "Deleted dashboard parent and 2 descendant(s)"
+    },
+    "parent cascade json": {
+        "exit": 0,
+        "writes": [
+            "subtree parent"
+        ],
+        "output": "{\"success\":true,\"exitCode\":0,\"data\":{\"uuid\":\"parent\",\"cascade\":true,\"childCount\":2},\"errors\":[]}"
+    },
+    "parent without cascade": {
+        "exit": 2,
+        "writes": [],
+        "output": "Use --cascade to also delete child dashboards"
+    }
+}

@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Search;
 
+use OCA\LaunchPad\Search\SearchLinks;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -89,8 +90,10 @@ class LaunchPadSearchProviderTest extends TestCase {
 			dashboardService: $this->dashboardService,
 			placementMapper: $this->placementMapper,
 			metadataService: $this->metadataService,
-			l10nFactory: $this->l10nFactory,
-			urlGenerator: $this->urlGenerator,
+			links: new SearchLinks(
+				l10nFactory: $this->l10nFactory,
+				urlGenerator: $this->urlGenerator
+			)
 		);
 	}
 
@@ -412,5 +415,57 @@ class LaunchPadSearchProviderTest extends TestCase {
 		// The dashboard name matches; widget placements degrade silently.
 		self::assertCount(1, $entries);
 		self::assertSame('Edge cases', $entries[0]->jsonSerialize()['title']);
+	}
+
+	public function testEachBucketIsCappedAndRankedDashboardsWidgetsMetadata(): void {
+		$visible = [];
+		for ($i = 1; $i <= 5; $i++) {
+			$visible[] = [
+				'dashboard' => $this->makeDashboard($i, 'uuid-' . $i, 'Hit ' . $i),
+				'source' => Dashboard::SOURCE_USER,
+			];
+		}
+		$this->dashboardService->method('getVisibleToUser')->willReturn($visible);
+
+		$placementCalls = [];
+		$this->placementMapper->method('findByDashboardId')->willReturnCallback(
+			function (int $dashboardId) use (&$placementCalls): array {
+				$placementCalls[] = $dashboardId;
+				$placements = [];
+				for ($p = 1; $p <= 4; $p++) {
+					$placements[] = $this->makePlacement(
+						($dashboardId * 10) + $p,
+						$dashboardId,
+						json_encode(['type' => 'text', 'content' => ['text' => 'hit body']])
+					);
+				}
+				return $placements;
+			}
+		);
+
+		$metadataCalls = [];
+		$this->metadataService->method('getMetadataForDashboard')->willReturnCallback(
+			static function (string $uuid) use (&$metadataCalls): array {
+				$metadataCalls[] = $uuid;
+				return ['a' => 'hit a', 'b' => 'miss', 'c' => 'HIT c', 'd' => 'hit d'];
+			}
+		);
+
+		$entries = array_map(
+			static fn ($entry): string => $entry->jsonSerialize()['title'] . ' | ' . $entry->jsonSerialize()['subline'],
+			$this->provider->search($this->makeUser('alice'), $this->makeQuery(' Hit '))->jsonSerialize()['entries']
+		);
+
+		self::assertSame([1, 2, 3], $placementCalls);
+		self::assertSame(['uuid-1', 'uuid-2', 'uuid-3', 'uuid-4'], $metadataCalls);
+		self::assertCount(25, $entries);
+		self::assertSame(['Hit 1 | ', 'Hit 2 | ', 'Hit 3 | ', 'Hit 4 | ', 'Hit 5 | '], array_map(static fn (string $e): string => substr($e, 0, 8), array_slice($entries, 0, 5)));
+		self::assertSame(array_fill(0, 4, 'Hit 1 | Widget content on Hit 1'), array_slice($entries, 5, 4));
+		self::assertSame(['Hit 3 | Widget content on Hit 3', 'Hit 3 | Widget content on Hit 3'], array_slice($entries, 13, 2));
+		self::assertSame(
+			['Hit 1 | Metadata: a = hit a', 'Hit 1 | Metadata: c = HIT c', 'Hit 1 | Metadata: d = hit d'],
+			array_slice($entries, 15, 3)
+		);
+		self::assertSame('Hit 4 | Metadata: a = hit a', $entries[24]);
 	}
 }

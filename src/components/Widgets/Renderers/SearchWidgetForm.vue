@@ -56,6 +56,10 @@ import {
 	FALLBACK_TARGET_UNIFIED_SEARCH,
 	isValidFallbackTemplate,
 } from '../../../composables/useTileSearch.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 
 /**
  * The "inherit the admin setting" marker (REQ-QSEARCH-005).
@@ -122,20 +126,14 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values — used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: ['update:content'],

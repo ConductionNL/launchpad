@@ -168,4 +168,10 @@ foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as
 
 unset($integriqStubEvent);
 
+// OpenRegister's MCP provider interface (mcp-tool-surface): present at runtime
+// when OpenRegister is installed, stubbed here when it is not.
+if (interface_exists('\\OCA\\OpenRegister\\Mcp\\IMcpToolProvider') === false) {
+	require_once __DIR__ . '/Stubs/Mcp/IMcpToolProvider.php';
+}
+
 // Bootstrap complete.

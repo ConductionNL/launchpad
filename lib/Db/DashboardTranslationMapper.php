@@ -35,6 +35,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<DashboardTranslation>
  */
 class DashboardTranslationMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -85,18 +87,7 @@ class DashboardTranslationMapper extends QBMapper {
 	 * @throws DoesNotExistException When not found.
 	 */
 	public function find(int $id): DashboardTranslation {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -110,16 +101,8 @@ class DashboardTranslationMapper extends QBMapper {
 	 *                                language code.
 	 */
 	public function findByDashboardUuid(string $dashboardUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->orderBy(sort: 'language_code', order: 'ASC');
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->orderBy(sort: 'language_code', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboardUuid()
@@ -142,22 +125,8 @@ class DashboardTranslationMapper extends QBMapper {
 			return null;
 		}
 
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'language_code',
-					y: $qb->createNamedParameter(value: $normalised)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'language_code' => $normalised]);
+		$qb->setMaxResults(maxResults: 1);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -177,25 +146,8 @@ class DashboardTranslationMapper extends QBMapper {
 	public function findPrimaryByDashboardUuid(
 		string $dashboardUuid,
 	): ?DashboardTranslation {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'is_primary',
-					y: $qb->createNamedParameter(
-						value: 1,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'is_primary' => 1]);
+		$qb->setMaxResults(maxResults: 1);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -252,14 +204,7 @@ class DashboardTranslationMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByDashboardUuid(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboardUuid()
@@ -276,7 +221,7 @@ class DashboardTranslationMapper extends QBMapper {
 	 */
 	public function clearPrimary(
 		string $dashboardUuid,
-		?int $exceptId = null,
+		int|null $exceptId = null,
 	): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->update(update: $this->getTableName())
@@ -295,19 +240,31 @@ class DashboardTranslationMapper extends QBMapper {
 			);
 
 		if ($exceptId !== null) {
-			$qb->andWhere(
-				$qb->expr()->neq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $exceptId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+			self::excludeRow(qb: $qb, rowId: $exceptId);
 		}
 
 		return $qb->executeStatement();
 	}//end clearPrimary()
+
+	/**
+	 * Leave one row out of the statement.
+	 *
+	 * @param IQueryBuilder $qb    The statement being built.
+	 * @param int           $rowId The row ID to leave untouched.
+	 *
+	 * @return void
+	 */
+	private static function excludeRow(IQueryBuilder $qb, int $rowId): void {
+		$qb->andWhere(
+			$qb->expr()->neq(
+				x: 'id',
+				y: $qb->createNamedParameter(
+					value: $rowId,
+					type: IQueryBuilder::PARAM_INT
+				)
+			)
+		);
+	}//end excludeRow()
 
 	/**
 	 * Count translation variants for a dashboard.
@@ -317,24 +274,6 @@ class DashboardTranslationMapper extends QBMapper {
 	 * @return int The number of variants.
 	 */
 	public function countByDashboardUuid(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
-
-		$cursor = $qb->executeQuery();
-		$row = $cursor->fetch();
-		$cursor->closeCursor();
-
-		if ($row === false || isset($row['cnt']) === false) {
-			return 0;
-		}
-
-		return (int)$row['cnt'];
+		return $this->countWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 	}//end countByDashboardUuid()
 }//end class

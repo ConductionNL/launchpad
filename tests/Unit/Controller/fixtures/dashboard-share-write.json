@@ -1,0 +1,3655 @@
+{
+    "create alice 1 new user": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 1,
+            "shareType": "user",
+            "shareWith": "carol",
+            "permissionLevel": "view_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 103,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "create alice 1 same level": {
+        "status": 201,
+        "body": {
+            "id": 11,
+            "dashboardId": 1,
+            "shareType": "user",
+            "shareWith": "bob",
+            "permissionLevel": "view_only",
+            "createdAt": "2020-01-01 00:00:00",
+            "updatedAt": "2020-01-01 00:00:00"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 user bob"
+        ]
+    },
+    "create alice 1 upgrade": {
+        "status": 201,
+        "body": {
+            "id": 11,
+            "dashboardId": 1,
+            "shareType": "user",
+            "shareWith": "bob",
+            "permissionLevel": "full",
+            "createdAt": "2020-01-01 00:00:00",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 user bob",
+            [
+                "update",
+                {
+                    "id": 11,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                }
+            ],
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 11,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "bob"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "bob"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "create alice 1 downgrade group": {
+        "status": 201,
+        "body": {
+            "id": 12,
+            "dashboardId": 1,
+            "shareType": "group",
+            "shareWith": "staff",
+            "permissionLevel": "view_only",
+            "createdAt": "2020-01-01 00:00:00",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 group staff",
+            [
+                "update",
+                {
+                    "id": 12,
+                    "dashboardId": 1,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                }
+            ]
+        ]
+    },
+    "create alice 1 upgrade group": {
+        "status": 201,
+        "body": {
+            "id": 12,
+            "dashboardId": 1,
+            "shareType": "group",
+            "shareWith": "staff",
+            "permissionLevel": "full",
+            "createdAt": "2020-01-01 00:00:00",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 group staff",
+            [
+                "update",
+                {
+                    "id": 12,
+                    "dashboardId": 1,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "group staff",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 12,
+                    "dashboardId": 1,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "bob",
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "bob"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "create alice 1 unknown group": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 1,
+            "shareType": "group",
+            "shareWith": "ghost",
+            "permissionLevel": "add_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 group ghost",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "group",
+                    "shareWith": "ghost",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "group ghost",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 103,
+                    "dashboardId": 1,
+                    "shareType": "group",
+                    "shareWith": "ghost",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                []
+            ]
+        ]
+    },
+    "create alice 1 self": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 1,
+            "shareType": "user",
+            "shareWith": "alice",
+            "permissionLevel": "add_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 user alice",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "alice",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 103,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "alice",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                []
+            ]
+        ]
+    },
+    "create alice 1 empty type": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: "
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create alice 1 link type": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: link"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create alice 1 upper type": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: USER"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create alice 1 no recipient": {
+        "status": 400,
+        "body": {
+            "error": "shareWith is required"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create alice 1 bad level": {
+        "status": 400,
+        "body": {
+            "error": "Invalid permissionLevel: admin"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create alice 1 nothing": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: "
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create alice 1 insert fails": {
+        "status": 500,
+        "body": {
+            "error": "Internal error"
+        },
+        "log": [
+            "find 1",
+            "findShare 1 user boom",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "boom",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ]
+        ]
+    },
+    "create alice 2 new user": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 same level": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 upgrade": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 downgrade group": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 upgrade group": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 unknown group": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 self": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 empty type": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 link type": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 upper type": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 no recipient": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 bad level": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 nothing": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 2 insert fails": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create alice 3 new user": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 same level": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 upgrade": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 downgrade group": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 upgrade group": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 unknown group": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 self": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 empty type": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 link type": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 upper type": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 no recipient": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 bad level": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 nothing": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create alice 3 insert fails": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 1 new user": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 same level": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 upgrade": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 downgrade group": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 upgrade group": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 unknown group": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 self": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 empty type": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 link type": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 upper type": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 no recipient": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 bad level": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 nothing": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 1 insert fails": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "create bob 2 new user": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 2,
+            "shareType": "user",
+            "shareWith": "carol",
+            "permissionLevel": "view_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "create bob 2 same level": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 2,
+            "shareType": "user",
+            "shareWith": "bob",
+            "permissionLevel": "view_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 user bob",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                []
+            ]
+        ]
+    },
+    "create bob 2 upgrade": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 2,
+            "shareType": "user",
+            "shareWith": "bob",
+            "permissionLevel": "full",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 user bob",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                []
+            ]
+        ]
+    },
+    "create bob 2 downgrade group": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 2,
+            "shareType": "group",
+            "shareWith": "staff",
+            "permissionLevel": "view_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 group staff",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "group staff",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "alice",
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "alice"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "create bob 2 upgrade group": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 2,
+            "shareType": "group",
+            "shareWith": "staff",
+            "permissionLevel": "full",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 group staff",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "group staff",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "alice",
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "alice"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "create bob 2 unknown group": {
+        "status": 201,
+        "body": {
+            "id": 103,
+            "dashboardId": 2,
+            "shareType": "group",
+            "shareWith": "ghost",
+            "permissionLevel": "add_only",
+            "createdAt": "<now>",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 group ghost",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "ghost",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "group ghost",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "ghost",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                []
+            ]
+        ]
+    },
+    "create bob 2 self": {
+        "status": 201,
+        "body": {
+            "id": 13,
+            "dashboardId": 2,
+            "shareType": "user",
+            "shareWith": "alice",
+            "permissionLevel": "add_only",
+            "createdAt": "2020-01-01 00:00:00",
+            "updatedAt": "<now>"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 user alice",
+            [
+                "update",
+                {
+                    "id": 13,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "alice",
+                    "permissionLevel": "add_only",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                }
+            ]
+        ]
+    },
+    "create bob 2 empty type": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: "
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create bob 2 link type": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: link"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create bob 2 upper type": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: USER"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create bob 2 no recipient": {
+        "status": 400,
+        "body": {
+            "error": "shareWith is required"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create bob 2 bad level": {
+        "status": 400,
+        "body": {
+            "error": "Invalid permissionLevel: admin"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create bob 2 nothing": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: "
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "create bob 2 insert fails": {
+        "status": 500,
+        "body": {
+            "error": "Internal error"
+        },
+        "log": [
+            "find 2",
+            "findShare 2 user boom",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "boom",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ]
+        ]
+    },
+    "create bob 3 new user": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 same level": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 upgrade": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 downgrade group": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 upgrade group": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 unknown group": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 self": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 empty type": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 link type": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 upper type": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 no recipient": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 bad level": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 nothing": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create bob 3 insert fails": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "create  1 new user": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 same level": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 upgrade": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 downgrade group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 upgrade group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 unknown group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 self": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 empty type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 link type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 upper type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 no recipient": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 bad level": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 nothing": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  1 insert fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 new user": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 same level": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 upgrade": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 downgrade group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 upgrade group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 unknown group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 self": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 empty type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 link type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 upper type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 no recipient": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 bad level": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 nothing": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  2 insert fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 new user": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 same level": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 upgrade": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 downgrade group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 upgrade group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 unknown group": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 self": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 empty type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 link type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 upper type": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 no recipient": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 bad level": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 nothing": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "create  3 insert fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace alice 1 empty": {
+        "status": 200,
+        "body": [],
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                []
+            ],
+            "commit"
+        ]
+    },
+    "replace alice 1 none": {
+        "status": 200,
+        "body": [],
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                []
+            ],
+            "commit"
+        ]
+    },
+    "replace alice 1 keep": {
+        "status": 200,
+        "body": [
+            {
+                "id": 11,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "bob",
+                "permissionLevel": "view_only",
+                "createdAt": "2020-01-01 00:00:00",
+                "updatedAt": "2020-01-01 00:00:00"
+            },
+            {
+                "id": 12,
+                "dashboardId": 1,
+                "shareType": "group",
+                "shareWith": "staff",
+                "permissionLevel": "add_only",
+                "createdAt": "2020-01-01 00:00:00",
+                "updatedAt": "2020-01-01 00:00:00"
+            }
+        ],
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                [
+                    "user:bob",
+                    "group:staff"
+                ]
+            ],
+            "findShare 1 user bob",
+            "findShare 1 group staff",
+            "commit"
+        ]
+    },
+    "replace alice 1 change": {
+        "status": 200,
+        "body": [
+            {
+                "id": 11,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "bob",
+                "permissionLevel": "full",
+                "createdAt": "2020-01-01 00:00:00",
+                "updatedAt": "<now>"
+            },
+            {
+                "id": 12,
+                "dashboardId": 1,
+                "shareType": "group",
+                "shareWith": "staff",
+                "permissionLevel": "view_only",
+                "createdAt": "2020-01-01 00:00:00",
+                "updatedAt": "<now>"
+            },
+            {
+                "id": 103,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "carol",
+                "permissionLevel": "view_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                [
+                    "user:carol",
+                    "user:bob",
+                    "group:staff"
+                ]
+            ],
+            "findShare 1 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 1 user bob",
+            [
+                "update",
+                {
+                    "id": 11,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 1 group staff",
+            [
+                "update",
+                {
+                    "id": 12,
+                    "dashboardId": 1,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 103,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 11,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "bob"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "bob"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace alice 1 invalid second": {
+        "status": 400,
+        "body": {
+            "error": "Invalid permissionLevel: owner"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace alice 1 missing keys": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: "
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace alice 1 duplicate": {
+        "status": 200,
+        "body": [
+            {
+                "id": 101,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "carol",
+                "permissionLevel": "full",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                [
+                    "user:carol",
+                    "user:carol"
+                ]
+            ],
+            "findShare 1 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 1 user carol",
+            [
+                "update",
+                {
+                    "id": 101,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 101,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 101,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace alice 1 extra keys": {
+        "status": 200,
+        "body": [
+            {
+                "id": 101,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "carol",
+                "permissionLevel": "add_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                [
+                    "user:carol"
+                ]
+            ],
+            "findShare 1 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 101,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "1"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "alice",
+                        "Board 1",
+                        "add_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace alice 1 insert fails": {
+        "status": 500,
+        "body": {
+            "error": "Internal error"
+        },
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                [
+                    "user:carol",
+                    "user:boom"
+                ]
+            ],
+            "findShare 1 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 1 user boom",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "boom",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "rollBack"
+        ]
+    },
+    "replace alice 1 commit fails": {
+        "status": 500,
+        "body": {
+            "error": "Internal error"
+        },
+        "log": [
+            "find 1",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                1,
+                [
+                    "user:late"
+                ]
+            ],
+            "findShare 1 user late",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "late",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            "rollBack"
+        ]
+    },
+    "replace alice 1 numeric recipient": {
+        "status": 400,
+        "body": {
+            "error": "shareWith must be a string"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace alice 2 empty": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 none": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 keep": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 change": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 invalid second": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 missing keys": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 duplicate": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 extra keys": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 insert fails": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 commit fails": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 2 numeric recipient": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace alice 3 empty": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 none": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 keep": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 change": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 invalid second": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 missing keys": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 duplicate": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 extra keys": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 insert fails": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 commit fails": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace alice 3 numeric recipient": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 1 empty": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 none": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 keep": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 change": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 invalid second": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 missing keys": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 duplicate": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 extra keys": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 insert fails": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 commit fails": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 1 numeric recipient": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "log": [
+            "find 1"
+        ]
+    },
+    "replace bob 2 empty": {
+        "status": 200,
+        "body": [],
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                []
+            ],
+            "commit"
+        ]
+    },
+    "replace bob 2 none": {
+        "status": 200,
+        "body": [],
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                []
+            ],
+            "commit"
+        ]
+    },
+    "replace bob 2 keep": {
+        "status": 200,
+        "body": [
+            {
+                "id": 102,
+                "dashboardId": 2,
+                "shareType": "user",
+                "shareWith": "bob",
+                "permissionLevel": "view_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            },
+            {
+                "id": 103,
+                "dashboardId": 2,
+                "shareType": "group",
+                "shareWith": "staff",
+                "permissionLevel": "add_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                [
+                    "user:bob",
+                    "group:staff"
+                ]
+            ],
+            "findShare 2 user bob",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 2 group staff",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                []
+            ],
+            "group staff",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "alice",
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "alice"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "add_only"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "add_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace bob 2 change": {
+        "status": 200,
+        "body": [
+            {
+                "id": 102,
+                "dashboardId": 2,
+                "shareType": "user",
+                "shareWith": "carol",
+                "permissionLevel": "view_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            },
+            {
+                "id": 103,
+                "dashboardId": 2,
+                "shareType": "user",
+                "shareWith": "bob",
+                "permissionLevel": "full",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            },
+            {
+                "id": 104,
+                "dashboardId": 2,
+                "shareType": "group",
+                "shareWith": "staff",
+                "permissionLevel": "view_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                [
+                    "user:carol",
+                    "user:bob",
+                    "group:staff"
+                ]
+            ],
+            "findShare 2 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 2 user bob",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 2 group staff",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                []
+            ],
+            "group staff",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 104,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "alice",
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "alice"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "view_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace bob 2 invalid second": {
+        "status": 400,
+        "body": {
+            "error": "Invalid permissionLevel: owner"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace bob 2 missing keys": {
+        "status": 400,
+        "body": {
+            "error": "Invalid shareType: "
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace bob 2 duplicate": {
+        "status": 200,
+        "body": [
+            {
+                "id": 102,
+                "dashboardId": 2,
+                "shareType": "user",
+                "shareWith": "carol",
+                "permissionLevel": "full",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                [
+                    "user:carol",
+                    "user:carol"
+                ]
+            ],
+            "findShare 2 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 2 user carol",
+            [
+                "update",
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "full"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace bob 2 extra keys": {
+        "status": 200,
+        "body": [
+            {
+                "id": 102,
+                "dashboardId": 2,
+                "shareType": "user",
+                "shareWith": "carol",
+                "permissionLevel": "add_only",
+                "createdAt": "<now>",
+                "updatedAt": "<now>"
+            }
+        ],
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                [
+                    "user:carol"
+                ]
+            ],
+            "findShare 2 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "add_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol"
+                ]
+            ],
+            [
+                "notification",
+                [
+                    "setApp",
+                    "launchpad"
+                ],
+                [
+                    "setUser",
+                    "carol"
+                ],
+                [
+                    "setObject",
+                    "dashboard",
+                    "2"
+                ],
+                [
+                    "setSubject",
+                    "dashboard_shared",
+                    [
+                        "bob",
+                        "Board 2",
+                        "add_only"
+                    ]
+                ]
+            ],
+            "notify"
+        ]
+    },
+    "replace bob 2 insert fails": {
+        "status": 500,
+        "body": {
+            "error": "Internal error"
+        },
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                [
+                    "user:carol",
+                    "user:boom"
+                ]
+            ],
+            "findShare 2 user carol",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "findShare 2 user boom",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "boom",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "rollBack"
+        ]
+    },
+    "replace bob 2 commit fails": {
+        "status": 500,
+        "body": {
+            "error": "Internal error"
+        },
+        "log": [
+            "find 2",
+            "beginTransaction",
+            [
+                "deleteNotIn",
+                2,
+                [
+                    "user:late"
+                ]
+            ],
+            "findShare 2 user late",
+            [
+                "insert",
+                {
+                    "id": null,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "late",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                }
+            ],
+            "commit",
+            "rollBack"
+        ]
+    },
+    "replace bob 2 numeric recipient": {
+        "status": 400,
+        "body": {
+            "error": "shareWith must be a string"
+        },
+        "log": [
+            "find 2"
+        ]
+    },
+    "replace bob 3 empty": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 none": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 keep": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 change": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 invalid second": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 missing keys": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 duplicate": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 extra keys": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 insert fails": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 commit fails": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace bob 3 numeric recipient": {
+        "status": 404,
+        "body": {
+            "error": "Dashboard not found"
+        },
+        "log": [
+            "find 3"
+        ]
+    },
+    "replace  1 empty": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 none": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 keep": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 change": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 invalid second": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 missing keys": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 duplicate": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 extra keys": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 insert fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 commit fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  1 numeric recipient": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 empty": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 none": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 keep": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 change": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 invalid second": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 missing keys": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 duplicate": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 extra keys": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 insert fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 commit fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  2 numeric recipient": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 empty": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 none": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 keep": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 change": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 invalid second": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 missing keys": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 duplicate": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 extra keys": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 insert fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 commit fails": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    },
+    "replace  3 numeric recipient": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "log": []
+    }
+}

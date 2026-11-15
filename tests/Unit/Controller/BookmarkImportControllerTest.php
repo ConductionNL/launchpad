@@ -33,6 +33,7 @@ use OCA\LaunchPad\Service\BookmarkImportService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\PlacementUpdater;
+use OCA\LaunchPad\Service\PlacementUpdaters;
 use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Service\TileUpdater;
 use OCP\AppFramework\Http;
@@ -89,7 +90,7 @@ class BookmarkImportControllerTest extends TestCase {
 			fn (string $key, mixed $default = null): mixed => $key === 'max_widgets_per_dashboard' ? $this->limit : $default
 		);
 		$quota      = new QuotaService(settingMapper: $settings, dashboardMapper: $this->createMock(DashboardMapper::class), placementMapper: $mapper);
-		$placements = new PlacementService(placementMapper: $mapper, tileUpdater: new TileUpdater(), placementUpdater: $this->createMock(PlacementUpdater::class), quotaService: $quota);
+		$placements = new PlacementService(placementMapper: $mapper, updaters: new PlacementUpdaters(tileUpdater: new TileUpdater(), placementUpdater: $this->createMock(PlacementUpdater::class)), quotaService: $quota);
 		$importer   = new BookmarkImportService(placements: $placements, placementMapper: $mapper, quota: $quota, db: $this->createMock(IDBConnection::class));
 
 		$session = $this->createMock(IUserSession::class);

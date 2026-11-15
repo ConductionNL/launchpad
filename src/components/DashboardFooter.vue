@@ -100,14 +100,14 @@
  * admin colour overrides; when null the CSS falls through to the NC
  * theme variables (`--color-main-background`, `--color-main-text`).
  */
+
+import { NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
+
 export default {
 	name: 'DashboardFooter',
 
 	props: {
-		footer: {
-			type: Object,
-			default: null,
-		},
+		footer: NULLABLE_OBJECT_PROP,
 
 		locale: {
 			type: String,

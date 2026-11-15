@@ -26,6 +26,7 @@ import {
 	focusGrid,
 	performFallback,
 } from '../../../composables/useTileSearchHost.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { useDashboardStore } from '../../../stores/dashboard.js'
 import { useTileSearchStore } from '../../../stores/tileSearch.js'
 import { useWidgetStore } from '../../../stores/widgets.js'
@@ -82,10 +83,7 @@ export default {
 		 *
 		 * @type {{placeholder?: string, fallbackTarget?: string}}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The placement row this widget renders as. Deliberately declared and
@@ -96,10 +94,7 @@ export default {
 		 * Declaring it absorbs the binding instead.
 		 */
 		// eslint-disable-next-line vue/no-unused-properties
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
 	},
 
 	computed: {

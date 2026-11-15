@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Database;
 
+use OCA\LaunchPad\Db\ProfileFieldValues;
 use OCA\LaunchPad\Db\ProfileValueMapper;
 use OCP\Server;
 
@@ -40,7 +41,7 @@ class ProfileValuesDatabaseTest extends RealDatabaseTestCase {
 		});
 
 		$mapper = Server::get(ProfileValueMapper::class);
-		$mapper->replaceValues(userId: $owner, fieldKey: 'expertise', values: ['Subsidies', 'Omgevingswet'], source: 'self');
+		$mapper->replaceValues(userId: $owner, field: new ProfileFieldValues(fieldKey: 'expertise', values: ['Subsidies', 'Omgevingswet'], source: 'self'));
 
 		$rows = $this->storedRows('launchpad_profile_values', 'user_id', $owner);
 		$this->assertCount(2, $rows);
@@ -49,7 +50,7 @@ class ProfileValuesDatabaseTest extends RealDatabaseTestCase {
 		$found = array_map(static fn ($row): string => $row->getUserId(), $mapper->search(needle: 'subsidie'));
 		$this->assertContains($owner, $found);
 
-		$mapper->replaceValues(userId: $owner, fieldKey: 'expertise', values: ['Omgevingswet'], source: 'self');
+		$mapper->replaceValues(userId: $owner, field: new ProfileFieldValues(fieldKey: 'expertise', values: ['Omgevingswet'], source: 'self'));
 		$this->assertCount(1, $this->storedRows('launchpad_profile_values', 'user_id', $owner), 'a save replaces the old tags');
 	}//end testATagIsStoredAndFoundOnPartOfTheWord()
 }//end class

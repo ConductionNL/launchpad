@@ -59,7 +59,9 @@ class DashboardFactoryTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: 'alice',
 			name: 'Test',
-			description: 'My test dashboard'
+			options: [
+				'description' => 'My test dashboard',
+			]
 		);
 
 		$this->assertSame('My test dashboard', $dashboard->getDescription());
@@ -105,7 +107,9 @@ class DashboardFactoryTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: 'alice',
 			name: 'Test',
-			permissionLevel: Dashboard::PERMISSION_ADD_ONLY
+			options: [
+				'permissionLevel' => Dashboard::PERMISSION_ADD_ONLY,
+			]
 		);
 
 		$this->assertSame(Dashboard::PERMISSION_ADD_ONLY, $dashboard->getPermissionLevel());
@@ -115,7 +119,9 @@ class DashboardFactoryTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: 'alice',
 			name: 'Test',
-			gridColumns: 6
+			options: [
+				'gridColumns' => 6,
+			]
 		);
 
 		$this->assertSame(6, $dashboard->getGridColumns());
@@ -188,7 +194,9 @@ class DashboardFactoryTest extends TestCase {
 		$this->factory->create(
 			userId: null,
 			name: 'Bad Dashboard',
-			type: \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED
+			options: [
+				'type' => \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
+			]
 		);
 	}
 
@@ -203,8 +211,10 @@ class DashboardFactoryTest extends TestCase {
 		$this->factory->create(
 			userId: 'alice',
 			name: 'Bad Dashboard',
-			type: \OCA\LaunchPad\Db\Dashboard::TYPE_USER,
-			groupId: 'marketing'
+			options: [
+				'type'    => \OCA\LaunchPad\Db\Dashboard::TYPE_USER,
+				'groupId' => 'marketing',
+			]
 		);
 	}
 
@@ -218,8 +228,10 @@ class DashboardFactoryTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: null,
 			name: 'Marketing Overview',
-			type: \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
-			groupId: 'marketing'
+			options: [
+				'type'    => \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => 'marketing',
+			]
 		);
 
 		$this->assertSame(\OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED, $dashboard->getType());
@@ -238,8 +250,10 @@ class DashboardFactoryTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: null,
 			name: 'Welcome',
-			type: \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
-			groupId: \OCA\LaunchPad\Db\Dashboard::DEFAULT_GROUP_ID
+			options: [
+				'type'    => \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => \OCA\LaunchPad\Db\Dashboard::DEFAULT_GROUP_ID,
+			]
 		);
 
 		$this->assertSame(

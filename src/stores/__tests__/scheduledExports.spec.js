@@ -103,4 +103,18 @@ describe('scheduledExports store', () => {
 		expect(retried.status).toBe('running')
 		expect(store.runsByExport.e1.map((r) => r.status)).toEqual(['running', 'success'])
 	})
+
+	it('reads one run and replaces the listed row with it', async () => {
+		axios.get
+			.mockResolvedValueOnce({ data: { results: [{ id: 'r1', status: 'running' }, { id: 'r0', status: 'success' }] } })
+			.mockResolvedValueOnce({ data: { id: 'r1', status: 'partial', deliveries: [{ status: 'failed-permanent' }] } })
+		const store = useExportsStore()
+
+		await store.fetchRuns('e1')
+		const run = await store.fetchRun('e1', 'r1')
+
+		expect(axios.get).toHaveBeenLastCalledWith(`${BASE}/e1/runs/r1`)
+		expect(run.deliveries).toHaveLength(1)
+		expect(store.runsByExport.e1.map((r) => r.status)).toEqual(['partial', 'success'])
+	})
 })

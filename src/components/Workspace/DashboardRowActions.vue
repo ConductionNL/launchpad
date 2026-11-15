@@ -143,6 +143,16 @@
 			{{ t('launchpad', 'Share') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canScheduleExports"
+			:closeAfterClick="true"
+			data-testid="cog-scheduled-exports"
+			@click="$emit('scheduledExports')">
+			<template #icon>
+				<CalendarExport :size="20" />
+			</template>
+			{{ t('launchpad', 'Scheduled exports…') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="isOwner"
 			:closeAfterClick="true"
 			data-testid="cog-delete"
@@ -159,6 +169,7 @@
 import { t } from '@nextcloud/l10n'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import History from 'vue-material-design-icons/History.vue'
@@ -193,6 +204,7 @@ export default {
 		StarCheck,
 		ShareVariant,
 		CalendarClock,
+		CalendarExport,
 		Publish,
 		PublishOff,
 		History,
@@ -258,6 +270,13 @@ export default {
 		canViewHistory: FLAG_PROP,
 
 		/*
+		 * scheduled-exports task 19: when true the menu renders "Scheduled
+		 * exports…" beside Share, which emits `scheduledExports` so the host
+		 * opens the export list. Off by default, so sidebar rows do not show it.
+		 */
+		canScheduleExports: FLAG_PROP,
+
+		/*
 		 * NcActions toggle button style. Defaults to the subtle
 		 * `tertiary-no-background` used at the edge of each sidebar row;
 		 * the top-right active cog passes `secondary` so it matches the
@@ -289,6 +308,7 @@ export default {
 		'unpublish',
 		'schedule',
 		'versionHistory',
+		'scheduledExports',
 		'menuOpen',
 	],
 

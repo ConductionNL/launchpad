@@ -35,14 +35,20 @@
 
 ### Frontend
 
-- [ ] Task 12: Create export-editor modal component (`src/modals/ScheduledExportModal.vue`) with form sections: basic (name, description, subject picker), recurrence (weekly/monthly/daily/cron picker with friendly UI), render targets (add/remove targets, format options per format), recipients (add/remove, channel picker, filter context editor, channel config forms)
-- [ ] Task 13: Create export-list page with `CnDataTable` showing: name, subject, next-run timestamp, last-run status (icon), actions (edit, delete, "Run now", "View runs"). Integrate into dashboard menu as "Scheduled Exports" action.
-- [ ] Task 14: Create run-history panel showing list of past fires with columns: triggered-at, status (success/partial/failed), recipient count, delivery outcomes summary. Clicking a run opens detail modal.
-- [ ] Task 15: Create run-detail modal (`src/modals/RunDetailModal.vue`) showing: export name, fire timestamp, status, list of deliveries (per-recipient channel, status, attempt count, error if failed), list of render artefacts (format, size, download link), "Retry" button if any delivery failed
-- [ ] Task 16: Create preview modal (`src/modals/PreviewModal.vue`) accepting render format choice (pdf/png/csv/xlsx) and recipient selection, displaying render output (PDF/PNG embedded, CSV/XLSX as download link)
+- [x] Task 12: Create export-editor modal component (`src/modals/ScheduledExportModal.vue`) with form sections: basic (name, description, subject picker), recurrence (weekly/monthly/daily/cron picker with friendly UI), render targets (add/remove targets, format options per format), recipients (add/remove, channel picker, filter context editor, channel config forms)
+  - Built: `src/modals/ScheduledExportModal.vue` (sections General / When / Files to make / Recipients; daily, weekly (MO..SU), monthly (day or last day) and cron recurrence with a plain-language summary; per-format options; per-channel settings via `src/components/ScheduledExports/ExportOptionFields.vue`; filter-context key/value editor; redacted secrets sent back unchanged). Saves through `useExportsStore().saveExport` (POST / PATCH) and shows the server's 400 message.
+- [x] Task 13: Create export-list page with `CnDataTable` showing: name, subject, next-run timestamp, last-run status (icon), actions (edit, delete, "Run now", "View runs"). Integrate into dashboard menu as "Scheduled Exports" action.
+  - Built: `src/modals/ScheduledExportsModal.vue`, a `CnDataTable` over `GET /api/exports` with name, subject, next run (or "Off"), last-run status icon (`ExportStatus.vue`) and row actions Edit, Run now (progress / outcome toasts), Preview, View runs and Delete (confirmed). Opened from the dashboard menu (task 19).
+- [x] Task 14: Create run-history panel showing list of past fires with columns: triggered-at, status (success/partial/failed), recipient count, delivery outcomes summary. Clicking a run opens detail modal.
+  - Built: `src/components/ScheduledExports/ExportRunHistory.vue`, a panel inside the export list listing `GET /api/exports/{id}/runs` (started, status, trigger, recipient count, delivered / failed / waiting summary or the skip reason); a run opens `RunDetailModal`.
+- [x] Task 15: Create run-detail modal (`src/modals/RunDetailModal.vue`) showing: export name, fire timestamp, status, list of deliveries (per-recipient channel, status, attempt count, error if failed), list of render artefacts (format, size, download link), "Retry" button if any delivery failed
+  - Built: `src/modals/RunDetailModal.vue`: reads `GET /api/exports/{id}/runs/{runId}` (new store action `fetchRun`), shows the export name, times, status, trigger, deliveries (recipient, channel, status, attempts, error) and artefacts (format, size, sha256, WebDAV download link or "removed after the retention period"); "Retry failed deliveries" only when a delivery is `failed-permanent`, POSTing `.../retry`.
+- [x] Task 16: Create preview modal (`src/modals/PreviewModal.vue`) accepting render format choice (pdf/png/csv/xlsx) and recipient selection, displaying render output (PDF/PNG embedded, CSV/XLSX as download link)
+  - Built: `src/modals/PreviewModal.vue`: format (pdf/png/csv/xlsx, defaulting to the first target) and recipient (or none) pickers, `previewExport` as a Blob; PDF embedded in an `<object>`, PNG as an image, CSV/XLSX as a download link; a refused render shows the server's reason.
 - [x] Task 17: Frontend store action `useExportsStore.runExportNow(exportId)` POSTs to `/api/exports/{id}/run` and polls run-status until completion (show progress toast)
 - [x] Task 18: Frontend store action `useExportsStore.previewExport(exportId, recipientId, format)` POSTs to `/api/exports/{id}/preview` and returns streaming response
-- [ ] Task 19: Add "Scheduled Exports" menu item to dashboard toolbar (alongside Share, Bulk, Comments); clicking opens export-list modal
+- [x] Task 19: Add "Scheduled Exports" menu item to dashboard toolbar (alongside Share, Bulk, Comments); clicking opens export-list modal
+  - Built: "Scheduled exports…" entry in the dashboard menu (`DashboardRowActions`, right after Share, shown to editors via `canScheduleExports`), opening `ScheduledExportsModal` from `Views.vue` with the visible dashboards and the active dashboard's widgets as subjects.
 
 ### Testing
 

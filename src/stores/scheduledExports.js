@@ -151,6 +151,21 @@ export const useExportsStore = defineStore('scheduledExports', {
 		},
 
 		/**
+		 * Load one run-row with every delivery; it replaces the listed row.
+		 *
+		 * @param {string} exportId The export.
+		 * @param {string} runId The run.
+		 * @return {Promise<object>} The run-row.
+		 * @spec openspec/changes/scheduled-exports/tasks.md#task-15
+		 */
+		async fetchRun(exportId, runId) {
+			const { data } = await axios.get(`${baseUrl}/${exportId}/runs/${runId}`)
+			const runs = this.runsByExport[exportId] ?? []
+			this.runsByExport = { ...this.runsByExport, [exportId]: runs.map((r) => (r.id === runId ? data : r)) }
+			return data
+		},
+
+		/**
 		 * Retry every delivery of a run that failed for good.
 		 *
 		 * @param {string} exportId The export.

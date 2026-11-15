@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ShowcasePlatform;
+use OCA\LaunchPad\Service\ShowcaseStores;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
@@ -90,14 +92,18 @@ class DemoShowcasesServiceTest extends TestCase {
 		);
 
 		$this->service = new DemoShowcasesService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			db: $this->db,
-			appConfig: $this->appConfig,
-			dashboardManager: $this->dashboardManager,
-			logger: new NullLogger(),
-			lockingProvider: $this->lockingProvider,
-			urlGenerator: $this->urlGenerator,
+			stores: new ShowcaseStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				lockingProvider: $this->lockingProvider
+			),
+			platform: new ShowcasePlatform(
+				appConfig: $this->appConfig,
+				dashboardManager: $this->dashboardManager,
+				urlGenerator: $this->urlGenerator
+			),
+			logger: new NullLogger()
 		);
 
 		$this->fixtureDir = sys_get_temp_dir() . '/launchpad-showcase-fixture-' . uniqid();
@@ -688,14 +694,18 @@ class DemoShowcasesServiceTest extends TestCase {
 		);
 
 		$service = new DemoShowcasesService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			db: $this->db,
-			appConfig: $this->appConfig,
-			dashboardManager: $this->dashboardManager,
-			logger: new NullLogger(),
-			lockingProvider: $this->lockingProvider,
-			urlGenerator: $throwing,
+			stores: new ShowcaseStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				lockingProvider: $this->lockingProvider
+			),
+			platform: new ShowcasePlatform(
+				appConfig: $this->appConfig,
+				dashboardManager: $this->dashboardManager,
+				urlGenerator: $throwing
+			),
+			logger: new NullLogger()
 		);
 		$service->setDataDirForTesting(path: $this->fixtureDir);
 

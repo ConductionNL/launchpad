@@ -46,7 +46,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -64,20 +63,16 @@ class ResourceController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param ResourceService $resourceService The upload pipeline.
-	 * @param ResourceUploadRequestParser $parser Parses request body.
-	 * @param IUserSession $userSession Session accessor.
+	 * @param IRequest      $request The HTTP request.
+	 * @param ResourceTools $tools The resource service, upload request parser and logger.
+	 * @param IUserSession  $userSession Session accessor.
 	 * @param IGroupManager $groupManager Admin checker.
-	 * @param LoggerInterface $logger PSR logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ResourceService $resourceService,
-		private readonly ResourceUploadRequestParser $parser,
+		private readonly ResourceTools $tools,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(
 			appName: 'launchpad',
@@ -102,51 +97,17 @@ class ResourceController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function upload(): JSONResponse {
-		try {
-			$this->assertAdmin();
-			$base64 = $this->parser->extractBase64(
-				request: $this->request,
-				rawBody: $this->readRequestBody()
-			);
-
-			$result = $this->resourceService->upload(
-				base64DataUrl: $base64
-			);
-
-			return new JSONResponse(
-				data: [
-					'status' => 'success',
-					'url' => $result['url'],
-					'name' => $result['name'],
-					'size' => $result['size'],
-				],
-				statusCode: Http::STATUS_OK
-			);
-		} catch (ResourceException $e) {
-			// Log storage failures — these usually indicate an
-			// operational problem (disk, permissions, etc.).
-			if ($e instanceof StorageFailureException) {
-				$this->logger->error(
-					message: 'Resource upload storage failure',
-					context: ['exception' => $e->getMessage()]
+		return $this->respond(
+			store: function (): array {
+				$base64 = $this->tools->parser->extractBase64(
+					request: $this->request,
+					rawBody: $this->readRequestBody()
 				);
-			}
 
-			return $this->errorResponse(exception: $e);
-		} catch (Throwable $e) {
-			// Defence in depth — never leak raw messages on truly
-			// unexpected paths.
-			$this->logger->error(
-				message: 'Unexpected resource upload failure',
-				context: ['exception' => $e->getMessage()]
-			);
-
-			$fallback = new StorageFailureException(
-				message: 'Failed to store resource'
-			);
-
-			return $this->errorResponse(exception: $fallback);
-		}//end try
+				return $this->tools->resourceService->upload(base64DataUrl: $base64);
+			},
+			label: 'upload'
+		);
 	}//end upload()
 
 	/**
@@ -170,18 +131,38 @@ class ResourceController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function uploadMultipart(): JSONResponse {
+		return $this->respond(
+			store: function (): array {
+				$file = $this->readUploadedFile();
+				if ($file === null) {
+					throw new FileMissingException();
+				}
+
+				return $this->tools->resourceService->uploadRaw(
+					bytes: $file['bytes'],
+					declaredType: $this->declaredTypeFromName(name: $file['name'])
+				);
+			},
+			label: 'multipart upload'
+		);
+	}//end uploadMultipart()
+
+	/**
+	 * Run one admin-only store step and map its outcome to the envelope.
+	 *
+	 * Storage failures are logged as "Resource {label} storage failure";
+	 * any other throwable is logged as "Unexpected resource {label} failure"
+	 * and answered with a generic storage failure, so raw messages never leak.
+	 *
+	 * @param \Closure $store The store step; returns `{url, name, size}`.
+	 * @param string   $label The endpoint label used in the log messages.
+	 *
+	 * @return JSONResponse The success or error envelope.
+	 */
+	private function respond(\Closure $store, string $label): JSONResponse {
 		try {
 			$this->assertAdmin();
-
-			$file = $this->readUploadedFile();
-			if ($file === null) {
-				throw new FileMissingException();
-			}
-
-			$result = $this->resourceService->uploadRaw(
-				bytes: $file['bytes'],
-				declaredType: $this->declaredTypeFromName(name: $file['name'])
-			);
+			$result = $store();
 
 			return new JSONResponse(
 				data: [
@@ -193,27 +174,37 @@ class ResourceController extends Controller {
 				statusCode: Http::STATUS_OK
 			);
 		} catch (ResourceException $e) {
+			// Storage failures usually indicate an operational problem
+			// (disk, permissions, etc.).
 			if ($e instanceof StorageFailureException) {
-				$this->logger->error(
-					message: 'Resource multipart upload storage failure',
-					context: ['exception' => $e->getMessage()]
-				);
+				$this->logFailure(message: 'Resource '.$label.' storage failure', exception: $e);
 			}
 
 			return $this->errorResponse(exception: $e);
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'Unexpected resource multipart upload failure',
-				context: ['exception' => $e->getMessage()]
-			);
+			$this->logFailure(message: 'Unexpected resource '.$label.' failure', exception: $e);
 
 			return $this->errorResponse(
-				exception: new StorageFailureException(
-					message: 'Failed to store resource'
-				)
+				exception: new StorageFailureException(message: 'Failed to store resource')
 			);
 		}//end try
-	}//end uploadMultipart()
+	}//end respond()
+
+	/**
+	 * Log one upload failure with its exception message.
+	 *
+	 * @param string    $message   The log message.
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return void
+	 */
+	private function logFailure(string $message, Throwable $exception): void {
+		$this->tools->logger->error(
+			message: $message,
+			context: ['exception' => $exception->getMessage()]
+		);
+	}//end logFailure()
+
 
 	/**
 	 * Read the single uploaded file from the `file` multipart field.

@@ -1,0 +1,534 @@
+{
+    "list / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "list / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.list"
+        ]
+    },
+    "list / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.list"
+        ]
+    },
+    "list / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.list"
+        ]
+    },
+    "visible / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "visible / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.visible"
+        ]
+    },
+    "visible / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.visible"
+        ]
+    },
+    "visible / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.visible"
+        ]
+    },
+    "getActive / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "getActive / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.get-active"
+        ]
+    },
+    "getActive / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.get-active"
+        ]
+    },
+    "getActive / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.get-active"
+        ]
+    },
+    "show / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "show / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.show"
+        ]
+    },
+    "show / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.show"
+        ]
+    },
+    "show / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.show"
+        ]
+    },
+    "create / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "create / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.create"
+        ]
+    },
+    "create / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.create"
+        ]
+    },
+    "create / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.create"
+        ]
+    },
+    "delete / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "delete / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.delete"
+        ]
+    },
+    "delete / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.delete"
+        ]
+    },
+    "delete / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.delete"
+        ]
+    },
+    "tree / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "tree / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.tree"
+        ]
+    },
+    "tree / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.tree"
+        ]
+    },
+    "tree / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.tree"
+        ]
+    },
+    "byPath / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "byPath / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.by-path"
+        ]
+    },
+    "byPath / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.by-path"
+        ]
+    },
+    "byPath / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.by-path"
+        ]
+    },
+    "computePath / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "computePath / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.compute-path"
+        ]
+    },
+    "computePath / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.compute-path"
+        ]
+    },
+    "computePath / allowed": {
+        "status": 400,
+        "asked": [
+            "dashboard.compute-path"
+        ]
+    },
+    "activate / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "activate / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.activate"
+        ]
+    },
+    "activate / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.activate"
+        ]
+    },
+    "activate / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.activate"
+        ]
+    },
+    "listGroup / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "listGroup / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.list-group"
+        ]
+    },
+    "listGroup / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.list-group"
+        ]
+    },
+    "listGroup / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.list-group"
+        ]
+    },
+    "getGroup / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "getGroup / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.get-group"
+        ]
+    },
+    "getGroup / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.get-group"
+        ]
+    },
+    "getGroup / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.get-group"
+        ]
+    },
+    "setActiveDashboard / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "setActiveDashboard / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.set-active-dashboard"
+        ]
+    },
+    "setActiveDashboard / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.set-active-dashboard"
+        ]
+    },
+    "setActiveDashboard / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.set-active-dashboard"
+        ]
+    },
+    "setDefaultDashboard / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "setDefaultDashboard / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.set-default-dashboard"
+        ]
+    },
+    "setDefaultDashboard / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.set-default-dashboard"
+        ]
+    },
+    "setDefaultDashboard / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.set-default-dashboard"
+        ]
+    },
+    "getDefaultDashboard / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "getDefaultDashboard / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.get-default-dashboard"
+        ]
+    },
+    "getDefaultDashboard / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.get-default-dashboard"
+        ]
+    },
+    "getDefaultDashboard / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.get-default-dashboard"
+        ]
+    },
+    "publish / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "publish / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.publish"
+        ]
+    },
+    "publish / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.publish"
+        ]
+    },
+    "publish / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.publish"
+        ]
+    },
+    "unpublish / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "unpublish / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.unpublish"
+        ]
+    },
+    "unpublish / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.unpublish"
+        ]
+    },
+    "unpublish / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.unpublish"
+        ]
+    },
+    "schedule / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "schedule / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.schedule"
+        ]
+    },
+    "schedule / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.schedule"
+        ]
+    },
+    "schedule / allowed": {
+        "status": 400,
+        "asked": [
+            "dashboard.schedule"
+        ]
+    },
+    "viewEvent / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "viewEvent / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "dashboard.view-event"
+        ]
+    },
+    "viewEvent / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "dashboard.view-event"
+        ]
+    },
+    "viewEvent / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard.view-event"
+        ]
+    }
+}

@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Job;
 
+use OCA\LaunchPad\Job\FeedRefreshRunTools;
 use OCA\LaunchPad\Job\FeedRefreshJob;
 use OCA\LaunchPad\Service\FeedRefreshService;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -221,9 +222,11 @@ class FeedRefreshJobTest extends TestCase {
 		return new FeedRefreshJob(
 			time: $this->time,
 			appConfig: $this->appConfig,
-			refreshService: $this->refreshService,
-			lockingProvider: $this->lockingProvider,
-			logger: $this->logger,
+			run: new FeedRefreshRunTools(
+				refreshService: $this->refreshService,
+				lockingProvider: $this->lockingProvider
+			),
+			logger: $this->logger
 		);
 	}//end buildJob()
 

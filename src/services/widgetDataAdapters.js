@@ -26,12 +26,26 @@ import {
  *
  * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
  * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
+ * @spec openspec/specs/people-widget/spec.md
  */
 export async function fetchPeoplePage(args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
 		import('@nextcloud/axios'),
 		import('@nextcloud/router'),
 	])
+	const url = `${genUrl('/apps/launchpad/api/people')}?${peopleQuery(args)}`
+	const response = await axios.get(url)
+	return peoplePageOf(response)
+}
+
+/**
+ * The people endpoint's query string: the filters, the disabled-account
+ * switch and the sort key only when given, then the page size and offset.
+ *
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
+ * @return {string} The query string.
+ */
+function peopleQuery(args) {
 	const params = new URLSearchParams()
 	if (args.filters !== undefined) {
 		params.append('filters', JSON.stringify(args.filters || []))
@@ -44,8 +58,16 @@ export async function fetchPeoplePage(args = {}) {
 	}
 	params.append('limit', String(args.limit ?? 50))
 	params.append('offset', String(args.offset ?? 0))
-	const url = `${genUrl('/apps/launchpad/api/people')}?${params.toString()}`
-	const response = await axios.get(url)
+	return params.toString()
+}
+
+/**
+ * The page of people in a people endpoint response, with empty defaults.
+ *
+ * @param {object} response The axios response.
+ * @return {{users: object[], total: number, hasMore: boolean}} The page.
+ */
+function peoplePageOf(response) {
 	const data = response?.data || {}
 	return {
 		users: Array.isArray(data.users) ? data.users : [],

@@ -96,7 +96,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: '../../etc/passwd',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testPathTraversalIsRejected()
 
@@ -105,7 +107,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'foo/bar.txt',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testForwardSlashIsRejected()
 
@@ -114,7 +118,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'foo\\bar.txt',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testBackslashIsRejected()
 
@@ -123,7 +129,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: "evil\0.txt",
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testNullByteIsRejected()
 
@@ -132,7 +140,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: '',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testEmptyFilenameIsRejected()
 
@@ -143,7 +153,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: str_repeat('a', 252) . '.txt',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testOversizedFilenameIsRejected()
 
@@ -152,7 +164,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'evil*.txt',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testSpecialCharactersAreRejected()
 
@@ -161,7 +175,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'safe.txt',
-			dir: '/../etc'
+			write: [
+				'dir' => '/../etc',
+			]
 		);
 	}//end testDirectoryTraversalIsRejected()
 
@@ -170,7 +186,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'safe.txt',
-			dir: "/foo\0bar"
+			write: [
+				'dir' => "/foo\0bar",
+			]
 		);
 	}//end testDirectoryNullByteIsRejected()
 
@@ -183,7 +201,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'foo.exe',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testDisallowedExtensionIsRejected()
 
@@ -192,7 +212,9 @@ class FileServiceTest extends TestCase {
 		$this->service->createFile(
 			userId: 'alice',
 			filename: 'README',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testNoExtensionIsRejected()
 
@@ -209,14 +231,34 @@ class FileServiceTest extends TestCase {
 		$result = $this->service->createFile(
 			userId: 'alice',
 			filename: 'hello.txt',
-			dir: '/',
-			content: 'hi'
+			write: [
+				'dir'     => '/',
+				'content' => 'hi',
+			]
 		);
 
 		$this->assertSame('success', $result['status']);
 		$this->assertSame(42, $result['fileId']);
 		$this->assertSame('https://nc/files?openfile=42', $result['url']);
 	}//end testAllowedExtensionWritesNewFile()
+
+	/**
+	 * Without a directory or content the file is written, empty, into the
+	 * user's own folder.
+	 */
+	public function testDefaultsWriteAnEmptyFileIntoTheUserFolder(): void {
+		$file = $this->createMock(File::class);
+		$file->method('getId')->willReturn(7);
+
+		$this->userFolder->expects($this->never())->method('get');
+		$this->userFolder->expects($this->never())->method('newFolder');
+		$this->userFolder->method('nodeExists')->with('empty.txt')->willReturn(false);
+		$this->userFolder->expects($this->once())->method('newFile')->with('empty.txt', '')->willReturn($file);
+
+		$result = $this->service->createFile(userId: 'alice', filename: 'empty.txt');
+
+		$this->assertSame(7, $result['fileId']);
+	}//end testDefaultsWriteAnEmptyFileIntoTheUserFolder()
 
 	/**
 	 * REQ-LBN-004 task 6.3: existing file is overwritten and its fileId
@@ -236,8 +278,10 @@ class FileServiceTest extends TestCase {
 		$result = $this->service->createFile(
 			userId: 'alice',
 			filename: 'report.docx',
-			dir: '/',
-			content: 'new contents'
+			write: [
+				'dir'     => '/',
+				'content' => 'new contents',
+			]
 		);
 
 		$this->assertSame(99, $result['fileId']);
@@ -259,9 +303,11 @@ class FileServiceTest extends TestCase {
 			$this->service->createFile(
 				userId: 'alice',
 				filename: 'report.docx',
-				dir: '/',
-				content: '',
-				onExisting: FileService::ON_EXISTING_REFUSE
+				write: [
+					'dir'        => '/',
+					'content'    => '',
+					'onExisting' => FileService::ON_EXISTING_REFUSE,
+				]
 			);
 			$this->fail('Expected FileAlreadyExistsException');
 		} catch (FileAlreadyExistsException $e) {
@@ -285,9 +331,11 @@ class FileServiceTest extends TestCase {
 		$result = $this->service->createFile(
 			userId: 'alice',
 			filename: 'fresh.docx',
-			dir: '/',
-			content: '',
-			onExisting: FileService::ON_EXISTING_REFUSE
+			write: [
+				'dir'        => '/',
+				'content'    => '',
+				'onExisting' => FileService::ON_EXISTING_REFUSE,
+			]
 		);
 
 		$this->assertSame(7, $result['fileId']);
@@ -307,8 +355,10 @@ class FileServiceTest extends TestCase {
 			$this->service->createFile(
 				userId: 'alice',
 				filename: 'hello.txt',
-				dir: '/',
-				content: 'hi'
+				write: [
+					'dir'     => '/',
+					'content' => 'hi',
+				]
 			);
 			$this->fail('Expected StorageFailureException');
 		} catch (StorageFailureException $e) {
@@ -336,8 +386,10 @@ class FileServiceTest extends TestCase {
 		$result = $this->service->createFile(
 			userId: 'alice',
 			filename: 'hello.txt',
-			dir: '/notes',
-			content: ''
+			write: [
+				'dir'     => '/notes',
+				'content' => '',
+			]
 		);
 
 		$this->assertSame(7, $result['fileId']);
@@ -358,7 +410,9 @@ class FileServiceTest extends TestCase {
 		$service->createFile(
 			userId: 'alice',
 			filename: 'note.txt',
-			dir: '/'
+			write: [
+				'dir' => '/',
+			]
 		);
 	}//end testCustomAllowListReplacesDefault()
 

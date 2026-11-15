@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\FeedFetchTools;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\NewsWidgetService;
@@ -63,11 +64,13 @@ class NewsWidgetServiceTest extends TestCase {
 
 		$this->service = new NewsWidgetService(
 			placementMapper: $this->placementMapper,
-			clientService: $this->clientService,
+			fetch: new FeedFetchTools(
+				clientService: $this->clientService,
+				cacheFactory: $this->cacheFactory,
+				urlValidator: $urlValidator
+			),
 			appConfig: $this->appConfig,
-			cacheFactory: $this->cacheFactory,
-			logger: $this->logger,
-			urlValidator: $urlValidator
+			logger: $this->logger
 		);
 	}//end setUp()
 

@@ -55,7 +55,6 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\ResourceServeService;
 use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -65,7 +64,6 @@ use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -74,6 +72,8 @@ use Throwable;
  * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Cache directive sent on every served resource (REQ-RES-006).
 	 *
@@ -84,23 +84,18 @@ class ResourceServeController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param ResourceServeService $serve Filesystem + formatting helper.
+	 * @param IRequest          $request The HTTP request.
+	 * @param ServeTools        $serving The serve service and logger.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param IUserSession $userSession The current user session.
+	 * @param IUserSession      $userSession The current user session.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ResourceServeService $serve,
+		private readonly ServeTools $serving,
 		private readonly ActionAuthService $actionAuth,
-		private readonly LoggerInterface $logger,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -131,41 +126,49 @@ class ResourceServeController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getResource(string $filename): StreamResponse|JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->callerRefusal(
+			check: fn ($user) => $this->actionAuth->requireAction($user, 'resource-serve.get-resource')
+		);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		try {
-			$this->actionAuth->requireAction($user, 'resource-serve.get-resource');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$bytes = $this->fileBytes(filename: $filename);
+		if ($bytes instanceof JSONResponse) {
+			return $bytes;
 		}
 
+		return $this->buildStreamResponse(filename: $filename, bytes: $bytes);
+	}//end getResource()
+
+	/**
+	 * The bytes of a resource file: 404 for an unsafe name, a missing or
+	 * unreadable file, 413 for a file over the cap (refused BEFORE pulling
+	 * bytes).
+	 *
+	 * @param string $filename The requested file name.
+	 *
+	 * @return string|JSONResponse The bytes, or the error response.
+	 */
+	private function fileBytes(string $filename): string|JSONResponse {
 		if ($this->isUnsafeFilename(filename: $filename) === true) {
 			return $this->notFoundResponse();
 		}
 
-		$file = $this->serve->findFile(filename: $filename);
+		$file = $this->serving->serve->findFile(filename: $filename);
 		if ($file === null) {
 			return $this->notFoundResponse();
 		}
 
 		// 413 guard — refuse oversize files BEFORE pulling bytes.
 		if ((int)$file->getSize() > ResourceService::MAX_BYTES) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'file_too_large',
-				],
-				statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE
-			);
+			return $this->errorCode(code: 'file_too_large', statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE);
 		}
 
 		try {
 			$bytes = $file->getContent();
 		} catch (Throwable $e) {
-			$this->logger->warning(
+			$this->serving->logger->warning(
 				message: 'Resource serve failed to read bytes',
 				context: ['exception' => $e->getMessage()]
 			);
@@ -173,8 +176,31 @@ class ResourceServeController extends Controller {
 			return $this->notFoundResponse();
 		}
 
-		return $this->buildStreamResponse(filename: $filename, bytes: $bytes);
-	}//end getResource()
+		return $bytes;
+	}//end fileBytes()
+
+	/**
+	 * The 401 for a request without a session user, or the 403 when the
+	 * caller's groups may not perform the action; null when allowed.
+	 *
+	 * @param callable $check Runs the action check for the session user.
+	 *
+	 * @return JSONResponse|null The refusal, or null.
+	 */
+	private function callerRefusal(callable $check): JSONResponse|null {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		try {
+			$check($user);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
+
+		return null;
+	}//end callerRefusal()
 
 	/**
 	 * Handle `GET /api/resources` — list uploaded resources.
@@ -200,18 +226,31 @@ class ResourceServeController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listResources(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->callerRefusal(
+			check: fn ($user) => $this->actionAuth->requireAction($user, 'resource-serve.list-resources')
+		);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		try {
-			$this->actionAuth->requireAction($user, 'resource-serve.list-resources');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
+		$resources = $this->resourceEntries();
 
-		$files = $this->serve->listFiles();
+		return new JSONResponse(
+			data: [
+				'status' => 'success',
+				'resources' => $resources,
+			],
+			statusCode: Http::STATUS_OK
+		);
+	}//end listResources()
+
+	/**
+	 * Every resource as `{name, url, size, modifiedAt}`, newest first.
+	 *
+	 * @return list<array<string, mixed>> The resources.
+	 */
+	private function resourceEntries(): array {
+		$files = $this->serving->serve->listFiles();
 
 		$resources = [];
 		foreach ($files as $file) {
@@ -220,7 +259,7 @@ class ResourceServeController extends Controller {
 				'name' => $name,
 				'url' => ('/apps/' . Application::APP_ID . '/resource/' . $name),
 				'size' => (int)$file->getSize(),
-				'modifiedAt' => $this->serve->formatTimestamp(epoch: $file->getMTime()),
+				'modifiedAt' => $this->serving->serve->formatTimestamp(epoch: $file->getMTime()),
 				'_mtime' => $file->getMTime(),
 			];
 		}
@@ -241,14 +280,8 @@ class ResourceServeController extends Controller {
 			array: $resources
 		);
 
-		return new JSONResponse(
-			data: [
-				'status' => 'success',
-				'resources' => $resources,
-			],
-			statusCode: Http::STATUS_OK
-		);
-	}//end listResources()
+		return $resources;
+	}//end resourceEntries()
 
 	/**
 	 * Decide whether a route filename argument is unsafe.
@@ -307,7 +340,7 @@ class ResourceServeController extends Controller {
 		$response = new StreamResponse(filePath: $stream);
 		$response->addHeader(
 			name: 'Content-Type',
-			value: $this->serve->contentTypeForFilename(filename: $filename)
+			value: $this->serving->serve->contentTypeForFilename(filename: $filename)
 		);
 		$response->addHeader(name: 'Cache-Control', value: self::CACHE_CONTROL);
 		$response->addHeader(

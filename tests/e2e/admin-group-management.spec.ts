@@ -16,6 +16,7 @@
  */
 
 import { expect, test } from '@playwright/test'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
@@ -40,7 +41,7 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 	}) => {
 		await page.goto(SETTINGS_URL)
 		// Switch to the Group dashboards tab via its data-test slug.
-		const tabButton = page.locator('[data-test="tab-group-dashboards"]')
+		const tabButton = adminTab(page, 'group-dashboards')
 		await expect(tabButton).toBeVisible({ timeout: 20_000 })
 		await tabButton.click()
 
@@ -55,7 +56,7 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 		page,
 	}) => {
 		await page.goto(SETTINGS_URL)
-		await page.locator('[data-test="tab-group-dashboards"]').click()
+		await adminTab(page, 'group-dashboards').click()
 		await page.locator('[data-test="group-dashboards-create-default"]').click()
 
 		const modal = page.locator('[data-test="create-group-dashboard-modal"]')
@@ -84,7 +85,7 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 		page,
 	}) => {
 		await page.goto(SETTINGS_URL)
-		await page.locator('[data-test="tab-group-dashboards"]').click()
+		await adminTab(page, 'group-dashboards').click()
 		await page.locator('[data-test="group-dashboards-manage-default"]').click()
 
 		const modal = page.locator('[data-test="manage-group-dashboards-modal"]')

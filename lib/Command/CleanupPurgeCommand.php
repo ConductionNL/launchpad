@@ -103,34 +103,15 @@ class CleanupPurgeCommand extends Command {
 	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$categoryOption = $input->getOption(name: 'category');
 		$dryRun = (bool)$input->getOption(name: 'dry-run');
 		$assumeYes = (bool)$input->getOption(name: 'yes');
 
-		$categoryNames = [];
-		if (is_string(value: $categoryOption) === true && $categoryOption !== '') {
-			if ($this->registry->getCategoryByName(name: $categoryOption) === null) {
-				$output->writeln(
-					messages: sprintf(
-						'<error>Unknown cleanup category: %s</error>',
-						$categoryOption
-					)
-				);
-				$output->writeln(
-					messages: sprintf(
-						'Valid categories: %s',
-						implode(separator: ', ', array: $this->registry->getCategoryNames())
-					)
-				);
-
-				return 1;
-			}
-
-			$categoryNames = [$categoryOption];
+		$categoryNames = $this->requestedCategories(category: $categoryOption);
+		if ($categoryNames !== [] && $this->registry->getCategoryByName(name: $categoryNames[0]) === null) {
+			$this->reportUnknownCategory(output: $output, category: $categoryNames[0]);
+			return 1;
 		}
 
 		$effectiveCategories = $categoryNames;
@@ -168,6 +149,44 @@ class CleanupPurgeCommand extends Command {
 
 		return 0;
 	}//end execute()
+
+	/**
+	 * The category the `--category` option names, as a list; empty for all categories.
+	 *
+	 * @param mixed $category The raw option value.
+	 *
+	 * @return string[]
+	 */
+	private function requestedCategories(mixed $category): array {
+		if (is_string(value: $category) === true && $category !== '') {
+			return [$category];
+		}
+
+		return [];
+	}//end requestedCategories()
+
+	/**
+	 * Print the unknown-category error and the valid categories.
+	 *
+	 * @param OutputInterface $output   The console output.
+	 * @param string          $category The unknown category.
+	 *
+	 * @return void
+	 */
+	private function reportUnknownCategory(OutputInterface $output, string $category): void {
+		$output->writeln(
+			messages: sprintf(
+				'<error>Unknown cleanup category: %s</error>',
+				$category
+			)
+		);
+		$output->writeln(
+			messages: sprintf(
+				'Valid categories: %s',
+				implode(separator: ', ', array: $this->registry->getCategoryNames())
+			)
+		);
+	}//end reportUnknownCategory()
 
 	/**
 	 * Ask the operator to confirm the purge.

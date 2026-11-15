@@ -297,4 +297,40 @@ class VisibilityPreviewControllerTest extends TestCase {
 		$this->assertTrue($renderTimeVisible);
 		$this->assertSame($renderTimeVisible, $previewVisible);
 	}//end testPreviewVerdictMatchesRenderTimeVerdictForIdenticalInputs()
+
+	/**
+	 * Rule ids default to the entry's position, `isInclude` defaults to
+	 * true, and every refusal message of a malformed entry.
+	 *
+	 * @return void
+	 */
+	public function testRuleIdsDefaultsAndRefusals(): void {
+		$controller = $this->makeController();
+		$response = $controller->preview(
+			rules: [
+				['id' => '7', 'ruleType' => 'group', 'ruleConfig' => ['groups' => ['marketing']]],
+				['ruleType' => 'group', 'ruleConfig' => ['groups' => ['marketing']]],
+				['ruleType' => 'group', 'ruleConfig' => ['groups' => ['marketing']], 'isInclude' => false],
+			],
+			context: ['groups' => ['marketing'], 'datetime' => '2026-07-23T14:30']
+		);
+		$data = $response->getData();
+		$this->assertSame([7, 1], $data['matchedIncludeRuleIds']);
+		$this->assertSame([2], $data['matchedExcludeRuleIds']);
+
+		$refusals = [];
+		foreach ([['x'], [['ruleType' => 7, 'ruleConfig' => []]], [['ruleType' => 'group', 'ruleConfig' => 'x']]] as $rules) {
+			$answer = $controller->preview(rules: $rules, context: []);
+			$refusals[] = [$answer->getStatus(), $answer->getData()];
+		}
+
+		$this->assertSame(
+			[
+				[400, ['error' => 'Each entry in rules must be an object']],
+				[400, ['error' => 'Invalid ruleType: only group, time, date and attribute are accepted']],
+				[400, ['error' => 'ruleConfig must be an object']],
+			],
+			$refusals
+		);
+	}//end testRuleIdsDefaultsAndRefusals()
 }//end class

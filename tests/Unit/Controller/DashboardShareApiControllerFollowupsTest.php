@@ -21,10 +21,11 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\DashboardShareApiController;
+use OCA\LaunchPad\Controller\ShareApiTools;
 use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -33,6 +34,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tests for DashboardShareApiController follow-up actions.
@@ -88,8 +90,11 @@ class DashboardShareApiControllerFollowupsTest extends TestCase {
 		return new DashboardShareApiController(
 			request: $this->request,
 			shareService: $this->shareService,
-			userManager: $this->userManager,
-			groupManager: $this->groupManager,
+			tools: new ShareApiTools(
+				userManager: $this->userManager,
+				groupManager: $this->groupManager,
+				logger: $this->createMock(LoggerInterface::class),
+			),
 			userId: $userId,
 		);
 	}//end makeController()
@@ -190,7 +195,7 @@ class DashboardShareApiControllerFollowupsTest extends TestCase {
 		$controller = $this->makeController(userId: 'bob');
 
 		$this->shareService->method('replaceShares')
-			->willThrowException(new Exception('Access denied'));
+			->willThrowException(new ForbiddenException('Access denied'));
 
 		$response = $controller->replace(id: 5, shares: []);
 

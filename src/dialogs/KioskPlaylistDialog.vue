@@ -95,6 +95,11 @@
 <script>
 import { NcButton, NcDialog, NcSelect, NcTextField } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import {
+	LIST_PROP,
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_FLAG_PROP,
+} from '../constants/propDefinitions.js'
 
 /** Limits enforced by KioskService (DWELL_MIN/MAX, REFRESH_MIN/MAX). */
 export const DWELL_MIN = 10
@@ -123,22 +128,13 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
 		/** Playlist to edit, or null for a new one. */
-		playlist: {
-			type: Object,
-			default: null,
-		},
+		playlist: NULLABLE_OBJECT_PROP,
 
 		/** Dashboards to choose from (`uuid`, `name`). */
-		dashboards: {
-			type: Array,
-			default: () => [],
-		},
+		dashboards: LIST_PROP,
 	},
 
 	emits: ['update:open', 'save'],

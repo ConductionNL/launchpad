@@ -88,6 +88,10 @@
 import { chatHealthUrl, useAiChatStream } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { useDashboardStore } from '../../../stores/dashboard.js'
 
 /** The fleet's chat engine. */
@@ -124,16 +128,10 @@ export default {
 
 	props: {
 		/** Persisted content: `{agentUuid?}`. */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** The placement (`gridWidth`, `gridHeight`). */
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 	},
 
 	/** @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md */

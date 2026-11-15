@@ -1,0 +1,98 @@
+{
+    "replace mixed": {
+        "calls": [
+            "beginTransaction",
+            "deleteNotIn 5 user:new,user:up,user:down,group:same,user:mid",
+            "findShare 5 user:new",
+            "insert 5 user:new full [dashboardId,shareType,shareWith,permissionLevel,createdAt,updatedAt] same-stamps",
+            "findShare 5 user:up",
+            "update 5 user:up full [permissionLevel,updatedAt] kept-created",
+            "findShare 5 user:down",
+            "update 5 user:down view_only [permissionLevel,updatedAt] kept-created",
+            "findShare 5 group:same",
+            "findShare 5 user:mid",
+            "update 5 user:mid add_only [permissionLevel,updatedAt] kept-created",
+            "commit",
+            "notify owner Team new full",
+            "notify owner Team up full",
+            "notify owner Team mid add_only",
+            "findByDashboardId 5"
+        ],
+        "outcome": "returned list"
+    },
+    "replace empty": {
+        "calls": [
+            "beginTransaction",
+            "deleteNotIn 5 ",
+            "commit",
+            "findByDashboardId 5"
+        ],
+        "outcome": "returned list"
+    },
+    "replace not owner": {
+        "calls": [],
+        "outcome": "threw OCA\\LaunchPad\\Exception\\ForbiddenException: Access denied"
+    },
+    "replace invalid entry": {
+        "calls": [],
+        "outcome": "threw InvalidArgumentException: Invalid shareType: robot"
+    },
+    "replace unknown level": {
+        "calls": [],
+        "outcome": "threw InvalidArgumentException: Invalid permissionLevel: root"
+    },
+    "replace failing insert": {
+        "calls": [
+            "beginTransaction",
+            "deleteNotIn 5 user:new,user:up,user:mid",
+            "findShare 5 user:new",
+            "insert 5 user:new full [dashboardId,shareType,shareWith,permissionLevel,createdAt,updatedAt] same-stamps",
+            "findShare 5 user:up",
+            "update 5 user:up full [permissionLevel,updatedAt] kept-created",
+            "findShare 5 user:mid",
+            "rollBack"
+        ],
+        "outcome": "threw RuntimeException: insert failed"
+    },
+    "add new": {
+        "calls": [
+            "findShare 9 user:new",
+            "insert 9 user:new full [dashboardId,shareType,shareWith,permissionLevel,createdAt,updatedAt] same-stamps",
+            "notify owner Team new full"
+        ],
+        "outcome": "returned new full"
+    },
+    "add up": {
+        "calls": [
+            "findShare 9 user:up",
+            "update 9 user:up full [permissionLevel,updatedAt] kept-created",
+            "notify owner Team up full"
+        ],
+        "outcome": "returned up full"
+    },
+    "add down": {
+        "calls": [
+            "findShare 9 user:down",
+            "update 9 user:down view_only [permissionLevel,updatedAt] kept-created"
+        ],
+        "outcome": "returned down view_only"
+    },
+    "add same": {
+        "calls": [
+            "findShare 9 group:same"
+        ],
+        "outcome": "returned same add_only"
+    },
+    "add mid": {
+        "calls": [
+            "findShare 9 user:mid",
+            "insert 9 user:mid add_only [dashboardId,shareType,shareWith,permissionLevel,createdAt,updatedAt] same-stamps",
+            "notify owner Team mid add_only"
+        ],
+        "outcome": "returned mid add_only"
+    },
+    "add not owner": {
+        "calls": [],
+        "outcome": "threw OCA\\LaunchPad\\Exception\\ForbiddenException: Access denied"
+    }
+}

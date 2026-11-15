@@ -165,49 +165,13 @@ class UserDeletedListener implements IEventListener {
 			);
 
 			if ($newOwner !== null) {
-				// Transfer ownership.
-				$this->shareService->transferOwnership(
-					dashboardId: $dashboardId,
-					newUserId: $newOwner
-				);
-
-				$this->db->commit();
-
-				// Notify outside the transaction.
-				$this->shareService->notifyOwnershipTransferred(
-					newOwnerId: $newOwner,
-					dashboardId: $dashboardId,
-					dashboardName: (string)$dashboard->getName()
-				);
+				$this->transferOwnedDashboard(dashboard: $dashboard, newOwner: $newOwner);
 			}
 
 			if ($newOwner === null) {
 				// Admin pool empty — delete dashboard, placements, and shares.
-				$this->placementMapper->deleteByDashboardId(
-					dashboardId: $dashboardId
-				);
-				$this->shareMapper->deleteByDashboardId(
-					dashboardId: $dashboardId
-				);
-				$this->dashboardMapper->delete(entity: $dashboard);
-
-				$this->db->commit();
-
-				// SB1 fix: dispatch cascade event outside the transaction
-				// so listeners see a committed row (REQ-CSC-001).
-				$deletedUuid = (string)$dashboard->getUuid();
-				if ($this->eventDispatcher !== null && $deletedUuid !== '') {
-					$this->eventDispatcher->dispatchTyped(
-						new DashboardDeletedEvent(
-							dashboardUuid: $deletedUuid,
-							ownerUserId:   $deletedUserId,
-							type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
-							deletedAt:     new DateTimeImmutable(),
-							dashboardId:   $dashboardId
-						)
-					);
-				}
-			}//end if
+				$this->deleteOwnedDashboard(dashboard: $dashboard, deletedUserId: $deletedUserId);
+			}
 		} catch (Throwable $t) {
 			$this->db->rollBack();
 			// Log but do not rethrow — we want to continue processing
@@ -222,6 +186,83 @@ class UserDeletedListener implements IEventListener {
 			);
 		}//end try
 	}//end handleOwnedDashboard()
+
+	/**
+	 * Hand the dashboard to the new owner, commit, then notify them outside the transaction.
+	 *
+	 * @param Dashboard $dashboard The deleted user's dashboard.
+	 * @param string    $newOwner  The new owner's UID.
+	 *
+	 * @return void
+	 */
+	private function transferOwnedDashboard(Dashboard $dashboard, string $newOwner): void {
+		$dashboardId = (int)$dashboard->getId();
+
+		$this->shareService->transferOwnership(
+			dashboardId: $dashboardId,
+			newUserId: $newOwner
+		);
+
+		$this->db->commit();
+
+		$this->shareService->notifyOwnershipTransferred(
+			newOwnerId: $newOwner,
+			dashboardId: $dashboardId,
+			dashboardName: (string)$dashboard->getName()
+		);
+	}//end transferOwnedDashboard()
+
+	/**
+	 * Delete the dashboard with its placements and shares, commit, then announce the deletion.
+	 *
+	 * @param Dashboard $dashboard     The deleted user's dashboard.
+	 * @param string    $deletedUserId The deleted user's UID.
+	 *
+	 * @return void
+	 */
+	private function deleteOwnedDashboard(Dashboard $dashboard, string $deletedUserId): void {
+		$dashboardId = (int)$dashboard->getId();
+
+		$this->placementMapper->deleteByDashboardId(
+			dashboardId: $dashboardId
+		);
+		$this->shareMapper->deleteByDashboardId(
+			dashboardId: $dashboardId
+		);
+		$this->dashboardMapper->delete(entity: $dashboard);
+
+		$this->db->commit();
+
+		$this->announceDeletion(dashboard: $dashboard, deletedUserId: $deletedUserId);
+	}//end deleteOwnedDashboard()
+
+	/**
+	 * Dispatch the cascade event for a deleted dashboard.
+	 *
+	 * SB1 fix: dispatched outside the transaction so listeners see a
+	 * committed row (REQ-CSC-001).
+	 *
+	 * @param Dashboard $dashboard     The deleted dashboard.
+	 * @param string    $deletedUserId The deleted user's UID.
+	 *
+	 * @return void
+	 */
+	private function announceDeletion(Dashboard $dashboard, string $deletedUserId): void {
+		$deletedUuid = (string)$dashboard->getUuid();
+		if ($this->eventDispatcher === null || $deletedUuid === '') {
+			return;
+		}
+
+		$this->eventDispatcher->dispatchTyped(
+			new DashboardDeletedEvent(
+				dashboardUuid: $deletedUuid,
+				ownerUserId:   $deletedUserId,
+				type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
+				deletedAt:     new DateTimeImmutable(),
+				dashboardId:   (int)$dashboard->getId()
+			)
+		);
+	}//end announceDeletion()
 
 	/**
 	 * Compute the admin pool and pick the new owner per REQ-SHARE-013.

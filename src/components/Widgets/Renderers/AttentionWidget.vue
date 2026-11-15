@@ -26,6 +26,7 @@
 		</div>
 
 		<template v-else>
+			<WidgetRowFilter v-if="items.length > 0" v-model="rowFilter" />
 			<ul
 				v-if="visibleItems.length > 0"
 				class="attention-widget__list"
@@ -96,9 +97,11 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import WidgetRowFilter from '../WidgetRowFilter.vue'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { loadAttentionFeed } from '../../../services/attentionFeed.js'
 import { logger } from '../../../utils/logger.js'
+import { filterRows } from '../../../utils/rowFilter.js'
 
 const DEFAULT_LIMIT = 5
 const MAX_LIMIT = 10
@@ -116,6 +119,10 @@ const MAX_LIMIT = 10
 export default {
 	name: 'AttentionWidget',
 
+	components: {
+		WidgetRowFilter,
+	},
+
 	props: {
 		/** Persisted widget content: `{ limit }`. */
 		content: OBJECT_PROP,
@@ -128,6 +135,9 @@ export default {
 			items: [],
 			failedApps: [],
 			sourceCount: 0,
+			// REQ-DWMS-008: the row filter is view state only. Never saved,
+			// never shared, gone after a reload.
+			rowFilter: '',
 		}
 	},
 
@@ -146,14 +156,25 @@ export default {
 			return Math.min(limit, MAX_LIMIT)
 		},
 
+		/**
+		 * The items the person's row filter keeps (REQ-DWMS-008); the loaded
+		 * items and the widget's settings are never touched.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+		 */
+		filteredItems() {
+			return filterRows(this.items, this.rowFilter, ['title', 'reason', 'appName'])
+		},
+
 		/** @spec openspec/specs/attention-feed/spec.md#req-att-004 */
 		visibleItems() {
-			return this.items.slice(0, this.limit)
+			return this.filteredItems.slice(0, this.limit)
 		},
 
 		/** @spec openspec/specs/attention-feed/spec.md#req-att-004 */
 		hiddenCount() {
-			return Math.max(0, this.items.length - this.limit)
+			return Math.max(0, this.filteredItems.length - this.limit)
 		},
 
 		/**

@@ -1,0 +1,212 @@
+{
+    "dashboard_created / self": [
+        "You created dashboard Dashboard A",
+        "You created dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_created.svg"
+    ],
+    "dashboard_created / other": [
+        "alice created dashboard Dashboard A",
+        "alice created dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_created.svg"
+    ],
+    "dashboard_created / fallbacks": [
+        "dave created dashboard Board 9",
+        "dave created dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_created.svg"
+    ],
+    "dashboard_updated / self": [
+        "You updated dashboard Dashboard A",
+        "You updated dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_updated.svg"
+    ],
+    "dashboard_updated / other": [
+        "alice updated dashboard Dashboard A",
+        "alice updated dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_updated.svg"
+    ],
+    "dashboard_updated / fallbacks": [
+        "dave updated dashboard Board 9",
+        "dave updated dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_updated.svg"
+    ],
+    "dashboard_deleted / self": [
+        "You deleted dashboard Dashboard A",
+        "You deleted dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_deleted.svg"
+    ],
+    "dashboard_deleted / other": [
+        "alice deleted dashboard Dashboard A",
+        "alice deleted dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_deleted.svg"
+    ],
+    "dashboard_deleted / fallbacks": [
+        "dave deleted dashboard Board 9",
+        "dave deleted dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_deleted.svg"
+    ],
+    "dashboard_published / self": [
+        "You published dashboard Dashboard A",
+        "You published dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_published.svg"
+    ],
+    "dashboard_published / other": [
+        "alice published dashboard Dashboard A",
+        "alice published dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_published.svg"
+    ],
+    "dashboard_published / fallbacks": [
+        "dave published dashboard Board 9",
+        "dave published dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_published.svg"
+    ],
+    "dashboard_unpublished / self": [
+        "You unpublished dashboard Dashboard A",
+        "You unpublished dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_unpublished.svg"
+    ],
+    "dashboard_unpublished / other": [
+        "alice unpublished dashboard Dashboard A",
+        "alice unpublished dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_unpublished.svg"
+    ],
+    "dashboard_unpublished / fallbacks": [
+        "dave unpublished dashboard Board 9",
+        "dave unpublished dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_unpublished.svg"
+    ],
+    "dashboard_scheduled / self": [
+        "You scheduled dashboard Dashboard A",
+        "You scheduled dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_scheduled.svg"
+    ],
+    "dashboard_scheduled / other": [
+        "alice scheduled dashboard Dashboard A",
+        "alice scheduled dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_scheduled.svg"
+    ],
+    "dashboard_scheduled / fallbacks": [
+        "dave scheduled dashboard Board 9",
+        "dave scheduled dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_scheduled.svg"
+    ],
+    "dashboard_shared / self": [
+        "You shared dashboard Dashboard A with bob",
+        "You shared dashboard Dashboard A with bob",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_shared.svg"
+    ],
+    "dashboard_shared / other": [
+        "alice shared dashboard Dashboard A with bob",
+        "alice shared dashboard Dashboard A with bob",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_shared.svg"
+    ],
+    "dashboard_shared / fallbacks": [
+        "dave shared dashboard Board 9 with ",
+        "dave shared dashboard Board 9 with ",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_shared.svg"
+    ],
+    "dashboard_public_share_created / self": [
+        "You created a public link for dashboard Dashboard A",
+        "You created a public link for dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_public_share_created.svg"
+    ],
+    "dashboard_public_share_created / other": [
+        "alice created a public link for dashboard Dashboard A",
+        "alice created a public link for dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_public_share_created.svg"
+    ],
+    "dashboard_public_share_created / fallbacks": [
+        "dave created a public link for dashboard Board 9",
+        "dave created a public link for dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_public_share_created.svg"
+    ],
+    "dashboard_commented / self": [
+        "You commented on dashboard Dashboard A",
+        "You commented on dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_commented.svg"
+    ],
+    "dashboard_commented / other": [
+        "alice commented on dashboard Dashboard A",
+        "alice commented on dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_commented.svg"
+    ],
+    "dashboard_commented / fallbacks": [
+        "dave commented on dashboard Board 9",
+        "dave commented on dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_commented.svg"
+    ],
+    "dashboard_reacted / self": [
+        "You reacted to dashboard Dashboard A",
+        "You reacted to dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_reacted.svg"
+    ],
+    "dashboard_reacted / other": [
+        "alice reacted to dashboard Dashboard A",
+        "alice reacted to dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_reacted.svg"
+    ],
+    "dashboard_reacted / fallbacks": [
+        "dave reacted to dashboard Board 9",
+        "dave reacted to dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_reacted.svg"
+    ],
+    "dashboard_restored / self": [
+        "You restored dashboard Dashboard A to an earlier version",
+        "You restored dashboard Dashboard A to an earlier version",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_restored.svg"
+    ],
+    "dashboard_restored / other": [
+        "alice restored dashboard Dashboard A to an earlier version",
+        "alice restored dashboard Dashboard A to an earlier version",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_restored.svg"
+    ],
+    "dashboard_restored / fallbacks": [
+        "dave restored dashboard Board 9 to an earlier version",
+        "dave restored dashboard Board 9 to an earlier version",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_restored.svg"
+    ],
+    "dashboard_lock_overridden / self": [
+        "You overrode the lock on dashboard Dashboard A",
+        "You overrode the lock on dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_lock_overridden.svg"
+    ],
+    "dashboard_lock_overridden / other": [
+        "alice overrode the lock on dashboard Dashboard A",
+        "alice overrode the lock on dashboard Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_lock_overridden.svg"
+    ],
+    "dashboard_lock_overridden / fallbacks": [
+        "dave overrode the lock on dashboard Board 9",
+        "dave overrode the lock on dashboard Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_lock_overridden.svg"
+    ],
+    "dashboard_role_changed / self": [
+        "Your role in Dashboard A was changed to editor",
+        "Your role in Dashboard A was changed to editor",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_role_changed.svg"
+    ],
+    "dashboard_role_changed / other": [
+        "alice changed carol's role in Dashboard A to editor",
+        "alice changed carol's role in Dashboard A to editor",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_role_changed.svg"
+    ],
+    "dashboard_role_changed / fallbacks": [
+        "dave changed 's role in Board 9 to ",
+        "dave changed 's role in Board 9 to ",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_role_changed.svg"
+    ],
+    "dashboard_acknowledged / self": [
+        "You acknowledged version 3 of Dashboard A",
+        "You acknowledged version 3 of Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_acknowledged.svg"
+    ],
+    "dashboard_acknowledged / other": [
+        "alice acknowledged version 3 of Dashboard A",
+        "alice acknowledged version 3 of Dashboard A",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_acknowledged.svg"
+    ],
+    "dashboard_acknowledged / fallbacks": [
+        "dave acknowledged Board 9",
+        "dave acknowledged Board 9",
+        "https://nc.example/apps/launchpad/img/activity/dashboard_acknowledged.svg"
+    ]
+}

@@ -120,6 +120,27 @@ class FeedRefreshJob extends TimedJob {
 	 * @return void
 	 */
 	protected function run(mixed $argument): void {
+		if ($this->acquireTickLock() === false) {
+			return;
+		}
+
+		try {
+			$this->refreshAndLog();
+		} finally {
+			$this->run->lockingProvider->releaseLock(
+				path: self::LOCK_ID,
+				type: ILockingProvider::LOCK_EXCLUSIVE
+			);
+		}
+	}//end run()
+
+	/**
+	 * Take the exclusive tick lock; when another tick holds it, log and
+	 * answer false so this tick is skipped.
+	 *
+	 * @return bool True when this tick holds the lock.
+	 */
+	private function acquireTickLock(): bool {
 		try {
 			$this->run->lockingProvider->acquireLock(
 				path: self::LOCK_ID,
@@ -130,9 +151,19 @@ class FeedRefreshJob extends TimedJob {
 				message: 'FeedRefreshJob already running; skipping this tick',
 				context: ['app' => Application::APP_ID]
 			);
-			return;
+			return false;
 		}
 
+		return true;
+	}//end acquireTickLock()
+
+	/**
+	 * Refresh every feed and log the tick's counts, or the unexpected
+	 * failure.
+	 *
+	 * @return void
+	 */
+	private function refreshAndLog(): void {
 		try {
 			$result = $this->run->refreshService->refreshAll();
 			$this->logger->info(
@@ -153,11 +184,6 @@ class FeedRefreshJob extends TimedJob {
 					'exception' => $exception->getMessage(),
 				]
 			);
-		} finally {
-			$this->run->lockingProvider->releaseLock(
-				path: self::LOCK_ID,
-				type: ILockingProvider::LOCK_EXCLUSIVE
-			);
-		}//end try
-	}//end run()
+		}
+	}//end refreshAndLog()
 }//end class

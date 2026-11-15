@@ -120,12 +120,7 @@ class DashboardDeleteCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				error: [
-					'exitCode' => CommandService::EXIT_INVALID_ARGS,
-					'code'     => 'CHILDREN_EXIST',
-					'message'  => 'Use --cascade to also delete child dashboards',
-					'context'  => ['uuid' => $uuid, 'childCount' => $childCount],
-				]
+				error: $this->childrenExistError(uuid: $uuid, childCount: $childCount)
 			);
 		}
 
@@ -149,20 +144,48 @@ class DashboardDeleteCommand extends CommandBase {
 			cascade: $cascade
 		);
 
-		$cascadeNote = '';
-		if ($cascade === true) {
-			$cascadeNote = ' and ' . $childCount . ' descendant(s)';
-		}
-
 		$this->emitSuccess(
 			input: $input,
 			output: $output,
 			data: ['uuid' => $uuid, 'cascade' => $cascade, 'childCount' => $childCount],
-			human: 'Deleted dashboard ' . $uuid . $cascadeNote
+			human: 'Deleted dashboard ' . $uuid . $this->descendantsNote(cascade: $cascade, childCount: $childCount)
 		);
 
 		return CommandService::EXIT_SUCCESS;
 	}//end handle()
+
+	/**
+	 * The refusal for a dashboard with children when --cascade is not given.
+	 *
+	 * @param string $uuid       The dashboard UUID.
+	 * @param int    $childCount Its direct child count.
+	 *
+	 * @return array<string, mixed> The error for {@see CommandBase::emitError()}.
+	 */
+	private function childrenExistError(string $uuid, int $childCount): array {
+		return [
+			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'code'     => 'CHILDREN_EXIST',
+			'message'  => 'Use --cascade to also delete child dashboards',
+			'context'  => ['uuid' => $uuid, 'childCount' => $childCount],
+		];
+	}//end childrenExistError()
+
+	/**
+	 * The " and N descendant(s)" suffix of the success line for a cascading delete.
+	 *
+	 * @param bool $cascade    Whether --cascade was given.
+	 * @param int  $childCount The direct child count.
+	 *
+	 * @return string The suffix, or ''.
+	 */
+	private function descendantsNote(bool $cascade, int $childCount): string {
+		if ($cascade === true) {
+			return ' and ' . $childCount . ' descendant(s)';
+		}
+
+		return '';
+	}//end descendantsNote()
 
 	/**
 	 * Ask the operator to confirm the deletion.

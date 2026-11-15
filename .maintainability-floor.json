@@ -1,0 +1,21 @@
+{
+  "measured_at": "2026-11-11T15:41:23Z",
+  "commit": "4d835a4387a923ae69cd19c49c13c80257b82aa6",
+  "tool_version": "estimator sha256:391d6ca5ea39; lizard 1.24.3; jscpd 4.0.5; profile five-star",
+  "tolerance": 0.01,
+  "overall": 4.21,
+  "overall_range": [
+    4.21,
+    4.32
+  ],
+  "properties": {
+    "volume": null,
+    "duplication": 4.54,
+    "unit_size": 3.4,
+    "unit_complexity": 4.02,
+    "unit_interfacing": 3.14,
+    "module_coupling": 4.65,
+    "component_independence": 5.5,
+    "component_entanglement": 5.5
+  }
+}

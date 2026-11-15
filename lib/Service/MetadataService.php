@@ -185,43 +185,107 @@ class MetadataService {
 
 		$field = $this->fieldMapper->findById(id: $id);
 
+		self::patchLabel(field: $field, patch: $patch);
+		self::patchSortOrder(field: $field, patch: $patch);
+		self::patchRequired(field: $field, patch: $patch);
+		self::patchOptions(field: $field, patch: $patch);
+
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		if (array_key_exists(key: 'label', array: $patch) === true) {
-			$label = (string)$patch['label'];
-			self::assertLabelShape(label: $label);
-			$field->setLabel($label);
-		}
-
-		if (array_key_exists(key: 'sortOrder', array: $patch) === true) {
-			$field->setSortOrder((int)$patch['sortOrder']);
-		}
-
-		if (array_key_exists(key: 'required', array: $patch) === true) {
-			$required = 0;
-			if ((int)$patch['required'] === 1) {
-				$required = 1;
-			}
-
-			$field->setRequired($required);
-		}
-
-		if (array_key_exists(key: 'options', array: $patch) === true) {
-			$options = $patch['options'];
-			if ($options !== null && is_array($options) === false) {
-				throw new InvalidMetadataFieldException(
-					message: 'Options must be an array of strings or null'
-				);
-			}
-
-			self::assertOptionsShape(type: $field->getType(), options: $options);
-			$field->setOptionsArray(options: $options);
-		}
-
 		$field->setUpdatedAt((new DateTime())->format(format: 'c'));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		return $this->fieldMapper->update(entity: $field);
 	}//end updateFieldDefinition()
+
+	/**
+	 * Apply a patched `label`, validating its length first.
+	 *
+	 * @param MetadataField        $field The field being patched.
+	 * @param array<string, mixed> $patch The shallow patch.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidMetadataFieldException When the label is malformed.
+	 */
+	private static function patchLabel(MetadataField $field, array $patch): void {
+		if (array_key_exists(key: 'label', array: $patch) === false) {
+			return;
+		}
+
+		$label = (string)$patch['label'];
+		self::assertLabelShape(label: $label);
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$field->setLabel($label);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+	}//end patchLabel()
+
+	/**
+	 * Apply a patched `sortOrder`.
+	 *
+	 * @param MetadataField        $field The field being patched.
+	 * @param array<string, mixed> $patch The shallow patch.
+	 *
+	 * @return void
+	 */
+	private static function patchSortOrder(MetadataField $field, array $patch): void {
+		if (array_key_exists(key: 'sortOrder', array: $patch) === false) {
+			return;
+		}
+
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$field->setSortOrder((int)$patch['sortOrder']);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+	}//end patchSortOrder()
+
+	/**
+	 * Apply a patched `required` flag: 1 only for a value that casts to 1.
+	 *
+	 * @param MetadataField        $field The field being patched.
+	 * @param array<string, mixed> $patch The shallow patch.
+	 *
+	 * @return void
+	 */
+	private static function patchRequired(MetadataField $field, array $patch): void {
+		if (array_key_exists(key: 'required', array: $patch) === false) {
+			return;
+		}
+
+		$required = 0;
+		if ((int)$patch['required'] === 1) {
+			$required = 1;
+		}
+
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$field->setRequired($required);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+	}//end patchRequired()
+
+	/**
+	 * Apply patched `options`, which must be an array or null and fit the
+	 * field's type.
+	 *
+	 * @param MetadataField        $field The field being patched.
+	 * @param array<string, mixed> $patch The shallow patch.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidMetadataFieldException When the options do not fit.
+	 */
+	private static function patchOptions(MetadataField $field, array $patch): void {
+		if (array_key_exists(key: 'options', array: $patch) === false) {
+			return;
+		}
+
+		$options = $patch['options'];
+		if ($options !== null && is_array($options) === false) {
+			throw new InvalidMetadataFieldException(
+				message: 'Options must be an array of strings or null'
+			);
+		}
+
+		self::assertOptionsShape(type: $field->getType(), options: $options);
+		$field->setOptionsArray(options: $options);
+	}//end patchOptions()
 
 	/**
 	 * Delete a field definition (REQ-MDFL-003).
@@ -323,52 +387,43 @@ class MetadataService {
 		string $dashboardUuid,
 		array $keyValues,
 	): array {
+		$writer = new MetadataValueWriter(valueMapper: $this->valueMapper, dashboardUuid: $dashboardUuid);
 		foreach ($keyValues as $key => $value) {
-			$stringKey = (string)$key;
-			if ($stringKey === '') {
-				throw new InvalidMetadataFieldException(
-					message: 'Metadata keys must be non-empty strings'
-				);
-			}
-
-			try {
-				$field = $this->fieldMapper->findByKey(key: $stringKey);
-			} catch (DoesNotExistException) {
-				throw new InvalidMetadataFieldException(
-					message: "Unknown metadata field '" . $stringKey . "'"
-				);
-			}
-
+			$field = $this->fieldForKey(key: (string)$key);
 			$encoded = $this->validationService->validateValue(
 				value: $value,
 				field: $field
 			);
-
-			if ($encoded === '' && $field->getRequired() === 0) {
-				// Empty optional value: remove the row so the read
-				// payload omits the key (matches scenario "omitted
-				// keys are not deleted" by allowing explicit empty
-				// to clear the value — keeps client UX coherent).
-				$existing = $this->valueMapper->findOne(
-					dashboardUuid: $dashboardUuid,
-					fieldId: (int)$field->getId()
-				);
-				if ($existing !== null) {
-					$this->valueMapper->delete(entity: $existing);
-				}
-
-				continue;
-			}
-
-			$this->valueMapper->upsert(
-				dashboardUuid: $dashboardUuid,
-				fieldId: (int)$field->getId(),
-				value: $encoded
-			);
-		}//end foreach
+			$writer->write(field: $field, encoded: $encoded);
+		}
 
 		return $this->getMetadataForDashboard(dashboardUuid: $dashboardUuid);
 	}//end setMetadataForDashboard()
+
+	/**
+	 * The field definition a metadata key names.
+	 *
+	 * @param string $key The metadata key.
+	 *
+	 * @return MetadataField The field.
+	 *
+	 * @throws InvalidMetadataFieldException When the key is empty or unknown.
+	 */
+	private function fieldForKey(string $key): MetadataField {
+		if ($key === '') {
+			throw new InvalidMetadataFieldException(
+				message: 'Metadata keys must be non-empty strings'
+			);
+		}
+
+		try {
+			return $this->fieldMapper->findByKey(key: $key);
+		} catch (DoesNotExistException) {
+			throw new InvalidMetadataFieldException(
+				message: "Unknown metadata field '" . $key . "'"
+			);
+		}
+	}//end fieldForKey()
 
 	/**
 	 * Apply `?metadata.<key>=…` filters to a dashboard list
@@ -546,20 +601,43 @@ class MetadataService {
 	 */
 	private static function extractUuid(mixed $dashboard): ?string {
 		if (is_object($dashboard) === true && method_exists($dashboard, 'getUuid') === true) {
-			$uuid = $dashboard->getUuid();
-			if ($uuid === null) {
-				return null;
-			}
-
-			return (string)$uuid;
+			return self::entityUuid(dashboard: $dashboard);
 		}
 
+		return self::rowUuid(dashboard: $dashboard);
+	}//end extractUuid()
+
+	/**
+	 * The UUID of a dashboard entity, null when it has none.
+	 *
+	 * @param object $dashboard An object exposing `getUuid()`.
+	 *
+	 * @return string|null The UUID, or null.
+	 */
+	private static function entityUuid(object $dashboard): ?string {
+		$uuid = $dashboard->getUuid();
+		if ($uuid === null) {
+			return null;
+		}
+
+		return (string)$uuid;
+	}//end entityUuid()
+
+	/**
+	 * The `uuid` of a serialised dashboard row, null when it is not a row
+	 * carrying one.
+	 *
+	 * @param mixed $dashboard The candidate row.
+	 *
+	 * @return string|null The UUID, or null.
+	 */
+	private static function rowUuid(mixed $dashboard): ?string {
 		if (is_array($dashboard) === true && array_key_exists(key: 'uuid', array: $dashboard) === true) {
 			return (string)$dashboard['uuid'];
 		}
 
 		return null;
-	}//end extractUuid()
+	}//end rowUuid()
 
 	/**
 	 * Per-criterion match logic.
@@ -628,19 +706,7 @@ class MetadataService {
 		$value = (float)$stored;
 
 		if (is_array($criterion) === true) {
-			if (array_key_exists(key: 'min', array: $criterion) === true
-				&& $value < (float)$criterion['min']
-			) {
-				return false;
-			}
-
-			if (array_key_exists(key: 'max', array: $criterion) === true
-				&& $value > (float)$criterion['max']
-			) {
-				return false;
-			}
-
-			return true;
+			return self::withinNumberRange(value: $value, range: $criterion);
 		}
 
 		if (is_numeric(value: $criterion) === false) {
@@ -649,6 +715,31 @@ class MetadataService {
 
 		return ($value === (float)$criterion);
 	}//end matchesNumberRange()
+
+	/**
+	 * Whether a number lies inside an inclusive `min` / `max` range;
+	 * a missing bound does not limit.
+	 *
+	 * @param float                $value The stored number.
+	 * @param array<string, mixed> $range The `min` / `max` criterion.
+	 *
+	 * @return bool True when inside the range.
+	 */
+	private static function withinNumberRange(float $value, array $range): bool {
+		if (array_key_exists(key: 'min', array: $range) === true
+			&& $value < (float)$range['min']
+		) {
+			return false;
+		}
+
+		if (array_key_exists(key: 'max', array: $range) === true
+			&& $value > (float)$range['max']
+		) {
+			return false;
+		}
+
+		return true;
+	}//end withinNumberRange()
 
 	/**
 	 * Date range filter — supports `after` / `before` (inclusive) or
@@ -661,29 +752,57 @@ class MetadataService {
 	 */
 	private static function matchesDateRange(string $stored, mixed $criterion): bool {
 		if (is_array($criterion) === true) {
-			if (array_key_exists(key: 'after', array: $criterion) === true
-				&& strcmp(
-					string1: $stored,
-					string2: (string)$criterion['after']
-				) < 0
-			) {
-				return false;
-			}
-
-			if (array_key_exists(key: 'before', array: $criterion) === true
-				&& strcmp(
-					string1: $stored,
-					string2: (string)$criterion['before']
-				) > 0
-			) {
-				return false;
-			}
-
-			return true;
-		}//end if
+			return self::withinDateRange(stored: $stored, range: $criterion);
+		}
 
 		return ($stored === (string)$criterion);
 	}//end matchesDateRange()
+
+	/**
+	 * Whether an ISO-8601 date lies inside an inclusive `after` / `before`
+	 * range; a missing bound does not limit.
+	 *
+	 * @param string               $stored The persisted ISO-8601 date.
+	 * @param array<string, mixed> $range  The `after` / `before` criterion.
+	 *
+	 * @return bool True when inside the range.
+	 */
+	private static function withinDateRange(string $stored, array $range): bool {
+		return self::isOnOrAfter(stored: $stored, range: $range) === true
+			&& self::isOnOrBefore(stored: $stored, range: $range) === true;
+	}//end withinDateRange()
+
+	/**
+	 * Whether an ISO-8601 date is not before the range's `after` bound.
+	 *
+	 * @param string               $stored The persisted ISO-8601 date.
+	 * @param array<string, mixed> $range  The `after` / `before` criterion.
+	 *
+	 * @return bool True when there is no bound or the date is on or after it.
+	 */
+	private static function isOnOrAfter(string $stored, array $range): bool {
+		if (array_key_exists(key: 'after', array: $range) === false) {
+			return true;
+		}
+
+		return strcmp(string1: $stored, string2: (string)$range['after']) >= 0;
+	}//end isOnOrAfter()
+
+	/**
+	 * Whether an ISO-8601 date is not after the range's `before` bound.
+	 *
+	 * @param string               $stored The persisted ISO-8601 date.
+	 * @param array<string, mixed> $range  The `after` / `before` criterion.
+	 *
+	 * @return bool True when there is no bound or the date is on or before it.
+	 */
+	private static function isOnOrBefore(string $stored, array $range): bool {
+		if (array_key_exists(key: 'before', array: $range) === false) {
+			return true;
+		}
+
+		return strcmp(string1: $stored, string2: (string)$range['before']) <= 0;
+	}//end isOnOrBefore()
 
 	/**
 	 * Multi-select containment: the stored value is a JSON array;
@@ -783,10 +902,7 @@ class MetadataService {
 	 * @throws InvalidMetadataFieldException When mismatched.
 	 */
 	private static function assertOptionsShape(string $type, ?array $options): void {
-		$isSelect = ($type === MetadataField::TYPE_SELECT
-			|| $type === MetadataField::TYPE_MULTI_SELECT);
-
-		if ($isSelect === true) {
+		if (self::isSelectType(type: $type) === true) {
 			self::assertSelectOptions(options: $options);
 			return;
 		}
@@ -797,6 +913,18 @@ class MetadataService {
 			);
 		}
 	}//end assertOptionsShape()
+
+	/**
+	 * Whether a field type takes a list of options (select / multi-select).
+	 *
+	 * @param string $type The field type.
+	 *
+	 * @return bool True for the select types.
+	 */
+	private static function isSelectType(string $type): bool {
+		return ($type === MetadataField::TYPE_SELECT
+			|| $type === MetadataField::TYPE_MULTI_SELECT);
+	}//end isSelectType()
 
 	/**
 	 * Validate the `options` array of a select / multi-select field.
@@ -819,6 +947,19 @@ class MetadataService {
 			);
 		}
 
+		self::assertOptionEntries(options: $options);
+	}//end assertSelectOptions()
+
+	/**
+	 * Validate that every option is a non-empty string.
+	 *
+	 * @param array<int, mixed> $options The candidate options.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidMetadataFieldException On a non-string or empty entry.
+	 */
+	private static function assertOptionEntries(array $options): void {
 		// Defensive runtime check: callers may pass non-string entries.
 		foreach ($options as $option) {
 			if (is_string($option) === false || $option === '') {
@@ -827,5 +968,5 @@ class MetadataService {
 				);
 			}
 		}
-	}//end assertSelectOptions()
+	}//end assertOptionEntries()
 }//end class

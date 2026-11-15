@@ -333,7 +333,7 @@ class HealthPingService {
 			return $errors;
 		}
 
-		if ($this->hasValidScheme(url: $url) === false) {
+		if (HostAllowList::hasHttpScheme(url: $url) === false) {
 			$errors[] = 'invalid_url';
 			return $errors;
 		}
@@ -402,7 +402,7 @@ class HealthPingService {
 	 */
 	private function attemptPing(array $config): ?array {
 		$url = trim(string: (string)($config['healthUrl'] ?? ''));
-		if ($url === '' || $this->hasValidScheme(url: $url) === false) {
+		if ($url === '' || HostAllowList::hasHttpScheme(url: $url) === false) {
 			return null;
 		}
 
@@ -421,17 +421,8 @@ class HealthPingService {
 
 		try {
 			$client = $this->transport->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'connect_timeout' => self::CONNECT_TIMEOUT,
-					'timeout' => self::REQUEST_TIMEOUT,
-					'http_errors' => false,
-					// No auto-redirect — a 3xx to an unexpected host would
-					// bypass the allow-list check above.
-					'allow_redirects' => false,
-				]
-			);
+			$response = (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
+				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
 			// REQ-HPING-002 "Offline on failure" — a connection failure or
 			// timeout IS a definitive reading, not a missed attempt.
@@ -499,18 +490,6 @@ class HealthPingService {
 	}//end latencyThreshold()
 
 	/**
-	 * Validate a URL's scheme is `http` or `https`.
-	 *
-	 * @param string $url The URL to check.
-	 *
-	 * @return boolean
-	 */
-	private function hasValidScheme(string $url): bool {
-		$scheme = strtolower(string: (string)parse_url(url: $url, component: PHP_URL_SCHEME));
-		return in_array(needle: $scheme, haystack: ['http', 'https'], strict: true);
-	}//end hasValidScheme()
-
-	/**
 	 * Check a URL's host against `healthping_allowed_hosts`. FAIL-CLOSED:
 	 * an empty, missing, or unparseable allow-list permits NO host — the
 	 * admin must explicitly opt hosts in.
@@ -520,31 +499,8 @@ class HealthPingService {
 	 * @return boolean True only when the host is explicitly allow-listed.
 	 */
 	private function isHostAllowed(string $url): bool {
-		$host = parse_url(url: $url, component: PHP_URL_HOST);
-		if (is_string(value: $host) === false || $host === '') {
-			return false;
-		}
-
-		$raw = $this->settings->appConfig->getValueString(
-			app: Application::APP_ID,
-			key: self::CONFIG_KEY_ALLOWED_HOSTS,
-			default: ''
-		);
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === false || $decoded === []) {
-			// FAIL-CLOSED — no configured list means no host is allowed.
-			return false;
-		}
-
-		$needle = strtolower(string: $host);
-		foreach ($decoded as $allowed) {
-			if (is_string(value: $allowed) === true && strtolower(string: $allowed) === $needle) {
-				return true;
-			}
-		}
-
-		return false;
+		$allowList = new HostAllowList(appConfig: $this->settings->appConfig, configKey: self::CONFIG_KEY_ALLOWED_HOSTS);
+		return $allowList->permits(url: $url);
 	}//end isHostAllowed()
 
 	/**

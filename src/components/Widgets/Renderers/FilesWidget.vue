@@ -207,6 +207,54 @@
 
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
+/**
+ * Load the HTTP client and build one files-widget endpoint URL.
+ *
+ * @param {string} path The route template.
+ * @param {object} params The route parameters.
+ * @return {Promise<{axios: object, url: string}>} the client and the URL.
+ */
+async function filesEndpoint(path, params) {
+	const [{ default: axios }, { generateUrl }] = await Promise.all([
+		import('@nextcloud/axios'),
+		import('@nextcloud/router'),
+	])
+
+	return { axios, url: generateUrl(path, params) }
+}
+
+/**
+ * A multipart form carrying every chosen file as `files[]`.
+ *
+ * @param {FileList} fileList The chosen files.
+ * @return {FormData} the upload form.
+ */
+function uploadFormData(fileList) {
+	const formData = new FormData()
+	for (let i = 0; i < fileList.length; i++) {
+		formData.append('files[]', fileList[i])
+	}
+	return formData
+}
+
+/**
+ * The error state a failed contents request maps to.
+ *
+ * @param {object} err The request error.
+ * @return {string} `folder_not_found`, `no_access` or `unknown_error`.
+ */
+function contentsErrorCode(err) {
+	const status = err?.response?.status
+	const code = err?.response?.data?.error
+	if (status === 404 || code === 'folder_not_found') {
+		return 'folder_not_found'
+	}
+	if (status === 403 || code === 'no_access') {
+		return 'no_access'
+	}
+	return 'unknown_error'
+}
+
 export default {
 	name: 'FilesWidget',
 
@@ -338,44 +386,70 @@ export default {
 			this.errorCode = null
 
 			try {
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = generateUrl(
-					'/apps/launchpad/api/widgets/files/{placementId}/contents',
-					{ placementId: this.placementId },
-				)
-				const params = {
-					currentPath: this.currentSubPath,
-					limit: 50,
-				}
-				if (append && this.nextCursor) {
-					params.cursor = this.nextCursor
-				}
-
-				const response = await axios.get(url, { params })
-				const data = response?.data || {}
-				const nextItems = Array.isArray(data.items) ? data.items : []
-				this.items = append ? this.items.concat(nextItems) : nextItems
-				this.nextCursor = data.nextCursor || null
+				const data = await this.requestContents(append)
+				this.applyContents(data, append)
 			} catch (err) {
-				const status = err?.response?.status
-				const code = err?.response?.data?.error
-				if (status === 404 || code === 'folder_not_found') {
-					this.errorCode = 'folder_not_found'
-				} else if (status === 403 || code === 'no_access') {
-					this.errorCode = 'no_access'
-				} else {
-					this.errorCode = 'unknown_error'
-				}
-				if (!append) {
-					this.items = []
-					this.nextCursor = null
-				}
+				this.applyContentsError(err, append)
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Request one page of the current folder's contents.
+		 *
+		 * @param {boolean} append True to ask for the next cursor page.
+		 * @return {Promise<object>} the response body, `{}` when absent.
+		 */
+		async requestContents(append) {
+			const { axios, url } = await filesEndpoint(
+				'/apps/launchpad/api/widgets/files/{placementId}/contents',
+				{ placementId: this.placementId },
+			)
+			const response = await axios.get(url, { params: this.contentsParams(append) })
+			return response?.data || {}
+		},
+
+		/**
+		 * The query parameters of a contents request.
+		 *
+		 * @param {boolean} append True to add the next-page cursor.
+		 * @return {object} the request parameters.
+		 */
+		contentsParams(append) {
+			const params = {
+				currentPath: this.currentSubPath,
+				limit: 50,
+			}
+			if (append && this.nextCursor) {
+				params.cursor = this.nextCursor
+			}
+			return params
+		},
+
+		/**
+		 * Store a fetched page: appended to or replacing the list.
+		 *
+		 * @param {object} data The response body.
+		 * @param {boolean} append True to append to the existing list.
+		 */
+		applyContents(data, append) {
+			const nextItems = Array.isArray(data.items) ? data.items : []
+			this.items = append ? this.items.concat(nextItems) : nextItems
+			this.nextCursor = data.nextCursor || null
+		},
+
+		/**
+		 * Record a failed fetch; a failed first page also clears the list.
+		 *
+		 * @param {object} err The request error.
+		 * @param {boolean} append True when the failed request was a next page.
+		 */
+		applyContentsError(err, append) {
+			this.errorCode = contentsErrorCode(err)
+			if (!append) {
+				this.items = []
+				this.nextCursor = null
 			}
 		},
 
@@ -503,19 +577,7 @@ export default {
 				return
 			}
 			try {
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = generateUrl(
-					'/apps/launchpad/api/widgets/files/{placementId}/files/{fileId}',
-					{ placementId: this.placementId, fileId: target.fileId },
-				)
-				await axios.delete(url)
-				this.items = this.items.filter(
-					(item) => item.fileId !== target.fileId,
-				)
+				await this.deleteFile(target)
 			} catch {
 				// Swallow — refresh the listing so the UI stays
 				// truthful even if the optimistic remove failed.
@@ -523,6 +585,22 @@ export default {
 			} finally {
 				this.confirmTarget = null
 			}
+		},
+
+		/**
+		 * Delete one file and drop it from the list.
+		 *
+		 * @param {object} target The directory entry to delete.
+		 */
+		async deleteFile(target) {
+			const { axios, url } = await filesEndpoint(
+				'/apps/launchpad/api/widgets/files/{placementId}/files/{fileId}',
+				{ placementId: this.placementId, fileId: target.fileId },
+			)
+			await axios.delete(url)
+			this.items = this.items.filter(
+				(item) => item.fileId !== target.fileId,
+			)
 		},
 
 		/** @spec openspec/specs/files-widget/spec.md */
@@ -544,32 +622,38 @@ export default {
 				return
 			}
 
-			const formData = new FormData()
-			for (let i = 0; i < fileList.length; i++) {
-				formData.append('files[]', fileList[i])
-			}
+			const formData = uploadFormData(fileList)
 
 			try {
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = generateUrl(
-					'/apps/launchpad/api/widgets/files/{placementId}/upload',
-					{ placementId: this.placementId },
-				)
-				await axios.post(url, formData, {
-					params: { currentPath: this.currentSubPath },
-				})
+				await this.postUpload(formData)
 				this.fetchContents()
 			} catch {
 				// Surface failure by re-fetching; the user can retry.
 				this.fetchContents()
 			} finally {
-				if (this.$refs.fileInput) {
-					this.$refs.fileInput.value = ''
-				}
+				this.resetFileInput()
+			}
+		},
+
+		/**
+		 * Upload a form of files into the current folder.
+		 *
+		 * @param {FormData} formData The files to upload.
+		 */
+		async postUpload(formData) {
+			const { axios, url } = await filesEndpoint(
+				'/apps/launchpad/api/widgets/files/{placementId}/upload',
+				{ placementId: this.placementId },
+			)
+			await axios.post(url, formData, {
+				params: { currentPath: this.currentSubPath },
+			})
+		},
+
+		/** Clear the hidden file input so the same file can be chosen again. */
+		resetFileInput() {
+			if (this.$refs.fileInput) {
+				this.$refs.fileInput.value = ''
 			}
 		},
 

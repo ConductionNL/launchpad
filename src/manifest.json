@@ -127,7 +127,7 @@
     },
     {
       "id": "StoreMenu",
-      "label": "Store",
+      "label": "Marketplace",
       "icon": "StoreOutline",
       "route": "Store",
       "section": "footer",
@@ -163,10 +163,10 @@
       "id": "Store",
       "route": "/store",
       "type": "store",
-      "title": "Store",
+      "title": "Marketplace",
       "config": {
         "app": "launchpad",
-        "title": "Store",
+        "title": "Marketplace",
         "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.",
         "kindLenses": [
           { "kind": "app-template", "label": "App template" },
@@ -529,6 +529,78 @@
               "route": "Flows"
             },
             "allowManualNext": true
+          }
+        ]
+      },
+      {
+        "id": "launchpad:admin-getting-started",
+        "title": "Admin settings tour",
+        "trigger": "manual",
+        "steps": [
+          {
+            "id": "general",
+            "placement": "bottom",
+            "title": "General settings",
+            "body": "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. Changes save as you make them.",
+            "target": {
+              "kind": "element",
+              "ref": "admin-default-settings"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "templates",
+            "placement": "bottom",
+            "title": "Templates",
+            "body": "Under Templates you build the dashboards that groups and new users get.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "roles",
+            "placement": "bottom",
+            "title": "Roles and permissions",
+            "body": "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "sharing",
+            "placement": "bottom",
+            "title": "Sharing",
+            "body": "Under Sharing you set who may share dashboards and with whom.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "operations",
+            "placement": "bottom",
+            "title": "Operations",
+            "body": "Under Operations you find the maintenance tasks, such as caches, imports and exports.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
           }
         ]
       }

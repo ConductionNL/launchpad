@@ -127,7 +127,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 			['get OCA\OpenRegister\Service\ConfigurationService', 'info LaunchPad register imported (launchpad register + dashboard schema)'],
 			$this->runStep($importer)
 		);
-		$this->assertSame(['launchpad {"a":1} 1.0.2 false'], $importer->calls);
+		$this->assertSame(['launchpad {"a":1} 1.0.3 false'], $importer->calls);
 
 		$this->assertSame(
 			['get OCA\OpenRegister\Service\ConfigurationService', 'log [ImportLaunchpadRegister] import failed: bad schema', 'warning LaunchPad register import skipped: bad schema'],
@@ -156,7 +156,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 
 		$this->assertContains('warning LaunchPad register fragment is not valid JSON, skipped: c-broken.json', $log);
 		$this->assertSame(
-			['launchpad {"components":{"schemas":{"Dashboard":{"slug":"dashboard","required":["name","owner"],"configuration":{"linkedTypes":["talk"]}}}}} 1.0.2 false'],
+			['launchpad {"components":{"schemas":{"Dashboard":{"slug":"dashboard","required":["name","owner"],"configuration":{"linkedTypes":["talk"]}}}}} 1.0.3 false'],
 			$importer->calls
 		);
 	}
@@ -181,5 +181,24 @@ class ImportLaunchpadRegisterTest extends TestCase {
 		$this->assertArrayNotHasKey('configuration', $base['components']['schemas']['Dashboard'], 'the base file stays a domain statement');
 		unset($data['components']['schemas']['Dashboard']['configuration']);
 		$this->assertSame($base['components']['schemas']['Dashboard'], $data['components']['schemas']['Dashboard']);
+	}
+
+	/**
+	 * The shipped fragments add the status report schema to the launchpad register.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 */
+	public function testTheShippedRegisterCarriesTheStatusReportSchema(): void {
+		$this->root = dirname(__DIR__, 3);
+		$importer   = $this->importer(false);
+		$this->runStep($importer);
+		$this->root = sys_get_temp_dir() . '/lp-register-' . getmypid();
+
+		$data = $importer->imported[0];
+		$this->assertContains('status_report', $data['components']['registers']['launchpad']['schemas']);
+		$this->assertContains('dashboard', $data['components']['registers']['launchpad']['schemas']);
+		$schema = $data['components']['schemas']['status_report'];
+		$this->assertSame(['on-track', 'at-risk', 'off-track'], $schema['properties']['health']['enum']);
+		$this->assertSame(['computed', 'written'], $schema['properties']['provenance']['properties']['summary']['enum']);
 	}
 }

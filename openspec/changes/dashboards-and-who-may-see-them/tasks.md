@@ -20,10 +20,10 @@
 
 ## 3. The status report
 
-- [ ] 3.1 Add the status report object: date, health rating, summary, figures, and per value whether it was computed or written.
-- [ ] 3.2 Prefill the rating and the figures from the body of work.
-- [ ] 3.3 Let a person edit the summary before keeping the report.
-- [ ] 3.4 PHPUnit on prefill and on the computed-versus-written record.
+- [x] 3.1 Add the status report object: date, health rating, summary, figures, and per value whether it was computed or written. — built: schema `status_report` in the launchpad register (`lib/Settings/register.d/dashboards-and-who-may-see-them.json`, register version 1.0.3) with `provenance` per value; kept through OpenRegister's published object service (`StatusReport\StatusReportStore`), 503 without OpenRegister.
+- [x] 3.2 Prefill the rating and the figures from the body of work. — built: `POST /api/status-reports/draft` reads the objects of one schema in one register as the caller (optional filters, status and due-date properties, closed values) and computes total, open, closed, overdue, share closed and days to the deadline, the rating (off track: deadline passed with items open or more than a quarter of the open items overdue; at risk: anything overdue, or within 14 days of the deadline with less than 75% closed) and a summary.
+- [ ] 3.3 Let a person edit the summary before keeping the report. — built: `POST /api/status-reports` keeps the report with the person's summary and rating, computing the figures again (a person cannot write them). Left: the screen over these two endpoints.
+- [x] 3.4 PHPUnit on prefill and on the computed-versus-written record. — built: `StatusReportServiceTest` (11), `StatusReportStoreTest` (4), `StatusReportControllerTest` (4), and the shipped register carrying the schema (`ImportLaunchpadRegisterTest`).
 
 ## 4. Activity reporting
 
@@ -119,15 +119,14 @@ Three routes, all `#[NoAdminRequired]`, all reading the caller's own user id
 from the session. No route takes a user id from the request, so one person's
 layer is unreachable through another's.
 
-**Sections 2 to 8 are not built.** The report library, the status report,
-activity reporting and its purpose gate, colleague activity, in-widget search,
-geographic reporting and storage reporting are untouched, and their boxes are
-still open above. Section 6 needs Vitest, and an earlier draft of this file
-said Vitest could not run here because `npm ci` refused over a
-`package.json` and `package-lock.json` that were out of sync. That is not
-true on this tip. The two files agree on every dependency, and
-`npm run test` runs the suite: 748 tests across 69 files. So the reason
-section 6 is open is the plain one. Nobody built it.
+**Sections 2 to 8 are built on the server.** The report library (section 2),
+the status report (3), activity reporting with its purpose gate (4), colleague
+activity (5), in-widget search (6), geographic reporting (7) and storage
+reporting (8) each have their endpoint, their rules and their PHPUnit; section 5
+also has its widget and section 6 its Vitest. What is left is screens: the
+report gallery (2.2), the status report form (3.3) and the activity report
+screen that shows the purpose (4.2). Each is a page over an endpoint that
+exists, and none was made by hand outside the manifest.
 
 **Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and
 openregister halves have not been handed over, because sections 2 to 8 are what

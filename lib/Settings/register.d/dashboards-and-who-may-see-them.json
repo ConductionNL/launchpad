@@ -1,0 +1,71 @@
+{
+  "components": {
+    "registers": {
+      "launchpad": {
+        "schemas": ["status_report"]
+      }
+    },
+    "schemas": {
+      "status_report": {
+        "slug": "status_report",
+        "icon": "ClipboardCheckOutline",
+        "version": "1.0.0",
+        "title": "Status report",
+        "description": "A dated status report on a body of work: the figures the product computed, the health rating and the summary, and per value whether it was computed or written by a person (dashboards-and-who-may-see-them REQ-DWMS-004).",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": ["date", "subject", "health", "summary", "figures", "provenance", "author"],
+        "properties": {
+          "date": {"type": "string", "format": "date", "title": "Date"},
+          "subject": {
+            "type": "object",
+            "title": "Body of work",
+            "description": "The register and schema of its items, its title and deadline, and how status and due date are read.",
+            "properties": {
+              "register": {"type": "string"},
+              "schema": {"type": "string"},
+              "title": {"type": "string"},
+              "deadline": {"type": ["string", "null"], "format": "date"},
+              "filters": {"type": "object"},
+              "statusProperty": {"type": "string"},
+              "closedValues": {"type": "array", "items": {"type": "string"}},
+              "dueProperty": {"type": "string"}
+            }
+          },
+          "health": {"type": "string", "enum": ["on-track", "at-risk", "off-track"], "title": "Health"},
+          "summary": {"type": "string", "maxLength": 5000, "title": "Summary"},
+          "figures": {
+            "type": "object",
+            "title": "Figures",
+            "properties": {
+              "total": {"type": "integer", "minimum": 0},
+              "open": {"type": "integer", "minimum": 0},
+              "closed": {"type": "integer", "minimum": 0},
+              "overdue": {"type": "integer", "minimum": 0},
+              "percentClosed": {"type": "integer", "minimum": 0, "maximum": 100},
+              "daysToDeadline": {"type": ["integer", "null"]}
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "title": "Computed or written",
+            "description": "Per value: computed by the product or written by a person.",
+            "properties": {
+              "date": {"type": "string", "enum": ["computed", "written"]},
+              "health": {"type": "string", "enum": ["computed", "written"]},
+              "summary": {"type": "string", "enum": ["computed", "written"]},
+              "figures": {"type": "object", "additionalProperties": {"type": "string", "enum": ["computed", "written"]}}
+            }
+          },
+          "author": {"type": "string", "title": "Kept by"},
+          "keptAt": {"type": "string", "format": "date-time", "title": "Kept at"}
+        }
+      }
+    }
+  }
+}

@@ -455,6 +455,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// administrators only, with a twelve-month series and the removable total.
 		['name' => 'storageReport#report', 'url' => '/api/admin/storage-report', 'verb' => 'GET'],
 		['name' => 'storageReport#export', 'url' => '/api/admin/storage-report/export', 'verb' => 'GET'],
+		// Status reports (dashboards-and-who-may-see-them REQ-DWMS-004): the product prefills,
+		// a person may rewrite the rating and the summary, the kept report records which is which.
+		['name' => 'statusReport#draft', 'url' => '/api/status-reports/draft', 'verb' => 'POST'],
+		['name' => 'statusReport#keep', 'url' => '/api/status-reports', 'verb' => 'POST'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 

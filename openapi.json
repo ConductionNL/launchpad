@@ -9244,6 +9244,183 @@
                     }
                 }
             }
+        },
+        "/status-reports/draft": {
+            "post": {
+                "operationId": "status-report-draft",
+                "x-launchpad-stability": "internal",
+                "summary": "POST a body of work for its prefilled status report",
+                "description": "POST a body of work (the objects of one schema in one register, optionally filtered) and get its status report prefilled, not kept: the figures (total, open, closed, overdue, share closed, days to the deadline), the health rating they give and a summary, each marked computed. The objects are read as the caller. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "status-report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "register",
+                                    "schema"
+                                ],
+                                "properties": {
+                                    "register": {
+                                        "type": "string",
+                                        "description": "The register slug of the body of work."
+                                    },
+                                    "schema": {
+                                        "type": "string",
+                                        "description": "The schema slug of its items."
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "deadline": {
+                                        "type": "string",
+                                        "description": "YYYY-MM-DD."
+                                    },
+                                    "filters": {
+                                        "type": "object"
+                                    },
+                                    "statusProperty": {
+                                        "type": "string",
+                                        "description": "Default status."
+                                    },
+                                    "closedValues": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "dueProperty": {
+                                        "type": "string",
+                                        "description": "Default deadline."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
+        },
+        "/status-reports": {
+            "post": {
+                "operationId": "status-report-keep",
+                "x-launchpad-stability": "internal",
+                "summary": "POST a status report to keep",
+                "description": "POST a body of work with the rating and summary a person chose, and keep the report in the launchpad register: the figures are computed again and always marked computed, the rating and the summary are marked written when they differ from the computed ones. Needs a signed-in Nextcloud user and OpenRegister (503 without it).",
+                "tags": [
+                    "status-report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "register",
+                                    "schema"
+                                ],
+                                "properties": {
+                                    "register": {
+                                        "type": "string",
+                                        "description": "The register slug of the body of work."
+                                    },
+                                    "schema": {
+                                        "type": "string",
+                                        "description": "The schema slug of its items."
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "deadline": {
+                                        "type": "string",
+                                        "description": "YYYY-MM-DD."
+                                    },
+                                    "filters": {
+                                        "type": "object"
+                                    },
+                                    "statusProperty": {
+                                        "type": "string",
+                                        "description": "Default status."
+                                    },
+                                    "closedValues": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "dueProperty": {
+                                        "type": "string",
+                                        "description": "Default deadline."
+                                    },
+                                    "health": {
+                                        "type": "string",
+                                        "enum": [
+                                            "on-track",
+                                            "at-risk",
+                                            "off-track"
+                                        ]
+                                    },
+                                    "summary": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
         }
     },
     "components": {

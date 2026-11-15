@@ -20,7 +20,7 @@
         "version": "1.0.1",
         "description": "LaunchPad dashboards stored as OpenRegister objects. They are the source of the v2 runtime manifest.",
         "published": true,
-        "schemas": ["dashboard"],
+        "schemas": ["dashboard", "scheduled_export", "render_target", "recipient", "scheduled_export_run"],
         "folder": "LaunchPad"
       }
     },
@@ -305,6 +305,492 @@
             "isDefault": false
           }
         ]
+      },
+      "scheduled_export": {
+        "slug": "scheduled_export",
+        "icon": "CalendarClock",
+        "version": "1.0.0",
+        "title": "Scheduled export",
+        "description": "A dashboard or widget rendered on a schedule and delivered to recipients.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "subjectType",
+          "subjectId",
+          "recurrence",
+          "renderTargets",
+          "recipients"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Markdown, shown in the email body and on the PDF cover page."
+          },
+          "subjectType": {
+            "type": "string",
+            "enum": [
+              "dashboard",
+              "widget"
+            ],
+            "title": "Subject type"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subject"
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "title": "Enabled"
+          },
+          "recurrence": {
+            "type": "object",
+            "title": "Recurrence",
+            "description": "Discriminated on type: weekly (daysOfWeek as MO..SU, timeOfDay HH:MM), monthly (dayOfMonth 1-31, clamped to the month's last day, or lastDay true; timeOfDay), daily (timeOfDay) or cron (expression, five fields).",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "weekly",
+                  "monthly",
+                  "daily",
+                  "cron"
+                ]
+              },
+              "daysOfWeek": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "MO",
+                    "TU",
+                    "WE",
+                    "TH",
+                    "FR",
+                    "SA",
+                    "SU"
+                  ]
+                }
+              },
+              "dayOfMonth": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 31
+              },
+              "lastDay": {
+                "type": "boolean"
+              },
+              "timeOfDay": {
+                "type": "string",
+                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+              },
+              "expression": {
+                "type": "string"
+              }
+            }
+          },
+          "renderTargets": {
+            "type": "array",
+            "minItems": 1,
+            "title": "Render targets",
+            "items": {
+              "type": "object",
+              "properties": {
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "pdf",
+                    "png",
+                    "csv",
+                    "xlsx"
+                  ],
+                  "title": "Format"
+                },
+                "formatOptions": {
+                  "type": "object",
+                  "title": "Format options",
+                  "description": "PDF: pageSize, orientation, header, footer. PNG: width, height, dpi. CSV: delimiter, quoteChar. XLSX: sheetPerWidget."
+                },
+                "filenamePattern": {
+                  "type": "string",
+                  "title": "File name pattern",
+                  "description": "Template with {name}, {date}, {recipient} and {ext}.",
+                  "default": "{name}-{date}.{ext}"
+                }
+              },
+              "required": [
+                "format"
+              ]
+            }
+          },
+          "recipients": {
+            "type": "array",
+            "minItems": 1,
+            "title": "Recipients",
+            "items": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "title": "Enabled"
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "email",
+                    "nextcloudFiles",
+                    "webhook",
+                    "sftp"
+                  ],
+                  "title": "Channel"
+                },
+                "filterContext": {
+                  "type": "object",
+                  "title": "Filter context",
+                  "description": "Filters pinned for this recipient, in the shape of the cross-widget filter bus, for example {gemeenteCode: GM0355}."
+                },
+                "channelConfig": {
+                  "type": "object",
+                  "title": "Channel configuration",
+                  "description": "Channel-specific settings (addresses, folder, URL, host). Credentials and signing secrets are held by reference to the credential vault, never inline."
+                },
+                "retryPolicy": {
+                  "type": "object",
+                  "title": "Retry policy",
+                  "description": "Overrides the default retry policy {maxAttempts: 5, initialBackoffSeconds: 60, maxBackoffSeconds: 3600, jitter: true}.",
+                  "properties": {
+                    "maxAttempts": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 20
+                    },
+                    "initialBackoffSeconds": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "maxBackoffSeconds": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "jitter": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "channel"
+              ]
+            }
+          },
+          "retention": {
+            "type": "object",
+            "title": "Retention",
+            "properties": {
+              "keepArtefactsForDays": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 30,
+                "description": "Null keeps rendered files forever."
+              },
+              "keepAuditForDays": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 365,
+                "description": "Null keeps run records forever."
+              }
+            }
+          },
+          "runTimezone": {
+            "type": "string",
+            "title": "Time zone",
+            "description": "IANA time zone the recurrence is evaluated in, for example Europe/Amsterdam."
+          },
+          "nextRunAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Next run",
+            "readOnly": true
+          },
+          "lastRunAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last run",
+            "readOnly": true
+          },
+          "lastRunStatus": {
+            "type": "string",
+            "enum": [
+              "success",
+              "partial",
+              "failed",
+              "running"
+            ],
+            "title": "Last run status",
+            "readOnly": true
+          }
+        }
+      },
+      "render_target": {
+        "slug": "render_target",
+        "icon": "FileExportOutline",
+        "version": "1.0.0",
+        "title": "Render target",
+        "description": "One output format of a scheduled export, with its format options and file name pattern.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "format"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "pdf",
+              "png",
+              "csv",
+              "xlsx"
+            ],
+            "title": "Format"
+          },
+          "formatOptions": {
+            "type": "object",
+            "title": "Format options",
+            "description": "PDF: pageSize, orientation, header, footer. PNG: width, height, dpi. CSV: delimiter, quoteChar. XLSX: sheetPerWidget."
+          },
+          "filenamePattern": {
+            "type": "string",
+            "title": "File name pattern",
+            "description": "Template with {name}, {date}, {recipient} and {ext}.",
+            "default": "{name}-{date}.{ext}"
+          }
+        }
+      },
+      "recipient": {
+        "slug": "recipient",
+        "icon": "SendOutline",
+        "version": "1.0.0",
+        "title": "Recipient",
+        "description": "Where a scheduled export is delivered: one channel with its configuration, an optional filter context and an optional retry policy.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "channel"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "title": "Enabled"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "email",
+              "nextcloudFiles",
+              "webhook",
+              "sftp"
+            ],
+            "title": "Channel"
+          },
+          "filterContext": {
+            "type": "object",
+            "title": "Filter context",
+            "description": "Filters pinned for this recipient, in the shape of the cross-widget filter bus, for example {gemeenteCode: GM0355}."
+          },
+          "channelConfig": {
+            "type": "object",
+            "title": "Channel configuration",
+            "description": "Channel-specific settings (addresses, folder, URL, host). Credentials and signing secrets are held by reference to the credential vault, never inline."
+          },
+          "retryPolicy": {
+            "type": "object",
+            "title": "Retry policy",
+            "description": "Overrides the default retry policy {maxAttempts: 5, initialBackoffSeconds: 60, maxBackoffSeconds: 3600, jitter: true}.",
+            "properties": {
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "initialBackoffSeconds": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "maxBackoffSeconds": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "jitter": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "scheduled_export_run": {
+        "slug": "scheduled_export_run",
+        "icon": "History",
+        "version": "1.0.0",
+        "title": "Scheduled export run",
+        "description": "The audit record of one fire of a scheduled export: what was rendered, with its hash, and how each delivery went.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "exportId",
+          "startedAt",
+          "status",
+          "triggeredBy"
+        ],
+        "properties": {
+          "exportId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Export"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "success",
+              "partial",
+              "failed"
+            ]
+          },
+          "triggeredBy": {
+            "type": "string",
+            "enum": [
+              "schedule",
+              "manual"
+            ]
+          },
+          "triggeredByUser": {
+            "type": "string"
+          },
+          "renderArtefacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "pdf",
+                    "png",
+                    "csv",
+                    "xlsx"
+                  ]
+                },
+                "sizeBytes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "storagePath": {
+                  "type": "string"
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "deliveries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "recipientId": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "email",
+                    "nextcloudFiles",
+                    "webhook",
+                    "sftp"
+                  ]
+                },
+                "attemptCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "retrying",
+                    "success",
+                    "failed-permanent"
+                  ]
+                },
+                "nextAttemptAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "deliveredAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "providerMessageId": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       }
     }
   }

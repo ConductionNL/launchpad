@@ -117,7 +117,6 @@ The system maintains a registry of installed showcases by querying existing dash
 
 ## Requirements
 
-
 ### Requirement: REQ-DEMO-001 Bundled showcase ZIP archives
 
 The system MUST ship a showcase ZIP archive per bundled id under
@@ -133,9 +132,7 @@ tree. Each `manifest.json` MUST contain:
 - `showcaseDescription`: one sentence saying what the dashboard shows
 - `showcaseLanguage`: locale code of the dashboard's own copy
 
-Each `dashboards/{uuid}.json` MUST declare `type: "group_shared"`, a null `userId`,
-`permissionLevel: "view_only"` and a `showcase-{id}` slug, so an installed showcase
-is a read-only group dashboard rather than someone's personal one.
+Each `dashboards/{uuid}.json` MUST declare `type: "group_shared"`, a null `userId` and a `showcase-{id}` slug, so an installed showcase is a group dashboard rather than someone's personal one. Its `permissionLevel` MUST be `view_only`, except for a showcase that shows a shared intranet colleagues add to, which MAY be `add_only`.
 
 **This paragraph previously described an `export.json` plus a `nl/` locale tree, and
 neither has ever been in any bundled ZIP.** The archives have always been
@@ -153,6 +150,8 @@ screenshots stay reusable:
 - `gemeente-duin`, a municipality
 - `horizon-labs`, a tech startup
 - `van-der-berg`, a law firm
+- `zuiddrecht-intranet`, the intranet of the demo municipality Zuiddrecht, which every colleague may add widgets to (`add_only`)
+- `zuiddrecht-management`, the management information of Zuiddrecht (`view_only`)
 
 **Role showcases** answer a different question: what one person's working day looks
 like on one page.
@@ -201,6 +200,16 @@ remain a v2 goal.
 - **AND** installation attempts MUST return HTTP 500
 
 @e2e exclude The bundled archives are all valid, so a browser run cannot arrange a broken one; a missing archive is pinned by DemoShowcasesServiceTest::testDescribeShowcaseReturnsNullWhenZipMissing, a malformed one by no test yet.
+
+#### Scenario: The Zuiddrecht intranet lets colleagues add widgets
+- **GIVEN** an administrator installed the `zuiddrecht-intranet` showcase
+- **WHEN** a colleague opens "Intranet Zuiddrecht"
+- **THEN** the dashboard is a group dashboard the colleague may add widgets to, and not edit or delete
+
+#### Scenario: The management information is read only
+- **GIVEN** an administrator installed the `zuiddrecht-management` showcase
+- **WHEN** a colleague opens "Managementinformatie"
+- **THEN** the dashboard shows the counts from the registers and offers no editing
 
 ### Requirement: REQ-DEMO-002 List available showcases endpoint
 

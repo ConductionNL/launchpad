@@ -33,6 +33,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<DashboardLock>
  */
 class DashboardLockMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -61,15 +63,7 @@ class DashboardLockMapper extends QBMapper {
 	 * @throws DoesNotExistException When no lock row exists.
 	 */
 	public function findByDashboardUuid(string $dashboardUuid): DashboardLock {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByDashboardUuid()
@@ -91,16 +85,8 @@ class DashboardLockMapper extends QBMapper {
 	public function findActive(string $dashboardUuid): ?DashboardLock {
 		$threshold = $this->expiryThreshold();
 
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere(
 				$qb->expr()->gte(
 					x: 'updated_at',
 					y: $qb->createNamedParameter(value: $threshold)
@@ -125,16 +111,8 @@ class DashboardLockMapper extends QBMapper {
 	 * @return DashboardLock[] The locks (newest heartbeat first).
 	 */
 	public function findByUserId(string $userId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->orderBy(sort: 'updated_at', order: 'DESC');
+		$qb = $this->selectWhere(match: ['user_id' => $userId]);
+		$qb->orderBy(sort: 'updated_at', order: 'DESC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByUserId()
@@ -154,15 +132,8 @@ class DashboardLockMapper extends QBMapper {
 	public function deleteExpiredForDashboard(string $dashboardUuid): int {
 		$threshold = $this->expiryThreshold();
 
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere(
 				$qb->expr()->lt(
 					x: 'updated_at',
 					y: $qb->createNamedParameter(value: $threshold)
@@ -206,14 +177,7 @@ class DashboardLockMapper extends QBMapper {
 	 * @return int The number of rows deleted (0 or 1).
 	 */
 	public function deleteByDashboardUuid(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboardUuid()

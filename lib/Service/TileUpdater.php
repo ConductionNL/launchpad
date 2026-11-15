@@ -39,6 +39,16 @@ class TileUpdater {
 	];
 
 	/**
+	 * Constructor.
+	 *
+	 * @param TileLinkValidator|null $links Checks the program, remote-desktop and sso link types; without it those types are refused.
+	 */
+	public function __construct(
+		private readonly ?TileLinkValidator $links = null,
+	) {
+	}//end __construct()
+
+	/**
 	 * Apply tile configuration to a new placement entity.
 	 *
 	 * @param WidgetPlacement $placement The placement entity.
@@ -74,6 +84,11 @@ class TileUpdater {
 		$placement->setTileLinkValue(
 			$tileData['linkVal'] ?? ''
 		);
+		if (is_array($tileData['content'] ?? null) === true) {
+			$placement->setContentArray($tileData['content']);
+		}
+
+		$this->checkLaunchLink(placement: $placement);
 	}//end applyTileConfig()
 
 	/**
@@ -102,6 +117,8 @@ class TileUpdater {
 				$placement->$setter($data[$key]);
 			}
 		}
+
+		$this->checkLaunchLink(placement: $placement);
 	}//end applyTileUpdates()
 
 	/**
@@ -149,4 +166,49 @@ class TileUpdater {
 
 		return in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === true && $host !== '';
 	}//end isSafeInternalUrl()
+
+	/**
+		if (isset($data['tileLinkValue']) === true) {
+			$placement->setTileLinkValue(
+				$data['tileLinkValue']
+			);
+		}
+
+		$this->checkLaunchLink(placement: $placement);
+	}//end applyTileUpdates()
+
+	/**
+	 * Check a program, remote-desktop or sso tile as it will be saved, and
+	 * store the link value the check returns. Other link types are left as
+	 * they are.
+	 *
+	 * The check reads the placement's final link type, link value and
+	 * content, so a save that changes only one of them is checked too.
+	 *
+	 * @param WidgetPlacement $placement The placement, with this save's changes applied.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the tile may not be saved like this (HTTP 400).
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 */
+	private function checkLaunchLink(WidgetPlacement $placement): void {
+		$type = $placement->getTileLinkType();
+		if (TileLinkValidator::isLaunchType(type: $type) === false) {
+			return;
+		}
+
+		if ($this->links === null) {
+			throw new InvalidArgumentException(message: 'The link type "' . $type . '" cannot be checked here.');
+		}
+
+		$placement->setTileLinkValue(
+			$this->links->check(
+				type: (string)$type,
+				value: (string)($placement->getTileLinkValue() ?? ''),
+				content: $placement->getContentArray()
+			)
+		);
+	}//end checkLaunchLink()
 }//end class

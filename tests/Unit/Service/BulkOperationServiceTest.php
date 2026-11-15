@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\BulkOperationAccess;
+use OCA\LaunchPad\Service\BulkDashboardStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
@@ -29,6 +31,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Service\BulkStatusRequest;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Service\PermissionService;
@@ -102,14 +105,18 @@ class BulkOperationServiceTest extends TestCase {
 			->willReturn(Dashboard::PERMISSION_FULL);
 
 		$this->service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $this->permissionService,
+				groupManager: $this->groupManager,
+				appConfig: $this->appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $this->groupManager,
-			appConfig: $this->appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 	}//end setUp()
 
@@ -244,14 +251,18 @@ class BulkOperationServiceTest extends TestCase {
 		$perm->method('resolveAccessLevel')->willReturn(null);
 
 		$service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $perm,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $perm,
+				groupManager: $this->groupManager,
+				appConfig: $this->appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $this->groupManager,
-			appConfig: $this->appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 
 		$this->dashboardMapper->expects(self::never())->method('delete');
@@ -275,14 +286,18 @@ class BulkOperationServiceTest extends TestCase {
 		$groupManager->method('isAdmin')->willReturn(false);
 
 		$service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $this->permissionService,
+				groupManager: $groupManager,
+				appConfig: $this->appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $groupManager,
-			appConfig: $this->appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 
 		$this->expectException(PermissionDeniedException::class);
@@ -416,6 +431,65 @@ class BulkOperationServiceTest extends TestCase {
 		);
 	}//end testBulkMoveRejectsMissingParent()
 
+	/**
+	 * Each operation writes one audit row named after it, with the batch
+	 * size, the dry-run flag and, for status, the target status.
+	 */
+	public function testEveryOperationWritesItsAuditRow(): void {
+		$rows = [];
+		$this->activityPublisher->method('publish')->willReturnCallback(
+			static function (\OCA\LaunchPad\Activity\ActivityRow $row, string $recipientUserId) use (&$rows): bool {
+				$params = $row->extraParams;
+				self::assertIsInt($params['durationMs']);
+				unset($params['durationMs']);
+				$rows[] = [$row->dashboard->uuid, $row->dashboard->name, $row->actorUserId, $recipientUserId, $params];
+				return true;
+			}
+		);
+		$this->dashboardMapper->method('findByUuid')->willReturn($this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT));
+
+		$this->service->bulkDelete(dashboardUuids: ['d1', 'd2'], userId: 'admin', dryRun: true);
+		$this->service->bulkMove(dashboardUuids: ['d1'], parentUuid: null, userId: 'admin', dryRun: true);
+		$this->service->bulkStatus(dashboardUuids: ['d1'], request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, dryRun: true), userId: 'admin');
+		$this->service->bulkReindex(dashboardUuids: ['d1', 'd2', 'd3'], userId: 'admin', dryRun: true);
+
+		$params = static fn (string $op, int $count, array $extra=[]): array => ['bulkOperation' => $op, 'dashboardCount' => $count, 'dryRun' => true] + $extra;
+		self::assertSame(
+			[
+				['bulk-delete', 'Bulk delete (2 dashboards)', 'admin', 'admin', $params('delete', 2)],
+				['bulk-move', 'Bulk move (1 dashboards)', 'admin', 'admin', $params('move', 1)],
+				['bulk-status', 'Bulk status (1 dashboards)', 'admin', 'admin', $params('status', 1, ['publicationStatus' => Dashboard::STATUS_PUBLISHED])],
+				['bulk-reindex', 'Bulk reindex (3 dashboards)', 'admin', 'admin', $params('reindex', 3)],
+			],
+			$rows
+		);
+	}//end testEveryOperationWritesItsAuditRow()
+
+	/**
+	 * A failing audit write is logged with the operation and does not stop
+	 * the bulk operation; the row carried the duration in milliseconds.
+	 */
+	public function testAFailedAuditRowIsLoggedAndTheOperationCompletes(): void {
+		$this->dashboardMapper->method('findByUuid')->willReturn($this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT));
+		$failure = new \RuntimeException('activity down');
+		$seen = [];
+		$this->activityPublisher->method('publish')->willReturnCallback(
+			static function (\OCA\LaunchPad\Activity\ActivityRow $row) use (&$seen, $failure): bool {
+				$seen[] = [$row->type, $row->extraParams['durationMs'] >= 0, $row->extraParams['durationMs'] < 60000];
+				throw $failure;
+			}
+		);
+		$this->logger->expects(self::once())->method('warning')->with(
+			'BulkOperationService audit event failed',
+			['operation' => 'reindex', 'exception' => $failure]
+		);
+
+		$result = $this->service->bulkReindex(dashboardUuids: ['d1'], userId: 'admin', dryRun: true);
+
+		self::assertSame([[\OCA\LaunchPad\Activity\Extension::EVENT_UPDATED, true, true]], $seen);
+		self::assertIsArray($result);
+	}//end testAFailedAuditRowIsLoggedAndTheOperationCompletes()
+
 	public function testBulkStatusValidPublishesDrafts(): void {
 		$dash = $this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT);
 		$this->dashboardMapper->method('findByUuid')->willReturn($dash);
@@ -424,8 +498,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$result = $this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_PUBLISHED,
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 
@@ -441,8 +514,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$result = $this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_PUBLISHED,
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 
@@ -457,8 +529,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: 'bogus',
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: 'bogus', publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 	}//end testBulkStatusInvalidStatusRejected()
@@ -469,8 +540,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_SCHEDULED,
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_SCHEDULED, publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 	}//end testBulkStatusScheduledRequiresPublishAt()
@@ -480,8 +550,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_SCHEDULED,
-			publishAt: '2000-01-01T00:00:00Z',
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_SCHEDULED, publishAt: '2000-01-01T00:00:00Z', dryRun: false),
 			userId: 'admin'
 		);
 	}//end testBulkStatusScheduledRejectsPastPublishAt()
@@ -529,14 +598,18 @@ class BulkOperationServiceTest extends TestCase {
 		$appConfig->method('getValueInt')->willReturn(0);
 
 		$service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $this->permissionService,
+				groupManager: $this->groupManager,
+				appConfig: $appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $this->groupManager,
-			appConfig: $appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 
 		self::assertSame(BulkOperationService::DEFAULT_MAX_PER_REQUEST, $service->getEffectiveCap());

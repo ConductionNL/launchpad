@@ -148,6 +148,8 @@
 </template>
 
 <script>
+import { objectProp } from '../../../constants/propDefinitions.js'
+
 const CACHE_TTL_MS = 60 * 1000
 const PAGE_SIZE = 50
 const MIN_SERVER_QUERY = 2
@@ -193,10 +195,7 @@ export default {
 		/**
 		 * Persisted widget content (see `DEFAULT_CONTENT` for shape).
 		 */
-		content: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		content: objectProp(DEFAULT_CONTENT),
 	},
 
 	data() {
@@ -251,15 +250,13 @@ export default {
 
 		/** @spec openspec/specs/people-widget/spec.md */
 		avatarSize() {
-			switch (this.layout) {
-				case 'card':
-					return 80
-				case 'list':
-					return 44
-				case 'grid':
-				default:
-					return 64
+			if (this.layout === 'card') {
+				return 80
 			}
+			if (this.layout === 'list') {
+				return 44
+			}
+			return 64
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */

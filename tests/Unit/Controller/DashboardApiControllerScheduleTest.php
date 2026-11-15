@@ -18,6 +18,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -45,15 +48,21 @@ class DashboardApiControllerScheduleTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
-			dashboardService: $this->dashboardService,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService
+			),
 			permissionService: $this->createMock(PermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $session,
-			actionAuth: $this->createMock(ActionAuthService::class),
-			userId: 'sanne',
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			),
+			userId: 'sanne'
 		);
 	}
 

@@ -106,4 +106,50 @@ class SetupCommandTest extends TestCase {
 		$this->assertSame(0, $tester->getStatusCode());
 		$this->assertStringContainsString('Step 2: Group order... skipped (not in config)', $tester->getDisplay());
 	}
+
+	public function testTheFullOutputWithPendingStepsInTheConfig(): void {
+		$this->settings->method('getGroupOrder')->willReturn([]);
+		$this->wizard->expects($this->once())->method('markWizardComplete');
+
+		$tester = $this->runSetup("group_priority_order: [\"a\"]\ndemo_packages: [x]\nfooter_config: {}\n");
+
+		$this->assertSame(0, $tester->getStatusCode());
+		$this->assertSame(
+			"Step 1: Welcome... done\n"
+			. "Step 2: Group order... done\n"
+			. "Step 3: Demo data... skipped (capability pending)\n"
+			. "Step 4: Admin roles... skipped (not in config)\n"
+			. "Step 5: Footer config... skipped (capability pending)\n"
+			. "Step 6: Done... done\n"
+			. "Setup wizard completed successfully.\n",
+			$tester->getDisplay()
+		);
+	}
+
+	public function testRefusedConfigs(): void {
+		$this->wizard->expects($this->never())->method('markWizardComplete');
+		$this->settings->method('setGroupOrder')->willThrowException(new \RuntimeException('db down'));
+
+		$tester = new CommandTester(new SetupCommand($this->wizard, $this->settings));
+		$this->assertSame(1, $tester->execute([]));
+		$this->assertSame("--config parameter is required\n", $tester->getDisplay());
+
+		$this->assertSame(1, $tester->execute(['--config' => '/no/such/setup.yaml']));
+		$this->assertSame("File not found: /no/such/setup.yaml\n", $tester->getDisplay());
+
+		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("a: [\n")]));
+		$this->assertStringStartsWith('Invalid setup.yaml: ', $tester->getDisplay());
+
+		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("just a string\n")]));
+		$this->assertSame("Invalid setup.yaml: top-level structure must be a map.\n", $tester->getDisplay());
+
+		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("group_priority_order: nope\n")]));
+		$this->assertSame(
+			"Step 1: Welcome... done\nInvalid setup.yaml: 'group_priority_order' must be a list of strings\n",
+			$tester->getDisplay()
+		);
+
+		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("group_priority_order: [b]\n")]));
+		$this->assertSame("Step 1: Welcome... done\nSetup failed: db down\n", $tester->getDisplay());
+	}
 }

@@ -28,6 +28,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\WidgetApiPolicy;
+use OCA\LaunchPad\Controller\WidgetApiSources;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\WidgetApiController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\CalendarWidgetService;
@@ -121,16 +124,22 @@ class WidgetApiControllerRoleTest extends TestCase {
 
 		return new WidgetApiController(
 			request: $this->request,
-			widgetService: $this->widgetService,
+			sources: new WidgetApiSources(
+				widgetService: $this->widgetService,
+				newsWidgetService: $this->createMock(originalClassName: NewsWidgetService::class),
+				calendarService: $this->createMock(originalClassName: CalendarWidgetService::class),
+				placementService: $this->createMock(originalClassName: WidgetPlacementService::class)
+			),
 			permissionService: $this->createMock(originalClassName: PermissionService::class),
-			newsWidgetService: $this->createMock(originalClassName: NewsWidgetService::class),
-			calendarService: $this->createMock(originalClassName: CalendarWidgetService::class),
-			placementService: $this->createMock(originalClassName: WidgetPlacementService::class),
-			roleFeaturePerm: $this->roleFeaturePerm,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			logger: $this->logger,
-			userId: 'jan',
+			policy: new WidgetApiPolicy(
+				roleFeaturePerm: $this->roleFeaturePerm,
+				logger: $this->logger
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			),
+			userId: 'jan'
 		);
 	}//end makeController()
 

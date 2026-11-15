@@ -157,6 +157,7 @@
 <script>
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 const VIEW_MODES = ['month', 'week', 'agenda']
 
@@ -179,10 +180,7 @@ export default {
 		 * Persisted placement content. Must contain at least one of
 		 * `internalCalendars` or `externalIcsUrls` for events to load.
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * Placement id used for the events endpoint (when present). When

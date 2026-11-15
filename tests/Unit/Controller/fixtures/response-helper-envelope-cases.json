@@ -1,0 +1,232 @@
+[
+ [
+  "badRequest",
+  "invalid_image|dynamic: $e->getMessage()",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "badRequest",
+  "invalid_payload|Field \"base64\" is required",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "badRequest",
+  "invalid_period|dynamic: $e->getMessage()",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "badRequest",
+  "missing_uuid|UUID is required",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "errorCode",
+  "file_too_large",
+  "STATUS_REQUEST_ENTITY_TOO_LARGE"
+ ],
+ [
+  "errorCode",
+  "language_not_available",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "errorCode",
+  "not_found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "errorCode",
+  "unknown_error",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "Both from and to are required ISO 8601 timestamps",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "Dashboard not found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "Dashboard not found",
+  "STATUS_OK"
+ ],
+ [
+  "failure",
+  "Field not found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "Invalid dashboard UUID format",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "Invalid date format",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "No file uploaded under field \"file\".",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "Operation failed",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "Placement not found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "Preview failed",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "Showcase installation failed",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "Showcase not found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "Showcase uninstall failed",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "Template installation failed",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "Template not found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "Template not installed",
+  "STATUS_CONFLICT"
+ ],
+ [
+  "failure",
+  "Template update failed",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "Unknown announcement",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "Unsupported language",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "Version not found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "`to` must be greater than or equal to `from`",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "announcementKey is required",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "dashboardUuid parameter is required when scope=dashboard",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "dashboardUuids must be an array of strings",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "dashboard_not_found",
+  "STATUS_NOT_FOUND"
+ ],
+ [
+  "failure",
+  "dynamic: $e->getMessage()",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "dynamic: 'Confluence dry-run failed: ' . $e->getMessage()",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "dynamic: 'Confluence import failed: ' . $e->getMessage()",
+  "STATUS_INTERNAL_SERVER_ERROR"
+ ],
+ [
+  "failure",
+  "dynamic: 'Could not encode the action matrix: ' . $e->getMessage()",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "dynamic: 'Unsupported scope: ' . $scope",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "feedUrl must use http:// or https:// scheme.",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "groups must be an array",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "limit out of range (1..50)",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "publicationStatus is required",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "failure",
+  "tree must be an array of node objects",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "invalidArgument",
+  "",
+  "STATUS_BAD_REQUEST"
+ ],
+ [
+  "invalidArgument",
+  "dynamic: $e->getMessage()",
+  "STATUS_BAD_REQUEST"
+ ]
+]

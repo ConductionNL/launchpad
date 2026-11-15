@@ -32,6 +32,7 @@ use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Service\BookmarkImportService;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\PlacementUpdater;
+use OCA\LaunchPad\Service\PlacementUpdaters;
 use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Service\TileUpdater;
 use OCP\IDBConnection;
@@ -85,8 +86,10 @@ class BookmarkImportServiceTest extends TestCase {
 		);
 		$placements = new PlacementService(
 			placementMapper: $mapper,
-			tileUpdater: new TileUpdater(),
-			placementUpdater: $this->createMock(PlacementUpdater::class),
+			updaters: new PlacementUpdaters(
+				tileUpdater: new TileUpdater(),
+				placementUpdater: $this->createMock(PlacementUpdater::class)
+			),
 			quotaService: $quota,
 		);
 

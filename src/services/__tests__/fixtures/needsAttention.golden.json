@@ -1,0 +1,3074 @@
+{
+	"gt | zero | zero": {
+		"result": false
+	},
+	"gt | zero | one": {
+		"result": false
+	},
+	"gt | zero | five": {
+		"result": false
+	},
+	"gt | zero | negative": {
+		"result": true
+	},
+	"gt | zero | string one": {
+		"result": false
+	},
+	"gt | zero | NaN": {
+		"result": false
+	},
+	"gt | zero | undefined": {
+		"result": false
+	},
+	"gt | zero | null": {
+		"result": false
+	},
+	"gt | one | zero": {
+		"result": true
+	},
+	"gt | one | one": {
+		"result": false
+	},
+	"gt | one | five": {
+		"result": false
+	},
+	"gt | one | negative": {
+		"result": true
+	},
+	"gt | one | string one": {
+		"result": false
+	},
+	"gt | one | NaN": {
+		"result": false
+	},
+	"gt | one | undefined": {
+		"result": false
+	},
+	"gt | one | null": {
+		"result": true
+	},
+	"gt | five | zero": {
+		"result": true
+	},
+	"gt | five | one": {
+		"result": true
+	},
+	"gt | five | five": {
+		"result": false
+	},
+	"gt | five | negative": {
+		"result": true
+	},
+	"gt | five | string one": {
+		"result": true
+	},
+	"gt | five | NaN": {
+		"result": false
+	},
+	"gt | five | undefined": {
+		"result": false
+	},
+	"gt | five | null": {
+		"result": true
+	},
+	"gt | negative | zero": {
+		"result": false
+	},
+	"gt | negative | one": {
+		"result": false
+	},
+	"gt | negative | five": {
+		"result": false
+	},
+	"gt | negative | negative": {
+		"result": false
+	},
+	"gt | negative | string one": {
+		"result": false
+	},
+	"gt | negative | NaN": {
+		"result": false
+	},
+	"gt | negative | undefined": {
+		"result": false
+	},
+	"gt | negative | null": {
+		"result": false
+	},
+	"gt | string one | zero": {
+		"result": true
+	},
+	"gt | string one | one": {
+		"result": false
+	},
+	"gt | string one | five": {
+		"result": false
+	},
+	"gt | string one | negative": {
+		"result": true
+	},
+	"gt | string one | string one": {
+		"result": false
+	},
+	"gt | string one | NaN": {
+		"result": false
+	},
+	"gt | string one | undefined": {
+		"result": false
+	},
+	"gt | string one | null": {
+		"result": true
+	},
+	"gt | NaN | zero": {
+		"result": false
+	},
+	"gt | NaN | one": {
+		"result": false
+	},
+	"gt | NaN | five": {
+		"result": false
+	},
+	"gt | NaN | negative": {
+		"result": false
+	},
+	"gt | NaN | string one": {
+		"result": false
+	},
+	"gt | NaN | NaN": {
+		"result": false
+	},
+	"gt | NaN | undefined": {
+		"result": false
+	},
+	"gt | NaN | null": {
+		"result": false
+	},
+	"gt | undefined | zero": {
+		"result": false
+	},
+	"gt | undefined | one": {
+		"result": false
+	},
+	"gt | undefined | five": {
+		"result": false
+	},
+	"gt | undefined | negative": {
+		"result": false
+	},
+	"gt | undefined | string one": {
+		"result": false
+	},
+	"gt | undefined | NaN": {
+		"result": false
+	},
+	"gt | undefined | undefined": {
+		"result": false
+	},
+	"gt | undefined | null": {
+		"result": false
+	},
+	"gt | null | zero": {
+		"result": false
+	},
+	"gt | null | one": {
+		"result": false
+	},
+	"gt | null | five": {
+		"result": false
+	},
+	"gt | null | negative": {
+		"result": true
+	},
+	"gt | null | string one": {
+		"result": false
+	},
+	"gt | null | NaN": {
+		"result": false
+	},
+	"gt | null | undefined": {
+		"result": false
+	},
+	"gt | null | null": {
+		"result": false
+	},
+	"gte | zero | zero": {
+		"result": true
+	},
+	"gte | zero | one": {
+		"result": false
+	},
+	"gte | zero | five": {
+		"result": false
+	},
+	"gte | zero | negative": {
+		"result": true
+	},
+	"gte | zero | string one": {
+		"result": false
+	},
+	"gte | zero | NaN": {
+		"result": false
+	},
+	"gte | zero | undefined": {
+		"result": false
+	},
+	"gte | zero | null": {
+		"result": true
+	},
+	"gte | one | zero": {
+		"result": true
+	},
+	"gte | one | one": {
+		"result": true
+	},
+	"gte | one | five": {
+		"result": false
+	},
+	"gte | one | negative": {
+		"result": true
+	},
+	"gte | one | string one": {
+		"result": true
+	},
+	"gte | one | NaN": {
+		"result": false
+	},
+	"gte | one | undefined": {
+		"result": false
+	},
+	"gte | one | null": {
+		"result": true
+	},
+	"gte | five | zero": {
+		"result": true
+	},
+	"gte | five | one": {
+		"result": true
+	},
+	"gte | five | five": {
+		"result": true
+	},
+	"gte | five | negative": {
+		"result": true
+	},
+	"gte | five | string one": {
+		"result": true
+	},
+	"gte | five | NaN": {
+		"result": false
+	},
+	"gte | five | undefined": {
+		"result": false
+	},
+	"gte | five | null": {
+		"result": true
+	},
+	"gte | negative | zero": {
+		"result": false
+	},
+	"gte | negative | one": {
+		"result": false
+	},
+	"gte | negative | five": {
+		"result": false
+	},
+	"gte | negative | negative": {
+		"result": true
+	},
+	"gte | negative | string one": {
+		"result": false
+	},
+	"gte | negative | NaN": {
+		"result": false
+	},
+	"gte | negative | undefined": {
+		"result": false
+	},
+	"gte | negative | null": {
+		"result": false
+	},
+	"gte | string one | zero": {
+		"result": true
+	},
+	"gte | string one | one": {
+		"result": true
+	},
+	"gte | string one | five": {
+		"result": false
+	},
+	"gte | string one | negative": {
+		"result": true
+	},
+	"gte | string one | string one": {
+		"result": true
+	},
+	"gte | string one | NaN": {
+		"result": false
+	},
+	"gte | string one | undefined": {
+		"result": false
+	},
+	"gte | string one | null": {
+		"result": true
+	},
+	"gte | NaN | zero": {
+		"result": false
+	},
+	"gte | NaN | one": {
+		"result": false
+	},
+	"gte | NaN | five": {
+		"result": false
+	},
+	"gte | NaN | negative": {
+		"result": false
+	},
+	"gte | NaN | string one": {
+		"result": false
+	},
+	"gte | NaN | NaN": {
+		"result": false
+	},
+	"gte | NaN | undefined": {
+		"result": false
+	},
+	"gte | NaN | null": {
+		"result": false
+	},
+	"gte | undefined | zero": {
+		"result": false
+	},
+	"gte | undefined | one": {
+		"result": false
+	},
+	"gte | undefined | five": {
+		"result": false
+	},
+	"gte | undefined | negative": {
+		"result": false
+	},
+	"gte | undefined | string one": {
+		"result": false
+	},
+	"gte | undefined | NaN": {
+		"result": false
+	},
+	"gte | undefined | undefined": {
+		"result": false
+	},
+	"gte | undefined | null": {
+		"result": false
+	},
+	"gte | null | zero": {
+		"result": true
+	},
+	"gte | null | one": {
+		"result": false
+	},
+	"gte | null | five": {
+		"result": false
+	},
+	"gte | null | negative": {
+		"result": true
+	},
+	"gte | null | string one": {
+		"result": false
+	},
+	"gte | null | NaN": {
+		"result": false
+	},
+	"gte | null | undefined": {
+		"result": false
+	},
+	"gte | null | null": {
+		"result": true
+	},
+	"lt | zero | zero": {
+		"result": false
+	},
+	"lt | zero | one": {
+		"result": true
+	},
+	"lt | zero | five": {
+		"result": true
+	},
+	"lt | zero | negative": {
+		"result": false
+	},
+	"lt | zero | string one": {
+		"result": true
+	},
+	"lt | zero | NaN": {
+		"result": false
+	},
+	"lt | zero | undefined": {
+		"result": false
+	},
+	"lt | zero | null": {
+		"result": false
+	},
+	"lt | one | zero": {
+		"result": false
+	},
+	"lt | one | one": {
+		"result": false
+	},
+	"lt | one | five": {
+		"result": true
+	},
+	"lt | one | negative": {
+		"result": false
+	},
+	"lt | one | string one": {
+		"result": false
+	},
+	"lt | one | NaN": {
+		"result": false
+	},
+	"lt | one | undefined": {
+		"result": false
+	},
+	"lt | one | null": {
+		"result": false
+	},
+	"lt | five | zero": {
+		"result": false
+	},
+	"lt | five | one": {
+		"result": false
+	},
+	"lt | five | five": {
+		"result": false
+	},
+	"lt | five | negative": {
+		"result": false
+	},
+	"lt | five | string one": {
+		"result": false
+	},
+	"lt | five | NaN": {
+		"result": false
+	},
+	"lt | five | undefined": {
+		"result": false
+	},
+	"lt | five | null": {
+		"result": false
+	},
+	"lt | negative | zero": {
+		"result": true
+	},
+	"lt | negative | one": {
+		"result": true
+	},
+	"lt | negative | five": {
+		"result": true
+	},
+	"lt | negative | negative": {
+		"result": false
+	},
+	"lt | negative | string one": {
+		"result": true
+	},
+	"lt | negative | NaN": {
+		"result": false
+	},
+	"lt | negative | undefined": {
+		"result": false
+	},
+	"lt | negative | null": {
+		"result": true
+	},
+	"lt | string one | zero": {
+		"result": false
+	},
+	"lt | string one | one": {
+		"result": false
+	},
+	"lt | string one | five": {
+		"result": true
+	},
+	"lt | string one | negative": {
+		"result": false
+	},
+	"lt | string one | string one": {
+		"result": false
+	},
+	"lt | string one | NaN": {
+		"result": false
+	},
+	"lt | string one | undefined": {
+		"result": false
+	},
+	"lt | string one | null": {
+		"result": false
+	},
+	"lt | NaN | zero": {
+		"result": false
+	},
+	"lt | NaN | one": {
+		"result": false
+	},
+	"lt | NaN | five": {
+		"result": false
+	},
+	"lt | NaN | negative": {
+		"result": false
+	},
+	"lt | NaN | string one": {
+		"result": false
+	},
+	"lt | NaN | NaN": {
+		"result": false
+	},
+	"lt | NaN | undefined": {
+		"result": false
+	},
+	"lt | NaN | null": {
+		"result": false
+	},
+	"lt | undefined | zero": {
+		"result": false
+	},
+	"lt | undefined | one": {
+		"result": false
+	},
+	"lt | undefined | five": {
+		"result": false
+	},
+	"lt | undefined | negative": {
+		"result": false
+	},
+	"lt | undefined | string one": {
+		"result": false
+	},
+	"lt | undefined | NaN": {
+		"result": false
+	},
+	"lt | undefined | undefined": {
+		"result": false
+	},
+	"lt | undefined | null": {
+		"result": false
+	},
+	"lt | null | zero": {
+		"result": false
+	},
+	"lt | null | one": {
+		"result": true
+	},
+	"lt | null | five": {
+		"result": true
+	},
+	"lt | null | negative": {
+		"result": false
+	},
+	"lt | null | string one": {
+		"result": true
+	},
+	"lt | null | NaN": {
+		"result": false
+	},
+	"lt | null | undefined": {
+		"result": false
+	},
+	"lt | null | null": {
+		"result": false
+	},
+	"lte | zero | zero": {
+		"result": true
+	},
+	"lte | zero | one": {
+		"result": true
+	},
+	"lte | zero | five": {
+		"result": true
+	},
+	"lte | zero | negative": {
+		"result": false
+	},
+	"lte | zero | string one": {
+		"result": true
+	},
+	"lte | zero | NaN": {
+		"result": false
+	},
+	"lte | zero | undefined": {
+		"result": false
+	},
+	"lte | zero | null": {
+		"result": true
+	},
+	"lte | one | zero": {
+		"result": false
+	},
+	"lte | one | one": {
+		"result": true
+	},
+	"lte | one | five": {
+		"result": true
+	},
+	"lte | one | negative": {
+		"result": false
+	},
+	"lte | one | string one": {
+		"result": true
+	},
+	"lte | one | NaN": {
+		"result": false
+	},
+	"lte | one | undefined": {
+		"result": false
+	},
+	"lte | one | null": {
+		"result": false
+	},
+	"lte | five | zero": {
+		"result": false
+	},
+	"lte | five | one": {
+		"result": false
+	},
+	"lte | five | five": {
+		"result": true
+	},
+	"lte | five | negative": {
+		"result": false
+	},
+	"lte | five | string one": {
+		"result": false
+	},
+	"lte | five | NaN": {
+		"result": false
+	},
+	"lte | five | undefined": {
+		"result": false
+	},
+	"lte | five | null": {
+		"result": false
+	},
+	"lte | negative | zero": {
+		"result": true
+	},
+	"lte | negative | one": {
+		"result": true
+	},
+	"lte | negative | five": {
+		"result": true
+	},
+	"lte | negative | negative": {
+		"result": true
+	},
+	"lte | negative | string one": {
+		"result": true
+	},
+	"lte | negative | NaN": {
+		"result": false
+	},
+	"lte | negative | undefined": {
+		"result": false
+	},
+	"lte | negative | null": {
+		"result": true
+	},
+	"lte | string one | zero": {
+		"result": false
+	},
+	"lte | string one | one": {
+		"result": true
+	},
+	"lte | string one | five": {
+		"result": true
+	},
+	"lte | string one | negative": {
+		"result": false
+	},
+	"lte | string one | string one": {
+		"result": true
+	},
+	"lte | string one | NaN": {
+		"result": false
+	},
+	"lte | string one | undefined": {
+		"result": false
+	},
+	"lte | string one | null": {
+		"result": false
+	},
+	"lte | NaN | zero": {
+		"result": false
+	},
+	"lte | NaN | one": {
+		"result": false
+	},
+	"lte | NaN | five": {
+		"result": false
+	},
+	"lte | NaN | negative": {
+		"result": false
+	},
+	"lte | NaN | string one": {
+		"result": false
+	},
+	"lte | NaN | NaN": {
+		"result": false
+	},
+	"lte | NaN | undefined": {
+		"result": false
+	},
+	"lte | NaN | null": {
+		"result": false
+	},
+	"lte | undefined | zero": {
+		"result": false
+	},
+	"lte | undefined | one": {
+		"result": false
+	},
+	"lte | undefined | five": {
+		"result": false
+	},
+	"lte | undefined | negative": {
+		"result": false
+	},
+	"lte | undefined | string one": {
+		"result": false
+	},
+	"lte | undefined | NaN": {
+		"result": false
+	},
+	"lte | undefined | undefined": {
+		"result": false
+	},
+	"lte | undefined | null": {
+		"result": false
+	},
+	"lte | null | zero": {
+		"result": true
+	},
+	"lte | null | one": {
+		"result": true
+	},
+	"lte | null | five": {
+		"result": true
+	},
+	"lte | null | negative": {
+		"result": false
+	},
+	"lte | null | string one": {
+		"result": true
+	},
+	"lte | null | NaN": {
+		"result": false
+	},
+	"lte | null | undefined": {
+		"result": false
+	},
+	"lte | null | null": {
+		"result": true
+	},
+	"eq | zero | zero": {
+		"result": true
+	},
+	"eq | zero | one": {
+		"result": false
+	},
+	"eq | zero | five": {
+		"result": false
+	},
+	"eq | zero | negative": {
+		"result": false
+	},
+	"eq | zero | string one": {
+		"result": false
+	},
+	"eq | zero | NaN": {
+		"result": false
+	},
+	"eq | zero | undefined": {
+		"result": false
+	},
+	"eq | zero | null": {
+		"result": false
+	},
+	"eq | one | zero": {
+		"result": false
+	},
+	"eq | one | one": {
+		"result": true
+	},
+	"eq | one | five": {
+		"result": false
+	},
+	"eq | one | negative": {
+		"result": false
+	},
+	"eq | one | string one": {
+		"result": false
+	},
+	"eq | one | NaN": {
+		"result": false
+	},
+	"eq | one | undefined": {
+		"result": false
+	},
+	"eq | one | null": {
+		"result": false
+	},
+	"eq | five | zero": {
+		"result": false
+	},
+	"eq | five | one": {
+		"result": false
+	},
+	"eq | five | five": {
+		"result": true
+	},
+	"eq | five | negative": {
+		"result": false
+	},
+	"eq | five | string one": {
+		"result": false
+	},
+	"eq | five | NaN": {
+		"result": false
+	},
+	"eq | five | undefined": {
+		"result": false
+	},
+	"eq | five | null": {
+		"result": false
+	},
+	"eq | negative | zero": {
+		"result": false
+	},
+	"eq | negative | one": {
+		"result": false
+	},
+	"eq | negative | five": {
+		"result": false
+	},
+	"eq | negative | negative": {
+		"result": true
+	},
+	"eq | negative | string one": {
+		"result": false
+	},
+	"eq | negative | NaN": {
+		"result": false
+	},
+	"eq | negative | undefined": {
+		"result": false
+	},
+	"eq | negative | null": {
+		"result": false
+	},
+	"eq | string one | zero": {
+		"result": false
+	},
+	"eq | string one | one": {
+		"result": false
+	},
+	"eq | string one | five": {
+		"result": false
+	},
+	"eq | string one | negative": {
+		"result": false
+	},
+	"eq | string one | string one": {
+		"result": true
+	},
+	"eq | string one | NaN": {
+		"result": false
+	},
+	"eq | string one | undefined": {
+		"result": false
+	},
+	"eq | string one | null": {
+		"result": false
+	},
+	"eq | NaN | zero": {
+		"result": false
+	},
+	"eq | NaN | one": {
+		"result": false
+	},
+	"eq | NaN | five": {
+		"result": false
+	},
+	"eq | NaN | negative": {
+		"result": false
+	},
+	"eq | NaN | string one": {
+		"result": false
+	},
+	"eq | NaN | NaN": {
+		"result": false
+	},
+	"eq | NaN | undefined": {
+		"result": false
+	},
+	"eq | NaN | null": {
+		"result": false
+	},
+	"eq | undefined | zero": {
+		"result": false
+	},
+	"eq | undefined | one": {
+		"result": false
+	},
+	"eq | undefined | five": {
+		"result": false
+	},
+	"eq | undefined | negative": {
+		"result": false
+	},
+	"eq | undefined | string one": {
+		"result": false
+	},
+	"eq | undefined | NaN": {
+		"result": false
+	},
+	"eq | undefined | undefined": {
+		"result": true
+	},
+	"eq | undefined | null": {
+		"result": false
+	},
+	"eq | null | zero": {
+		"result": false
+	},
+	"eq | null | one": {
+		"result": false
+	},
+	"eq | null | five": {
+		"result": false
+	},
+	"eq | null | negative": {
+		"result": false
+	},
+	"eq | null | string one": {
+		"result": false
+	},
+	"eq | null | NaN": {
+		"result": false
+	},
+	"eq | null | undefined": {
+		"result": false
+	},
+	"eq | null | null": {
+		"result": true
+	},
+	"neq | zero | zero": {
+		"result": false
+	},
+	"neq | zero | one": {
+		"result": true
+	},
+	"neq | zero | five": {
+		"result": true
+	},
+	"neq | zero | negative": {
+		"result": true
+	},
+	"neq | zero | string one": {
+		"result": true
+	},
+	"neq | zero | NaN": {
+		"result": true
+	},
+	"neq | zero | undefined": {
+		"result": true
+	},
+	"neq | zero | null": {
+		"result": true
+	},
+	"neq | one | zero": {
+		"result": true
+	},
+	"neq | one | one": {
+		"result": false
+	},
+	"neq | one | five": {
+		"result": true
+	},
+	"neq | one | negative": {
+		"result": true
+	},
+	"neq | one | string one": {
+		"result": true
+	},
+	"neq | one | NaN": {
+		"result": true
+	},
+	"neq | one | undefined": {
+		"result": true
+	},
+	"neq | one | null": {
+		"result": true
+	},
+	"neq | five | zero": {
+		"result": true
+	},
+	"neq | five | one": {
+		"result": true
+	},
+	"neq | five | five": {
+		"result": false
+	},
+	"neq | five | negative": {
+		"result": true
+	},
+	"neq | five | string one": {
+		"result": true
+	},
+	"neq | five | NaN": {
+		"result": true
+	},
+	"neq | five | undefined": {
+		"result": true
+	},
+	"neq | five | null": {
+		"result": true
+	},
+	"neq | negative | zero": {
+		"result": true
+	},
+	"neq | negative | one": {
+		"result": true
+	},
+	"neq | negative | five": {
+		"result": true
+	},
+	"neq | negative | negative": {
+		"result": false
+	},
+	"neq | negative | string one": {
+		"result": true
+	},
+	"neq | negative | NaN": {
+		"result": true
+	},
+	"neq | negative | undefined": {
+		"result": true
+	},
+	"neq | negative | null": {
+		"result": true
+	},
+	"neq | string one | zero": {
+		"result": true
+	},
+	"neq | string one | one": {
+		"result": true
+	},
+	"neq | string one | five": {
+		"result": true
+	},
+	"neq | string one | negative": {
+		"result": true
+	},
+	"neq | string one | string one": {
+		"result": false
+	},
+	"neq | string one | NaN": {
+		"result": true
+	},
+	"neq | string one | undefined": {
+		"result": true
+	},
+	"neq | string one | null": {
+		"result": true
+	},
+	"neq | NaN | zero": {
+		"result": true
+	},
+	"neq | NaN | one": {
+		"result": true
+	},
+	"neq | NaN | five": {
+		"result": true
+	},
+	"neq | NaN | negative": {
+		"result": true
+	},
+	"neq | NaN | string one": {
+		"result": true
+	},
+	"neq | NaN | NaN": {
+		"result": true
+	},
+	"neq | NaN | undefined": {
+		"result": true
+	},
+	"neq | NaN | null": {
+		"result": true
+	},
+	"neq | undefined | zero": {
+		"result": true
+	},
+	"neq | undefined | one": {
+		"result": true
+	},
+	"neq | undefined | five": {
+		"result": true
+	},
+	"neq | undefined | negative": {
+		"result": true
+	},
+	"neq | undefined | string one": {
+		"result": true
+	},
+	"neq | undefined | NaN": {
+		"result": true
+	},
+	"neq | undefined | undefined": {
+		"result": false
+	},
+	"neq | undefined | null": {
+		"result": true
+	},
+	"neq | null | zero": {
+		"result": true
+	},
+	"neq | null | one": {
+		"result": true
+	},
+	"neq | null | five": {
+		"result": true
+	},
+	"neq | null | negative": {
+		"result": true
+	},
+	"neq | null | string one": {
+		"result": true
+	},
+	"neq | null | NaN": {
+		"result": true
+	},
+	"neq | null | undefined": {
+		"result": true
+	},
+	"neq | null | null": {
+		"result": false
+	},
+	"upper case | zero | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | zero | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | one | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | five | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | negative | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | string one | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | NaN | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | undefined | null": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | zero": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | five": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | negative": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | string one": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | NaN": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | undefined": {
+		"error": "unknown operator GT"
+	},
+	"upper case | null | null": {
+		"error": "unknown operator GT"
+	},
+	"unknown | zero | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | zero | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | one | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | five | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | negative | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | string one | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | NaN | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | undefined | null": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | zero": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | one": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | five": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | negative": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | string one": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | NaN": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | undefined": {
+		"error": "unknown operator between"
+	},
+	"unknown | null | null": {
+		"error": "unknown operator between"
+	},
+	"empty string | zero | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | one": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | five": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | zero | null": {
+		"error": "unknown operator "
+	},
+	"empty string | one | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | one | one": {
+		"error": "unknown operator "
+	},
+	"empty string | one | five": {
+		"error": "unknown operator "
+	},
+	"empty string | one | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | one | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | one | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | one | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | one | null": {
+		"error": "unknown operator "
+	},
+	"empty string | five | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | five | one": {
+		"error": "unknown operator "
+	},
+	"empty string | five | five": {
+		"error": "unknown operator "
+	},
+	"empty string | five | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | five | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | five | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | five | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | five | null": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | one": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | five": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | negative | null": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | one": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | five": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | string one | null": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | one": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | five": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | NaN | null": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | one": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | five": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | undefined | null": {
+		"error": "unknown operator "
+	},
+	"empty string | null | zero": {
+		"error": "unknown operator "
+	},
+	"empty string | null | one": {
+		"error": "unknown operator "
+	},
+	"empty string | null | five": {
+		"error": "unknown operator "
+	},
+	"empty string | null | negative": {
+		"error": "unknown operator "
+	},
+	"empty string | null | string one": {
+		"error": "unknown operator "
+	},
+	"empty string | null | NaN": {
+		"error": "unknown operator "
+	},
+	"empty string | null | undefined": {
+		"error": "unknown operator "
+	},
+	"empty string | null | null": {
+		"error": "unknown operator "
+	},
+	"prototype key | zero | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | zero | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | one | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | five | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | negative | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | string one | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | NaN | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | undefined | null": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | zero": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | five": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | negative": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | string one": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | NaN": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | undefined": {
+		"error": "unknown operator toString"
+	},
+	"prototype key | null | null": {
+		"error": "unknown operator toString"
+	},
+	"constructor | zero | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | zero | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | one | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | five | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | negative | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | string one | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | NaN | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | undefined | null": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | zero": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | five": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | negative": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | string one": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | NaN": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | undefined": {
+		"error": "unknown operator constructor"
+	},
+	"constructor | null | null": {
+		"error": "unknown operator constructor"
+	},
+	"proto | zero | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | zero | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | one | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | five | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | negative | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | string one | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | NaN | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | undefined | null": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | zero": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | five": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | negative": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | string one": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | NaN": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | undefined": {
+		"error": "unknown operator __proto__"
+	},
+	"proto | null | null": {
+		"error": "unknown operator __proto__"
+	},
+	"own property check | zero | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | zero | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | one | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | five | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | negative | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | string one | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | NaN | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | undefined | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | zero": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | five": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | negative": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | string one": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | NaN": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | undefined": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"own property check | null | null": {
+		"error": "unknown operator hasOwnProperty"
+	},
+	"undefined | zero | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | zero | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | one | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | five | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | negative | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | string one | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | NaN | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | undefined | null": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | zero": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | five": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | negative": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | string one": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | NaN": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | undefined": {
+		"error": "unknown operator undefined"
+	},
+	"undefined | null | null": {
+		"error": "unknown operator undefined"
+	},
+	"null | zero | zero": {
+		"error": "unknown operator null"
+	},
+	"null | zero | one": {
+		"error": "unknown operator null"
+	},
+	"null | zero | five": {
+		"error": "unknown operator null"
+	},
+	"null | zero | negative": {
+		"error": "unknown operator null"
+	},
+	"null | zero | string one": {
+		"error": "unknown operator null"
+	},
+	"null | zero | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | zero | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | zero | null": {
+		"error": "unknown operator null"
+	},
+	"null | one | zero": {
+		"error": "unknown operator null"
+	},
+	"null | one | one": {
+		"error": "unknown operator null"
+	},
+	"null | one | five": {
+		"error": "unknown operator null"
+	},
+	"null | one | negative": {
+		"error": "unknown operator null"
+	},
+	"null | one | string one": {
+		"error": "unknown operator null"
+	},
+	"null | one | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | one | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | one | null": {
+		"error": "unknown operator null"
+	},
+	"null | five | zero": {
+		"error": "unknown operator null"
+	},
+	"null | five | one": {
+		"error": "unknown operator null"
+	},
+	"null | five | five": {
+		"error": "unknown operator null"
+	},
+	"null | five | negative": {
+		"error": "unknown operator null"
+	},
+	"null | five | string one": {
+		"error": "unknown operator null"
+	},
+	"null | five | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | five | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | five | null": {
+		"error": "unknown operator null"
+	},
+	"null | negative | zero": {
+		"error": "unknown operator null"
+	},
+	"null | negative | one": {
+		"error": "unknown operator null"
+	},
+	"null | negative | five": {
+		"error": "unknown operator null"
+	},
+	"null | negative | negative": {
+		"error": "unknown operator null"
+	},
+	"null | negative | string one": {
+		"error": "unknown operator null"
+	},
+	"null | negative | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | negative | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | negative | null": {
+		"error": "unknown operator null"
+	},
+	"null | string one | zero": {
+		"error": "unknown operator null"
+	},
+	"null | string one | one": {
+		"error": "unknown operator null"
+	},
+	"null | string one | five": {
+		"error": "unknown operator null"
+	},
+	"null | string one | negative": {
+		"error": "unknown operator null"
+	},
+	"null | string one | string one": {
+		"error": "unknown operator null"
+	},
+	"null | string one | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | string one | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | string one | null": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | zero": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | one": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | five": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | negative": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | string one": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | NaN | null": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | zero": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | one": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | five": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | negative": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | string one": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | undefined | null": {
+		"error": "unknown operator null"
+	},
+	"null | null | zero": {
+		"error": "unknown operator null"
+	},
+	"null | null | one": {
+		"error": "unknown operator null"
+	},
+	"null | null | five": {
+		"error": "unknown operator null"
+	},
+	"null | null | negative": {
+		"error": "unknown operator null"
+	},
+	"null | null | string one": {
+		"error": "unknown operator null"
+	},
+	"null | null | NaN": {
+		"error": "unknown operator null"
+	},
+	"null | null | undefined": {
+		"error": "unknown operator null"
+	},
+	"null | null | null": {
+		"error": "unknown operator null"
+	},
+	"number | zero | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | one": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | five": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | zero | null": {
+		"error": "unknown operator 1"
+	},
+	"number | one | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | one | one": {
+		"error": "unknown operator 1"
+	},
+	"number | one | five": {
+		"error": "unknown operator 1"
+	},
+	"number | one | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | one | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | one | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | one | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | one | null": {
+		"error": "unknown operator 1"
+	},
+	"number | five | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | five | one": {
+		"error": "unknown operator 1"
+	},
+	"number | five | five": {
+		"error": "unknown operator 1"
+	},
+	"number | five | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | five | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | five | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | five | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | five | null": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | one": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | five": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | negative | null": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | one": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | five": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | string one | null": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | one": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | five": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | NaN | null": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | one": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | five": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | undefined | null": {
+		"error": "unknown operator 1"
+	},
+	"number | null | zero": {
+		"error": "unknown operator 1"
+	},
+	"number | null | one": {
+		"error": "unknown operator 1"
+	},
+	"number | null | five": {
+		"error": "unknown operator 1"
+	},
+	"number | null | negative": {
+		"error": "unknown operator 1"
+	},
+	"number | null | string one": {
+		"error": "unknown operator 1"
+	},
+	"number | null | NaN": {
+		"error": "unknown operator 1"
+	},
+	"number | null | undefined": {
+		"error": "unknown operator 1"
+	},
+	"number | null | null": {
+		"error": "unknown operator 1"
+	}
+}

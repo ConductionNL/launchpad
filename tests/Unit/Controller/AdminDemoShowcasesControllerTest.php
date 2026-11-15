@@ -21,7 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ShowcaseTools;
 use OCA\LaunchPad\Controller\AdminDemoShowcasesController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
 use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCP\AppFramework\Http;
@@ -32,6 +34,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 class AdminDemoShowcasesControllerTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -56,10 +59,11 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 
 		$this->controller = new AdminDemoShowcasesController(
 			request: $this->request,
-			showcasesSvc: $this->service,
-			groupManager: $this->groupManager,
-			userSession: $this->userSession,
-			logger: new NullLogger(),
+			showcases: new ShowcaseTools(
+				showcasesSvc: $this->service,
+				logger: new NullLogger()
+			),
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 		);
 	}
 
@@ -171,5 +175,34 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 		$this->loginAsNonAdmin();
 		$response = $this->controller->destroy(id: 'de-bron');
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}
+
+	/**
+	 * An unexpected install failure is logged with the showcase id and
+	 * answered with a 500; a missing showcase answers its 404 body.
+	 *
+	 * @return void
+	 */
+	public function testInstallFailureAnswers(): void {
+		$this->loginAsAdmin();
+		$failure = new \RuntimeException('disk');
+		$this->service->method('installShowcase')->willReturnOnConsecutiveCalls(
+			$this->throwException(new ShowcaseNotFoundException(message: 'gone')),
+			$this->throwException($failure)
+		);
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->once())->method('error')->with('Showcase install failed', ['showcaseId' => 'de-bron', 'exception' => $failure]);
+		$controller = new AdminDemoShowcasesController(
+			request: $this->request,
+			showcases: new ShowcaseTools(showcasesSvc: $this->service, logger: $logger),
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
+		);
+
+		$missing = $controller->install(id: 'de-bron');
+		$failed = $controller->install(id: 'de-bron');
+		$this->assertSame(
+			[[404, ['error' => 'Showcase not found']], [500, ['error' => 'Showcase installation failed']]],
+			[[$missing->getStatus(), $missing->getData()], [$failed->getStatus(), $failed->getData()]]
+		);
 	}
 }

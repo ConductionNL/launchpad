@@ -2,109 +2,61 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Vitest unit tests for `ContainerWidgetForm.vue` (REQ-CONT-007 as modified
- * by launcher-tile-sorting): the three communal fields plus exactly one
- * "Sort tiles" select, and the emitted content carries `sortBy`.
+ * Vitest unit tests for `ContainerWidgetForm.vue` (launcher-tile-sorting,
+ * REQ-CONT-007): the three communal fields plus exactly one "Sort tiles"
+ * select, seeded from the widget being edited, and every emit carrying the
+ * communal fields together with `sortBy`.
  */
 
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import ContainerWidgetForm from '../ContainerWidgetForm.vue'
 
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnContainerWidgetForm: {
 		name: 'CnContainerWidgetForm',
+		props: ['editingWidget', 'value'],
 		emits: ['update:content'],
-		template:
-			'<div class="communal"><span class="bg" /><span class="padding" /><span class="title" /></div>',
+		template: '<div class="communal-form" />',
 	},
 }))
 
-const NcSelectStub = {
-	name: 'NcSelect',
-	props: ['modelValue', 'options', 'inputLabel'],
-	emits: ['update:modelValue'],
-	template:
-		'<div class="nc-select" :data-label="inputLabel">{{ modelValue }}</div>',
-}
+vi.mock('@nextcloud/vue', () => ({
+	NcSelect: {
+		name: 'NcSelect',
+		props: ['modelValue', 'options', 'inputLabel'],
+		emits: ['update:modelValue'],
+		template: '<div class="nc-select" :data-label="inputLabel" />',
+	},
+}))
 
 describe('ContainerWidgetForm', () => {
-	beforeEach(() => {
-		globalThis.t = (_app, key) => key
-	})
-
-	function mountForm(props = {}) {
-		return mount(ContainerWidgetForm, {
-			props,
-			global: { stubs: { NcSelect: NcSelectStub } },
-		})
-	}
-
-	it('renders the communal form plus exactly one Sort tiles select, defaulting to by hand', () => {
-		const wrapper = mountForm()
-		expect(wrapper.find('.communal').exists()).toBe(true)
-		const selects = wrapper.findAll('.nc-select')
+	it('renders the communal form plus one "Sort tiles" select, by hand by default', () => {
+		const wrapper = mount(ContainerWidgetForm)
+		expect(wrapper.findAll('.communal-form')).toHaveLength(1)
+		const selects = wrapper.findAllComponents({ name: 'NcSelect' })
 		expect(selects).toHaveLength(1)
-		expect(selects[0].attributes('data-label')).toBe('Sort tiles')
-		expect(selects[0].text()).toBe('manual')
-		const values = wrapper
-			.findComponent(NcSelectStub)
-			.props('options')
-			.map((option) => option.value)
-		expect(values).toEqual([
-			'manual',
-			'alphabetical',
-			'most-used',
-			'last-used',
-			'random',
-		])
+		expect(selects[0].props('inputLabel')).toBe('Sort tiles')
+		expect(selects[0].props('modelValue')).toBe('manual')
+		expect(selects[0].props('options').map((o) => o.value)).toEqual(['manual', 'alphabetical', 'most-used', 'last-used', 'random'])
 	})
 
-	it('emits the communal fields together with sortBy', async () => {
-		const wrapper = mountForm({
-			editingWidget: {
-				content: {
-					title: 'Applicaties',
-					padding: 'small',
-					placements: [{ id: 1 }],
-					sortBy: 'most-used',
-				},
-			},
-		})
-		expect(wrapper.find('.nc-select').text()).toBe('most-used')
+	it('seeds the sort from the widget being edited, and an unknown one as by hand', () => {
+		const edited = mount(ContainerWidgetForm, { props: { editingWidget: { content: { title: 'Apps', sortBy: 'most-used' } } } })
+		expect(edited.vm.sortBy).toBe('most-used')
+		const unknown = mount(ContainerWidgetForm, { props: { value: { sortBy: 'colour' } } })
+		expect(unknown.vm.sortBy).toBe('manual')
+	})
 
-		wrapper
-			.findComponent(NcSelectStub)
-			.vm.$emit('update:modelValue', 'alphabetical')
-		wrapper
-			.findComponent({ name: 'CnContainerWidgetForm' })
-			.vm.$emit('update:content', {
-				placements: [{ id: 1 }],
-				backgroundColor: '#fff',
-				padding: 'small',
-				title: 'Apps',
-			})
+	it('emits the communal fields together with the sort', async () => {
+		const placements = [{ id: 1 }]
+		const wrapper = mount(ContainerWidgetForm, { props: { editingWidget: { content: { placements, title: 'Apps', sortBy: 'random' } } } })
 
-		const emitted = wrapper.emitted('update:content')
-		expect(emitted[0][0]).toMatchObject({
-			title: 'Applicaties',
-			sortBy: 'alphabetical',
-		})
-		expect(emitted[1][0]).toEqual({
-			placements: [{ id: 1 }],
-			backgroundColor: '#fff',
-			padding: 'small',
-			title: 'Apps',
-			sortBy: 'alphabetical',
-		})
+		wrapper.findComponent({ name: 'CnContainerWidgetForm' }).vm.$emit('update:content', { placements, backgroundColor: '#fff', padding: 'small', title: 'Applicaties' })
+		expect(wrapper.emitted('update:content').at(-1)[0]).toEqual({ placements, backgroundColor: '#fff', padding: 'small', title: 'Applicaties', sortBy: 'random' })
+
+		wrapper.findComponent({ name: 'NcSelect' }).vm.$emit('update:modelValue', 'alphabetical')
+		expect(wrapper.emitted('update:content').at(-1)[0]).toEqual({ placements, backgroundColor: '#fff', padding: 'small', title: 'Applicaties', sortBy: 'alphabetical' })
 		expect(wrapper.vm.validate()).toEqual([])
-	})
-
-	it('drops an unknown sort mode back to by hand', () => {
-		expect(
-			mountForm({ value: { sortBy: 'sideways' } })
-				.find('.nc-select')
-				.text(),
-		).toBe('manual')
 	})
 })

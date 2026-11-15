@@ -48,6 +48,40 @@
 				}}
 			</p>
 		</div>
+
+		<div class="sharing-policy__field">
+			<label class="sharing-policy__label">
+				{{ t('launchpad', 'Groups that may share') }}
+			</label>
+			<NcSelectTags
+				v-model="allowedGroups"
+				:options="groups"
+				:multiple="true"
+				:aria-label-combobox="t('launchpad', 'Groups that may share')"
+				:placeholder="t('launchpad', 'Everyone')"
+				data-test="sharing-policy-allowed-groups"
+				@update:modelValue="saveLimits" />
+			<p class="sharing-policy__hint">
+				{{
+					t(
+						'launchpad',
+						'Only members of these groups can share their dashboards. Leave empty to let everyone share.',
+					)
+				}}
+			</p>
+		</div>
+
+		<div class="sharing-policy__field">
+			<NcSelect
+				v-model="recipientScope"
+				:inputLabel="t('launchpad', 'Who can receive a share')"
+				:options="scopeOptions"
+				label="label"
+				trackBy="id"
+				:clearable="false"
+				data-test="sharing-policy-recipient-scope"
+				@update:modelValue="saveLimits" />
+		</div>
 	</div>
 </template>
 
@@ -56,6 +90,11 @@ import { NcSelect, NcSelectTags } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
+
+const SCOPE_OPTIONS = [
+	{ id: 'everyone', label: 'Everyone' },
+	{ id: 'shared-groups', label: 'Only people who share a group with the sharer' },
+]
 
 const PERMISSION_OPTIONS = [
 	{ id: 'view_only', label: 'View only' },
@@ -67,7 +106,8 @@ const PERMISSION_OPTIONS = [
  * DashboardSharingPolicy — org-wide sharing defaults for the admin
  * Beheer ▸ Sharing tab (dashboard-sharing spec). Reads / writes
  * `defaultSharePermissionLevel` and `forcedShareGroups` via the admin
- * settings API.
+ * settings API, and who may share and with whom: `sharingAllowedGroups`
+ * (empty = everyone) and `sharingRecipientScope` (REQ-SHARE-014).
  */
 export default {
 	name: 'DashboardSharingPolicy',
@@ -92,14 +132,22 @@ export default {
 				label: t('launchpad', o.label),
 			})),
 
+			scopeOptions: SCOPE_OPTIONS.map((o) => ({
+				id: o.id,
+				label: t('launchpad', o.label),
+			})),
+
 			defaultPermission: null,
 			forcedGroups: [],
+			allowedGroups: [],
+			recipientScope: null,
 		}
 	},
 
 	/** @spec openspec/specs/dashboard-sharing/spec.md */
 	created() {
 		this.defaultPermission = this.permissionOptions[1]
+		this.recipientScope = this.scopeOptions[0]
 		this.load()
 	},
 
@@ -118,6 +166,12 @@ export default {
 				this.forcedGroups = Array.isArray(settings.forcedShareGroups)
 					? settings.forcedShareGroups
 					: []
+				this.allowedGroups = Array.isArray(settings.sharingAllowedGroups)
+					? settings.sharingAllowedGroups
+					: []
+				this.recipientScope =
+					this.scopeOptions.find((o) => o.id === settings.sharingRecipientScope)
+					|| this.scopeOptions[0]
 			} catch (error) {
 				logger.error('Failed to load sharing policy:', error)
 			}
@@ -132,6 +186,23 @@ export default {
 				})
 			} catch (error) {
 				logger.error('Failed to save sharing policy:', error)
+			}
+		},
+
+		/**
+		 * Save who may share and with whom (REQ-SHARE-014). A partial patch:
+		 * the defaults above are left as they are.
+		 *
+		 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
+		 */
+		async saveLimits() {
+			try {
+				await api.updateAdminSettings({
+					sharingAllowedGroups: this.allowedGroups,
+					sharingRecipientScope: this.recipientScope?.id,
+				})
+			} catch (error) {
+				logger.error('Failed to save sharing limits:', error)
 			}
 		},
 	},

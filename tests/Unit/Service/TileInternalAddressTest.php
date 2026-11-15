@@ -27,6 +27,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\PlacementUpdater;
+use OCA\LaunchPad\Service\PlacementUpdaters;
 use OCA\LaunchPad\Service\TileUpdater;
 use PHPUnit\Framework\TestCase;
 
@@ -51,8 +52,10 @@ class TileInternalAddressTest extends TestCase {
 
 		return new PlacementService(
 			placementMapper: $mapper,
-			tileUpdater: new TileUpdater(),
-			placementUpdater: new PlacementUpdater(),
+			updaters: new PlacementUpdaters(
+				tileUpdater: new TileUpdater(),
+				placementUpdater: new PlacementUpdater()
+			),
 		);
 	}//end service()
 

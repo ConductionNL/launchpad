@@ -28,6 +28,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -96,21 +101,31 @@ class DashboardServicePublicationTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $placementMapper,
-			settingMapper: $settingMapper,
-			templateService: $templateService,
-			dashboardFactory: $dashboardFactory,
-			dashResolver: $dashResolver,
-			treeService: $treeService,
-			groupManager: $this->groupManager,
-			adminTemplateService: $adminTemplateService,
-			db: $db,
-			config: $config,
-			l10nFactory: $l10nFactory,
-			logger: $logger,
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $placementMapper,
+				settingMapper: $settingMapper
+			),
+			builders: new DashboardBuilders(
+				templateService: $templateService,
+				dashboardFactory: $dashboardFactory,
+				dashResolver: $dashResolver,
+				adminTemplateService: $adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $treeService,
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $db,
+				config: $config,
+				l10nFactory: $l10nFactory
+			),
+			outlets: new DashboardOutlets(
+				logger: $logger
+			)
 		);
 	}//end setUp()
 
@@ -398,6 +413,37 @@ class DashboardServicePublicationTest extends TestCase {
 			unpublishAt: (new \DateTime('+1 day'))->format('c')
 		);
 	}//end testTakeDownBeforeGoLiveIsRefused()
+
+	/**
+	 * A take-down at the go-live moment is refused too, and schedule() is owner-gated.
+	 *
+	 * @return void
+	 */
+	public function testTakeDownAtGoLiveIsRefusedAndScheduleIsOwnerGated(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->expects($this->never())->method('update');
+		$at = (new \DateTime('+2 days'))->format('c');
+
+		try {
+			$this->service->schedule(uuid: 'd-uuid-1', publishAt: $at, userId: 'alice', unpublishAt: $at);
+			$this->fail('equal times accepted');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame(DashboardService::ERR_UNPUBLISH_BEFORE_PUBLISH, $e->getMessage());
+		}
+
+		try {
+			$this->service->schedule(uuid: 'd-uuid-1', publishAt: null, userId: 'alice', unpublishAt: '  ');
+			$this->fail('no times accepted');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame(DashboardService::ERR_SCHEDULE_PAST_DATE, $e->getMessage());
+		}
+
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage(DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN);
+		$this->service->schedule(uuid: 'd-uuid-1', publishAt: $at, userId: 'mallory');
+	}//end testTakeDownAtGoLiveIsRefusedAndScheduleIsOwnerGated()
 
 	/**
 	 * A take-down time alone keeps a published dashboard published until then.

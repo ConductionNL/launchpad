@@ -39,11 +39,7 @@ namespace OCA\LaunchPad\Service;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\Dashboard\IManager;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use RuntimeException;
 use ZipArchive;
 
@@ -91,20 +87,16 @@ class ShippedTemplateService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ImportService        $importService   Reads the archive the definition is wrapped in.
-	 * @param AdminTemplateService $templateService Sets the groups and the default flag.
-	 * @param DashboardMapper      $dashboardMapper Looks up an earlier install.
-	 * @param IAppConfig           $appConfig       Remembers what was installed.
-	 * @param IManager             $dashboardMgr    Nextcloud's dashboard widget registry.
-	 * @param IGroupManager        $groupManager    Checks that a named group exists.
+	 * @param ImportService           $importService Reads the archive the definition is wrapped in.
+	 * @param AdminTemplateService    $templateService Sets the groups and the default flag.
+	 * @param ShippedTemplateStore    $store The dashboard mapper and app config.
+	 * @param ShippedTemplatePlatform $platform The widget manager and group manager.
 	 */
 	public function __construct(
 		private readonly ImportService $importService,
 		private readonly AdminTemplateService $templateService,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly IAppConfig $appConfig,
-		private readonly IManager $dashboardMgr,
-		private readonly IGroupManager $groupManager,
+		private readonly ShippedTemplateStore $store,
+		private readonly ShippedTemplatePlatform $platform,
 	) {
 	}//end __construct()
 
@@ -137,7 +129,7 @@ class ShippedTemplateService {
 
 			$installedVersion = null;
 			if ($installedUuid !== '') {
-				$installedVersion = $this->appConfig->getValueInt(
+				$installedVersion = $this->store->appConfig->getValueInt(
 					Application::APP_ID,
 					self::CONFIG_VERSION_PREFIX . $id,
 					0
@@ -172,12 +164,13 @@ class ShippedTemplateService {
 	 * Forced: a fresh copy is added and becomes the recorded install. The
 	 * earlier one stays, because users' dashboards made from it point at it.
 	 *
-	 * @param string             $templateId   The shipped template id.
-	 * @param array<int, string> $targetGroups Groups whose members get the template.
-	 *                                         Empty leaves the definition's groups.
-	 * @param bool               $makeDefault  Make it the default template for everyone.
-	 * @param bool               $force        Add a fresh copy even when installed.
-	 * @param string             $userId       Who runs the install (for the archive).
+	 * @param string               $templateId The shipped template id.
+	 * @param array<string, mixed> $options    Optional `targetGroups` (groups whose members get the
+	 *                                         template; empty leaves the definition's groups),
+	 *                                         `makeDefault` (make it the default template for
+	 *                                         everyone; false), `force` (add a fresh copy even when
+	 *                                         installed; false) and `userId` (who runs the install,
+	 *                                         for the archive; 'cli').
 	 *
 	 * @return array{templateId:string, uuid:string, id:int, version:int, alreadyInstalled:bool,
 	 *               targetGroups:array<int,string>, isDefault:bool, missingWidgets:array<int,string>,
@@ -186,23 +179,19 @@ class ShippedTemplateService {
 	 * @throws InvalidArgumentException When the id or a group is unknown.
 	 * @throws RuntimeException When the definition or the import fails.
 	 *
-	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-	 *      The two flags are the command's `--default` and `--force`, one to one.
-	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
 	 */
-	public function install(
-		string $templateId,
-		array $targetGroups = [],
-		bool $makeDefault = false,
-		bool $force = false,
-		string $userId = 'cli',
-	): array {
+	public function install(string $templateId, array $options=[]): array {
+		$options     += ['targetGroups' => [], 'makeDefault' => false, 'force' => false, 'userId' => 'cli'];
+		$targetGroups = $options['targetGroups'];
+		$makeDefault  = $options['makeDefault'];
+		$force        = $options['force'];
+		$userId       = $options['userId'];
 		$definition = $this->readDefinition(templateId: $templateId);
 
 		// A mistyped group would target nobody and still report success.
 		foreach ($targetGroups as $group) {
-			if ($this->groupManager->groupExists(gid: $group) === false) {
+			if ($this->platform->groupManager->groupExists(gid: $group) === false) {
 				throw new InvalidArgumentException(message: 'Unknown group: ' . $group);
 			}
 		}
@@ -211,15 +200,15 @@ class ShippedTemplateService {
 		$uuid = $this->findInstalledUuid(templateId: $templateId);
 		if ($uuid !== '' && $force === false) {
 			$alreadyInstalled = true;
-			$dashboardId = (int)$this->dashboardMapper->findByUuid(uuid: $uuid)->getId();
+			$dashboardId = (int)$this->store->dashboardMapper->findByUuid(uuid: $uuid)->getId();
 		}
 
 		if ($alreadyInstalled === false) {
 			$created = $this->importDefinition(definition: $definition, userId: $userId);
 			$uuid = $created['uuid'];
 			$dashboardId = $created['id'];
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_PREFIX . $templateId, $uuid);
-			$this->appConfig->setValueInt(
+			$this->store->appConfig->setValueString(Application::APP_ID, self::CONFIG_PREFIX . $templateId, $uuid);
+			$this->store->appConfig->setValueInt(
 				Application::APP_ID,
 				self::CONFIG_VERSION_PREFIX . $templateId,
 				(int)$definition['templateVersion']
@@ -235,7 +224,7 @@ class ShippedTemplateService {
 			$update['isDefault'] = true;
 		}
 
-		$template = $this->dashboardMapper->find(id: $dashboardId);
+		$template = $this->store->dashboardMapper->find(id: $dashboardId);
 		if ($update !== []) {
 			$template = $this->templateService->updateTemplate(id: $dashboardId, data: $update);
 		}
@@ -269,7 +258,7 @@ class ShippedTemplateService {
 			return null;
 		}
 
-		return $this->dashboardMapper->findByUuid(uuid: $uuid);
+		return $this->store->dashboardMapper->findByUuid(uuid: $uuid);
 	}//end findInstalled()
 
 	/**
@@ -339,13 +328,13 @@ class ShippedTemplateService {
 	 * @return string The UUID, or an empty string.
 	 */
 	private function findInstalledUuid(string $templateId): string {
-		$uuid = $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_PREFIX . $templateId, '');
+		$uuid = $this->store->appConfig->getValueString(Application::APP_ID, self::CONFIG_PREFIX . $templateId, '');
 		if ($uuid === '') {
 			return '';
 		}
 
 		try {
-			$this->dashboardMapper->findByUuid(uuid: $uuid);
+			$this->store->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return '';
 		}
@@ -365,7 +354,7 @@ class ShippedTemplateService {
 	 */
 	private function findMissingWidgets(array $widgets): array {
 		$registered = [];
-		foreach ($this->dashboardMgr->getWidgets() as $widget) {
+		foreach ($this->platform->dashboardMgr->getWidgets() as $widget) {
 			$registered[$widget->getId()] = true;
 		}
 

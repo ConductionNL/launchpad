@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\QBMapper;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -28,6 +27,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<Tile>
  */
 class TileMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -49,17 +50,8 @@ class TileMapper extends QBMapper {
 	 * @return Tile[] Array of tiles.
 	 */
 	public function findByUserId(string $userId): array {
-		$qb = $this->db->getQueryBuilder();
-
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['user_id' => $userId]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByUserId()
@@ -75,25 +67,7 @@ class TileMapper extends QBMapper {
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException If multiple found.
 	 */
 	public function findByIdAndUser(int $id, string $userId): Tile {
-		$qb = $this->db->getQueryBuilder();
-
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id, 'user_id' => $userId]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByIdAndUser()
@@ -106,15 +80,7 @@ class TileMapper extends QBMapper {
 	 * @return void
 	 */
 	public function deleteByUserId(string $userId): void {
-		$qb = $this->db->getQueryBuilder();
-
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->executeStatement();
+		$qb = $this->deleteWhere(match: ['user_id' => $userId]);
+		$qb->executeStatement();
 	}//end deleteByUserId()
 }//end class

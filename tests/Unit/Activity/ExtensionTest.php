@@ -32,7 +32,10 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Activity\PublisherTools;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivitySubject;
+use OCA\LaunchPad\Activity\ActivityRow;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Activity\Extension;
 use OCP\Activity\Exceptions\UnknownActivityException;
@@ -201,12 +204,12 @@ class ExtensionTest extends TestCase {
 
 		foreach (Extension::ALL_EVENTS as $type) {
 			$publisher->publish(
-				type: $type,
-				actorUserId: 'alice',
-				recipientUserId: 'alice',
-				dashboardUuid: 'uuid-1',
-				dashboardName: 'Dashboard A',
-				dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+				row: new ActivityRow(
+					type: $type,
+					actorUserId: 'alice',
+					dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Dashboard A', link: 'https://nc.example/apps/launchpad#uuid-1')
+				),
+				recipientUserId: 'alice'
 			);
 		}
 
@@ -257,12 +260,12 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$result = $publisher->publish(
-			type: 'totally_unknown_type',
-			actorUserId: 'alice',
-			recipientUserId: 'alice',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Dashboard A',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: 'totally_unknown_type',
+				actorUserId: 'alice',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Dashboard A', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'alice'
 		);
 
 		$this->assertFalse(condition: $result);
@@ -278,20 +281,20 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$first = $publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'bob'
 		);
 		$second = $publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'bob'
 		);
 
 		$this->assertTrue(condition: $first);
@@ -304,12 +307,12 @@ class ExtensionTest extends TestCase {
 		// Advance the clock past the 900 s window — third emission allowed.
 		$this->now += 901;
 		$third = $publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'bob'
 		);
 		$this->assertTrue(condition: $third);
 		$this->assertCount(
@@ -328,20 +331,20 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'link'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'link')
+			),
+			recipientUserId: 'bob'
 		);
 		$publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'carol',
-			recipientUserId: 'carol',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'link'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'carol',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'link')
+			),
+			recipientUserId: 'carol'
 		);
 
 		$this->assertCount(
@@ -370,11 +373,11 @@ class ExtensionTest extends TestCase {
 			);
 
 		$count = $publisher->publishGlobal(
-			type: Extension::EVENT_UPDATED,
-			actorUserId: 'root',
-			dashboardUuid: 'uuid-default',
-			dashboardName: 'Company News',
-			dashboardLink: 'https://nc.example/'
+			row: new ActivityRow(
+				type: Extension::EVENT_UPDATED,
+				actorUserId: 'root',
+				dashboard: new ActivitySubject(uuid: 'uuid-default', name: 'Company News', link: 'https://nc.example/')
+			)
 		);
 		$this->assertSame(expected: 2, actual: $count);
 		$this->assertCount(
@@ -384,11 +387,11 @@ class ExtensionTest extends TestCase {
 
 		// Second call within window MUST NOT enumerate users.
 		$countSuppressed = $publisher->publishGlobal(
-			type: Extension::EVENT_UPDATED,
-			actorUserId: 'root',
-			dashboardUuid: 'uuid-default',
-			dashboardName: 'Company News',
-			dashboardLink: 'https://nc.example/'
+			row: new ActivityRow(
+				type: Extension::EVENT_UPDATED,
+				actorUserId: 'root',
+				dashboard: new ActivitySubject(uuid: 'uuid-default', name: 'Company News', link: 'https://nc.example/')
+			)
 		);
 		$this->assertSame(expected: 0, actual: $countSuppressed);
 		$this->assertCount(
@@ -408,11 +411,11 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$count = $publisher->publishToRecipients(
-			type: Extension::EVENT_SHARED,
-			actorUserId: 'alice',
-			dashboardUuid: 'uuid-2',
-			dashboardName: 'Marketing',
-			dashboardLink: 'link',
+			row: new ActivityRow(
+				type: Extension::EVENT_SHARED,
+				actorUserId: 'alice',
+				dashboard: new ActivitySubject(uuid: 'uuid-2', name: 'Marketing', link: 'link')
+			),
 			recipientUserIds: ['bob', 'carol', 'alice']
 		);
 
@@ -455,12 +458,12 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$count = $publisher->publishToGroup(
-			type: Extension::EVENT_UPDATED,
-			actorUserId: 'alice',
-			groupId: 'marketing',
-			dashboardUuid: 'uuid-3',
-			dashboardName: 'Campaigns',
-			dashboardLink: 'link'
+			row: new ActivityRow(
+				type: Extension::EVENT_UPDATED,
+				actorUserId: 'alice',
+				dashboard: new ActivitySubject(uuid: 'uuid-3', name: 'Campaigns', link: 'link')
+			),
+			groupId: 'marketing'
 		);
 
 		$this->assertSame(expected: 3, actual: $count);
@@ -542,6 +545,38 @@ class ExtensionTest extends TestCase {
 	}//end testParseSetsRichSubjectForAllTypes()
 
 	/**
+	 * REQ-ACK-006: an acknowledgement line names the acknowledged version;
+	 * a line stored without one keeps its old text.
+	 *
+	 * @return void
+	 */
+	public function testParseNamesTheAcknowledgedVersion(): void {
+		$extension = $this->createExtension();
+		$cases = [
+			'You acknowledged version 2 of Dashboard A' => ['self' => true, 'version' => 2],
+			'alice acknowledged version 2 of Dashboard A' => ['self' => false, 'version' => 2],
+			'You acknowledged Dashboard A' => ['self' => true],
+			'alice acknowledged Dashboard A' => ['self' => false],
+		];
+		foreach ($cases as $expected => $params) {
+			$event = new RecordingEvent();
+			$event->setApp(app: Extension::APP_ID);
+			$event->setType(type: Extension::EVENT_ACKNOWLEDGED);
+			$event->setSubject(subject: Extension::EVENT_ACKNOWLEDGED, parameters: $params + ['actor' => 'alice', 'dashboard' => 'Dashboard A']);
+			$extension->parse(language: 'en', event: $event);
+
+			$this->assertSame(expected: $expected, actual: $event->getParsedSubject());
+		}
+
+		$event = new RecordingEvent();
+		$event->setApp(app: Extension::APP_ID);
+		$event->setType(type: Extension::EVENT_SHARED);
+		$event->setSubject(subject: Extension::EVENT_SHARED, parameters: ['self' => false, 'version' => 2, 'actor' => 'alice', 'dashboard' => 'Dashboard A']);
+		$extension->parse(language: 'en', event: $event);
+		$this->assertStringNotContainsString(needle: 'version', haystack: (string)$event->getParsedSubject());
+	}//end testParseNamesTheAcknowledgedVersion()
+
+	/**
 	 * REQ-ACT-001: parse() throws UnknownActivityException for unknown
 	 * subjects so NC's provider chain can fall through.
 	 *
@@ -558,6 +593,53 @@ class ExtensionTest extends TestCase {
 	}//end testParseThrowsForUnknownType()
 
 	/**
+	 * Every event type renders the recorded subject and icon, for self and
+	 * other, with every placeholder, and with the author / object name
+	 * fallbacks when the parameters lack them.
+	 *
+	 * @return void
+	 */
+	public function testParseRendersTheRecordedSubjects(): void {
+		$extension = $this->createExtension();
+		$actual    = [];
+		foreach (Extension::ALL_EVENTS as $type) {
+			foreach (['self' => true, 'other' => false] as $variant => $isSelf) {
+				$event = new RecordingEvent();
+				$event->setApp(app: Extension::APP_ID);
+				$event->setType(type: $type);
+				$event->setSubject(
+					subject: $type,
+					parameters: ['self' => $isSelf, 'actor' => 'alice', 'dashboard' => 'Dashboard A', 'recipient' => 'bob', 'role' => 'editor', 'target' => 'carol', 'version' => 3]
+				);
+				$extension->parse(language: 'en', event: $event);
+				$actual[$type.' / '.$variant] = [$event->getRichSubject(), $event->getParsedSubject(), $event->getIcon()];
+			}
+
+			$event = new RecordingEvent();
+			$event->setApp(app: Extension::APP_ID);
+			$event->setType(type: $type);
+			$event->setAuthor(author: 'dave');
+			$event->setObject(objectType: 'dashboard', objectId: 9, objectName: 'Board 9');
+			$event->setSubject(subject: $type, parameters: []);
+			$extension->parse(language: 'en', event: $event);
+			$actual[$type.' / fallbacks'] = [$event->getRichSubject(), $event->getParsedSubject(), $event->getIcon()];
+		}
+
+		$fixture = __DIR__.'/fixtures/extension-parse.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
+		}
+
+		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
+
+		$foreign = new RecordingEvent();
+		$foreign->setApp(app: 'files');
+		$this->expectException(exception: UnknownActivityException::class);
+		$this->expectExceptionMessage('Unknown app: files');
+		$extension->parse(language: 'en', event: $foreign);
+	}//end testParseRendersTheRecordedSubjects()
+
+	/**
 	 * Build a publisher wired to the test mocks and clock.
 	 *
 	 * @return ActivityPublisher The publisher under test.
@@ -567,8 +649,10 @@ class ExtensionTest extends TestCase {
 			manager: $this->manager,
 			groupManager: $this->groupManager,
 			userManager: $this->userManager,
-			debounce: $this->debounce,
-			logger: new NullLogger()
+			tools: new PublisherTools(
+				debounce: $this->debounce,
+				logger: new NullLogger()
+			)
 		);
 	}//end createPublisher()
 

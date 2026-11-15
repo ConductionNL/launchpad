@@ -15,7 +15,7 @@
  *  - Comments:             COMMENTS_ENABLED_DEFAULT
  *  - Footer:               FOOTER_ENABLED, FOOTER_HTML, FOOTER_CONFIG,
  *                          FOOTER_BACKGROUND_COLOR, FOOTER_TEXT_COLOR
- *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
+ *  - Setup wizard:         SETUP_WIZARD_COMPLETE
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search)
  *
  * @category Db
@@ -55,11 +55,19 @@ enum AdminSettingKey: string {
 	case FOOTER_BACKGROUND_COLOR = 'footer_background_color';
 	case FOOTER_TEXT_COLOR = 'footer_text_color';
 	case SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
-	case CONTENT_STORAGE = 'content_storage';
 	case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
 	case FORCED_SHARE_GROUPS = 'forced_share_groups';
+	// Engagement-announcements D6: groups whose members may write announcements, besides administrators.
+	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
+	case SHARING_ALLOWED_GROUPS = 'sharing_allowed_groups';
+	case SHARING_RECIPIENT_SCOPE = 'sharing_recipient_scope';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
+	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
+	case PUBLIC_START_ENABLED = 'public_start_enabled';
+	case PUBLIC_START_SHARE_TOKEN = 'public_start_share_token';
+	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
+	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
 }//end enum

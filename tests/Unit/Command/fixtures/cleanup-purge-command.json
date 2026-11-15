@@ -1,0 +1,76 @@
+{
+    "unknown category": {
+        "exit": 1,
+        "purges": [],
+        "output": [
+            "Unknown cleanup category: nope",
+            "Valid categories: placements, shares, reactions"
+        ]
+    },
+    "one category": {
+        "exit": 0,
+        "purges": [
+            [
+                [
+                    "placements"
+                ],
+                false,
+                null,
+                "cli"
+            ]
+        ],
+        "output": [
+            "Purged 3 items from category 'placements' in 5ms."
+        ]
+    },
+    "all categories dry run": {
+        "exit": 0,
+        "purges": [
+            [
+                [],
+                true,
+                null,
+                "cli"
+            ]
+        ],
+        "output": [
+            "DRY-RUN: Would purge 3 items across 2 categories in 5ms."
+        ]
+    },
+    "confirmed": {
+        "exit": 0,
+        "purges": [
+            [
+                [],
+                false,
+                null,
+                "cli"
+            ]
+        ],
+        "output": [
+            "Delete orphaned data in categories: [placements, shares, reactions]? (y/N) Purged 3 items across 2 categories in 5ms."
+        ]
+    },
+    "declined": {
+        "exit": 0,
+        "purges": [],
+        "output": [
+            "Delete orphaned data in categories: [placements, shares, reactions]? (y/N) Purge cancelled."
+        ]
+    },
+    "with skipped": {
+        "exit": 0,
+        "purges": [
+            [
+                [],
+                false,
+                null,
+                "cli"
+            ]
+        ],
+        "output": [
+            "Purged 3 items across 2 categories in 5ms.",
+            "Skipped categories: table missing"
+        ]
+    }
+}

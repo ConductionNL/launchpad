@@ -27,6 +27,101 @@
 			}}
 		</p>
 
+		<section
+			v-if="shippedTemplates.length > 0"
+			class="launchpad-admin__shipped"
+			data-testid="admin-shipped-templates"
+			:aria-label="t('launchpad', 'Ready-made templates')">
+			<h4>{{ t('launchpad', 'Ready-made templates') }}</h4>
+			<p class="launchpad-admin__hint">
+				{{
+					t(
+						'launchpad',
+						'Add a template that comes with LaunchPad. Then edit it to choose who gets it.',
+					)
+				}}
+			</p>
+			<div
+				v-for="shipped in shippedTemplates"
+				:key="shipped.id"
+				class="launchpad-admin__template"
+				:data-testid="`admin-shipped-template-${shipped.id}`">
+				<div class="launchpad-admin__template-info">
+					<strong>{{ shipped.name }}</strong>
+					<span class="launchpad-admin__template-groups">{{
+						shipped.description
+					}}</span>
+					<span
+						v-if="shipped.registers && shipped.registers.length > 0"
+						class="launchpad-admin__template-groups"
+						data-testid="admin-shipped-template-registers">
+						{{
+							t(
+								'launchpad',
+								'Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.',
+								{ registers: shipped.registers.join(', ') },
+							)
+						}}
+					</span>
+					<span
+						v-if="shipped.missingWidgets.length > 0"
+						class="launchpad-admin__template-groups"
+						data-testid="admin-shipped-template-missing">
+						{{
+							t(
+								'launchpad',
+								'No app here provides these widgets, so they will show empty: {widgets}',
+								{ widgets: shipped.missingWidgets.join(', ') },
+							)
+						}}
+					</span>
+				</div>
+				<div class="launchpad-admin__template-actions">
+					<NcButton
+						v-if="shipped.isInstalled && shipped.updateAvailable"
+						variant="secondary"
+						data-testid="admin-shipped-template-update"
+						@click="openShippedUpdate(shipped)">
+						{{
+							t('launchpad', 'Update to version {version}', {
+								version: shipped.version,
+							})
+						}}
+					</NcButton>
+					<span
+						v-if="shipped.isInstalled"
+						class="launchpad-admin__badge"
+						data-testid="admin-shipped-template-added">
+						{{ t('launchpad', 'Added') }}
+					</span>
+					<NcButton
+						v-else
+						variant="secondary"
+						:disabled="installingId !== null"
+						data-testid="admin-shipped-template-add"
+						@click="installShipped(shipped)">
+						{{ t('launchpad', 'Add template') }}
+					</NcButton>
+				</div>
+			</div>
+		</section>
+
+		<p
+			v-if="statusMessage !== ''"
+			class="launchpad-admin__status"
+			role="status"
+			data-testid="admin-templates-status">
+			{{ statusMessage }}
+		</p>
+
+		<p
+			v-if="errorMessage !== ''"
+			class="launchpad-admin__error"
+			role="alert"
+			data-testid="admin-templates-error">
+			{{ errorMessage }}
+		</p>
+
 		<div v-if="templates.length === 0" class="launchpad-admin__empty">
 			<NcEmptyContent :description="t('launchpad', 'No templates yet')">
 				<template #icon>
@@ -57,6 +152,12 @@
 						@click="openResyncModal(template)">
 						{{ t('launchpad', 'Re-sync to existing copies') }}
 					</NcButton>
+					<NcButton
+						variant="secondary"
+						data-testid="admin-download-template"
+						@click="downloadTemplate(template)">
+						{{ t('launchpad', 'Download') }}
+					</NcButton>
 					<NcButton variant="secondary" @click="editTemplate(template)">
 						{{ t('launchpad', 'Edit') }}
 					</NcButton>
@@ -73,6 +174,12 @@
 			@close="closeResyncModal"
 			@resynced="closeResyncModal" />
 
+		<ShippedTemplateUpdateDialog
+			:open="updatingShipped !== null"
+			:shipped="updatingShipped"
+			@update:open="closeShippedUpdate"
+			@updated="onShippedUpdated" />
+
 		<TemplateEditorModal
 			:open="isEditorOpen"
 			:template="editingTemplate"
@@ -86,6 +193,7 @@ import { CnDashboardIcon, NcButton, NcEmptyContent } from '@conduction/nextcloud
 import { t } from '@nextcloud/l10n'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import ShippedTemplateUpdateDialog from '../../../dialogs/ShippedTemplateUpdateDialog.vue'
 import TemplateEditorModal from '../../../modals/TemplateEditorModal.vue'
 import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
 import { api } from '../../../services/api.js'
@@ -112,11 +220,17 @@ export default {
 		CnDashboardIcon,
 		TemplateResyncModal,
 		TemplateEditorModal,
+		ShippedTemplateUpdateDialog,
 	},
 
 	data() {
 		return {
 			templates: [],
+			shippedTemplates: [],
+			installingId: null,
+			errorMessage: '',
+			statusMessage: '',
+			updatingShipped: null,
 			isEditorOpen: false,
 			editingTemplate: null,
 			resyncingTemplate: null,
@@ -126,6 +240,7 @@ export default {
 	/** @spec openspec/specs/admin-templates/spec.md */
 	created() {
 		this.loadTemplates()
+		this.loadShippedTemplates()
 	},
 
 	methods: {
@@ -138,6 +253,121 @@ export default {
 				this.templates = data || []
 			} catch (error) {
 				logger.error('Failed to load templates:', error)
+			}
+		},
+
+		/**
+		 * Load the templates LaunchPad ships with. A failure hides the
+		 * section and says so, the list of templates below still works.
+		 *
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+		 */
+		async loadShippedTemplates() {
+			try {
+				const { data } = await api.getShippedTemplates()
+				this.shippedTemplates = Array.isArray(data) ? data : []
+			} catch (error) {
+				logger.error('Failed to load shipped templates:', error)
+				this.errorMessage = t(
+					'launchpad',
+					'The ready-made templates could not be loaded.',
+				)
+			}
+		},
+
+		/**
+		 * Add a shipped template, then show it in the list.
+		 *
+		 * @param {object} shipped The shipped template to add.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+		 */
+		async installShipped(shipped) {
+			this.installingId = shipped.id
+			this.errorMessage = ''
+			try {
+				await api.installShippedTemplate(shipped.id)
+				await Promise.all([
+					this.loadTemplates(),
+					this.loadShippedTemplates(),
+				])
+			} catch (error) {
+				logger.error('Failed to add shipped template:', error)
+				this.errorMessage = t(
+					'launchpad',
+					'The template "{name}" could not be added.',
+					{ name: shipped.name },
+				)
+			} finally {
+				this.installingId = null
+			}
+		},
+
+		/**
+		 * Open the dialog that shows what updating an installed ready-made
+		 * template changes.
+		 *
+		 * @param {object} shipped The shipped template to update.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+		 */
+		openShippedUpdate(shipped) {
+			this.statusMessage = ''
+			this.updatingShipped = shipped
+		},
+
+		/** @spec openspec/specs/admin-templates/spec.md#req-tmpl-020 */
+		closeShippedUpdate() {
+			this.updatingShipped = null
+		},
+
+		/**
+		 * The update ran: say what it did and show the new state.
+		 *
+		 * @param {object} result The update result from the server.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+		 */
+		async onShippedUpdated(result) {
+			this.updatingShipped = null
+			this.statusMessage = t(
+				'launchpad',
+				'Updated "{name}" to version {version}. Members with a copy: {count}.',
+				{
+					name: result.name,
+					version: result.version,
+					count: result.copies,
+				},
+			)
+			await Promise.all([this.loadTemplates(), this.loadShippedTemplates()])
+		},
+
+		/**
+		 * Download one template as an archive that another LaunchPad can
+		 * import (REQ-EXIM-012).
+		 *
+		 * @param {object} template The template to download.
+		 * @spec openspec/specs/dashboard-export-import/spec.md#req-exim-012
+		 */
+		async downloadTemplate(template) {
+			this.errorMessage = ''
+			try {
+				const response = await api.exportDashboards({
+					scope: 'dashboard',
+					dashboardUuid: template.uuid,
+				})
+				const url = window.URL.createObjectURL(response.data)
+				const link = document.createElement('a')
+				link.href = url
+				link.download = `launchpad-template-${template.slug || template.uuid}.zip`
+				document.body.appendChild(link)
+				link.click()
+				document.body.removeChild(link)
+				window.URL.revokeObjectURL(url)
+			} catch (error) {
+				logger.error('Failed to download template:', error)
+				this.errorMessage = t(
+					'launchpad',
+					'The template "{name}" could not be downloaded.',
+					{ name: template.name },
+				)
 			}
 		},
 
@@ -289,5 +519,22 @@ export default {
 
 .launchpad-admin__empty {
 	padding: 48px 0;
+}
+
+.launchpad-admin__shipped {
+	margin-bottom: 24px;
+}
+
+.launchpad-admin__shipped h4 {
+	margin: 0 0 4px;
+}
+
+.launchpad-admin__status {
+	margin-bottom: 16px;
+}
+
+.launchpad-admin__error {
+	color: var(--color-error);
+	margin-bottom: 16px;
 }
 </style>

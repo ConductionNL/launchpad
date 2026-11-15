@@ -43,9 +43,9 @@
 
 ## 6. In-widget search
 
-- [ ] 6.1 Add a filter field to widgets that render rows, in view state only.
-- [ ] 6.2 Assert it never writes to the placement or its saved search.
-- [ ] 6.3 Vitest on the component: filter, reload, unchanged definition.
+- [x] 6.1 Add a filter field to widgets that render rows, in view state only.
+- [x] 6.2 Assert it never writes to the placement or its saved search.
+- [x] 6.3 Vitest on the component: filter, reload, unchanged definition.
 
 ## 7. Geographic reporting
 

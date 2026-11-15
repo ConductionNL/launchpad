@@ -84,6 +84,8 @@ class ActionAuthBaselineTest extends TestCase {
 		'metadata-admin.update-field',
 		'metadata-admin.delete-field',
 		'people-widget.get-users',
+		'profile-fields.get-definitions',
+		'profile-fields.save-definitions',
 		'rule.get-rules',
 		'rule.add-rule',
 		'rule.update-rule',
@@ -121,6 +123,9 @@ class ActionAuthBaselineTest extends TestCase {
 		// The `admin.` prefix is the controller's, not a privilege level:
 		// getMyRole() only ever answers for the caller.
 		'admin.get-my-role',
+		// REQ-PEX-002: every person fills their own profile fields.
+		'profile-fields.get-own',
+		'profile-fields.save-own',
 	];
 
 	/** @var IAppConfig&MockObject */

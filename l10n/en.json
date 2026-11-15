@@ -1478,6 +1478,9 @@
         "Failed for good": "Failed for good",
         "Not run yet": "Not run yet",
         "Recipient {number}": "Recipient {number}",
-        "Scheduled exports…": "Scheduled exports…"
+        "Scheduled exports…": "Scheduled exports…",
+        "New announcement in %1$s: **%2$s**": "New announcement in %1$s: **%2$s**",
+        "New announcement in %1$s: %2$s": "New announcement in %1$s: %2$s",
+        "Open LaunchPad to read the announcement": "Open LaunchPad to read the announcement"
     }
 }

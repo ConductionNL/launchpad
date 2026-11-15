@@ -28,6 +28,39 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/Announcements/AnnouncementCard.vue | announcement": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/Announcements/AnnouncementCard.vue | reactions": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"likes": 0,
+			"comments": 0,
+			"liked": false
+		},
+		"fresh": true
+	},
+	"../../components/Announcements/AnnouncementCard.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Announcements/NoticeBanner.vue | notice": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/Announcements/NoticeBanner.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/DashboardFooter.vue | footer": {
 		"type": "Object",
 		"required": false,
@@ -143,6 +176,12 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/TileWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/TileWidget.vue | healthPingEnabled": {
 		"type": "Boolean",
 		"required": false,
@@ -243,6 +282,29 @@
 		"validator": false,
 		"default": {
 			"agentUuid": ""
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/AnnouncementsWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/AnnouncementsWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/AnnouncementsWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"category": "",
+			"limit": 10
 		},
 		"fresh": true
 	},
@@ -901,6 +963,13 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/admin/DashboardSharingPolicy.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -1413,6 +1482,12 @@
 		"type": "String",
 		"required": true,
 		"validator": false
+	},
+	"../../views/DashboardPublicShareView.vue | startPage": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../views/KioskPlayerView.vue | token": {
 		"type": "String",

@@ -43,17 +43,19 @@
 
 ## JWT Validation & Scope Enforcement
 
-- [ ] Task 6: Create `lib/Middleware/EmbedTokenMiddleware.php`:
+- [x] Task 6: Create `lib/Middleware/EmbedTokenMiddleware.php`:
   - Extract JWT from `?token=` query parameter OR `Authorization: Bearer` header
   - Validate JWT signature + expiry + revocation (REQ-EMB-002)
   - Extract token subject and scope
   - Store token context in the request for downstream use (tokenId, scope, hostOrigins, etc.)
+  > Built as `lib/Middleware/EmbedTokenMiddleware.php` over `Service/Embed/EmbedGate`: on the render route (`EmbedController`) a token is required as `?token=` or `Authorization: Bearer`; on any other route a Bearer JWT whose issuer is LaunchPad marks the request as an embed request (other Bearer credentials stay Nextcloud's). The token is validated (401 `missing_token`, `invalid_token`, `token_expired`, `token_revoked`, with the `WWW-Authenticate` challenge) and kept in `EmbedRequestContext` (token, form, start time). Tests: `EmbedTokenMiddlewareTest` (8), `EmbedGateTest` (10).
 
-- [ ] Task 7: Create `lib/Service/ScopeEnforcementService.php` (REQ-EMB-004):
+- [x] Task 7: Create `lib/Service/ScopeEnforcementService.php` (REQ-EMB-004):
   - `enforceReadOnly(request)`: If token's `scope.mode=read` and request is POST/PUT/PATCH/DELETE, respond 403
   - `enforceActionScope(request, action)`: If action not in `scope.allowedActions`, respond 403
   - `applyFilterContext(request, filterContext)`: Pin filters from token's `subject.filterContext`
   - Integrate into API middleware so ALL non-GET/HEAD requests are checked
+  > The decisions were built before; now applied by `EmbedTokenMiddleware` to every non-GET/HEAD request carrying a token, before the controller runs (4.7, 4.10). The read refusal is `read_only_token` as in 4.1. Added `restrictFilters()` (request filters only on `allowedFilters`, pinned context over them) and `actionOf()` (the action of a write from its last path segment: export, drill-down, filters/interactions).
 
 - [x] Task 8: Create `lib/Service/CspService.php` for CSP header generation (REQ-EMB-003):
   - `generateCspHeader(hostOrigins)`: Return `Content-Security-Policy: frame-ancestors <origins>`
@@ -63,7 +65,7 @@
 
 ## Public Render Route
 
-- [ ] Task 9: Create `lib/Controller/EmbedController.php`:
+- [x] Task 9: Create `lib/Controller/EmbedController.php`:
   - `GET /apps/launchpad/embed/{subjectType}/{subjectId}`: Public render route
     1. Extract + validate JWT (Middleware handles this)
     2. Verify subject match (URL's subjectId == token's subject.id)
@@ -73,12 +75,14 @@
        - CSP headers emitted
     4. Write `embed_usage_event` (REQ-EMB-008)
     5. Respond 200 or appropriate error (401, 403, 429)
+  > Built as `lib/Controller/EmbedController.php`: `render` (the page) and `data` (`/embed/{subjectType}/{subjectId}/data`, the subject as JSON), both public. The token must name this subject (`scope_mismatch` 403, saying nothing about other subjects), the framing page must be a host origin (`origin_mismatch` 403 on a cross-site or Bearer request whose Referer origin is not listed, 3.2/3.6/3.7). Every answer, refusals included, is a usage event. The page loads the `launchpad-embed` script of Task 23. Tests: `EmbedControllerTest` (7).
 
-- [ ] Task 10: Create `lib/Service/EmbedRenderService.php`:
+- [x] Task 10: Create `lib/Service/EmbedRenderService.php`:
   - `renderWidget(widgetId, tokenScope, tenantTheme)`: Render single widget with scope + theme applied
   - `renderDashboard(dashboardId, tokenScope, filterContext, tenantTheme)`: Render dashboard with scope + theme applied
   - Reuse existing widget/dashboard rendering code (no fork)
   - Wrap output with CSP headers, no navigation chrome
+  > Built as `lib/Service/Embed/EmbedRenderService.php`: the widget placement or the dashboard with its placements through the same mappers and serialisation as the public share, plus the scope, the filters in force and the theme's :root block; `page()` is the bare base layout (`templates/embed.php`) with `frame-ancestors` from the host origins, `X-Frame-Options: SAMEORIGIN` (3.5) and `nosniff`. Tests: `EmbedRenderServiceTest` (4).
 
 ## Theming & Accessibility
 
@@ -210,11 +214,12 @@
   - Unit tests: cache hits, TTL expiry, database fallback
   > Built as `lib/Service/Embed/RevocationCache.php` over Nextcloud's distributed cache, which every worker shares, so a revocation or a purge reaches all workers at once without a separate broadcast; a miss reads the stored token and is cached for 60 s. Tested in `EmbedTokenServiceTest`.
 
-- [ ] Task 26: Integrate RateLimitService into render route:
+- [x] Task 26: Integrate RateLimitService into render route:
   - In EmbedController, call `RateLimitService.checkRateLimit(tokenId, now)`
   - If 429, write usage event with 429 status
   - Return 429 response with Retry-After header
   - Include RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset headers
+  > Each render and data request takes one request from the token's bucket (`RateLimitService`, org default when the token has no policy); a spent bucket answers 429 with `Retry-After` and `RateLimit-*` headers and is written as a page view with status 429; an answered request carries `RateLimit-Limit`, `-Remaining` and `-Reset`.
 
 - [ ] Task 27: Create revocation UI flow in EmbedTokenManager:
   - Revoke button → confirmation dialog with reason dropdown + notes textarea
@@ -225,7 +230,7 @@
 
 ## Usage Telemetry
 
-- [ ] Task 28: Implement usage event capture (REQ-EMB-008):
+- [x] Task 28: Implement usage event capture (REQ-EMB-008):
   - In EmbedController render route, after rendering widget:
     1. Extract host origin from Origin or Referer header
     2. Parse user-agent: extract browser family + major version
@@ -234,7 +239,7 @@
     5. Measure response latency
     6. Create `embed_usage_event` row with all fields
   - Unit tests: PII minimisation (no IP, no full UA, no end-user identifier)
-  > Partly built: `lib/Entity/EmbedUsageEvent.php` builds the event (origin from Origin, else scheme and host of Referer; browser family + major; sha256 of the UA; viewport bucket; latency) and `Service/Embed/UsageTelemetryService::record()` writes it, absorbing a failed write. Tests: `UsageTelemetryServiceTest`. Calling it from the render route waits for Task 9.
+  > Partly built: `lib/Entity/EmbedUsageEvent.php` builds the event (origin from Origin, else scheme and host of Referer; browser family + major; sha256 of the UA; viewport bucket; latency) and `Service/Embed/UsageTelemetryService::record()` writes it, absorbing a failed write. Tests: `UsageTelemetryServiceTest`. `EmbedController` now writes every render (`pageView`) and data load (`widgetRendered`) and `EmbedTokenMiddleware` every refused render whose token is known (expired and revoked tokens included, their id being proven by the signature).
 
 - [x] Task 29: Create usage report API:
   - `GET /api/embed-tokens/{id}/usage` — Summary stats + aggregated events (by date, by host origin, by viewport, by browser)
@@ -268,11 +273,12 @@
   - Un-revoke token → requests accepted again
   > `EmbedTokenServiceTest`.
 
-- [ ] Task 33: PHPUnit tests for scope enforcement:
+- [x] Task 33: PHPUnit tests for scope enforcement:
   - Read-only token rejects POST/PUT/PATCH/DELETE
   - Read-with-interactions token allows pinned filters
   - Action scope: export allowed only if in allowedActions
   - Filter scope: filter dimensions restricted to allowedFilters
+  > `ScopeEnforcementServiceTest` (read refuses writes, interactions run only allowed actions, filter dimensions restricted to `allowedFilters`, actions from the path), `EmbedGateTest` and `EmbedTokenMiddlewareTest` (a write under a read token refused before the controller, reads pass).
 
 - [ ] Task 34: Vitest tests for JS-SDK:
   - Render method creates iframe, performs postMessage handshake

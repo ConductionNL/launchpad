@@ -42,7 +42,7 @@ class ScopeEnforcementServiceTest extends TestCase {
 
 		foreach (['POST', 'PUT', 'PATCH', 'DELETE', 'delete'] as $method) {
 			self::assertSame(
-				['status' => 403, 'body' => ['error' => 'scope_violation', 'message' => 'This token does not permit write operations. Token scope: mode=read']],
+				['status' => 403, 'body' => ['error' => 'read_only_token', 'message' => 'This token does not permit write operations. Token scope: mode=read']],
 				$scope->refusalFor($method, 'interact', $read),
 				$method
 			);
@@ -86,5 +86,47 @@ class ScopeEnforcementServiceTest extends TestCase {
 			(new ScopeEnforcementService())->applyFilterContext(['periode' => '2026', 'gemeente' => 'Rotterdam'], ['gemeente' => 'Amsterdam'])
 		);
 	}//end testTheFilterContextIsPinned()
+
+	/**
+	 * An interactions token keeps only the request filters on its allowed
+	 * dimensions; the pinned context always wins; a read token keeps only the
+	 * pinned context (task 33, filter scope).
+	 *
+	 * @return void
+	 */
+	public function testFilterDimensionsAreRestrictedToAllowedFilters(): void {
+		$service  = new ScopeEnforcementService();
+		$interact = ['mode' => 'read-with-interactions', 'allowedFilters' => ['status', 'gemeente']];
+		$request  = ['status' => 'open', 'periode' => '2026', 'gemeente' => 'Rotterdam'];
+
+		self::assertSame(
+			['status' => 'open', 'gemeente' => 'Amsterdam'],
+			$service->restrictFilters($request, $interact, ['gemeente' => 'Amsterdam'])
+		);
+		self::assertSame(['status' => 'open', 'gemeente' => 'Rotterdam'], $service->restrictFilters($request, $interact, []));
+		self::assertSame(['gemeente' => 'Amsterdam'], $service->restrictFilters($request, ['mode' => 'read', 'allowedFilters' => ['status']], ['gemeente' => 'Amsterdam']));
+		self::assertSame([], $service->restrictFilters($request, ['mode' => 'read-with-interactions'], []));
+	}//end testFilterDimensionsAreRestrictedToAllowedFilters()
+
+	/**
+	 * The action of a write is read from the last path segment; anything
+	 * else names none, so an interactions token refuses it as well.
+	 *
+	 * @return void
+	 */
+	public function testTheActionOfAWriteComesFromItsPath(): void {
+		$service = new ScopeEnforcementService();
+
+		self::assertSame('export', $service->actionOf('/api/dashboards/D/export'));
+		self::assertSame('drillDown', $service->actionOf('/api/dashboards/D/drill-down/'));
+		self::assertSame('drillDown', $service->actionOf('/api/dashboards/D/DrillDown'));
+		self::assertSame('interact', $service->actionOf('/api/dashboards/D/filters'));
+		self::assertSame('interact', $service->actionOf('/api/widgets/W/interactions'));
+		self::assertNull($service->actionOf('/api/dashboards/D/widgets/new'));
+		self::assertSame(
+			'action_not_in_scope',
+			$service->refusalFor('POST', $service->actionOf('/api/dashboards/D/widgets/new'), ['mode' => 'read-with-interactions', 'allowedActions' => ['interact']])['body']['error'] ?? null
+		);
+	}//end testTheActionOfAWriteComesFromItsPath()
 
 }//end class

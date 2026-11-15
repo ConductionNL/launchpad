@@ -567,6 +567,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// `/api/admin/...` admin surface.
 		['name' => 'adminCleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
 		['name' => 'adminCleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
+		// Public embed render route (embedded-analytics, REQ-EMB-002/003/007/008):
+		// the token is checked by EmbedTokenMiddleware, the subject by EmbedController.
+		['name' => 'embed#render', 'url' => '/embed/{subjectType}/{subjectId}', 'verb' => 'GET'],
+		['name' => 'embed#data', 'url' => '/embed/{subjectType}/{subjectId}/data', 'verb' => 'GET'],
 		// Embed tokens (embedded-analytics, REQ-EMB-001/008/009): admin-only.
 		['name' => 'embedTokenApi#index', 'url' => '/api/embed-tokens', 'verb' => 'GET'],
 		['name' => 'embedTokenApi#create', 'url' => '/api/embed-tokens', 'verb' => 'POST'],

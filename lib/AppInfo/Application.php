@@ -38,6 +38,7 @@ use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
 use OCA\LaunchPad\Middleware\ApiContractMiddleware;
+use OCA\LaunchPad\Middleware\EmbedTokenMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
@@ -90,6 +91,9 @@ class Application extends App implements IBootstrap {
 		// problem details). Registered first: Nextcloud runs afterController in
 		// reverse order, so it sees the final response of every other middleware.
 		$context->registerMiddleware(class: ApiContractMiddleware::class);
+		// Embed tokens (embedded-analytics task 6): validated, and their scope
+		// enforced, before any controller runs on a request that carries one.
+		$context->registerMiddleware(class: EmbedTokenMiddleware::class);
 		$this->registerUserLifecycle(context: $context);
 		$this->registerSharedServices(context: $context);
 		$this->registerCascadeListeners(context: $context);

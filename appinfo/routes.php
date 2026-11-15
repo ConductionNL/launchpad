@@ -567,6 +567,18 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// `/api/admin/...` admin surface.
 		['name' => 'adminCleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
 		['name' => 'adminCleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
+		// Embed tokens (embedded-analytics, REQ-EMB-001/008/009): admin-only.
+		['name' => 'embedTokenApi#index', 'url' => '/api/embed-tokens', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#create', 'url' => '/api/embed-tokens', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#telemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#setTelemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#show', 'url' => '/api/embed-tokens/{id}', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#update', 'url' => '/api/embed-tokens/{id}', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#revoke', 'url' => '/api/embed-tokens/{id}/revoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#unrevoke', 'url' => '/api/embed-tokens/{id}/unrevoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#reissue', 'url' => '/api/embed-tokens/{id}/re-issue', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#purgeCache', 'url' => '/api/embed-tokens/{id}/purge-cache', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#usage', 'url' => '/api/embed-tokens/{id}/usage', 'verb' => 'GET'],
 
 		// Org-wide navigation editor (REQ-ONAV-001..012). The /position
 		// routes MUST precede the bare /org-navigation routes so the

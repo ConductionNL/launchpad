@@ -235,11 +235,11 @@
   - Unit tests: PII minimisation (no IP, no full UA, no end-user identifier)
   > Partly built: `lib/Entity/EmbedUsageEvent.php` builds the event (origin from Origin, else scheme and host of Referer; browser family + major; sha256 of the UA; viewport bucket; latency) and `Service/Embed/UsageTelemetryService::record()` writes it, absorbing a failed write. Tests: `UsageTelemetryServiceTest`. Calling it from the render route waits for Task 9.
 
-- [ ] Task 29: Create usage report API:
+- [x] Task 29: Create usage report API:
   - `GET /api/embed-tokens/{id}/usage` — Summary stats + aggregated events (by date, by host origin, by viewport, by browser)
   - Respond with JSON suitable for charts (date series, bar data, pie data)
   - No individual-user rows (aggregation only)
-  > Partly built: `UsageTelemetryService::report()` aggregates the last 7 days by date, host origin, viewport, browser (top 10), interaction and status, and counts use after revocation (REQ-EMB-009 9.4). The route waits for the token API controller.
+  > Partly built: `UsageTelemetryService::report()` aggregates the last 7 days by date, host origin, viewport, browser (top 10), interaction and status, and counts use after revocation (REQ-EMB-009 9.4). Served at `GET /api/embed-tokens/{id}/usage` by `Controller/EmbedTokenApiController`, which is also the admin API the token manager needs: list, show, create (201 with the JWT once), update, revoke, unrevoke, re-issue, purge-cache, and `GET`/`PUT /api/embed-settings/telemetry` (admin-only, 503 without OpenRegister; documented in `openapi.json` as internal). Tests: `EmbedTokenApiControllerTest` (5).
 
 - [ ] Task 30: Implement telemetry kill-switch:
   - Add org setting: `embed_telemetry_enabled` (boolean, default true)

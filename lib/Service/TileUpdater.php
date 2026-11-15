@@ -85,6 +85,12 @@ class TileUpdater {
 			$tileData['linkVal'] ?? ''
 		);
 		if (is_array($tileData['content'] ?? null) === true) {
+			// REQ-TIA-002: a new tile's address on the office network follows
+			// the same rules as on an update.
+			if (array_key_exists(key: 'internalUrl', array: $tileData['content']) === true) {
+				self::assertValidInternalUrl(value: $tileData['content']['internalUrl']);
+			}
+
 			$placement->setContentArray($tileData['content']);
 		}
 
@@ -166,16 +172,6 @@ class TileUpdater {
 
 		return in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === true && $host !== '';
 	}//end isSafeInternalUrl()
-
-	/**
-		if (isset($data['tileLinkValue']) === true) {
-			$placement->setTileLinkValue(
-				$data['tileLinkValue']
-			);
-		}
-
-		$this->checkLaunchLink(placement: $placement);
-	}//end applyTileUpdates()
 
 	/**
 	 * Check a program, remote-desktop or sso tile as it will be saved, and

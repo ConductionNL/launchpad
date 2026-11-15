@@ -105,4 +105,34 @@ class TileInternalAddressTest extends TestCase {
 			$this->assertSame(0, $this->updates, 'nothing may be written');
 		}
 	}//end testAnInvalidOfficeAddressRefusesTheUpdate()
+
+	/**
+	 * A new tile takes a valid office address into its content (REQ-TIA-002).
+	 *
+	 * @dataProvider validAddresses
+	 */
+	public function testANewTileKeepsAValidOfficeAddress(string $address): void {
+		$placement = new WidgetPlacement();
+
+		(new TileUpdater())->applyTileConfig(placement: $placement, tileData: ['linkType' => 'url', 'linkVal' => 'https://zaken.gemeente.nl/', 'content' => ['internalUrl' => $address]]);
+
+		$this->assertSame($address, $placement->getContentArray()['internalUrl']);
+	}//end testANewTileKeepsAValidOfficeAddress()
+
+	/**
+	 * A new tile is refused with an invalid office address, as an update is,
+	 * before its content is set (REQ-TIA-002).
+	 *
+	 * @dataProvider invalidAddresses
+	 */
+	public function testANewTileWithAnInvalidOfficeAddressIsRefused(mixed $address): void {
+		$placement = new WidgetPlacement();
+
+		try {
+			(new TileUpdater())->applyTileConfig(placement: $placement, tileData: ['linkType' => 'url', 'linkVal' => 'https://zaken.gemeente.nl/', 'content' => ['internalUrl' => $address]]);
+			$this->fail('accepted an invalid office address on a new tile');
+		} catch (InvalidArgumentException) {
+			$this->assertArrayNotHasKey('internalUrl', (array)$placement->getContentArray(), 'nothing may be set');
+		}
+	}//end testANewTileWithAnInvalidOfficeAddressIsRefused()
 }//end class

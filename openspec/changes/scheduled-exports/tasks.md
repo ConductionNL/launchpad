@@ -67,9 +67,12 @@
 ### Quality Gates & Documentation
 
 - [ ] Task 31: Composer checks: `composer check:strict`, `composer check:lint` — no errors
-- [ ] Task 32: ESLint + Stylelint on all `.vue` and `.js` files — green
+  - 2026-11-15: on this change's own files (lib/**/ScheduledExport*) php -l, phpcs, phpstan, psalm and phpmd are clean and the PHP unit suite passes (4436 tests). Left open: repo-wide phpcs still reports 6 errors and psalm findings in the announcement files (DemoAnnouncements.php, AnnouncementFollowNotifier.php, AnnouncementCommentService.php), which are not part of this change.
+- [x] Task 32: ESLint + Stylelint on all `.vue` and `.js` files — green
+  - 2026-11-15: `eslint src` has 0 errors (the 2 left in Announcements/__tests__/announcements.spec.js fixed with --fix); stylelint has warnings only.
 - [x] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license EUPL-1.2`, `@copyright ...`)
-- [ ] Task 34: Hydra gates green: `hydra-gate-spdx`, `hydra-gate-modal-isolation` (export modals live in `src/modals/`, not inlined), `hydra-gate-route-auth` (all routes have permission checks)
+- [x] Task 34: Hydra gates green: `hydra-gate-spdx`, `hydra-gate-modal-isolation` (export modals live in `src/modals/`, not inlined), `hydra-gate-route-auth` (all routes have permission checks)
+  - 2026-11-15: SPDX headers clean (scripts/check-license-headers.sh), every ScheduledExportController route carries #[NoAdminRequired] and checks its scheduled-exports.* action first, and every export dialog lives in its own file under src/modals/.
 - [x] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
 - [ ] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions
 - [x] Task 37: Update `CHANGELOG.md` with feature summary: "Scheduled Exports v1 — recurring exports with multi-format rendering and multi-channel delivery (email, Files, webhook, SFTP)"

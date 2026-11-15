@@ -1808,7 +1808,6 @@
         "Signing secret": "Ondertekeningsgeheim",
         "Signs every request so the receiver can check it came from LaunchPad.": "Ondertekent elk verzoek, zodat de ontvanger kan controleren dat het van LaunchPad komt.",
         "Server": "Server",
-        "Port": "Poort",
         "User name": "Gebruikersnaam",
         "Private key (instead of a password)": "Privésleutel (in plaats van een wachtwoord)",
         "Folder on the server": "Map op de server",

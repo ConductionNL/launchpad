@@ -80,7 +80,7 @@ namespace OCA\OpenRegister\AppHost\Service {
 	}
 }
 
-namespace OCA\OpenRegister\Service\Object {
+namespace OCA\OpenRegister\Kernel\Contracts\Value {
 	if (class_exists(__NAMESPACE__ . '\\ObjectFindTarget', false) === false) {
 		/**
 		 * Stub mirroring the register and schema an object is saved under.

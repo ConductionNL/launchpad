@@ -25,7 +25,7 @@ namespace Unit\Migration;
 
 use Doctrine\DBAL\Schema\Schema;
 use OCA\LaunchPad\Migration\Version002000Date20260519000000;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\DB\IResult;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\QueryBuilder\IExpressionBuilder;

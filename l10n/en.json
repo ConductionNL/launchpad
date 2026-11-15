@@ -1326,6 +1326,9 @@
         "Add it as a tile from Add on your dashboard": "Add it as a tile from Add on your dashboard",
         "Your request for **%1$s** was declined: %2$s": "Your request for **%1$s** was declined: %2$s",
         "Your request for %1$s was declined: %2$s": "Your request for %1$s was declined: %2$s",
-        "An administrator decided on your request in the app catalogue": "An administrator decided on your request in the app catalogue"
+        "An administrator decided on your request in the app catalogue": "An administrator decided on your request in the app catalogue",
+        "New announcement in %1$s: **%2$s**": "New announcement in %1$s: **%2$s**",
+        "New announcement in %1$s: %2$s": "New announcement in %1$s: %2$s",
+        "Open LaunchPad to read the announcement": "Open LaunchPad to read the announcement"
     }
 }

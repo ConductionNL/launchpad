@@ -36,7 +36,7 @@ use OCP\Notification\UnknownNotificationException;
 /**
  * LaunchPad notification renderer.
  *
- * Handles four subjects:
+ * Handles five subjects:
  * - `dashboard_shared` — published when a dashboard is shared with a user or
  *   when a share's permission_level is upgraded (REQ-SHARE-008).
  * - `dashboard_ownership_transferred` — published when a UserDeletedEvent
@@ -49,6 +49,9 @@ use OCP\Notification\UnknownNotificationException;
  * - `dashboard_template_resynced` — published by
  *   {@see \OCA\LaunchPad\Service\TemplateResyncService} when an admin
  *   re-sync changes a user's provisioned copy (REQ-RESYNC-005).
+ * - `announcement_published` — sent by
+ *   {@see \OCA\LaunchPad\Service\AnnouncementFollowNotifier} to the followers
+ *   of a category when an announcement in it becomes visible (REQ-ANN-003).
  */
 class Notifier implements INotifier {
 	/**
@@ -136,6 +139,10 @@ class Notifier implements INotifier {
 	 * @return string The URL.
 	 */
 	private function linkFor(INotification $notification): string {
+		if ($notification->getSubject() === 'announcement_published') {
+			return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.page.index');
+		}
+
 		if ($notification->getSubject() === 'mentioned_in_comment') {
 			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
 		}
@@ -176,6 +183,7 @@ class Notifier implements INotifier {
 			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
 			'app_requested' => $this->appRequestedCopy(params: $params, l: $l),
 			'app_request_decided' => $this->appDecidedCopy(params: $params, l: $l),
+			'announcement_published' => $this->announcementCopy(params: $params, l: $l),
 			default => throw new UnknownNotificationException(
 				message: 'Unknown subject: ' . $notification->getSubject()
 			),
@@ -324,6 +332,27 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end appDecidedCopy()
+
+	/**
+	 * Copy for `announcement_published`: a new announcement in a followed category (REQ-ANN-003).
+	 *
+	 * @param array $params The subject parameters: category, title.
+	 * @param IL10N $l      The localisation.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-follow-categories-req-ann-003
+	 */
+	private function announcementCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('New announcement in %1$s: **%2$s**', $names);
+		$copy->parsedSubject = $l->t('New announcement in %1$s: %2$s', $names);
+		$copy->message       = $l->t('Open LaunchPad to read the announcement');
+
+		return $copy;
+	}//end announcementCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

@@ -205,6 +205,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'page#publicShare', 'url' => '/s/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// sharing-public-start-page REQ-PSP-002: the public start page signed-out
+		// visitors land on. #[PublicPage]; falls back to the login form.
+		['name' => 'page#start', 'url' => '/start', 'verb' => 'GET'],
 
 		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,
 		// `#[NoAdminRequired]` + service-layer per-dashboard guards. The literal
@@ -267,6 +270,39 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'personalLayerApi#reset',
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
+
+		// engagement-announcements: news items and notices. The literal
+		// `/reach` and `/follows` routes come before `/{uuid}`.
+		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],
+		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
+		['name' => 'announcement#reach', 'url' => '/api/announcements/reach', 'verb' => 'GET'],
+		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],
+		['name' => 'announcement#unfollow', 'url' => '/api/announcements/follows/{category}', 'verb' => 'DELETE'],
+		['name' => 'announcement#show',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#update',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'PUT',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#destroy',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#publish',
+		 'url' => '/api/announcements/{uuid}/publish', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-002: likes and comments, stored by Nextcloud's comments service.
+		['name' => 'announcement#comments',
+		 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#comment',
+		 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#like',
+		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#unlike',
+		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
@@ -331,6 +367,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'tileApi#create', 'url' => '/api/tiles', 'verb' => 'POST'],
 		['name' => 'tileApi#update', 'url' => '/api/tiles/{id}', 'verb' => 'PUT'],
 		['name' => 'tileApi#destroy', 'url' => '/api/tiles/{id}', 'verb' => 'DELETE'],
+		// launcher-tile-launch-types D3: the .rdp file of a remote-desktop tile,
+		// for a caller who may view the tile's dashboard.
+		['name' => 'tileLaunch#rdp', 'url' => '/api/tiles/{placementId}/rdp', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 
 		// Conditional rules endpoints
 		['name' => 'ruleApi#getRules', 'url' => '/api/widgets/{placementId}/rules', 'verb' => 'GET'],
@@ -463,6 +503,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'adminSettings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'adminSettings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+		// sharing-public-start-page REQ-PSP-001: choose the public link signed-out visitors see.
+		['name' => 'publicStart#show', 'url' => '/api/admin/public-start', 'verb' => 'GET'],
+		['name' => 'publicStart#update', 'url' => '/api/admin/public-start', 'verb' => 'PUT'],
 
 		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the

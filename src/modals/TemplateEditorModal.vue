@@ -110,6 +110,7 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { logger } from '../utils/logger.js'
 
@@ -144,18 +145,12 @@ export default {
 
 	props: {
 		/** Visibility toggle owned by the parent page. */
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
 		/**
 		 * The template to edit, or `null` to open a blank create form.
 		 */
-		template: {
-			type: Object,
-			default: null,
-		},
+		template: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['close', 'saved'],

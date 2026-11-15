@@ -209,11 +209,23 @@
 			@confirm="confirmDeleteDashboard" />
 
 		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
-		<ForceReleaseLockDialog
-			:open="forceReleaseDialogOpen"
-			:holderName="editLock.state.holderName"
-			@update:open="forceReleaseDialogOpen = $event"
-			@confirm="onTakeOverConfirmed" />
+		<CnConfirmDialog
+			v-if="forceReleaseDialogOpen"
+			:dialogTitle="t('launchpad', 'Take over editing?')"
+			:message="
+				t(
+					'launchpad',
+					'{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.',
+					{
+						name:
+							editLock.state.holderName
+							|| t('launchpad', 'A colleague'),
+					},
+				)
+			"
+			:confirmLabel="t('launchpad', 'Take over')"
+			@confirm="onTakeOverConfirmed"
+			@close="forceReleaseDialogOpen = false" />
 
 		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
 		<ScheduleDashboardDialog
@@ -255,6 +267,14 @@
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
 				@navigate="onBreadcrumbNavigate" />
+			<!-- drill-down-cross-widget-filter REQ-CWF-006, REQ-CWF-007. -->
+			<ActiveFiltersPanel
+				v-if="activeDashboard"
+				:clauses="filterClauses"
+				:labels="filterSession?.labels ?? {}"
+				:widgetNames="filterWidgetNames"
+				@remove="onFilterRemove"
+				@reset="onFilterReset" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -302,6 +322,7 @@
 							:tile="getTileData(item)"
 							:editMode="isEditMode"
 							:placementId="item.id"
+							:content="item.content || null"
 							:healthPingEnabled="
 								item.content
 								&& item.content.healthPingEnabled === true
@@ -364,8 +385,12 @@
 			:open="isWidgetModalOpen"
 			:widgets="availableWidgets"
 			:placedWidgetIds="placedWidgetIds"
+			:discoveredApps="discoveredApps"
+			:placedAppIds="placedDiscoveredAppIds"
 			@close="closeWidgetModal"
-			@add="addWidget" />
+			@add="addWidget"
+			@addApp="addDiscoveredApp"
+			@addOfficePack="addOfficePack" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
@@ -473,6 +498,7 @@
 <script>
 import {
 	CnAddWidgetModal,
+	CnConfirmDialog,
 	CnDashboardGrid,
 	CnWidgetStyleEditorModal,
 	getDashboardColumnOpts,
@@ -484,7 +510,7 @@ import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
-import { computed, provide, reactive } from 'vue'
+import { computed, provide, reactive, shallowRef } from 'vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 // Icons
@@ -493,6 +519,7 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
@@ -503,7 +530,6 @@ import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.v
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
-import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
 import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
@@ -514,6 +540,7 @@ import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
+import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardLock } from '../composables/useDashboardLock.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
@@ -530,8 +557,11 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { logger } from '../utils/logger.js'
+import { officePackContainer } from '../utils/officeTiles.js'
+import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -566,10 +596,11 @@ export default {
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
+		ActiveFiltersPanel,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
 		EditLockBanner,
-		ForceReleaseLockDialog,
+		CnConfirmDialog,
 		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
@@ -687,7 +718,13 @@ export default {
 		// dashboards-personal-hide-ui: this person's own layer.
 		const personalLayer = usePersonalLayerStore()
 
-		return { canEditRef, grid, personalLayer }
+		// drill-down-cross-widget-filter: the open dashboard's filter session.
+		// Its bus is provided to the widgets below, which publish clicks into
+		// it and read the clauses they consume (REQ-CWF-001, REQ-CWF-002).
+		const filterSession = shallowRef(null)
+		provide('dashboardFilterBus', computed(() => filterSession.value?.bus ?? null))
+
+		return { canEditRef, grid, personalLayer, filterSession }
 	},
 
 	data() {
@@ -704,6 +741,7 @@ export default {
 			 */
 			unavailableSources: {},
 			isWidgetModalOpen: false,
+			discoveredApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
 			// Tab the config drawer lands on when opened (dashboard-sharing
@@ -786,6 +824,31 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The open dashboard's filter clauses, for the active-filters panel.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 */
+		filterClauses() {
+			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * Each placement's title by placement id, so a chip names the widget
+		 * a clause was clicked in.
+		 *
+		 * @return {{[key: string]: string}}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 */
+		filterWidgetNames() {
+			const names = {}
+			for (const placement of this.widgetPlacements || []) {
+				names[placement.id] = resolveWidgetTitle(placement, this.availableWidgets)
+			}
+			return names
+		},
+
 		/**
 		 * The placements the grid shows: every placement in edit mode, and
 		 * outside it every placement but an object-list that asked to be
@@ -1020,6 +1083,11 @@ export default {
 			return this.widgetPlacements.map((p) => p.widgetId)
 		},
 
+		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
+		placedDiscoveredAppIds() {
+			return discoveredAppIdsOnDashboard(this.widgetPlacements, this.discoveredApps)
+		},
+
 		/**
 		 * Combined input for the sidebar's `groupDashboards` prop —
 		 * primary-group + default-group + shared-with-me rows, each carrying
@@ -1202,6 +1270,9 @@ export default {
 				if (!uuid) {
 					return
 				}
+				// Filters belong to a dashboard: a switch starts a fresh
+				// session; only the first one reads a bookmarked `?f=`.
+				this.openFilterSession(prevUuid === undefined)
 				this.recordViewEventDebounced(uuid)
 				// Outbound URL sync — every uuid change pushes a new
 				// history entry so back/forward navigates between
@@ -1296,6 +1367,7 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		this.filterSession?.stop()
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null
@@ -2055,6 +2127,65 @@ export default {
 				return
 			}
 			this.isWidgetModalOpen = true
+			this.loadDiscoveredApps()
+		},
+
+		/**
+		 * Read the apps this server runs for the user, for the picker's
+		 * "Discovered on this server" section. A failure leaves the section
+		 * out; the rest of the picker works as before.
+		 *
+		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+		 */
+		async loadDiscoveredApps() {
+			try {
+				const response = await api.discoverApps()
+				this.discoveredApps = Array.isArray(response?.data?.apps) ? response.data.apps : []
+			} catch (error) {
+				this.discoveredApps = []
+				logger.warn('[Views] Could not discover the server apps:', error)
+			}
+		},
+
+		/**
+		 * Place a discovered app as a tile through the normal tile path.
+		 *
+		 * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
+		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+		 */
+		/**
+		 * Place the office tile pack as one container titled "Office" at the
+		 * bottom of the dashboard (REQ-OFT-001). A pack with no tiles places
+		 * nothing and says so.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+		 */
+		async addOfficePack() {
+			try {
+				const response = await api.officeTilePack()
+				const tiles = Array.isArray(response?.data?.tiles) ? response.data.tiles : []
+				if (tiles.length === 0) {
+					showError(t('launchpad', 'This server has no office apps to make tiles for.'))
+					return
+				}
+				const pack = officePackContainer(tiles, t('launchpad', 'Office'))
+				const created = await this.addWidgetToDashboard({ type: 'container', content: pack.content }, pack.size)
+				if (created?.id) {
+					this.closeWidgetModal()
+				}
+			} catch (error) {
+				logger.error('[Views] Failed to place the office tiles:', error)
+				showError(t('launchpad', 'The office tiles could not be added.'))
+			}
+		},
+
+		async addDiscoveredApp(app) {
+			try {
+				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+			} catch (error) {
+				logger.error('[Views] Failed to place a discovered app:', error)
+			}
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -2375,6 +2506,8 @@ export default {
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// launcher-tile-launch-types: remote-desktop and sso settings.
+				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
 			this.openTileEditor(tileData)
 		},
@@ -2402,6 +2535,9 @@ export default {
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
 			}
+			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
+			// settings in the same blob, checked by the server with the link.
+			const content = { ...healthPingContent, ...launchContent(tileData) }
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -2412,23 +2548,52 @@ export default {
 						tileTextColor: tileData.textColor,
 						tileLinkType: tileData.linkType,
 						tileLinkValue: tileData.linkValue,
-						content: healthPingContent,
+						content,
 					})
 				} else {
-					const newPlacement = await this.addTileToDashboard(tileData)
-					// `addTile` has no `content` parameter (mirrors the
-					// `addWidget` create-then-patch pattern above) — persist
-					// the health-ping block with a follow-up patch only when
-					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
-						await this.updateWidgetPlacement(newPlacement.id, {
-							content: healthPingContent,
-						})
-					}
+					await this.createTile(tileData, content)
 				}
 				this.closeTileEditor()
 			} catch (error) {
-				logger.error('[Views] Failed to save tile:', error)
+				this.reportTileSaveError(tileData, error)
+			}
+		},
+
+		/**
+		 * Create a launcher tile from the editor's form state.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {object} content The placement's content blob.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		async createTile(tileData, content) {
+			// A launch tile is checked on create, so it carries its content.
+			const newPlacement = await this.addTileToDashboard(
+				isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
+			)
+			// `addTile` has no `content` parameter (mirrors the
+			// `addWidget` create-then-patch pattern above) — persist
+			// the health-ping block with a follow-up patch only when
+			// the author actually enabled it.
+			if (newPlacement?.id && content.healthPingEnabled) {
+				await this.updateWidgetPlacement(newPlacement.id, {
+					content,
+				})
+			}
+		},
+
+		/**
+		 * Log a failed tile save, and tell the author when the server refused a launch tile's settings.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {Error} error The failure.
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		reportTileSaveError(tileData, error) {
+			logger.error('[Views] Failed to save tile:', error)
+			if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {
+				showError(t('launchpad', 'The tile was not saved: check its address or settings.'))
 			}
 		},
 
@@ -2631,6 +2796,40 @@ export default {
 		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
+		/**
+		 * Open the filter session of the active dashboard, stopping the
+		 * previous one (drill-down-cross-widget-filter REQ-CWF-003).
+		 *
+		 * @param {boolean} readUrl Whether the URL's `f` seeds the bus.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+		 */
+		openFilterSession(readUrl) {
+			this.filterSession?.stop()
+			this.filterSession = useDashboardFilterSession({ dashboard: this.activeDashboard, readUrl })
+		},
+
+		/**
+		 * Remove one clause from the active-filters panel.
+		 *
+		 * @param {string} dimension The clause's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 */
+		onFilterRemove(dimension) {
+			this.filterSession?.remove(dimension)
+		},
+
+		/**
+		 * "Reset filters": clear every clause that is not pinned.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-006-reset-filters-clears-all-non-pinned-clauses
+		 */
+		onFilterReset() {
+			this.filterSession?.reset()
+		},
+
 		async pushUrlForActiveDashboard() {
 			const uuid = this.activeDashboard?.uuid
 			if (!uuid) {

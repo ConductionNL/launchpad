@@ -174,6 +174,91 @@ class PublicShareServiceTest extends TestCase {
 		);
 	}
 
+	public function testCreateShareRefusesAnUnparsableExpiry(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('a', 64));
+		$this->shareMapper->expects($this->never())->method('insert');
+
+		$this->expectException(\InvalidArgumentException::class);
+
+		$this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'alice',
+			expiresAt: 'next tuesday-ish'
+		);
+	}
+
+	public function testCreateShareStoresAParsableExpiry(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('a', 64));
+		$this->shareMapper->expects($this->once())->method('insert')->willReturnCallback(
+			function (PublicShare $share): PublicShare {
+				$this->assertSame('2030-01-02 03:04:05', $share->getExpiresAt());
+				return $share;
+			}
+		);
+
+		$this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'alice',
+			expiresAt: '2030-01-02T03:04:05Z'
+		);
+	}
+
+	public function testAFailedInsertKeepsTokenAndHashOutOfTheError(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('k', 64));
+		$this->hasher->method('hash')->willReturn('$2y$secret-hash');
+		$this->shareMapper->method('insert')->willThrowException(
+			new \RuntimeException('INSERT failed with params ["' . str_repeat('k', 64) . '", "$2y$secret-hash"]')
+		);
+
+		$logged = [];
+		$this->logger->method('error')->willReturnCallback(
+			function (string $message, array $context = []) use (&$logged): void {
+				$logged[] = $message . json_encode($context);
+			}
+		);
+
+		try {
+			$this->service->createPublicShare(dashboardUuid: 'some-uuid', callerId: 'alice', password: 'pw');
+			$this->fail('A failed insert must throw');
+		} catch (\RuntimeException $e) {
+			$this->assertNull($e->getPrevious());
+			$this->assertStringNotContainsString(str_repeat('k', 64), $e->getMessage());
+			$this->assertStringNotContainsString('secret-hash', $e->getMessage());
+		}
+
+		$this->assertCount(1, $logged);
+		$this->assertStringNotContainsString(str_repeat('k', 64), $logged[0]);
+		$this->assertStringNotContainsString('secret-hash', $logged[0]);
+	}
+
+	public function testPasswordParametersAreMarkedSensitive(): void {
+		foreach ([
+			[PublicShareService::class, 'createPublicShare', 'password'],
+			[PublicShareService::class, 'renderShareContent', 'password'],
+			[PublicShareService::class, 'unlockShare', 'password'],
+			[\OCA\LaunchPad\Controller\PublicShareController::class, 'create', 'password'],
+			[\OCA\LaunchPad\Controller\PublicShareController::class, 'unlock', 'password'],
+		] as [$class, $method, $name]) {
+			$parameter = array_values(array_filter(
+				(new \ReflectionMethod($class, $method))->getParameters(),
+				static fn (\ReflectionParameter $p): bool => $p->getName() === $name
+			))[0];
+			$this->assertNotEmpty($parameter->getAttributes(\SensitiveParameter::class), $class . '::' . $method);
+		}
+	}
+
 	// -------------------------------------------------------------------------
 	// renderShareContent
 	// -------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
+import { NULLABLE_OBJECT_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
@@ -44,10 +45,7 @@ export default {
 
 	props: {
 		/** The active dashboard (`uuid`, `name`, `hasVariants`). */
-		dashboard: {
-			type: Object,
-			default: null,
-		},
+		dashboard: NULLABLE_OBJECT_PROP,
 	},
 
 	/** @spec openspec/specs/dashboard-language-content/spec.md */

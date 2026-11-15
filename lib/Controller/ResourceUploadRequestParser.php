@@ -50,6 +50,33 @@ class ResourceUploadRequestParser {
 	 * @spec openspec/specs/resource-uploads/spec.md
 	 */
 	public function extractBase64(IRequest $request, string $rawBody): string {
+		self::refuseMultipart(request: $request);
+
+		if ($rawBody === '') {
+			throw new InvalidDataUrlException();
+		}
+
+		$decoded = self::decodeJsonBody(rawBody: $rawBody);
+		if (is_array(value: $decoded) === false
+			|| isset($decoded['base64']) === false
+			|| is_string(value: $decoded['base64']) === false
+		) {
+			throw new InvalidDataUrlException();
+		}
+
+		return $decoded['base64'];
+	}//end extractBase64()
+
+	/**
+	 * Refuse a multipart upload: this endpoint takes a JSON body.
+	 *
+	 * @param IRequest $request The request.
+	 *
+	 * @return void
+	 *
+	 * @throws UnsupportedMediaTypeException On a multipart/form-data body.
+	 */
+	private static function refuseMultipart(IRequest $request): void {
 		$contentType = (string)$request->getHeader(name: 'Content-Type');
 		if ($contentType !== '' && stripos(
 			haystack: $contentType,
@@ -58,13 +85,20 @@ class ResourceUploadRequestParser {
 		) {
 			throw new UnsupportedMediaTypeException();
 		}
+	}//end refuseMultipart()
 
-		if ($rawBody === '') {
-			throw new InvalidDataUrlException();
-		}
-
+	/**
+	 * Decode the JSON request body.
+	 *
+	 * @param string $rawBody The non-empty request body.
+	 *
+	 * @return mixed The decoded body.
+	 *
+	 * @throws InvalidDataUrlException When the body is not valid JSON.
+	 */
+	private static function decodeJsonBody(string $rawBody): mixed {
 		try {
-			$decoded = json_decode(
+			return json_decode(
 				json: $rawBody,
 				associative: true,
 				depth: 4,
@@ -75,14 +109,5 @@ class ResourceUploadRequestParser {
 				message: 'Body must be valid JSON'
 			);
 		}
-
-		if (is_array(value: $decoded) === false
-			|| isset($decoded['base64']) === false
-			|| is_string(value: $decoded['base64']) === false
-		) {
-			throw new InvalidDataUrlException();
-		}
-
-		return $decoded['base64'];
-	}//end extractBase64()
+	}//end decodeJsonBody()
 }//end class

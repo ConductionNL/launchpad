@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -45,30 +46,28 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin-only controller for the group-priority order setting.
  */
 class AdminSettingsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
 	 * @param AdminSettingsService $settingsService Persisted-settings service.
 	 * @param IGroupManager $groupManager Group manager (admin check + listing).
-	 * @param IUserSession $userSession Active session accessor.
+	 * @param RequestGuard $guard The session and administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AdminSettingsService $settingsService,
 		private readonly IGroupManager $groupManager,
-		private readonly IUserSession $userSession,
+		private readonly RequestGuard $guard,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -96,34 +95,56 @@ class AdminSettingsController extends Controller {
 			return $forbidden;
 		}
 
+		$allKnown = $this->knownGroups();
+		$active = $this->settingsService->getGroupOrder();
+
+		return ResponseHelper::success(
+			data: [
+				'active' => $active,
+				'inactive' => self::inactiveGroups(allKnown: $allKnown, active: $active),
+				'allKnown' => $allKnown,
+			]
+		);
+	}//end listGroups()
+
+	/**
+	 * Every Nextcloud group as `{id, displayName}`.
+	 *
+	 * @return list<array{id: string, displayName: string}> The groups.
+	 */
+	private function knownGroups(): array {
 		$allKnown = [];
-		$allKnownIds = [];
 		foreach ($this->groupManager->search(search: '') as $group) {
-			$id = $group->getGID();
-			$allKnownIds[] = $id;
 			$allKnown[] = [
-				'id' => $id,
+				'id' => $group->getGID(),
 				'displayName' => $group->getDisplayName(),
 			];
 		}
 
-		$active = $this->settingsService->getGroupOrder();
+		return $allKnown;
+	}//end knownGroups()
 
-		// `inactive` = allKnown - active (stale active IDs MUST NOT
-		// appear in inactive — REQ-ASET-013 disjoint scenario).
+	/**
+	 * The known group ids that are not in the active order, sorted by
+	 * display name (case-insensitive).
+	 *
+	 * `inactive` = allKnown - active (stale active IDs MUST NOT appear in
+	 * inactive — REQ-ASET-013 disjoint scenario).
+	 *
+	 * @param list<array{id: string, displayName: string}> $allKnown Every group.
+	 * @param list<string>                                 $active   The active group order.
+	 *
+	 * @return list<string> The inactive group ids.
+	 */
+	private static function inactiveGroups(array $allKnown, array $active): array {
 		$activeSet = array_flip(array: $active);
 		$inactive = [];
-		foreach ($allKnownIds as $id) {
-			if (array_key_exists(key: $id, array: $activeSet) === false) {
-				$inactive[] = $id;
-			}
-		}
-
-		// Sort `inactive` by displayName (case-insensitive). Build a
-		// lookup so stable sort by name is cheap.
 		$displayNameById = [];
 		foreach ($allKnown as $row) {
 			$displayNameById[$row['id']] = $row['displayName'];
+			if (array_key_exists(key: $row['id'], array: $activeSet) === false) {
+				$inactive[] = $row['id'];
+			}
 		}
 
 		usort(
@@ -135,14 +156,8 @@ class AdminSettingsController extends Controller {
 			}
 		);
 
-		return ResponseHelper::success(
-			data: [
-				'active' => $active,
-				'inactive' => $inactive,
-				'allKnown' => $allKnown,
-			]
-		);
-	}//end listGroups()
+		return $inactive;
+	}//end inactiveGroups()
 
 	/**
 	 * Handle `POST /api/admin/groups` — REQ-ASET-012, REQ-ASET-014.
@@ -170,19 +185,13 @@ class AdminSettingsController extends Controller {
 		}
 
 		if (is_array($groups) === false) {
-			return new JSONResponse(
-				data: ['error' => 'groups must be an array'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'groups must be an array', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
 			$this->settingsService->setGroupOrder(groupIds: $groups);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return ResponseHelper::success(
@@ -206,18 +215,11 @@ class AdminSettingsController extends Controller {
 	 *                           should return verbatim.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+		$refusal = $this->guard->refusal();
+		if ($refusal === null || $refusal->getStatus() === Http::STATUS_UNAUTHORIZED) {
+			return $refusal;
 		}
 
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return ResponseHelper::forbidden();
-		}
-
-		return null;
+		return ResponseHelper::forbidden();
 	}//end assertAdmin()
 }//end class

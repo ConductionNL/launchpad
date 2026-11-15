@@ -2,7 +2,9 @@
 # Each change adds its own <change>.json (OpenAPI components.schemas/paths) instead
 # of editing launchpad_register.json — concurrent builds never conflict.
 #
-# NOTE: LaunchPad does not currently load launchpad_register.json into OpenRegister
-# (there is no ConfigurationService::importFromApp call). This directory is staged
-# for when a register-import loader is added; the merge enabler lives in src/main.js
-# (manifest fragments) for now. See the ADR-037 PR notes.
+# They are merged onto launchpad_register.json in file-name order by the
+# ImportLaunchpadRegister repair step (objects key by key, lists joined), the
+# same way OpenRegister's app host merges an app's register.d/. A fragment that
+# changes something the importer does not compare by content (such as a
+# schema's `configuration`) also needs ImportLaunchpadRegister::REGISTER_VERSION
+# raised, or existing installs keep the old schema.

@@ -31,6 +31,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<AdminSetting>
  */
 class AdminSettingMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -54,15 +56,7 @@ class AdminSettingMapper extends QBMapper {
 	 * @throws DoesNotExistException If not found.
 	 */
 	public function findByKey(string $key): AdminSetting {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'setting_key',
-					y: $qb->createNamedParameter(value: $key)
-				)
-			);
+		$qb = $this->selectWhere(match: ['setting_key' => $key]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByKey()

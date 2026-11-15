@@ -298,6 +298,29 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"limit": 10,
+			"days": 7
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/ContainerChild.vue | placement": {
 		"type": "Object",
 		"required": true,

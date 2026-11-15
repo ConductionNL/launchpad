@@ -69,6 +69,8 @@ import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidget
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
+import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
+import ColleagueActivityWidgetForm from '../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 import ContainerWidgetForm from '../components/Widgets/Renderers/ContainerWidgetForm.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
@@ -184,6 +186,19 @@ registerDashboardWidget('attention', {
 	},
 	displayName: 'First today',
 	icon: 'AlertCircleOutline',
+})
+
+// `colleague-activity`: what colleagues did recently, filtered server-side to
+// what the reader may see (dashboards-and-who-may-see-them REQ-DWMS-007).
+registerDashboardWidget('colleague-activity', {
+	renderer: ColleagueActivityWidget,
+	form: ColleagueActivityWidgetForm,
+	defaultContent: {
+		limit: 10,
+		days: 7,
+	},
+	displayName: 'Colleague activity',
+	icon: 'AccountMultipleOutline',
 })
 
 registerDashboardWidget('clock', {

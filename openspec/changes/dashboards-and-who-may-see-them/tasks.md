@@ -37,9 +37,9 @@
 
 ## 5. Colleague activity
 
-- [ ] 5.1 Add the widget over the existing activity feed.
-- [ ] 5.2 Filter to what the reader may see, and exclude filtered entries from every count.
-- [ ] 5.3 PHPUnit on the permission filter, including its effect on the totals.
+- [x] 5.1 Add the widget over the existing activity feed. — built: widget type `colleague-activity` (`ColleagueActivityWidget` with its form: lines and days back) over `GET /api/colleague-activity`, which reads the activity app's rows addressed to the reader (`ColleagueActivityReader`), without the reader's own actions; no second feed.
+- [x] 5.2 Filter to what the reader may see, and exclude filtered entries from every count. — built: `ColleagueActivityService` checks every event on a launchpad dashboard against the dashboard as it is now (`PermissionService::canViewDashboard()`); an event on a dashboard the reader cannot see, or that is gone, is absent, and the total, the per-type counts and the number of colleagues are taken from what remains.
+- [x] 5.3 PHPUnit on the permission filter, including its effect on the totals. — built: `ColleagueActivityServiceTest` (7), `ColleagueActivityReaderTest` (2), `ColleagueActivityControllerTest` (2); Vitest on the widget (7) and its form (3).
 
 ## 6. In-widget search
 

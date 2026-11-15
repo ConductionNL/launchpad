@@ -448,6 +448,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'activityReport#export', 'url' => '/api/activity-report/export', 'verb' => 'GET'],
 		['name' => 'activityReport#policy', 'url' => '/api/admin/activity-reporting', 'verb' => 'GET'],
 		['name' => 'activityReport#updatePolicy', 'url' => '/api/admin/activity-reporting', 'verb' => 'PUT'],
+		// Recent colleague activity (dashboards-and-who-may-see-them REQ-DWMS-007): the caller's
+		// own activity stream, minus their own actions and what they may no longer see.
+		['name' => 'colleagueActivity#index', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 

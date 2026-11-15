@@ -9131,6 +9131,55 @@
                     }
                 }
             }
+        },
+        "/colleague-activity": {
+            "get": {
+                "operationId": "colleague-activity-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET recent colleague activity",
+                "description": "GET what other people did recently, as the caller may see it: the caller's own activity stream from the activity app, without the caller's own actions, and without events on a dashboard the caller cannot see now. A left-out entry is absent, not redacted, and is not in any count. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "colleague-activity"
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many entries to list, 1 to 50.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many days back, 1 to 90.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
         }
     },
     "components": {

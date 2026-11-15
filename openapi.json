@@ -234,6 +234,10 @@
         {
             "name": "analytics-opt-out",
             "description": "The signed-in person's own analytics opt-out."
+        },
+        {
+            "name": "search-shortcuts",
+            "description": "The administrator's search shortcuts: a prefix that sends a search straight to another site."
         }
     ],
     "paths": {
@@ -2354,6 +2358,100 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/admin/search-shortcuts": {
+            "get": {
+                "operationId": "search-shortcuts-index",
+                "x-launchpad-stability": "internal",
+                "summary": "List the search shortcuts",
+                "description": "List the search shortcuts every search box honours: `{prefix, name, urlTemplate}` per shortcut. Needs an administrator.",
+                "tags": [
+                    "search-shortcuts"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "search-shortcuts-save",
+                "x-launchpad-stability": "internal",
+                "summary": "Replace the search shortcuts",
+                "description": "Replace the search shortcuts with the `shortcuts` list from the request body and return the stored list. An invalid list is refused with 400. Needs an administrator.",
+                "tags": [
+                    "search-shortcuts"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "shortcuts": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "prefix": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "urlTemplate": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }

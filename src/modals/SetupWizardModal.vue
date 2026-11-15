@@ -5,6 +5,7 @@
 
 <template>
 	<NcModal
+		class="launchpad-modal"
 		:name="t('launchpad', 'LaunchPad setup wizard')"
 		size="large"
 		@close="onClose">

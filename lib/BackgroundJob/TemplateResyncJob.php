@@ -79,11 +79,9 @@ class TemplateResyncJob extends QueuedJob {
 	 * @spec openspec/specs/admin-templates/spec.md
 	 */
 	protected function run($argument): void {
-		$templateId = (int)($argument['templateId'] ?? 0);
-		$strategy = (string)($argument['strategy'] ?? '');
-		$actingAdminId = (string)($argument['actingAdminId'] ?? '');
+		$request = new TemplateResyncRequest(argument: $argument);
 
-		if ($templateId <= 0 || $strategy === '' || $actingAdminId === '') {
+		if ($request->isComplete() === false) {
 			$this->logger->warning(
 				message: 'launchpad.template_resync.job_skipped reason=invalid_arguments',
 				context: ['argument' => $argument]
@@ -93,29 +91,40 @@ class TemplateResyncJob extends QueuedJob {
 
 		try {
 			$result = $this->resyncService->applyResync(
-				templateId: $templateId,
-				strategy: $strategy,
-				actingAdminId: $actingAdminId
+				templateId: $request->templateId,
+				strategy: $request->strategy,
+				actingAdminId: $request->actingAdminId
 			);
-
-			$this->logger->info(
-				message: sprintf(
-					'launchpad.template_resync.job_completed template=%d strategy=%s affected=%d total=%d',
-					$templateId,
-					$strategy,
-					$result['affectedCount'],
-					$result['totalCopies']
-				)
-			);
+			$this->logCompleted(request: $request, result: $result);
 		} catch (Throwable $t) {
 			$this->logger->error(
 				message: 'launchpad.template_resync.job_failed',
 				context: [
-					'templateId' => $templateId,
-					'strategy' => $strategy,
+					'templateId' => $request->templateId,
+					'strategy' => $request->strategy,
 					'exception' => $t,
 				]
 			);
 		}//end try
 	}//end run()
+
+	/**
+	 * Log a completed resync with its affected and total copy counts.
+	 *
+	 * @param TemplateResyncRequest $request The resync arguments.
+	 * @param array<string, mixed>  $result  The resync result.
+	 *
+	 * @return void
+	 */
+	private function logCompleted(TemplateResyncRequest $request, array $result): void {
+		$this->logger->info(
+			message: sprintf(
+				'launchpad.template_resync.job_completed template=%d strategy=%s affected=%d total=%d',
+				$request->templateId,
+				$request->strategy,
+				$result['affectedCount'],
+				$result['totalCopies']
+			)
+		);
+	}//end logCompleted()
 }//end class

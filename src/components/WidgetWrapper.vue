@@ -93,6 +93,12 @@ import {
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_OBJECT_PROP,
+} from '../constants/propDefinitions.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -109,15 +115,9 @@ export default {
 	},
 
 	props: {
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
 
-		widget: {
-			type: Object,
-			default: null,
-		},
+		widget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * The Nextcloud Dashboard widget catalog.
@@ -128,30 +128,18 @@ export default {
 		 * pre-resolved entry. Passed as a prop rather than read from the store
 		 * so this stays a presentational component that mounts without pinia.
 		 */
-		availableWidgets: {
-			type: Array,
-			default: () => [],
-		},
+		availableWidgets: LIST_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 
 		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
 		// item for the current user. Resolved by the parent from the pending
 		// set; defaults false so widgets without a requirement are unchanged.
-		outstandingAcknowledgement: {
-			type: Boolean,
-			default: false,
-		},
+		outstandingAcknowledgement: FLAG_PROP,
 
 		// dashboards-personal-hide-ui: the host allows "Hide for me" here
 		// (a shared dashboard the viewer does not own).
-		canHideForMe: {
-			type: Boolean,
-			default: false,
-		},
+		canHideForMe: FLAG_PROP,
 	},
 
 	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],

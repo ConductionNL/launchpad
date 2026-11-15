@@ -1033,7 +1033,8 @@
 				"state": "built",
 				"evidence": "src/views/Views.vue:183",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/grid-layout"
+				"spec": "openspec/specs/grid-layout",
+				"requirement": "openspec/specs/grid-layout :: Drag to Reposition (REQ-GRID-002)"
 			},
 			"reachedOn": "Workspace page (/apps/launchpad/), after choosing Edit dashboard in the dashboard menu",
 			"evidence": {
@@ -1067,7 +1068,8 @@
 				"state": "built",
 				"evidence": "src/views/Views.vue:183",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/grid-layout"
+				"spec": "openspec/specs/grid-layout",
+				"requirement": "openspec/specs/grid-layout :: Resize by Edge Dragging (REQ-GRID-003)"
 			},
 			"reachedOn": "Workspace page in edit mode, the same grid as build-drag",
 			"evidence": {
@@ -1102,7 +1104,8 @@
 				"evidence": "nextcloud-vue CnDashboardGrid.vue:35-47 (main 0f1c0ffbb) makes every grid item in edit mode a focusable named group (role group, aria-label, tabindex 0 while keyboardRepositioning, default true) and turns Enter or Space into the contextmenu event a right-click sends; src/views/Views.vue:290 catches it on the placement and opens WidgetContextMenu; src/components/Widgets/WidgetContextMenu.vue:22-27 offers Move, which src/views/Views.vue:420 and :444 route to src/modals/WidgetMovePanel.vue; WidgetMovePanel.vue:286-310 moves with the arrow keys, resizes with Shift and the arrow keys, saves on Enter and cancels on Escape, through nudgePlacement (src/composables/useGridManager.js:248), the collision model the drag path uses; Views.vue:1964 handleMoveSave persists it. Tests: src/modals/__tests__/WidgetMovePanel.spec.js, tests/e2e/keyboard-widget-repositioning.spec.ts (drives the page with the keyboard only, checks the position after reload)",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-10-07-keyboard-accessible-widget-repositioning",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/grid-layout :: REQ-GRID-KBD-002 Keyboard-operable move and resize"
 			},
 			"reachedOn": "Workspace page, widget context menu, Move",
 			"provider": "launchpad",
@@ -1137,7 +1140,11 @@
 				"state": "built",
 				"evidence": "lib/Service/AdminSettingsService.php:124; src/components/admin/AdminSettings.vue:96",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/admin-settings"
+				"spec": "openspec/specs/admin-settings",
+				"requirement": [
+					"openspec/specs/admin-settings :: Default Grid Columns Setting (REQ-ASET-006)",
+					"openspec/specs/dashboards :: Update Dashboard (REQ-DASH-004)"
+				]
 			},
 			"reachedOn": "Admin settings (/settings/admin/launchpad), Default settings, Default grid columns",
 			"provider": "launchpad",
@@ -1145,7 +1152,7 @@
 			"feature": "grid-layout",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users.",
+			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users. The dashboards spec does let a dashboard's owner change its column count (REQ-DASH-004, scenario on grid columns); the row now records both.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 the grid is a centered flex-wrap row with max-width 1800px, so the column count follows the window width; searched apps/dashboard for column, grid settings: no user or admin setting",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:325 layout table with columnCount per board layout; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:30 add layout with columnCount; en.json:4573 'Column count'. Driven on the lab at v1.77.2 on 2026-09-26: board settings Layout shows 'Responsive layouts' with Name, Column count and Breakpoint per layout.",
@@ -1172,7 +1179,8 @@
 				"state": "built",
 				"evidence": "src/views/Views.vue:650",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-responsive-grid-breakpoints"
+				"change": "openspec/changes/archive/2026-06-14-responsive-grid-breakpoints",
+				"requirement": "openspec/specs/grid-layout :: Grid Responsiveness — concrete breakpoints (REQ-GRID-007)"
 			},
 			"reachedOn": "Workspace page at any viewport width",
 			"evidence": {
@@ -1206,7 +1214,11 @@
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue:52; src/constants/widgetRegistry.js:16",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-container-widget"
+				"change": "openspec/changes/archive/2026-05-03-container-widget",
+				"requirement": [
+					"openspec/specs/container-widget :: REQ-CONT-002 Inner grid bounded by container cell",
+					"openspec/specs/container-widget :: REQ-CONT-005 Edit-mode independence"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Container",
 			"evidence": {
@@ -1240,7 +1252,11 @@
 				"state": "built",
 				"evidence": "src/views/Views.vue:309",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/widgets"
+				"spec": "openspec/specs/widgets",
+				"requirement": [
+					"openspec/specs/widgets :: Widget Style Editor (REQ-WDG-011)",
+					"openspec/specs/widgets :: Update Widget Placement (REQ-WDG-004)"
+				]
 			},
 			"reachedOn": "Workspace page, widget context menu, Edit",
 			"provider": "launchpad",
@@ -1274,7 +1290,8 @@
 				"state": "built",
 				"evidence": "src/modals/WidgetPickerModal.vue:21; src/views/Views.vue:273",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-unified-add-widget-flow"
+				"change": "openspec/changes/archive/2026-05-03-unified-add-widget-flow",
+				"requirement": "openspec/changes/record-parity-requirements/specs/widgets :: The widget picker narrows its list as you type (REQ-WDG-028)"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Add widget",
 			"provider": "launchpad",
@@ -1308,7 +1325,11 @@
 				"state": "built",
 				"evidence": "lib/Service/WidgetService.php:86; src/constants/widgetRegistry.js:141",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy"
+				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy",
+				"requirement": [
+					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
+					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget",
 			"evidence": {
@@ -1342,7 +1363,8 @@
 				"state": "built",
 				"evidence": "src/composables/useGridManager.js:221",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-widget-collision-placement"
+				"change": "openspec/changes/archive/2026-06-14-widget-collision-placement",
+				"requirement": "openspec/specs/grid-layout :: REQ-GRID-006 Widget Auto-Layout (bottom-append placement)"
 			},
 			"reachedOn": "Workspace page, any Add widget action",
 			"provider": "launchpad",
@@ -1373,18 +1395,22 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
-				"evidence": "src/views/Views.vue:190; src/composables/useDashboardLock.js",
+				"state": "specified",
+				"evidence": "Not built: concurrent editing as LpBewerken draws it (decision 406). Built today is the edit lock, where the second editor stays read-only behind a banner naming the holder: src/views/Views.vue:277 (EditLockBanner), src/composables/useDashboardLock.js, src/components/Workspace/EditLockBanner.vue, openspec/specs/dashboard-locking REQ-LOCK-001 and REQ-LOCKUI-001.",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboard-edit-lock-ui"
+				"change": "openspec/changes/building-edit-a-dashboard-together",
+				"requirement": [
+					"openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing :: Several people SHALL be able to edit a shared dashboard at once",
+					"openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing :: Two changes to the same widget SHALL NOT silently replace each other"
+				],
+				"plan": "openspec/changes/building-edit-a-dashboard-together"
 			},
-			"reachedOn": "nothing: /api/dashboards/{uuid}/lock has no caller anywhere in src/",
+			"reachedOn": "Workspace page, Edit: the page takes the dashboard lock while you edit and a banner names the colleague who holds it",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "The lock service and its four routes exist; no page acquires or shows a lock, so a user cannot reach it.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:202-206 the layout is a per-user config value; searched apps/dashboard for share, lock, etag, version: there is no shared dashboard, so no concurrent editing and no lock",
 				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:854 saveBoard diffs the submitted board against the database and writes it with no version check or lock; searched apps and packages for editLock, lockedBy, isLocked, optimistic: none",
@@ -1395,7 +1421,8 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpBewerken"
-			}
+			},
+			"note": "Board canon (decision 406): the row is concurrent editing as drawn on LpBewerken. The edit lock stays the built behaviour until the plan lands."
 		},
 		{
 			"id": "build-personal-hide",
@@ -1409,11 +1436,15 @@
 			"dashy": "partial",
 			"built": {
 				"state": "built",
-				"evidence": "src/views/Views.vue:150; src/components/WidgetWrapper.vue; src/stores/personalLayer.js",
+				"evidence": "src/views/Views.vue:339 (@hideForMe); src/components/WidgetWrapper.vue:71; src/stores/personalLayer.js",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboards-personal-hide-ui"
+				"change": [
+					"openspec/changes/archive/2026-09-29-dashboards-personal-hide-ui",
+					"openspec/changes/dashboards-and-who-may-see-them"
+				],
+				"requirement": "openspec/specs/dashboards :: A person can hide a widget for themselves (REQ-PERSUI-001)"
 			},
-			"reachedOn": "nothing: /api/dashboards/{dashboardId}/personal-layer has no caller in src/",
+			"reachedOn": "Workspace page, a widget's cog on a shared dashboard: Hide for me",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:458-470 each person ticks widgets on or off and the result is stored only in their own user config (apps/dashboard/lib/Controller/DashboardApiController.php:205). There is no shared dashboard: the only common thing is the admin default list (apps/dashboard/lib/Service/DashboardService.php:34), which a person's own layout replaces",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:395 section_collapse_state per user; packages/api/src/router/section/section-router.ts:14 each user collapses a category for themselves only; no per-user hiding of single widgets (item table sqlite.ts:413 has no per-user state)",
@@ -1445,7 +1476,11 @@
 				"state": "built",
 				"evidence": "lib/Service/ImportService.php:138; lib/Command/ImportCommand.php:36",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-export-import"
+				"spec": "openspec/specs/dashboard-export-import",
+				"requirement": [
+					"openspec/specs/dashboard-export-import :: REQ-EXIM-001 ZIP Format Definition",
+					"openspec/specs/dashboard-export-import :: REQ-EXIM-004 Import Endpoint"
+				]
 			},
 			"reachedOn": "Admin settings, Operations tab, Export and import; and occ launchpad import",
 			"evidence": {
@@ -1478,17 +1513,17 @@
 			"dashy": "partial",
 			"built": {
 				"state": "built",
-				"evidence": "src/views/Views.vue:177; src/modals/VersionHistoryModal.vue",
+				"evidence": "src/views/Views.vue:245 (VersionHistoryModal); src/modals/VersionHistoryModal.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboard-version-history-ui"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-version-history-ui",
+				"requirement": "openspec/specs/dashboard-versioning :: Restoring asks first and can be undone (REQ-VERSUI-003)"
 			},
-			"reachedOn": "nothing: /api/dashboards/{uuid}/versions and its restore route have no caller in src/",
+			"reachedOn": "Workspace page, dashboard menu: Version history, then Restore",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-versioning",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "openspec/features.overlay.json advertises dashboard-versioning as stable (\"You roll a dashboard back to last week in one step\"); no page reaches it.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:205 each save overwrites the single user config value; searched apps/dashboard for history, version, revision, restore: none",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board table and related tables keep only the current state, no history or revision table (searched sqlite.ts for history, revision, snapshot); only a whole-database restore exists (en.json management.page.tool.backup.import)",
@@ -1515,7 +1550,11 @@
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:224",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-dashboard-switcher-sidebar"
+				"change": "openspec/changes/archive/2026-06-14-dashboard-switcher-sidebar",
+				"requirement": [
+					"openspec/specs/dashboard-switcher :: REQ-SWITCH-001 Three-section navigation",
+					"openspec/specs/dashboard-switcher :: REQ-SWITCH-002 Switch click semantics"
+				]
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar",
 			"evidence": {
@@ -1549,7 +1588,12 @@
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardRowActions.vue:90",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-default-dashboard-flag"
+				"change": "openspec/changes/archive/2026-06-14-default-dashboard-flag",
+				"requirement": [
+					"openspec/specs/dashboards :: REQ-DASH-018 Active-dashboard resolution chain (multi-scope)",
+					"openspec/specs/dashboards :: REQ-DASH-015 Single default group-shared dashboard per group",
+					"openspec/specs/effective-default-marker :: REQ-EDM-002 Effective default uses resolver precedence"
+				]
 			},
 			"reachedOn": "Workspace page, dashboard menu, Set as default",
 			"provider": "launchpad",
@@ -1589,6 +1633,10 @@
 				"spec": [
 					"openspec/specs/dashboards",
 					"openspec/specs/dashboard-icons"
+				],
+				"requirement": [
+					"openspec/specs/dashboards :: Update Dashboard (REQ-DASH-004)",
+					"openspec/specs/dashboard-icons :: IconPicker dual-input UX (REQ-ICON-008)"
 				]
 			},
 			"reachedOn": "Workspace page, dashboard menu, Dashboard configuration, General tab",
@@ -1623,7 +1671,8 @@
 				"state": "built",
 				"evidence": "lib/Service/DashboardService.php:2190; src/views/Views.vue:2037",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-fork-current-as-personal"
+				"change": "openspec/changes/archive/2026-06-14-fork-current-as-personal",
+				"requirement": "openspec/specs/dashboards :: REQ-DASH-020 Fork any visible dashboard as a personal copy"
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar, Add dashboard",
 			"provider": "launchpad",
@@ -1657,7 +1706,11 @@
 				"state": "built",
 				"evidence": "lib/Controller/PageController.php:127; src/manifest.json:176",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-deeplinking"
+				"spec": "openspec/specs/dashboard-deeplinking",
+				"requirement": [
+					"openspec/specs/dashboard-deeplinking :: REQ-DDL-002 Server-side resolution",
+					"openspec/specs/dashboards :: REQ-DASH-027 Path-based dashboard resolution"
+				]
 			},
 			"reachedOn": "/apps/launchpad/dashboards/{id} and /apps/launchpad/{path}",
 			"provider": "launchpad",
@@ -1691,7 +1744,8 @@
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:326",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-sharing"
+				"spec": "openspec/specs/dashboard-sharing",
+				"requirement": "openspec/specs/dashboard-sharing :: Listing dashboards visible to a user (REQ-SHARE-002)"
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar, Shared with you",
 			"evidence": {
@@ -1723,11 +1777,15 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue; src/views/Views.vue:191; lib/Controller/DashboardApiController.php",
+				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:265-276 (treeRows by parentUuid); src/views/Views.vue:31; src/modals/DashboardConfigModal.vue; lib/Controller/DashboardApiController.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboard-tree-navigation"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-tree-navigation",
+				"requirement": [
+					"openspec/specs/dashboards :: Dashboards with a parent nest in the switcher (REQ-TREEUI-001)",
+					"openspec/specs/dashboards :: REQ-DASH-023 Dashboard hierarchy and parent relationship"
+				]
 			},
-			"reachedOn": "nothing: the store action loadDashboardTree has no caller outside src/stores/",
+			"reachedOn": "Workspace page, dashboard switcher: a dashboard with a parent nests under it; the parent is set in the dashboard settings",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-switcher",
@@ -1762,7 +1820,8 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:81",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/runtime-shell"
+				"spec": "openspec/specs/runtime-shell",
+				"requirement": "openspec/specs/runtime-shell :: Empty state (REQ-SHELL-005)"
 			},
 			"reachedOn": "Workspace page with no dashboards",
 			"provider": "launchpad",
@@ -1794,11 +1853,12 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "src/modals/DashboardConfigModal.vue; src/components/Workspace/config/LanguagesTab.vue; src/components/Workspace/config/DetailsTab.vue; lib/Controller/DashboardApiController.php",
+				"evidence": "src/modals/DashboardConfigModal.vue; src/components/Workspace/config/LanguagesTab.vue:261 (listTranslations); src/components/Workspace/config/DetailsTab.vue; lib/Controller/DashboardApiController.php:297",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboard-language-and-details-tabs"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-language-and-details-tabs",
+				"requirement": "openspec/specs/dashboard-language-content :: The workspace page shows the reader's language (REQ-LANGUI-002)"
 			},
-			"reachedOn": "nothing: /api/dashboards/{uuid}/translations and /resolved have no caller in src/",
+			"reachedOn": "Dashboard settings, Languages tab; the workspace page shows the variant in the reader's language",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-switcher",
@@ -1830,7 +1890,11 @@
 				"state": "built",
 				"evidence": "src/modals/DashboardConfigModal.vue; src/components/Workspace/config/LanguagesTab.vue; src/components/Workspace/config/DetailsTab.vue; lib/Controller/DashboardApiController.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboard-language-and-details-tabs"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-language-and-details-tabs",
+				"requirement": [
+					"openspec/specs/dashboard-metadata-fields :: A dashboard owner fills in the details (REQ-MDUI-002)",
+					"openspec/specs/dashboard-metadata-fields :: An administrator defines detail fields (REQ-MDUI-001)"
+				]
 			},
 			"reachedOn": "nothing: the store actions fetchMetadataFields and updateDashboardMetadata have no component caller",
 			"provider": "launchpad",
@@ -1864,7 +1928,8 @@
 				"state": "built",
 				"evidence": "lib/Service/DashboardService.php:3085",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/default-widget-bundle"
+				"spec": "openspec/specs/default-widget-bundle",
+				"requirement": "openspec/specs/default-widget-bundle :: REQ-DWB-001 Four widgets seeded on user-initiated create"
 			},
 			"reachedOn": "Workspace page, after creating a new personal dashboard",
 			"source": "spec-round-2026-10-07",
@@ -1872,6 +1937,44 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpEersteKeer"
+			}
+		},
+		{
+			"id": "d-start-full-width",
+			"area": "dashboards",
+			"name": "An administrator can give the start page the full width, without the navigation panel.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "src/App.vue:165 (startPageWithoutNavigation); src/components/Workspace/StartPageMenu.vue; live check open in the change",
+				"change": "openspec/changes/start-page-without-navigation-panel",
+				"requirement": "openspec/specs/runtime-shell :: REQ-SHELL-009 Start page without navigation panel"
+			},
+			"reachedOn": "Admin settings, layout options: Start page without navigation panel; the start page then shows its destinations in a Menu button",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "runtime-shell",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpVandaag",
+					"LpBeheerAlgemeen"
+				]
 			}
 		},
 		{
@@ -1888,7 +1991,12 @@
 				"state": "built",
 				"evidence": "src/modals/TileEditor.vue:71; src/modals/TileEditor.vue:111",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/tiles"
+				"spec": "openspec/specs/tiles",
+				"requirement": [
+					"openspec/specs/tiles :: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical",
+					"openspec/specs/tiles :: Tile Link Navigation (REQ-TILE-008)",
+					"openspec/specs/tiles :: Tile Styling (REQ-TILE-009)"
+				]
 			},
 			"reachedOn": "Workspace page, dashboard menu, Add custom widget, tile editor",
 			"evidence": {
@@ -1925,7 +2033,11 @@
 				"state": "built",
 				"evidence": "src/modals/TileEditor.vue:123; lib/Service/HealthPingService.php:11",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-service-health-ping"
+				"change": "openspec/changes/archive/2026-07-23-service-health-ping",
+				"requirement": [
+					"openspec/specs/service-health-ping :: REQ-HPING-004 Render an accessible health badge on the tile",
+					"openspec/specs/service-health-ping :: REQ-HPING-002 Ping the service server-side and classify the result"
+				]
 			},
 			"reachedOn": "Workspace page, tile badge; switched on in the tile editor. Only hosts in healthping_allowed_hosts are pinged, set with occ",
 			"evidence": {
@@ -1962,7 +2074,8 @@
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/SearchWidget.vue:157",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-tile-quick-search"
+				"change": "openspec/changes/archive/2026-07-23-tile-quick-search",
+				"requirement": "openspec/specs/tile-quick-search :: REQ-QSEARCH-002 Filter the current dashboard's tiles live"
 			},
 			"reachedOn": "Workspace page, Search widget",
 			"evidence": {
@@ -1996,7 +2109,8 @@
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/SearchWidgetForm.vue:41",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-08-20-tile-search-widget"
+				"change": "openspec/changes/archive/2026-08-20-tile-search-widget",
+				"requirement": "openspec/specs/tile-quick-search :: REQ-QSEARCH-004 Route a no-match query to a configured fallback"
 			},
 			"reachedOn": "Workspace page, Search widget, falls back to a configured https search template or Nextcloud unified search",
 			"evidence": {
@@ -2030,7 +2144,11 @@
 				"state": "built",
 				"evidence": "lib/widget-types.json:24; lib/widget-types.json:31; package.json:38",
 				"owner": "ConductionNL/nextcloud-vue",
-				"change": "openspec/changes/archive/2026-05-03-links-widget"
+				"change": "openspec/changes/archive/2026-05-03-links-widget",
+				"requirement": [
+					"openspec/specs/links-widget :: REQ-LNKS-002 Placement configuration schema",
+					"openspec/specs/links-widget :: REQ-LNKS-008 Edit form with drag-to-reorder"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Links or Quick links",
 			"provider": "nextcloud-vue",
@@ -2062,11 +2180,12 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "src/components/admin/TileClickReport.vue; lib/Service/TileAnalyticsService.php",
+				"evidence": "src/components/admin/tabs/VersioningAuditTab.vue:10 (AdminAnalytics); src/components/admin/AdminAnalytics.vue:130 (TileClickReport); src/components/admin/TileClickReport.vue; lib/Service/TileAnalyticsService.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-launcher-tile-click-report"
+				"change": "openspec/changes/archive/2026-09-29-launcher-tile-click-report",
+				"requirement": "openspec/specs/dashboard-view-analytics :: An administrator sees the most clicked tiles (REQ-TILEUI-001)"
 			},
-			"reachedOn": "clicks are recorded from the Workspace page; nothing shows them: getAnalyticsTopTiles and the tile CSV export have no caller in src/",
+			"reachedOn": "Admin settings, Versioning & Audit tab: the tile click report",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-view-analytics",
@@ -2097,7 +2216,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting"
+				"change": "openspec/changes/launcher-tile-sorting",
+				"requirement": "openspec/changes/launcher-tile-sorting/specs/container-widget :: Most used and last used read the viewer's own browser (REQ-TSO-002)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -2121,18 +2241,20 @@
 			"id": "tile-legacy-apps",
 			"area": "launcher",
 			"name": "Start an old Windows program or a virtual desktop from a tile, signed in already.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Controller/TileLaunchController.php:82 (GET /api/tiles/{placementId}/rdp, view check, .rdp file from checked fields); lib/Service/TileLinkValidator.php:128; gateway mode opens its https address (src/utils/tileLaunch.js)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-launch-types"
+				"change": "openspec/changes/launcher-tile-launch-types",
+				"requirement": "openspec/changes/launcher-tile-launch-types/specs/tiles :: A tile can start a remote desktop or a published program (REQ-TLT-002)"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Workspace page (/apps/launchpad/), Edit dashboard, a tile's editor: Opens > Remote desktop (web gateway or RDP file)",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/collections/791485-live-tile-integrations Citrix 'Configure seamless Single Sign-on with Citrix', Clientless RDP, Azure Virtual Desktop and Omnissa Horizon articles (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for rdp, citrix, vdi, remote desktop: none, and no such app is in core/shipped.json",
@@ -2154,18 +2276,20 @@
 			"id": "tile-local-apps",
 			"area": "launcher",
 			"name": "Start a program installed on your own computer from the dashboard.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/TileLinkValidator.php:108 (program scheme on the admin list, never a forbidden one); src/components/TileWidget.vue:175 (follows the scheme address, hint after a click)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-launch-types"
+				"change": "openspec/changes/launcher-tile-launch-types",
+				"requirement": "openspec/changes/launcher-tile-launch-types/specs/tiles :: A tile can start a program on the user's computer (REQ-TLT-001)"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Workspace page (/apps/launchpad/), Edit dashboard, a tile's editor: Opens > Program on this computer; the schemes are allowed on the LaunchPad admin page, Algemeen > Program and sign-on tiles",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175583-launching-local-apps-with-the-app-launcher 'Launching local apps with the App Launcher' (plus Mac and registry variants) (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for protocol handler, launch, local app: none",
@@ -2187,18 +2311,20 @@
 			"id": "tile-sso-app",
 			"area": "launcher",
 			"name": "Add a tile that signs you straight into a company app through single sign-on.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "partial",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/TileLinkValidator.php:108 (sso address resolved on the server from the admin template and the URL-encoded app id); src/modals/TileEditor.vue:200 (template picker, no address field)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-launch-types"
+				"change": "openspec/changes/launcher-tile-launch-types",
+				"requirement": "openspec/changes/launcher-tile-launch-types/specs/tiles :: A tile can start single sign-on into a company app (REQ-TLT-003)"
 			},
-			"reachedOn": "nothing: a tile opens its URL; any sign-on is the target app and identity provider, not a hand-off from the tile",
+			"reachedOn": "Workspace page (/apps/launchpad/), Edit dashboard, a tile's editor: Opens > Single sign-on app; templates on the LaunchPad admin page, Algemeen > Program and sign-on tiles",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175373-add-sso-apps-with-microsoft-entra-id-helloid-or-securelogin 'Add SSO apps with Microsoft Entra ID, HelloID or SecureLogin' (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for sso, saml, oidc, tile: none; no link tiles exist on the page (apps/dashboard/src/DashboardApp.vue:17-54)",
@@ -2229,7 +2355,11 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-app-catalogue"
+				"change": "openspec/changes/launcher-app-catalogue",
+				"requirement": [
+					"openspec/changes/launcher-app-catalogue/specs/app-catalogue :: Users add catalogue apps as tiles from the add flow (REQ-ACAT-002)",
+					"openspec/changes/launcher-app-catalogue/specs/app-catalogue :: Users can ask for a missing app (REQ-ACAT-003)"
+				]
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -2262,7 +2392,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-discover-server-services"
+				"change": "openspec/changes/launcher-discover-server-services",
+				"requirement": "openspec/changes/launcher-discover-server-services/specs/tiles :: One click turns a discovered app into a tile (REQ-DISC-002)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -2296,7 +2427,12 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:20; lib/Service/OrgNavigationService.php:204",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-navigation-editor-org"
+				"change": "openspec/changes/archive/2026-05-03-navigation-editor-org",
+				"spec": "openspec/specs/navigation-editor-org",
+				"requirement": [
+					"openspec/specs/navigation-editor-org :: REQ-ONAV-005 Vue panel rendering",
+					"openspec/specs/navigation-editor-org :: REQ-ONAV-004 Global position setting"
+				]
 			},
 			"reachedOn": "Workspace page, navigation panel; edited on Admin settings, Organisation navigation tab",
 			"provider": "launchpad",
@@ -2333,7 +2469,11 @@
 				"state": "built",
 				"evidence": "lib/widget-types.json:37; package.json:38",
 				"owner": "ConductionNL/nextcloud-vue",
-				"change": "openspec/changes/archive/2026-06-14-text-display-widget"
+				"change": "openspec/changes/archive/2026-06-14-text-display-widget",
+				"requirement": [
+					"openspec/specs/text-display-widget :: REQ-TXMD-002 CommonMark-compliant markdown parsing",
+					"openspec/specs/text-display-widget :: REQ-TBLE-009 Render HTML Table with Cell Merging"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Text",
 			"provider": "nextcloud-vue",
@@ -2367,7 +2507,8 @@
 				"state": "built",
 				"evidence": "lib/widget-types.json:21; lib/Controller/ResourceController.php:63",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-image-widget"
+				"change": "openspec/changes/archive/2026-06-14-image-widget",
+				"requirement": "openspec/specs/image-widget :: REQ-IMG-005 Add/edit form"
 			},
 			"reachedOn": "Workspace page, Add widget, Image",
 			"provider": "launchpad",
@@ -2384,7 +2525,10 @@
 			},
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpIntranet"
+				"board": [
+					"LpIntranet",
+					"LpWidgetInstellen"
+				]
 			}
 		},
 		{
@@ -2401,7 +2545,8 @@
 				"state": "built",
 				"evidence": "lib/widget-types.json:39; package.json:38",
 				"owner": "ConductionNL/nextcloud-vue",
-				"change": "openspec/changes/archive/2026-05-03-video-widget"
+				"change": "openspec/changes/archive/2026-05-03-video-widget",
+				"requirement": "openspec/specs/video-widget :: REQ-VID-003 Support Multiple Video Source Types"
 			},
 			"reachedOn": "Workspace page, Add widget, Video",
 			"evidence": {
@@ -2435,7 +2580,8 @@
 				"state": "built",
 				"evidence": "lib/Service/IframeService.php:9; src/constants/widgetRegistry.js:206",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget"
+				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget",
+				"requirement": "openspec/specs/iframe-embed-widget :: REQ-IFRAME-002 Admin allow-list of embeddable hosts, fail-closed"
 			},
 			"reachedOn": "Workspace page, Add widget, Embedded page; the allow-list is an app config value",
 			"evidence": {
@@ -2469,7 +2615,8 @@
 				"state": "built",
 				"evidence": "lib/Service/NewsWidgetService.php:133; src/constants/widgetRegistry.js:244",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-news-widget"
+				"change": "openspec/changes/archive/2026-05-03-news-widget",
+				"requirement": "openspec/specs/news-widget :: REQ-NEWS-003 Fetch and Merge Feed Items"
 			},
 			"reachedOn": "Workspace page, Add widget, News",
 			"evidence": {
@@ -2503,7 +2650,8 @@
 				"state": "built",
 				"evidence": "lib/Service/WeatherService.php:208; src/constants/widgetRegistry.js:171",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-clock-weather-widgets"
+				"change": "openspec/changes/archive/2026-07-23-clock-weather-widgets",
+				"requirement": "openspec/specs/clock-weather-widgets :: REQ-WEATHER-002 Resolve provider, fetch, and cache"
 			},
 			"reachedOn": "Workspace page, Add widget, Weather",
 			"evidence": {
@@ -2537,7 +2685,8 @@
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:156",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-clock-weather-widgets"
+				"change": "openspec/changes/archive/2026-07-23-clock-weather-widgets",
+				"requirement": "openspec/specs/clock-weather-widgets :: REQ-CLOCK-003 Render locale-aware clock, WCAG AA"
 			},
 			"reachedOn": "Workspace page, Add widget, Clock",
 			"evidence": {
@@ -2571,7 +2720,11 @@
 				"state": "built",
 				"evidence": "lib/Service/CalendarWidgetService.php:77; lib/widget-types.json:11",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-calendar-widget"
+				"change": "openspec/changes/archive/2026-05-03-calendar-widget",
+				"requirement": [
+					"openspec/specs/calendar-widget :: REQ-CAL-002 Placement configuration",
+					"openspec/specs/calendar-widget :: REQ-CAL-008 Render modes"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Calendar",
 			"evidence": {
@@ -2589,8 +2742,9 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": [
-					"LpStart",
-					"LpWerkplek"
+					"LpVandaag",
+					"LpWerkplek",
+					"LpWidgetInstellen"
 				]
 			}
 		},
@@ -2608,7 +2762,11 @@
 				"state": "built",
 				"evidence": "lib/Controller/FilesWidgetController.php:179; lib/widget-types.json:17",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-files-widget"
+				"change": "openspec/changes/archive/2026-05-03-files-widget",
+				"requirement": [
+					"openspec/specs/files-widget :: REQ-FLS-005 Breadcrumb navigation and folder traversal",
+					"openspec/specs/files-widget :: REQ-FLS-007 Upload capability"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Files",
 			"evidence": {
@@ -2642,7 +2800,12 @@
 				"state": "built",
 				"evidence": "lib/Service/PeopleWidgetService.php:8; lib/widget-types.json:30",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-people-widget"
+				"change": "openspec/changes/archive/2026-05-03-people-widget",
+				"spec": "openspec/specs/people-widget",
+				"requirement": [
+					"openspec/specs/people-widget :: Widget registration via dashboard API (REQ-PPL-001)",
+					"openspec/specs/people-widget :: Three layout modes (REQ-PPL-008)"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, People",
 			"evidence": {
@@ -2676,7 +2839,8 @@
 				"state": "built",
 				"evidence": "lib/Service/PeopleWidgetService.php:410",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/people-widget"
+				"spec": "openspec/specs/people-widget",
+				"requirement": "openspec/specs/people-widget :: Birthday field (REQ-PPL-005)"
 			},
 			"reachedOn": "Workspace page, People widget",
 			"evidence": {
@@ -2714,6 +2878,11 @@
 					"openspec/changes/archive/2026-05-03-header-widget",
 					"openspec/changes/archive/2026-06-14-label-widget",
 					"openspec/changes/archive/2026-05-03-divider-widget"
+				],
+				"requirement": [
+					"openspec/specs/header-widget :: REQ-HDR-008 Text rendering and styling",
+					"openspec/specs/label-widget :: REQ-LBL-002 Default-styled as a centred bold heading",
+					"openspec/specs/divider-widget :: REQ-DIV-003 Render Line Divider"
 				]
 			},
 			"reachedOn": "Workspace page, Add widget, Header, Label or Divider",
@@ -2748,7 +2917,11 @@
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:14; lib/Controller/FileController.php:87",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-link-button-widget"
+				"change": "openspec/changes/archive/2026-06-14-link-button-widget",
+				"requirement": [
+					"openspec/specs/link-button-widget :: REQ-LBN-003 createFile flow",
+					"openspec/specs/link-button-widget :: REQ-LBN-005 Internal action registry"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Link button",
 			"provider": "launchpad",
@@ -2782,7 +2955,11 @@
 				"state": "built",
 				"evidence": "lib/Service/LiveTileService.php:22; src/constants/widgetRegistry.js:184",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-live-data-tile-widget"
+				"change": "openspec/changes/archive/2026-07-23-live-data-tile-widget",
+				"requirement": [
+					"openspec/specs/live-data-tile-widget :: REQ-LIVETILE-003 Resolve and cache the value server-side",
+					"openspec/specs/live-data-tile-widget :: REQ-LIVETILE-002 Configure the tile source"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Live tile; only hosts in livetile_allowed_hosts are fetched, set with occ",
 			"evidence": {
@@ -2819,8 +2996,13 @@
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:116-120 routes the chart and stats-block types to src/components/Widgets/Renderers/ChartHost.vue and StatsBlockHost.vue, thin adapters onto nextcloud-vue's CnChartWidget and CnStatsBlockWidget, which fetch their figures from an OpenRegister dataSource; stat, gauge, delta and table are nextcloud-vue registry types LaunchPad passes through unchanged (lib/widget-types.json:12-38). Renderers, configuration forms and data are nextcloud-vue's and OpenRegister's (nextcloud-vue src/components/CnWidgetGrid/registerDashboardWidgets.js:81-127, main 0f1c0ffbb); src/services/graphqlClient.js, cited before, serves the spend-analytics widget, not these",
 				"owner": "ConductionNL/openregister",
-				"spec": "none",
-				"readOn": "2026-10-07"
+				"spec": [
+					"openspec/specs/widgets",
+					"nextcloud-vue/widget-renderer",
+					"openregister/aggregation-api"
+				],
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/widgets :: Widget Rendering Architecture (REQ-WDG-009)"
 			},
 			"reachedOn": "Workspace page, Add widget, Chart, Stat or Table, only with OpenRegister installed",
 			"provider": "openregister",
@@ -2855,7 +3037,9 @@
 				"state": "built",
 				"evidence": "lib/Service/IframeService.php:9",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget"
+				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget",
+				"spec": "openspec/specs/iframe-embed-widget",
+				"requirement": "openspec/specs/iframe-embed-widget :: REQ-IFRAME-001 Register iframe-embed widget"
 			},
 			"reachedOn": "Workspace page, Embedded page widget, when the report host is on the allow-list",
 			"evidence": {
@@ -2890,7 +3074,8 @@
 				"state": "built",
 				"evidence": "src/services/spendAnalytics.js:10; lib/widget-types.json:33",
 				"owner": "ConductionNL/openregister",
-				"change": "openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics"
+				"change": "openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics",
+				"requirement": "openspec/specs/launchpad-spend-analytics-widget :: REQ-SAW-004: The widget SHALL fetch spend data via runtime GraphQL against financeq + procest"
 			},
 			"reachedOn": "Workspace page, Add widget, Spend analytics, only with those apps installed",
 			"provider": "openregister",
@@ -2912,6 +3097,80 @@
 			}
 		},
 		{
+			"id": "w-scheduled-export",
+			"area": "widgets",
+			"name": "Have a dashboard sent as a PDF or file on a schedule, such as every Monday at nine.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/scheduled-exports",
+				"requirement": [
+					"openspec/changes/scheduled-exports/specs/scheduled-exports :: REQ-SCH-002 Background runner fires schedules without an active browser session",
+					"openspec/changes/scheduled-exports/specs/scheduled-exports :: REQ-SCH-003 Multi-format render from a single fire"
+				]
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "scheduled-exports",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDashboardInstellingen"
+			}
+		},
+		{
+			"id": "w-cross-filter",
+			"area": "widgets",
+			"name": "Click a bar or a row in one widget to filter the other widgets on the dashboard.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/drill-down-cross-widget-filter",
+				"requirement": [
+					"openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-001 Widget click publishes to the filter bus",
+					"openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-002 All consuming widgets re-render on filter change"
+				]
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "cross-widget-filter",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpManagement"
+			}
+		},
+		{
 			"id": "int-builder",
 			"area": "integrations",
 			"name": "Connect a business system and show its data as a tile without writing code.",
@@ -2925,7 +3184,8 @@
 				"state": "specified",
 				"evidence": "lib/Service/LiveTileService.php:22",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/integrations-live-tile-lists"
+				"change": "openspec/changes/integrations-live-tile-lists",
+				"requirement": "openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget :: A live tile can show a list, a table or key-value pairs (REQ-LTC-001)"
 			},
 			"reachedOn": "Workspace page, Live tile widget pointed at a JSON address",
 			"evidence": {
@@ -3016,7 +3276,12 @@
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:141",
 				"owner": "nextcloud/server",
-				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy"
+				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy",
+				"requirement": [
+					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
+					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)",
+					"openspec/changes/record-parity-requirements/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, the Mail app's widget, with Nextcloud Mail installed",
 			"evidence": {
@@ -3050,7 +3315,12 @@
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:141",
 				"owner": "nextcloud/server",
-				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy"
+				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy",
+				"requirement": [
+					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
+					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)",
+					"openspec/changes/record-parity-requirements/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, Deck's task widget, with Deck installed",
 			"evidence": {
@@ -3067,7 +3337,7 @@
 			"origin": "own-code",
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpStart"
+				"board": "LpVandaag"
 			}
 		},
 		{
@@ -3083,7 +3353,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/integrations-office-tiles"
+				"change": "openspec/changes/integrations-office-tiles",
+				"requirement": "openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md :: The add flow offers an office tile pack built from what the server has (REQ-OFT-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -3117,7 +3388,8 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Service/NewsWidgetService.php:133; lib/Service/IframeService.php:9",
-				"change": "openspec/changes/integrations-live-tile-lists"
+				"change": "openspec/changes/integrations-live-tile-lists",
+				"requirement": "openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget :: A preset shows another intranet's latest documents (REQ-LTC-004)"
 			},
 			"reachedOn": "Workspace page, Add widget, News (the other intranet's RSS or Atom feed) or Embed (its page, when the host is allowed)",
 			"evidence": {
@@ -3148,10 +3420,12 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23",
+				"state": "built",
+				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23; live pass 1 Nov 2026: tests/e2e/integrations-page.spec.ts 4 passed against an instance with launchpad and integriq",
 				"owner": "ConductionNL/integriq",
-				"change": "openspec/changes/adopt-connection-registry"
+				"change": "openspec/changes/archive/2026-11-12-adopt-connection-registry",
+				"readOn": "2026-11-01",
+				"requirement": "openspec/specs/app-connections :: REQ-LP-CONN-004 An admin reads the connections on an Integrations page"
 			},
 			"reachedOn": "Integrations page (/apps/launchpad/settings/integrations), shown only when the integriq app is installed",
 			"provider": "integriq",
@@ -3186,7 +3460,8 @@
 				"state": "built",
 				"evidence": "lib/Service/RuleEvaluatorService.php:125; src/components/Widgets/WidgetContextMenu.vue:35",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/conditional-visibility"
+				"spec": "openspec/specs/conditional-visibility",
+				"requirement": "openspec/specs/conditional-visibility :: Group-Based Rule Evaluation (REQ-VIS-005)"
 			},
 			"reachedOn": "Workspace page, widget context menu, Visibility rules",
 			"evidence": {
@@ -3220,7 +3495,8 @@
 				"state": "built",
 				"evidence": "lib/Service/RuleEvaluatorService.php:170; src/components/Widgets/VisibilityRuleRow.vue:56",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/conditional-visibility"
+				"spec": "openspec/specs/conditional-visibility",
+				"requirement": "openspec/specs/conditional-visibility :: Time-Based Rule Evaluation (REQ-VIS-006)"
 			},
 			"reachedOn": "Workspace page, Visibility rules, time rule",
 			"provider": "launchpad",
@@ -3254,7 +3530,8 @@
 				"state": "built",
 				"evidence": "src/components/Widgets/VisibilityRuleRow.vue:111",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/conditional-visibility"
+				"spec": "openspec/specs/conditional-visibility",
+				"requirement": "openspec/specs/conditional-visibility :: Date-Based Rule Evaluation (REQ-VIS-007)"
 			},
 			"reachedOn": "Workspace page, Visibility rules, date rule",
 			"provider": "launchpad",
@@ -3288,7 +3565,8 @@
 				"state": "built",
 				"evidence": "lib/Service/RuleEvaluatorService.php:238; lib/Service/UserAttributeResolver.php:36",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/conditional-visibility"
+				"spec": "openspec/specs/conditional-visibility",
+				"requirement": "openspec/specs/conditional-visibility :: Attribute-Based Rule Evaluation (REQ-VIS-008)"
 			},
 			"reachedOn": "Workspace page, Visibility rules, attribute rule",
 			"evidence": {
@@ -3322,7 +3600,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/VisibilityPreviewController.php:102; src/components/Widgets/ConditionalVisibilityEditor.vue:240",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-conditional-visibility-editor"
+				"change": "openspec/changes/archive/2026-07-23-conditional-visibility-editor",
+				"requirement": "openspec/specs/conditional-visibility-editor :: REQ-CVUI-004 Preview As Audience and Date"
 			},
 			"reachedOn": "Workspace page, Visibility rules editor",
 			"provider": "launchpad",
@@ -3356,7 +3635,9 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/VersioningAuditTab.vue:8",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-refactor-launchpad-ia-alignment"
+				"change": "openspec/changes/archive/2026-06-14-refactor-launchpad-ia-alignment",
+				"spec": "openspec/specs/conditional-visibility",
+				"requirement": "openspec/specs/conditional-visibility :: Admin overview of widgets with visibility rules (REQ-VIS-012)"
 			},
 			"reachedOn": "Admin settings, Versioning and audit tab",
 			"provider": "launchpad",
@@ -3390,7 +3671,11 @@
 				"state": "built",
 				"evidence": "lib/Service/RoleFeaturePermissionService.php:612; src/components/admin/tabs/RolesPermissionsTab.vue:11",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/role-feature-permissions"
+				"spec": "openspec/specs/role-feature-permissions",
+				"requirement": [
+					"openspec/specs/role-feature-permissions :: REQ-RFP-001: Feature presence visibility by role",
+					"openspec/specs/role-feature-permissions :: REQ-RFP-003: Role-based card library"
+				]
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab",
 			"provider": "launchpad",
@@ -3427,7 +3712,8 @@
 				"state": "built",
 				"evidence": "lib/Service/RoleFeaturePermissionService.php:694; src/components/admin/tabs/RolesPermissionsTab.vue:13",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/role-feature-permissions"
+				"spec": "openspec/specs/role-feature-permissions",
+				"requirement": "openspec/specs/role-feature-permissions :: REQ-RFP-002: Role-based default dashboard layout"
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab, layout defaults",
 			"evidence": {
@@ -3461,7 +3747,11 @@
 				"state": "built",
 				"evidence": "lib/Service/PermissionService.php:254; src/dialogs/RoleLayoutDefaultEditorDialog.vue:89",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/permissions"
+				"spec": "openspec/specs/permissions",
+				"requirement": [
+					"openspec/specs/permissions :: Compulsory Widget Marking (REQ-PERM-004)",
+					"openspec/specs/permissions :: Permission Enforcement on API Level (REQ-PERM-006)"
+				]
 			},
 			"reachedOn": "Admin settings, Roles and permissions, layout default editor",
 			"evidence": {
@@ -3552,7 +3842,12 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/SharingTab.vue:10; lib/Service/DashboardResolver.php:47",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-group-priority-order"
+				"change": "openspec/changes/archive/2026-06-14-group-priority-order",
+				"spec": "openspec/specs/admin-settings",
+				"requirement": [
+					"openspec/specs/admin-settings :: Group order setting (REQ-ASET-012)",
+					"openspec/specs/admin-templates :: Primary-group resolution for workspace routing (REQ-TMPL-012)"
+				]
 			},
 			"reachedOn": "Admin settings, Sharing tab, group order",
 			"provider": "launchpad",
@@ -3586,7 +3881,8 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/RolesPermissionsTab.vue:15; lib/Service/ActionAuthService.php:95",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/action-authorization"
+				"spec": "openspec/specs/action-authorization",
+				"requirement": "openspec/specs/action-authorization :: The administrator edits the matrix in one grid (REQ-ACT-003)"
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab, action matrix",
 			"provider": "launchpad",
@@ -3620,7 +3916,11 @@
 				"state": "built",
 				"evidence": "lib/Service/AdminTemplateService.php:80; src/components/admin/AdminSettings.vue:289",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/admin-templates"
+				"spec": "openspec/specs/admin-templates",
+				"requirement": [
+					"openspec/specs/admin-templates :: Create Admin Template (REQ-TMPL-001)",
+					"openspec/specs/admin-templates :: Template Distribution on First Access (REQ-TMPL-005)"
+				]
 			},
 			"reachedOn": "Admin settings, Templates tab",
 			"evidence": {
@@ -3654,7 +3954,12 @@
 				"state": "built",
 				"evidence": "lib/Service/PermissionService.php:245; src/components/admin/AdminSettings.vue:60",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/permissions"
+				"spec": "openspec/specs/permissions",
+				"requirement": [
+					"openspec/specs/permissions :: View-Only Permission Level (REQ-PERM-001)",
+					"openspec/specs/permissions :: Add-Only Permission Level (REQ-PERM-002)",
+					"openspec/specs/permissions :: Full Permission Level (REQ-PERM-003)"
+				]
 			},
 			"reachedOn": "Admin settings, Default permission level; per template in the template editor",
 			"evidence": {
@@ -3691,7 +3996,14 @@
 				"state": "built",
 				"evidence": "lib/Service/TemplateResyncService.php:247; src/components/admin/tabs/TemplatesPage.vue:70",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-admin-template-resync"
+				"change": [
+					"openspec/changes/archive/2026-07-23-admin-template-resync",
+					"openspec/changes/shipped-template-update"
+				],
+				"requirement": [
+					"openspec/specs/admin-templates :: REQ-RESYNC-001 Re-sync action pushes template updates to existing copies",
+					"openspec/specs/admin-templates :: REQ-RESYNC-003 Merge strategy preserves user-added widgets"
+				]
 			},
 			"reachedOn": "Admin settings, Templates tab, Resync",
 			"provider": "launchpad",
@@ -3725,7 +4037,8 @@
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:245; lib/Controller/DashboardApiController.php:960",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboards"
+				"spec": "openspec/specs/dashboards",
+				"requirement": "openspec/specs/dashboards :: REQ-DASH-011 Group-shared dashboard type"
 			},
 			"reachedOn": "Admin settings, Group dashboards tab; users see it in the Dashboards sidebar",
 			"evidence": {
@@ -3748,7 +4061,7 @@
 		{
 			"id": "r-wizard",
 			"area": "rollout",
-			"name": "Get the product ready through a guided setup of storage, groups, demo content and roles.",
+			"name": "Get the product ready through a guided setup of groups, demo content and roles.",
 			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "partial",
@@ -3759,7 +4072,14 @@
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:22; lib/Service/SetupWizardService.php:78",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-setup-wizard"
+				"change": "openspec/changes/archive/2026-05-03-setup-wizard",
+				"requirement": [
+					"openspec/specs/setup-wizard :: REQ-WIZ-002 Multi-Step Wizard Flow with 6 Steps",
+					"openspec/specs/setup-wizard :: REQ-WIZ-004 Step 2 — Group Priority Order (Embedded Component Reuse)",
+					"openspec/specs/setup-wizard :: REQ-WIZ-005 Step 3 — Demo Data Installation (Embedded Component Reuse)",
+					"openspec/specs/setup-wizard :: REQ-WIZ-006 Step 4 — Admin Roles (Optional, Depends on admin-roles Capability)"
+				],
+				"note": "decision 392 (12 Nov): reworded without the storage step, retired 9 Oct (decision 131). Before: Get the product ready through a guided setup of storage, groups, demo content and roles."
 			},
 			"reachedOn": "Admin settings, Run setup wizard banner",
 			"provider": "launchpad",
@@ -3793,7 +4113,12 @@
 				"state": "built",
 				"evidence": "lib/Service/DemoShowcasesService.php:314; src/components/admin/tabs/DemoDataTab.vue:8",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-demo-data-showcases"
+				"change": [
+					"openspec/changes/archive/2026-05-03-demo-data-showcases",
+					"openspec/changes/mijn-werkdag-template",
+					"openspec/changes/mijn-werkdag-v3"
+				],
+				"requirement": "openspec/specs/demo-data-showcases :: REQ-DEMO-003 Install showcase endpoint"
 			},
 			"reachedOn": "Admin settings, Demo data tab; also occ launchpad demo-showcases install",
 			"provider": "launchpad",
@@ -3814,6 +4139,40 @@
 			}
 		},
 		{
+			"id": "r-report-gallery",
+			"area": "rollout",
+			"name": "Pick a ready-made report from a gallery and keep the result as your own dashboard.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/dashboards-and-who-may-see-them",
+				"requirement": "openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them :: REQ-DWMS-003 Reports the product ships"
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "dashboards-and-who-may-see-them",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerSjablonen"
+			}
+		},
+		{
 			"id": "r-delegate",
 			"area": "rollout",
 			"name": "Give a colleague dashboard admin rights without making them a Nextcloud admin.",
@@ -3827,7 +4186,8 @@
 				"state": "built",
 				"evidence": "lib/Db/RoleAssignment.php:57; src/modals/SetupWizardModal.vue:131",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/admin-roles"
+				"spec": "openspec/specs/admin-roles",
+				"requirement": "openspec/specs/admin-roles :: REQ-ROLE-001 Dashboard Admin Role Definition"
 			},
 			"reachedOn": "Admin settings, setup wizard, roles step",
 			"evidence": {
@@ -3862,7 +4222,12 @@
 				"state": "built",
 				"evidence": "lib/Service/BulkOperationService.php:169; src/components/admin/tabs/OperationsTab.vue:21",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-dashboard-bulk-operations"
+				"change": "openspec/changes/archive/2026-05-03-dashboard-bulk-operations",
+				"requirement": [
+					"openspec/specs/dashboard-bulk-operations :: REQ-BULK-001 Bulk Delete Dashboards",
+					"openspec/specs/dashboard-bulk-operations :: REQ-BULK-002 Bulk Move Dashboards in Tree",
+					"openspec/specs/dashboard-bulk-operations :: REQ-BULK-010 Frontend Multi-Select Checkbox Column and Actions Dropdown"
+				]
 			},
 			"reachedOn": "Admin settings, Operations tab",
 			"provider": "launchpad",
@@ -3896,7 +4261,11 @@
 				"state": "built",
 				"evidence": "lib/Service/ExportService.php:93; src/components/admin/tabs/OperationsTab.vue:18; lib/Command/ExportCommand.php:40",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-02-dashboard-export-import"
+				"change": "openspec/changes/archive/2026-05-02-dashboard-export-import",
+				"requirement": [
+					"openspec/specs/dashboard-export-import :: REQ-EXIM-002 Dashboard Scope Export",
+					"openspec/specs/dashboard-export-import :: REQ-EXIM-004 Import Endpoint"
+				]
 			},
 			"reachedOn": "Admin settings, Operations tab; and occ launchpad export and import",
 			"evidence": {
@@ -3958,7 +4327,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ConfluenceImportService.php:94; src/components/admin/tabs/OperationsTab.vue:24",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-02-confluence-html-import"
+				"change": "openspec/changes/archive/2026-05-02-confluence-html-import",
+				"requirement": "openspec/specs/confluence-html-import :: REQ-CFLI-003 Confluence page → LaunchPad dashboard conversion"
 			},
 			"reachedOn": "Admin settings, Operations tab, Confluence import",
 			"provider": "launchpad",
@@ -3992,7 +4362,12 @@
 				"state": "specified",
 				"evidence": "lib/Controller/StoreController.php:134; src/manifest.json:164",
 				"owner": "ConductionNL/openregister",
-				"change": "openregister/store-over-federated-config"
+				"change": "openregister/store-over-federated-config",
+				"requirement": [
+					"openregister:openspec/changes/store-over-federated-config/specs/apphost-store-plane :: A store MUST be able to offer configuration, not only objects",
+					"openspec/specs/dashboard-store :: REQ-STORE-005 An install MUST reuse ImportService, not reimplement it",
+					"openspec/specs/dashboard-store :: REQ-STORE-006 A store install MUST create dashboards, never replace them"
+				]
 			},
 			"reachedOn": "Store page (/apps/launchpad/store), once an administrator sets a registry URL on the Sharing tab",
 			"provider": "openregister",
@@ -4000,7 +4375,7 @@
 			"feature": "dashboard-export-import",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading. Specified in ConductionNL/openregister openspec/changes/store-over-federated-config (openregister lane, OpenSpec pass 2026-09-27).",
+			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading. Specified in ConductionNL/openregister openspec/changes/store-over-federated-config (openregister lane, OpenSpec pass 2026-09-27). LaunchPad's side, connecting a registry and installing a published dashboard as a new one, is the dashboard-store spec (REQ-STORE-005, REQ-STORE-006); the row records both.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 the App Store link installs apps that bring widgets, not dashboards; searched apps/dashboard for registry, publish: none",
 				"homarr": "source read at v1.77.2: boards cannot be exported or installed from a shared source (only the pre-1.0 importer, packages/modals-collection/src/boards/import-board-modal.tsx:154); custom widget definitions can be exported and imported as JSON (apps/nextjs/src/app/[locale]/manage/custom-widgets/_custom-widget-actions.tsx:164) but there is no registry",
@@ -4030,7 +4405,11 @@
 				"state": "built",
 				"evidence": "lib/Service/QuotaService.php:144; src/components/admin/AdminSettings.vue:112",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-dashboard-quota-limits"
+				"change": "openspec/changes/archive/2026-06-14-dashboard-quota-limits",
+				"requirement": [
+					"openspec/specs/dashboard-quota-limits :: REQ-QUOTA-002 Dashboard Count Enforcement",
+					"openspec/specs/dashboard-quota-limits :: REQ-QUOTA-003 Widget Count Enforcement"
+				]
 			},
 			"reachedOn": "Admin settings, Default settings, quota fields",
 			"provider": "launchpad",
@@ -4064,7 +4443,8 @@
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:74",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-allow-personal-dashboards-flag"
+				"change": "openspec/changes/archive/2026-06-14-allow-personal-dashboards-flag",
+				"requirement": "openspec/specs/admin-settings :: Allow User Dashboards Setting — runtime gating + envelope (REQ-ASET-003)"
 			},
 			"reachedOn": "Admin settings, Default settings",
 			"provider": "launchpad",
@@ -4098,7 +4478,11 @@
 				"state": "built",
 				"evidence": "lib/Service/DashboardShareService.php:105; src/modals/DashboardConfigModal.vue:141",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-sharing"
+				"spec": "openspec/specs/dashboard-sharing",
+				"requirement": [
+					"openspec/specs/dashboard-sharing :: Owner-only share management (REQ-SHARE-001)",
+					"openspec/specs/dashboard-sharing :: Per-share permission resolution overrides admin defaults (REQ-SHARE-004)"
+				]
 			},
 			"reachedOn": "Workspace page, dashboard menu, Share",
 			"evidence": {
@@ -4132,7 +4516,11 @@
 				"state": "built",
 				"evidence": "lib/Service/PublicShareService.php:121; src/modals/DashboardConfigModal.vue:320",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share"
+				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share",
+				"requirement": [
+					"openspec/specs/dashboard-public-share :: REQ-PSHR-001 Create Public Share",
+					"openspec/specs/dashboard-public-share :: REQ-PSHR-006 Read-Only Enforcement"
+				]
 			},
 			"reachedOn": "Dashboard configuration, Sharing tab, Public link; opened at /apps/launchpad/s/{token}",
 			"provider": "launchpad",
@@ -4169,7 +4557,12 @@
 				"state": "built",
 				"evidence": "src/modals/DashboardConfigModal.vue:306; src/modals/DashboardConfigModal.vue:312",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share"
+				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share",
+				"requirement": [
+					"openspec/specs/dashboard-public-share :: REQ-PSHR-001 Create Public Share",
+					"openspec/specs/dashboard-public-share :: REQ-PSHR-005 Password Gate (Unlock)",
+					"openspec/specs/dashboard-public-share :: REQ-PSHR-008 Expiry and Revocation 404 Response"
+				]
 			},
 			"reachedOn": "Dashboard configuration, Sharing tab, Public link",
 			"provider": "launchpad",
@@ -4203,7 +4596,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/PublicShareController.php:37",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share"
+				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share",
+				"requirement": "openspec/specs/dashboard-public-share :: REQ-PSHR-009 Brute-Force Protection"
 			},
 			"reachedOn": "/apps/launchpad/s/{token}/unlock",
 			"provider": "launchpad",
@@ -4237,7 +4631,8 @@
 				"state": "built",
 				"evidence": "lib/Service/DashboardShareService.php:497; lib/Notification/Notifier.php:135",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-sharing"
+				"spec": "openspec/specs/dashboard-sharing",
+				"requirement": "openspec/specs/dashboard-sharing :: Notify recipient on share add and on level upgrade (REQ-SHARE-008)"
 			},
 			"reachedOn": "Nextcloud notifications bell",
 			"provider": "launchpad",
@@ -4269,11 +4664,15 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "src/components/admin/AdminSettings.vue:239; lib/Controller/KioskController.php; src/views/KioskPlayerView.vue",
+				"evidence": "src/components/admin/AdminSettings.vue:85 (KioskTab); src/components/admin/tabs/KioskTab.vue; lib/Controller/KioskController.php; src/views/KioskPlayerView.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-sharing-kiosk-screens"
+				"change": "openspec/changes/archive/2026-09-29-sharing-kiosk-screens",
+				"requirement": [
+					"openspec/specs/dashboard-kiosk-mode :: The kiosk link plays the playlist without a login (REQ-KIOSKUI-002)",
+					"openspec/specs/dashboard-kiosk-mode :: REQ-KIOSK-003 Public Playlist Render with Rotation"
+				]
 			},
-			"reachedOn": "nothing: /kiosk/{token} returns JSON that no page renders, and useKioskPlaylistStore has no caller, so no screen creates a playlist",
+			"reachedOn": "Admin settings, Kiosk tab: make a playlist; its kiosk link plays it on a screen without a login",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/254191-narrow-casting announcements reach screens through third-party narrowcasting software via API; 'Workspace 365 does not provide narrowcasting software itself' (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for kiosk, rotate, fullscreen: none",
@@ -4286,7 +4685,6 @@
 			"feature": "dashboard-kiosk-mode",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "openspec/features.overlay.json advertises dashboard-kiosk-mode as stable (\"You rotate dashboards on a lobby screen unattended\").",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpKiosk"
@@ -4306,7 +4704,11 @@
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardRowActions.vue; src/dialogs/ScheduleDashboardDialog.vue; lib/Service/DashboardService.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-sharing-dashboard-schedule-screen"
+				"change": "openspec/changes/archive/2026-09-29-sharing-dashboard-schedule-screen",
+				"requirement": [
+					"openspec/specs/dashboards :: A manager can publish, unpublish and schedule a dashboard (REQ-SCHEDUI-001)",
+					"openspec/specs/dashboards :: A dashboard can come down at a set time (REQ-SCHEDUI-002)"
+				]
 			},
 			"reachedOn": "nothing: the store actions publishDashboard and scheduleDashboard have no component caller",
 			"provider": "launchpad",
@@ -4321,7 +4723,7 @@
 				"workspace-365": "not checked: W365 spaces for scheduled go-live",
 				"microsoft-viva": "not checked: dashboard publish is manual; no schedule found"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code stays in the tree and has a screen since: the Publish, Unpublish and Schedule items in the dashboard menu (src/dialogs/ScheduleDashboardDialog.vue).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpDelen"
@@ -4338,10 +4740,12 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "built",
-				"evidence": "src/components/admin/tabs/SharingTab.vue:8",
+				"state": "specified",
+				"evidence": "src/components/admin/tabs/SharingTab.vue:8; was built, now specified (2026-11-12): the Sharing tab (src/components/admin/DashboardSharingPolicy.vue) sets only a default share level and forced share groups. Nothing limits who may share or with whom; tasks 3 of openspec/changes/record-parity-requirements builds it",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-sharing"
+				"spec": "openspec/specs/dashboard-sharing",
+				"requirement": "openspec/changes/record-parity-requirements/specs/dashboard-sharing :: Administrators decide who may share and with whom (REQ-SHARE-014)",
+				"plan": "openspec/changes/record-parity-requirements"
 			},
 			"reachedOn": "Admin settings, Sharing tab",
 			"provider": "launchpad",
@@ -4375,7 +4779,8 @@
 				"state": "built",
 				"evidence": "lib/Listener/UserDeletedListener.php:8; lib/Service/DashboardShareService.php:342",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-sharing"
+				"spec": "openspec/specs/dashboard-sharing",
+				"requirement": "openspec/specs/dashboard-sharing :: Cascade and admin retention on user deletion (REQ-SHARE-012)"
 			},
 			"reachedOn": "automatic when a Nextcloud user is deleted",
 			"provider": "launchpad",
@@ -4393,6 +4798,43 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpBeheerOnderhoud"
+			}
+		},
+		{
+			"id": "s-discussion",
+			"area": "sharing",
+			"name": "Discuss a shared dashboard with colleagues in a Talk conversation beside it.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/openregister-leaf-integrations",
+				"requirement": [
+					"openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf :: REQ-LEAF-002 Discussion surface renders only on shared dashboards",
+					"openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf :: REQ-LEAF-003 Discussion access follows the existing view guard"
+				]
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "dashboard-talk-leaf",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDelen"
 			}
 		},
 		{
@@ -4437,7 +4879,8 @@
 				"state": "built",
 				"evidence": "src/components/Widgets/WidgetContextMenu.vue; src/dialogs/ReadConfirmationDialog.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-engagement-acknowledgement-toggle"
+				"change": "openspec/changes/archive/2026-09-29-engagement-acknowledgement-toggle",
+				"requirement": "openspec/specs/dashboard-acknowledgements :: An editor can ask for confirmation from the widget form (REQ-ACK-007)"
 			},
 			"reachedOn": "the prompt renders on the Workspace page, but no form sets requiresAcknowledgement; only PUT /api/widgets/{placementId} does",
 			"provider": "launchpad",
@@ -4452,7 +4895,7 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/175643-best-practices 'Must-read' items use 'the pop-up function'; https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched launched 'Read / unread hub items'; an explicit confirm button not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: announcements page offers 'Allow users to dismiss', no read confirmation found"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code stays in the tree and has a screen since: the \"Ask readers to confirm\" option in the widget menu (src/dialogs/ReadConfirmationDialog.vue).",
 			"screen": {
 				"canvas": "design-system",
 				"board": [
@@ -4475,7 +4918,11 @@
 				"state": "built",
 				"evidence": "lib/Service/AcknowledgementService.php:251; src/views/Views.vue:163",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-07-dashboard-acknowledgements"
+				"change": "openspec/changes/archive/2026-07-07-dashboard-acknowledgements",
+				"requirement": [
+					"openspec/specs/dashboard-acknowledgements :: An editor can see who has confirmed (REQ-ACK-008)",
+					"openspec/specs/dashboard-acknowledgements :: REQ-ACK-006 Acknowledgement events feed activity and export"
+				]
 			},
 			"reachedOn": "Workspace page, Read receipts button",
 			"provider": "launchpad",
@@ -4509,7 +4956,8 @@
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardReactions.vue; src/views/Views.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-engagement-dashboard-reactions-bar"
+				"change": "openspec/changes/archive/2026-09-29-engagement-dashboard-reactions-bar",
+				"requirement": "openspec/specs/dashboard-reactions :: REQ-RXN-010 A viewer can react from the dashboard"
 			},
 			"reachedOn": "nothing: the store actions addReaction and fetchReactionsSummary have no component caller",
 			"provider": "launchpad",
@@ -4524,7 +4972,7 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/284826-create-announcements emoji reactions 'like, love, sad, celebrate, laugh, thanks' on announcements, not on a space (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-news-notifications 'Likes' on news posts; not on the dashboard (read 2026-09-26)"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code stays in the tree and has a screen since: the reactions bar under the dashboard title (src/components/Workspace/DashboardReactions.vue).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
@@ -4534,16 +4982,22 @@
 			"id": "e-announcements",
 			"area": "engagement",
 			"name": "Post targeted news announcements that people can like, comment on and follow.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Controller/AnnouncementController.php:84; lib/Service/AnnouncementCommentService.php:143; lib/Service/AnnouncementFollowNotifier.php:104",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-announcements"
+				"change": "openspec/changes/engagement-announcements",
+				"requirement": [
+					"openspec/changes/engagement-announcements/specs/announcements :: Authors publish targeted announcements (REQ-ANN-001)",
+					"openspec/changes/engagement-announcements/specs/announcements :: Readers like and comment through Nextcloud comments (REQ-ANN-002)",
+					"openspec/changes/engagement-announcements/specs/announcements :: Readers follow categories (REQ-ANN-003)"
+				]
 			},
 			"reachedOn": "nothing: a text widget can carry a message, with no likes, comments or follow",
 			"evidence": {
@@ -4635,7 +5089,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-communities"
+				"change": "openspec/changes/engagement-communities",
+				"requirement": "openspec/changes/engagement-communities/specs/communities-widget/spec.md :: The Communities widget lists open Talk conversations the viewer may join (REQ-COMM-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -4668,7 +5123,8 @@
 			"built": {
 				"state": "building",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-activity-digest"
+				"change": "openspec/changes/engagement-activity-digest",
+				"requirement": "openspec/changes/engagement-activity-digest/specs/activity-feed-integration :: LaunchPad events can reach the activity digest email (REQ-DIGE-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -4722,17 +5178,18 @@
 			"id": "e-maintenance",
 			"area": "engagement",
 			"name": "Put a maintenance or outage notice on everyone's dashboard for a set period.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "src/components/Widgets/VisibilityRuleRow.vue:111; lib/widget-types.json:37",
+				"state": "built",
+				"evidence": "src/views/WorkspaceApp.vue:74; src/components/Announcements/NoticeBanner.vue:12",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-announcements"
+				"change": "openspec/changes/engagement-announcements",
+				"requirement": "openspec/changes/engagement-announcements/specs/announcements :: Notices show above every targeted dashboard for their period (REQ-ANN-005)"
 			},
 			"reachedOn": "Admin settings, Group dashboards or Templates: a text widget with a date rule",
 			"evidence": {
@@ -4770,7 +5227,8 @@
 				"state": "built",
 				"evidence": "lib/Search/LaunchPadSearchProvider.php:173",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-nc-unified-search-integration"
+				"change": "openspec/changes/archive/2026-05-03-nc-unified-search-integration",
+				"requirement": "openspec/specs/nc-unified-search-integration :: REQ-SRCH-002 Dashboard Name and Description Matching"
 			},
 			"reachedOn": "Nextcloud unified search in the header",
 			"provider": "launchpad",
@@ -4787,7 +5245,8 @@
 			},
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpWerkplek"
+				"board": "LpWerkplek",
+				"reason": "Nextcloud core search: the dashboard result shows in Nextcloud's own search bar, which no LaunchPad board draws; LpWerkplek shows LaunchPad's tile quick search"
 			}
 		},
 		{
@@ -4834,7 +5293,11 @@
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/AiAssistantWidget.vue (widget type ai-assistant, questions through Hermiq via useAiChatStream)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-30-search-ai-dashboard-assistant"
+				"change": "openspec/changes/archive/2026-09-30-search-ai-dashboard-assistant",
+				"requirement": [
+					"openspec/specs/launchpad-ai-dashboard-assistant :: REQ-ADA-004: Inference SHALL route exclusively through hermiq; launchpad MUST NOT contain an LLM client",
+					"openspec/specs/launchpad-ai-dashboard-assistant :: REQ-ADA-006: The widget SHALL render two reply modes, streamed chat and inline summary"
+				]
 			},
 			"reachedOn": "nothing",
 			"note": "corrections round 9 (2026-09-28): no change carries this row at 9d5535a, so built.state is none. The evidence cites a main spec, openspec/specs/launchpad-ai-dashboard-assistant (REQ-ADA-001 to 007, a chat widget answering plain-language questions), not a change. The change that wrote it, openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics, was spec-only and its tasks.md says the ai-dashboard-assistant widget chain remains spec-only; no ai-assistant widget exists in src/ or lib/. The open change launchpad-ai-dashboard-assistant carries AI summary widgets for cases and consultations, not questions and answers. Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears. Reversed to build 2026-09-29 (DECISIONS row 16); built 2026-09-30 by search-ai-dashboard-assistant, answers through Hermiq.",
@@ -4869,7 +5332,8 @@
 				"state": "specified",
 				"evidence": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md:226",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/mcp-tool-surface"
+				"change": "openspec/changes/mcp-tool-surface",
+				"requirement": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md :: REQ-MCP-008 Chat command flows resolve to tool sequences"
 			},
 			"reachedOn": "nothing: the overlay lists it as soon",
 			"provider": "launchpad",
@@ -4904,7 +5368,11 @@
 				"state": "specified",
 				"evidence": "openspec/changes/mcp-tool-surface/proposal.md:7",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/mcp-tool-surface"
+				"change": "openspec/changes/mcp-tool-surface",
+				"requirement": [
+					"openspec/changes/mcp-tool-surface/specs/mcp-tools :: REQ-MCP-002 Read tool catalogue (full read coverage)",
+					"openspec/changes/mcp-tool-surface/specs/mcp-tools :: REQ-MCP-003 Write tool catalogue with scope × reach annotations (full action coverage)"
+				]
 			},
 			"reachedOn": "nothing",
 			"note": "corrections round 9 (2026-09-28): built.change names openspec/changes/mcp-tool-surface, open on development at 9d5535a with 0 of 28 tasks checked, whose proposal specifies a LaunchpadToolProvider with 14 read and 35 write MCP tools over dashboards, widgets, tiles and sharing; lib/Mcp does not exist yet, so the rating stays no; source: the corrections-9 list of specified rows that named no change.",
@@ -4995,7 +5463,11 @@
 				"state": "built",
 				"evidence": "lib/Service/AnalyticsService.php:281; src/components/admin/tabs/VersioningAuditTab.vue:10",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics"
+				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics",
+				"requirement": [
+					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-006 Top Dashboards Query Endpoint",
+					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-010 CSV Export Endpoint"
+				]
 			},
 			"reachedOn": "Admin settings, Versioning and audit tab",
 			"provider": "launchpad",
@@ -5026,12 +5498,17 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
-				"evidence": "lib/Service/AnalyticsService.php:140; lib/BackgroundJob/PurgeViewsJob.php:50",
+				"state": "specified",
+				"evidence": "Not built: a person cannot opt out. lib/Service/AnalyticsService.php:134 honours the user value analytics_optout and lib/BackgroundJob/PurgeViewsJob.php:50 purges old views, but no page in src/ writes analytics_optout and /api/preferences/{key} stores keys under pref_, so only occ user:setting sets it",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics"
+				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics",
+				"requirement": [
+					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-004 Per-User Analytics Opt-Out",
+					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-009 Analytics Data Retention and Purge"
+				],
+				"plan": "openspec/changes/analytics-personal-opt-out"
 			},
-			"reachedOn": "the purge runs as a background job; the opt-out is a user preference no page sets, since /api/preferences/{key} has no caller in src/",
+			"reachedOn": "nothing for a person: the opt-out is set only with occ user:setting <uid> launchpad analytics_optout true; the purge runs as a background job",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-view-analytics",
@@ -5066,7 +5543,11 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/OperationsTab.vue:9; lib/Controller/HealthController.php:53",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/prometheus-metrics"
+				"spec": "openspec/specs/prometheus-metrics",
+				"requirement": [
+					"openspec/changes/record-parity-requirements/specs/prometheus-metrics :: The admin page shows the app's health (REQ-PROM-011)",
+					"openspec/specs/prometheus-metrics :: Health Check Endpoint (REQ-PROM-007)"
+				]
 			},
 			"reachedOn": "Admin settings, Operations tab",
 			"provider": "launchpad",
@@ -5100,7 +5581,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/MetricsController.php:93; src/components/admin/tabs/OperationsTab.vue:12",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-03-21-prometheus-metrics"
+				"change": "openspec/changes/archive/2026-03-21-prometheus-metrics",
+				"requirement": "openspec/specs/prometheus-metrics :: Metrics Endpoint (REQ-PROM-001)"
 			},
 			"reachedOn": "/apps/launchpad/api/metrics; explained on Admin settings, Operations tab",
 			"provider": "launchpad",
@@ -5162,9 +5644,13 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Activity/ActivityPublisher.php:82; lib/Service/TemplateResyncService.php:867; Corrections round 8 (2026-09-28), launchpad#713: only 2 of the 14 event types declared at lib/Activity/Extension.php:80-93 are ever sent, dashboard_updated for bulk operations and template re-sync and dashboard_acknowledged; lib/Service/BulkOperationService.php:949, lib/Service/TemplateResyncService.php:867 and lib/Service/AcknowledgementService.php:532 are the only callers of ActivityPublisher::publish() at e74f421, so creating, deleting, publishing, sharing, commenting on or restoring a dashboard leaves no entry.",
+				"evidence": "lib/Activity/ActivityPublisher.php:82; lib/Activity/DashboardActivityEmitter.php (dashboard_shared, dashboard_published, dashboard_updated); callers lib/Service/ShareNotifier.php:90, lib/Service/DashboardService.php:873, :1298, :2260, :2458; also lib/Service/BulkOperationService.php:888, lib/Service/TemplateResyncService.php:916, lib/Service/AcknowledgementService.php:717",
 				"owner": "nextcloud/server",
-				"change": "openspec/changes/archive/2026-05-02-activity-feed-integration"
+				"change": "openspec/changes/archive/2026-05-02-activity-feed-integration",
+				"requirement": [
+					"openspec/specs/activity-feed-integration :: REQ-ACT-001 Extension Registration",
+					"openspec/specs/activity-feed-integration :: REQ-ACT-005 Audience Targeting — Shared Dashboards"
+				]
 			},
 			"reachedOn": "Nextcloud Activity app",
 			"provider": "nextcloud",
@@ -5179,7 +5665,7 @@
 				"workspace-365": "not checked: W365 activity feed for space changes",
 				"microsoft-viva": "not checked: dashboard pages for change activity"
 			},
-			"note": "Own rating yes to partial (corrections round 8, 2026-09-28): only 2 of the 14 declared dashboard event types are ever published, so ordinary edits, shares and publishes never reach the activity stream, launchpad#713.",
+			"note": "Sharing, publishing and saving a shared or group dashboard reach the activity stream since launchpad#713 (DashboardActivityEmitter). Creating, deleting, commenting on and restoring a dashboard still send no entry.",
 			"screen": {
 				"board": null,
 				"reason": "Wijzigingen verschijnen in de Activiteit-app van Nextcloud, niet op een scherm van Launchpad."
@@ -5199,7 +5685,8 @@
 				"state": "built",
 				"evidence": "lib/BackgroundJob/OrphanedDataCleanupJob.php:111; lib/Listener/GroupDeletedListener.php:55",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-orphaned-data-cleanup"
+				"change": "openspec/changes/archive/2026-05-03-orphaned-data-cleanup",
+				"requirement": "openspec/specs/orphaned-data-cleanup :: REQ-CLN-007 Background Job for Auto-Purge"
 			},
 			"reachedOn": "background job and user or group deletion; occ launchpad cleanup scan and purge",
 			"provider": "launchpad",
@@ -5233,7 +5720,11 @@
 				"state": "built",
 				"evidence": "lib/Command/DashboardListCommand.php:38; lib/Command/ExportCommand.php:40",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-cli-commands"
+				"change": "openspec/changes/archive/2026-05-03-cli-commands",
+				"requirement": [
+					"openspec/specs/cli-commands :: REQ-CLI-003 New Commands: Dashboard Management",
+					"openspec/specs/dashboard-export-import :: REQ-EXIM-010 CLI Commands for Export and Import"
+				]
 			},
 			"reachedOn": "occ launchpad commands",
 			"provider": "launchpad",
@@ -5267,7 +5758,8 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:100; lib/Service/FooterService.php:237",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-footer-customization"
+				"change": "openspec/changes/archive/2026-05-03-footer-customization",
+				"requirement": "openspec/specs/footer-customization :: REQ-FTR-004 Footer Rendering — Global Content"
 			},
 			"reachedOn": "the footer renders on the Workspace page; /api/admin/footer-settings has no caller in src/, so no screen edits it",
 			"provider": "launchpad",
@@ -5305,8 +5797,19 @@
 				"evidence": "lib/Settings/connections.json:43; lib/Service/IframeService.php:9",
 				"owner": "ConductionNL/launchpad",
 				"change": [
-					"openspec/changes/adopt-connection-registry",
+					"openspec/changes/archive/2026-11-12-adopt-connection-registry",
 					"openspec/changes/archive/2026-07-23-iframe-embed-widget"
+				],
+				"spec": [
+					"openspec/specs/iframe-embed-widget",
+					"openspec/specs/live-data-tile-widget",
+					"openspec/specs/service-health-ping"
+				],
+				"requirement": [
+					"openspec/specs/iframe-embed-widget :: REQ-IFRAME-002 Admin allow-list of embeddable hosts, fail-closed",
+					"openspec/specs/live-data-tile-widget :: REQ-LIVETILE-002 Configure the tile source",
+					"openspec/specs/live-data-tile-widget :: REQ-LIVETILE-003 Resolve and cache the value server-side",
+					"openspec/specs/service-health-ping :: REQ-HPING-002 Ping the service server-side and classify the result"
 				]
 			},
 			"reachedOn": "occ config:app:set only; no admin screen edits the host lists",
@@ -5341,7 +5844,8 @@
 				"state": "built",
 				"evidence": "lib/Service/SvgSanitiser.php:166",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-svg-sanitisation"
+				"change": "openspec/changes/archive/2026-06-14-svg-sanitisation",
+				"requirement": "openspec/specs/resource-uploads :: SVG sanitiser is mandatory before persistence (REQ-RES-009)"
 			},
 			"reachedOn": "every icon upload through /api/resources",
 			"provider": "launchpad",
@@ -5375,7 +5879,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/DashboardApiController.php:158",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: LaunchPad has no login of its own (REQ-PLB-001)"
 			},
 			"reachedOn": "Nextcloud login; every LaunchPad route runs behind the Nextcloud session",
 			"evidence": {
@@ -5438,7 +5943,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml:56",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: LaunchPad runs on the organisation's own servers (REQ-PLB-002)"
 			},
 			"reachedOn": "installed as a Nextcloud app on your own instance",
 			"evidence": {
@@ -5471,7 +5977,8 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:552",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Every page takes on the organisation's theme (REQ-PLB-003)"
 			},
 			"reachedOn": "every page; colours come from Nextcloud theming or the NL Design System app",
 			"evidence": {
@@ -5503,7 +6010,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/platform-dashboard-theme-and-css"
+				"change": "openspec/changes/platform-dashboard-theme-and-css",
+				"requirement": "openspec/changes/platform-dashboard-theme-and-css/specs/dashboards :: Administrators add custom CSS, cleaned and scoped (REQ-THM-003)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -5565,7 +6073,9 @@
 				"state": "built",
 				"evidence": "l10n/nl.json:2",
 				"owner": "ConductionNL/launchpad",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Every string is translatable and follows the user's language (REQ-PLB-004)",
+				"change": "openspec/changes/fix-l10n-domain-mismatch-mydash-calls"
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
@@ -5599,7 +6109,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml:75",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/runtime-or-consumption"
+				"spec": "openspec/specs/runtime-or-consumption",
+				"requirement": "openspec/specs/runtime-or-consumption :: No install-time OR dependency (REQ-OR-001)"
 			},
 			"reachedOn": "the app installs and boots with no OpenRegister; OpenRegister-backed widgets are feature-detected",
 			"provider": "launchpad",
@@ -5661,7 +6172,11 @@
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/modals/WidgetPickerModal.vue:36; lib/Migration/PlacementTableBuilder.php:239",
-				"spec": "openspec/specs/widgets"
+				"spec": "openspec/specs/widgets",
+				"requirement": [
+					"openspec/specs/calendar-widget :: REQ-CAL-001 Widget registration",
+					"openspec/specs/news-widget :: REQ-NEWS-001 Widget Registration"
+				]
 			},
 			"reachedOn": "Workspace page, Edit dashboard, Add widget: a widget already placed is only marked as placed and can be added again, each placement with its own settings",
 			"evidence": {
@@ -5757,7 +6272,11 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/components/TileWidget.vue:41",
-				"change": "openspec/changes/launcher-tile-open-behaviour"
+				"change": "openspec/changes/launcher-tile-open-behaviour",
+				"requirement": [
+					"openspec/changes/launcher-tile-open-behaviour/specs/tiles :: A tile carries its own link target (REQ-TOB-001)",
+					"openspec/changes/launcher-tile-open-behaviour/specs/tiles :: A dashboard sets the default target for its tiles (REQ-TOB-002)"
+				]
 			},
 			"reachedOn": "Workspace page, any tile",
 			"evidence": {
@@ -5793,7 +6312,8 @@
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/components/WidgetRenderer.vue:442",
-				"spec": "openspec/specs/widgets"
+				"spec": "openspec/specs/widgets",
+				"requirement": "openspec/changes/record-parity-requirements/specs/widgets :: A Nextcloud widget with a reload interval refreshes itself (REQ-WDG-029)"
 			},
 			"reachedOn": "Workspace page, any Nextcloud widget that declares a reload interval, and live value tiles",
 			"evidence": {
@@ -5832,7 +6352,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "lib/Service/RuleEvaluatorService.php:125",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Group dashboards follow the groups set at sign-in (REQ-PLB-005)"
 			},
 			"reachedOn": "every targeting rule and group dashboard; group membership itself comes from the Nextcloud login app",
 			"evidence": {
@@ -5865,10 +6386,15 @@
 			"homarr": "yes",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/nextcloud-vue",
-				"evidence": "src/manifest.json:475",
-				"spec": "openspec/specs/runtime-shell"
+				"evidence": "src/manifest.json:475; was built, now specified (2026-11-12): src/manifest.json:475 declares only the Workspace tour (REQ-SHELL-010 says it does not visit the admin settings). The admin-area tour is missing; task 4 of openspec/changes/record-parity-requirements builds it",
+				"spec": "openspec/specs/runtime-shell",
+				"requirement": [
+					"openspec/specs/runtime-shell :: REQ-SHELL-010 First-visit tour",
+					"openspec/changes/record-parity-requirements/specs/runtime-shell :: The admin area has its own first-visit tour (REQ-SHELL-011)"
+				],
+				"plan": "openspec/changes/record-parity-requirements"
 			},
 			"reachedOn": "Workspace page on first visit, 'Getting started' tour, and again from the help menu",
 			"evidence": {
@@ -5904,7 +6430,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "src/views/WorkspaceApp.vue:480",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Pages install on a phone through Nextcloud's web app manifest (REQ-PLB-006)"
 			},
 			"reachedOn": "any LaunchPad page, through the browser's install option",
 			"evidence": {
@@ -5940,7 +6467,8 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "appinfo/routes.php:18",
-				"change": "openspec/changes/governance-rest-api-reference"
+				"change": "openspec/changes/governance-rest-api-reference",
+				"requirement": "openspec/changes/governance-rest-api-reference/specs/rest-api-reference :: LaunchPad ships a generated OpenAPI reference (REQ-RAPI-001)"
 			},
 			"reachedOn": "no documentation page; the JSON routes are what the LaunchPad pages themselves call",
 			"evidence": {
@@ -5976,7 +6504,11 @@
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Service/LiveTileService.php:455",
-				"spec": "openspec/specs/background-job-feed-refresh"
+				"spec": "openspec/specs/background-job-feed-refresh",
+				"requirement": [
+					"openspec/specs/background-job-feed-refresh :: REQ-FRJ-012 User-Agent and Proxy Configuration",
+					"openspec/changes/record-parity-requirements/specs/platform-baseline :: Outbound requests use the server's proxy setting (REQ-PLB-008)"
+				]
 			},
 			"reachedOn": "every widget that fetches from outside: news, calendar feeds, live tiles, weather, health pings, iframe checks",
 			"evidence": {
@@ -5992,7 +6524,7 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.48.0",
-			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none.",
+			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none. Specified 12 Nov 2026 as REQ-PLB-008 (record-parity-requirements): REQ-FRJ-012 covers the feed refresh job only.",
 			"screen": {
 				"board": null,
 				"reason": "Uitgaande verzoeken gebruiken de proxy-instelling van de server, zonder scherm."
@@ -6041,7 +6573,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-bookmark-import"
+				"change": "openspec/changes/launcher-bookmark-import",
+				"requirement": "openspec/changes/launcher-bookmark-import/specs/tiles :: Users can import a browser bookmarks file as tiles (REQ-BMI-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6067,19 +6600,26 @@
 			"id": "d-notes",
 			"area": "widgets",
 			"name": "Keep personal notes on the start page.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "yes",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/nextcloud-vue",
-				"evidence": "lib/widget-types.json:37",
-				"change": "nextcloud-vue/dashboard-notepad-widget"
+				"evidence": "nextcloud-vue src/components/CnNotepadWidget/CnNotepadWidget.vue and CnNotepadWidgetForm (main 0d69eaf48), type `notepad` registered userAddable in CnNotepadWidget/index.js and shipped since @conduction/nextcloud-vue 2.90.0; launchpad's package.json asks ^2.180.0 and package-lock.json pins 2.180.0; launchpad offers it through src/constants/widgetRegistry.js offerableTypes() (cnListWidgetTypes('app-dashboard'))",
+				"change": "nextcloud-vue/dashboard-notepad-widget",
+				"spec": "nextcloud-vue/grid-widget-system",
+				"requirement": [
+					"nextcloud-vue:openspec/changes/dashboard-notepad-widget/specs/grid-widget-system/spec.md :: A notepad widget is typed into in place",
+					"nextcloud-vue:openspec/changes/dashboard-notepad-widget/specs/grid-widget-system/spec.md :: A note belongs to the person who wrote it",
+					"nextcloud-vue:openspec/changes/dashboard-notepad-widget/specs/grid-widget-system/spec.md :: A user may add a notepad to their own dashboard"
+				],
+				"readOn": "2026-10-30"
 			},
-			"reachedOn": "Workspace page, Add widget, Text, on a personal dashboard",
+			"reachedOn": "Workspace page, Add widget, Notepad, on a personal dashboard",
 			"evidence": {
 				"workspace-365": "not checked: live tile integrations collection (support.workspace365.net/en/collections/791485) and user guide 175363 list no personal notes tile; the text editor tile (480271) is admin content (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards toolbox lists no notes card (card designer, Approvals, Assigned tasks, Events, Folder, My Sites, News, OneDrive, People, Power Apps, Quick links, Shifts, Stay Engaged, Stream, Teams app, Learning, Pulse, Web link) (read 2026-09-26)",
@@ -6112,7 +6652,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-internal-address"
+				"change": "openspec/changes/launcher-tile-internal-address",
+				"requirement": "openspec/changes/launcher-tile-internal-address/specs/tiles :: The tile opens the address that fits the network (REQ-TIA-003)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6148,7 +6689,12 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Migration/DashboardTableBuilder.php:173",
-				"change": "openspec/changes/platform-dashboard-theme-and-css"
+				"change": "openspec/changes/platform-dashboard-theme-and-css",
+				"requirement": [
+					"openspec/changes/platform-dashboard-theme-and-css/specs/dashboards :: Each dashboard can have its own look (REQ-THM-001)",
+					"openspec/specs/dashboard-language-content :: The workspace page shows the reader's language (REQ-LANGUI-002)",
+					"openspec/specs/dashboards :: Update Dashboard (REQ-DASH-004)"
+				]
 			},
 			"reachedOn": "Workspace page, dashboard settings",
 			"evidence": {
@@ -6184,7 +6730,8 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/components/Widgets/Renderers/IframeWidget.vue:38",
-				"change": "openspec/changes/launcher-tile-open-behaviour"
+				"change": "openspec/changes/launcher-tile-open-behaviour",
+				"requirement": "openspec/changes/launcher-tile-open-behaviour/specs/tiles :: A tile can open its app in a panel beside the tiles (REQ-TOB-003)"
 			},
 			"reachedOn": "Workspace page, Add widget, Embed",
 			"evidence": {
@@ -6219,7 +6766,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/search-ai-prefix-shortcuts"
+				"change": "openspec/changes/search-ai-prefix-shortcuts",
+				"requirement": "openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search :: A prefix sends the query to its site (REQ-SPX-002)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6255,7 +6803,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "src/views/WorkspaceApp.vue:480",
-				"spec": "none"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Pages follow light or dark mode (REQ-PLB-007)"
 			},
 			"reachedOn": "every page",
 			"evidence": {
@@ -6290,7 +6839,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting"
+				"change": "openspec/changes/launcher-tile-sorting",
+				"requirement": "openspec/changes/launcher-tile-sorting/specs/container-widget :: A container sorts its tiles when viewed (REQ-TSO-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6386,7 +6936,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields"
+				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields",
+				"requirement": "openspec/specs/people-widget :: Administrators define custom profile fields (REQ-PEX-001)"
 			},
 			"reachedOn": "People widget cards show custom fields; Personal settings > Personal info > LaunchPad profile; Admin settings > LaunchPad > Profile fields",
 			"evidence": {
@@ -6402,7 +6953,7 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/766599-release-notes-workspace-365-v4-46",
-			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass).",
+			"note": "Built 30 Sep 2026 (archived change widgets-people-expertise-and-fields): administrators define up to 10 custom profile fields, filled by the person or read from LDAP (lib/Service/ProfileFieldService.php, src/components/admin/tabs/ProfileFieldsTab.vue), and the people widget shows them (PeopleWidgetService.php visibleFieldsFor). Before that the widget showed only the standard Nextcloud profile fields.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
@@ -6412,16 +6963,18 @@
 			"id": "d-news-preview",
 			"area": "engagement",
 			"name": "Preview a news item before it is published.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/modals/AnnouncementEditorModal.vue:65; lib/Controller/AnnouncementController.php:188",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-announcements"
+				"change": "openspec/changes/engagement-announcements",
+				"requirement": "openspec/changes/engagement-announcements/specs/announcements :: Authors preview before publishing (REQ-ANN-004)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6537,19 +7090,22 @@
 			"id": "d-work-queue",
 			"area": "widgets",
 			"name": "See your own open cases and work items on the start page and click through to the work queue.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/dossiq",
-				"evidence": "src/services/widgetBridge.js:29",
-				"change": "dossiq/widgets-my-open-cases-on-the-start-page"
+				"evidence": "dossiq lib/Dashboard/MyOpenWorkWidget.php (widget id dossiq_my_open_work_widget, development 304c18ee7), placed in LaunchPad as an nc-widget placement (src/services/widgetBridge.js:29, specs/widgets REQ-WDG-018)",
+				"change": "dossiq/widgets-my-open-cases-on-the-start-page",
+				"spec": "dossiq/dashboard",
+				"requirement": "dossiq:openspec/specs/dashboard :: My open work is a start page widget that any dashboard can render (REQ-DASH-023)",
+				"readOn": "2026-10-30"
 			},
-			"reachedOn": "Workspace page, Add widget, Nextcloud widget, a case app's own widget, with that app installed",
+			"reachedOn": "Workspace page, Add widget, Nextcloud widget, dossiq's \"My open work\" widget, with dossiq installed",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175605-zaaksysteem live tile shows 'My open cases' and 'My suspended cases' with counts; 'Click on Zaaksysteem at the bottom of the live tile to navigate to Zaaksysteem itself'; TOPdesk tile shows the user's own tickets (175599) (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Assigned tasks card lets users 'create and view tasks from the card or open the Planner app'; Approvals card shows 'the ones sent your way' (read 2026-09-26)",
@@ -6566,7 +7122,7 @@
 			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; Súdwest-Fryslân 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page.",
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpStart"
+				"board": "LpVandaag"
 			}
 		},
 		{
@@ -6583,14 +7139,16 @@
 				"state": "built",
 				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/attention-feed"
+				"spec": "openspec/specs/attention-feed",
+				"requirement": "openspec/specs/attention-feed :: REQ-ATT-004 Merging and ranking",
+				"change": "openspec/changes/cross-app-attention-feed"
 			},
 			"reachedOn": "Workspace page, Add widget, First today",
 			"source": "spec-round-2026-10-07",
 			"feature": "nc-dashboard-widget-proxy",
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpStart"
+				"board": "LpVandaag"
 			}
 		},
 		{
@@ -6607,7 +7165,8 @@
 				"state": "built",
 				"evidence": "lib/widget-types.json:28; src/components/WidgetRenderer.vue:10",
 				"owner": "ConductionNL/nextcloud-vue",
-				"change": "openspec/changes/archive/2026-05-03-menu-widget"
+				"change": "openspec/changes/archive/2026-05-03-menu-widget",
+				"requirement": "openspec/specs/menu-widget :: REQ-MENU-001 Widget registration and default structure"
 			},
 			"reachedOn": "Workspace page, Add widget, Menu",
 			"source": "spec-round-2026-10-07",
@@ -6631,7 +7190,11 @@
 				"state": "built",
 				"evidence": "lib/widget-types.json:33; src/components/WidgetRenderer.vue:9",
 				"owner": "ConductionNL/nextcloud-vue",
-				"change": "openspec/changes/archive/2026-05-03-quicklinks-widget"
+				"change": "openspec/changes/archive/2026-05-03-quicklinks-widget",
+				"requirement": [
+					"openspec/specs/quicklinks-widget :: REQ-QLNK-001 Registration and widget id",
+					"openspec/specs/quicklinks-widget :: REQ-QLNK-006 Column layout flexibility"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Quick links",
 			"source": "spec-round-2026-10-07",
@@ -6645,19 +7208,20 @@
 			"id": "d-public-start",
 			"area": "sharing",
 			"name": "Visitors who have not signed in see a public start page instead of the login screen.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "appinfo/routes.php:189",
-				"change": "openspec/changes/sharing-public-start-page"
+				"evidence": "lib/Listener/PublicStartRedirectListener.php:117",
+				"change": "openspec/changes/sharing-public-start-page",
+				"requirement": "openspec/changes/sharing-public-start-page/specs/dashboard-public-share :: Signed-out visitors land on the start page (REQ-PSP-002)"
 			},
-			"reachedOn": "a public share link (/apps/launchpad/s/<token>), not the address signed-out visitors land on",
+			"reachedOn": "the Nextcloud address: a signed-out visitor on the plain login page goes to /apps/launchpad/start (lib/Listener/PublicStartRedirectListener.php:117, lib/Controller/PageController.php:570), which shows the chosen public link with a Sign in bar (src/views/DashboardPublicShareView.vue)",
 			"evidence": {
 				"workspace-365": "not checked: https://support.workspace365.net/en/articles/697783-use-workspace-365-as-relatives-portal even visitors get Entra guest accounts and sign in; no public page described; branding 175374 says 'It is not possible to brand the landing page' (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview describes access through Teams or the SharePoint home site with Entra identities; no anonymous start page found and no explicit statement of absence (read 2026-09-26)",
@@ -6671,7 +7235,7 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.publicprocurement.be/nl/publication-workspaces/204ca8ae-6191-43b9-ac3b-c943f91d1d2d",
-			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass).",
+			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass). Built 2026-11-14: the administrator picks a public link without a password on the Sharing tab (src/components/admin/PublicStartPageSettings.vue), the login page sends signed-out visitors to /start, and deep links keep their login form.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpPubliek"
@@ -6691,7 +7255,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields"
+				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields",
+				"requirement": "openspec/specs/people-widget :: Search finds people across the directory by profile and expertise (REQ-PEX-003)"
 			},
 			"reachedOn": "People widget search box: 2 or more characters search the whole directory, including expertise tags (GET /api/people?q=)",
 			"evidence": {
@@ -6707,10 +7272,134 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/418890",
-			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass).",
+			"note": "Built 30 Sep 2026 (archived change widgets-people-expertise-and-fields): a query of 2 or more characters searches the whole directory, including expertise tags and searchable custom fields (PeopleWidgetService.php searchCandidates, ProfileFieldService findMatchingUserIds). Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
+			}
+		},
+		{
+			"id": "s-embed-site",
+			"area": "sharing",
+			"name": "Embed a live dashboard or widget on the organisation's own website with a token that can be revoked.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/embedded-analytics",
+				"plan": [
+					"openspec/changes/embedded-analytics"
+				],
+				"requirement": [
+					"openspec/changes/embedded-analytics/specs/embedded-analytics :: REQ-EMB-001 — Token issuance returns JWT exactly once",
+					"openspec/changes/embedded-analytics/specs/embedded-analytics :: REQ-EMB-002 — Public render route validates JWT and enforces scope",
+					"openspec/changes/embedded-analytics/specs/embedded-analytics :: REQ-EMB-009 — Token revocation takes effect within 60 seconds"
+				],
+				"note": "Not built: no embed token, render route or SDK in the code yet. Plan: embedded-analytics."
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"microsoft-viva": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"nextcloud-dashboard": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"homarr": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"dashy": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "embedded-analytics",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpPubliek"
+			}
+		},
+		{
+			"id": "w-calculated-fields",
+			"area": "widgets",
+			"name": "Add a calculated value to a widget with a formula over its fields, other widgets and constants.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/widget-calculated-fields",
+				"plan": [
+					"openspec/changes/widget-calculated-fields"
+				],
+				"requirement": [
+					"openspec/changes/widget-calculated-fields/specs/calculated-fields :: REQ-CALC-001 Formula parser produces deterministic AST",
+					"openspec/changes/widget-calculated-fields/specs/calculated-fields :: REQ-CALC-003 Client-side evaluator reactive to filter changes"
+				],
+				"note": "Not built. Plan: widget-calculated-fields; the server-side half may belong in OpenRegister aggregation (REQ-CALC-004)."
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"microsoft-viva": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"nextcloud-dashboard": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"homarr": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"dashy": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "calculated-fields",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetInstellen"
+			}
+		},
+		{
+			"id": "w-map",
+			"area": "widgets",
+			"name": "Show register objects that carry a location on a map widget, and open an object from the map.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/map-support",
+				"plan": [
+					"openspec/changes/map-support"
+				],
+				"requirement": [
+					"openspec/changes/map-support/specs/map-widget :: REQ-MAP-001 A map widget shows register objects that carry a location",
+					"openspec/changes/map-support/specs/map-widget :: REQ-MAP-003 Clicking a feature opens its object"
+				],
+				"note": "Not built. Plan: map-support, on OpenRegister's spatial-query API (geo-metadata-kaart)."
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"microsoft-viva": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"nextcloud-dashboard": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"homarr": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"dashy": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "map-widget",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetInstellen"
 			}
 		}
 	],
@@ -6725,7 +7414,7 @@
 		},
 		"calendar-widget": {
 			"board": [
-				"LpStart",
+				"LpVandaag",
 				"LpWerkplek"
 			]
 		},
@@ -7021,6 +7710,31 @@
 		"video-widget": {
 			"board": [
 				"LpIntranet"
+			]
+		},
+		"attention-feed": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"mijn-werkdag-v3": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"cross-app-attention-feed": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"mijn-werkdag-template": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"start-page-without-navigation-panel": {
+			"board": [
+				"LpVandaag"
 			]
 		}
 	}

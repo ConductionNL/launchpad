@@ -25,6 +25,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -88,21 +93,31 @@ class DashboardServicePersonalGatingTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new DashboardService(
-			dashboardMapper: $dashboardMapper,
-			placementMapper: $placementMapper,
-			settingMapper: $this->settingMapper,
-			templateService: $templateService,
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $dashResolver,
-			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-			groupManager: $groupManager,
-			adminTemplateService: $adminTemplateService,
-			db: $db,
-			config: $config,
-			l10nFactory: $l10nFactory,
-			logger: $logger,
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $dashboardMapper,
+				placementMapper: $placementMapper,
+				settingMapper: $this->settingMapper
+			),
+			builders: new DashboardBuilders(
+				templateService: $templateService,
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $dashResolver,
+				adminTemplateService: $adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $groupManager,
+				db: $db,
+				config: $config,
+				l10nFactory: $l10nFactory
+			),
+			outlets: new DashboardOutlets(
+				logger: $logger
+			)
 		);
 	}//end setUp()
 

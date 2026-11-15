@@ -32,6 +32,7 @@ import axios from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
+import { REQUIRED_TEXT_PROP } from '../constants/propDefinitions.js'
 
 /** A network failure is retried this soon, whatever the refresh interval. */
 const RETRY_MS = 30 * 1000
@@ -53,10 +54,7 @@ export default {
 	},
 
 	props: {
-		token: {
-			type: String,
-			required: true,
-		},
+		token: REQUIRED_TEXT_PROP,
 	},
 
 	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */

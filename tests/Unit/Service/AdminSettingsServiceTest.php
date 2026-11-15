@@ -53,7 +53,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 	/**
 	 * REQ-ASET-001 "Settings response format consistency": the response holds
-	 * exactly the twelve documented keys, each at its documented default.
+	 * exactly the fourteen documented keys, each at its documented default.
 	 *
 	 * The spec said "exactly four keys" long after the response had grown to
 	 * twelve, because nothing compared the two. This pins the whole response,
@@ -74,11 +74,18 @@ class AdminSettingsServiceTest extends TestCase {
 				'linkCreateFileExtensions' => ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 				'defaultSharePermissionLevel' => 'add_only',
 				'forcedShareGroups' => [],
+				'sharingAllowedGroups' => [],
+				'sharingRecipientScope' => 'everyone',
 				'legacyWidgetBridgeEnabled' => false,
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
 				'startPageWithoutNavigation' => false,
+				// launcher-tile-launch-types: both empty until an administrator fills them.
+				'tileAllowedSchemes' => [],
+				'ssoLaunchTemplates' => [],
+				// engagement-announcements D6: no editor groups until one is chosen.
+				'announcementEditorGroups' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -122,26 +129,21 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->settingMapper->expects($this->exactly(2))
 			->method('setSetting');
 
-		$this->service->updateSettings(
-			defaultPermLevel: 'full',
-			allowUserDash: false,
-		);
+		$this->service->updateSettings(settings: ['defaultPermLevel' => 'full', 'allowUserDash' => false]);
 	}//end testUpdateSettingsCallsMapperForEachProvided()
 
 	public function testUpdateSettingsSkipsNullValues(): void {
 		$this->settingMapper->expects($this->once())
 			->method('setSetting');
 
-		$this->service->updateSettings(
-			defaultGridCols: 8,
-		);
+		$this->service->updateSettings(settings: ['defaultGridCols' => 8]);
 	}//end testUpdateSettingsSkipsNullValues()
 
 	public function testUpdateSettingsWithNoValues(): void {
 		$this->settingMapper->expects($this->never())
 			->method('setSetting');
 
-		$this->service->updateSettings();
+		$this->service->updateSettings(settings: []);
 	}//end testUpdateSettingsWithNoValues()
 
 	public function testGetSettingsReturnsCamelCaseKeys(): void {
@@ -159,6 +161,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// dashboard-sharing + legacy-widget-bridge spec keys.
 		$this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
 		$this->assertArrayHasKey('forcedShareGroups', $settings);
+		// dashboard-sharing REQ-SHARE-014: who may share, and with whom.
+		$this->assertArrayHasKey('sharingAllowedGroups', $settings);
+		$this->assertArrayHasKey('sharingRecipientScope', $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);
@@ -167,8 +172,47 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(12, $settings);
+		// launcher-tile-launch-types: the program schemes and SSO launch templates.
+		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
+		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
+		// engagement-announcements D6.
+		$this->assertArrayHasKey('announcementEditorGroups', $settings);
+		$this->assertCount(17, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
+
+	/**
+	 * Engagement-announcements D6: the stored editor groups read back as a
+	 * list, and a stored value that is not a list reads as none.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsReadBackAsAList(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
+			[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS => ['communicatie' => 'communicatie', 'hr' => 'hr']],
+			[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS => 'communicatie']
+		);
+
+		$this->assertSame(['communicatie', 'hr'], $this->service->getSettings()['announcementEditorGroups']);
+		$this->assertSame([], $this->service->getSettings()['announcementEditorGroups']);
+	}//end testAnnouncementEditorGroupsReadBackAsAList()
+
+	/**
+	 * Engagement-announcements D6: the editor groups are stored trimmed and
+	 * deduplicated, and a value that is not a list is refused unwritten.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsAreNormalisedOrRefused(): void {
+		$this->settingMapper->expects($this->once())
+			->method('setSetting')
+			->with(AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS, ['communicatie', 'hr']);
+
+		$this->service->updateSettings(settings: ['announcementEditorGroups' => [' communicatie ', 'hr', 'communicatie', '', 7]]);
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('announcementEditorGroups must be a list of group ids.');
+		$this->service->updateSettings(settings: ['announcementEditorGroups' => 'hr']);
+	}//end testAnnouncementEditorGroupsAreNormalisedOrRefused()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----
 
@@ -223,7 +267,7 @@ class AdminSettingsServiceTest extends TestCase {
 				0
 			);
 
-		$this->service->updateSettings(maxDashboardsPerUser: -3);
+		$this->service->updateSettings(settings: ['maxDashboardsPerUser' => -3]);
 	}//end testUpdateSettingsPersistsClampedDashboardQuota()
 
 	public function testUpdateSettingsPersistsClampedWidgetQuota(): void {
@@ -235,7 +279,7 @@ class AdminSettingsServiceTest extends TestCase {
 				10000
 			);
 
-		$this->service->updateSettings(maxWidgetsPerDashboard: 50000);
+		$this->service->updateSettings(settings: ['maxWidgetsPerDashboard' => 50000]);
 	}//end testUpdateSettingsPersistsClampedWidgetQuota()
 
 	public function testUpdateSettingsPersistsBothQuotaValues(): void {
@@ -243,10 +287,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->settingMapper->expects($this->exactly(2))
 			->method('setSetting');
 
-		$this->service->updateSettings(
-			maxDashboardsPerUser: 5,
-			maxWidgetsPerDashboard: 40
-		);
+		$this->service->updateSettings(settings: ['maxDashboardsPerUser' => 5, 'maxWidgetsPerDashboard' => 40]);
 	}//end testUpdateSettingsPersistsBothQuotaValues()
 
 	public function testClampQuotaCoercesNonNumericToZero(): void {
@@ -297,9 +338,7 @@ class AdminSettingsServiceTest extends TestCase {
 				['marketing', 'sales']
 			);
 
-		$this->service->updateSettings(
-			forcedShareGroups: [' marketing ', 'sales', 'marketing', '', 42]
-		);
+		$this->service->updateSettings(settings: ['forcedShareGroups' => [' marketing ', 'sales', 'marketing', '', 42]]);
 	}//end testUpdateSettingsPersistsForcedShareGroupsDeduplicated()
 
 	public function testUpdateSettingsPersistsBridgeToggle(): void {
@@ -310,9 +349,7 @@ class AdminSettingsServiceTest extends TestCase {
 				false
 			);
 
-		$this->service->updateSettings(
-			legacyWidgetBridgeEnabled: false
-		);
+		$this->service->updateSettings(settings: ['legacyWidgetBridgeEnabled' => false]);
 	}//end testUpdateSettingsPersistsBridgeToggle()
 
 	/**
@@ -353,15 +390,13 @@ class AdminSettingsServiceTest extends TestCase {
 				true
 			);
 
-		$this->service->updateSettings(startPageWithoutNavigation: true);
+		$this->service->updateSettings(settings: ['startPageWithoutNavigation' => true]);
 	}//end testUpdateSettingsPersistsStartPageWithoutNavigation()
 
 	public function testUpdateSettingsRejectsInvalidSharePermissionLevel(): void {
 		$this->expectException(InvalidArgumentException::class);
 
-		$this->service->updateSettings(
-			defaultSharePermissionLevel: 'not-a-level'
-		);
+		$this->service->updateSettings(settings: ['defaultSharePermissionLevel' => 'not-a-level']);
 	}//end testUpdateSettingsRejectsInvalidSharePermissionLevel()
 
 	public function testUpdateSettingsPersistsLinkCreateFileExtensions(): void {
@@ -372,9 +407,7 @@ class AdminSettingsServiceTest extends TestCase {
 				['txt', 'docx']
 			);
 
-		$this->service->updateSettings(
-			linkCreateFileExts: ['txt', '.docx', 'BAD/PATH', '']
-		);
+		$this->service->updateSettings(settings: ['linkCreateFileExts' => ['txt', '.docx', 'BAD/PATH', '']]);
 	}//end testUpdateSettingsPersistsLinkCreateFileExtensions()
 
 	public function testUpdateSettingsLinkExtensionsFallsBackToDefaultsWhenEmpty(): void {
@@ -385,7 +418,7 @@ class AdminSettingsServiceTest extends TestCase {
 				['txt', 'md', 'docx', 'xlsx', 'csv', 'odt']
 			);
 
-		$this->service->updateSettings(linkCreateFileExts: []);
+		$this->service->updateSettings(settings: ['linkCreateFileExts' => []]);
 	}//end testUpdateSettingsLinkExtensionsFallsBackToDefaultsWhenEmpty()
 
 	public function testGetSettingsReturnsStoredLinkCreateFileExtensions(): void {
@@ -544,7 +577,7 @@ class AdminSettingsServiceTest extends TestCase {
 			->method('setSetting')
 			->with(AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET, 'none');
 
-		$this->service->updateSettings(quicksearchFallbackTarget: 'none');
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => 'none']);
 	}//end testUpdateSettingsPersistsQuicksearchFallbackTargetNone()
 
 	public function testUpdateSettingsPersistsQuicksearchFallbackTargetUnifiedSearch(): void {
@@ -552,7 +585,7 @@ class AdminSettingsServiceTest extends TestCase {
 			->method('setSetting')
 			->with(AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET, 'unified-search');
 
-		$this->service->updateSettings(quicksearchFallbackTarget: 'unified-search');
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => 'unified-search']);
 	}//end testUpdateSettingsPersistsQuicksearchFallbackTargetUnifiedSearch()
 
 	public function testUpdateSettingsPersistsValidHttpsTemplate(): void {
@@ -560,34 +593,34 @@ class AdminSettingsServiceTest extends TestCase {
 			->method('setSetting')
 			->with(AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET, 'https://duckduckgo.com/?q={query}');
 
-		$this->service->updateSettings(quicksearchFallbackTarget: 'https://duckduckgo.com/?q={query}');
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => 'https://duckduckgo.com/?q={query}']);
 	}//end testUpdateSettingsPersistsValidHttpsTemplate()
 
 	public function testUpdateSettingsRejectsHttpTemplate(): void {
 		$this->settingMapper->expects($this->never())->method('setSetting');
 
 		$this->expectException(\InvalidArgumentException::class);
-		$this->service->updateSettings(quicksearchFallbackTarget: 'http://duckduckgo.com/?q={query}');
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => 'http://duckduckgo.com/?q={query}']);
 	}//end testUpdateSettingsRejectsHttpTemplate()
 
 	public function testUpdateSettingsRejectsTemplateMissingQueryPlaceholder(): void {
 		$this->settingMapper->expects($this->never())->method('setSetting');
 
 		$this->expectException(\InvalidArgumentException::class);
-		$this->service->updateSettings(quicksearchFallbackTarget: 'https://duckduckgo.com/?q=static');
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => 'https://duckduckgo.com/?q=static']);
 	}//end testUpdateSettingsRejectsTemplateMissingQueryPlaceholder()
 
 	public function testUpdateSettingsRejectsArbitraryGarbageValue(): void {
 		$this->settingMapper->expects($this->never())->method('setSetting');
 
 		$this->expectException(\InvalidArgumentException::class);
-		$this->service->updateSettings(quicksearchFallbackTarget: 'not-a-valid-target');
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => 'not-a-valid-target']);
 	}//end testUpdateSettingsRejectsArbitraryGarbageValue()
 
 	public function testUpdateSettingsSkipsNullQuicksearchFallbackTarget(): void {
 		$this->settingMapper->expects($this->never())->method('setSetting');
 
-		$this->service->updateSettings(quicksearchFallbackTarget: null);
+		$this->service->updateSettings(settings: ['quicksearchFallbackTarget' => null]);
 	}//end testUpdateSettingsSkipsNullQuicksearchFallbackTarget()
 
 	/**

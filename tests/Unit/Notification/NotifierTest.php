@@ -111,6 +111,13 @@ class NotifierTest extends TestCase {
 	 */
 	public function testEverySubjectRendersItsTextAndLink(): void {
 		$cases = [
+			['embed_token_revoked', 't-1', ['Zeist WOO', 'admin', 'no_longer_needed', 'In-house now', '2026-05-22T14:35:00Z'], [
+				'setRichSubject ["[Token **Zeist WOO** has been revoked by admin]",[]]',
+				'setParsedSubject ["[Token Zeist WOO has been revoked by admin]"]',
+				'setRichMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]",[]]',
+				'setParsedMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]"]',
+				'setLink ["https:\\/\\/host\\/settings\\/admin\\/launchpad"]',
+			]],
 			['mentioned_in_comment', 'abc/1', ['alice'], [
 				'setRichSubject ["[alice mentioned you in a dashboard comment]",[]]',
 				'setParsedSubject ["[alice mentioned you in a dashboard comment]"]',
@@ -152,13 +159,6 @@ class NotifierTest extends TestCase {
 				'setRichMessage ["[The dashboard template you received was updated by an administrator]",[]]',
 				'setParsedMessage ["[The dashboard template you received was updated by an administrator]"]',
 				'setLink ["https:\/\/host\/apps\/launchpad\/?dashboard=u+7"]',
-			]],
-			['embed_token_revoked', 't-1', ['Zeist WOO', 'admin', 'no_longer_needed', 'In-house now', '2026-05-22T14:35:00Z'], [
-				'setRichSubject ["[Token **Zeist WOO** has been revoked by admin]",[]]',
-				'setParsedSubject ["[Token Zeist WOO has been revoked by admin]"]',
-				'setRichMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]",[]]',
-				'setParsedMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]"]',
-				'setLink ["https:\\/\\/host\\/settings\\/admin\\/launchpad"]',
 			]],
 		];
 		foreach ($cases as [$subject, $objectId, $params, $expected]) {

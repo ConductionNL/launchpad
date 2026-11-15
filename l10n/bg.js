@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Задайте нивото на разрешение по подразбиране, прилагано към нови споделяния, и групите, с които всяко табло се споделя автоматично.",
     "Default share permission level" : "Ниво на разрешение за споделяне по подразбиране",
     "Forced share groups" : "Принудителни групи за споделяне",
+    "Groups that may share" : "Групи, които могат да споделят",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Само членовете на тези групи могат да споделят своите табла. Оставете празно, за да могат всички да споделят.",
+    "Who can receive a share" : "Кой може да получи споделяне",
+    "Only people who share a group with the sharer" : "Само хора, които имат обща група със споделящия",
     "Select groups (leave empty for none)" : "Изберете групи (оставете празно за никоя)",
     "Members of these groups always receive every newly created dashboard." : "Членовете на тези групи винаги получават всяко новосъздадено табло.",
     "Prometheus metrics" : "Прометей метрики",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Открити на този сървър",
     "Apps this server runs for you. One click places one as a tile." : "Приложения, които този сървър изпълнява за вас. Едно щракване ги превръща в плочка.",
+    "Office tiles" : "Офис плочки",
+    "Ready-made tiles" : "Готови плочки",
+    "One container with a tile for each kind of new document and each office app on this server." : "Един контейнер с плочка за всеки вид нов документ и всяко офис приложение на този сървър.",
+    "This server has no office apps to make tiles for." : "Този сървър няма офис приложения, за които да се създадат плочки.",
+    "The office tiles could not be added." : "Офис плочките не можаха да бъдат добавени.",
+    "File name" : "Име на файла",
+    "The file could not be created." : "Файлът не можа да бъде създаден.",
     "On this dashboard" : "На това табло",
     "Look" : "Изглед",
     "Accent color" : "Цвят на акцента",
@@ -1385,7 +1396,11 @@ OC.L10N.register(
     "Statistics" : "Статистика",
     "Count my visits" : "Отчитай посещенията ми",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Когато това е изключено, посещенията ви на таблата и щракванията върху плочки не се включват в броя на прегледите.",
-    "Your choice could not be saved." : "Изборът ви не можа да бъде запазен."
+    "Your choice could not be saved." : "Изборът ви не можа да бъде запазен.",
+    "Active filters" : "Активни филтри",
+    "Pinned filter" : "Закачен филтър",
+    "Remove filter: {label}" : "Премахване на филтър: {label}",
+    "Reset filters" : "Нулиране на филтрите"
 },
 "nplurals=2; plural=(n != 1);"
 );

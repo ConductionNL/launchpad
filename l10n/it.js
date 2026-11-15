@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Imposta il livello di permesso predefinito applicato alle nuove condivisioni e i gruppi con cui ogni dashboard viene condivisa automaticamente.",
     "Default share permission level" : "Livello di permesso predefinito di condivisione",
     "Forced share groups" : "Gruppi di condivisione forzata",
+    "Groups that may share" : "Gruppi che possono condividere",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Solo i membri di questi gruppi possono condividere le proprie dashboard. Lascia vuoto per consentire a tutti di condividere.",
+    "Who can receive a share" : "Chi può ricevere una condivisione",
+    "Only people who share a group with the sharer" : "Solo le persone che hanno un gruppo in comune con chi condivide",
     "Select groups (leave empty for none)" : "Seleziona gruppi (lascia vuoto per nessuno)",
     "Members of these groups always receive every newly created dashboard." : "I membri di questi gruppi ricevono sempre ogni dashboard appena creata.",
     "Prometheus metrics" : "Metriche Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trovate su questo server",
     "Apps this server runs for you. One click places one as a tile." : "App che questo server esegue per te. Un clic le trasforma in un riquadro.",
+    "Office tiles" : "Riquadri per l'ufficio",
+    "Ready-made tiles" : "Riquadri pronti",
+    "One container with a tile for each kind of new document and each office app on this server." : "Un contenitore con un riquadro per ogni tipo di nuovo documento e ogni app per l'ufficio di questo server.",
+    "This server has no office apps to make tiles for." : "Questo server non ha app per l'ufficio per cui creare riquadri.",
+    "The office tiles could not be added." : "Non è stato possibile aggiungere i riquadri per l'ufficio.",
+    "File name" : "Nome del file",
+    "The file could not be created." : "Non è stato possibile creare il file.",
     "On this dashboard" : "Su questa dashboard",
     "Look" : "Aspetto",
     "Accent color" : "Colore di accento",
@@ -1385,7 +1396,11 @@ OC.L10N.register(
     "Statistics" : "Statistiche",
     "Count my visits" : "Conta le mie visite",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quando è disattivato, le tue visite alle dashboard e i clic sui riquadri non vengono conteggiati nelle visualizzazioni.",
-    "Your choice could not be saved." : "Non è stato possibile salvare la tua scelta."
+    "Your choice could not be saved." : "Non è stato possibile salvare la tua scelta.",
+    "Active filters" : "Filtri attivi",
+    "Pinned filter" : "Filtro fissato",
+    "Remove filter: {label}" : "Rimuovi filtro: {label}",
+    "Reset filters" : "Reimposta filtri"
 },
 "nplurals=2; plural=(n != 1);"
 );

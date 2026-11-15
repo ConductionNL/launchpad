@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Caktoni nivelin e parazgjedhur të lejes që zbatohet te ndarjet e reja dhe grupet me të cilat ndahet automatikisht çdo pult.",
     "Default share permission level" : "Niveli i parazgjedhur i lejes së ndarjes",
     "Forced share groups" : "Grupe me ndarje të detyruar",
+    "Groups that may share" : "Grupet që mund të ndajnë",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Vetëm anëtarët e këtyre grupeve mund të ndajnë pultet e tyre. Lëreni bosh që të gjithë të mund të ndajnë.",
+    "Who can receive a share" : "Kush mund të marrë një ndarje",
+    "Only people who share a group with the sharer" : "Vetëm njerëzit që kanë një grup të përbashkët me atë që ndan",
     "Select groups (leave empty for none)" : "Zgjidhni grupet (lëreni bosh për asnjë)",
     "Members of these groups always receive every newly created dashboard." : "Anëtarët e këtyre grupeve marrin gjithmonë çdo pult të sapokrijuar.",
     "Prometheus metrics" : "Metrikat Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Gjetur në këtë server",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacione që ky server i ekzekuton për ju. Një klikim i bën pllakë.",
+    "Office tiles" : "Pllaka zyre",
+    "Ready-made tiles" : "Pllaka të gatshme",
+    "One container with a tile for each kind of new document and each office app on this server." : "Një kontejner me një pllakë për çdo lloj dokumenti të ri dhe çdo aplikacion zyre në këtë server.",
+    "This server has no office apps to make tiles for." : "Ky server nuk ka aplikacione zyre për të cilat të krijohen pllaka.",
+    "The office tiles could not be added." : "Pllakat e zyrës nuk mund të shtoheshin.",
+    "File name" : "Emri i skedarit",
+    "The file could not be created." : "Skedari nuk mund të krijohej.",
     "On this dashboard" : "Në këtë panel",
     "Look" : "Pamja",
     "Accent color" : "Ngjyra e theksit",
@@ -1385,7 +1396,11 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Numëro vizitat e mia",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kur kjo është e çaktivizuar, vizitat tuaja në panele dhe klikimet mbi pllakat nuk përfshihen në numrin e shikimeve.",
-    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej."
+    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej.",
+    "Active filters" : "Filtrat aktivë",
+    "Pinned filter" : "Filtër i fiksuar",
+    "Remove filter: {label}" : "Hiq filtrin: {label}",
+    "Reset filters" : "Rivendos filtrat"
 },
 "nplurals=2; plural=(n != 1);"
 );

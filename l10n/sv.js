@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Ange standardbehörighetsnivån som tillämpas på nya delningar och de grupper som varje instrumentpanel automatiskt delas med.",
     "Default share permission level" : "Standardbehörighetsnivå för delning",
     "Forced share groups" : "Tvingade delningsgrupper",
+    "Groups that may share" : "Grupper som får dela",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Bara medlemmar i dessa grupper kan dela sina instrumentpaneler. Lämna tomt för att låta alla dela.",
+    "Who can receive a share" : "Vem kan ta emot en delning",
+    "Only people who share a group with the sharer" : "Bara personer som har en grupp gemensam med den som delar",
     "Select groups (leave empty for none)" : "Välj grupper (lämna tomt för inga)",
     "Members of these groups always receive every newly created dashboard." : "Medlemmar i dessa grupper får alltid varje nyskapad instrumentpanel.",
     "Prometheus metrics" : "Prometheus-mätvärden",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Hittat på den här servern",
     "Apps this server runs for you. One click places one as a tile." : "Appar som den här servern kör åt dig. Ett klick gör en till en ruta.",
+    "Office tiles" : "Kontorsrutor",
+    "Ready-made tiles" : "Färdiga rutor",
+    "One container with a tile for each kind of new document and each office app on this server." : "En behållare med en ruta för varje sorts nytt dokument och varje kontorsapp på den här servern.",
+    "This server has no office apps to make tiles for." : "Den här servern har inga kontorsappar att skapa rutor för.",
+    "The office tiles could not be added." : "Kontorsrutorna kunde inte läggas till.",
+    "File name" : "Filnamn",
+    "The file could not be created." : "Filen kunde inte skapas.",
     "On this dashboard" : "På den här instrumentpanelen",
     "Look" : "Utseende",
     "Accent color" : "Accentfärg",
@@ -1385,7 +1396,11 @@ OC.L10N.register(
     "Statistics" : "Statistik",
     "Count my visits" : "Räkna mina besök",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "När detta är avstängt räknas dina besök på instrumentpaneler och klick på rutor inte med i visningsantalet.",
-    "Your choice could not be saved." : "Ditt val kunde inte sparas."
+    "Your choice could not be saved." : "Ditt val kunde inte sparas.",
+    "Active filters" : "Aktiva filter",
+    "Pinned filter" : "Fäst filter",
+    "Remove filter: {label}" : "Ta bort filter: {label}",
+    "Reset filters" : "Återställ filter"
 },
 "nplurals=2; plural=(n != 1);"
 );

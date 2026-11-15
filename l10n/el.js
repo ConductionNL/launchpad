@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Ορίστε το προεπιλεγμένο επίπεδο δικαιωμάτων που εφαρμόζεται σε νέους διαμοιρασμούς και τις ομάδες με τις οποίες κάθε πίνακας διαμοιράζεται αυτόματα.",
     "Default share permission level" : "Προεπιλεγμένο επίπεδο δικαιωμάτων διαμοιρασμού",
     "Forced share groups" : "Ομάδες υποχρεωτικού διαμοιρασμού",
+    "Groups that may share" : "Ομάδες που μπορούν να κάνουν κοινή χρήση",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Μόνο τα μέλη αυτών των ομάδων μπορούν να μοιράζονται τους πίνακές τους. Αφήστε κενό για να μπορούν όλοι να μοιράζονται.",
+    "Who can receive a share" : "Ποιος μπορεί να λάβει κοινή χρήση",
+    "Only people who share a group with the sharer" : "Μόνο άτομα που ανήκουν σε κοινή ομάδα με αυτόν που μοιράζεται",
     "Select groups (leave empty for none)" : "Επιλέξτε ομάδες (αφήστε κενό για καμία)",
     "Members of these groups always receive every newly created dashboard." : "Τα μέλη αυτών των ομάδων λαμβάνουν πάντα κάθε νεοδημιουργημένο πίνακα.",
     "Prometheus metrics" : "Μετρήσεις Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Βρέθηκαν σε αυτόν τον διακομιστή",
     "Apps this server runs for you. One click places one as a tile." : "Εφαρμογές που εκτελεί αυτός ο διακομιστής για εσάς. Ένα κλικ τις κάνει πλακίδιο.",
+    "Office tiles" : "Πλακίδια γραφείου",
+    "Ready-made tiles" : "Έτοιμα πλακίδια",
+    "One container with a tile for each kind of new document and each office app on this server." : "Ένα κοντέινερ με ένα πλακίδιο για κάθε είδος νέου εγγράφου και κάθε εφαρμογή γραφείου σε αυτόν τον διακομιστή.",
+    "This server has no office apps to make tiles for." : "Αυτός ο διακομιστής δεν έχει εφαρμογές γραφείου για τις οποίες να δημιουργηθούν πλακίδια.",
+    "The office tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων γραφείου.",
+    "File name" : "Όνομα αρχείου",
+    "The file could not be created." : "Δεν ήταν δυνατή η δημιουργία του αρχείου.",
     "On this dashboard" : "Σε αυτόν τον πίνακα",
     "Look" : "Εμφάνιση",
     "Accent color" : "Χρώμα έμφασης",
@@ -1385,7 +1396,11 @@ OC.L10N.register(
     "Statistics" : "Στατιστικά",
     "Count my visits" : "Καταμέτρηση των επισκέψεών μου",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
-    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
+    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας.",
+    "Active filters" : "Ενεργά φίλτρα",
+    "Pinned filter" : "Καρφιτσωμένο φίλτρο",
+    "Remove filter: {label}" : "Αφαίρεση φίλτρου: {label}",
+    "Reset filters" : "Επαναφορά φίλτρων"
 },
 "nplurals=2; plural=(n != 1);"
 );

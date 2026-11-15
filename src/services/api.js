@@ -671,6 +671,28 @@ export const api = {
 	},
 
 	/**
+	 * The office tile pack for the current user: a "New ..." tile per file
+	 * creator the server's office apps register, and the enabled office apps.
+	 *
+	 * @return {Promise} Axios response resolving to `{ tiles: [{ title, linkType, linkValue, icon, iconType }] }`.
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+	 */
+	officeTilePack() {
+		return axios.get(`${baseUrl}/api/office-tiles`)
+	},
+
+	/**
+	 * Create a file from an office app's blank template under a free name.
+	 *
+	 * @param {{creatorId: string, name: string, folder: string}} request The creator, the name without extension and the folder.
+	 * @return {Promise} Axios response resolving to `{ fileId, path, url }`.
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+	 */
+	createOfficeFile(request) {
+		return axios.post(`${baseUrl}/api/office-tiles/create`, request)
+	},
+
+	/**
 	 * Update an existing widget placement.
 	 *
 	 * @param {number|string} placementId Id of the placement to update.

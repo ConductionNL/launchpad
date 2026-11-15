@@ -1012,6 +1012,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Nastavte výchozí úroveň oprávnění používanou u nových sdílení a skupiny, se kterými je každá nástěnka automaticky sdílena.",
     "Default share permission level" : "Výchozí úroveň oprávnění sdílení",
     "Forced share groups" : "Vynucené skupiny sdílení",
+    "Groups that may share" : "Skupiny, které smějí sdílet",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Své nástěnky mohou sdílet jen členové těchto skupin. Ponechte prázdné, aby mohl sdílet každý.",
+    "Who can receive a share" : "Kdo může sdílení přijmout",
+    "Only people who share a group with the sharer" : "Jen lidé, kteří mají se sdílejícím společnou skupinu",
     "Select groups (leave empty for none)" : "Vyberte skupiny (ponechte prázdné pro žádnou)",
     "Members of these groups always receive every newly created dashboard." : "Členové těchto skupin vždy obdrží každou nově vytvořenou nástěnku.",
     "Prometheus metrics" : "Metriky Prometheus",
@@ -1369,6 +1373,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Nalezeno na tomto serveru",
     "Apps this server runs for you. One click places one as a tile." : "Aplikace, které pro vás tento server provozuje. Jedním kliknutím z nich uděláte dlaždici.",
+    "Office tiles" : "Kancelářské dlaždice",
+    "Ready-made tiles" : "Hotové dlaždice",
+    "One container with a tile for each kind of new document and each office app on this server." : "Jeden kontejner s dlaždicí pro každý druh nového dokumentu a každou kancelářskou aplikaci na tomto serveru.",
+    "This server has no office apps to make tiles for." : "Tento server nemá žádné kancelářské aplikace, pro které by šlo vytvořit dlaždice.",
+    "The office tiles could not be added." : "Kancelářské dlaždice se nepodařilo přidat.",
+    "File name" : "Název souboru",
+    "The file could not be created." : "Soubor se nepodařilo vytvořit.",
     "On this dashboard" : "Na této nástěnce",
     "Look" : "Vzhled",
     "Accent color" : "Barva zvýraznění",
@@ -1385,7 +1396,11 @@ OC.L10N.register(
     "Statistics" : "Statistiky",
     "Count my visits" : "Počítat moje návštěvy",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Když je to vypnuté, vaše návštěvy nástěnek a kliknutí na dlaždice se nezapočítávají do počtu zobrazení.",
-    "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit."
+    "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit.",
+    "Active filters" : "Aktivní filtry",
+    "Pinned filter" : "Připnutý filtr",
+    "Remove filter: {label}" : "Odebrat filtr: {label}",
+    "Reset filters" : "Zrušit filtry"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

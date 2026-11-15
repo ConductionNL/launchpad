@@ -27,6 +27,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -40,6 +41,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * REST controller exposing the paginated People widget directory.
+ *
+ * @spec openspec/specs/people-widget/spec.md
  */
 class PeopleWidgetController extends Controller {
 	/**
@@ -60,10 +63,7 @@ class PeopleWidgetController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -88,8 +88,11 @@ class PeopleWidgetController extends Controller {
 	 * @param string|null $sortBy Sort key.
 	 * @param int|null $limit Page size.
 	 * @param int|null $offset Page offset.
+	 * @param string|null $q Search text; 2 or more characters search the whole directory by name, email and profile fields (REQ-PEX-003).
 	 *
 	 * @return JSONResponse
+	 *
+	 * @SuppressWarnings(PHPMD.ShortVariable) `q` is the query parameter's public name.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
@@ -102,6 +105,7 @@ class PeopleWidgetController extends Controller {
 		?string $sortBy = 'displayName',
 		?int $limit = PeopleWidgetService::DEFAULT_LIMIT,
 		?int $offset = 0,
+		?string $q = null,
 	): JSONResponse {
 		if ($this->userId === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
@@ -118,37 +122,51 @@ class PeopleWidgetController extends Controller {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
+
 		try {
 			$parsedFilters = $this->parseFilters(raw: $filters);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_BAD_REQUEST,
-				logger: $this->logger,
-				message: 'Invalid filters parameter'
-			);
+			return $this->badRequest(exception: $e, message: 'Invalid filters parameter');
 		}
 
 		try {
 			$payload = $this->service->listUsers(
-				filters: $parsedFilters,
-				excludeDisabled: ($excludeDisabled ?? 1) === 1,
-				showBirthdays: ($showBirthdays ?? 1) === 1,
-				sortBy: ($sortBy ?? 'displayName'),
-				limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
-				offset: ($offset ?? 0),
+				request: new PeopleQuery(
+					filters: $parsedFilters,
+					sortBy: ($sortBy ?? 'displayName'),
+					search: $q,
+					page: PeopleQuery::window(
+						excludeDisabled: ($excludeDisabled ?? 1) === 1,
+						showBirthdays: ($showBirthdays ?? 1) === 1,
+						limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
+						offset: ($offset ?? 0)
+					)
+				),
+				viewerId: $user->getUID(),
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_BAD_REQUEST,
-				logger: $this->logger,
-				message: 'Invalid request parameters'
-			);
+			return $this->badRequest(exception: $e, message: 'Invalid request parameters');
 		}
 
 		return ResponseHelper::success(data: $payload);
 	}//end getUsers()
+
+	/**
+	 * A logged HTTP 400 for a rejected request parameter.
+	 *
+	 * @param InvalidArgumentException $exception The rejection.
+	 * @param string                   $message   The log message.
+	 *
+	 * @return JSONResponse The error envelope.
+	 */
+	private function badRequest(InvalidArgumentException $exception, string $message): JSONResponse {
+		return ResponseHelper::error(
+			exception: $exception,
+			statusCode: Http::STATUS_BAD_REQUEST,
+			logger: $this->logger,
+			message: $message
+		);
+	}//end badRequest()
 
 	/**
 	 * Parse the JSON-encoded `filters` query parameter. Returns `[]` when

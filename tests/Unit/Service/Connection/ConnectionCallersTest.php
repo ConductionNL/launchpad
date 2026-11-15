@@ -28,6 +28,12 @@ declare(strict_types=1);
 
 namespace Unit\Service\Connection;
 
+use OCA\LaunchPad\Service\WeatherStore;
+use OCA\LaunchPad\Service\WeatherSettings;
+use OCA\LaunchPad\Service\PingSettings;
+use OCA\LaunchPad\Service\PingTransport;
+use OCA\LaunchPad\Service\FeedFetchTools;
+use OCA\LaunchPad\Service\ReadingSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\CalendarWidgetService;
@@ -166,12 +172,16 @@ class ConnectionCallersTest extends TestCase {
 		$placements->method('find')->willReturn($placement);
 
 		return new HealthPingService(
-			clientService: $clients,
-			cacheFactory: $this->emptyCacheFactory(),
-			appConfig: $appConfig,
+			transport: new PingTransport(
+				clientService: $clients,
+				cacheFactory: $this->emptyCacheFactory()
+			),
+			settings: new PingSettings(
+				appConfig: $appConfig,
+				logger: new NullLogger()
+			),
 			placementMapper: $placements,
-			logger: new NullLogger(),
-			connectionReporter: $reporter,
+			connectionReporter: $reporter
 		);
 	}//end healthPing()
 
@@ -378,12 +388,14 @@ class ConnectionCallersTest extends TestCase {
 		$appConfig = $this->backedAppConfig();
 		$service   = new CalendarWidgetService(
 			appConfig: $appConfig,
-			cacheFactory: $this->emptyCacheFactory(),
-			clientService: $clients,
+			fetch: new FeedFetchTools(
+				cacheFactory: $this->emptyCacheFactory(),
+				clientService: $clients,
+				urlValidator: $validator,
+				connectionReporter: $this->recordingReporter(appConfig: $appConfig)
+			),
 			logger: new NullLogger(),
-			urlValidator: $validator,
-			calendarMgr: null,
-			connectionReporter: $this->recordingReporter(appConfig: $appConfig),
+			calendarMgr: null
 		);
 
 		try {
@@ -415,12 +427,14 @@ class ConnectionCallersTest extends TestCase {
 
 		$service = new NewsWidgetService(
 			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
-			clientService: $this->answeringClients(status: 503, calls: $calls),
+			fetch: new FeedFetchTools(
+				clientService: $this->answeringClients(status: 503, calls: $calls),
+				cacheFactory: $this->emptyCacheFactory(),
+				urlValidator: $validator,
+				connectionReporter: $this->recordingReporter(appConfig: $appConfig)
+			),
 			appConfig: $appConfig,
-			cacheFactory: $this->emptyCacheFactory(),
-			logger: new NullLogger(),
-			urlValidator: $validator,
-			connectionReporter: $this->recordingReporter(appConfig: $appConfig),
+			logger: new NullLogger()
 		);
 
 		$secretUrl = 'https://user:secret@feeds.example.nl/rss?token=abc';
@@ -455,15 +469,21 @@ class ConnectionCallersTest extends TestCase {
 		$appConfig = $this->backedAppConfig();
 
 		return new WeatherService(
-			appManager: $appManager,
-			container: $this->createMock(originalClassName: ContainerInterface::class),
-			clientService: $this->createMock(originalClassName: IClientService::class),
-			cacheFactory: $this->emptyCacheFactory(),
-			appConfig: $appConfig,
-			placementMapper: $placements,
-			config: $this->createMock(originalClassName: IConfig::class),
-			logger: new NullLogger(),
-			connectionReporter: $this->recordingReporter(appConfig: $appConfig),
+			sources: new ReadingSources(
+				appManager: $appManager,
+				container: $this->createMock(originalClassName: ContainerInterface::class),
+				clientService: $this->createMock(originalClassName: IClientService::class),
+				cacheFactory: $this->emptyCacheFactory()
+			),
+			settings: new WeatherSettings(
+				appConfig: $appConfig,
+				config: $this->createMock(originalClassName: IConfig::class)
+			),
+			store: new WeatherStore(
+				placementMapper: $placements,
+				logger: new NullLogger()
+			),
+			connectionReporter: $this->recordingReporter(appConfig: $appConfig)
 		);
 	}//end weather()
 

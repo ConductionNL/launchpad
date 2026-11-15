@@ -49,7 +49,7 @@ class RoleFeaturePermissionTableBuilder {
 	/**
 	 * Add columns to the table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -128,7 +128,7 @@ class RoleFeaturePermissionTableBuilder {
 	/**
 	 * Add primary key + uniqueness index on group_id.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */

@@ -21,6 +21,12 @@ LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized wor
 
 📚 **[Step-by-step tutorials](https://launchpad.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
 
+## Test coverage
+
+<!-- coverage:start -->
+Measured test coverage: 89.0% of statements (PHP 89.0% of 21,987 statements), at commit `d2a99e94` on 2026-11-13. The JavaScript frontend is not in this figure, because it has no coverage measurement yet. The figures come from [`coverage-summary.json`](coverage-summary.json); refresh them with `composer coverage:publish`.
+<!-- coverage:end -->
+
 ## Screenshots
 
 <table>
@@ -133,6 +139,29 @@ npm install
 npm run build
 php occ app:enable launchpad
 ```
+
+### Try it with Docker
+
+The repository builds an evaluation image: the official Nextcloud image with launchpad and OpenRegister installed and enabled. It is meant for trying the app out and for test environments. For production, install the app from the Nextcloud App Store.
+
+```bash
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
+Open http://localhost:8080/apps/launchpad/ and sign in as `admin` with password `admin`. The first start takes a minute or two. Set `NEXTCLOUD_ADMIN_PASSWORD` and `APP_PORT` to change the password and the port; `docker/docker-compose.yml` lists every setting. `docker compose -f docker/docker-compose.yml down -v` removes the stack and its data.
+
+Released versions are published as `ghcr.io/conductionnl/launchpad`, so leaving out `--build` uses the published image.
+
+### Run it on Kubernetes
+
+`charts/launchpad` wraps the official [Nextcloud Helm chart](https://github.com/nextcloud/helm) and runs the same image with PostgreSQL:
+
+```bash
+helm dependency build charts/launchpad
+helm install launchpad charts/launchpad --set nextcloud.nextcloud.host=launchpad.example.org
+```
+
+Change the passwords in `charts/launchpad/values.yaml` before you install it anywhere that matters.
 
 ## Development
 

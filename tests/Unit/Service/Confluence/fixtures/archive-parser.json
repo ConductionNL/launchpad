@@ -1,0 +1,37 @@
+{
+    "pages": [
+        [
+            "S/a.html",
+            "a",
+            "Alpha",
+            "one",
+            0,
+            null
+        ],
+        [
+            "S/b.html",
+            "b",
+            "Beta",
+            "two",
+            1,
+            "a"
+        ],
+        [
+            "S/deep/c.html",
+            "c",
+            "Gamma",
+            "three",
+            2,
+            null
+        ]
+    ],
+    "attachments": [
+        "attachments/a/one.pdf",
+        "Attachments/b/two.txt"
+    ],
+    "images": [
+        "images/a/pic.png",
+        "IMAGES/b/pic2.gif"
+    ],
+    "warnings": []
+}

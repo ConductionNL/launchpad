@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use Exception;
+use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
@@ -73,10 +74,7 @@ class PublicShareController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -95,43 +93,26 @@ class PublicShareController extends Controller {
 	#[NoAdminRequired]
 	public function create(
 		string $uuid,
+		#[\SensitiveParameter]
 		?string $password = null,
 		?string $expiresAt = null,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$share = $this->shareService->createPublicShare(
-				dashboardUuid: $uuid,
-				callerId: $this->userId,
-				password: $password,
-				expiresAt: $expiresAt
-			);
-			return new DataResponse(
-				data: $share->jsonSerialize(),
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->shareService->createPublicShare(
+					dashboardUuid: $uuid,
+					callerId: $this->userId,
+					password: $password,
+					expiresAt: $expiresAt
+				)->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end create()
 
 	/**
@@ -148,39 +129,21 @@ class PublicShareController extends Controller {
 	#[NoAdminRequired]
 	public function index(string $uuid): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$shares = $this->shareService->listActiveShares(
-				dashboardUuid: $uuid,
-				callerId: $this->userId
-			);
-			return new DataResponse(
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
 				data: array_map(
 					callback: static fn ($share) => $share->jsonSerialize(),
-					array: $shares
+					array: $this->shareService->listActiveShares(
+						dashboardUuid: $uuid,
+						callerId: $this->userId
+					)
 				)
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end index()
 
 	/**
@@ -199,35 +162,20 @@ class PublicShareController extends Controller {
 	#[NoAdminRequired]
 	public function destroy(string $uuid, int $id): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$this->shareService->revokeShare(
-				dashboardUuid: $uuid,
-				shareId: $id,
-				callerId: $this->userId
-			);
-			return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-		} catch (DoesNotExistException|ShareNotFoundException) {
-			return new DataResponse(
-				data: ['error' => 'Not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+		return $this->respond(
+			operation: function () use ($uuid, $id): DataResponse {
+				$this->shareService->revokeShare(
+					dashboardUuid: $uuid,
+					shareId: $id,
+					callerId: $this->userId
+				);
+				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
+			},
+			notFound: 'Not found'
+		);
 	}//end destroy()
 
 	/**
@@ -238,8 +186,10 @@ class PublicShareController extends Controller {
 	 *
 	 * Rate-limited at 60 requests / 60 seconds per IP (REQ-PSHR-009 D1).
 	 *
+	 * The password is read from the X-Share-Password header only, never from the
+	 * query string, so it does not end up in access logs.
+	 *
 	 * @param string $token The share token from the URL.
-	 * @param string|null $password Optional password via query param or X-Share-Password header.
 	 *
 	 * @return DataResponse HTTP 200 dashboard payload, 401 if password required, 404 if invalid.
 	 *
@@ -249,16 +199,9 @@ class PublicShareController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 60, period: 60)]
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
-	public function show(string $token, ?string $password = null): DataResponse {
+	public function show(string $token): DataResponse {
 		$ipAddress = $this->request->getRemoteAddress();
-
-		// Accept password from X-Share-Password header if not in query.
-		if ($password === null || $password === '') {
-			$headerPassword = $this->request->getHeader('X-Share-Password');
-			if ($headerPassword !== '') {
-				$password = $headerPassword;
-			}
-		}
+		$password  = $this->headerPassword();
 
 		try {
 			$result = $this->shareService->renderShareContent(
@@ -272,18 +215,7 @@ class PublicShareController extends Controller {
 			// content hydration) trips ShareReadOnlyException.
 			$this->shareContext->markBearer(token: $token);
 
-			$shareData = $result['share']->jsonSerialize();
-			unset($shareData['createdBy']);
-			return new DataResponse(
-				data: [
-					'share' => $shareData,
-					'dashboard' => $result['dashboard']->jsonSerialize(),
-					'placements' => array_map(
-						callback: static fn ($placement) => $placement->jsonSerialize(),
-						array: $result['placements']
-					),
-				]
-			);
+			return new DataResponse(data: $this->renderPayload(result: $result));
 		} catch (SharePasswordRequiredException) {
 			return new DataResponse(
 				data: ['passwordRequired' => true],
@@ -295,11 +227,7 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->loggedFailure(exception: $e);
 		}//end try
 	}//end show()
 
@@ -320,7 +248,7 @@ class PublicShareController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 10, period: 60)]
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_PASSWORD)]
-	public function unlock(string $token, ?string $password = null): DataResponse {
+	public function unlock(string $token, #[\SensitiveParameter] ?string $password = null): DataResponse {
 		$ipAddress = $this->request->getRemoteAddress();
 
 		if ($password === null || $password === '') {
@@ -336,12 +264,7 @@ class PublicShareController extends Controller {
 				password: $password,
 				ipAddress: $ipAddress
 			);
-			$status = Http::STATUS_UNAUTHORIZED;
-			if ($isSuccess === true) {
-				$status = Http::STATUS_OK;
-			}
-
-			return new DataResponse(data: ['access' => $isSuccess], statusCode: $status);
+			return $this->accessAnswer(isSuccess: $isSuccess);
 		} catch (MaxDelayReached) {
 			return new DataResponse(
 				data: ['error' => 'Too many attempts'],
@@ -353,13 +276,73 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->loggedFailure(exception: $e);
 		}//end try
 	}//end unlock()
+
+	/**
+	 * Answer an owner request that failed for a reason other than the caller's
+	 * access: a neutral 500, with the exception logged.
+	 *
+	 * @param Exception $exception The failure.
+	 *
+	 * @return DataResponse The 500 response.
+	 */
+	private function internalError(Exception $exception): DataResponse {
+		$this->logger->error(
+			message: 'Public share request failed: ' . $exception::class,
+			context: ['app' => Application::APP_ID, 'exceptionClass' => $exception::class, 'exception' => $exception]
+		);
+
+		return new DataResponse(
+			data: ['error' => 'Internal error'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end internalError()
+
+	/**
+	 * The 401 answer for a caller without a session.
+	 *
+	 * @return DataResponse
+	 */
+	private function notLoggedIn(): DataResponse {
+		return new DataResponse(
+			data: ['error' => 'Not logged in'],
+			statusCode: Http::STATUS_UNAUTHORIZED
+		);
+	}//end notLoggedIn()
+
+	/**
+	 * Run an owner operation: unknown dashboard or share → 404 with the given
+	 * message, not authorized → 403, anything else → the logged 500.
+	 *
+	 * @param \Closure $operation Runs the operation and builds the success response.
+	 * @param string   $notFound  The 404 message.
+	 *
+	 * @return DataResponse
+	 */
+	private function respond(\Closure $operation, string $notFound): DataResponse {
+		try {
+			return $operation();
+		} catch (DoesNotExistException|ShareNotFoundException) {
+			return new DataResponse(
+				data: ['error' => $notFound],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (OCSForbiddenException) {
+			return new DataResponse(
+				data: ['error' => 'Not authorized'],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (InvalidArgumentException) {
+			return new DataResponse(
+				data: ['error' => 'Invalid request'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (Exception $e) {
+			return $this->internalError(exception: $e);
+		}//end try
+	}//end respond()
 
 	/**
 	 * Log a non-sensitive error message.
@@ -374,4 +357,69 @@ class PublicShareController extends Controller {
 			context: ['app' => Application::APP_ID]
 		);
 	}//end logError()
+
+	/**
+	 * The X-Share-Password header, or null when it is empty.
+	 *
+	 * @return string|null
+	 */
+	private function headerPassword(): string|null {
+		$headerPassword = $this->request->getHeader('X-Share-Password');
+		if ($headerPassword === '') {
+			return null;
+		}
+
+		return $headerPassword;
+	}//end headerPassword()
+
+	/**
+	 * The read-only render payload; the share's creator is left out.
+	 *
+	 * @param array<string, mixed> $result The rendered share: `share`, `dashboard` and `placements`.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function renderPayload(array $result): array {
+		$shareData = $result['share']->jsonSerialize();
+		unset($shareData['createdBy']);
+		return [
+			'share' => $shareData,
+			'dashboard' => $result['dashboard']->jsonSerialize(),
+			'placements' => array_map(
+				callback: static fn ($placement) => $placement->jsonSerialize(),
+				array: $result['placements']
+			),
+		];
+	}//end renderPayload()
+
+	/**
+	 * Log a public request failure and answer the neutral 500.
+	 *
+	 * @param Exception $exception The failure.
+	 *
+	 * @return DataResponse
+	 */
+	private function loggedFailure(Exception $exception): DataResponse {
+		$this->logError(message: $exception->getMessage());
+		return new DataResponse(
+			data: ['error' => 'Internal error'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end loggedFailure()
+
+	/**
+	 * The unlock answer: `{access: bool}`, 200 when granted, 401 when not.
+	 *
+	 * @param bool $isSuccess Whether the password matched.
+	 *
+	 * @return DataResponse
+	 */
+	private function accessAnswer(bool $isSuccess): DataResponse {
+		$status = Http::STATUS_UNAUTHORIZED;
+		if ($isSuccess === true) {
+			$status = Http::STATUS_OK;
+		}
+
+		return new DataResponse(data: ['access' => $isSuccess], statusCode: $status);
+	}//end accessAnswer()
 }//end class

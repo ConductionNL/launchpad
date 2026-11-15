@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
@@ -74,15 +77,21 @@ class DashboardApiControllerComputePathTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->createMock(originalClassName: DashboardService::class),
+			services: new DashboardApiServices(
+				dashboardService: $this->createMock(originalClassName: DashboardService::class)
+			),
 			permissionService: $this->createMock(originalClassName: PermissionService::class),
-			treeService: $this->treeService,
-			versionService: $this->createMock(originalClassName: DashboardVersionService::class),
-			analyticsService: $this->createMock(originalClassName: AnalyticsService::class),
-			logger: $this->createMock(originalClassName: LoggerInterface::class),
-			userSession: $this->userSession,
-			actionAuth: $this->createMock(originalClassName: ActionAuthService::class),
-			userId: $userId,
+			history: new DashboardApiHistory(
+				treeService: $this->treeService,
+				versionService: $this->createMock(originalClassName: DashboardVersionService::class),
+				analyticsService: $this->createMock(originalClassName: AnalyticsService::class),
+				logger: $this->createMock(originalClassName: LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
+			),
+			userId: $userId
 		);
 	}//end makeController()
 

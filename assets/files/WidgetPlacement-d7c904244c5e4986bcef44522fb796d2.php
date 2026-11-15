@@ -89,6 +89,8 @@ use stdClass;
  * @method string|null getAnnouncementKey()
  * @method void setAnnouncementKey(?string $announcementKey)
  * @method int|null getTemplatePlacementId()
+ * @method int getVersion()
+ * @method void setVersion(int $version)
  * @method void setTemplatePlacementId(?int $templatePlacementId)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
@@ -340,6 +342,14 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	protected ?int $templatePlacementId = null;
 
 	/**
+	 * The per-widget version, raised by one on every save
+	 * (building-edit-a-dashboard-together, task 1.2).
+	 *
+	 * @var integer
+	 */
+	protected int $version = 0;
+
+	/**
 	 * The creation timestamp as string.
 	 *
 	 * @var string|null
@@ -381,6 +391,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 		// SMALLINT in DB (0/1).
 		$this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
 		$this->addType(fieldName: 'templatePlacementId', type: 'integer');
+		$this->addType(fieldName: 'version', type: 'integer');
 	}//end __construct()
 
 	/**
@@ -513,6 +524,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		$data = $this->placementFields() + $this->acknowledgementFields() + [
 			'templatePlacementId' => $this->templatePlacementId,
+			'version' => $this->version,
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 		];

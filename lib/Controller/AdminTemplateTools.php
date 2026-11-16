@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\ExportServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\ExportService;
 use OCA\LaunchPad\Service\ImportService;
-use OCA\LaunchPad\Service\TemplateResyncService;
 
 /**
  * What the admin API manages templates with: templates, resync, export and import.
@@ -38,14 +38,14 @@ class AdminTemplateTools {
 	 * Constructor.
 	 *
 	 * @param AdminTemplateService  $templateService The admin template service.
-	 * @param TemplateResyncService $resyncService Admin template re-sync orchestrator (REQ-RESYNC-001..005).
-	 * @param ExportService         $exportService ZIP export service (REQ-EXIM-001..003).
+	 * @param TemplateResyncServiceInterface $resyncService Admin template re-sync orchestrator (REQ-RESYNC-001..005).
+	 * @param ExportServiceInterface         $exportService ZIP export service (REQ-EXIM-001..003).
 	 * @param ImportService         $importService ZIP import service (REQ-EXIM-004..008).
 	 */
 	public function __construct(
 		public readonly AdminTemplateService $templateService,
-		public readonly TemplateResyncService $resyncService,
-		public readonly ExportService $exportService,
+		public readonly TemplateResyncServiceInterface $resyncService,
+		public readonly ExportServiceInterface $exportService,
 		public readonly ImportService $importService,
 	) {
 	}//end __construct()

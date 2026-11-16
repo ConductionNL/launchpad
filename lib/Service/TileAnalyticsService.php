@@ -50,6 +50,7 @@ use DateTimeZone;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\TileClickMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\TileAnalyticsServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -61,7 +62,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *  declared `public static`; injecting their owning classes purely to reach
  *  them would add two collaborators that are never otherwise used here.
  */
-class TileAnalyticsService {
+class TileAnalyticsService implements TileAnalyticsServiceInterface {
 	/**
 	 * Constructor.
 	 *

@@ -43,6 +43,7 @@ use OCA\LaunchPad\Middleware\EmbedTokenMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
+use OCA\LaunchPad\Service\ContractBindings;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\StoreService;
@@ -96,6 +97,8 @@ class Application extends App implements IBootstrap {
 		// Embed tokens (embedded-analytics task 6): validated, and their scope
 		// enforced, before any controller runs on a request that carries one.
 		$context->registerMiddleware(class: EmbedTokenMiddleware::class);
+
+		(new ContractBindings())->register(context: $context);
 		$this->registerUserLifecycle(context: $context);
 		$this->registerSharedServices(context: $context);
 		$this->registerCascadeListeners(context: $context);

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\AcknowledgementService;
+use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
 use OCA\LaunchPad\Service\RoleService;
 use Psr\Log\LoggerInterface;
 
@@ -36,12 +36,12 @@ class AcknowledgementTools {
 	/**
 	 * Constructor.
 	 *
-	 * @param AcknowledgementService $acknowledgements The service.
+	 * @param AcknowledgementServiceInterface $acknowledgements The service.
 	 * @param RoleService            $roleService LaunchPad role gate.
 	 * @param LoggerInterface        $logger PSR logger.
 	 */
 	public function __construct(
-		public readonly AcknowledgementService $acknowledgements,
+		public readonly AcknowledgementServiceInterface $acknowledgements,
 		public readonly RoleService $roleService,
 		public readonly LoggerInterface $logger,
 	) {

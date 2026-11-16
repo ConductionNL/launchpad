@@ -41,8 +41,8 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\TileAnalyticsServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\TileAnalyticsService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -77,7 +77,7 @@ class TileAnalyticsController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param TileAnalyticsService $tileAnalyticsService The tile analytics
+	 * @param TileAnalyticsServiceInterface $tileAnalyticsService The tile analytics
 	 *                                                   service.
 	 * @param ActionAuthService $actionAuth ADR-023 action
 	 *                                      authorization.
@@ -85,7 +85,7 @@ class TileAnalyticsController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly TileAnalyticsService $tileAnalyticsService,
+		private readonly TileAnalyticsServiceInterface $tileAnalyticsService,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {

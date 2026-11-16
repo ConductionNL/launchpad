@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AttentionSourceService;
+use OCA\LaunchPad\Kernel\Contracts\AttentionSourceServiceInterface;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -40,12 +40,12 @@ class AttentionController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest               $request     The request.
-	 * @param AttentionSourceService $sources     Reads the apps' declarations.
+	 * @param AttentionSourceServiceInterface $sources     Reads the apps' declarations.
 	 * @param RequestGuard $guard The session and administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AttentionSourceService $sources,
+		private readonly AttentionSourceServiceInterface $sources,
 		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);

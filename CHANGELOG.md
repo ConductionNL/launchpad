@@ -6,6 +6,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Widget calculated fields, evaluation engine** (`widget-calculated-fields`,
+  in progress): spreadsheet-like formulas over a widget's data, parsed to a
+  JSON AST and type-checked at save time against an allowlisted function
+  set (math, aggregates, dates, durations, strings, conditionals, coercion).
+  Two evaluators, the browser's and PHP's, run the same AST and are held to
+  one shared test suite. Cross-widget references (`widget:<id>.<field>`) are
+  evaluated in dependency order and cycles are refused. A failing field
+  shows `null` with an inline error while the rest of the dashboard renders.
+  Format options (currency, number, date, duration) apply at display time
+  only, so alerting and export keep the native value. Storing fields on a
+  widget and server-side materialisation in OpenRegister follow.
+
 - **Dashboard quota limits** (`dashboard-quota-limits`): two
   admin-configurable numeric quotas — `maxDashboardsPerUser` and
   `maxWidgetsPerDashboard` — with server-side fail-closed enforcement on

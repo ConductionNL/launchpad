@@ -45,6 +45,7 @@
 - [ ] Task 21: Extend `WidgetEntity` schema: add nullable `calculatedFields` JSON column storing the array of field objects (id, name, label, expression, compiledExpression, returnType, evaluationMode, etc.)
 - [ ] Task 22: Create migration that adds the column to existing widgets with default `[]`
 - [ ] Task 23: Implement `CalculatedFieldService.php` (server-side) with: (1) `validateAndCompile(widget, expression)` calls the parser and type-checker, (2) `detectCycles(widget)` checks for cycles, (3) `evaluateExpression(ast, row): mixed` evaluates the AST for server-side use (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
+  - Partly built: `CalculatedFieldCycleDetector.php` (`assertAcyclic()`, the `cycleDetected` envelope via `CalculatedFieldCycleError`) mirrors the client detector, and `CalculatedFieldEvaluator.php` evaluates; left: a PHP AST type check (`validateAndCompile`) and the service around them, which need the storage of tasks 21-22.
 - [ ] Task 24: Wire `WidgetController::create` and `::update` to validate all calculated fields before persisting via `CalculatedFieldService::validateAndCompile` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
 - [ ] Task 25: Return parse/type/cycle errors as 400 with body `{error: error_code, message: ..., ...details}` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
 
@@ -82,6 +83,7 @@
   - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
 - [ ] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
 - [ ] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
+  - Partly built: `CalculatedFieldCycleDetectorTest.php` (7 tests) covers cross-widget cycles and order; cross-widget evaluation is in `CalculatedFieldEvaluatorTest`.
 
 ## 11. Testing — Frontend
 
@@ -97,8 +99,10 @@
 - [ ] Task 47: `composer check:strict` and `eslint` pass on all new files
 - [ ] Task 48: OpenAPI / Postman / API docs: document the new Widget schema extension (`calculatedFields` array); document error response envelopes (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
 - [ ] Task 49: i18n — `nl_NL` and `en_US` translations for: error messages (parse_error, type_error, cycle_detected, unknownFunction), inline error hover text, downgrade warning
-- [ ] Task 50: SPDX — all new PHP files have `@license EUPL-1.2` + `@copyright` in docblock
-- [ ] Task 51: Changelog entry describing: calculated fields as a widget feature, dual evaluation (client + server), allowlisted function set, error handling + inline indicators, cross-widget refs + cycle detection, format options
+- [x] Task 50: SPDX — all new PHP files have `@license EUPL-1.2` + `@copyright` in docblock
+  - Every new PHP file under `lib/Service/CalculatedFields/` carries `@license EUPL-1.2`, `@copyright` and the SPDX lines.
+- [x] Task 51: Changelog entry describing: calculated fields as a widget feature, dual evaluation (client + server), allowlisted function set, error handling + inline indicators, cross-widget refs + cycle detection, format options
+  - `CHANGELOG.md` (Unreleased, Added): the evaluation engine, marked in progress until storage and materialisation land.
 - [ ] Task 52: Design.md — document the design decisions (D1–D7), rationale for dual evaluation, AST-based approach, shared test suite, format-at-render-time strategy, migration plan
 - [ ] Task 53: All hydra-gates pass (route-auth, admin-idor, semantic-auth, spdx-headers, etc.)
 

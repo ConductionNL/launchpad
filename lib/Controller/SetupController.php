@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\DemoDataServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -36,7 +37,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
-use OCA\LaunchPad\Service\DemoDataService;
 
 /**
  * First-time setup wizard endpoints.
@@ -80,10 +80,10 @@ class SetupController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest        $request         The request.
-	 * @param IAppConfig      $appConfig       Records the demo-data decision.
-	 * @param LoggerInterface $logger          Records a failed import.
-	 * @param DemoDataService $demoDataService Imports the shipped demo dataset.
+	 * @param IRequest                 $request         The request.
+	 * @param IAppConfig               $appConfig       Records the demo-data decision.
+	 * @param LoggerInterface          $logger          Records a failed import.
+	 * @param DemoDataServiceInterface $demoDataService Imports the shipped demo dataset.
 	 *
 	 * @return void
 	 */
@@ -91,7 +91,7 @@ class SetupController extends Controller {
 		IRequest $request,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
-		private readonly DemoDataService $demoDataService,
+		private readonly DemoDataServiceInterface $demoDataService,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -201,7 +201,7 @@ class SetupController extends Controller {
 		// run-action step; closing only the second leaves the first outstanding,
 		// and CnAppRoot opens the wizard while ANY optional step is outstanding.
 		if ($actionId === 'skip-demo-data') {
-			$this->appConfig->setValueString(Application::APP_ID, self::DATASET_KEY, DemoDataService::NONE_DATASET);
+			$this->appConfig->setValueString(Application::APP_ID, self::DATASET_KEY, DemoDataServiceInterface::NONE_DATASET);
 			$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
 
 			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
@@ -245,8 +245,8 @@ class SetupController extends Controller {
 			);
 		}
 
-		if ($picked === DemoDataService::NONE_DATASET) {
-			$this->appConfig->setValueString(Application::APP_ID, self::DATASET_KEY, DemoDataService::NONE_DATASET);
+		if ($picked === DemoDataServiceInterface::NONE_DATASET) {
+			$this->appConfig->setValueString(Application::APP_ID, self::DATASET_KEY, DemoDataServiceInterface::NONE_DATASET);
 			$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
 
 			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
@@ -284,7 +284,7 @@ class SetupController extends Controller {
 		// The legacy id carries no answer, so it means the shipped dataset. A
 		// caller that posts it has said which one by posting it.
 		if ($actionId === 'install-demo-data' && $picked === '') {
-			return DemoDataService::DEMO_DATASET;
+			return DemoDataServiceInterface::DEMO_DATASET;
 		}
 
 		return $picked;

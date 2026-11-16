@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
-use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 
 /**
  * The cleanup service and the category registry of the admin cleanup API.
@@ -35,11 +35,11 @@ class CleanupSources {
 	/**
 	 * Constructor.
 	 *
-	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
+	 * @param OrphanedDataCleanupServiceInterface $cleanupService The orchestrator.
 	 * @param CategoryRegistryService    $registry Category registry (for unknown-name error messages).
 	 */
 	public function __construct(
-		public readonly OrphanedDataCleanupService $cleanupService,
+		public readonly OrphanedDataCleanupServiceInterface $cleanupService,
 		public readonly CategoryRegistryService $registry,
 	) {
 	}//end __construct()

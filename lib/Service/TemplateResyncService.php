@@ -43,6 +43,7 @@ use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\BackgroundJob\TemplateResyncJob;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -57,7 +58,7 @@ use Throwable;
  *  manager, and the async job dispatcher for one cohesive re-sync
  *  operation — splitting further would fragment a single atomic concern.
  */
-class TemplateResyncService {
+class TemplateResyncService implements TemplateResyncServiceInterface {
 	/**
 	 * Replace each copy's layout with the current template layout.
 	 */

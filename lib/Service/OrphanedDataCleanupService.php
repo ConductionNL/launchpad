@@ -40,8 +40,10 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCP\Activity\Exceptions\IncompleteActivityException;
+use OCP\Activity\IEvent;
 use OCP\ICache;
 use OCP\ICacheFactory;
 use OCP\IDBConnection;
@@ -50,7 +52,7 @@ use Throwable;
 /**
  * Orchestrates scan + purge across all registered cleanup categories.
  */
-class OrphanedDataCleanupService {
+class OrphanedDataCleanupService implements OrphanedDataCleanupServiceInterface {
 	/**
 	 * Cache TTL for scan results, in seconds (REQ-CLN-010).
 	 *
@@ -456,25 +458,10 @@ class OrphanedDataCleanupService {
 		string $source,
 	): void {
 		try {
-			$event = $this->reporting->activityManager->generateEvent();
-			$event->setApp(app: Application::APP_ID)
-				->setType(type: self::ACTIVITY_TYPE)
-				->setAffectedUser(affectedUser: ($userId ?? ''))
-				->setAuthor(author: ($userId ?? ''))
-				->setSubject(
-					subject: 'launchpad_cleanup_purge',
-					parameters: [
-						'totalRows' => $result->getTotalRows(),
-						'byCategory' => $result->getByCategory(),
-						'durationMs' => $result->getDurationMs(),
-						'source' => $source,
-					]
-				)
-				->setObject(
-					objectType: 'launchpad_cleanup',
-					objectId: 0,
-					objectName: $source
-				);
+			$event = $this->purgeEvent(
+				userId: $userId,
+				parameters: $this->purgeParameters(result: $result, source: $source)
+			);
 
 			$this->reporting->activityManager->publish(event: $event);
 		} catch (IncompleteActivityException $e) {
@@ -493,4 +480,48 @@ class OrphanedDataCleanupService {
 			);
 		}//end try
 	}//end emitActivityEvent()
+
+	/**
+	 * The subject parameters of the Activity event of a purge run.
+	 *
+	 * @param CleanupResult $result The purge result.
+	 * @param string $source The source label.
+	 *
+	 * @return array{totalRows: int, byCategory: array<string, int>, durationMs: int, source: string}
+	 */
+	private function purgeParameters(CleanupResult $result, string $source): array {
+		return [
+			'totalRows' => $result->getTotalRows(),
+			'byCategory' => $result->getByCategory(),
+			'durationMs' => $result->getDurationMs(),
+			'source' => $source,
+		];
+	}//end purgeParameters()
+
+	/**
+	 * The Activity event of a purge run, named after its source.
+	 *
+	 * @param string|null $userId The actor (null = system).
+	 * @param array{totalRows: int, byCategory: array<string, int>, durationMs: int, source: string} $parameters The subject parameters.
+	 *
+	 * @return IEvent
+	 */
+	private function purgeEvent(?string $userId, array $parameters): IEvent {
+		$event = $this->reporting->activityManager->generateEvent();
+		$event->setApp(app: Application::APP_ID)
+			->setType(type: self::ACTIVITY_TYPE)
+			->setAffectedUser(affectedUser: ($userId ?? ''))
+			->setAuthor(author: ($userId ?? ''))
+			->setSubject(
+				subject: 'launchpad_cleanup_purge',
+				parameters: $parameters
+			)
+			->setObject(
+				objectType: 'launchpad_cleanup',
+				objectId: 0,
+				objectName: $parameters['source']
+			);
+
+		return $event;
+	}//end purgeEvent()
 }//end class

@@ -25,7 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ProfileFieldService;
+use OCA\LaunchPad\Kernel\Contracts\ProfileFieldServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -49,7 +49,7 @@ class ProfileFieldsController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest            $request HTTP request.
-	 * @param ProfileFieldService $profileFields Profile field service.
+	 * @param ProfileFieldServiceInterface $profileFields Profile field service.
 	 * @param ActionCaller        $caller The session and the action check.
 	 * @param IGroupManager       $groupManager Admin check.
 	 *
@@ -57,7 +57,7 @@ class ProfileFieldsController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ProfileFieldService $profileFields,
+		private readonly ProfileFieldServiceInterface $profileFields,
 		private readonly ActionCaller $caller,
 		private readonly IGroupManager $groupManager,
 	) {

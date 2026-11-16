@@ -25,7 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\BackgroundJob;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AnnouncementFollowNotifier;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowNotifierInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -50,15 +50,15 @@ class AnnouncementNotifyJob extends TimedJob {
 	/**
 	 * Constructor.
 	 *
-	 * @param ITimeFactory               $time     The clock.
-	 * @param AnnouncementFollowNotifier $notifier Sends the follow notifications.
-	 * @param LoggerInterface            $logger   A failed run.
+	 * @param ITimeFactory                        $time     The clock.
+	 * @param AnnouncementFollowNotifierInterface $notifier Sends the follow notifications.
+	 * @param LoggerInterface                     $logger   A failed run.
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-follow-categories-req-ann-003
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly AnnouncementFollowNotifier $notifier,
+		private readonly AnnouncementFollowNotifierInterface $notifier,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

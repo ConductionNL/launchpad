@@ -252,6 +252,19 @@ class DashboardDeleteCommand extends CommandBase {
 			return;
 		}
 
+		$this->deleteLeaf(dashboard: $dashboard, uuid: $uuid);
+	}//end applyDeletion()
+
+	/**
+	 * Delete one dashboard without its subtree: its widget placements, the
+	 * row, then the {@see DashboardDeletedEvent} for cascade cleanup.
+	 *
+	 * @param Dashboard $dashboard The dashboard to delete.
+	 * @param string    $uuid      The dashboard UUID.
+	 *
+	 * @return void
+	 */
+	private function deleteLeaf(Dashboard $dashboard, string $uuid): void {
 		$this->stores->placementMapper->deleteByDashboardId(dashboardId: (int)$dashboard->getId());
 		$this->stores->dashboardMapper->delete(entity: $dashboard);
 
@@ -270,5 +283,5 @@ class DashboardDeleteCommand extends CommandBase {
 				dashboardId:   (int)$dashboard->getId()
 			)
 		);
-	}//end applyDeletion()
+	}//end deleteLeaf()
 }//end class

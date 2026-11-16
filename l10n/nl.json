@@ -1733,6 +1733,19 @@
         "Under Templates you build the dashboards that groups and new users get.": "Onder Sjablonen maak je de dashboards die groepen en nieuwe gebruikers krijgen.",
         "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.": "Onder Rollen en rechten kies je wie LaunchPad mag beheren en wat elke rol mag wijzigen.",
         "Under Sharing you set who may share dashboards and with whom.": "Onder Delen stel je in wie dashboards mag delen en met wie.",
-        "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports."
+        "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports.",
+        "Ready-made reports": "Kant-en-klare rapporten",
+        "Reports that ship with LaunchPad: run one without composing a dashboard, or save its result as a dashboard of your own.": "Rapporten die met LaunchPad worden meegeleverd: draai er een zonder eerst een dashboard samen te stellen, of bewaar de uitkomst als je eigen dashboard.",
+        "No reports ship with this version.": "Deze versie levert geen rapporten mee.",
+        "Report": "Rapport",
+        "What it shows": "Wat het laat zien",
+        "Available": "Beschikbaar",
+        "Unavailable": "Niet beschikbaar",
+        "Missing registers or schemas": "Ontbrekende registers of schema's",
+        "Save as dashboard": "Opslaan als dashboard",
+        "The report was saved as a dashboard of your own.": "Het rapport is opgeslagen als je eigen dashboard.",
+        "The report could not be saved as a dashboard. An unavailable report cannot be saved.": "Het rapport kon niet als dashboard worden opgeslagen. Een rapport dat niet beschikbaar is, kan niet worden opgeslagen.",
+        "About this report": "Over dit rapport",
+        "Result": "Uitkomst"
     }
 }

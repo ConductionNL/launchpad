@@ -1773,7 +1773,20 @@ OC.L10N.register(
     "Active filters" : "Actieve filters",
     "Pinned filter" : "Vastgezet filter",
     "Remove filter: {label}" : "Filter verwijderen: {label}",
-    "Reset filters" : "Filters wissen"
+    "Reset filters" : "Filters wissen",
+    "Ready-made reports" : "Kant-en-klare rapporten",
+    "Reports that ship with LaunchPad: run one without composing a dashboard, or save its result as a dashboard of your own." : "Rapporten die met LaunchPad worden meegeleverd: draai er een zonder eerst een dashboard samen te stellen, of bewaar de uitkomst als je eigen dashboard.",
+    "No reports ship with this version." : "Deze versie levert geen rapporten mee.",
+    "Report" : "Rapport",
+    "What it shows" : "Wat het laat zien",
+    "Available" : "Beschikbaar",
+    "Unavailable" : "Niet beschikbaar",
+    "Missing registers or schemas" : "Ontbrekende registers of schema's",
+    "Save as dashboard" : "Opslaan als dashboard",
+    "The report was saved as a dashboard of your own." : "Het rapport is opgeslagen als je eigen dashboard.",
+    "The report could not be saved as a dashboard. An unavailable report cannot be saved." : "Het rapport kon niet als dashboard worden opgeslagen. Een rapport dat niet beschikbaar is, kan niet worden opgeslagen.",
+    "About this report" : "Over dit rapport",
+    "Result" : "Uitkomst"
 },
 "nplurals=2; plural=(n != 1);"
 );

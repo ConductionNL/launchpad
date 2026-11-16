@@ -13,7 +13,7 @@
 ## 2. The report library
 
 - [x] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas. `Reporting\ReportDefinitions::check()`.
-- [ ] 2.2 Ship a first set of definitions with the app and list them in a gallery. Shipped: `lib/Settings/reports.json` (three reports) and the gallery data at `GET /api/reports`. Left: the gallery screen over that endpoint.
+- [x] 2.2 Ship a first set of definitions with the app and list them in a gallery. Shipped: `lib/Settings/reports.json` (three reports) and the gallery data at `GET /api/reports`. The gallery is manifest configuration (`src/manifest.d/dashboards-and-who-may-see-them.json`): an index page over that endpoint (the library's `endpoint` source) listing each report with Available or Unavailable and the missing registers and schemas, a row that opens the run (`GET /api/reports/{id}`) on a detail page over the same source, and Save as dashboard on both as an `api-call` to `POST /api/reports/{id}/dashboard`; a card on the Reports page leads to it.
 - [x] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
 - [x] 2.4 Save a result as an ordinary dashboard owned by the saver. `POST /api/reports/{reportId}/dashboard`: a dashboard of the caller holding one chart of the result.
 - [x] 2.5 PHPUnit on the availability check and on save-as-dashboard.
@@ -123,8 +123,7 @@ layer is unreachable through another's.
 the status report (3), activity reporting with its purpose gate (4), colleague
 activity (5), in-widget search (6), geographic reporting (7) and storage
 reporting (8) each have their endpoint, their rules and their PHPUnit; section 5
-also has its widget and section 6 its Vitest. What is left is screens: the
-report gallery (2.2), the status report form (3.3) and the activity report
+also has its widget and section 6 its Vitest. What is left is screens: the status report form (3.3) and the activity report
 screen that shows the purpose (4.2). Each is a page over an endpoint that
 exists, and none was made by hand outside the manifest.
 

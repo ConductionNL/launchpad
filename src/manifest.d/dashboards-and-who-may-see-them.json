@@ -1,0 +1,118 @@
+{
+	"_note": "ADR-037 manifest fragment for dashboards-and-who-may-see-them task 2.2 (REQ-DWMS-003). The report gallery is an ordinary index over launchpad's own endpoint (entitySource endpoint, GET /api/reports): the definitions ship with the app and are not OpenRegister objects, so there is no register to point at and no component to write. A report whose registers or schemas are missing stays in the list, says Unavailable and names them (the endpoint answers available and missing per row). Opening a row runs the report through GET /api/reports/{id}, which answers an unavailable report with available false and no result rather than an error. Save as dashboard is the endpoint's POST /api/reports/{id}/dashboard: a dashboard owned by the caller holding the result; the server refuses an unavailable report.",
+	"menu": [],
+	"pages": [
+		{
+			"id": "ReportLibrary",
+			"route": "/reports/library",
+			"type": "index",
+			"title": "Ready-made reports",
+			"config": {
+				"entitySource": "endpoint",
+				"sourceConfig": {
+					"url": "/apps/launchpad/api/reports",
+					"rowsPath": "reports"
+				},
+				"rowRoute": "ReportRun",
+				"showAdd": false,
+				"showEditAction": false,
+				"showCopyAction": false,
+				"showDeleteAction": false,
+				"selectable": false,
+				"emptyText": "No reports ship with this version.",
+				"columns": [
+					{
+						"key": "title",
+						"label": "Report",
+						"cellClass": "cn-cell--strong"
+					},
+					{
+						"key": "description",
+						"label": "What it shows"
+					},
+					{
+						"key": "available",
+						"label": "Status",
+						"formatter": "valueMap",
+						"formatterOptions": {
+							"map": {
+								"true": "Available",
+								"false": "Unavailable"
+							}
+						}
+					},
+					{
+						"key": "missing",
+						"label": "Missing registers or schemas"
+					}
+				],
+				"actions": [
+					"builtin:view",
+					{
+						"id": "report-save-as-dashboard",
+						"label": "Save as dashboard",
+						"icon": "ViewDashboardOutline",
+						"type": "api-call",
+						"url": "/apps/launchpad/api/reports/{objectId}/dashboard",
+						"method": "POST",
+						"successMessage": "The report was saved as a dashboard of your own.",
+						"errorMessage": "The report could not be saved as a dashboard. An unavailable report cannot be saved."
+					}
+				]
+			}
+		},
+		{
+			"id": "ReportRun",
+			"route": "/reports/library/:id",
+			"type": "detail",
+			"title": "Report",
+			"config": {
+				"entitySource": "endpoint",
+				"sourceConfig": {
+					"url": "/apps/launchpad/api/reports/{id}"
+				},
+				"headerActions": [
+					{
+						"id": "report-run-save-as-dashboard",
+						"label": "Save as dashboard",
+						"icon": "ViewDashboardOutline",
+						"type": "api-call",
+						"url": "/apps/launchpad/api/reports/{objectId}/dashboard",
+						"method": "POST",
+						"successMessage": "The report was saved as a dashboard of your own.",
+						"errorMessage": "The report could not be saved as a dashboard. An unavailable report cannot be saved."
+					}
+				],
+				"widgets": [
+					{
+						"id": "report-run-about",
+						"type": "data",
+						"title": "About this report",
+						"content": {
+							"title": "About this report",
+							"columns": 2,
+							"include": [
+								"title",
+								"description",
+								"available",
+								"missing"
+							]
+						}
+					},
+					{
+						"id": "report-run-result",
+						"type": "data",
+						"title": "Result",
+						"content": {
+							"title": "Result",
+							"columns": 1,
+							"include": [
+								"result"
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+}

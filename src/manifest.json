@@ -237,7 +237,7 @@
     },
     {
       "id": "Reports",
-      "_note": "ADR-112 / ADR-114 Decision 3. ONE card, deliberately. LaunchPad's register holds a single schema — dashboard — so a second report would either repeat this one or invent a reading the data cannot support. The `widgets` array holds widget descriptors rather than references, so grouping by it would bucket objects and render noise; it is left out rather than shipped as a chart that looks like an answer.",
+      "_note": "ADR-112 / ADR-114 Decision 3. ONE declarative report over LaunchPad's own register, deliberately: it holds a single schema — dashboard — so a second one would either repeat this one or invent a reading the data cannot support. The second card is the gallery of shipped report definitions (dashboards-and-who-may-see-them REQ-DWMS-003, src/manifest.d), which read other apps' registers and say when those are missing. The `widgets` array holds widget descriptors rather than references, so grouping by it would bucket objects and render noise; it is left out rather than shipped as a chart that looks like an answer.",
       "route": "/reports",
       "type": "reports",
       "title": "Reports",
@@ -250,6 +250,13 @@
             "description": "How many dashboards there are, and who they belong to.",
             "icon": "ViewDashboardOutline",
             "route": "DashboardsReport"
+          },
+          {
+            "id": "ReportLibrary",
+            "label": "Ready-made reports",
+            "description": "Reports that ship with LaunchPad: run one without composing a dashboard, or save its result as a dashboard of your own.",
+            "icon": "ChartBoxOutline",
+            "route": "ReportLibrary"
           }
         ]
       }

@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service\Embed;
 
 use JsonSerializable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Throwable;
@@ -182,6 +183,31 @@ class EmbedObjectStore {
 
 		return $objects;
 	}//end findBy()
+
+	/**
+	 * Delete an object, as the system; false when there was nothing to delete.
+	 *
+	 * @param string $schema The schema slug.
+	 * @param string $id     The object id.
+	 *
+	 * @return bool
+	 *
+	 * @throws RuntimeException When OpenRegister is unavailable or the delete fails.
+	 *
+	 * @spec openspec/changes/embedded-analytics/tasks.md#task-16
+	 */
+	public function delete(string $schema, string $id): bool {
+		if ($this->find(schema: $schema, id: $id) === null) {
+			return false;
+		}
+
+		$service = $this->service(schema: $schema);
+		try {
+			return $service->deleteObject(deletion: new ObjectDeletion(uuid: $id), _rbac: false, _multitenancy: false) === true;
+		} catch (Throwable $failure) {
+			throw new RuntimeException(message: 'The ' . $schema . ' object could not be deleted.', previous: $failure);
+		}
+	}//end delete()
 
 	/**
 	 * The object service, pointed at the launchpad register and a schema.

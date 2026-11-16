@@ -20,6 +20,8 @@ use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Unit\Service\Embed\Support\InMemoryObjectService;
 
+require_once __DIR__ . '/../../../Stubs/OpenRegisterStubs.php';
+
 #[CoversClass(EmbedObjectStore::class)]
 class EmbedObjectStoreTest extends TestCase {
 
@@ -83,6 +85,26 @@ class EmbedObjectStoreTest extends TestCase {
 		$this->assertSame([['status' => 'retiring', 'id' => 'obj-2']], $store->findBy(schema: 'signing_key', filters: ['status' => 'retiring']));
 		$this->assertCount(2, $store->findBy(schema: 'signing_key'));
 	}//end testFindByFiltersAndUnwrapsResults()
+
+	/**
+	 * Delete removes the object as the system and says whether there was one;
+	 * an unknown id deletes nothing.
+	 *
+	 * @return void
+	 */
+	public function testDeleteRemovesTheObjectAsTheSystem(): void {
+		$store = $this->store();
+		$store->save(schema: 'tenant_theme', object: ['name' => 'Zeist']);
+
+		$this->assertFalse($store->delete(schema: 'tenant_theme', id: 'obj-9'));
+		$this->assertTrue($store->delete(schema: 'tenant_theme', id: 'obj-1'));
+		$this->assertSame([], $this->objects->objects['launchpad/tenant_theme']);
+		$this->assertSame(
+			['save launchpad/tenant_theme system', 'find launchpad/tenant_theme', 'find launchpad/tenant_theme', 'delete launchpad/tenant_theme system'],
+			$this->objects->calls
+		);
+		$this->assertNull($store->find(schema: 'tenant_theme', id: 'obj-1'));
+	}//end testDeleteRemovesTheObjectAsTheSystem()
 
 	/**
 	 * A failing save is reported with the schema; without OpenRegister every

@@ -26,6 +26,8 @@ interface ObjectServiceInterface {
 
 	public function find(int|string $id, mixed $options=null, bool $_rbac=true, bool $_multitenancy=true): ?object;
 
+	public function deleteObject(object $deletion, bool $_rbac=true, bool $_multitenancy=true, bool $_retentionSweep=false): bool;
+
 	/**
 	 * @param array<string, mixed> $filters
 	 *

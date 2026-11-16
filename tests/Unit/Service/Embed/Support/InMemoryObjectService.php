@@ -3,7 +3,7 @@
 /**
  * An in-memory stand-in for OpenRegister's object service, with the calls
  * the embed store makes: setRegister/setSchema, saveObject (create without
- * an id, update with one), find and searchObjectsBySlug with equality filters.
+ * an id, update with one), find, deleteObject and searchObjectsBySlug with equality filters.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -79,6 +79,17 @@ class InMemoryObjectService {
 		$object = ($this->objects[$this->bucket()][(string)$id] ?? null);
 
 		return $object === null ? null : $this->entity(id: (string)$id, object: $object);
+	}
+
+	public function deleteObject(object $deletion, bool $_rbac=true, bool $_multitenancy=true, bool $_retentionSweep=false): bool {
+		$this->calls[] = 'delete ' . $this->bucket() . ($_rbac === false && $_multitenancy === false ? ' system' : ' user');
+		if (isset($this->objects[$this->bucket()][$deletion->uuid]) === false) {
+			return false;
+		}
+
+		unset($this->objects[$this->bucket()][$deletion->uuid]);
+
+		return true;
 	}
 
 	/**

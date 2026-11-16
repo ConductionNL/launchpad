@@ -24,6 +24,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Unit\Service\Embed\Support\InMemoryObjectService;
 
+require_once __DIR__ . '/../../../Stubs/OpenRegisterStubs.php';
+
 #[CoversClass(TenantThemeService::class)]
 #[CoversClass(TenantTheme::class)]
 #[UsesClass(EmbedObjectStore::class)]
@@ -140,4 +142,28 @@ class TenantThemeServiceTest extends TestCase {
 		$list = $service->listThemes();
 		$this->assertSame([['obj-1', 2]], array_map(static fn (array $t): array => [$t['id'], $t['tokenCount']], $list));
 	}//end testUpdateAndListCountTokens()
+
+	/**
+	 * A theme tokens use is kept unless forced; an unused or forced one is
+	 * deleted; an unknown one is null.
+	 *
+	 * @return void
+	 */
+	public function testDeleteKeepsAThemeInUseUnlessForced(): void {
+		$service = $this->service();
+		$service->createTheme(input: self::ZEIST, userId: 'admin');
+		$service->createTheme(input: ['name' => 'Amsterdam'] + self::ZEIST, userId: 'admin');
+		$this->objects->objects['launchpad/embed_token'] = ['t1' => ['tenantThemeId' => 'obj-1'], 't2' => ['tenantThemeId' => 'obj-1']];
+
+		$this->assertSame(
+			['status' => 'error', 'error' => 'theme_in_use', 'tokenCount' => 2],
+			array_intersect_key($service->deleteTheme(id: 'obj-1'), ['status' => 1, 'error' => 1, 'tokenCount' => 1])
+		);
+		$this->assertNotNull($service->getTheme(id: 'obj-1'));
+
+		$this->assertSame(['deleted' => true, 'tokenCount' => 0], $service->deleteTheme(id: 'obj-2'));
+		$this->assertSame(['deleted' => true, 'tokenCount' => 2], $service->deleteTheme(id: 'obj-1', force: true));
+		$this->assertNull($service->getTheme(id: 'obj-1'));
+		$this->assertNull($service->deleteTheme(id: 'obj-1'));
+	}//end testDeleteKeepsAThemeInUseUnlessForced()
 }//end class

@@ -238,6 +238,10 @@
         {
             "name": "embed-token-api",
             "description": "Admin API of embed tokens (embedded-analytics): issue, revoke, re-issue, usage and the telemetry switch."
+        },
+        {
+            "name": "tenant-theme-api",
+            "description": "Tenant themes for embeds (admin)."
         }
     ],
     "paths": {
@@ -9908,6 +9912,232 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/tenant-themes": {
+            "get": {
+                "operationId": "tenant-theme-api-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/tenant-themes — every tenant theme, with how many embed tokens use it",
+                "description": "GET /api/tenant-themes — every tenant theme, with how many embed tokens use it. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "tenant-theme-api"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "tenant-theme-api-create",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/tenant-themes — create a tenant theme; names, values, :root-only CSS and contrast are checked (REQ-EMB-005)",
+                "description": "POST /api/tenant-themes — create a tenant theme; names, values, :root-only CSS and contrast are checked (REQ-EMB-005). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "tenant-theme-api"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The theme name."
+                                    },
+                                    "cssVariables": {
+                                        "description": "Custom properties, {\"--c-primary\": \"#0b5394\", ...}."
+                                    },
+                                    "logoUrl": {
+                                        "description": "An https logo URL."
+                                    },
+                                    "customCss": {
+                                        "description": "Extra CSS, :root rules only."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/tenant-themes/{id}": {
+            "put": {
+                "operationId": "tenant-theme-api-update",
+                "x-launchpad-stability": "internal",
+                "summary": "PUT /api/tenant-themes/{id} — replace a tenant theme; tokens using it follow at once",
+                "description": "PUT /api/tenant-themes/{id} — replace a tenant theme; tokens using it follow at once. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "tenant-theme-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tenant theme id.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The theme name."
+                                    },
+                                    "cssVariables": {
+                                        "description": "Custom properties, {\"--c-primary\": \"#0b5394\", ...}."
+                                    },
+                                    "logoUrl": {
+                                        "description": "An https logo URL."
+                                    },
+                                    "customCss": {
+                                        "description": "Extra CSS, :root rules only."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "tenant-theme-api-destroy",
+                "x-launchpad-stability": "internal",
+                "summary": "DELETE /api/tenant-themes/{id} — delete a tenant theme; one that tokens use only with force",
+                "description": "DELETE /api/tenant-themes/{id} — delete a tenant theme; one that tokens use only with force. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "tenant-theme-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tenant theme id.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "force",
+                        "in": "query",
+                        "required": false,
+                        "description": "Delete even when tokens use it.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "description": "Embed tokens still use the theme; send force to delete it anyway."
                     }
                 }
             }

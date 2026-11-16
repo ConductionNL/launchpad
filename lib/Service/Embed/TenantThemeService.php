@@ -160,6 +160,38 @@ class TenantThemeService {
 	}//end listThemes()
 
 	/**
+	 * Delete a theme. A theme tokens still use is kept unless `force` is set:
+	 * those tokens then render with the platform default (5.4).
+	 *
+	 * @param string $id    The theme id.
+	 * @param bool   $force Delete even when tokens use it.
+	 *
+	 * @return array<string, mixed>|null {deleted, tokenCount}, a refusal {status: error, error: theme_in_use, tokenCount},
+	 *                                   or null when there is no such theme.
+	 *
+	 * @spec openspec/changes/embedded-analytics/tasks.md#task-16
+	 */
+	public function deleteTheme(string $id, bool $force=false): ?array {
+		if ($this->getTheme(id: $id) === null) {
+			return null;
+		}
+
+		$tokenCount = count($this->store->findBy(schema: EmbedObjectStore::TOKENS, filters: ['tenantThemeId' => $id]));
+		if ($tokenCount > 0 && $force === false) {
+			return [
+				'status'     => 'error',
+				'error'      => 'theme_in_use',
+				'message'    => 'Embed tokens still use this theme; they fall back to the default theme when it is deleted.',
+				'tokenCount' => $tokenCount,
+			];
+		}
+
+		$this->store->delete(schema: EmbedObjectStore::THEMES, id: $id);
+
+		return ['deleted' => true, 'tokenCount' => $tokenCount];
+	}//end deleteTheme()
+
+	/**
 	 * The CSS an embed injects for a theme: its variables and custom CSS on
 	 * :root; '' without a theme, so the platform default applies (5.4).
 	 *

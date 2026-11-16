@@ -120,4 +120,23 @@ namespace OCA\OpenRegister\Kernel\Contracts\Value {
 			}//end __construct()
 		}//end class
 	}
+
+	if (class_exists(__NAMESPACE__ . '\\ObjectDeletion', false) === false) {
+		/**
+		 * Stub mirroring the delete LaunchPad passes to ObjectService::deleteObject().
+		 */
+		final class ObjectDeletion {
+			/**
+			 * Constructor.
+			 *
+			 * @param string           $uuid   The object uuid.
+			 * @param ObjectFindTarget $target The register and schema.
+			 */
+			public function __construct(
+				public readonly string $uuid,
+				public readonly ObjectFindTarget $target = new ObjectFindTarget(),
+			) {
+			}//end __construct()
+		}//end class
+	}
 }

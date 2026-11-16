@@ -626,6 +626,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'embedTokenApi#reissue', 'url' => '/api/embed-tokens/{id}/re-issue', 'verb' => 'POST'],
 		['name' => 'embedTokenApi#purgeCache', 'url' => '/api/embed-tokens/{id}/purge-cache', 'verb' => 'POST'],
 		['name' => 'embedTokenApi#usage', 'url' => '/api/embed-tokens/{id}/usage', 'verb' => 'GET'],
+		// Tenant themes (embedded-analytics, REQ-EMB-005): admin-only.
+		['name' => 'tenantThemeApi#index', 'url' => '/api/tenant-themes', 'verb' => 'GET'],
+		['name' => 'tenantThemeApi#create', 'url' => '/api/tenant-themes', 'verb' => 'POST'],
+		['name' => 'tenantThemeApi#update', 'url' => '/api/tenant-themes/{id}', 'verb' => 'PUT'],
+		['name' => 'tenantThemeApi#destroy', 'url' => '/api/tenant-themes/{id}', 'verb' => 'DELETE'],
 
 		// Org-wide navigation editor (REQ-ONAV-001..012). The /position
 		// routes MUST precede the bare /org-navigation routes so the

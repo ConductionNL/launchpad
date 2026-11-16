@@ -54,12 +54,21 @@ function splitNode(node) {
  */
 function widgetsById(widgets) {
 	const byId = new Map()
-	for (const widget of widgets || []) {
-		if (widget && widget.id !== undefined && widget.id !== null) {
-			byId.set(String(widget.id), { id: String(widget.id), calculatedFields: compiledFieldsOf(widget) })
-		}
+	for (const widget of (widgets || []).filter(hasId)) {
+		byId.set(String(widget.id), { id: String(widget.id), calculatedFields: compiledFieldsOf(widget) })
 	}
 	return byId
+}
+
+/**
+ * Whether a widget carries an id.
+ *
+ * @param {object} widget The widget.
+ * @return {boolean} True when it has one.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-003-client-side-evaluator-reactive-to-filter-changes
+ */
+function hasId(widget) {
+	return widget?.id !== undefined && widget?.id !== null
 }
 
 /**
@@ -91,12 +100,75 @@ function emptyResult(byId) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
  */
 function markCycle(result, byId, error) {
-	const widgets = error.detail?.widgets?.length ? error.detail.widgets : [...byId.keys()]
-	for (const id of widgets) {
+	for (const id of cycleWidgets(error, byId)) {
 		for (const field of byId.get(String(id))?.calculatedFields || []) {
 			result.values[id][field.name] = null
 			result.errors[id][field.name] = { error: error.message, expression: field.expression ?? '', inputs: {} }
 		}
+	}
+}
+
+/**
+ * The widgets a cycle error names, else every widget.
+ *
+ * @param {CalculatedFieldError} error The cycle error.
+ * @param {Map<string, object>} byId The widgets by id.
+ * @return {string[]} The widget ids.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
+ */
+function cycleWidgets(error, byId) {
+	const listed = error.detail?.widgets
+	return listed?.length ? listed : [...byId.keys()]
+}
+
+/**
+ * The fields' evaluation order, or null after marking a cycle on the result.
+ *
+ * @param {Map<string, object>} byId The widgets by id.
+ * @param {{values: object, errors: object}} result The result to mark on a cycle.
+ * @return {string[]|null} The `<widgetId>.<fieldName>` nodes in order.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
+ */
+function evaluationOrder(byId, result) {
+	try {
+		return assertAcyclic([...byId.values()])
+	} catch (error) {
+		if (!(error instanceof CalculatedFieldError)) {
+			throw error
+		}
+		markCycle(result, byId, error)
+		return null
+	}
+}
+
+/**
+ * Evaluate one field of the order into the result: its value, or null and
+ * an inline error.
+ *
+ * @param {string} node The `<widgetId>.<fieldName>` node.
+ * @param {Map<string, object>} byId The widgets by id.
+ * @param {Record<string, object>} data Each widget's source data, by widget id.
+ * @param {{values: object, errors: object}} result The result to fill.
+ * @param {{now?: number}} options Evaluation options.
+ * @return {void}
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-003-client-side-evaluator-reactive-to-filter-changes
+ */
+function evaluateNode(node, byId, data, result, options) {
+	const { widgetId, name } = splitNode(node)
+	const field = byId.get(widgetId)?.calculatedFields.find((candidate) => candidate.name === name)
+	if (!field) {
+		return
+	}
+	const outcome = evaluateField(field, {
+		row: data[widgetId] ?? {},
+		calculated: result.values[widgetId],
+		widgets: data,
+		widgetCalculated: result.values,
+	}, options)
+	const failed = Object.hasOwn(outcome, 'error')
+	result.values[widgetId][name] = failed ? null : outcome.value
+	if (failed) {
+		result.errors[widgetId][name] = outcome
 	}
 }
 
@@ -109,39 +181,12 @@ function markCycle(result, byId, error) {
  * @return {{values: Record<string, Record<string, unknown>>, errors: Record<string, Record<string, object>>}} Values and inline errors per widget id and field name.
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-003-client-side-evaluator-reactive-to-filter-changes
  */
-export function evaluateDashboard(widgets, dataById = {}, options = {}) {
+export function evaluateDashboard(widgets, dataById, options = {}) {
 	const byId = widgetsById(widgets)
 	const result = emptyResult(byId)
-	let order
-	try {
-		order = assertAcyclic([...byId.values()])
-	} catch (error) {
-		if (!(error instanceof CalculatedFieldError)) {
-			throw error
-		}
-		markCycle(result, byId, error)
-		return result
-	}
-
 	const data = dataById || {}
-	for (const node of order) {
-		const { widgetId, name } = splitNode(node)
-		const field = byId.get(widgetId)?.calculatedFields.find((candidate) => candidate.name === name)
-		if (!field) {
-			continue
-		}
-		const outcome = evaluateField(field, {
-			row: data[widgetId] ?? {},
-			calculated: result.values[widgetId],
-			widgets: data,
-			widgetCalculated: result.values,
-		}, options)
-		if (Object.hasOwn(outcome, 'error')) {
-			result.values[widgetId][name] = null
-			result.errors[widgetId][name] = outcome
-		} else {
-			result.values[widgetId][name] = outcome.value
-		}
+	for (const node of evaluationOrder(byId, result) || []) {
+		evaluateNode(node, byId, data, result, options)
 	}
 
 	return result
@@ -157,29 +202,49 @@ export function evaluateDashboard(widgets, dataById = {}, options = {}) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-003-client-side-evaluator-reactive-to-filter-changes
  */
 export function dependentWidgets(widgets, changedId) {
-	const readers = new Map()
-	for (const widget of widgetsById(widgets).values()) {
-		for (const field of widget.calculatedFields) {
-			for (const target of referencedWidgets(field.compiledExpression)) {
-				if (!readers.has(target)) {
-					readers.set(target, new Set())
-				}
-				readers.get(target).add(widget.id)
-			}
-		}
-	}
-
+	const readers = readersOf(widgets)
 	const seen = new Set([String(changedId)])
 	const queue = [String(changedId)]
 	while (queue.length > 0) {
-		for (const reader of readers.get(queue.shift()) || []) {
-			if (!seen.has(reader)) {
-				seen.add(reader)
-				queue.push(reader)
-			}
-		}
+		const fresh = [...(readers.get(queue.shift()) || [])].filter((reader) => !seen.has(reader))
+		fresh.forEach((reader) => {
+			seen.add(reader)
+			queue.push(reader)
+		})
 	}
 	return [...seen].sort()
+}
+
+/**
+ * For every widget id, the widgets whose calculated fields read it.
+ *
+ * @param {object[]} widgets The dashboard's widgets.
+ * @return {Map<string, Set<string>>} The readers by widget id.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-003-client-side-evaluator-reactive-to-filter-changes
+ */
+function readersOf(widgets) {
+	const readers = new Map()
+	for (const widget of widgetsById(widgets).values()) {
+		const targets = widget.calculatedFields.flatMap((field) => [...referencedWidgets(field.compiledExpression)])
+		targets.forEach((target) => addReader(readers, target, widget.id))
+	}
+	return readers
+}
+
+/**
+ * Note that a widget reads a target widget.
+ *
+ * @param {Map<string, Set<string>>} readers The readers by widget id, extended in place.
+ * @param {string} target The widget read.
+ * @param {string} reader The reading widget.
+ * @return {void}
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-003-client-side-evaluator-reactive-to-filter-changes
+ */
+function addReader(readers, target, reader) {
+	if (!readers.has(target)) {
+		readers.set(target, new Set())
+	}
+	readers.get(target).add(reader)
 }
 
 /**
@@ -191,20 +256,24 @@ export function dependentWidgets(widgets, changedId) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
  */
 function referencedWidgets(node, found = new Set()) {
-	if (!node || typeof node !== 'object') {
-		return found
-	}
-	if (Array.isArray(node)) {
-		node.forEach((child) => referencedWidgets(child, found))
-		return found
-	}
-	if (node.type === 'fieldRef' && typeof node.source === 'string' && node.source.startsWith('widget:')) {
-		found.add(node.source.slice('widget:'.length))
-	}
-	for (const value of Object.values(node)) {
-		if (value && typeof value === 'object') {
-			referencedWidgets(value, found)
+	if (node && typeof node === 'object') {
+		const id = widgetRefOf(node)
+		if (id !== null) {
+			found.add(id)
 		}
+		Object.values(node).forEach((value) => referencedWidgets(value, found))
 	}
 	return found
+}
+
+/**
+ * The widget id a `widget:<id>` field reference names, else null.
+ *
+ * @param {object} node An AST node.
+ * @return {string|null} The id.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
+ */
+function widgetRefOf(node) {
+	const named = node.type === 'fieldRef' && typeof node.source === 'string' && node.source.startsWith('widget:')
+	return named ? node.source.slice('widget:'.length) : null
 }

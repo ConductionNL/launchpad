@@ -31,6 +31,8 @@
 
 const NUMBER_KEYS = ['style', 'minimumFractionDigits', 'maximumFractionDigits', 'currency']
 const DATE_KEYS = ['dateStyle', 'timeStyle', 'timeZone']
+const UNITS = ['d', 'h', 'm', 's']
+const UNIT_SECONDS = { d: 86400, h: 3600, m: 60, s: 1 }
 
 /**
  * The listed keys of an options object that are set.
@@ -64,7 +66,19 @@ export function formatNumber(value, options = {}, locale = undefined) {
 	if (intl.style === 'currency' && !intl.currency) {
 		delete intl.style
 	}
-	return new Intl.NumberFormat(options.locale || locale, intl).format(value)
+	return new Intl.NumberFormat(localeOf(options, locale), intl).format(value)
+}
+
+/**
+ * The locale the options name, else the fallback.
+ *
+ * @param {{locale?: string}} options The options.
+ * @param {string} [locale] The fallback locale.
+ * @return {string|undefined} The locale.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+function localeOf(options, locale) {
+	return options.locale || locale
 }
 
 /**
@@ -82,11 +96,23 @@ export function formatDate(value, options = {}, locale = undefined) {
 	if (Number.isNaN(date.getTime())) {
 		return String(value)
 	}
+	return new Intl.DateTimeFormat(localeOf(options, locale), dateIntl(options)).format(date)
+}
+
+/**
+ * The `Intl.DateTimeFormat` options: UTC unless a zone is set, a medium date
+ * when neither style is.
+ *
+ * @param {DateFormatOptions} options The options.
+ * @return {object} The Intl options.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+function dateIntl(options) {
 	const intl = { timeZone: 'UTC', ...pick(options, DATE_KEYS) }
 	if (!intl.dateStyle && !intl.timeStyle) {
 		intl.dateStyle = 'medium'
 	}
-	return new Intl.DateTimeFormat(options.locale || locale, intl).format(date)
+	return intl
 }
 
 /**
@@ -101,24 +127,54 @@ export function formatDate(value, options = {}, locale = undefined) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
  */
 export function formatDuration(seconds, options = {}) {
-	const pattern = typeof options.pattern === 'string' && options.pattern !== '' ? options.pattern : 'h:mm:ss'
-	const parts = tokenise(pattern)
-	const units = { d: 86400, h: 3600, m: 60, s: 1 }
+	const parts = tokenise(durationPattern(options))
+	const amounts = durationAmounts(Math.round(Math.abs(seconds)), parts)
 	const sign = seconds < 0 ? '-' : ''
-	let rest = Math.round(Math.abs(seconds))
+	return sign + parts.map((part) => renderPart(part, amounts)).join('')
+}
+
+/**
+ * The duration pattern of the options, `h:mm:ss` without one.
+ *
+ * @param {DurationFormatOptions} options The options.
+ * @return {string} The pattern.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+function durationPattern(options) {
+	return typeof options.pattern === 'string' && options.pattern !== '' ? options.pattern : 'h:mm:ss'
+}
+
+/**
+ * The amount of each unit the pattern uses; the largest carries the rest.
+ *
+ * @param {number} total The whole seconds.
+ * @param {Array<{unit?: string}>} parts The pattern parts.
+ * @return {Record<string, number>} The amounts by unit.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+function durationAmounts(total, parts) {
 	const amounts = {}
-	for (const unit of ['d', 'h', 'm', 's']) {
-		if (parts.some((part) => part.unit === unit)) {
-			amounts[unit] = Math.floor(rest / units[unit])
-			rest -= amounts[unit] * units[unit]
-		}
+	let rest = total
+	for (const unit of UNITS.filter((candidate) => parts.some((part) => part.unit === candidate))) {
+		amounts[unit] = Math.floor(rest / UNIT_SECONDS[unit])
+		rest -= amounts[unit] * UNIT_SECONDS[unit]
 	}
-	return sign + parts.map((part) => {
-		if (part.literal !== undefined) {
-			return part.literal
-		}
-		return String(amounts[part.unit]).padStart(part.width, '0')
-	}).join('')
+	return amounts
+}
+
+/**
+ * One pattern part as text: a literal as is, a unit zero-padded to its width.
+ *
+ * @param {{unit?: string, width?: number, literal?: string}} part The part.
+ * @param {Record<string, number>} amounts The amounts by unit.
+ * @return {string} The text.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+function renderPart(part, amounts) {
+	if (part.literal !== undefined) {
+		return part.literal
+	}
+	return String(amounts[part.unit]).padStart(part.width, '0')
 }
 
 /**
@@ -132,26 +188,52 @@ function tokenise(pattern) {
 	const parts = []
 	let at = 0
 	while (at < pattern.length) {
-		const char = pattern[at]
-		if (char === "'") {
-			const end = pattern.indexOf("'", at + 1)
-			const stop = end === -1 ? pattern.length : end
-			parts.push({ literal: pattern.slice(at + 1, stop) })
-			at = stop + 1
-		} else if ('dhms'.includes(char)) {
-			let width = 1
-			while (pattern[at + width] === char) {
-				width++
-			}
-			parts.push({ unit: char, width })
-			at += width
-		} else {
-			parts.push({ literal: char })
-			at++
-		}
+		const { part, next } = readPart(pattern, at)
+		parts.push(part)
+		at = next
 	}
 	return parts
 }
+
+/**
+ * Read the pattern part starting at a position: quoted literal text, a run
+ * of one unit token, or a single literal character.
+ *
+ * @param {string} pattern The pattern.
+ * @param {number} at The position.
+ * @return {{part: object, next: number}} The part and the position after it.
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+function readPart(pattern, at) {
+	const char = pattern[at]
+	if (char === "'") {
+		const end = pattern.indexOf("'", at + 1)
+		const stop = end === -1 ? pattern.length : end
+		return { part: { literal: pattern.slice(at + 1, stop) }, next: stop + 1 }
+	}
+	if (!'dhms'.includes(char)) {
+		return { part: { literal: char }, next: at + 1 }
+	}
+	let width = 1
+	while (pattern[at + width] === char) {
+		width++
+	}
+	return { part: { unit: char, width }, next: at + width }
+}
+
+/**
+ * The formatters by return type, first match wins: `null` shows as an
+ * empty string, anything unmatched as its string (`true`/`false` for booleans).
+ *
+ * @type {Array<{applies: function(unknown, object): boolean, format: function(unknown, object, string=): string}>}
+ * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
+ */
+const FORMATTERS = [
+	{ applies: (value) => value === null || value === undefined, format: () => '' },
+	{ applies: (value, field) => typeof value === 'number' && field.returnType === 'duration', format: (value, options) => formatDuration(value, options) },
+	{ applies: (value) => typeof value === 'number', format: formatNumber },
+	{ applies: (value, field) => typeof value === 'string' && field.returnType === 'date', format: formatDate },
+]
 
 /**
  * The display string of a calculated value: its format options applied by
@@ -164,22 +246,7 @@ function tokenise(pattern) {
  * @return {string} The display string.
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-010-format-options-applied-at-render-time
  */
-export function formatCalculatedValue(value, field = {}, locale = undefined) {
-	if (value === null || value === undefined) {
-		return ''
-	}
-	const options = field.formatOptions || {}
-	if (typeof value === 'number' && field.returnType === 'duration') {
-		return formatDuration(value, options)
-	}
-	if (typeof value === 'number') {
-		return formatNumber(value, options, locale)
-	}
-	if (typeof value === 'string' && field.returnType === 'date') {
-		return formatDate(value, options, locale)
-	}
-	if (typeof value === 'boolean') {
-		return value ? 'true' : 'false'
-	}
-	return String(value)
+export function formatCalculatedValue(value, field = {}, locale) {
+	const formatter = FORMATTERS.find((candidate) => candidate.applies(value, field))
+	return formatter ? formatter.format(value, field.formatOptions || {}, locale) : String(value)
 }

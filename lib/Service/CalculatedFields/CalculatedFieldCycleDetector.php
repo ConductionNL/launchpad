@@ -143,18 +143,8 @@ class CalculatedFieldCycleDetector {
 		}
 
 		foreach ($refs['fields'] as $ref) {
-			$target = $id;
-			if ($ref['source'] !== 'self') {
-				$target = substr($ref['source'], strlen('widget:'));
-			}
-
-			if ($target !== $id) {
-				$widgetGraph[$id][$target] = true;
-				if (isset($widgetGraph[$target]) === false) {
-					$widgetGraph[$target] = [];
-				}
-			}
-
+			$target = self::targetOf(id: $id, ref: $ref);
+			self::linkWidgets(id: $id, target: $target, widgetGraph: $widgetGraph);
 			if (isset($calculated[$target][$ref['path']]) === true) {
 				$dependencies[$target.'.'.$ref['path']] = true;
 			}
@@ -162,6 +152,40 @@ class CalculatedFieldCycleDetector {
 
 		return $dependencies;
 	}//end fieldDependencies()
+
+	/**
+	 * The widget a field reference reads: its own for `self`, else the id after `widget:`.
+	 *
+	 * @param string                              $id  The field's widget.
+	 * @param array{source: string, path: string} $ref The reference.
+	 *
+	 * @return string The widget id.
+	 */
+	private static function targetOf(string $id, array $ref): string {
+		if ($ref['source'] === 'self') {
+			return $id;
+		}
+
+		return substr($ref['source'], strlen('widget:'));
+	}//end targetOf()
+
+	/**
+	 * Link a widget to another widget it reads; a self-read adds no edge.
+	 *
+	 * @param string                           $id          The reading widget.
+	 * @param string                           $target      The widget read.
+	 * @param array<string,array<string,true>> $widgetGraph The widget graph, extended in place.
+	 *
+	 * @return void
+	 */
+	private static function linkWidgets(string $id, string $target, array &$widgetGraph): void {
+		if ($target === $id) {
+			return;
+		}
+
+		$widgetGraph[$id][$target] = true;
+		$widgetGraph[$target]      = ($widgetGraph[$target] ?? []);
+	}//end linkWidgets()
 
 	/**
 	 * The field and calculated-field references of an AST.
@@ -189,27 +213,60 @@ class CalculatedFieldCycleDetector {
 			return;
 		}
 
+		self::recordReference(node: $node, found: $found);
+		foreach (self::childrenOf(node: $node) as $child) {
+			$this->collectReferences(node: $child, found: $found);
+		}
+	}//end collectReferences()
+
+	/**
+	 * Record a node's own reference, when it is a field or calculated-field reference.
+	 *
+	 * @param array<string,mixed>                                                                      $node  The node.
+	 * @param array{fields: array<int,array{source: string, path: string}>, calculated: array<int,string>} $found The references, extended in place.
+	 *
+	 * @return void
+	 */
+	private static function recordReference(array $node, array &$found): void {
 		$type = $node['type'] ?? null;
 		if ($type === 'fieldRef') {
-			$found['fields'][] = ['source' => (string) ($node['source'] ?? 'self'), 'path' => (string) ($node['path'] ?? '')];
+			$found['fields'][] = self::fieldRefOf(node: $node);
 		} else if ($type === 'calculatedRef') {
 			$found['calculated'][] = (string) ($node['name'] ?? '');
 		}
+	}//end recordReference()
 
+	/**
+	 * The source and path of a field reference node.
+	 *
+	 * @param array<string,mixed> $node The node.
+	 *
+	 * @return array{source: string, path: string} The reference.
+	 */
+	private static function fieldRefOf(array $node): array {
+		return ['source' => (string) ($node['source'] ?? 'self'), 'path' => (string) ($node['path'] ?? '')];
+	}//end fieldRefOf()
+
+	/**
+	 * The child nodes of a node: its operands, then its arguments.
+	 *
+	 * @param array<string,mixed> $node The node.
+	 *
+	 * @return array<int,mixed> The children.
+	 */
+	private static function childrenOf(array $node): array {
 		$children = [];
 		foreach (['left', 'right', 'operand', 'cond', 'then', 'else'] as $key) {
 			$children[] = ($node[$key] ?? null);
 		}
 
-		$args     = $node['args'] ?? [];
+		$args = $node['args'] ?? [];
 		if (is_array($args) === true) {
 			$children = array_merge($children, array_values($args));
 		}
 
-		foreach ($children as $child) {
-			$this->collectReferences(node: $child, found: $found);
-		}
-	}//end collectReferences()
+		return $children;
+	}//end childrenOf()
 
 	/**
 	 * A depth-first topological order of a graph, or the first cycle found.

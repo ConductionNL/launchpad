@@ -297,21 +297,9 @@ class AdminSettingsService {
 	 *
 	 * @return bool true when `$value` is a valid `https` URL template
 	 *              containing `{query}`.
-	 *
-	 * @spec openspec/specs/tile-quick-search/spec.md
 	 */
-	public function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
+		return QueryUrlTemplate::isValid(value: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**

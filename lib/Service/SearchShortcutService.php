@@ -52,13 +52,11 @@ class SearchShortcutService {
 	 * Constructor.
 	 *
 	 * @param AdminSettingMapper $settingMapper Admin settings store.
-	 * @param AdminSettingsService $adminSettings Holds the https `{query}` template check.
 	 *
 	 * @spec openspec/specs/tile-quick-search/spec.md
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
-		private readonly AdminSettingsService $adminSettings,
 	) {
 	}//end __construct()
 
@@ -118,33 +116,48 @@ class SearchShortcutService {
 		$result = [];
 		$seen = [];
 		foreach (array_values(array: $raw) as $entry) {
-			if (is_array(value: $entry) === false) {
-				throw new InvalidArgumentException(message: 'A search shortcut must be an object');
-			}
-
-			$prefix = mb_strtolower(string: trim(string: (string)($entry['prefix'] ?? '')));
-			if (preg_match(pattern: self::PREFIX_PATTERN, subject: $prefix) !== 1) {
-				throw new InvalidArgumentException(message: 'A prefix is ! followed by 1 to 10 letters or digits: ' . $prefix);
-			}
-
-			if (isset($seen[$prefix]) === true) {
-				throw new InvalidArgumentException(message: 'Prefix used twice: ' . $prefix);
-			}
-
-			$name = trim(string: (string)($entry['name'] ?? ''));
-			if ($name === '' || mb_strlen(string: $name) > 64) {
-				throw new InvalidArgumentException(message: 'A shortcut name must be 1 to 64 characters: ' . $prefix);
-			}
-
-			$template = trim(string: (string)($entry['urlTemplate'] ?? ''));
-			if ($this->adminSettings->isValidQuicksearchFallbackUrlTemplate(value: $template) === false) {
-				throw new InvalidArgumentException(message: 'Use an https address that contains {query}: ' . $prefix);
-			}
-
-			$seen[$prefix] = true;
-			$result[] = ['prefix' => $prefix, 'name' => $name, 'urlTemplate' => $template];
-		}//end foreach
+			$shortcut = $this->validateEntry(entry: $entry, seen: $seen);
+			$seen[$shortcut['prefix']] = true;
+			$result[] = $shortcut;
+		}
 
 		return $result;
 	}//end validate()
+
+	/**
+	 * Check and normalise one entry.
+	 *
+	 * @param mixed                $entry Raw entry.
+	 * @param array<string, true>  $seen  Prefixes of the entries before it.
+	 *
+	 * @return array{prefix: string, name: string, urlTemplate: string}
+	 *
+	 * @throws InvalidArgumentException When the entry is invalid.
+	 */
+	private function validateEntry(mixed $entry, array $seen): array {
+		if (is_array(value: $entry) === false) {
+			throw new InvalidArgumentException(message: 'A search shortcut must be an object');
+		}
+
+		$prefix = mb_strtolower(string: trim(string: (string)($entry['prefix'] ?? '')));
+		if (preg_match(pattern: self::PREFIX_PATTERN, subject: $prefix) !== 1) {
+			throw new InvalidArgumentException(message: 'A prefix is ! followed by 1 to 10 letters or digits: ' . $prefix);
+		}
+
+		if (isset($seen[$prefix]) === true) {
+			throw new InvalidArgumentException(message: 'Prefix used twice: ' . $prefix);
+		}
+
+		$name = trim(string: (string)($entry['name'] ?? ''));
+		if ($name === '' || mb_strlen(string: $name) > 64) {
+			throw new InvalidArgumentException(message: 'A shortcut name must be 1 to 64 characters: ' . $prefix);
+		}
+
+		$template = trim(string: (string)($entry['urlTemplate'] ?? ''));
+		if (QueryUrlTemplate::isValid(value: $template) === false) {
+			throw new InvalidArgumentException(message: 'Use an https address that contains {query}: ' . $prefix);
+		}
+
+		return ['prefix' => $prefix, 'name' => $name, 'urlTemplate' => $template];
+	}//end validateEntry()
 }//end class

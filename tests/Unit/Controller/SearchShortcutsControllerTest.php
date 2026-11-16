@@ -26,7 +26,6 @@ use OCA\LaunchPad\Controller\SearchShortcutsController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -63,7 +62,7 @@ class SearchShortcutsControllerTest extends TestCase {
 			$this->settings[$key] = $value;
 			return new AdminSetting();
 		});
-		$service = new SearchShortcutService(settingMapper: $mapper, adminSettings: new AdminSettingsService(settingMapper: $mapper));
+		$service = new SearchShortcutService(settingMapper: $mapper);
 
 		$session = $this->createMock(IUserSession::class);
 		$user    = null;

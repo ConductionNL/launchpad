@@ -24,7 +24,6 @@ namespace Unit\Service;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use PHPUnit\Framework\TestCase;
 
@@ -52,10 +51,8 @@ class SearchShortcutServiceTest extends TestCase {
 			}
 		);
 
-		// The real template check, the one the quick-search fallback uses.
-		$adminSettings = new AdminSettingsService(settingMapper: $mapper);
-
-		$this->service = new SearchShortcutService(settingMapper: $mapper, adminSettings: $adminSettings);
+		// The real template check (QueryUrlTemplate), the one the quick-search fallback uses.
+		$this->service = new SearchShortcutService(settingMapper: $mapper);
 	}//end setUp()
 
 	public function testAValidListIsStoredWithLowerCasePrefixes(): void {

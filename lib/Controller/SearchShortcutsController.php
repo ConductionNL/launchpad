@@ -76,19 +76,9 @@ class SearchShortcutsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'search-shortcut.list');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
+		$refused = $this->actionRefusal(action: 'search-shortcut.list');
+		if ($refused !== null) {
+			return $refused;
 		}
 
 		return new JSONResponse(data: ['shortcuts' => $this->shortcuts->getShortcuts()]);
@@ -105,19 +95,9 @@ class SearchShortcutsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function save(?array $shortcuts = null): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'search-shortcut.save');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
+		$refused = $this->actionRefusal(action: 'search-shortcut.save');
+		if ($refused !== null) {
+			return $refused;
 		}
 
 		try {
@@ -128,4 +108,32 @@ class SearchShortcutsController extends Controller {
 
 		return new JSONResponse(data: ['shortcuts' => $saved]);
 	}//end save()
+
+	/**
+	 * The refusal for a caller who may not run the action: 401 without a
+	 * user, 403 for a non-administrator or when ADR-023 action authorization
+	 * denies it; null when the caller may proceed.
+	 *
+	 * @param string $action The ADR-023 action id.
+	 *
+	 * @return JSONResponse|null The refusal, or null.
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
+		}
+
+		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
+			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
+		}
+
+		try {
+			$this->actionAuth->requireAction($user, $action);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
+		}
+
+		return null;
+	}//end actionRefusal()
 }//end class

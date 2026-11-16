@@ -20,8 +20,8 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\ConditionalService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -38,7 +38,7 @@ class RuleApiController extends Controller {
 	 * Constructor
 	 *
 	 * @param IRequest $request The request.
-	 * @param ConditionalService $conditionalService The conditional service.
+	 * @param ConditionalServiceInterface $conditionalService The conditional service.
 	 * @param PermissionService $permissionService The permission service.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param IUserSession $userSession User session (IUser resolution).
@@ -46,7 +46,7 @@ class RuleApiController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConditionalService $conditionalService,
+		private readonly ConditionalServiceInterface $conditionalService,
 		private readonly PermissionService $permissionService,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,

@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Service\DashboardLockService;
+use OCA\LaunchPad\Kernel\Contracts\DashboardLockServiceInterface;
 
 /**
  * The lock service and dashboard mapper of the lock API.
@@ -35,11 +35,11 @@ class LockSources {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardLockService $lockService The lock service.
+	 * @param DashboardLockServiceInterface $lockService The lock service.
 	 * @param DashboardMapper      $dashboardMapper UUID → id lookup.
 	 */
 	public function __construct(
-		public readonly DashboardLockService $lockService,
+		public readonly DashboardLockServiceInterface $lockService,
 		public readonly DashboardMapper $dashboardMapper,
 	) {
 	}//end __construct()

@@ -36,8 +36,8 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -61,13 +61,13 @@ class AnalyticsController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param AnalyticsService $analyticsService The analytics reporting service.
+	 * @param AnalyticsServiceInterface $analyticsService The analytics reporting service.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param IUserSession $userSession Current user session.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AnalyticsService $analyticsService,
+		private readonly AnalyticsServiceInterface $analyticsService,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {

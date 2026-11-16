@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use InvalidArgumentException;
-use OCA\LaunchPad\Service\ConfluenceImportService;
+use OCA\LaunchPad\Kernel\Contracts\ConfluenceImportServiceInterface;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -39,11 +39,11 @@ class ImportConfluenceCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param ConfluenceImportService $importService Importer.
+	 * @param ConfluenceImportServiceInterface $importService Importer.
 	 * @param DashboardTreeService $treeService Path resolver.
 	 */
 	public function __construct(
-		private readonly ConfluenceImportService $importService,
+		private readonly ConfluenceImportServiceInterface $importService,
 		private readonly DashboardTreeService $treeService,
 	) {
 		parent::__construct();

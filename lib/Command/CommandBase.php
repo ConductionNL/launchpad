@@ -318,7 +318,12 @@ abstract class CommandBase extends Command {
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	final protected function emitDashboardNotFound(InputInterface $input, OutputInterface $output, string $uuid): int {
-		$error = ['exitCode' => CommandServiceInterface::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'Dashboard not found', 'context' => ['uuid' => $uuid]];
+		$error = [
+			'exitCode' => CommandServiceInterface::EXIT_NOT_FOUND,
+			'code' => 'NOT_FOUND',
+			'message' => 'Dashboard not found',
+			'context' => ['uuid' => $uuid],
+		];
 		return $this->emitError(input: $input, output: $output, error: $error);
 	}//end emitDashboardNotFound()
 

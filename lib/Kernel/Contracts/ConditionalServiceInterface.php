@@ -155,6 +155,8 @@ interface ConditionalServiceInterface {
 	 * @return ConditionalRule The created rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
+	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) The contract mirrors the existing signature.
 	 */
 	public function addRule(
 		int $placementId,

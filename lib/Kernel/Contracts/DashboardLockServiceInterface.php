@@ -120,6 +120,8 @@ interface DashboardLockServiceInterface {
 	 *                                owner nor an admin (when allowed).
 	 *
 	 * @spec openspec/specs/dashboard-locking/spec.md
+	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) The contract mirrors the existing signature.
 	 */
 	public function releaseLock(
 		string $dashboardUuid,

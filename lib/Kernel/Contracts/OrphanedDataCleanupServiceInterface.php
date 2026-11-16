@@ -85,6 +85,8 @@ interface OrphanedDataCleanupServiceInterface {
 	 * @return CleanupResult The result.
 	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) The contract mirrors the existing signature.
 	 */
 	public function purge(
 		array $categoryNames = [],

@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Cross-widget filter bus** (`drill-down-cross-widget-filter`): add a
+  cross-widget filter bus enabling drill-down exploration across dashboard
+  widgets. Widgets publish filters on click; all consuming widgets
+  re-render. Filter state is bookmarkable via the URL (`?f=`) and saveable
+  as named views ("Saved views": my views and views others shared, kept as
+  `saved_view` objects in OpenRegister). An "Active filters" panel shows
+  every clause with its source and offers "Reset filters"; pinned clauses
+  survive a reset. Opt-in telemetry (an admin switch, off by default)
+  records which dimensions are filtered, never the values, and
+  `GET /api/dashboards/{uuid}/filter-events/report` counts the most-used
+  drill-down paths for the dashboard's owner and administrators. A chart
+  joins the bus by declaring `consumes` / `publishes` next to its
+  `dataSource`; a chart that declares nothing renders as before. Publishing
+  from a chart click waits on the chart library emitting its selection.
+
 - **Dashboard quota limits** (`dashboard-quota-limits`): two
   admin-configurable numeric quotas — `maxDashboardsPerUser` and
   `maxWidgetsPerDashboard` — with server-side fail-closed enforcement on

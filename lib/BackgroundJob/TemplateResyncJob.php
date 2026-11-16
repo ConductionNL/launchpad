@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\LaunchPad\Service\TemplateResyncService;
+use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
@@ -42,7 +42,7 @@ class TemplateResyncJob extends QueuedJob {
 	 *
 	 * @param ITimeFactory $time Time factory (parent
 	 *                           requirement).
-	 * @param TemplateResyncService $resyncService The re-sync orchestrator
+	 * @param TemplateResyncServiceInterface $resyncService The re-sync orchestrator
 	 *                                             — {@see
 	 *                                             TemplateResyncService::applyResync()}
 	 *                                             recomputes the plan fresh
@@ -56,7 +56,7 @@ class TemplateResyncJob extends QueuedJob {
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly TemplateResyncService $resyncService,
+		private readonly TemplateResyncServiceInterface $resyncService,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

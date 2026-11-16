@@ -27,7 +27,7 @@ namespace OCA\LaunchPad\Command;
 use DateTimeImmutable;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -46,13 +46,13 @@ class DashboardDeleteCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService        $commandService Shared CLI helper.
+	 * @param CommandServiceInterface        $commandService Shared CLI helper.
 	 * @param IUserSession          $userSession Caller resolution.
 	 * @param DeleteCommandStores   $stores The mappers and tree service.
 	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for DashboardDeletedEvent (SB1 fix, REQ-CSC-001).
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly DeleteCommandStores $stores,
 		private readonly ?IEventDispatcher $eventDispatcher = null,
@@ -134,7 +134,7 @@ class DashboardDeleteCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Deletion aborted by user.']
+				error: ['exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Deletion aborted by user.']
 			);
 		}
 
@@ -151,7 +151,7 @@ class DashboardDeleteCommand extends CommandBase {
 			human: 'Deleted dashboard ' . $uuid . $this->descendantsNote(cascade: $cascade, childCount: $childCount)
 		);
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end handle()
 
 	/**
@@ -164,7 +164,7 @@ class DashboardDeleteCommand extends CommandBase {
 	 */
 	private function childrenExistError(string $uuid, int $childCount): array {
 		return [
-			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS,
 			'code'     => 'CHILDREN_EXIST',
 			'message'  => 'Use --cascade to also delete child dashboards',
 			'context'  => ['uuid' => $uuid, 'childCount' => $childCount],

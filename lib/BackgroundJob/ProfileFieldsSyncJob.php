@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\LaunchPad\Service\ProfileFieldService;
+use OCA\LaunchPad\Kernel\Contracts\ProfileFieldServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IUser;
@@ -42,7 +42,7 @@ class ProfileFieldsSyncJob extends TimedJob {
 	 *
 	 * @param ITimeFactory $time Time factory.
 	 * @param IUserManager $userManager Users.
-	 * @param ProfileFieldService $profileFields Profile field service.
+	 * @param ProfileFieldServiceInterface $profileFields Profile field service.
 	 * @param LoggerInterface $logger Logger.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
@@ -50,7 +50,7 @@ class ProfileFieldsSyncJob extends TimedJob {
 	public function __construct(
 		ITimeFactory $time,
 		private readonly IUserManager $userManager,
-		private readonly ProfileFieldService $profileFields,
+		private readonly ProfileFieldServiceInterface $profileFields,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

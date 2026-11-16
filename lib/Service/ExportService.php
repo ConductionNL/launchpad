@@ -36,6 +36,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ExportServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\StreamResponse;
@@ -57,7 +58,7 @@ use ZipArchive;
  *      inherently racy — another request's cleanup may win. Cleanup is
  *      best-effort by design, so the warning is noise.
  */
-class ExportService {
+class ExportService implements ExportServiceInterface {
 	/**
 	 * Manifest schema version emitted by this exporter (REQ-EXIM-001).
 	 *

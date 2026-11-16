@@ -40,13 +40,14 @@ use DateTimeImmutable;
 use OCA\LaunchPad\Db\PersonalLayer;
 use OCA\LaunchPad\Db\PersonalLayerMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Kernel\Contracts\PersonalLayerServiceInterface;
 
 /**
  * Applies, saves and resets a personal layer.
  *
  * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
-class PersonalLayerService {
+class PersonalLayerService implements PersonalLayerServiceInterface {
 	/**
 	 * The placement keys a person may change about a placement. Anything else
 	 * a client sends is dropped: a layer holds geometry and order, never

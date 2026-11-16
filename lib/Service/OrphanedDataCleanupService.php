@@ -40,6 +40,7 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCP\Activity\Exceptions\IncompleteActivityException;
 use OCP\Activity\IEvent;
@@ -51,7 +52,7 @@ use Throwable;
 /**
  * Orchestrates scan + purge across all registered cleanup categories.
  */
-class OrphanedDataCleanupService {
+class OrphanedDataCleanupService implements OrphanedDataCleanupServiceInterface {
 	/**
 	 * Cache TTL for scan results, in seconds (REQ-CLN-010).
 	 *

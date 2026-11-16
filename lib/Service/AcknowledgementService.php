@@ -37,6 +37,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IGroupManager;
@@ -49,7 +50,7 @@ use OCP\IGroupManager;
  *
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
-class AcknowledgementService {
+class AcknowledgementService implements AcknowledgementServiceInterface {
 	/**
 	 * Constructor
 	 *

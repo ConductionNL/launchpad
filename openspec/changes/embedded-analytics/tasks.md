@@ -104,11 +104,11 @@
   - Output report saved to `docs/accessibility/axe-results.json` for review
   > Not done: needs axe-core added as a build dependency and a renderer for representative widget shapes; left for a separate change to the build pipeline.
 
-- [ ] Task 13: Modify dashboard/widget rendering to accept token context:
+- [x] Task 13: Modify dashboard/widget rendering to accept token context:
   - Add optional `embedContext` parameter to widget/dashboard render functions
   - If `embedContext` present, apply theme CSS variables, scope restrictions, filter pinning
   - Maintain backward compatibility (no context = normal in-app rendering)
-  > Not done yet: the embed page already renders through the public share's `PublicDashboardGrid` with scope, filters and theme from `useEmbedContext` (Tasks 14, 23); threading an optional `embedContext` through the in-app widget renderers is left.
+  > Built on the renderer the embed uses (`PublicDashboardGrid`, the public share's grid, no fork): an optional `embedContext` prop `{scope, filters}`, passed by `EmbedView` from `useEmbedContext`. With it the tenant theme's `--c-primary`, `--c-surface`, `--c-text` and `--c-border` (injected on :root by the embed page, until now consumed by nothing) colour the tiles and widgets, falling back to the Nextcloud variables, and a tile links out of the embed (new tab) only when the scope allows `interact`. Filters are pinned server-side by the data route (Task 10). Without the prop the grid renders exactly as before (its golden render test is unchanged). Tests: `PublicDashboardGrid.embed.spec.js` (4).
 
 - [x] Task 14: Create `src/composables/useEmbedContext.js`:
   - Detect if the current render is in embed mode (check for token in parent postMessage or in render context)

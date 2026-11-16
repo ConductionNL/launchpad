@@ -112,6 +112,12 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/PublicDashboardGrid.vue | embedContext": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/RuntimeShellSearch.vue | items": {
 		"type": "Array",
 		"required": false,

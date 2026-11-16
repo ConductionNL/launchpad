@@ -23,7 +23,7 @@ already on the page.
 			<h1 v-if="title" class="embed-view__title">
 				{{ title }}
 			</h1>
-			<PublicDashboardGrid :placements="placements" />
+			<PublicDashboardGrid :placements="placements" :embedContext="embedContext" />
 		</template>
 	</main>
 </template>
@@ -62,6 +62,7 @@ export default {
 		})
 		onBeforeUnmount(() => stop())
 
+		const embedContext = computed(() => ({ scope: context.scope.value, filters: context.filters.value }))
 		const title = computed(() => context.payload.value?.dashboard?.name || '')
 		const errorText = computed(() => {
 			switch (context.error.value?.error) {
@@ -81,6 +82,7 @@ export default {
 			error: context.error,
 			payload: context.payload,
 			placements: context.placements,
+			embedContext,
 			title,
 			errorText,
 		}
@@ -91,8 +93,8 @@ export default {
 <style scoped>
 .embed-view {
 	padding: 8px;
-	background: var(--color-main-background);
-	color: var(--color-main-text);
+	background: var(--c-surface, var(--color-main-background));
+	color: var(--c-text, var(--color-main-text));
 }
 
 .embed-view__loading {

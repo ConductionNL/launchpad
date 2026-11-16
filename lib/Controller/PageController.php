@@ -192,6 +192,7 @@ class PageController extends Controller {
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
 			->setTileLaunchOptions(
 				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
 				templates: (array)($settings['ssoLaunchTemplates'] ?? [])

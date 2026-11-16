@@ -536,58 +536,86 @@ class TemplateResyncService {
 			$templateById[$tp->getId()] = $tp;
 		}
 
-		$matchedTemplateIds = [];
-		$toUpdate = [];
-		$toRemove = [];
-		$toPreserve = [];
+		$sorted = $this->sortCopyPlacements(copyPlacements: $copyPlacements, templateById: $templateById);
 
-		foreach ($copyPlacements as $cp) {
-			$originId = $cp->getTemplatePlacementId();
-
-			if ($originId !== null && isset($templateById[$originId]) === true) {
-				$matchedTemplateIds[$originId] = true;
-				$tp = $templateById[$originId];
-
-				if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
-					$toUpdate[] = [
-						'copy' => $cp,
-						'template' => $tp,
-					];
-					continue;
+		$diff = [
+			'toUpdate' => [],
+			'toRemove' => [],
+			'toPreserve' => [],
+		];
+		foreach ($sorted['entries'] as [$bucket, $entry]) {
+			if ($bucket === 'userAdded') {
+				// A genuinely user-added placement: kept under merge, removed under overwrite.
+				$bucket = 'toPreserve';
+				if ($strategy === self::STRATEGY_OVERWRITE) {
+					$bucket = 'toRemove';
 				}
-
-				$toPreserve[] = $cp;
-				continue;
 			}
 
-			if ($originId !== null && isset($templateById[$originId]) === false) {
-				// Template-origin, but the admin has since deleted this
-				// placement from the template — remove it under both
-				// strategies (REQ-RESYNC-003 "Template widget removed by
-				// admin is removed under merge").
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			// No known origin — a genuinely user-added placement.
-			if ($strategy === self::STRATEGY_OVERWRITE) {
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			$toPreserve[] = $cp;
-		}//end foreach
+			$diff[$bucket][] = $entry;
+		}
 
 		return [
 			'toAdd' => $this->unmatchedTemplatePlacements(
 				templatePlacements: $templatePlacements,
-				matchedTemplateIds: $matchedTemplateIds
+				matchedTemplateIds: $sorted['matched']
 			),
-			'toUpdate' => $toUpdate,
-			'toRemove' => $toRemove,
-			'toPreserve' => $toPreserve,
+			'toUpdate' => $diff['toUpdate'],
+			'toRemove' => $diff['toRemove'],
+			'toPreserve' => $diff['toPreserve'],
 		];
 	}//end diffCopy()
+
+	/**
+	 * Label each of the copy's placements, in order, by how it relates to the template.
+	 *
+	 * The label is the diff bucket it lands in, or `userAdded` for a placement
+	 * with no template origin, whose bucket depends on the strategy.
+	 *
+	 * @param WidgetPlacement[] $copyPlacements The copy's current placements.
+	 * @param array<int, WidgetPlacement> $templateById The template's placements by id.
+	 *
+	 * @return array{
+	 *     matched: array<int, true>,
+	 *     entries: list<array{0: string, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement}}>
+	 * }
+	 */
+	private function sortCopyPlacements(array $copyPlacements, array $templateById): array {
+		$matched = [];
+		$entries = [];
+
+		foreach ($copyPlacements as $cp) {
+			$originId = $cp->getTemplatePlacementId();
+
+			if ($originId === null) {
+				$entries[] = ['userAdded', $cp];
+				continue;
+			}
+
+			if (isset($templateById[$originId]) === false) {
+				// Template-origin, but the admin has since deleted this
+				// placement from the template — remove it under both
+				// strategies (REQ-RESYNC-003 "Template widget removed by
+				// admin is removed under merge").
+				$entries[] = ['toRemove', $cp];
+				continue;
+			}
+
+			$matched[$originId] = true;
+			$tp = $templateById[$originId];
+			if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
+				$entries[] = ['toUpdate', ['copy' => $cp, 'template' => $tp]];
+				continue;
+			}
+
+			$entries[] = ['toPreserve', $cp];
+		}//end foreach
+
+		return [
+			'matched' => $matched,
+			'entries' => $entries,
+		];
+	}//end sortCopyPlacements()
 
 	/**
 	 * Template placements the copy has no counterpart for — i.e. the

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SearchShortcutsControllerTest
+ * AdminSettingsSearchShortcutsTest
  *
  * search-ai-prefix-shortcuts: the administrators' shortcuts endpoint through
  * the real SearchShortcutService. Only an administrator who passes the action
@@ -22,10 +22,12 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\LaunchPad\Controller\SearchShortcutsController;
+use OCA\LaunchPad\Controller\AdminSettingsController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -36,9 +38,9 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for SearchShortcutsController.
+ * Tests for the search shortcut endpoints of AdminSettingsController.
  */
-class SearchShortcutsControllerTest extends TestCase {
+class AdminSettingsSearchShortcutsTest extends TestCase {
 	/**
 	 * Stored admin settings.
 	 *
@@ -53,9 +55,9 @@ class SearchShortcutsControllerTest extends TestCase {
 	 * @param boolean $admin Whether the caller is an administrator.
 	 * @param boolean $allowed Whether the action matrix lets them through.
 	 *
-	 * @return SearchShortcutsController
+	 * @return AdminSettingsController
 	 */
-	private function controller(?string $uid, bool $admin = true, bool $allowed = true): SearchShortcutsController {
+	private function controller(?string $uid, bool $admin = true, bool $allowed = true): AdminSettingsController {
 		$mapper = $this->createMock(AdminSettingMapper::class);
 		$mapper->method('getValue')->willReturnCallback(fn (string $key, mixed $default = null): mixed => $this->settings[$key] ?? $default);
 		$mapper->method('setSetting')->willReturnCallback(function (string $key, mixed $value): AdminSetting {
@@ -79,12 +81,12 @@ class SearchShortcutsControllerTest extends TestCase {
 			$auth->method('requireAction')->willThrowException(new OCSForbiddenException('no'));
 		}
 
-		return new SearchShortcutsController(
+		return new AdminSettingsController(
 			request: $this->createMock(IRequest::class),
-			shortcuts: $service,
-			actionAuth: $auth,
-			userSession: $session,
+			settingsService: $this->createMock(AdminSettingsService::class),
 			groupManager: $groups,
+			guard: new RequestGuard(userSession: $session, groupManager: $groups, actionAuth: $auth),
+			shortcuts: $service,
 		);
 	}//end controller()
 
@@ -94,10 +96,10 @@ class SearchShortcutsControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnAdministratorSavesAndReadsTheShortcuts(): void {
-		$saved = $this->controller(uid: 'admin')->save(shortcuts: [['prefix' => '!T', 'name' => 'TOPdesk', 'urlTemplate' => 'https://topdesk.example.nl/search?q={query}']]);
+		$saved = $this->controller(uid: 'admin')->saveSearchShortcuts(shortcuts: [['prefix' => '!T', 'name' => 'TOPdesk', 'urlTemplate' => 'https://topdesk.example.nl/search?q={query}']]);
 		$this->assertSame(Http::STATUS_OK, $saved->getStatus());
 
-		$read = $this->controller(uid: 'admin')->index()->getData()['shortcuts'];
+		$read = $this->controller(uid: 'admin')->listSearchShortcuts()->getData()['shortcuts'];
 		$this->assertSame('!t', $read[0]['prefix']);
 	}//end testAnAdministratorSavesAndReadsTheShortcuts()
 
@@ -107,7 +109,7 @@ class SearchShortcutsControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnInvalidListIs400(): void {
-		$response = $this->controller(uid: 'admin')->save(shortcuts: [['prefix' => 't', 'name' => 'T', 'urlTemplate' => 'https://x.example/?q={query}']]);
+		$response = $this->controller(uid: 'admin')->saveSearchShortcuts(shortcuts: [['prefix' => 't', 'name' => 'T', 'urlTemplate' => 'https://x.example/?q={query}']]);
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 		$this->assertArrayHasKey('error', $response->getData());
 		$this->assertSame([], $this->settings);
@@ -121,8 +123,8 @@ class SearchShortcutsControllerTest extends TestCase {
 	public function testOnlyAnAllowedAdministratorGetsIn(): void {
 		$list = [['prefix' => '!t', 'name' => 'T', 'urlTemplate' => 'https://x.example/?q={query}']];
 		foreach ([[null, true, true, Http::STATUS_UNAUTHORIZED], ['sanne', false, true, Http::STATUS_FORBIDDEN], ['admin', true, false, Http::STATUS_FORBIDDEN]] as [$uid, $admin, $allowed, $status]) {
-			$this->assertSame($status, $this->controller(uid: $uid, admin: $admin, allowed: $allowed)->index()->getStatus());
-			$this->assertSame($status, $this->controller(uid: $uid, admin: $admin, allowed: $allowed)->save(shortcuts: $list)->getStatus());
+			$this->assertSame($status, $this->controller(uid: $uid, admin: $admin, allowed: $allowed)->listSearchShortcuts()->getStatus());
+			$this->assertSame($status, $this->controller(uid: $uid, admin: $admin, allowed: $allowed)->saveSearchShortcuts(shortcuts: $list)->getStatus());
 		}
 
 		$this->assertSame([], $this->settings, 'a refused write stores nothing');

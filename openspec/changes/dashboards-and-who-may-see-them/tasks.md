@@ -22,7 +22,7 @@
 
 - [x] 3.1 Add the status report object: date, health rating, summary, figures, and per value whether it was computed or written. — built: schema `status_report` in the launchpad register (`lib/Settings/register.d/dashboards-and-who-may-see-them.json`, register version 1.0.3) with `provenance` per value; kept through OpenRegister's published object service (`StatusReport\StatusReportStore`), 503 without OpenRegister.
 - [x] 3.2 Prefill the rating and the figures from the body of work. — built: `POST /api/status-reports/draft` reads the objects of one schema in one register as the caller (optional filters, status and due-date properties, closed values) and computes total, open, closed, overdue, share closed and days to the deadline, the rating (off track: deadline passed with items open or more than a quarter of the open items overdue; at risk: anything overdue, or within 14 days of the deadline with less than 75% closed) and a summary.
-- [ ] 3.3 Let a person edit the summary before keeping the report. — built: `POST /api/status-reports` keeps the report with the person's summary and rating, computing the figures again (a person cannot write them). Left: the screen over these two endpoints.
+- [x] 3.3 Let a person edit the summary before keeping the report. — built: `POST /api/status-reports` keeps the report with the person's summary and rating, computing the figures again (a person cannot write them). The screen is the dashboard widget `status-report` (`StatusReportWidget`; its form names the body of work: register, schema, deadline, status property, closed values, due-date property): Prepare report shows the computed figures read-only with the prefilled rating and summary, the person changes either, Keep report stores it and shows back which values were computed and which were written by a person. Vitest on the widget (9), its form (3) and its client (6).
 - [x] 3.4 PHPUnit on prefill and on the computed-versus-written record. — built: `StatusReportServiceTest` (11), `StatusReportStoreTest` (4), `StatusReportControllerTest` (4), and the shipped register carrying the schema (`ImportLaunchpadRegisterTest`).
 
 ## 4. Activity reporting
@@ -123,8 +123,9 @@ layer is unreachable through another's.
 the status report (3), activity reporting with its purpose gate (4), colleague
 activity (5), in-widget search (6), geographic reporting (7) and storage
 reporting (8) each have their endpoint, their rules and their PHPUnit; section 5
-also has its widget and section 6 its Vitest. What is left is a screen: the status report form (3.3). Each is a page over an endpoint that
-exists, and none was made by hand outside the manifest.
+also has its widget and section 6 its Vitest. The screens are built too: the report gallery (2.2) is manifest configuration
+over the reports endpoint, and the status report (3.3) and the activity report
+(4.2) are dashboard widgets, as colleague activity (5) is, each over its endpoint.
 
 **Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and
 openregister halves have not been handed over, because sections 2 to 8 are what

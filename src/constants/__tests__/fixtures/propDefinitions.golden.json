@@ -655,6 +655,26 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/StatusReportWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/StatusReportWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/StatusReportWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/TileHost.vue | content": {
 		"type": "Object",
 		"required": false,

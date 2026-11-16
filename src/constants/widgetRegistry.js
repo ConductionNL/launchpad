@@ -103,6 +103,8 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
+import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
 import TileHost from '../components/Widgets/Renderers/TileHost.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
@@ -222,6 +224,17 @@ registerDashboardWidget('activity-report', {
 	},
 	displayName: 'Activity report',
 	icon: 'CalendarMonthOutline',
+})
+
+// `status-report`: a dated status report on one body of work, prefilled by the
+// product and kept with the person's rating and summary; the kept report says
+// which values were computed and which were written (REQ-DWMS-004).
+registerDashboardWidget('status-report', {
+	renderer: StatusReportWidget,
+	form: StatusReportWidgetForm,
+	defaultContent: {},
+	displayName: 'Status report',
+	icon: 'ClipboardTextOutline',
 })
 
 registerDashboardWidget('clock', {

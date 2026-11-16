@@ -232,6 +232,28 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/ActivityReportWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"days": 30
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/AiAssistantWidget.vue | content": {
 		"type": "Object",
 		"required": false,

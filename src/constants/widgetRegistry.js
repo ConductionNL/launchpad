@@ -55,6 +55,8 @@ import {
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
+import ActivityReportWidget from '../components/Widgets/Renderers/ActivityReportWidget.vue'
+import ActivityReportWidgetForm from '../components/Widgets/Renderers/ActivityReportWidgetForm.vue'
 import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
 import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
@@ -207,6 +209,19 @@ registerDashboardWidget('colleague-activity', {
 	},
 	displayName: 'Colleague activity',
 	icon: 'AccountMultipleOutline',
+})
+
+// `activity-report`: a person's activity per type and per day, with the purpose
+// shown whenever it is about a named person; the server gates who may read whom
+// and logs every such read (dashboards-and-who-may-see-them REQ-DWMS-005/006).
+registerDashboardWidget('activity-report', {
+	renderer: ActivityReportWidget,
+	form: ActivityReportWidgetForm,
+	defaultContent: {
+		days: 30,
+	},
+	displayName: 'Activity report',
+	icon: 'CalendarMonthOutline',
 })
 
 registerDashboardWidget('clock', {

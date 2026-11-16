@@ -28,7 +28,7 @@
 ## 4. Activity reporting
 
 - [x] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty. — built: `ActivityReport\ActivityReportingPolicy` (app config, off by default; turning it on without a purpose, or with one over 500 characters, is refused; a stored switch without a purpose reads as off), read and set by administrators at `GET`/`PUT /api/admin/activity-reporting`.
-- [ ] 4.2 Show the purpose on every screen reporting on a named person. — left: every response and the CSV carry the purpose, but no screen reports on a named person yet; the screen over `/api/activity-report` is still to be made.
+- [x] 4.2 Show the purpose on every screen reporting on a named person. — built: every response and the CSV carry the purpose, and the screen is the dashboard widget `activity-report` (`ActivityReportWidget`, form: the period it opens on): a person and a period, the purpose shown above any report about a named person, counts per type with the total, a calendar of intensity per day and the CSV of the report as shown. A refusal is said in words: reporting is off and how an administrator turns it on, only an administrator reads another person, or the period is wrong. Vitest on the widget (12), its form (3) and its client (6).
 - [x] 4.3 Write an audit entry for every read of another person's activity. — built: every read of another person's activity dispatches Nextcloud's `CriticalActionPerformedEvent` (the admin audit log) with the subject, the period, the reader and the purpose.
 - [x] 4.4 Let a person read their own without the setting and without a log entry. — built: `ActivityReportService::report()` gives anybody their own activity whatever the switch, with no audit entry; another person's is refused with 403 while the switch is off (the answer says how to turn it on) and for a non-administrator, before anything is read.
 - [x] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events. — built: `GET /api/activity-report?user=&from=&to=` counts per activity type and per day (UTC, a day without activity absent, at most 366 days), from the activity app's events (`ActivityEventReader`, one event per action however many people it was shown to); nothing measures hours. Without the activity app the report says `available: false`.
@@ -123,8 +123,7 @@ layer is unreachable through another's.
 the status report (3), activity reporting with its purpose gate (4), colleague
 activity (5), in-widget search (6), geographic reporting (7) and storage
 reporting (8) each have their endpoint, their rules and their PHPUnit; section 5
-also has its widget and section 6 its Vitest. What is left is screens: the status report form (3.3) and the activity report
-screen that shows the purpose (4.2). Each is a page over an endpoint that
+also has its widget and section 6 its Vitest. What is left is a screen: the status report form (3.3). Each is a page over an endpoint that
 exists, and none was made by hand outside the manifest.
 
 **Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and

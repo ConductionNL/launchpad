@@ -205,7 +205,7 @@ function replaceAudit(incoming, existing) {
  * @param {Array<object>} [options.hierarchies] The dashboard's hierarchy descriptors.
  * @param {(clause: object) => boolean} [options.canAccess] False refuses the clause.
  * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes (REQ-CWF-010); none by default.
- * @return {object} The bus: `clauses` (a read-only ref), `publish`, `remove`, `reset`, `hydrate`, `subscribe`, `clausesFor`, `breadcrumb`.
+ * @return {object} The bus: `clauses` (a read-only ref), `hierarchies` (as given, for widget validation), `publish`, `remove`, `reset`, `hydrate`, `subscribe`, `clausesFor`, `breadcrumb`.
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
  */
 export function useFilterBus({ hierarchies = [], canAccess = () => true, telemetry = null } = {}) {
@@ -467,5 +467,5 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 		return path
 	}
 
-	return { clauses, publish, remove, reset, hydrate, subscribe, clausesFor, breadcrumb }
+	return { clauses, hierarchies, publish, remove, reset, hydrate, subscribe, clausesFor, breadcrumb }
 }

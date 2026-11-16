@@ -152,17 +152,8 @@ class FilterEventReportService {
 	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	public static function aggregatePaths(array $events): array {
-		$byUser = [];
-		foreach ($events as $event) {
-			if (is_array($event) === false || is_string($event['eventType'] ?? null) === false) {
-				continue;
-			}
-
-			$byUser[(string) ($event['userId'] ?? '')][] = $event;
-		}
-
 		$counts = [];
-		foreach ($byUser as $userEvents) {
+		foreach (self::groupByUser(events: $events) as $userEvents) {
 			self::countUserPaths(counts: $counts, events: $userEvents);
 		}
 
@@ -178,6 +169,26 @@ class FilterEventReportService {
 
 		return $paths;
 	}//end aggregatePaths()
+
+	/**
+	 * The events with an event type, grouped by user.
+	 *
+	 * @param array<int, mixed> $events The `filter_event` rows.
+	 *
+	 * @return array<string, list<array<string, mixed>>>
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 */
+	private static function groupByUser(array $events): array {
+		$byUser = [];
+		foreach ($events as $event) {
+			if (is_array($event) === true && is_string($event['eventType'] ?? null) === true) {
+				$byUser[(string) ($event['userId'] ?? '')][] = $event;
+			}
+		}
+
+		return $byUser;
+	}//end groupByUser()
 
 	/**
 	 * Count the paths of one user's events.
@@ -196,12 +207,12 @@ class FilterEventReportService {
 		$steps = [];
 		foreach ($events as $event) {
 			$type = $event['eventType'];
-			if ($type === 'reset' || $type === 'bookmark') {
+			if (in_array($type, ['reset', 'bookmark'], true) === true) {
 				self::countPath(counts: $counts, steps: $steps);
 				$steps = [];
 			}
 
-			if ($type === 'apply' || $type === 'bookmark') {
+			if (in_array($type, ['apply', 'bookmark'], true) === true) {
 				$steps = self::extend(steps: $steps, delta: $event['filterDelta'] ?? []);
 			}
 		}
@@ -218,27 +229,42 @@ class FilterEventReportService {
 	 * @return list<string>
 	 */
 	private static function extend(array $steps, mixed $delta): array {
-		if (is_array($delta) === false) {
-			return $steps;
+		$items = [];
+		if (is_array($delta) === true) {
+			$items = $delta;
 		}
 
-		foreach ($delta as $item) {
-			if (is_array($item) === false) {
-				continue;
-			}
-
-			$dimension = $item['dimension'] ?? null;
-			if (is_string($dimension) === false || $dimension === '') {
-				continue;
-			}
-
-			if (end($steps) !== $dimension) {
+		foreach ($items as $item) {
+			$dimension = self::dimensionOf(item: $item);
+			if ($dimension !== null && end($steps) !== $dimension) {
 				$steps[] = $dimension;
 			}
 		}
 
 		return $steps;
 	}//end extend()
+
+	/**
+	 * The dimension a delta item names.
+	 *
+	 * @param mixed $item One item of a `filterDelta`.
+	 *
+	 * @return string|null The dimension, or null when the item names none.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 */
+	private static function dimensionOf(mixed $item): ?string {
+		$dimension = null;
+		if (is_array($item) === true) {
+			$dimension = $item['dimension'] ?? null;
+		}
+
+		if (is_string($dimension) === false || $dimension === '') {
+			return null;
+		}
+
+		return $dimension;
+	}//end dimensionOf()
 
 	/**
 	 * Count one ended path.
@@ -292,6 +318,29 @@ class FilterEventReportService {
 			$filters['userId'] = $onlyUser;
 		}
 
+		$events = [];
+		foreach ($this->findEvents(filters: $filters) as $item) {
+			$data = self::extractData(item: $item);
+			// The filter is the store's; the check here keeps the report
+			// right whatever the store matched.
+			if (self::belongs(data: $data, dashboardUuid: $dashboardUuid, onlyUser: $onlyUser) === true) {
+				$events[] = $data;
+			}
+		}
+
+		return $events;
+	}//end loadEvents()
+
+	/**
+	 * The register's rows for a filter, or none when it cannot be read.
+	 *
+	 * @param array<string, string> $filters The OpenRegister filters.
+	 *
+	 * @return array<int|string, mixed>
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 */
+	private function findEvents(array $filters): array {
 		try {
 			$objectService = $this->container->get(self::OBJECT_SERVICE);
 			$results       = $objectService->findAll(
@@ -310,22 +359,27 @@ class FilterEventReportService {
 			return [];
 		}
 
-		$events = [];
-		foreach ($results as $item) {
-			$data = self::extractData(item: $item);
-			// The filter above is the store's; the checks here keep the report
-			// right whatever the store matched.
-			if (($data['dashboardId'] ?? null) !== $dashboardUuid
-				|| ($onlyUser !== null && ($data['userId'] ?? null) !== $onlyUser)
-			) {
-				continue;
-			}
+		return $results;
+	}//end findEvents()
 
-			$events[] = $data;
+	/**
+	 * Whether a row is of the dashboard, and of the one user when asked.
+	 *
+	 * @param array<string, mixed> $data          The row.
+	 * @param string               $dashboardUuid The dashboard's uuid.
+	 * @param string|null          $onlyUser      Only this user's rows, or everyone's.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 */
+	private static function belongs(array $data, string $dashboardUuid, ?string $onlyUser): bool {
+		if (($data['dashboardId'] ?? null) !== $dashboardUuid) {
+			return false;
 		}
 
-		return $events;
-	}//end loadEvents()
+		return $onlyUser === null || ($data['userId'] ?? null) === $onlyUser;
+	}//end belongs()
 
 	/**
 	 * A plain array from one OpenRegister result.
@@ -335,15 +389,9 @@ class FilterEventReportService {
 	 * @return array<string, mixed>
 	 */
 	private static function extractData(mixed $item): array {
-		if (is_array($item) === true) {
-			return $item;
-		}
-
-		$data = null;
-		if (is_object($item) === true && method_exists($item, 'getObject') === true) {
-			$data = $item->getObject();
-		} else if (is_object($item) === true && method_exists($item, 'jsonSerialize') === true) {
-			$data = $item->jsonSerialize();
+		$data = $item;
+		if (is_object($item) === true) {
+			$data = self::objectData(item: $item);
 		}
 
 		if (is_array($data) === false) {
@@ -352,4 +400,25 @@ class FilterEventReportService {
 
 		return $data;
 	}//end extractData()
+
+	/**
+	 * The data of an OpenRegister entity.
+	 *
+	 * @param object $item An entity with getObject() or jsonSerialize().
+	 *
+	 * @return mixed The data, or null for another object.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 */
+	private static function objectData(object $item): mixed {
+		if (method_exists($item, 'getObject') === true) {
+			return $item->getObject();
+		}
+
+		if (method_exists($item, 'jsonSerialize') === true) {
+			return $item->jsonSerialize();
+		}
+
+		return null;
+	}//end objectData()
 }//end class

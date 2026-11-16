@@ -63,18 +63,41 @@ export function busDeclarationsOf(content) {
  */
 export function consumedFilter(clauses, consumes) {
 	const filter = {}
+	const list = Array.isArray(clauses) ? clauses : []
 	for (const entry of entriesOf(consumes)) {
-		const clause = (Array.isArray(clauses) ? clauses : []).find((candidate) => candidate?.dimension === entry.dimension)
-		if (!clause || !CONSUMABLE_OPERATORS.includes(clause.operator ?? 'eq')) {
-			continue
+		const clause = list.find((candidate) => candidate?.dimension === entry.dimension)
+		if (isConsumable(clause)) {
+			filter[fieldOf(entry)] = clause.value
 		}
-		if ((clause.operator ?? 'eq') === 'in' && !Array.isArray(clause.value)) {
-			continue
-		}
-		const field = typeof entry.field === 'string' && entry.field !== '' ? entry.field : entry.dimension
-		filter[field] = clause.value
 	}
 	return filter
+}
+
+/**
+ * Whether a clause translates into a data-source filter: an `eq` clause, or
+ * an `in` clause with a list.
+ *
+ * @param {object|undefined} clause The clause, if any.
+ * @return {boolean}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ */
+function isConsumable(clause) {
+	if (!clause) {
+		return false
+	}
+	const operator = clause.operator ?? 'eq'
+	return CONSUMABLE_OPERATORS.includes(operator) && (operator !== 'in' || Array.isArray(clause.value))
+}
+
+/**
+ * The data-source field a consumed dimension filters on.
+ *
+ * @param {object} entry The consumed dimension.
+ * @return {string}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ */
+function fieldOf(entry) {
+	return typeof entry.field === 'string' && entry.field !== '' ? entry.field : entry.dimension
 }
 
 /**

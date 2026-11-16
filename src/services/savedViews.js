@@ -48,10 +48,7 @@ function url(id) {
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
  */
 export function normaliseView(raw) {
-	if (!raw || typeof raw !== 'object') {
-		return null
-	}
-	const id = raw.id ?? raw.uuid ?? raw['@self']?.id ?? null
+	const id = rowId(raw)
 	if (id === null || typeof raw.name !== 'string' || raw.name === '') {
 		return null
 	}
@@ -59,12 +56,37 @@ export function normaliseView(raw) {
 		id: String(id),
 		dashboardId: raw.dashboardId,
 		name: raw.name,
-		description: typeof raw.description === 'string' ? raw.description : '',
+		description: stringOr(raw.description),
 		filters: Array.isArray(raw.filters) ? raw.filters : [],
 		isShared: raw.isShared === true,
-		createdBy: typeof raw.createdBy === 'string' ? raw.createdBy : '',
-		createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : '',
+		createdBy: stringOr(raw.createdBy),
+		createdAt: stringOr(raw.createdAt),
 	}
+}
+
+/**
+ * The id of a register row, wherever OpenRegister put it.
+ *
+ * @param {unknown} raw An object from the register.
+ * @return {string|number|null} The id, or null for a row without one.
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
+ */
+function rowId(raw) {
+	if (!raw || typeof raw !== 'object') {
+		return null
+	}
+	return raw.id ?? raw.uuid ?? raw['@self']?.id ?? null
+}
+
+/**
+ * A string value, or the empty string for anything else.
+ *
+ * @param {unknown} value The value.
+ * @return {string}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
+ */
+function stringOr(value) {
+	return typeof value === 'string' ? value : ''
 }
 
 /**

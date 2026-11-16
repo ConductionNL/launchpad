@@ -38,20 +38,39 @@ const EVENT_TYPES = ['apply', 'reset', 'bookmark', 'share']
 export function filterDelta(clauses) {
 	return (Array.isArray(clauses) ? clauses : [])
 		.filter((clause) => clause && typeof clause.dimension === 'string' && clause.dimension !== '')
-		.map((clause) => {
-			const item = {
-				dimension: clause.dimension,
-				operator: typeof clause.operator === 'string' && clause.operator !== '' ? clause.operator : 'eq',
-			}
-			if (typeof clause.source === 'string' && clause.source !== '') {
-				item.source = clause.source
-			}
-			if (typeof clause.sourceWidgetId === 'string' && clause.sourceWidgetId !== '') {
-				item.sourceWidgetId = clause.sourceWidgetId
-			}
-			item.pinned = clause.pinned === true
-			return item
-		})
+		.map(deltaItem)
+}
+
+/**
+ * Whether a value is a non-empty string.
+ *
+ * @param {unknown} value The value.
+ * @return {boolean}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ */
+function isFilled(value) {
+	return typeof value === 'string' && value !== ''
+}
+
+/**
+ * One clause as a delta item: the known fields only, empty sources left out.
+ *
+ * @param {object} clause A clause with a dimension.
+ * @return {object}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ */
+function deltaItem(clause) {
+	const item = {
+		dimension: clause.dimension,
+		operator: isFilled(clause.operator) ? clause.operator : 'eq',
+	}
+	for (const key of ['source', 'sourceWidgetId']) {
+		if (isFilled(clause[key])) {
+			item[key] = clause[key]
+		}
+	}
+	item.pinned = clause.pinned === true
+	return item
 }
 
 /**
@@ -84,6 +103,18 @@ function postToRegister(row) {
  */
 export function createFilterTelemetry({ enabled, dashboardId, userId, post = postToRegister, now = () => new Date() }) {
 	/**
+	 * Whether an event may be written.
+	 *
+	 * @param {string} eventType The event type.
+	 * @param {Array<object>} delta The event's delta.
+	 * @return {boolean}
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+	 */
+	function mayRecord(eventType, delta) {
+		return enabled() === true && Boolean(dashboardId) && Boolean(userId) && EVENT_TYPES.includes(eventType) && delta.length > 0
+	}
+
+	/**
 	 * Record one filter change.
 	 *
 	 * @param {string} eventType `apply`, `reset`, `bookmark` or `share`.
@@ -93,12 +124,12 @@ export function createFilterTelemetry({ enabled, dashboardId, userId, post = pos
 	 */
 	async function record(eventType, clauses, widgetId = null) {
 		const delta = filterDelta(clauses)
-		if (enabled() !== true || !dashboardId || !userId || !EVENT_TYPES.includes(eventType) || delta.length === 0) {
+		if (!mayRecord(eventType, delta)) {
 			return null
 		}
 
 		const row = { dashboardId, userId, eventType, filterDelta: delta, timestamp: now().toISOString() }
-		if (typeof widgetId === 'string' && widgetId !== '') {
+		if (isFilled(widgetId)) {
 			row.widgetId = widgetId
 		}
 

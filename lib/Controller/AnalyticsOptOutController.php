@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -45,14 +45,14 @@ class AnalyticsOptOutController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest         $request     The request.
-	 * @param IUserSession     $userSession Names the caller.
-	 * @param AnalyticsService $analytics   Reads and writes the opt-out.
+	 * @param IRequest                  $request     The request.
+	 * @param IUserSession              $userSession Names the caller.
+	 * @param AnalyticsServiceInterface $analytics   Reads and writes the opt-out.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly AnalyticsService $analytics,
+		private readonly AnalyticsServiceInterface $analytics,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()

@@ -28,6 +28,7 @@ use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Kernel\Contracts\PublicStartPageInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 
@@ -42,7 +43,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
  *
  * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-administrators-choose-a-public-link-as-the-start-page-req-psp-001
  */
-class PublicStartPage {
+class PublicStartPage implements PublicStartPageInterface {
 
 	/**
 	 * Constructor.

@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use Closure;
 use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 
@@ -91,6 +92,26 @@ class VisibilityChecker {
 		?array $groupsOverride = null,
 		?DateTimeInterface $nowOverride = null,
 	): array {
+		$matches = fn (ConditionalRule $rule): bool => $this->ruleEvaluator->evaluateRule(
+			rule: $rule,
+			userId: $userId,
+			groupsOverride: $groupsOverride,
+			nowOverride: $nowOverride
+		) === true;
+
+		return $this->evaluateWith(rules: $rules, matches: $matches);
+	}//end evaluateRuleSet()
+
+	/**
+	 * Evaluate a rule set with a match predicate: include rules OR-ed (an
+	 * empty include group passes), exclude rules AND-ed.
+	 *
+	 * @param ConditionalRule[]              $rules   The rules to evaluate.
+	 * @param Closure(ConditionalRule): bool $matches Whether one rule matches.
+	 *
+	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
+	 */
+	private function evaluateWith(array $rules, Closure $matches): array {
 		$includeRules = $this->filterByType(
 			rules: $rules,
 			isInclude: true
@@ -99,13 +120,6 @@ class VisibilityChecker {
 			rules: $rules,
 			isInclude: false
 		);
-
-		$matches = fn (ConditionalRule $rule): bool => $this->ruleEvaluator->evaluateRule(
-			rule: $rule,
-			userId: $userId,
-			groupsOverride: $groupsOverride,
-			nowOverride: $nowOverride
-		) === true;
 
 		// Include rules: an empty group passes, otherwise one match must pass (OR).
 		$includeIds = $this->matchingRuleIds(rules: $includeRules, matches: $matches);
@@ -125,7 +139,7 @@ class VisibilityChecker {
 			'matchedIncludeRuleIds' => $includeIds,
 			'matchedExcludeRuleIds' => $excludeIds,
 		];
-	}//end evaluateRuleSet()
+	}//end evaluateWith()
 
 	/**
 	 * Filter rules by include/exclude type.

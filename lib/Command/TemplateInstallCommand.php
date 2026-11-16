@@ -34,9 +34,9 @@ namespace OCA\LaunchPad\Command;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
+use OCA\LaunchPad\Kernel\Contracts\ShippedTemplateServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\ShippedTemplateUpdateServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\ShippedTemplateService;
-use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -53,14 +53,14 @@ class TemplateInstallCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param ShippedTemplateService       $templates Shipped template service.
-	 * @param AdminSettingsService         $settings  Says whether members may own a copy.
-	 * @param ShippedTemplateUpdateService $updates   Updates an installed template in place.
+	 * @param ShippedTemplateServiceInterface       $templates Shipped template service.
+	 * @param AdminSettingsService                  $settings  Says whether members may own a copy.
+	 * @param ShippedTemplateUpdateServiceInterface $updates   Updates an installed template in place.
 	 */
 	public function __construct(
-		private readonly ShippedTemplateService $templates,
+		private readonly ShippedTemplateServiceInterface $templates,
 		private readonly AdminSettingsService $settings,
-		private readonly ShippedTemplateUpdateService $updates,
+		private readonly ShippedTemplateUpdateServiceInterface $updates,
 	) {
 		parent::__construct();
 	}//end __construct()
@@ -78,7 +78,7 @@ class TemplateInstallCommand extends Command {
 			->addArgument(
 				name: 'id',
 				mode: InputArgument::REQUIRED,
-				description: 'Template id (' . implode(separator: ', ', array: ShippedTemplateService::SHIPPED_IDS) . ').'
+				description: 'Template id (' . implode(separator: ', ', array: ShippedTemplateServiceInterface::SHIPPED_IDS) . ').'
 			)
 			->addOption(
 				name: 'group',

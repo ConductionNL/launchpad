@@ -41,9 +41,9 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\RequestGuard;
-use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -65,14 +65,14 @@ class AdminSettingsController extends Controller {
 	 * @param AdminSettingsService $settingsService Persisted-settings service.
 	 * @param IGroupManager $groupManager Group manager (admin check + listing).
 	 * @param RequestGuard $guard The session and administrator check.
-	 * @param SearchShortcutService $shortcuts The search shortcut list.
+	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AdminSettingsService $settingsService,
 		private readonly IGroupManager $groupManager,
 		private readonly RequestGuard $guard,
-		private readonly SearchShortcutService $shortcuts,
+		private readonly SearchShortcutServiceInterface $shortcuts,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()

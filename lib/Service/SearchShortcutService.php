@@ -27,13 +27,14 @@ namespace OCA\LaunchPad\Service;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 
 /**
  * Read and validate the search shortcut list.
  *
  * @spec openspec/specs/tile-quick-search/spec.md
  */
-class SearchShortcutService {
+class SearchShortcutService implements SearchShortcutServiceInterface {
 	/**
 	 * Most shortcuts one instance may define.
 	 *

@@ -14,6 +14,9 @@
 <script>
 import { CnChartWidget } from '@conduction/nextcloud-vue'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
+import { logger } from '../../../utils/logger.js'
+import { busDeclarationsOf, consumedFilter, withBusFilter } from '../../../utils/widgetBusConsumption.js'
+import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
 
 // Chart config keys that a content-based placement may carry through to
 // CnChartWidget verbatim (apexcharts passthrough). `dataSource` resolves the
@@ -40,11 +43,22 @@ const CHART_PROP_KEYS = [
  * prop interface (apexcharts `type` + a self-fetching `dataSource`). Mirrors
  * CnDashboardPage's `getChartProps`/`getWidgetDataSource` mapping so a chart
  * placement renders identically in LaunchPad's generic WidgetRenderer.
+ *
+ * On a dashboard with a filter bus, a chart that declares `consumes` has the
+ * bus's clauses for those dimensions added to its `dataSource.filter`, and
+ * CnChartWidget refetches when that filter changes (drill-down-cross-widget-
+ * filter REQ-CWF-002). A declaration that does not fit the dashboard's
+ * hierarchies keeps the chart off the bus, with a warning (REQ-CWF-008).
  */
 export default {
 	name: 'ChartHost',
 
 	components: { CnChartWidget },
+
+	inject: {
+		/** The open dashboard's filter bus (a ref to it), or null. */
+		filterBus: { from: 'dashboardFilterBus', default: null },
+	},
 
 	props: {
 		/** The placement's content blob — `{ chartKind, dataSource, props? }`. */
@@ -60,9 +74,52 @@ export default {
 			return this.content.chartKind || this.content.props?.chartKind || 'area'
 		},
 
-		/** The OpenRegister dataSource block CnChartWidget self-resolves. */
+		/**
+		 * The OpenRegister dataSource block CnChartWidget self-resolves, with the bus's filter when the chart consumes it.
+		 *
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
 		dataSource() {
-			return this.content.dataSource || this.content.props?.dataSource || null
+			const declared = this.content.dataSource || this.content.props?.dataSource || null
+			const bus = this.bus
+			if (bus === null || !this.busCheck.participates) {
+				return declared
+			}
+			return withBusFilter(declared, consumedFilter(bus.clauses.value, this.busDeclarations.consumes))
+		},
+
+		/**
+		 * The filter bus itself, unwrapped from the injected ref.
+		 *
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
+		bus() {
+			const injected = this.filterBus
+			const bus = injected && typeof injected.publish !== 'function' && 'value' in injected ? injected.value : injected
+			return bus && typeof bus.publish === 'function' ? bus : null
+		},
+
+		/**
+		 * What the chart declares it publishes and consumes.
+		 *
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
+		busDeclarations() {
+			return busDeclarationsOf(this.content)
+		},
+
+		/**
+		 * Whether the declarations fit the dashboard, and why not.
+		 *
+		 * @return {{participates: boolean, findings: Array<object>}}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
+		busCheck() {
+			const { publishes, consumes } = this.busDeclarations
+			if (this.bus === null || (publishes.length === 0 && consumes.length === 0)) {
+				return { participates: false, findings: [] }
+			}
+			return validateBusDeclarations({ widget: { publishes, consumes }, hierarchies: this.bus.hierarchies })
 		},
 
 		/** Stable widget id for the chart's date-range wiring. */
@@ -80,6 +137,24 @@ export default {
 				}
 			}
 			return out
+		},
+	},
+
+	watch: {
+		busCheck: {
+			immediate: true,
+			/**
+			 * Log why a chart stays off the bus (REQ-CWF-008).
+			 *
+			 * @param {{findings: Array<object>}} check The check.
+			 * @return {void}
+			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+			 */
+			handler(check) {
+				for (const finding of check.findings) {
+					logger.warn(`[launchpad] widget ${this.widgetId} is not on the filter bus: ${finding.code} (${finding.dimension})`)
+				}
+			},
 		},
 	},
 }

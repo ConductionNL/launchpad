@@ -27,6 +27,7 @@ use OCA\LaunchPad\Service\Embed\RevocationCache;
 use OCA\LaunchPad\Service\Embed\SigningKeyService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\ICache;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\ICacheFactory;
 use OCP\Notification\IManager;
 use OCP\Notification\INotification;
@@ -71,6 +72,13 @@ class EmbedTokenServiceTest extends TestCase {
 	 * @var list<INotification>
 	 */
 	private array $sent = [];
+
+	/**
+	 * The audit log lines written, formatted.
+	 *
+	 * @var list<string>
+	 */
+	private array $audited = [];
 
 	/**
 	 * The service over the real signing chain and an in-memory register.
@@ -124,6 +132,11 @@ class EmbedTokenServiceTest extends TestCase {
 			$this->sent[] = $notification;
 		});
 
+		$dispatcher = $this->createMock(IEventDispatcher::class);
+		$dispatcher->method('dispatchTyped')->willReturnCallback(function (object $event): void {
+			$this->audited[] = vsprintf($event->getLogMessage(), $event->getParameters());
+		});
+
 		$jwt = new JwtSigningService(time: $time);
 
 		return new EmbedTokenService(
@@ -134,7 +147,8 @@ class EmbedTokenServiceTest extends TestCase {
 			new RevocationCache($factory),
 			$time,
 			$notifications,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			$dispatcher
 		);
 	}//end service()
 
@@ -393,4 +407,31 @@ class EmbedTokenServiceTest extends TestCase {
 		$this->assertNull($service->revokeToken(id: 'x', reason: 'compromised', notes: null, userId: 'a'));
 		$this->assertSame([], $this->sent);
 	}//end testRevocationNeedsAKnownReasonAndToken()
+
+	/**
+	 * Issue, revoke, restore and re-issue are each written to the audit log
+	 * with the token and the admin; a refused create writes nothing.
+	 *
+	 * @return void
+	 */
+	public function testTheLifecycleIsAudited(): void {
+		$service = $this->service();
+		$service->createToken(input: ['hostOrigins' => ['*']] + self::INPUT, userId: 'admin');
+		$this->assertSame([], $this->audited);
+
+		$created = $service->createToken(input: self::INPUT, userId: 'admin');
+		$service->revokeToken(id: $created['id'], reason: 'no_longer_needed', notes: null, userId: 'beheer');
+		$service->unrevokeToken(id: $created['id'], userId: 'beheer');
+		$fresh = $service->reissueToken(id: $created['id'], userId: 'admin');
+
+		$this->assertSame(
+			[
+				'LaunchPad embed token "Gemeente Zeist WOO" (' . $created['id'] . ') issued by admin',
+				'LaunchPad embed token "Gemeente Zeist WOO" (' . $created['id'] . ') revoked by beheer, reason no_longer_needed',
+				'LaunchPad embed token "Gemeente Zeist WOO" (' . $created['id'] . ') restored by beheer',
+				'LaunchPad embed token "Gemeente Zeist WOO" (' . $created['id'] . ') re-issued as ' . $fresh['id'] . ' by admin',
+			],
+			$this->audited
+		);
+	}//end testTheLifecycleIsAudited()
 }//end class

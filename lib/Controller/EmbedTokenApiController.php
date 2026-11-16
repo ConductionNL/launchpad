@@ -168,7 +168,7 @@ class EmbedTokenApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function unrevoke(string $id): JSONResponse {
-		return $this->asAdmin(action: fn (string $admin): JSONResponse => self::found(data: $this->tokens->unrevokeToken(id: $id)));
+		return $this->asAdmin(action: fn (string $admin): JSONResponse => self::found(data: $this->tokens->unrevokeToken(id: $id, userId: $admin)));
 	}//end unrevoke()
 
 	/**

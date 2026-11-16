@@ -1,7 +1,23 @@
 # Embed tokens: administrator guide
 
-Embed tokens are managed by LaunchPad administrators through the admin API
-(`/apps/launchpad/api/embed-tokens`).
+Embed tokens are managed by LaunchPad administrators in **Admin settings ▸
+LaunchPad ▸ Embeds**, or through the admin API
+(`/apps/launchpad/api/embed-tokens`) that page uses.
+
+## In Admin settings
+
+- **Embed tokens**: *New embed token* opens the form (what to embed, scope,
+  the sites that may frame it, theme, expiry, rate limit). After saving, the
+  token is shown **once** with a copy button; it cannot be retrieved later.
+  Open a token to edit its name, description or rate limit, re-issue it,
+  revoke it with a reason (or restore it), and see its usage over the last
+  seven days.
+- **Embed themes**: create and edit tenant themes with a live preview; a theme
+  embed tokens still use is deleted only after a warning, and those tokens fall
+  back to the default theme. Themes are also served at
+  `/apps/launchpad/api/tenant-themes`.
+- From a dashboard, an administrator's dashboard menu offers *Create embed
+  token*, which opens this page with that dashboard pre-selected.
 
 ## Issue a token
 

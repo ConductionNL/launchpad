@@ -81,6 +81,9 @@
 					:groups="injectedAllGroups"
 					:configuredGroups="configuredGroups" />
 			</template>
+			<template #tab-embeds>
+				<EmbedsTab />
+			</template>
 			<template #tab-kiosk>
 				<KioskTab />
 			</template>
@@ -336,6 +339,7 @@ import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
+import EmbedsTab from './tabs/EmbedsTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
@@ -366,6 +370,7 @@ export default {
 		SetupWizardModal,
 		TemplatesPage,
 		OperationsTab,
+		EmbedsTab,
 		RolesPermissionsTab,
 		VersioningAuditTab,
 		MetadataFieldsSettings,
@@ -519,6 +524,7 @@ export default {
 					label: this.t('launchpad', 'Versioning & Audit'),
 				},
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
+				{ id: 'embeds', label: this.t('launchpad', 'Embeds') },
 				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
 				{
 					id: 'org-navigation',

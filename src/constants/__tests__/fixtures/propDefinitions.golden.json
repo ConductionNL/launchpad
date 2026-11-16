@@ -781,6 +781,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardRowActions.vue | canEmbed": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardRowActions.vue | canManagePublication": {
 		"type": "Boolean",
 		"required": false,
@@ -1000,6 +1006,57 @@
 		"validator": false,
 		"default": "30d"
 	},
+	"../../components/admin/embed/EmbedTokenForm.vue | token": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | dashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | themes": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | defaults": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | saving": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/admin/embed/EmbedTokenManager.vue | defaults": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedUsageReport.vue | tokenId": {
+		"type": "String",
+		"required": true,
+		"validator": false
+	},
+	"../../components/admin/embed/EmbedUsageReport.vue | tokenName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/admin/tabs/OrgNavigationTab.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -1038,6 +1095,23 @@
 		"default": ""
 	},
 	"../../dialogs/DeleteDashboardDialog.vue | childCount": {
+		"type": "Number",
+		"required": false,
+		"validator": false,
+		"default": 0
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | tokenCount": {
 		"type": "Number",
 		"required": false,
 		"validator": false,
@@ -1122,6 +1196,17 @@
 		"required": false,
 		"validator": false,
 		"default": null
+	},
+	"../../dialogs/RevokeEmbedTokenDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/RevokeEmbedTokenDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
 	},
 	"../../dialogs/RoleLayoutDefaultEditorDialog.vue | open": {
 		"type": "Boolean",

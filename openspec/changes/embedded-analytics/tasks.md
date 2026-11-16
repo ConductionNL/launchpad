@@ -102,11 +102,13 @@
     5. Warns on medium/low violations
   - Create `src/axe-core-check.js` script
   - Output report saved to `docs/accessibility/axe-results.json` for review
+  > Not done: needs axe-core added as a build dependency and a renderer for representative widget shapes; left for a separate change to the build pipeline.
 
 - [ ] Task 13: Modify dashboard/widget rendering to accept token context:
   - Add optional `embedContext` parameter to widget/dashboard render functions
   - If `embedContext` present, apply theme CSS variables, scope restrictions, filter pinning
   - Maintain backward compatibility (no context = normal in-app rendering)
+  > Not done yet: the embed page already renders through the public share's `PublicDashboardGrid` with scope, filters and theme from `useEmbedContext` (Tasks 14, 23); threading an optional `embedContext` through the in-app widget renderers is left.
 
 - [x] Task 14: Create `src/composables/useEmbedContext.js`:
   - Detect if the current render is in embed mode (check for token in parent postMessage or in render context)
@@ -117,7 +119,7 @@
 
 ## Admin UI — Token Management
 
-- [ ] Task 15: Create `src/components/EmbedTokenManager.vue`:
+- [x] Task 15: Create `src/components/EmbedTokenManager.vue`:
   - List view: Table of all tokens with name, status, subject, created, last-used, revoked date, actions
   - Create flow: Form for name, description, subject (widget/dashboard picker), scope (mode + filters + actions), hostOrigins, tenantThemeId, tokenExpiresAt, rateLimitPolicy
   - Display: Show raw JWT once, with "keep this safe" warning, "copy" button
@@ -125,16 +127,18 @@
   - Edit: Update name, description, rateLimitPolicy (scope + subject immutable)
   - Revoke dialog: Dropdown for reason, text field for notes, confirm
   - Actions: Re-issue, revoke/un-revoke, view usage
+  > Built as `src/components/admin/embed/EmbedTokenManager.vue` in Admin settings ▸ Embeds: the token table (name, status active/expired/revoked, subject, created, revoked), the create form, the JWT shown once with the keep-safe warning and a copy button, the detail view (metadata, edit, re-issue, revoke/restore) with the usage report, and the server's refusal message on a failed save. Over `src/services/embedApi.js`. Tests: `EmbedTokenManager.spec.js` (9), `embedApi.spec.js` (3).
 
-- [ ] Task 16: Create `src/components/TenantThemeManager.vue`:
+- [x] Task 16: Create `src/components/TenantThemeManager.vue`:
   - List view: Table of themes with name, primary colour preview, logo, created date
   - Create flow: Form for name, CSS variables (editable text fields with labels), logoUrl uploader, customCss (textarea with :root validation)
   - Live preview: Show selected colours applied to sample widget
   - Edit: Update name, variables, logo, customCss
   - Delete: Warn if theme is in-use by tokens
   - Copy button: Export JSON for documentation
+  > Built as `src/components/admin/embed/TenantThemeManager.vue` over the new admin routes `GET/POST /api/tenant-themes`, `PUT/DELETE /api/tenant-themes/{id}` (`Controller/TenantThemeApiController`, documented in `openapi.json` as internal). The four `--c-*` variables as colour pickers plus text fields, the logo as an https URL (no file upload), custom CSS checked for :root-only rules while typing, a live preview, the server's contrast refusal shown, delete through `src/dialogs/DeleteTenantThemeDialog.vue` warning how many tokens use the theme (the server answers 409 `theme_in_use` unless `force`, `TenantThemeService::deleteTheme`, `EmbedObjectStore::delete`), and Copy JSON. Tests: `TenantThemeManager.spec.js` (6), `TenantThemeApiControllerTest` (5), `TenantThemeServiceTest` + `EmbedObjectStoreTest` (delete).
 
-- [ ] Task 17: Create `src/components/EmbedUsageReport.vue`:
+- [x] Task 17: Create `src/components/EmbedUsageReport.vue`:
   - Summary card: Total pageviews (7d), status, last activity
   - Pageviews chart: Line chart by date
   - Host origin distribution: Bar chart or pie
@@ -143,8 +147,9 @@
   - Interaction breakdown: Counters for filterApplied, drillDown, export
   - Rate limit breaches table (if any): Date, count, percentage of quota
   - Export button: Download CSV of underlying events (unless org telemetry disabled)
+  > Built as `src/components/admin/embed/EmbedUsageReport.vue` in the token detail view: summary (page views, last activity, rate-limited requests), use after revocation, and bar rows by date, site, screen size, browser (top 10) and interaction, from `GET /api/embed-tokens/{id}/usage`. The CSV export holds the same aggregates (there are no per-event rows to export, REQ-EMB-008) and is offered only while telemetry is on. Tests: `EmbedUsageReport.spec.js` (3).
 
-- [ ] Task 18: Create `src/components/EmbedTokenForm.vue` (sub-component):
+- [x] Task 18: Create `src/components/EmbedTokenForm.vue` (sub-component):
   - Reusable form for create + edit flows
   - Name/description fields
   - Subject picker (dropdown of widgets + dashboards)
@@ -159,6 +164,7 @@
   - RateLimitPolicy fields (requestsPerMinute, burstSize)
   - Help text + CSP preview button (shows resulting CSP header)
   - Submit + cancel buttons
+  > Built as `src/components/admin/embed/EmbedTokenForm.vue` with the pure helpers in `src/utils/embedToken.js`: subject as a dashboard or one widget of a dashboard (its placements loaded on choice), pinned filters as `dimension=value` lines, scope mode with the allowed actions and filters, host origins checked as `CspService` checks them (wildcards and paths refused, normalised, de-duplicated) with a CSP header preview, theme, expiry date and rate limit (empty = organisation default). Editing a stored token offers only name, description and rate limit. Tests: `EmbedTokenForm.spec.js` (5), `embedToken.spec.js` (18).
 
 ## JS-SDK
 
@@ -227,12 +233,13 @@
   - Include RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset headers
   > Each render and data request takes one request from the token's bucket (`RateLimitService`, org default when the token has no policy); a spent bucket answers 429 with `Retry-After` and `RateLimit-*` headers and is written as a page view with status 429; an answered request carries `RateLimit-Limit`, `-Remaining` and `-Reset`.
 
-- [ ] Task 27: Create revocation UI flow in EmbedTokenManager:
+- [x] Task 27: Create revocation UI flow in EmbedTokenManager:
   - Revoke button → confirmation dialog with reason dropdown + notes textarea
   - POST `/api/embed-tokens/{id}/revoke` with reason + notes
   - Show success message
   - Update token list (status changes to REVOKED)
   - Un-revoke button (clear revokedAt, show confirmation)
+  > `src/dialogs/RevokeEmbedTokenDialog.vue` (reason select, optional notes) opened from the token detail view; on confirm `POST /api/embed-tokens/{id}/revoke`, a success toast, and the status shown as revoked with a Restore button (`/unrevoke`). Tests: `EmbedDialogs.spec.js`, `EmbedTokenManager.spec.js`.
 
 ## Usage Telemetry
 
@@ -318,6 +325,7 @@
   - Admin notification: token revoked, policy updated
   - All strings in both NL (Dutch) + EN (English)
   - Add to `src/translations/nl.json` + `src/translations/en.json`
+  > Not done in this build: the new admin strings are wrapped in `t('launchpad', …)`, but the app's catalogue is checked by the l10n parity gate across every required locale, so adding them to `l10n/` means translating them into all of those locales in one pass (NL included), which is translation work rather than code.
 
 ## Quality & Integration
 
@@ -341,6 +349,7 @@
   - Widgets display "Embed" button → quick token creation for single widget
   - Admin Settings → "Embed Tokens" section with manager + themes
   - Audit log records token lifecycle (create, revoke, re-issue)
+  > Partly built: Admin settings has an Embeds tab (`tabs/EmbedsTab.vue`: token manager and theme manager); an administrator's dashboard menu has "Create embed token", opening that tab with the dashboard pre-selected (`?tab=embeds&embedType=dashboard&embedId=&embedDashboard=`, read by `embedDefaultsFrom`); the token lifecycle (issue, revoke, restore, re-issue) is written to the audit log by `EmbedTokenService` (`CriticalActionPerformedEvent`, tested in `EmbedTokenServiceTest`). Left: an "Embed" entry on a single widget, which needs a menu entry in the shared widget edit cog (`CnWidgetEditCog`, @conduction/nextcloud-vue); the create form already takes a widget subject through the same link (`embedType=widget`).
 
 ## Verification
 

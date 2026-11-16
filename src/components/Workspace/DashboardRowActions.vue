@@ -143,6 +143,16 @@
 			{{ t('launchpad', 'Share') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canEmbed && dashboard.uuid"
+			:closeAfterClick="true"
+			data-testid="cog-embed"
+			@click="openEmbed">
+			<template #icon>
+				<CodeTags :size="20" />
+			</template>
+			{{ t('launchpad', 'Create embed token') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="isOwner"
 			:closeAfterClick="true"
 			data-testid="cog-delete"
@@ -157,8 +167,10 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import History from 'vue-material-design-icons/History.vue'
@@ -183,6 +195,7 @@ export default {
 	components: {
 		NcActions,
 		NcActionButton,
+		CodeTags,
 		Cog,
 		Pencil,
 		ContentSave,
@@ -243,6 +256,13 @@ export default {
 		canShare: FLAG_PROP,
 
 		/*
+		 * embedded-analytics task 40: the viewer is an administrator, so the
+		 * menu offers "Create embed token", a link to Beheer ▸ Embeds with
+		 * this dashboard pre-selected. Off by default.
+		 */
+		canEmbed: FLAG_PROP,
+
+		/*
 		 * sharing-dashboard-schedule-screen REQ-SCHEDUI-001: the host allows
 		 * Publish / Unpublish / Schedule… (owner or administrator). Off by
 		 * default, so sidebar rows do not show them.
@@ -293,6 +313,22 @@ export default {
 	],
 
 	computed: {
+		/**
+		 * Beheer ▸ Embeds with this dashboard pre-selected for a new token.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		embedHref() {
+			const query = new URLSearchParams({
+				tab: 'embeds',
+				embedType: 'dashboard',
+				embedId: String(this.dashboard.uuid ?? ''),
+				embedDashboard: String(this.dashboard.id ?? ''),
+			})
+			return `${generateUrl('/settings/admin/launchpad')}?${query.toString()}`
+		},
+
 		/*
 		 * Owner-gated actions (Configure, Delete) require the user to
 		 * own this dashboard. The visibility API doesn't always set
@@ -344,6 +380,15 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Open Beheer ▸ Embeds with this dashboard pre-selected.
+		 *
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		openEmbed() {
+			window.location.assign(this.embedHref)
+		},
 	},
 }
 </script>

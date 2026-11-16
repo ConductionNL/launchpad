@@ -32,6 +32,8 @@ use OCA\LaunchPad\Exception\InvalidTokenException;
 use OCA\LaunchPad\Exception\TokenExpiredException;
 use OCA\LaunchPad\Exception\TokenRevokedException;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Log\Audit\CriticalActionPerformedEvent;
 use OCP\Notification\IManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -75,6 +77,7 @@ class EmbedTokenService {
 	 * @param ITimeFactory      $time          The clock.
 	 * @param IManager          $notifications Tells a creator their token was revoked.
 	 * @param LoggerInterface   $logger        Logs a notification that could not be sent.
+	 * @param IEventDispatcher  $dispatcher    Carries the audit events of the token lifecycle.
 	 */
 	public function __construct(
 		private readonly EmbedObjectStore $store,
@@ -85,6 +88,7 @@ class EmbedTokenService {
 		private readonly ITimeFactory $time,
 		private readonly IManager $notifications,
 		private readonly LoggerInterface $logger,
+		private readonly IEventDispatcher $dispatcher,
 	) {
 	}//end __construct()
 
@@ -121,7 +125,10 @@ class EmbedTokenService {
 			]
 		);
 
-		return $this->issue(token: $token);
+		$issued = $this->issue(token: $token);
+		$this->audit(message: 'LaunchPad embed token "%s" (%s) issued by %s', params: [$issued['name'], $issued['id'], $userId]);
+
+		return $issued;
 	}//end createToken()
 
 	/**
@@ -269,6 +276,7 @@ class EmbedTokenService {
 		$this->store->save(schema: EmbedObjectStore::TOKENS, object: $revoked->toObject());
 		$this->revocations->markRevoked(tokenId: $token->id);
 		$this->notifyCreator(token: $revoked);
+		$this->audit(message: 'LaunchPad embed token "%s" (%s) revoked by %s, reason %s', params: [$revoked->name, $revoked->id, $userId, $reason]);
 
 		return $revoked->metadata() + ['actions' => self::actionsOf(token: $revoked)];
 	}//end revokeToken()
@@ -276,13 +284,14 @@ class EmbedTokenService {
 	/**
 	 * Clear a token's revocation.
 	 *
-	 * @param string $id The token id.
+	 * @param string      $id     The token id.
+	 * @param string|null $userId The admin, for the audit log.
 	 *
 	 * @return array<string, mixed>|null The updated metadata, null when there is no such token.
 	 *
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-009--token-revocation-takes-effect-within-60-seconds
 	 */
-	public function unrevokeToken(string $id): ?array {
+	public function unrevokeToken(string $id, ?string $userId=null): ?array {
 		$token = $this->load(id: $id);
 		if ($token === null) {
 			return null;
@@ -291,6 +300,7 @@ class EmbedTokenService {
 		$restored = $token->unrevoked(at: $this->nowIso());
 		$this->store->save(schema: EmbedObjectStore::TOKENS, object: $restored->toObject());
 		$this->revocations->purge(tokenId: $token->id);
+		$this->audit(message: 'LaunchPad embed token "%s" (%s) restored by %s', params: [$restored->name, $restored->id, (string)$userId]);
 
 		return $restored->metadata() + ['actions' => self::actionsOf(token: $restored)];
 	}//end unrevokeToken()
@@ -322,7 +332,10 @@ class EmbedTokenService {
 			unset($fresh[$field]);
 		}
 
-		return $this->issue(token: EmbedToken::fromObject(object: ['createdBy' => $userId, 'createdAt' => $now] + $fresh));
+		$issued = $this->issue(token: EmbedToken::fromObject(object: ['createdBy' => $userId, 'createdAt' => $now] + $fresh));
+		$this->audit(message: 'LaunchPad embed token "%s" (%s) re-issued as %s by %s', params: [$token->name, $token->id, $issued['id'], $userId]);
+
+		return $issued;
 	}//end reissueToken()
 
 	/**
@@ -636,6 +649,20 @@ class EmbedTokenService {
 			$this->logger->warning('[EmbedTokenService] The revocation notice could not be sent: ' . $failure->getMessage(), ['token' => $token->id]);
 		}
 	}//end notifyCreator()
+
+	/**
+	 * Write a token lifecycle step to the audit log.
+	 *
+	 * @param string       $message The audit message, sprintf-style.
+	 * @param list<string> $params  Its parameters.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+	 */
+	private function audit(string $message, array $params): void {
+		$this->dispatcher->dispatchTyped(new CriticalActionPerformedEvent($message, $params));
+	}//end audit()
 
 	/**
 	 * Now, as ISO 8601 in UTC.

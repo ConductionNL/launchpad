@@ -275,6 +275,14 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<!-- drill-down-cross-widget-filter REQ-CWF-009. -->
+			<DashboardSavedViews
+				v-if="activeDashboard?.uuid"
+				:dashboardId="activeDashboard.uuid"
+				:userId="currentUserId"
+				:canEdit="canEdit"
+				:clauses="filterClauses"
+				@apply="onApplySavedView" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -524,6 +532,7 @@ import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
+import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
@@ -599,6 +608,7 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		DashboardSavedViews,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
 		EditLockBanner,
@@ -834,6 +844,16 @@ export default {
 		 */
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * The signed-in user's id, for the saved views they own.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 */
+		currentUserId() {
+			return typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : ''
 		},
 
 		/**
@@ -2839,6 +2859,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * Apply a saved view: its clauses replace every non-pinned clause.
+		 *
+		 * @param {object} view The saved view.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 */
+		onApplySavedView(view) {
+			this.filterSession?.applyView(view?.filters ?? [])
 		},
 
 		async pushUrlForActiveDashboard() {

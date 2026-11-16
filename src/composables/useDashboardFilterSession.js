@@ -57,7 +57,7 @@ export function levelLabels(hierarchies) {
  * @param {{href: string}} [options.location] The location (window.location).
  * @param {{replaceState: (state: unknown, title: string, url: string) => void, state: unknown}} [options.history] The history (window.history).
  * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes when the organisation opted in (REQ-CWF-010).
- * @return {{bus: object, clauses: import('vue').ShallowRef<Array<object>>, labels: {[key: string]: string}, remove: (dimension: string) => boolean, reset: () => boolean, stop: () => void}}
+ * @return {{bus: object, clauses: import('vue').ShallowRef<Array<object>>, labels: {[key: string]: string}, remove: (dimension: string) => boolean, reset: () => boolean, applyView: (filters: Array<object>) => void, stop: () => void}}
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function useDashboardFilterSession({ dashboard, readUrl, location = window.location, history = window.history, telemetry = null }) {
@@ -71,6 +71,8 @@ export function useDashboardFilterSession({ dashboard, readUrl, location = windo
 		labels: levelLabels(hierarchies),
 		remove: (dimension) => bus.remove(dimension),
 		reset: () => bus.reset(),
+		// REQ-CWF-009: a saved view replaces every non-pinned clause.
+		applyView: (filters) => bus.hydrate(filters, 'savedView'),
 		stop: () => sync.stop(),
 	}
 }

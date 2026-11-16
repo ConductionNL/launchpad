@@ -584,11 +584,11 @@ class TemplateResyncService {
 		$matched = [];
 		$entries = [];
 
-		foreach ($copyPlacements as $cp) {
-			$originId = $cp->getTemplatePlacementId();
+		foreach ($copyPlacements as $copy) {
+			$originId = $copy->getTemplatePlacementId();
 
 			if ($originId === null) {
-				$entries[] = ['userAdded', $cp];
+				$entries[] = ['userAdded', $copy];
 				continue;
 			}
 
@@ -597,18 +597,18 @@ class TemplateResyncService {
 				// placement from the template — remove it under both
 				// strategies (REQ-RESYNC-003 "Template widget removed by
 				// admin is removed under merge").
-				$entries[] = ['toRemove', $cp];
+				$entries[] = ['toRemove', $copy];
 				continue;
 			}
 
 			$matched[$originId] = true;
-			$tp = $templateById[$originId];
-			if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
-				$entries[] = ['toUpdate', ['copy' => $cp, 'template' => $tp]];
+			$template = $templateById[$originId];
+			if ($this->placementDiffers(copy: $copy, template: $template) === true) {
+				$entries[] = ['toUpdate', ['copy' => $copy, 'template' => $template]];
 				continue;
 			}
 
-			$entries[] = ['toPreserve', $cp];
+			$entries[] = ['toPreserve', $copy];
 		}//end foreach
 
 		return [

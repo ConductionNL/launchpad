@@ -27,6 +27,7 @@ use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PublicStartPage;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\SearchShortcutService;
 use OCP\IURLGenerator;
 use Psr\Log\LoggerInterface;
 
@@ -48,6 +49,7 @@ class PageSettingsSources {
 	 *                                                           REQ-QSEARCH-004).
 	 * @param PublicStartPage              $publicStartPage The public start page's link (sharing-public-start-page D3).
 	 * @param IURLGenerator                $urlGenerator The login form address the start page falls back to.
+	 * @param SearchShortcutService        $searchShortcuts The search shortcuts every search box honours (REQ-SPX-002).
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
@@ -56,6 +58,7 @@ class PageSettingsSources {
 		public readonly AdminSettingsService $adminSettingsService,
 		public readonly PublicStartPage $publicStartPage,
 		public readonly IURLGenerator $urlGenerator,
+		public readonly SearchShortcutService $searchShortcuts,
 	) {
 	}//end __construct()
 }//end class

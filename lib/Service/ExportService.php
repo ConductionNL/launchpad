@@ -232,6 +232,33 @@ class ExportService {
 		string $scope,
 		string $currentUserId,
 	): string {
+		[$zip, $tempPath] = $this->openArchive();
+
+		$manifest = $this->buildManifest(
+			scope: $scope,
+			dashboardCount: count($dashboards),
+			currentUserId: $currentUserId
+		);
+
+		$zip->addFromString(
+			name: 'manifest.json',
+			content: $this->encodeJson(payload: $manifest)
+		);
+
+		$assetsAdded = $this->addDashboards(zip: $zip, dashboards: $dashboards);
+		$this->closeArchive(zip: $zip, assetsAdded: $assetsAdded);
+
+		return $tempPath;
+	}//end buildArchive()
+
+	/**
+	 * Allocate the temporary file and open it as a new ZIP archive.
+	 *
+	 * @return array{0: ZipArchive, 1: string} The open archive and its path.
+	 *
+	 * @throws RuntimeException When the file or the archive cannot be opened.
+	 */
+	private function openArchive(): array {
 		$tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-export-');
 		if ($tempPath === false) {
 			throw new RuntimeException(
@@ -245,17 +272,18 @@ class ExportService {
 			throw new RuntimeException(message: 'Could not open ZIP archive for writing.');
 		}
 
-		$manifest = $this->buildManifest(
-			scope: $scope,
-			dashboardCount: count($dashboards),
-			currentUserId: $currentUserId
-		);
+		return [$zip, $tempPath];
+	}//end openArchive()
 
-		$zip->addFromString(
-			name: 'manifest.json',
-			content: $this->encodeJson(payload: $manifest)
-		);
-
+	/**
+	 * Write one JSON file per dashboard, with its asset placeholders.
+	 *
+	 * @param ZipArchive  $zip        The open archive.
+	 * @param Dashboard[] $dashboards The dashboards to include.
+	 *
+	 * @return bool Whether any asset placeholder was added.
+	 */
+	private function addDashboards(ZipArchive $zip, array $dashboards): bool {
 		$assetsAdded = false;
 		foreach ($dashboards as $dashboard) {
 			$payload = $this->serializeDashboard(dashboard: $dashboard);
@@ -275,6 +303,19 @@ class ExportService {
 			) || $assetsAdded;
 		}
 
+		return $assetsAdded;
+	}//end addDashboards()
+
+	/**
+	 * Write the metadata-fields file, reserve the asset directories when no
+	 * asset was added, and close the archive.
+	 *
+	 * @param ZipArchive $zip         The open archive.
+	 * @param bool       $assetsAdded Whether any asset placeholder was added.
+	 *
+	 * @return void
+	 */
+	private function closeArchive(ZipArchive $zip, bool $assetsAdded): void {
 		// The metadata-fields.json is always emitted (empty list when
 		// no metadata-fields capability has been registered yet) so the
 		// downstream `confluence-html-import` consumer never has to
@@ -292,9 +333,7 @@ class ExportService {
 		}
 
 		$zip->close();
-
-		return $tempPath;
-	}//end buildArchive()
+	}//end closeArchive()
 
 	/**
 	 * Add icon / widget asset placeholders for a dashboard.

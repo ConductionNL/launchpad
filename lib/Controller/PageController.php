@@ -190,6 +190,7 @@ class PageController extends Controller {
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
+			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
 			->setTileLaunchOptions(
 				schemes: (array)($settings['tileAllowedSchemes'] ?? []),

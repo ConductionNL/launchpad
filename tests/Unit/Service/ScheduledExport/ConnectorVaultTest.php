@@ -26,6 +26,7 @@ namespace Unit\Service\ScheduledExport;
 
 use OCA\LaunchPad\Service\ScheduledExport\ConnectorVault;
 use OCA\LaunchPad\Service\ScheduledExport\DeliveryException;
+use OCP\IGroupManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
@@ -42,10 +43,11 @@ class ConnectorVaultTest extends TestCase {
 	 * A vault over a container holding the given services.
 	 *
 	 * @param array<string, object> $services Class name to service.
+	 * @param list<string>          $admins   The administrators.
 	 *
 	 * @return ConnectorVault
 	 */
-	private function vault(array $services): ConnectorVault {
+	private function vault(array $services, array $admins = []): ConnectorVault {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(static function (string $id) use ($services): object {
 			if (isset($services[$id]) === false) {
@@ -55,7 +57,10 @@ class ConnectorVaultTest extends TestCase {
 			return $services[$id];
 		});
 
-		return new ConnectorVault($container);
+		$groups = $this->createMock(IGroupManager::class);
+		$groups->method('isAdmin')->willReturnCallback(static fn (string $userId): bool => in_array($userId, $admins, true));
+
+		return new ConnectorVault($container, $groups);
 	}//end vault()
 
 	/**
@@ -106,15 +111,33 @@ class ConnectorVaultTest extends TestCase {
 	}//end objects()
 
 	/**
+	 * A source owned by the given user.
+	 *
+	 * @param string|null $owner The owner.
+	 *
+	 * @return object
+	 */
+	private function ownedSource(?string $owner): object {
+		return new class($owner) {
+			public function __construct(private ?string $owner) {
+			}
+
+			public function getOwner(): ?string {
+				return $this->owner;
+			}
+		};
+	}//end ownedSource()
+
+	/**
 	 * The call goes through the source; its log id is returned.
 	 *
 	 * @return void
 	 */
 	public function testSendsThroughTheSource(): void {
-		$source = new \stdClass();
+		$source = $this->ownedSource(owner: 'alice');
 		$calls  = $this->calls(status: 201);
 		$id     = $this->vault(['OCA\Integriq\Service\CallService' => $calls, 'OCA\OpenRegister\Service\ObjectService' => $this->objects($source)])
-			->send(sourceId: 's1', request: ['endpoint' => '/drop', 'body' => 'B', 'headers' => ['Content-Type' => 'x']]);
+			->send(sourceId: 's1', request: ['endpoint' => '/drop', 'body' => 'B', 'headers' => ['Content-Type' => 'x']], owner: 'alice');
 
 		$this->assertSame('log-1', $id);
 		$this->assertSame($source, $calls->args['source']);
@@ -131,16 +154,47 @@ class ConnectorVaultTest extends TestCase {
 		$cases = [
 			'The credential vault is not available' => [],
 			'Unknown credential vault source: s1' => ['OCA\Integriq\Service\CallService' => $this->calls(status: 200), 'OCA\OpenRegister\Service\ObjectService' => $this->objects(null)],
-			'HTTP 500 through the credential vault' => ['OCA\Integriq\Service\CallService' => $this->calls(status: 500), 'OCA\OpenRegister\Service\ObjectService' => $this->objects(new \stdClass())],
+			'HTTP 500 through the credential vault' => ['OCA\Integriq\Service\CallService' => $this->calls(status: 500), 'OCA\OpenRegister\Service\ObjectService' => $this->objects($this->ownedSource(owner: 'alice'))],
 		];
 
 		foreach ($cases as $message => $services) {
 			try {
-				$this->vault($services)->send(sourceId: 's1', request: []);
+				$this->vault($services)->send(sourceId: 's1', request: [], owner: 'alice');
 				$this->fail('expected: ' . $message);
 			} catch (DeliveryException $e) {
 				$this->assertSame($message, $e->getMessage());
 			}
 		}
 	}//end testFailures()
+
+	/**
+	 * A source the creator does not own reads as unknown and is never called; an administrator may use any source.
+	 *
+	 * @return void
+	 */
+	public function testTheSourceIsHeldToTheCreator(): void {
+		$refusals = [
+			'someone else owns it' => [$this->ownedSource(owner: 'bob'), 'alice'],
+			'it has no owner' => [$this->ownedSource(owner: null), 'alice'],
+			'it carries no owner at all' => [new \stdClass(), 'alice'],
+			'the export has no creator' => [$this->ownedSource(owner: ''), ''],
+		];
+
+		foreach ($refusals as $case => [$source, $owner]) {
+			$calls = $this->calls(status: 200);
+			try {
+				$this->vault(['OCA\Integriq\Service\CallService' => $calls, 'OCA\OpenRegister\Service\ObjectService' => $this->objects($source)])
+					->send(sourceId: 's1', request: [], owner: $owner);
+				$this->fail('expected a refusal when ' . $case);
+			} catch (DeliveryException $e) {
+				$this->assertSame('Unknown credential vault source: s1', $e->getMessage(), $case);
+				$this->assertSame([], $calls->args, $case);
+			}
+		}
+
+		$calls = $this->calls(status: 200);
+		$id    = $this->vault(['OCA\Integriq\Service\CallService' => $calls, 'OCA\OpenRegister\Service\ObjectService' => $this->objects($this->ownedSource(owner: 'bob'))], admins: ['admin'])
+			->send(sourceId: 's1', request: [], owner: 'admin');
+		$this->assertSame('log-1', $id);
+	}//end testTheSourceIsHeldToTheCreator()
 }//end class

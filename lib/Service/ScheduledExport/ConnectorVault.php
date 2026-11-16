@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service\ScheduledExport;
 
 use OCA\LaunchPad\Support\FleetAppId;
+use OCP\IGroupManager;
 use Psr\Container\ContainerInterface;
 use Throwable;
 
@@ -48,10 +49,12 @@ class ConnectorVault {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container Resolves the connector's call service and the source object.
+	 * @param ContainerInterface $container    Resolves the connector's call service and the source object.
+	 * @param IGroupManager      $groupManager Tells whether the export's creator is an administrator.
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
+		private readonly IGroupManager $groupManager,
 	) {
 	}//end __construct()
 
@@ -60,20 +63,21 @@ class ConnectorVault {
 	 *
 	 * @param string               $sourceId The source uuid.
 	 * @param array<string, mixed> $request  `endpoint`, `method`, `body` and `headers`.
+	 * @param string               $owner    The export's creator; the source is used under their access.
 	 *
 	 * @return string The call-log id.
 	 *
-	 * @throws DeliveryException When the vault is unavailable, the source is unknown, or the call fails.
+	 * @throws DeliveryException When the vault is unavailable, the source is unknown or not the creator's, or the call fails.
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-010-header-signing-and-credential-vaulting
 	 */
-	public function send(string $sourceId, array $request): string {
+	public function send(string $sourceId, array $request, string $owner): string {
 		$calls = FleetAppId::getService(container: $this->container, canonical: self::CONNECTOR_APP, relative: self::CALL_SERVICE);
 		if ($calls === null || method_exists($calls, 'call') === false) {
 			throw new DeliveryException('The credential vault is not available');
 		}
 
-		$source = $this->source(sourceId: $sourceId);
+		$source = $this->source(sourceId: $sourceId, owner: $owner);
 
 		try {
 			$log = $calls->call(
@@ -90,27 +94,57 @@ class ConnectorVault {
 	}//end send()
 
 	/**
-	 * The vault source by id.
+	 * The vault source by id, under the export creator's access.
+	 *
+	 * The delivery runs in the background without a session, so the source is
+	 * read without the session's checks and then held to the creator: only a
+	 * source the creator owns, or any source when the creator is an
+	 * administrator. Any other source reads as unknown.
 	 *
 	 * @param string $sourceId The source's id.
+	 * @param string $owner    The export's creator.
 	 *
 	 * @return mixed The source.
 	 *
-	 * @throws DeliveryException When it does not exist or cannot be read.
+	 * @throws DeliveryException When it does not exist, cannot be read, or is not the creator's.
 	 */
-	private function source(string $sourceId): mixed {
+	private function source(string $sourceId, string $owner): mixed {
 		try {
 			$source = $this->container->get(self::OBJECT_SERVICE)->find(id: $sourceId, _rbac: false);
 		} catch (Throwable) {
 			$source = null;
 		}
 
-		if ($source === null) {
+		if ($source === null || $this->mayUse(source: $source, owner: $owner) === false) {
 			throw new DeliveryException('Unknown credential vault source: ' . $sourceId);
 		}
 
 		return $source;
 	}//end source()
+
+	/**
+	 * Whether the export's creator may deliver through the source.
+	 *
+	 * @param mixed  $source The source.
+	 * @param string $owner  The export's creator.
+	 *
+	 * @return bool
+	 */
+	private function mayUse(mixed $source, string $owner): bool {
+		if ($owner === '') {
+			return false;
+		}
+
+		if ($this->groupManager->isAdmin(userId: $owner) === true) {
+			return true;
+		}
+
+		if (is_object($source) === false || method_exists($source, 'getOwner') === false) {
+			return false;
+		}
+
+		return (string)$source->getOwner() === $owner;
+	}//end mayUse()
 
 	/**
 	 * The call log's reference, or `vault` when it carries none.

@@ -269,7 +269,7 @@ class DeliveryDispatcherTest extends TestCase {
 	public function testVaultRouteIsUsedForASource(): void {
 		$this->client->expects($this->never())->method('post');
 		$this->vault->expects($this->once())->method('send')
-			->with('src-1', $this->callback(static fn (array $r): bool => $r['endpoint'] === '/drop' && $r['method'] === 'POST' && str_contains($r['body'], '%PDF')))
+			->with('src-1', $this->callback(static fn (array $r): bool => $r['endpoint'] === '/drop' && $r['method'] === 'POST' && str_contains($r['body'], '%PDF')), 'alice')
 			->willReturn('log-9');
 
 		$delivery = $this->dispatcher->deliver(delivery: [], recipient: ['channel' => 'webhook', 'openconnectorSourceId' => 'src-1', 'channelConfig' => ['endpoint' => '/drop', 'url' => 'https://evil.example.com']], context: $this->context);

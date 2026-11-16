@@ -159,7 +159,7 @@ class DeliveryDispatcher {
 				'method' => 'POST',
 				'body' => $payload['body'],
 				'headers' => ['Content-Type' => $payload['contentType']],
-			]);
+			], owner: (string)($context->export['createdBy'] ?? ''));
 		}
 
 		return match ($channel) {

@@ -537,45 +537,28 @@ class TemplateResyncService {
 		}
 
 		$matchedTemplateIds = [];
-		$toUpdate = [];
-		$toRemove = [];
-		$toPreserve = [];
+		$buckets = [
+			'toUpdate' => [],
+			'toRemove' => [],
+			'toPreserve' => [],
+		];
 
 		foreach ($copyPlacements as $cp) {
 			$originId = $cp->getTemplatePlacementId();
-
 			if ($originId !== null && isset($templateById[$originId]) === true) {
 				$matchedTemplateIds[$originId] = true;
-				$tp = $templateById[$originId];
+			}
 
-				if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
-					$toUpdate[] = [
-						'copy' => $cp,
-						'template' => $tp,
-					];
-					continue;
+			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById);
+			if ($bucket === null) {
+				// No known origin — a genuinely user-added placement.
+				$bucket = 'toPreserve';
+				if ($strategy === self::STRATEGY_OVERWRITE) {
+					$bucket = 'toRemove';
 				}
-
-				$toPreserve[] = $cp;
-				continue;
 			}
 
-			if ($originId !== null && isset($templateById[$originId]) === false) {
-				// Template-origin, but the admin has since deleted this
-				// placement from the template — remove it under both
-				// strategies (REQ-RESYNC-003 "Template widget removed by
-				// admin is removed under merge").
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			// No known origin — a genuinely user-added placement.
-			if ($strategy === self::STRATEGY_OVERWRITE) {
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			$toPreserve[] = $cp;
+			$buckets[$bucket][] = $entry;
 		}//end foreach
 
 		return [
@@ -583,11 +566,51 @@ class TemplateResyncService {
 				templatePlacements: $templatePlacements,
 				matchedTemplateIds: $matchedTemplateIds
 			),
-			'toUpdate' => $toUpdate,
-			'toRemove' => $toRemove,
-			'toPreserve' => $toPreserve,
+			'toUpdate' => $buckets['toUpdate'],
+			'toRemove' => $buckets['toRemove'],
+			'toPreserve' => $buckets['toPreserve'],
 		];
 	}//end diffCopy()
+
+	/**
+	 * Classify one copy placement against the template placements it may
+	 * originate from (REQ-RESYNC-003).
+	 *
+	 * A placement whose template origin still exists goes to `toUpdate`
+	 * when its fields differ and to `toPreserve` when they are equal; one
+	 * whose origin the admin has since deleted goes to `toRemove` under
+	 * both strategies. A placement with no known origin is user-added: the
+	 * bucket is null and the strategy decides.
+	 *
+	 * @param WidgetPlacement             $copy         The copy placement.
+	 * @param array<int, WidgetPlacement> $templateById The template placements by ID.
+	 *
+	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement}}
+	 *     The bucket name (null for a user-added placement) and the entry to put in it.
+	 */
+	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById): array {
+		$originId = $copy->getTemplatePlacementId();
+		if ($originId === null) {
+			return [null, $copy];
+		}
+
+		if (isset($templateById[$originId]) === false) {
+			return ['toRemove', $copy];
+		}
+
+		$template = $templateById[$originId];
+		if ($this->placementDiffers(copy: $copy, template: $template) === true) {
+			return [
+				'toUpdate',
+				[
+					'copy' => $copy,
+					'template' => $template,
+				],
+			];
+		}
+
+		return ['toPreserve', $copy];
+	}//end classifyCopyPlacement()
 
 	/**
 	 * Template placements the copy has no counterpart for — i.e. the

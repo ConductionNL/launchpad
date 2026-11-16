@@ -20,7 +20,8 @@
 - [x] Task 10: Implement `CalculatedFieldEvaluator.ts` that takes an AST and a row context (field values from source widget) and evaluates deterministically (REQ-CALC-003, REQ-CALC-005)
 - [x] Task 11: Handle all AST node types: literals, field refs (with `source='self'` and `source='widget:<id>'`), binary/unary ops, conditionals, function calls; return typed result or `null` on null propagation (REQ-CALC-005)
 - [x] Task 12: Error handling: catch runtime errors (divide by zero, null dereference, function error) and return `{error: message, expression, inputs}` so the widget can display an inline error (REQ-CALC-008)
-- [ ] Task 13: Cross-widget field refs resolved via the dashboard store's widget data at evaluation time (REQ-CALC-003)
+- [x] Task 13: Cross-widget field refs resolved via the dashboard store's widget data at evaluation time (REQ-CALC-003)
+  - Built: `evaluateDashboard()` in `src/utils/calculatedFields/dashboardValues.js` hands each field the other widgets' current data and calculated values, read from the calculated-fields store.
 - [x] Task 14: Numeric precision: all math follows IEEE 754 (JavaScript Number), test suite validates equivalence with PHP to within 1e-9 (REQ-CALC-005)
   - Validated: the shared suite holds both evaluators to its expected numbers within 1e-9 (Vitest `evaluator.spec.js`, PHPUnit `CalculatedFieldEvaluatorTest`).
 
@@ -32,8 +33,10 @@
 
 ## 5. Frontend Integration (Vue/Store)
 
-- [ ] Task 17: Add `useCalculatedFields()` composable that: (1) watches widget source data, (2) watches dashboard filters, (3) maintains a dependency graph of calculated fields, (4) re-evaluates on any change, (5) returns `{values: Map, errors: Map}` (REQ-CALC-003)
-- [ ] Task 18: Integrate into `useDashboardsStore.js`: when a widget's data arrives or filters change, re-evaluate all calculated fields on that widget and dependent widgets in topological order (REQ-CALC-003)
+- [x] Task 17: Add `useCalculatedFields()` composable that: (1) watches widget source data, (2) watches dashboard filters, (3) maintains a dependency graph of calculated fields, (4) re-evaluates on any change, (5) returns `{values: Map, errors: Map}` (REQ-CALC-003)
+  - Built: `src/composables/useCalculatedFields.js` watches the widget's data and the dashboard filters, reports them to the store and returns `{values: Map, errors: Map}`; the dependency graph is the cycle detector's topological order.
+- [x] Task 18: Integrate into `useDashboardsStore.js`: when a widget's data arrives or filters change, re-evaluate all calculated fields on that widget and dependent widgets in topological order (REQ-CALC-003)
+  - Built as its own Pinia store, `src/stores/calculatedFields.js` (the app has no `useDashboardsStore.js`): `setWidgets`, `setWidgetData` and `setFilters` re-evaluate every field of the dashboard in topological order; `dependentWidgets()` names the widgets a data change reaches.
 - [ ] Task 19: Widget component renders calculated-field values in the appropriate column/cell alongside source fields; if error, display error icon with tooltip showing expression + input value (REQ-CALC-008)
 - [ ] Task 20: Filtering/export/drill-down: calculated-field values are included in exports and can be used in drill-down but NOT as filter targets in v1 (out of scope) (REQ-CALC-010)
 
@@ -65,9 +68,12 @@
 
 ## 9. Format Options and Rendering
 
-- [ ] Task 34: Implement `FormatOptions` type with: number format (style, minimumFractionDigits, maximumFractionDigits, currency, locale), date format (pattern, locale), duration format (pattern)
+- [x] Task 34: Implement `FormatOptions` type with: number format (style, minimumFractionDigits, maximumFractionDigits, currency, locale), date format (pattern, locale), duration format (pattern)
+  - Built: `src/utils/calculatedFields/formatOptions.js` (JSDoc typedefs `NumberFormatOptions`, `DateFormatOptions`, `DurationFormatOptions`).
 - [ ] Task 35: In the widget's table/chart/single-value renderers, apply format options at display time ONLY (not at evaluation time) using `Intl.NumberFormat`, `Intl.DateTimeFormat`, or custom logic for durations (REQ-CALC-010)
-- [ ] Task 36: Format options do NOT affect the value passed to alerting, export, or other consumers; only the displayed string in the UI (REQ-CALC-010)
+  - Partly built: the formatters (`Intl.NumberFormat`, `Intl.DateTimeFormat`, a duration pattern) exist; calling them from the table, chart and single-value renderers is left with task 19.
+- [x] Task 36: Format options do NOT affect the value passed to alerting, export, or other consumers; only the displayed string in the UI (REQ-CALC-010)
+  - `formatCalculatedValue()` only answers a display string; the store keeps native values for alerting, export and drill-down (tested).
 
 ## 10. Testing — Backend
 

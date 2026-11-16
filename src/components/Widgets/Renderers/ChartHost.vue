@@ -74,7 +74,11 @@ export default {
 			return this.content.chartKind || this.content.props?.chartKind || 'area'
 		},
 
-		/** The OpenRegister dataSource block CnChartWidget self-resolves, with the bus's filter when the chart consumes it. */
+		/**
+		 * The OpenRegister dataSource block CnChartWidget self-resolves, with the bus's filter when the chart consumes it.
+		 *
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
 		dataSource() {
 			const declared = this.content.dataSource || this.content.props?.dataSource || null
 			const bus = this.bus
@@ -84,14 +88,22 @@ export default {
 			return withBusFilter(declared, consumedFilter(bus.clauses.value, this.busDeclarations.consumes))
 		},
 
-		/** The filter bus itself, unwrapped from the injected ref. */
+		/**
+		 * The filter bus itself, unwrapped from the injected ref.
+		 *
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
 		bus() {
 			const injected = this.filterBus
 			const bus = injected && typeof injected.publish !== 'function' && 'value' in injected ? injected.value : injected
 			return bus && typeof bus.publish === 'function' ? bus : null
 		},
 
-		/** What the chart declares it publishes and consumes. */
+		/**
+		 * What the chart declares it publishes and consumes.
+		 *
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
 		busDeclarations() {
 			return busDeclarationsOf(this.content)
 		},
@@ -136,6 +148,7 @@ export default {
 			 *
 			 * @param {{findings: Array<object>}} check The check.
 			 * @return {void}
+			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
 			 */
 			handler(check) {
 				for (const finding of check.findings) {

@@ -13,7 +13,7 @@
  * logged and dropped: telemetry never gets in the way of filtering.
  *
  * @module composables/filterTelemetry
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-records-drill-down-paths-opt-in
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
  */
 
 import axios from '@nextcloud/axios'

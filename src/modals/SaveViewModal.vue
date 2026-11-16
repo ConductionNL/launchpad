@@ -91,6 +91,7 @@ export default {
 		 * The modal's title.
 		 *
 		 * @return {string}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-11
 		 */
 		title() {
 			return this.view ? t('launchpad', 'Edit saved view') : t('launchpad', 'Save view')
@@ -100,6 +101,7 @@ export default {
 		 * Whether a name was given.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-11
 		 */
 		canSubmit() {
 			return this.name.trim() !== ''
@@ -114,6 +116,7 @@ export default {
 			 *
 			 * @param {boolean} isOpen Whether it opened.
 			 * @return {void}
+			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-11
 			 */
 			handler(isOpen) {
 				if (isOpen) {
@@ -132,6 +135,7 @@ export default {
 		 * Hand the input to the caller.
 		 *
 		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-11
 		 */
 		submit() {
 			if (!this.canSubmit) {

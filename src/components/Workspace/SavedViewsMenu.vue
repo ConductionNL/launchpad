@@ -155,6 +155,7 @@ export default {
 		 *
 		 * @param {object} view The view.
 		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
 		 */
 		apply(view) {
 			this.expanded = false

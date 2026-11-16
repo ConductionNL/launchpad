@@ -80,6 +80,7 @@ export default {
 		 * The views as the menu shows them.
 		 *
 		 * @return {{mine: Array<object>, shared: Array<object>}}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
 		 */
 		grouped() {
 			return groupViews(this.views, this.userId)
@@ -93,6 +94,7 @@ export default {
 			 * Load the views of the dashboard that opened.
 			 *
 			 * @return {void}
+			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
 			 */
 			handler() {
 				this.load()
@@ -128,6 +130,7 @@ export default {
 		 * Open the modal for a new view.
 		 *
 		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
 		 */
 		openSave() {
 			this.editing = null
@@ -140,6 +143,7 @@ export default {
 		 *
 		 * @param {object} view The view.
 		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
 		 */
 		openEdit(view) {
 			if (!canManageView(view, this.userId)) {
@@ -154,6 +158,7 @@ export default {
 		 * Close the modal.
 		 *
 		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-12
 		 */
 		closeModal() {
 			this.modalOpen = false

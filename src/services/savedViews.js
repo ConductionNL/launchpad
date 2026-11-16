@@ -45,6 +45,7 @@ function url(id) {
  *
  * @param {object} raw An object from the register.
  * @return {object|null} The view, or null for a row without id or name.
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
  */
 export function normaliseView(raw) {
 	if (!raw || typeof raw !== 'object') {

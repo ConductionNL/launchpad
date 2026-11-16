@@ -194,34 +194,15 @@ class OrphanedDataCleanupService {
 		?string $userId = null,
 		string $source = 'api',
 	): CleanupResult {
-		$names = $this->resolveCategoryNames(requested: $categoryNames);
-		$start = (int)round(num: (microtime(as_float: true) * 1000));
-		$byCategory = [];
-		$skipped = [];
-
-		if ($dryRun === true) {
-			$this->db->beginTransaction();
-		}
-
-		$this->runCategoryPurges(
-			names: $names,
-			dryRun: $dryRun,
-			byCategory: $byCategory,
-			skipped: $skipped,
-		);
-
-		$duration = ((int)round(num: (microtime(as_float: true) * 1000)) - $start);
-		$result = CleanupResult::fromCounts(
-			byCategory: $byCategory,
-			durationMs: $duration,
-			dryRun: $dryRun,
-			skipped: $skipped,
+		$result = $this->timedPurge(
+			names: $this->resolveCategoryNames(requested: $categoryNames),
+			dryRun: $dryRun
 		);
 
 		if ($dryRun === false) {
 			$this->recordPurgeOutcome(
 				result: $result,
-				byCategory: $byCategory,
+				byCategory: $result->getByCategory(),
 				userId: $userId,
 				source: $source,
 			);
@@ -231,7 +212,39 @@ class OrphanedDataCleanupService {
 	}//end purge()
 
 	/**
-	 * Run every named category's purge, filling the count and skip lists.
+	 * Purge the named categories and time the run.
+	 *
+	 * A dry run opens a transaction first; {@see self::runCategoryPurges()}
+	 * rolls it back (REQ-CLN-003).
+	 *
+	 * @param array<int, string> $names  The resolved category names.
+	 * @param bool               $dryRun True for simulation.
+	 *
+	 * @return CleanupResult The result, with its duration.
+	 */
+	private function timedPurge(array $names, bool $dryRun): CleanupResult {
+		$start = (int)round(num: (microtime(as_float: true) * 1000));
+
+		if ($dryRun === true) {
+			$this->db->beginTransaction();
+		}
+
+		[$byCategory, $skipped] = $this->runCategoryPurges(
+			names: $names,
+			dryRun: $dryRun,
+		);
+
+		$duration = ((int)round(num: (microtime(as_float: true) * 1000)) - $start);
+		return CleanupResult::fromCounts(
+			byCategory: $byCategory,
+			durationMs: $duration,
+			dryRun: $dryRun,
+			skipped: $skipped,
+		);
+	}//end timedPurge()
+
+	/**
+	 * Run every named category's purge and collect the counts and skips.
 	 *
 	 * A category that is unregistered or reports itself unavailable is
 	 * skipped rather than failing the whole run. On a dry run the caller
@@ -239,21 +252,17 @@ class OrphanedDataCleanupService {
 	 * happy path and the failure path — REQ-CLN-003 requires a simulation
 	 * to leave zero persistent side effect.
 	 *
-	 * @param array<int, string> $names The category names to purge.
-	 * @param bool $dryRun True for simulation.
-	 * @param array<string, int> $byCategory Per-category row counts, filled in place.
-	 * @param array<int, string> $skipped Skipped category names, filled in place.
+	 * @param array<int, string> $names  The category names to purge.
+	 * @param bool               $dryRun True for simulation.
 	 *
-	 * @return void
+	 * @return array{0: array<string, int>, 1: array<int, string>} Per-category
+	 *     row counts and skipped category names.
 	 *
 	 * @throws Throwable Re-thrown after the dry-run transaction is rolled back.
 	 */
-	private function runCategoryPurges(
-		array $names,
-		bool $dryRun,
-		array &$byCategory,
-		array &$skipped,
-	): void {
+	private function runCategoryPurges(array $names, bool $dryRun): array {
+		$byCategory = [];
+		$skipped = [];
 		try {
 			foreach ($names as $name) {
 				$category = $this->registry->getCategoryByName(name: $name);
@@ -282,6 +291,8 @@ class OrphanedDataCleanupService {
 
 			throw $t;
 		}//end try
+
+		return [$byCategory, $skipped];
 	}//end runCategoryPurges()
 
 	/**

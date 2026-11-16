@@ -36,3 +36,10 @@ Only administrators edit the list. Every user can use it. The query leaves the b
 - PHPUnit: prefix format, uniqueness, template check, the 30-entry limit.
 - Vitest: `parsePrefix` cases (known, unknown, prefix only, uppercase), result rendering, Enter opening the right address, `?` listing.
 - Playwright: with `!t` set to a test site, typing `!t printer` and Enter opens that site with `printer`.
+
+## What the build corrected (2026-09-30)
+
+- The Workspace quick search and the search widget are one component since the bar became a widget (`SearchWidget.vue` hosts `RuntimeShellSearch.vue`), so the shortcuts are wired once.
+- The shortcut list has its own admin endpoints (`GET`/`PUT /api/admin/search-shortcuts`, `SearchShortcutService`) instead of another parameter on `AdminSettingsService::updateSettings()`; the https `{query}` check is the same method, made public.
+- Prefixes are stored lower case. Enter on a prefix with nothing after it opens nothing, and a shortcut query dims no tiles.
+- Enter on an entry of the `?` list types that prefix into the box.

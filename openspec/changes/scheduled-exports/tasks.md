@@ -74,7 +74,8 @@
 - [x] Task 34: Hydra gates green: `hydra-gate-spdx`, `hydra-gate-modal-isolation` (export modals live in `src/modals/`, not inlined), `hydra-gate-route-auth` (all routes have permission checks)
   - 2026-11-15: SPDX headers clean (scripts/check-license-headers.sh), every ScheduledExportController route carries #[NoAdminRequired] and checks its scheduled-exports.* action first, and every export dialog lives in its own file under src/modals/.
 - [x] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
-- [ ] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions
+- [x] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions
+  - 2026-11-16: every `t()`/`n()` string in this change's frontend files is in `l10n/en.js` and `l10n/nl.js`; the three schema strings of the run object (`skipReason` title and description, `artefactIndexes` description) and the scheduled-export failure notification subject are added to en/nl. The other required locales stay one batch short of parity, as they already are on development; `check:schema-l10n` lists no string of this change as uncovered.
 - [x] Task 37: Update `CHANGELOG.md` with feature summary: "Scheduled Exports v1 — recurring exports with multi-format rendering and multi-channel delivery (email, Files, webhook, SFTP)"
 - [x] Task 38: Document in `design.md` why stale recurrence preferences are skipped per-request rather than via background job (DST/leap-day edge cases are transient; recompute on every read for consistency)
 

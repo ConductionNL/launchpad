@@ -108,6 +108,24 @@ class UrlSafetyValidator {
 	 * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function checkAllowList(string $url, string $appId, string $configKey): bool {
+		$allowed = $this->configuredHosts(appId: $appId, configKey: $configKey);
+		if ($allowed === null) {
+			return true;
+		}
+
+		return $this->hostIsListed(url: $url, allowed: $allowed);
+	}//end checkAllowList()
+
+	/**
+	 * The configured allow-list, or null when none is configured (an empty
+	 * or blank value, invalid JSON or an empty array all mean "no list").
+	 *
+	 * @param string $appId     The app whose config key to read.
+	 * @param string $configKey The IAppConfig key holding the JSON array.
+	 *
+	 * @return array<mixed>|null The decoded allow-list entries, or null.
+	 */
+	private function configuredHosts(string $appId, string $configKey): ?array {
 		$raw = $this->appConfig->getValueString(
 			app: $appId,
 			key: $configKey,
@@ -115,28 +133,40 @@ class UrlSafetyValidator {
 		);
 
 		if (trim(string: $raw) === '') {
-			return true;
+			return null;
 		}
 
 		$decoded = json_decode(json: $raw, associative: true);
 		if (is_array(value: $decoded) === false || $decoded === []) {
-			return true;
+			return null;
 		}
 
+		return $decoded;
+	}//end configuredHosts()
+
+	/**
+	 * Whether the URL's host is on the allow-list, case-insensitively.
+	 *
+	 * @param string       $url     The URL to check.
+	 * @param array<mixed> $allowed The allow-list entries; non-strings never match.
+	 *
+	 * @return bool True when the host is listed; false for a URL without a host.
+	 */
+	private function hostIsListed(string $url, array $allowed): bool {
 		$host = parse_url(url: $url, component: PHP_URL_HOST);
 		if (is_string(value: $host) === false || $host === '') {
 			return false;
 		}
 
 		$needle = strtolower(string: $host);
-		foreach ($decoded as $allowed) {
-			if (is_string(value: $allowed) === true
-				&& strtolower(string: $allowed) === $needle
+		foreach ($allowed as $entry) {
+			if (is_string(value: $entry) === true
+				&& strtolower(string: $entry) === $needle
 			) {
 				return true;
 			}
 		}
 
 		return false;
-	}//end checkAllowList()
+	}//end hostIsListed()
 }//end class

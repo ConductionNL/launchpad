@@ -126,21 +126,13 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function save(string $userId, int $dashboardId, array $overrides, array $hide, array $placements): array {
-		$compulsory = [];
-		$known = [];
-		foreach ($placements as $placement) {
-			$known[] = (int)$placement->getId();
-			if ($this->isCompulsory(placement: $placement) === true) {
-				$compulsory[] = (int)$placement->getId();
-			}
-		}
+		[$known, $compulsory] = $this->knownAndCompulsoryIds(placements: $placements);
 
-		foreach ($hide as $placementId) {
-			if (in_array((int)$placementId, $compulsory, true) === true) {
-				// Refused before anything is written, so a batch that touches
-				// a compulsory widget lands nothing at all.
-				return ['error' => 'placement_compulsory', 'placementId' => (int)$placementId];
-			}
+		$refused = $this->firstCompulsoryHidden(hide: $hide, compulsory: $compulsory);
+		if ($refused !== null) {
+			// Refused before anything is written, so a batch that touches
+			// a compulsory widget lands nothing at all.
+			return ['error' => 'placement_compulsory', 'placementId' => $refused];
 		}
 
 		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
@@ -165,6 +157,45 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 
 		return ['saved' => true];
 	}//end save()
+
+	/**
+	 * The ids of the shared placements, and those of the compulsory ones.
+	 *
+	 * @param array<int, WidgetPlacement> $placements The shared placements.
+	 *
+	 * @return array{0: array<int, int>, 1: array<int, int>} Every placement id,
+	 *     and the compulsory placement ids.
+	 */
+	private function knownAndCompulsoryIds(array $placements): array {
+		$compulsory = [];
+		$known = [];
+		foreach ($placements as $placement) {
+			$known[] = (int)$placement->getId();
+			if ($this->isCompulsory(placement: $placement) === true) {
+				$compulsory[] = (int)$placement->getId();
+			}
+		}
+
+		return [$known, $compulsory];
+	}//end knownAndCompulsoryIds()
+
+	/**
+	 * The first placement id asked to be hidden that is compulsory.
+	 *
+	 * @param array<int, int> $hide       The placement ids asked to be hidden.
+	 * @param array<int, int> $compulsory The compulsory placement ids.
+	 *
+	 * @return int|null The refused placement id, or null when none is compulsory.
+	 */
+	private function firstCompulsoryHidden(array $hide, array $compulsory): ?int {
+		foreach ($hide as $placementId) {
+			if (in_array((int)$placementId, $compulsory, true) === true) {
+				return (int)$placementId;
+			}
+		}
+
+		return null;
+	}//end firstCompulsoryHidden()
 
 	/**
 	 * Put the dashboard back to what its owner composed.
@@ -217,20 +248,10 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 			return 0;
 		}
 
-		$live = array_map('intval', $liveIds);
-		$overrides = $layer->overridesArray();
-		$hidden = $layer->hiddenArray();
+		[$keptOverrides, $keptHidden] = $this->liveEntries(layer: $layer, liveIds: $liveIds);
 
-		$keptOverrides = array_filter(
-			$overrides,
-			static function (int $placementId) use ($live): bool {
-				return in_array($placementId, $live, true);
-			},
-			ARRAY_FILTER_USE_KEY
-		);
-		$keptHidden = array_values(array_intersect($hidden, $live));
-
-		$dropped = ((count($overrides) - count($keptOverrides)) + (count($hidden) - count($keptHidden)));
+		$dropped = ((count($layer->overridesArray()) - count($keptOverrides))
+			+ (count($layer->hiddenArray()) - count($keptHidden)));
 		if ($dropped === 0) {
 			return 0;
 		}
@@ -247,6 +268,29 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 
 		return $dropped;
 	}//end pruneOrphans()
+
+	/**
+	 * The layer's overrides and hidden ids that still point at a live placement.
+	 *
+	 * @param PersonalLayer   $layer   The person's layer.
+	 * @param array<int, int> $liveIds The placement ids that still exist.
+	 *
+	 * @return array{0: array<int, array<string, mixed>>, 1: array<int, int>} The
+	 *     kept overrides by placement id, and the kept hidden ids.
+	 */
+	private function liveEntries(PersonalLayer $layer, array $liveIds): array {
+		$live = array_map('intval', $liveIds);
+
+		$keptOverrides = array_filter(
+			$layer->overridesArray(),
+			static function (int $placementId) use ($live): bool {
+				return in_array($placementId, $live, true);
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		return [$keptOverrides, array_values(array_intersect($layer->hiddenArray(), $live))];
+	}//end liveEntries()
 
 	/**
 	 * The person's layer, or null.

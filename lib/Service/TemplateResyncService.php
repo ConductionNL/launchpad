@@ -537,86 +537,81 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			$templateById[$tp->getId()] = $tp;
 		}
 
-		$sorted = $this->sortCopyPlacements(copyPlacements: $copyPlacements, templateById: $templateById);
-
-		$diff = [
+		$matchedTemplateIds = [];
+		$buckets = [
 			'toUpdate' => [],
 			'toRemove' => [],
 			'toPreserve' => [],
 		];
-		foreach ($sorted['entries'] as [$bucket, $entry]) {
-			if ($bucket === 'userAdded') {
-				// A genuinely user-added placement: kept under merge, removed under overwrite.
+
+		foreach ($copyPlacements as $cp) {
+			$originId = $cp->getTemplatePlacementId();
+			if ($originId !== null && isset($templateById[$originId]) === true) {
+				$matchedTemplateIds[$originId] = true;
+			}
+
+			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById);
+			if ($bucket === null) {
+				// No known origin — a genuinely user-added placement.
 				$bucket = 'toPreserve';
 				if ($strategy === self::STRATEGY_OVERWRITE) {
 					$bucket = 'toRemove';
 				}
 			}
 
-			$diff[$bucket][] = $entry;
-		}
+			$buckets[$bucket][] = $entry;
+		}//end foreach
 
 		return [
 			'toAdd' => $this->unmatchedTemplatePlacements(
 				templatePlacements: $templatePlacements,
-				matchedTemplateIds: $sorted['matched']
+				matchedTemplateIds: $matchedTemplateIds
 			),
-			'toUpdate' => $diff['toUpdate'],
-			'toRemove' => $diff['toRemove'],
-			'toPreserve' => $diff['toPreserve'],
+			'toUpdate' => $buckets['toUpdate'],
+			'toRemove' => $buckets['toRemove'],
+			'toPreserve' => $buckets['toPreserve'],
 		];
 	}//end diffCopy()
 
 	/**
-	 * Label each of the copy's placements, in order, by how it relates to the template.
+	 * Classify one copy placement against the template placements it may
+	 * originate from (REQ-RESYNC-003).
 	 *
-	 * The label is the diff bucket it lands in, or `userAdded` for a placement
-	 * with no template origin, whose bucket depends on the strategy.
+	 * A placement whose template origin still exists goes to `toUpdate`
+	 * when its fields differ and to `toPreserve` when they are equal; one
+	 * whose origin the admin has since deleted goes to `toRemove` under
+	 * both strategies. A placement with no known origin is user-added: the
+	 * bucket is null and the strategy decides.
 	 *
-	 * @param WidgetPlacement[] $copyPlacements The copy's current placements.
-	 * @param array<int, WidgetPlacement> $templateById The template's placements by id.
+	 * @param WidgetPlacement             $copy         The copy placement.
+	 * @param array<int, WidgetPlacement> $templateById The template placements by ID.
 	 *
-	 * @return array{
-	 *     matched: array<int, true>,
-	 *     entries: list<array{0: string, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement}}>
-	 * }
+	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement}}
+	 *     The bucket name (null for a user-added placement) and the entry to put in it.
 	 */
-	private function sortCopyPlacements(array $copyPlacements, array $templateById): array {
-		$matched = [];
-		$entries = [];
+	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById): array {
+		$originId = $copy->getTemplatePlacementId();
+		if ($originId === null) {
+			return [null, $copy];
+		}
 
-		foreach ($copyPlacements as $copy) {
-			$originId = $copy->getTemplatePlacementId();
+		if (isset($templateById[$originId]) === false) {
+			return ['toRemove', $copy];
+		}
 
-			if ($originId === null) {
-				$entries[] = ['userAdded', $copy];
-				continue;
-			}
+		$template = $templateById[$originId];
+		if ($this->placementDiffers(copy: $copy, template: $template) === true) {
+			return [
+				'toUpdate',
+				[
+					'copy' => $copy,
+					'template' => $template,
+				],
+			];
+		}
 
-			if (isset($templateById[$originId]) === false) {
-				// Template-origin, but the admin has since deleted this
-				// placement from the template — remove it under both
-				// strategies (REQ-RESYNC-003 "Template widget removed by
-				// admin is removed under merge").
-				$entries[] = ['toRemove', $copy];
-				continue;
-			}
-
-			$matched[$originId] = true;
-			$template = $templateById[$originId];
-			if ($this->placementDiffers(copy: $copy, template: $template) === true) {
-				$entries[] = ['toUpdate', ['copy' => $copy, 'template' => $template]];
-				continue;
-			}
-
-			$entries[] = ['toPreserve', $copy];
-		}//end foreach
-
-		return [
-			'matched' => $matched,
-			'entries' => $entries,
-		];
-	}//end sortCopyPlacements()
+		return ['toPreserve', $copy];
+	}//end classifyCopyPlacement()
 
 	/**
 	 * Template placements the copy has no counterpart for — i.e. the

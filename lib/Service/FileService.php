@@ -168,16 +168,8 @@ class FileService {
 		$this->assertValidDirectory(dir: $dir);
 		$this->assertAllowedExtension(filename: $filename);
 
-		try {
-			$userFolder = $this->rootFolder->getUserFolder(userId: $userId);
-		} catch (Throwable $e) {
-			throw new StorageFailureException(
-				message: 'Failed to resolve user folder'
-			);
-		}
-
 		$targetFolder = $this->resolveTargetFolder(
-			userFolder: $userFolder,
+			userFolder: $this->userFolder(userId: $userId),
 			dir: $dir
 		);
 
@@ -199,6 +191,25 @@ class FileService {
 			'url' => $url,
 		];
 	}//end createFile()
+
+	/**
+	 * Resolve a user's home folder.
+	 *
+	 * @param string $userId The owning NC user ID.
+	 *
+	 * @return Folder The user's home folder.
+	 *
+	 * @throws StorageFailureException When the folder cannot be resolved.
+	 */
+	private function userFolder(string $userId): Folder {
+		try {
+			return $this->rootFolder->getUserFolder(userId: $userId);
+		} catch (Throwable $e) {
+			throw new StorageFailureException(
+				message: 'Failed to resolve user folder'
+			);
+		}
+	}//end userFolder()
 
 	/**
 	 * Returns the currently configured extension allow-list.

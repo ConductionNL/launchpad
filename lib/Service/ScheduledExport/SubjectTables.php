@@ -88,20 +88,24 @@ class SubjectTables {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @throws RenderException When the subject does not exist.
+	 * @throws RenderException When the subject does not exist or the creator does not own it.
+	 *
+	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
 	private function widgets(array $export): array {
 		$subjectId = (string)($export['subjectId'] ?? '');
+		$owner     = (string)($export['createdBy'] ?? '');
 		if (($export['subjectType'] ?? null) === 'dashboard') {
+			// REQ-SCH-002: the render runs under the creator's access, so only a
+			// dashboard the creator owns is read; any other reads as gone.
 			$dashboard = $this->store->find(schema: 'dashboard', uuid: $subjectId);
-			if ($dashboard === null) {
+			if ($dashboard === null || $owner === '' || (string)($dashboard['owner'] ?? '') !== $owner) {
 				throw new RenderException('The dashboard of this export no longer exists');
 			}
 
 			return array_values(array_filter((array)($dashboard['widgets'] ?? []), 'is_array'));
 		}
 
-		$owner = (string)($export['createdBy'] ?? '');
 		foreach ($this->store->findAll(schema: 'dashboard', filters: ['@self' => ['owner' => $owner]]) as $dashboard) {
 			foreach ((array)($dashboard['widgets'] ?? []) as $widget) {
 				if (is_array($widget) === true && in_array($subjectId, [(string)($widget['id'] ?? ''), (string)($widget['widgetId'] ?? '')], true) === true) {

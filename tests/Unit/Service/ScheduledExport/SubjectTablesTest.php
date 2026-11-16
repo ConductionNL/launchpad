@@ -42,7 +42,7 @@ class SubjectTablesTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private function dashboard(): array {
-		return ['id' => 'd1', 'widgets' => [
+		return ['id' => 'd1', 'owner' => 'alice', 'widgets' => [
 			['id' => 'w1', 'widgetKey' => 'chart', 'props' => ['title' => 'Bezwaren', 'rows' => [
 				['gemeenteCode' => 'GM0355', 'aantal' => 4],
 				['gemeenteCode' => 'GM0344', 'aantal' => 7, 'extra' => 'x'],
@@ -61,7 +61,7 @@ class SubjectTablesTest extends TestCase {
 		$store = $this->createMock(ExportObjectStore::class);
 		$store->expects($this->once())->method('find')->with('dashboard', 'd1')->willReturn($this->dashboard());
 
-		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: []);
+		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'], filterContext: []);
 
 		$this->assertSame([
 			['title' => 'Bezwaren', 'headers' => ['gemeenteCode', 'aantal', 'extra'], 'rows' => [['GM0355', 4, null], ['GM0344', 7, 'x']]],
@@ -78,7 +78,7 @@ class SubjectTablesTest extends TestCase {
 		$store = $this->createMock(ExportObjectStore::class);
 		$store->method('find')->willReturn($this->dashboard());
 
-		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: ['gemeenteCode' => 'GM0355']);
+		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'], filterContext: ['gemeenteCode' => 'GM0355']);
 
 		$this->assertSame([['GM0355', 4, null]], $tables[0]['rows']);
 		$this->assertSame([['a']], $tables[1]['rows']);
@@ -95,7 +95,7 @@ class SubjectTablesTest extends TestCase {
 
 		$this->expectException(InvalidFilterContextException::class);
 		$this->expectExceptionMessage('Unknown filter field: provincie');
-		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: ['provincie' => 'NH']);
+		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'], filterContext: ['provincie' => 'NH']);
 	}//end testUnknownFilterFieldIsRefused()
 
 	/**
@@ -126,6 +126,33 @@ class SubjectTablesTest extends TestCase {
 		$store->method('find')->willReturn(null);
 
 		$this->expectExceptionMessage('The dashboard of this export no longer exists');
-		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'gone'], filterContext: []);
+		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'gone', 'createdBy' => 'alice'], filterContext: []);
 	}//end testMissingDashboardIsRefused()
+	/**
+	 * A dashboard subject the creator does not own is not read: the render
+	 * runs under the creator's access (REQ-SCH-002).
+	 *
+	 * @return void
+	 */
+	public function testDashboardOfAnotherOwnerIsRefused(): void {
+		$store = $this->createMock(ExportObjectStore::class);
+		$store->method('find')->with('dashboard', 'd1')->willReturn($this->dashboard());
+
+		$this->expectException(RenderException::class);
+		$this->expectExceptionMessage('The dashboard of this export no longer exists');
+		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'mallory'], filterContext: []);
+	}//end testDashboardOfAnotherOwnerIsRefused()
+
+	/**
+	 * An export without a creator reads no dashboard at all.
+	 *
+	 * @return void
+	 */
+	public function testDashboardWithoutCreatorIsRefused(): void {
+		$store = $this->createMock(ExportObjectStore::class);
+		$store->method('find')->willReturn($this->dashboard());
+
+		$this->expectException(RenderException::class);
+		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: []);
+	}//end testDashboardWithoutCreatorIsRefused()
 }//end class

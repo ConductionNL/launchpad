@@ -1049,6 +1049,28 @@ class DashboardService {
 		string $uuid,
 		string $fallbackOwnerId,
 	): void {
+		$this->deleteChildRows(dashboardId: $dashboardId, uuid: $uuid);
+
+		$this->stores->dashboardMapper->delete(entity: $dashboard);
+
+		$this->dispatchDashboardDeleted(
+			dashboard: $dashboard,
+			uuid: $uuid,
+			fallbackOwnerId: $fallbackOwnerId
+		);
+	}//end deleteLeafWithChildRows()
+
+	/**
+	 * Delete the child rows this service owns for one dashboard: its
+	 * translation variants (REQ-DASH-044), placements and editing lock
+	 * (REQ-LOCK-008).
+	 *
+	 * @param int    $dashboardId The dashboard's numeric ID.
+	 * @param string $uuid        Its UUID (may be empty).
+	 *
+	 * @return void
+	 */
+	private function deleteChildRows(int $dashboardId, string $uuid): void {
 		// REQ-DASH-044: cascade-delete translation variants for the
 		// dashboard about to disappear so they don't outlive the parent.
 		if ($uuid !== '' && $this->structure->translationService !== null) {
@@ -1068,15 +1090,7 @@ class DashboardService {
 				dashboardUuid: $uuid
 			);
 		}
-
-		$this->stores->dashboardMapper->delete(entity: $dashboard);
-
-		$this->dispatchDashboardDeleted(
-			dashboard: $dashboard,
-			uuid: $uuid,
-			fallbackOwnerId: $fallbackOwnerId
-		);
-	}//end deleteLeafWithChildRows()
+	}//end deleteChildRows()
 
 	/**
 	 * Delete a dashboard's whole subtree, clearing the child rows the
@@ -1520,6 +1534,23 @@ class DashboardService {
 			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
 		}
 
+		$this->swapGroupDefault(groupId: $groupId, uuid: $uuid);
+	}//end setGroupDefault()
+
+	/**
+	 * Make one dashboard the group's default and clear every other default
+	 * of that group, in one transaction (REQ-DASH-015).
+	 *
+	 * @param string $groupId The group ID.
+	 * @param string $uuid    The dashboard that becomes the default.
+	 *
+	 * @return void
+	 *
+	 * @throws DoesNotExistException When the dashboard does not belong to
+	 *                               the group (rolled back).
+	 * @throws Throwable Any other DB error, after rollback.
+	 */
+	private function swapGroupDefault(string $groupId, string $uuid): void {
 		$this->platform->db->beginTransaction();
 		try {
 			$affected = $this->stores->dashboardMapper->setGroupDefaultUuid(
@@ -1551,7 +1582,7 @@ class DashboardService {
 			$this->platform->db->rollBack();
 			throw $t;
 		}//end try
-	}//end setGroupDefault()
+	}//end swapGroupDefault()
 
 	/**
 	 * Get all dashboards visible to a user, source-tagged.
@@ -3533,6 +3564,20 @@ class DashboardService {
 			return $placement;
 		}
 
+		$this->applySeedTile(placement: $placement, tile: $config['tile']);
+
+		return $placement;
+	}//end buildSeedPlacement()
+
+	/**
+	 * Copy a seed config's tile fields onto a placement.
+	 *
+	 * @param WidgetPlacement      $placement The placement being seeded.
+	 * @param array<string, mixed> $tile      The seed config's `tile` entry.
+	 *
+	 * @return void
+	 */
+	private function applySeedTile(WidgetPlacement $placement, array $tile): void {
 		// `tileType` MUST be non-null for `WidgetPlacement::jsonSerialize()`
 		// to emit the flat tile* fields the renderer reads. The
 		// sentinel `'preset'` distinguishes seed-tiles from the
@@ -3541,16 +3586,14 @@ class DashboardService {
 		// placements still flow through the registry-backed
 		// TileWidget renderer (REQ-WDG-022).
 		$placement->setTileType('preset');
-		$placement->setTileTitle($config['tile']['title']);
-		$placement->setTileIcon($config['tile']['icon']);
-		$placement->setTileIconType($config['tile']['iconType']);
-		$placement->setTileBackgroundColor($config['tile']['backgroundColor']);
-		$placement->setTileTextColor($config['tile']['textColor']);
-		$placement->setTileLinkType($config['tile']['linkType']);
-		$placement->setTileLinkValue($config['tile']['linkValue']);
-
-		return $placement;
-	}//end buildSeedPlacement()
+		$placement->setTileTitle($tile['title']);
+		$placement->setTileIcon($tile['icon']);
+		$placement->setTileIconType($tile['iconType']);
+		$placement->setTileBackgroundColor($tile['backgroundColor']);
+		$placement->setTileTextColor($tile['textColor']);
+		$placement->setTileLinkType($tile['linkType']);
+		$placement->setTileLinkValue($tile['linkValue']);
+	}//end applySeedTile()
 
 	/**
 	 * Apply updates to a dashboard entity.

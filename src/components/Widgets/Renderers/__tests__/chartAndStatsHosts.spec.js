@@ -8,9 +8,12 @@
  */
 
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { computed, nextTick } from 'vue'
 import ChartHost from '../ChartHost.vue'
 import StatsBlockHost from '../StatsBlockHost.vue'
+import { useFilterBus } from '../../../../composables/useFilterBus.js'
+import { logger } from '../../../../utils/logger.js'
 
 const ChartStub = {
 	name: 'CnChartWidget',
@@ -101,5 +104,56 @@ describe('StatsBlockHost', () => {
 			route: undefined,
 			iconClass: undefined,
 		})
+	})
+})
+
+describe('ChartHost on the filter bus (REQ-CWF-002, REQ-CWF-008)', () => {
+	const HIERARCHY = { id: 'nl', levels: [{ dimension: 'gemeenteCode' }, { dimension: 'wijkCode', parentDimension: 'gemeenteCode' }] }
+
+	/**
+	 * Mount a chart under a bus.
+	 *
+	 * @param {object} content The placement content.
+	 * @param {object} bus The bus.
+	 * @return {import('@vue/test-utils').VueWrapper}
+	 */
+	function mountOnBus(content, bus) {
+		return mount(ChartHost, {
+			props: { content, placement: { id: 3 } },
+			global: { stubs: { CnChartWidget: ChartStub }, provide: { dashboardFilterBus: computed(() => bus) } },
+		})
+	}
+
+	it('a consuming chart filters its data source on the bus, and follows it', async () => {
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		const content = { dataSource: { schema: 'zaak', filter: { type: 'bezwaar' } }, consumes: [{ dimension: 'gemeenteCode', field: 'gemeente' }] }
+		const wrapper = mountOnBus(content, bus)
+		expect(wrapper.findComponent(ChartStub).props('dataSource')).toEqual(content.dataSource)
+
+		bus.publish({ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355', source: 'widgetClick' })
+		await nextTick()
+
+		expect(wrapper.findComponent(ChartStub).props('dataSource')).toEqual({ schema: 'zaak', filter: { type: 'bezwaar', gemeente: 'GM0355' } })
+	})
+
+	it('a chart consuming a dimension outside the dashboard hierarchies stays unfiltered, with a warning', async () => {
+		const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {})
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		bus.publish({ dimension: 'status', operator: 'eq', value: 'open' })
+		const content = { dataSource: { schema: 'zaak' }, consumes: ['status'] }
+
+		const wrapper = mountOnBus(content, bus)
+
+		expect(wrapper.findComponent(ChartStub).props('dataSource')).toEqual({ schema: 'zaak' })
+		expect(warn).toHaveBeenCalledWith('[launchpad] widget 3 is not on the filter bus: consumes-unknown-dimension (status)')
+		warn.mockRestore()
+	})
+
+	it('a chart without declarations ignores the bus', () => {
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		bus.publish({ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355' })
+		const content = { dataSource: { schema: 'zaak' } }
+
+		expect(mountOnBus(content, bus).findComponent(ChartStub).props('dataSource')).toEqual({ schema: 'zaak' })
 	})
 })

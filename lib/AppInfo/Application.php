@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\AppInfo;
 
+use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
@@ -36,10 +37,12 @@ use OCA\LaunchPad\Listener\UserDeletedListener;
 use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Listener\PublicStartRedirectListener;
 use OCA\LaunchPad\Middleware\ApiContractMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
+use OCA\LaunchPad\Service\ContractBindings;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\StoreService;
@@ -48,6 +51,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\AppFramework\Http\Events\BeforeLoginTemplateRenderedEvent;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use OCP\User\Events\UserDeletedEvent;
@@ -89,6 +93,8 @@ class Application extends App implements IBootstrap {
 		// problem details). Registered first: Nextcloud runs afterController in
 		// reverse order, so it sees the final response of every other middleware.
 		$context->registerMiddleware(class: ApiContractMiddleware::class);
+
+		(new ContractBindings())->register(context: $context);
 		$this->registerUserLifecycle(context: $context);
 		$this->registerSharedServices(context: $context);
 		$this->registerCascadeListeners(context: $context);
@@ -109,7 +115,30 @@ class Application extends App implements IBootstrap {
 		// resolved through self::optional(), so an instance without OpenRegister
 		// gets a store that reports `not_configured` rather than a fatal.
 		$this->registerStore(context: $context);
+
+		$this->registerMcpToolProvider(context: $context);
 	}//end register()
+
+	/**
+	 * Register LaunchPad's MCP tool provider under the key OpenRegister enumerates.
+	 *
+	 * OpenRegister looks providers up as `'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::' . $appId`,
+	 * so the suffix must stay this app's id. The alias is a string pair: nothing
+	 * is autoloaded at registration, so an instance without OpenRegister boots
+	 * as before and simply never resolves it (mcp-tool-surface task 2, ADR-083).
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	private function registerMcpToolProvider(IRegistrationContext $context): void {
+		$context->registerServiceAlias(
+			'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad',
+			LaunchpadToolProvider::class
+		);
+	}//end registerMcpToolProvider()
 
 	/**
 	 * Register the notifier and the user-deletion cascade listener.
@@ -268,6 +297,13 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: AddContentSecurityPolicyEvent::class,
 			listener: CspListener::class
+		);
+
+		// Sharing-public-start-page REQ-PSP-002: a signed-out visitor on the
+		// plain login page goes to the public start page when it is on.
+		$context->registerEventListener(
+			event: BeforeLoginTemplateRenderedEvent::class,
+			listener: PublicStartRedirectListener::class
 		);
 	}//end registerIntegrations()
 

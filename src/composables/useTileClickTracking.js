@@ -24,6 +24,7 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { logger } from '../utils/logger.js'
+import { recordTileUse } from '../utils/tileSort.js'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
@@ -78,8 +79,14 @@ function isTrackingActive() {
 /**
  * Tile usage-analytics client hook.
  *
- * @return {{recordTileClick: (placementId: (string|number)) => void}}
+ * Besides the anonymous server call it hands out `recordTileUse()`, which
+ * keeps `{count, lastUsedAt}` per placement in this browser only, for a
+ * container sorted by most or last used (launcher-tile-sorting). Those counts
+ * are never sent to the server.
+ *
+ * @return {{recordTileClick: (placementId: (string|number)) => void, recordTileUse: (placementId: (string|number)) => void}}
  * @spec openspec/specs/dashboard-view-analytics/spec.md
+ * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
  */
 export function useTileClickTracking() {
 	/**
@@ -110,7 +117,7 @@ export function useTileClickTracking() {
 		})
 	}
 
-	return { recordTileClick }
+	return { recordTileClick, recordTileUse }
 }
 
 /**

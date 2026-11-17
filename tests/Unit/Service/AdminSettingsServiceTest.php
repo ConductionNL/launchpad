@@ -53,7 +53,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 	/**
 	 * REQ-ASET-001 "Settings response format consistency": the response holds
-	 * exactly the twelve documented keys, each at its documented default.
+	 * exactly the fourteen documented keys, each at its documented default.
 	 *
 	 * The spec said "exactly four keys" long after the response had grown to
 	 * twelve, because nothing compared the two. This pins the whole response,
@@ -74,11 +74,20 @@ class AdminSettingsServiceTest extends TestCase {
 				'linkCreateFileExtensions' => ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 				'defaultSharePermissionLevel' => 'add_only',
 				'forcedShareGroups' => [],
+				'sharingAllowedGroups' => [],
+				'sharingRecipientScope' => 'everyone',
 				'legacyWidgetBridgeEnabled' => false,
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
 				'startPageWithoutNavigation' => false,
+				// drill-down-cross-widget-filter REQ-CWF-010: telemetry is opt-in.
+				'filterTelemetryEnabled' => false,
+				// launcher-tile-launch-types: both empty until an administrator fills them.
+				'tileAllowedSchemes' => [],
+				'ssoLaunchTemplates' => [],
+				// engagement-announcements D6: no editor groups until one is chosen.
+				'announcementEditorGroups' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -154,6 +163,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// dashboard-sharing + legacy-widget-bridge spec keys.
 		$this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
 		$this->assertArrayHasKey('forcedShareGroups', $settings);
+		// dashboard-sharing REQ-SHARE-014: who may share, and with whom.
+		$this->assertArrayHasKey('sharingAllowedGroups', $settings);
+		$this->assertArrayHasKey('sharingRecipientScope', $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);
@@ -162,8 +174,49 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(12, $settings);
+		// launcher-tile-launch-types: the program schemes and SSO launch templates.
+		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
+		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
+		// engagement-announcements D6.
+		$this->assertArrayHasKey('announcementEditorGroups', $settings);
+		// drill-down-cross-widget-filter REQ-CWF-010.
+		$this->assertArrayHasKey('filterTelemetryEnabled', $settings);
+		$this->assertCount(18, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
+
+	/**
+	 * Engagement-announcements D6: the stored editor groups read back as a
+	 * list, and a stored value that is not a list reads as none.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsReadBackAsAList(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
+			[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS => ['communicatie' => 'communicatie', 'hr' => 'hr']],
+			[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS => 'communicatie']
+		);
+
+		$this->assertSame(['communicatie', 'hr'], $this->service->getSettings()['announcementEditorGroups']);
+		$this->assertSame([], $this->service->getSettings()['announcementEditorGroups']);
+	}//end testAnnouncementEditorGroupsReadBackAsAList()
+
+	/**
+	 * Engagement-announcements D6: the editor groups are stored trimmed and
+	 * deduplicated, and a value that is not a list is refused unwritten.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsAreNormalisedOrRefused(): void {
+		$this->settingMapper->expects($this->once())
+			->method('setSetting')
+			->with(AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS, ['communicatie', 'hr']);
+
+		$this->service->updateSettings(settings: ['announcementEditorGroups' => [' communicatie ', 'hr', 'communicatie', '', 7]]);
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('announcementEditorGroups must be a list of group ids.');
+		$this->service->updateSettings(settings: ['announcementEditorGroups' => 'hr']);
+	}//end testAnnouncementEditorGroupsAreNormalisedOrRefused()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----
 
@@ -332,6 +385,45 @@ class AdminSettingsServiceTest extends TestCase {
 
 		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
 	}//end testGetSettingsTreatsANonBooleanStartPageValueAsOff()
+
+	/**
+	 * Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry reads as on
+	 * only for a stored `true`.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function testFilterTelemetryIsOnOnlyForAStoredTrue(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
+			[],
+			['filter_telemetry_enabled' => true],
+			['filter_telemetry_enabled' => 'yes'],
+		);
+
+		$this->assertFalse($this->service->getSettings()['filterTelemetryEnabled']);
+		$this->assertTrue($this->service->getSettings()['filterTelemetryEnabled']);
+		$this->assertFalse($this->service->getSettings()['filterTelemetryEnabled']);
+	}//end testFilterTelemetryIsOnOnlyForAStoredTrue()
+
+	/**
+	 * The telemetry switch is stored when given and left alone when omitted.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven(): void {
+		$stored = [];
+		$this->settingMapper->method('setSetting')->willReturnCallback(
+			static function (string $key, mixed $value) use (&$stored): AdminSetting {
+				$stored[$key] = $value;
+				return new AdminSetting();
+			}
+		);
+
+		$this->service->updateSettings(settings: []);
+		$this->assertArrayNotHasKey('filter_telemetry_enabled', $stored);
+
+		$this->service->updateSettings(settings: ['filterTelemetryEnabled' => true]);
+		$this->assertSame(['filter_telemetry_enabled' => true], $stored);
+	}//end testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven()
 
 	public function testUpdateSettingsPersistsStartPageWithoutNavigation(): void {
 		$this->settingMapper->expects($this->once())

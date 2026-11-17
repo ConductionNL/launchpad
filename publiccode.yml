@@ -24,6 +24,7 @@ description:
       charts, graphs, and KPI widgets. Data is sourced via GraphQL from Open Register
       and other connected data sources. LaunchPad is designed for operational reporting
       and monitoring in both government and commercial organisations.
+      Conduction maintains this component within the Nextcloud ISV programme.
     features:
       - Customisable dashboards with charts and KPI widgets
       - GraphQL data integration
@@ -40,6 +41,7 @@ description:
       opgehaald uit Open Register en andere gekoppelde databronnen. LaunchPad is
       ontworpen voor operationele rapportage en monitoring in zowel overheids- als
       commerciële organisaties.
+      Conduction onderhoudt dit component binnen het Nextcloud ISV-programma.
     features:
       - Aanpasbare dashboards met grafieken en KPI-widgets
       - GraphQL-data-integratie
@@ -52,7 +54,12 @@ legal:
   repoOwner: "Conduction B.V."
 
 maintenance:
-  type: community
+  type: contract
+  contractors:
+    - name: Conduction B.V.
+      until: "2028-12-31"
+      email: info@conduction.nl
+      website: https://conduction.nl
   contacts:
     - name: Conduction B.V.
       email: info@conduction.nl

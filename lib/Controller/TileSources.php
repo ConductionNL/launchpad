@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\ServiceDiscoveryService;
+use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCA\LaunchPad\Service\TileService;
 use OCP\IL10N;
 
@@ -38,12 +38,12 @@ class TileSources {
 	 *
 	 * @param TileService             $tileService The tile service.
 	 * @param IL10N                   $l10n The localisation helper.
-	 * @param ServiceDiscoveryService $discovery The apps in the user's app menu.
+	 * @param ServiceDiscoveryServiceInterface $discovery The apps in the user's app menu.
 	 */
 	public function __construct(
 		public readonly TileService $tileService,
 		public readonly IL10N $l10n,
-		public readonly ServiceDiscoveryService $discovery,
+		public readonly ServiceDiscoveryServiceInterface $discovery,
 	) {
 	}//end __construct()
 }//end class

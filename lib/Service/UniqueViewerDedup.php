@@ -254,6 +254,18 @@ class UniqueViewerDedup {
 			viewerHash: $hash
 		);
 
+		return $this->markFirstSighting(cacheKey: $cacheKey);
+	}//end isNewUniqueViewer()
+
+	/**
+	 * Mark a dedup key as seen until the next UTC midnight, unless it
+	 * already was.
+	 *
+	 * @param string $cacheKey The dedup cache key.
+	 *
+	 * @return bool `true` when the key was not seen yet today.
+	 */
+	private function markFirstSighting(string $cacheKey): bool {
 		$cache = $this->getCache();
 
 		if ($cache->hasKey(key: $cacheKey) === true) {
@@ -267,7 +279,7 @@ class UniqueViewerDedup {
 		);
 
 		return true;
-	}//end isNewUniqueViewer()
+	}//end markFirstSighting()
 
 	/**
 	 * Build the canonical dedup cache key for `(dashboardUuid,

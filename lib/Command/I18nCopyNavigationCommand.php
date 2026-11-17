@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IDBConnection;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,12 +45,12 @@ class I18nCopyNavigationCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param IDBConnection $db Database connection.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly IDBConnection $db,
 	) {
@@ -137,7 +137,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 			human: 'Copied ' . $copied . ' nodes from ' . (string)$from . ' to ' . (string)$to
 		);
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end handle()
 
 	/**
@@ -150,7 +150,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 	 */
 	private static function missingLanguagesError(mixed $from, mixed $to): array {
 		return [
-			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS,
 			'code'     => 'INVALID_ARGUMENT',
 			'message'  => 'Both --from and --to are required',
 			'context'  => ['from' => $from, 'to' => $to],
@@ -166,7 +166,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 	 */
 	private static function noNavigationError(string $from): array {
 		return [
-			'exitCode' => CommandService::EXIT_NOT_FOUND,
+			'exitCode' => CommandServiceInterface::EXIT_NOT_FOUND,
 			'code'     => 'NOT_FOUND',
 			'message'  => "No navigation tree found for language '" . $from . "'",
 			'context'  => ['language' => $from],

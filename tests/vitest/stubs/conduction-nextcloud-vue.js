@@ -63,6 +63,12 @@ export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
 export const CnIconBrowser = stub('CnIconBrowser')
+// The admin page's own tour (runtime-shell REQ-SHELL-011): the overlay and
+// the seen-version persistence. A spec that needs the real behaviour mocks
+// the module with the library's own composable (see adminWalkthrough.spec.js).
+export const CnWalkthrough = stub('CnWalkthrough')
+export const loadWalkthroughSeenVersion = async () => ''
+export const persistWalkthroughSeenVersion = async () => false
 // Bundled NL-government icon catalogues (self-contained data URIs in the real
 // library). A small grouped stand-in is enough for the pickers to build a
 // non-empty list; `NL_DESIGN_ICONS` is the flat combined list.

@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Db\CleanupResult;
-use OCA\LaunchPad\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,10 +41,10 @@ class CleanupScanCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
+	 * @param OrphanedDataCleanupServiceInterface $cleanupService The orchestrator.
 	 */
 	public function __construct(
-		private readonly OrphanedDataCleanupService $cleanupService,
+		private readonly OrphanedDataCleanupServiceInterface $cleanupService,
 	) {
 		parent::__construct();
 	}//end __construct()

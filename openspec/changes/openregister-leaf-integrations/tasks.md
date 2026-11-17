@@ -22,8 +22,10 @@
 
 ## Guardrails
 
-- [ ] Task 9: REQ-LEAF-005 — Verify no new routes, controllers, or services were added: `appinfo/routes.php` and `lib/Controller/` diff must be empty for this change
-- [ ] Task 10: Run `composer check:strict` and the hydra gates; the change must not introduce findings
+- [x] Task 9: REQ-LEAF-005 — Verify no new routes, controllers, or services were added: `appinfo/routes.php` and `lib/Controller/` diff must be empty for this change
+  - Done. The change's commit (892a823d) touches `lib/Repair/ImportLaunchpadRegister.php`, `lib/Settings/register.d/` and its test only; `appinfo/routes.php` and `lib/Controller/` are untouched, and no service class was added.
+- [x] Task 10: Run `composer check:strict` and the hydra gates; the change must not introduce findings
+  - Done. On `ImportLaunchpadRegister.php` before and after the change: phpcs 0 errors and the same 2 warnings, phpmd, phpstan and psalm clean. The hydra gates fail the same five gates before and after (reports-one-page, app-chrome, manifest-validation without Ajv, or-abstraction-anti-patterns, composer-audit), so the change introduces no finding.
 
 ## Testing
 

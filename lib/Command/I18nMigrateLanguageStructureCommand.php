@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IDBConnection;
 use OCP\IUserSession;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -50,12 +50,12 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param IDBConnection $db Database connection.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly IDBConnection $db,
 	) {
@@ -104,7 +104,7 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 				input: $input,
 				output: $output,
 				error: [
-					'exitCode' => CommandService::EXIT_ERROR,
+					'exitCode' => CommandServiceInterface::EXIT_ERROR,
 					'code'     => 'CAPABILITY_MISSING',
 					'message'  => 'dashboard-language-content capability is required',
 					'context'  => ['expectedTable' => self::TARGET_TABLE],
@@ -116,7 +116,7 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Migration aborted by user.']
+				error: ['exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Migration aborted by user.']
 			);
 		}
 
@@ -133,7 +133,7 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 			human: 'Migration finished — ' . $migrated . ' rows migrated.'
 		);
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end handle()
 
 	/**

@@ -68,7 +68,10 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
 				treeService: $this->createMock(DashboardTreeService::class),
 				logger: $this->createMock(LoggerInterface::class),
-				adminSettingsService: $this->createMock(AdminSettingsService::class)
+				adminSettingsService: $this->createMock(AdminSettingsService::class),
+				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class),
+				searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class)
 			)
 		);
 	}//end makeController()

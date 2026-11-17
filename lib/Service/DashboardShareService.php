@@ -58,12 +58,16 @@ class DashboardShareService {
 	 * @param DashboardMapper $dashboardMapper The dashboard mapper.
 	 * @param IDBConnection $db The DB connection.
 	 * @param ShareNotifier $notifier Announces written shares to their recipients.
+	 * @param SharingLimits|null $limits Who may share, and with whom (REQ-SHARE-014); the
+	 *                                   container always injects it, null only in tests that
+	 *                                   construct the service by hand.
 	 */
 	public function __construct(
 		private readonly DashboardShareMapper $shareMapper,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly IDBConnection $db,
 		private readonly ShareNotifier $notifier,
+		private readonly ?SharingLimits $limits = null,
 	) {
 	}//end __construct()
 
@@ -109,6 +113,7 @@ class DashboardShareService {
 			userId: $callerId
 		);
 		$this->validateInput(grant: $grant);
+		$this->limits?->assertMayShare(sharerId: $callerId, shareType: $grant->shareType, shareWith: $grant->shareWith);
 
 		$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
 
@@ -185,6 +190,7 @@ class DashboardShareService {
 
 		// Validate all entries up-front before touching the DB.
 		$grants = $this->validatedGrants(shares: $shares);
+		$this->assertNewSharesAllowed(dashboardId: $dashboardId, grants: $grants, sharerId: $userId);
 
 		$notifyQueue = $this->replaceInTransaction(dashboardId: $dashboardId, grants: $grants);
 
@@ -199,6 +205,39 @@ class DashboardShareService {
 
 		return $this->shareMapper->findByDashboardId(dashboardId: $dashboardId);
 	}//end replaceShares()
+
+	/**
+	 * Refuse a replace that would create a share the limits do not allow.
+	 *
+	 * Only shares the dashboard does not already have are checked: a limit set
+	 * later does not stop an owner saving the shares the dashboard already has.
+	 *
+	 * @param int          $dashboardId The dashboard ID.
+	 * @param ShareGrant[] $grants      The validated grants.
+	 * @param string       $sharerId    The owner saving them.
+	 *
+	 * @return void
+	 *
+	 * @throws ForbiddenException When a new share is not allowed.
+	 *
+	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
+	 */
+	private function assertNewSharesAllowed(int $dashboardId, array $grants, string $sharerId): void {
+		if ($this->limits === null) {
+			return;
+		}
+
+		$existing = [];
+		foreach ($this->shareMapper->findByDashboardId(dashboardId: $dashboardId) as $share) {
+			$existing[(string)$share->getShareType() . ':' . (string)$share->getShareWith()] = true;
+		}
+
+		foreach ($grants as $grant) {
+			if (isset($existing[$grant->shareType . ':' . $grant->shareWith]) === false) {
+				$this->limits->assertMayShare(sharerId: $sharerId, shareType: $grant->shareType, shareWith: $grant->shareWith);
+			}
+		}
+	}//end assertNewSharesAllowed()
 
 	/**
 	 * Turn every payload entry into a validated grant.

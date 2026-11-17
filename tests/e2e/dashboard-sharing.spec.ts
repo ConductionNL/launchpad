@@ -40,7 +40,7 @@
  *   @e2e dashboard-sharing::recipient-sees-shared-dashboard
  *   @e2e dashboard-sharing::a-user-drives-the-full-sharing-flow-through-the-browser
  *
- * @spec openspec/changes/add-dashboard-sharing-e2e-coverage/tasks.md
+ * @spec openspec/specs/dashboard-sharing/spec.md
  */
 
 import type { APIRequestContext, Locator } from '@playwright/test'

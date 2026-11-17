@@ -578,3 +578,46 @@ for**: a procurement/finance overview. Requires `financeq` and/or `procest` inst
 |---|---|
 | `period` | `month` / `quarter` / `ytd` / `fy`. |
 | `categoryIds` / `departmentIds` | Optional filters passed to the finance query. |
+
+## Calculated fields
+
+A placement can carry `calculatedFields`: formulas over the widget's own data
+(`revenue - cost`), its other calculated fields (`margin`) and other widgets on
+the dashboard (`widget:<id>.total`), written in a small expression language
+with an allowlisted set of functions (math, aggregates, dates, durations,
+strings, conditionals and type coercion). The editor parses the formula into
+an AST and the API stores both (`expression`, `compiledExpression`).
+
+On save (`PUT /api/widgets/{placementId}`) the server checks every field
+against the whole dashboard and refuses a bad one with 400 and an error
+envelope (`invalidExpression`, `unknownFunction`, `functionNotAllowed`,
+`arityMismatch`, `functionSignature`, `typeError`, `duplicateField`,
+`cycleDetected`, each naming the `field`); nothing is saved. Valid fields
+come back with their `returnType`.
+
+Each field has an `evaluationMode`:
+
+- `client` (default): evaluated in the browser, re-evaluated whenever the
+  widget's data or the dashboard filters change, never stored.
+- `server` and `both`: also materialised on the widget's OpenRegister source
+  schema as a read-only calculated property, `launchpad_<placement>__<name>`
+  (the field's `serverComputedFieldId`), which OpenRegister computes on every
+  object save, so the value can be queried and exported through the
+  OpenRegister API. A changed formula replaces the property; setting a field
+  back to `client`, changing the widget's source or removing the widget
+  removes it.
+
+A server-mode field is saved as a `client` field, with a
+`downgraded_evaluation_mode` entry in the response's `warnings`, when it reads
+a widget backed by another register or schema, when the widget has no
+OpenRegister source, when it uses something OpenRegister does not evaluate the
+same way (only literals, the widget's own fields, other materialised fields,
+arithmetic, comparisons, logic, `if`, `abs`, `min`, `max` and `coalesce` are
+materialised), or when OpenRegister refuses to update the schema for the
+current user.
+
+A value that fails at run time (a division by zero, a bad date) does not stop
+the widget: the client shows an inline error for that cell, and OpenRegister
+logs the failing calculation and saves the object without it. Format options
+(currency, decimals, date pattern, duration pattern) only change the displayed
+text; alerting, exports and drill-down see the native value.

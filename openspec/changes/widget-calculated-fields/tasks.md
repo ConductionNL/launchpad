@@ -106,13 +106,15 @@
 ## 12. Quality and Documentation
 
 - [ ] Task 47: `composer check:strict` and `eslint` pass on all new files
-- [ ] Task 48: OpenAPI / Postman / API docs: document the new Widget schema extension (`calculatedFields` array); document error response envelopes (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
+- [x] Task 48: OpenAPI / Postman / API docs: document the new Widget schema extension (`calculatedFields` array); document error response envelopes (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
+  - `openapi.json`: `CalculatedField`, `CalculatedFieldError` (the 400 envelope) and `CalculatedFieldWarning` schemas, the request body and 200/400 responses of `PUT /widgets/{placementId}`, and the cleanup warning on `DELETE`. Postman (`tests/integration/launchpad.postman_collection.json`): a valid field answered with its `returnType`, an unknown function answered 400. `docs/features/widgets.md`: a Calculated fields section.
 - [ ] Task 49: i18n — `nl_NL` and `en_US` translations for: error messages (parse_error, type_error, cycle_detected, unknownFunction), inline error hover text, downgrade warning
 - [x] Task 50: SPDX — all new PHP files have `@license EUPL-1.2` + `@copyright` in docblock
   - Every new PHP file under `lib/Service/CalculatedFields/` carries `@license EUPL-1.2`, `@copyright` and the SPDX lines.
 - [x] Task 51: Changelog entry describing: calculated fields as a widget feature, dual evaluation (client + server), allowlisted function set, error handling + inline indicators, cross-widget refs + cycle detection, format options
   - `CHANGELOG.md` (Unreleased, Added): the evaluation engine, marked in progress until storage and materialisation land.
-- [ ] Task 52: Design.md — document the design decisions (D1–D7), rationale for dual evaluation, AST-based approach, shared test suite, format-at-render-time strategy, migration plan
+- [x] Task 52: Design.md — document the design decisions (D1–D7), rationale for dual evaluation, AST-based approach, shared test suite, format-at-render-time strategy, migration plan
+  - D1–D7, the rationale, the migration plan and the value semantics were in `design.md`; added the build notes for server-mode materialisation (what OpenRegister's computed-field entry is, the translated subset, ordering instead of a cross-store transaction).
 - [ ] Task 53: All hydra-gates pass (route-auth, admin-idor, semantic-auth, spdx-headers, etc.)
 
 ## Verification

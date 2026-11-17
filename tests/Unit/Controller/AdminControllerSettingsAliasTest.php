@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 19 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -266,6 +266,19 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(filterTelemetryEnabled: true);
 	}//end testFilterTelemetrySwitchIsPassedThrough()
+
+	/**
+	 * REQ-PSP-003: the default app switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testDefaultAppSwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['filterTelemetryEnabled' => null, 'defaultAppEnabled' => false]));
+
+		$this->controller->updateSettings(defaultAppEnabled: false);
+	}//end testDefaultAppSwitchIsPassedThrough()
 
 	/**
 	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the

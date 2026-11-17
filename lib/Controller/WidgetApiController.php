@@ -652,6 +652,17 @@ class WidgetApiController extends Controller {
 	private function updatedPlacement(int $placementId): JSONResponse {
 		$data     = RequestDataExtractor::extractPlacementData(request: $this->request);
 		$warnings = [];
+		$before   = null;
+		if (isset($data['calculatedFields']) === false && is_array($data['content'] ?? null) === true) {
+			// A source change moves the widget's materialised fields with it, so
+			// its stored fields are checked again against the new source.
+			$before = $this->sources->widgetService->getPlacement(placementId: $placementId);
+			if (CalculatedFieldService::hasServerFields(fields: $before->getCalculatedFieldsArray()) === true) {
+				$data['calculatedFields'] = $before->getCalculatedFieldsArray();
+			}
+		}
+
+		$compiled = null;
 		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
 			$compiled = $this->compiledCalculatedFields(placementId: $placementId, data: $data);
 			$data['calculatedFields'] = $compiled['fields'];
@@ -662,6 +673,27 @@ class WidgetApiController extends Controller {
 			placementId: $placementId,
 			data: $data
 		);
+
+		if ($compiled !== null) {
+			// Server-mode fields are written to the source schema once the widget
+			// is persisted (widget-calculated-fields, task 27); when that fails
+			// the widget is saved again with those fields downgraded to client.
+			$written = $this->sources->calculatedFields->materializeForOpenRegister(
+				widget: [
+					'id'               => (string) $placementId,
+					'calculatedFields' => $compiled['fields'],
+					'source'           => CalculatedFieldService::sourceKey(content: $placement->getContentArray()),
+				],
+				previous: $compiled['previous']
+			);
+			$warnings = array_merge($warnings, $written['warnings']);
+			if ($written['changed'] === true) {
+				$placement = $this->sources->widgetService->updatePlacement(
+					placementId: $placementId,
+					data: ['calculatedFields' => $written['fields']]
+				);
+			}
+		}
 
 		$body = $placement->jsonSerialize();
 		if ($warnings !== []) {
@@ -684,7 +716,8 @@ class WidgetApiController extends Controller {
 	 * @param array<string,mixed> $data       The update: its `calculatedFields`, and its `content` when it
 	 *                                        changes the placement's source.
 	 *
-	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>} The fields to store.
+	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>, previous: array<string,mixed>}
+	 *         The fields to store, the warnings, and the placement's `source` and `calculatedFields` before this save.
 	 *
 	 * @throws CalculatedFieldValidationError When a field is malformed or does not type-check.
 	 * @throws CalculatedFieldCycleError      When the dashboard's fields form a cycle.
@@ -692,7 +725,8 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-24
 	 */
 	private function compiledCalculatedFields(int $placementId, array $data): array {
-		$dashboardId = $this->sources->widgetService->getPlacement(placementId: $placementId)->getDashboardId();
+		$current     = $this->sources->widgetService->getPlacement(placementId: $placementId);
+		$dashboardId = $current->getDashboardId();
 		$others      = [];
 		$keys        = [];
 		foreach ($this->sources->widgetService->getDashboardPlacements(dashboardId: $dashboardId) as $placement) {
@@ -710,7 +744,16 @@ class WidgetApiController extends Controller {
 			options: ['sources' => $keys]
 		);
 
-		return ['fields' => $result['fields'], 'warnings' => $result['warnings']];
+		$planned = $this->sources->calculatedFields->planServerFields(id: (string) $placementId, fields: $result['fields']);
+
+		return [
+			'fields'   => $planned['fields'],
+			'warnings' => array_merge($result['warnings'], $planned['warnings']),
+			'previous' => [
+				'source'           => CalculatedFieldService::sourceKey(content: $current->getContentArray()),
+				'calculatedFields' => $current->getCalculatedFieldsArray(),
+			],
+		];
 	}//end compiledCalculatedFields()
 
 	/**
@@ -744,11 +787,29 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
+			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
+			$warnings  = [];
+			if (CalculatedFieldService::hasServerFields(fields: $placement->getCalculatedFieldsArray()) === true) {
+				// The widget's materialised fields leave its source schema with it
+				// (widget-calculated-fields, task 28).
+				$warnings = $this->sources->calculatedFields->cleanupServerFields(
+					widget: [
+						'id'     => (string) $placementId,
+						'source' => CalculatedFieldService::sourceKey(content: $placement->getContentArray()),
+					]
+				);
+			}
+
 			$this->sources->widgetService->removePlacement(
 				placementId: $placementId
 			);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			$body = ['status' => 'ok'];
+			if ($warnings !== []) {
+				$body['warnings'] = $warnings;
+			}
+
+			return ResponseHelper::success(data: $body);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}

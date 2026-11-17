@@ -53,9 +53,12 @@
 
 ## 7. OpenRegister Integration (Server-side Materialisation)
 
-- [ ] Task 26: Implement `CalculatedFieldService::materializeForOpenRegister(widget): array` that, for every calculated field with `evaluationMode='server'` or `'both'`: (1) creates/updates a `computed-fields` entry on the schema, (2) populates `serverComputedFieldId` in the widget, (3) stores the expression in OpenRegister (REQ-CALC-004)
-- [ ] Task 27: Wire materialisation into `WidgetService::save()`: after widget is persisted, call `materializeForOpenRegister()` in a transaction (REQ-CALC-004)
-- [ ] Task 28: On widget delete, call `CalculatedFieldService::cleanupServerFields(widget)` to delete all orphaned `computed-fields` entries (REQ-CALC-004)
+- [x] Task 26: Implement `CalculatedFieldService::materializeForOpenRegister(widget): array` that, for every calculated field with `evaluationMode='server'` or `'both'`: (1) creates/updates a `computed-fields` entry on the schema, (2) populates `serverComputedFieldId` in the widget, (3) stores the expression in OpenRegister (REQ-CALC-004)
+  - Built: OpenRegister's computed-field entry is a read-only schema property carrying a JSON-AST `calculation`, which OpenRegister evaluates and stores on every object save. `CalculatedFieldCalculationTranslator` turns the field's AST into that expression for the part both engines evaluate alike (literals, own fields, other materialised fields of the widget, arithmetic, comparison, logic, `if`, `abs`/`min`/`max`/`coalesce`); `CalculatedFieldMaterialiser` writes one property per field under the key `launchpad_<widget>__<field>`, which is the `serverComputedFieldId`, dependencies first, replacing only the keys that widget owns. A field the translator cannot express, or whose return type OpenRegister cannot declare, is downgraded to client with a `downgraded_evaluation_mode` warning, as are the fields that read it. The schema is read and written as the current user, so OpenRegister's schema access checks apply.
+- [x] Task 27: Wire materialisation into `WidgetService::save()`: after widget is persisted, call `materializeForOpenRegister()` in a transaction (REQ-CALC-004)
+  - Built in `WidgetApiController::updatePlacement` (the endpoint that writes `calculatedFields`): the ids are planned before the save, the schema is written after it in one schema update, and when OpenRegister refuses that write the widget is saved again with those fields in client mode and a warning, so the widget never names a property that does not exist. A source change re-checks the stored fields and moves their properties to the new schema.
+- [x] Task 28: On widget delete, call `CalculatedFieldService::cleanupServerFields(widget)` to delete all orphaned `computed-fields` entries (REQ-CALC-004)
+  - Built in `WidgetApiController::removePlacement`: every property under the widget's key prefix leaves the source schema; when OpenRegister refuses, the widget is still removed and the response carries `server_fields_not_removed`.
 - [x] Task 29: Implement downgrade logic (REQ-CALC-007): when a server-mode field references a widget with a different source register, downgrade to `client` mode, set `evaluationMode='client'`, and return warning in API response
   - Built: `CalculatedFieldService::downgradeCrossSource()` (with `CalculatedFieldSources`) persists a `server`/`both` field as `client` when it reads a widget whose `register/schema` differs from its own, or when its widget has no OpenRegister source; the placement update answers with `warnings: [{warning: 'downgraded_evaluation_mode', field, reason}]`.
 
@@ -65,8 +68,8 @@
   - Built: `lib/Service/CalculatedFields/CalculatedFieldEvaluator.php` evaluates the parser's JSON AST on a row context (`row`, `calculated`, `widgets`, `widgetCalculated`), with `now` injectable.
 - [x] Task 31: Mirror the TypeScript evaluator exactly: all AST node types, all operators, all functions; numeric precision via IEEE 754 floats; null propagation (REQ-CALC-005)
   - Built: node for node and function for function as `src/utils/calculatedFields/evaluator.js`: `CalculatedFieldFunctions` (the allowlist, the same failures and messages), `CalculatedFieldValues` (JavaScript's number text, `===` over int and float, path reading across lists, UTC dates and calendar months), null propagation and the null-aware functions.
-- [ ] Task 32: Error handling: catch runtime errors and store them in OpenRegister's computed-field error log (not thrown to the widget caller); return `null` for the materialised value (REQ-CALC-008)
-  - Partly built: `CalculatedFieldEvaluator::evaluateField()` catches a run-time failure and answers `{value: null, error, expression}` instead of throwing. Left: writing the failure to OpenRegister's computed-field error log, which belongs with the materialisation (tasks 26-28).
+- [x] Task 32: Error handling: catch runtime errors and store them in OpenRegister's computed-field error log (not thrown to the widget caller); return `null` for the materialised value (REQ-CALC-008)
+  - Built: `CalculatedFieldEvaluator::evaluateField()` catches a run-time failure and answers `{value: null, error, expression}` instead of throwing. A materialised field is evaluated by OpenRegister's save-time calculation listener, which logs a failing calculation with its name, object and message and still saves the object, without the value.
 - [x] Task 33: Run the shared test suite (Task 16) against the PHP evaluator; all tests must pass (REQ-CALC-005)
   - All 98 cases of `tests/fixtures/calculated-fields/shared-evaluator-test-suite.json` pass against the PHP evaluator.
 
@@ -85,7 +88,8 @@
   - Built as `CalculatedFieldAstCheckerTest`, `CalculatedFieldTypeCheckerTest`, `CalculatedFieldServiceTest` and `WidgetApiControllerCalculatedFieldsTest` (the 400 envelopes on the endpoint).
 - [x] Task 38: PHPUnit — `CalculatedFieldEvaluatorTest.php`: shared test suite (Task 16) runs against PHP evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
   - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
-- [ ] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
+- [x] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
+  - `CalculatedFieldServerModeTest` (15 tests: create, update, unchanged save, back to client, source change, dependency order, unsupported and undeclarable fields, refused write, no OpenRegister, cleanup), `CalculatedFieldCalculationTranslatorTest` (21) and `WidgetApiControllerServerFieldsTest` (5, the endpoints).
 - [ ] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
   - Partly built: `CalculatedFieldCycleDetectorTest.php` (7 tests) covers cross-widget cycles and order; cross-widget evaluation is in `CalculatedFieldEvaluatorTest`.
 

@@ -34,10 +34,12 @@ use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldAstChecker;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldMaterialiser;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldTypeChecker;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
 use OCA\LaunchPad\Service\CalculatedFields\EvaluationError;
+use Throwable;
 
 /**
  * Validates, compiles and evaluates calculated fields on the server.
@@ -53,6 +55,8 @@ class CalculatedFieldService {
 	 * @param CalculatedFieldTypeChecker   $typeChecker   Type inference.
 	 * @param CalculatedFieldCycleDetector $cycleDetector Cycle detection and dependency order.
 	 * @param CalculatedFieldEvaluator     $evaluator     The shared-suite evaluator.
+	 * @param CalculatedFieldMaterialiser|null $materialiser Materialises server-mode fields on
+	 *                                                       OpenRegister; null keeps every field client-side.
 	 *
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-23
 	 */
@@ -61,6 +65,7 @@ class CalculatedFieldService {
 		private readonly CalculatedFieldTypeChecker $typeChecker,
 		private readonly CalculatedFieldCycleDetector $cycleDetector,
 		private readonly CalculatedFieldEvaluator $evaluator,
+		private readonly ?CalculatedFieldMaterialiser $materialiser=null,
 	) {
 	}//end __construct()
 
@@ -154,6 +159,143 @@ class CalculatedFieldService {
 
 		return ['fields' => $fields, 'warnings' => $warnings];
 	}//end downgradeCrossSource()
+
+	/**
+	 * Decide, before a widget is persisted, which of its server-mode fields
+	 * will be materialised on OpenRegister and set their `serverComputedFieldId`
+	 * (REQ-CALC-004). A field OpenRegister cannot evaluate alike is downgraded
+	 * to client mode with a warning; without OpenRegister every server-mode
+	 * field is.
+	 *
+	 * @param string                    $id     The widget id.
+	 * @param list<array<string,mixed>> $fields The validated fields, from validateAndCompile().
+	 *
+	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>}
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-26
+	 */
+	public function planServerFields(string $id, array $fields): array {
+		if ($this->materialiser === null) {
+			return ['fields' => $fields, 'warnings' => []];
+		}
+
+		$plan = $this->materialiser->plan(widgetId: $id, fields: $fields);
+		if ($plan['properties'] !== [] && $this->materialiser->isAvailable() === false) {
+			$down = $this->materialiser->downgradeAll(fields: $plan['fields'], reason: 'OpenRegister is unavailable');
+			return ['fields' => $down['fields'], 'warnings' => array_merge($plan['warnings'], $down['warnings'])];
+		}
+
+		return ['fields' => $plan['fields'], 'warnings' => $plan['warnings']];
+	}//end planServerFields()
+
+	/**
+	 * Write a persisted widget's server-mode fields to its OpenRegister
+	 * source schema, replacing the properties the widget owned there, and
+	 * remove them from the schema it was backed by before when its source
+	 * changed (REQ-CALC-004).
+	 *
+	 * When the schema cannot be written (OpenRegister refuses the current
+	 * user, or the schema is gone) nothing is materialised: every server-mode
+	 * field is answered as a client field with a warning, for the caller to
+	 * persist.
+	 *
+	 * @param array<string,mixed> $widget   The widget: `id`, `calculatedFields` from planServerFields(),
+	 *                                      `source` (its `register/schema`, see sourceKey()).
+	 * @param array<string,mixed> $previous The widget before this save: `source` and `calculatedFields`.
+	 *
+	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>, changed: bool}
+	 *         The fields as they now stand, warnings, and whether they differ from the ones given.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-004-server-side-evaluation-via-openregister-computed-fields
+	 */
+	public function materializeForOpenRegister(array $widget, array $previous=[]): array {
+		$id     = (string) ($widget['id'] ?? '');
+		$fields = $this->declaredFields(fields: $widget['calculatedFields'] ?? []);
+		$none   = ['fields' => $fields, 'warnings' => [], 'changed' => false];
+		if ($this->materialiser === null || $this->materialiser->isAvailable() === false) {
+			return $none;
+		}
+
+		$schema    = CalculatedFieldMaterialiser::schemaOf(sourceKey: (string) ($widget['source'] ?? ''));
+		$oldSchema = CalculatedFieldMaterialiser::schemaOf(sourceKey: (string) ($previous['source'] ?? ''));
+		$hadServer = self::hasServerFields(fields: $previous['calculatedFields'] ?? []);
+		$warnings  = [];
+		if ($hadServer === true && $oldSchema !== '' && $oldSchema !== $schema) {
+			$warnings = $this->cleanupServerFields(widget: ['id' => $id, 'source' => (string) $previous['source']]);
+		}
+
+		$plan = $this->materialiser->plan(widgetId: $id, fields: $fields);
+		if ($schema === '' || ($plan['properties'] === [] && ($hadServer === false || $oldSchema !== $schema))) {
+			return ['fields' => $fields, 'warnings' => $warnings, 'changed' => false];
+		}
+
+		try {
+			$this->materialiser->write(schemaId: $schema, widgetId: $id, properties: $plan['properties']);
+		} catch (Throwable) {
+			$down = $this->materialiser->downgradeAll(fields: $plan['fields'], reason: 'the source schema could not be updated');
+			return [
+				'fields'   => $down['fields'],
+				'warnings' => array_merge($warnings, $down['warnings']),
+				'changed'  => $down['warnings'] !== [],
+			];
+		}
+
+		return ['fields' => $plan['fields'], 'warnings' => $warnings, 'changed' => $plan['fields'] !== $fields];
+	}//end materializeForOpenRegister()
+
+	/**
+	 * Remove every OpenRegister property a widget's server-mode fields own on
+	 * its source schema, for when the widget is deleted (task 28).
+	 *
+	 * @param array<string,mixed> $widget The widget: `id` and `source` (its `register/schema`).
+	 *
+	 * @return list<array<string,string>> A warning when the properties could not be removed.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-28
+	 */
+	public function cleanupServerFields(array $widget): array {
+		$schema = CalculatedFieldMaterialiser::schemaOf(sourceKey: (string) ($widget['source'] ?? ''));
+		if ($this->materialiser === null || $schema === '' || $this->materialiser->isAvailable() === false) {
+			return [];
+		}
+
+		try {
+			$this->materialiser->remove(schemaId: $schema, widgetId: (string) ($widget['id'] ?? ''));
+		} catch (Throwable) {
+			return [
+				[
+					'warning' => 'server_fields_not_removed',
+					'field'   => '',
+					'reason'  => 'the calculated properties on the source schema could not be removed',
+				],
+			];
+		}
+
+		return [];
+	}//end cleanupServerFields()
+
+	/**
+	 * Whether any of the fields was materialised on OpenRegister.
+	 *
+	 * @param mixed $fields The stored fields.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-28
+	 */
+	public static function hasServerFields(mixed $fields): bool {
+		if (is_array($fields) === false) {
+			return false;
+		}
+
+		foreach ($fields as $field) {
+			if (is_array($field) === true && is_string($field['serverComputedFieldId'] ?? null) === true && $field['serverComputedFieldId'] !== '') {
+				return true;
+			}
+		}
+
+		return false;
+	}//end hasServerFields()
 
 	/**
 	 * The `register/schema` key of a placement's content.

@@ -1291,7 +1291,7 @@
 				"evidence": "src/modals/WidgetPickerModal.vue:21; src/views/Views.vue:273",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-05-03-unified-add-widget-flow",
-				"requirement": "openspec/changes/record-parity-requirements/specs/widgets :: The widget picker narrows its list as you type (REQ-WDG-028)"
+				"requirement": "openspec/specs/widgets :: The widget picker narrows its list as you type (REQ-WDG-028)"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Add widget",
 			"provider": "launchpad",
@@ -3283,7 +3283,7 @@
 				"requirement": [
 					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
 					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)",
-					"openspec/changes/record-parity-requirements/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
+					"openspec/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
 				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, the Mail app's widget, with Nextcloud Mail installed",
@@ -3322,7 +3322,7 @@
 				"requirement": [
 					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
 					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)",
-					"openspec/changes/record-parity-requirements/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
+					"openspec/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
 				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, Deck's task widget, with Deck installed",
@@ -4743,12 +4743,13 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "src/components/admin/tabs/SharingTab.vue:8; was built, now specified (2026-11-12): the Sharing tab (src/components/admin/DashboardSharingPolicy.vue) sets only a default share level and forced share groups. Nothing limits who may share or with whom; tasks 3 of openspec/changes/record-parity-requirements builds it",
+				"state": "built",
+				"evidence": "lib/Service/SharingLimits.php:40; lib/Db/AdminSettingKey.php:63; src/components/admin/DashboardSharingPolicy.vue; live pass 17 Nov 2026 on NC 34: with sharingAllowedGroups [\"admin\"] a member's share answered 403 and went through once the list was empty",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/dashboard-sharing",
-				"requirement": "openspec/changes/record-parity-requirements/specs/dashboard-sharing :: Administrators decide who may share and with whom (REQ-SHARE-014)",
-				"plan": "openspec/changes/record-parity-requirements"
+				"requirement": "openspec/specs/dashboard-sharing :: Administrators decide who may share and with whom (REQ-SHARE-014)",
+				"plan": "openspec/changes/archive/2026-11-17-record-parity-requirements",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "Admin settings, Sharing tab",
 			"provider": "launchpad",
@@ -5496,22 +5497,24 @@
 			"id": "g-optout",
 			"area": "governance",
 			"name": "People can opt out of view tracking, and old view data is removed after a set time.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "partial",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "Not built: a person cannot opt out. lib/Service/AnalyticsService.php:134 honours the user value analytics_optout and lib/BackgroundJob/PurgeViewsJob.php:50 purges old views, but no page in src/ writes analytics_optout and /api/preferences/{key} stores keys under pref_, so only occ user:setting sets it",
+				"state": "built",
+				"evidence": "lib/Controller/AnalyticsOptOutController.php:93; lib/Service/AnalyticsService.php:134; lib/BackgroundJob/PurgeViewsJob.php:50; src/views/settings/AnalyticsOptOutSettings.vue; live pass 17 Nov 2026 on NC 34: PUT /api/analytics/me stored analytics_optout for the caller and refused another user",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics",
 				"requirement": [
 					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-004 Per-User Analytics Opt-Out",
-					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-009 Analytics Data Retention and Purge"
+					"openspec/specs/dashboard-view-analytics :: REQ-ANLT-009 Analytics Data Retention and Purge",
+					"openspec/specs/dashboard-view-analytics :: A person turns view counting off in their own settings (REQ-ANLT-UI-001)"
 				],
-				"plan": "openspec/changes/analytics-personal-opt-out"
+				"plan": "openspec/changes/archive/2026-11-17-analytics-personal-opt-out",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing for a person: the opt-out is set only with occ user:setting <uid> launchpad analytics_optout true; the purge runs as a background job",
 			"provider": "launchpad",
@@ -5550,7 +5553,7 @@
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/prometheus-metrics",
 				"requirement": [
-					"openspec/changes/record-parity-requirements/specs/prometheus-metrics :: The admin page shows the app's health (REQ-PROM-011)",
+					"openspec/specs/prometheus-metrics :: The admin page shows the app's health (REQ-PROM-011)",
 					"openspec/specs/prometheus-metrics :: Health Check Endpoint (REQ-PROM-007)"
 				]
 			},
@@ -6318,7 +6321,7 @@
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/components/WidgetRenderer.vue:442",
 				"spec": "openspec/specs/widgets",
-				"requirement": "openspec/changes/record-parity-requirements/specs/widgets :: A Nextcloud widget with a reload interval refreshes itself (REQ-WDG-029)"
+				"requirement": "openspec/specs/widgets :: A Nextcloud widget with a reload interval refreshes itself (REQ-WDG-029)"
 			},
 			"reachedOn": "Workspace page, any Nextcloud widget that declares a reload interval, and live value tiles",
 			"evidence": {
@@ -6391,15 +6394,16 @@
 			"homarr": "yes",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/nextcloud-vue",
-				"evidence": "src/manifest.json:475; was built, now specified (2026-11-12): src/manifest.json:475 declares only the Workspace tour (REQ-SHELL-010 says it does not visit the admin settings). The admin-area tour is missing; task 4 of openspec/changes/record-parity-requirements builds it",
+				"evidence": "src/manifest.json:536 (launchpad:admin-getting-started); src/utils/adminWalkthrough.js; live pass 17 Nov 2026 on NC 34: a new administrator opening the LaunchPad admin page got \"Step 1 of 5: General settings\"",
 				"spec": "openspec/specs/runtime-shell",
 				"requirement": [
 					"openspec/specs/runtime-shell :: REQ-SHELL-010 First-visit tour",
-					"openspec/changes/record-parity-requirements/specs/runtime-shell :: The admin area has its own first-visit tour (REQ-SHELL-011)"
+					"openspec/specs/runtime-shell :: The admin area has its own first-visit tour (REQ-SHELL-011)"
 				],
-				"plan": "openspec/changes/record-parity-requirements"
+				"plan": "openspec/changes/archive/2026-11-17-record-parity-requirements",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "Workspace page on first visit, 'Getting started' tour, and again from the help menu",
 			"evidence": {
@@ -6512,7 +6516,7 @@
 				"spec": "openspec/specs/background-job-feed-refresh",
 				"requirement": [
 					"openspec/specs/background-job-feed-refresh :: REQ-FRJ-012 User-Agent and Proxy Configuration",
-					"openspec/changes/record-parity-requirements/specs/platform-baseline :: Outbound requests use the server's proxy setting (REQ-PLB-008)"
+					"openspec/specs/platform-baseline :: Outbound requests use the server's proxy setting (REQ-PLB-008)"
 				]
 			},
 			"reachedOn": "every widget that fetches from outside: news, calendar feeds, live tiles, weather, health pings, iframe checks",
@@ -7228,9 +7232,9 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "lib/Listener/PublicStartRedirectListener.php:117",
-				"change": "openspec/changes/sharing-public-start-page",
-				"requirement": "openspec/changes/sharing-public-start-page/specs/dashboard-public-share :: Signed-out visitors land on the start page (REQ-PSP-002)"
+				"evidence": "lib/Listener/PublicStartRedirectListener.php:117; live pass 17 Nov 2026: tests/e2e/public-start-page.spec.ts 3 passed on NC 34",
+				"change": "openspec/changes/archive/2026-11-17-sharing-public-start-page",
+				"requirement": "openspec/specs/dashboard-public-share :: Signed-out visitors land on the start page (REQ-PSP-002)"
 			},
 			"reachedOn": "the Nextcloud address: a signed-out visitor on the plain login page goes to /apps/launchpad/start (lib/Listener/PublicStartRedirectListener.php:117, lib/Controller/PageController.php:570), which shows the chosen public link with a Sign in bar (src/views/DashboardPublicShareView.vue)",
 			"evidence": {

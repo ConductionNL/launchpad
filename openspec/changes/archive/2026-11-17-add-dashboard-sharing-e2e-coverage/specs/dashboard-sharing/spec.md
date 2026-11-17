@@ -4,6 +4,8 @@
 
 ### Requirement: Owner-only share management (REQ-SHARE-001)
 
+@e2e tests/e2e/dashboard-sharing.spec.ts
+
 Only the owner of a dashboard MUST be allowed to list, create, update, or delete shares on that dashboard. All share-management endpoints MUST return HTTP 403 for any caller that is not the dashboard owner, including users who themselves have a `full`-level share on the dashboard. The owner-driven sharing UI flow (open `DashboardConfigModal`'s Sharing tab, add a share, change its permission level, remove a share) MUST be covered by a real Playwright e2e test that drives the actual router → middleware → controller → Vue re-render path, not only by PHPUnit tests that call the controller/service directly.
 
 #### Scenario: Owner adds a share

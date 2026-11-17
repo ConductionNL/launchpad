@@ -13,6 +13,6 @@
 - [x] 6. Add "Address on the office network" and the address-in-effect line to `src/modals/TileEditor.vue`. Verify: Vitest.
   > `TileEditor.officeNetwork.spec.js`; Views and WidgetRenderer carry `internalUrl` from and into the placement `content`.
 - [ ] 7. Pick the address in `src/components/TileWidget.vue`. Verify: Vitest, then a Playwright run with the runner's range configured.
-  > Done in code with Vitest (`TileWidget.officeNetwork.spec.js`). Left: the Playwright run with the runner's range configured, which needs a running instance.
+  > Done in code with Vitest (`TileWidget.officeNetwork.spec.js`). The Playwright spec is `tests/e2e/launcher-tile-internal-address.spec.ts` (it lists the runner's own address as the office network, and a documentation range for the "at home" leg). Left: running it against a live instance.
 - [ ] 8. Add `nl` and `en` strings, fold the requirements into `openspec/specs/tiles/spec.md` on archive, and set d-internal-url to `built` in the parity matrix with evidence lines.
-  > Partly: the 11 strings are in `nl` (translated) and `en`; the other 34 locales carry the English text so parity holds. Left: folding the requirements into `openspec/specs/tiles/spec.md` on archive and the parity-matrix row.
+  > Partly: the 11 strings are in `nl` (translated) and `en`; the other 34 locales carry the English text so parity holds. The parity-matrix row d-internal-url is `built` with evidence lines (`openspec/parity/capabilities.json`). Left: folding the requirements into `openspec/specs/tiles/spec.md`, which happens on archive.

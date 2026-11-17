@@ -1,0 +1,1486 @@
+{
+  "app": "launchpad",
+  "productOwner": "Remco Damhuis",
+  "rows": {
+    "build-drag": {
+      "tier": "poc",
+      "reason": "Placing widgets by drag is the core job of a dashboard builder; all five competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-resize": {
+      "tier": "poc",
+      "reason": "Sizing widgets is part of building a dashboard at all; the demo is not convincing without it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-keyboard": {
+      "tier": "mvp",
+      "reason": "Accessibility requirement: a government organisation cannot use a layout editor that needs a mouse.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-columns": {
+      "tier": "mvp",
+      "reason": "Organisations adjust the grid to their content; two competitors have it, a setting one organisation will change.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-responsive": {
+      "tier": "mvp",
+      "reason": "Table stakes: four of five competitors reflow for narrow screens, and staff open the start page on phones.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-container": {
+      "tier": "mvp",
+      "reason": "Three of five competitors group widgets; a real start page needs sections to stay readable.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-style": {
+      "tier": "later",
+      "reason": "Only one competitor rates yes; per widget colours are polish, not needed to do the job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-picker": {
+      "tier": "poc",
+      "reason": "Choosing a widget to add is part of the one flow the app exists for.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-nc-widgets": {
+      "tier": "poc",
+      "reason": "Showing other Nextcloud apps' widgets is the reason to use a start page inside Nextcloud.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-no-overlap": {
+      "tier": "mvp",
+      "reason": "Three of five competitors place new widgets in a free spot; without it daily editing is frustrating.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-edit-lock": {
+      "tier": "production",
+      "reason": "Concurrent editing of shared dashboards matters at scale with many editors; no competitor rates yes, so not table stakes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-personal-hide": {
+      "tier": "mvp",
+      "reason": "Two competitors have it, and staff on a shared group dashboard need to hide widgets they do not use.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-config-file": {
+      "tier": "later",
+      "reason": "Deferred: one competitor yes and no demand; export and import already cover moving dashboards.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "build-rollback": {
+      "tier": "production",
+      "reason": "Restoring an earlier version is hardening for organisations with many shared dashboards; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-many": {
+      "tier": "poc",
+      "reason": "Personal and team dashboards side by side is the core idea; switching between them must be shown.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-default": {
+      "tier": "mvp",
+      "reason": "Three competitors let users choose which dashboard opens first; needed once people have more than one.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-describe": {
+      "tier": "mvp",
+      "reason": "Two competitors have it; titles and icons are needed to tell dashboards apart in daily use.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-copy": {
+      "tier": "later",
+      "reason": "Only one competitor rates yes; starting from a template or empty dashboard covers the need.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-link": {
+      "tier": "mvp",
+      "reason": "Three competitors support direct links; organisations link dashboards from mail and the intranet.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-shared-list": {
+      "tier": "mvp",
+      "reason": "Once dashboards are shared, people need one place to find them; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-tree": {
+      "tier": "later",
+      "reason": "No competitor rates yes; a page tree is intranet structure outside the core start page job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-empty": {
+      "tier": "mvp",
+      "reason": "A first run offer to create a dashboard keeps new users from a blank page; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-languages": {
+      "tier": "production",
+      "reason": "Multilingual content is a demand of larger and border region organisations; two competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-metadata": {
+      "tier": "later",
+      "reason": "No competitor rates yes and no demand row; recording an owning department is administrative extra.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "dash-starter-widgets": {
+      "tier": "poc",
+      "reason": "A new dashboard with useful widgets is what makes the first demo work without manual setup.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-start-full-width": {
+      "tier": "mvp",
+      "reason": "A layout setting an administrator of one organisation will want to change; no competitor data.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-pin": {
+      "tier": "poc",
+      "reason": "Launching apps and sites from tiles is the start page half of the core job; four competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-health": {
+      "tier": "later",
+      "reason": "Two self hosted competitors rate yes; service status is a homelab need more than an office one.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-filter": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; useful only on dashboards with many tiles.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-web-search": {
+      "tier": "later",
+      "reason": "Two homelab competitors rate yes; organisations already have browser search.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-bookmarks": {
+      "tier": "mvp",
+      "reason": "Three competitors have grouped link lists; a common start page need for every organisation.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-clicks": {
+      "tier": "production",
+      "reason": "Usage reporting on tiles serves administrators of larger rollouts; one competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-most-used": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; automatic ordering is convenience, not needed for the job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-legacy-apps": {
+      "tier": "production",
+      "reason": "Digital workplace tenders such as Almelo name Workspace 365 for this; it wins tenders, not daily use.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-local-apps": {
+      "tier": "later",
+      "reason": "Only Workspace 365 rates yes; starting local programs is outside a browser start page.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-sso-app": {
+      "tier": "production",
+      "reason": "Single sign on into company apps is an integration Workspace 365 sells to tender buyers.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-catalogue": {
+      "tier": "production",
+      "reason": "An approved app catalogue with requests is an IT governance feature for larger organisations; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-discover-containers": {
+      "tier": "later",
+      "reason": "Only Homarr rates yes; a homelab feature with no organisational demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "tile-org-nav": {
+      "tier": "mvp",
+      "reason": "Three competitors offer an organisation wide menu; an organisation needs it beside every dashboard.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-text": {
+      "tier": "poc",
+      "reason": "Formatted text is the simplest widget and needed to show any content in the demo.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-image": {
+      "tier": "mvp",
+      "reason": "Three competitors have image widgets; an organisation's start page needs pictures.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-video": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; video on a start page is occasional.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-embed": {
+      "tier": "later",
+      "reason": "Only Workspace 365 rates yes; useful but organisations can link instead of embedding.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-news": {
+      "tier": "mvp",
+      "reason": "Table stakes: four of five competitors show news feeds on the start page.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-weather": {
+      "tier": "later",
+      "reason": "Three competitors rate yes, but all are homelab or Nextcloud; organisations rarely need weather.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-clock": {
+      "tier": "later",
+      "reason": "Two homelab competitors rate yes; not needed for an organisation's start page.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-calendar": {
+      "tier": "mvp",
+      "reason": "Three competitors show upcoming events; seeing today's agenda is daily start page use.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-files": {
+      "tier": "mvp",
+      "reason": "Files is the centre of Nextcloud; all competitors partial, and staff expect their folders here.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-people": {
+      "tier": "later",
+      "reason": "No competitor fully rates yes; colleague lists are intranet extras.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-birthdays": {
+      "tier": "later",
+      "reason": "Only Workspace 365 rates yes; a social extra with no demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-structure": {
+      "tier": "later",
+      "reason": "One competitor rates yes; headings help layout but text widgets cover the need.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-action-button": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; one click actions are convenience on top of tiles.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-live-value": {
+      "tier": "mvp",
+      "reason": "Three competitors show live figures; organisations use it for queue counts and status values.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-charts": {
+      "tier": "production",
+      "reason": "Charts over registered data is reporting, a production concern; no competitor fully rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-bi-embed": {
+      "tier": "later",
+      "reason": "Deferred: partial, built, no demand; only Workspace 365 rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-spend": {
+      "tier": "production",
+      "reason": "Finance figures across fleet apps is an integration for reporting; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-scheduled-export": {
+      "tier": "production",
+      "reason": "Scheduled reports by mail is reporting demand at scale; no competitor data yet.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-cross-filter": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; analytics behaviour beyond a start page.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-builder": {
+      "tier": "production",
+      "reason": "A no code connector to business systems is an integration Workspace 365 sells in tenders.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-itsm": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-erp": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-mail": {
+      "tier": "production",
+      "reason": "Mailbox preview is an integration with the mail app; only Workspace 365 rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-tasks": {
+      "tier": "production",
+      "reason": "Task integration with planning apps; two competitors rate yes, needed for digital workplace tenders.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-office-tiles": {
+      "tier": "production",
+      "reason": "Ready made office suite tiles are an integration two intranet competitors sell.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-intranet-content": {
+      "tier": "production",
+      "reason": "Showing another intranet's content is integration work two competitors offer.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "int-connections-status": {
+      "tier": "production",
+      "reason": "Connection status is operational hardening once outside integrations are in use.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-groups": {
+      "tier": "poc",
+      "reason": "Showing widgets per group is the smart visibility the app promises; four competitors have some form.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-hours": {
+      "tier": "later",
+      "reason": "No competitor rates yes; time windows are a refinement of group targeting.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-dates": {
+      "tier": "later",
+      "reason": "No competitor rates yes; date windows help campaigns but are not daily need.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-attribute": {
+      "tier": "production",
+      "reason": "Targeting by profile field is fine grained admin; one competitor yes, useful for large organisations.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-preview": {
+      "tier": "production",
+      "reason": "Previewing who sees a widget is admin tooling for complex rule sets; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-overview": {
+      "tier": "production",
+      "reason": "An overview of all visibility rules is fine grained admin at scale; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-widget-kinds": {
+      "tier": "production",
+      "reason": "Restricting widget kinds per group is fine grained admin; no competitor fully rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-role-layout": {
+      "tier": "mvp",
+      "reason": "A starting layout per role is how one organisation sets up its staff; competitors partial.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-compulsory": {
+      "tier": "later",
+      "reason": "Deferred: partial, built, no demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-device": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-hide-incompatible": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-group-priority": {
+      "tier": "mvp",
+      "reason": "Needed once group dashboards exist and people belong to several groups; two competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "t-action-matrix": {
+      "tier": "production",
+      "reason": "A role by action grid is fine grained admin; two competitors rate yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-templates": {
+      "tier": "poc",
+      "reason": "Rolling a dashboard out to groups is the team half of the core job; two competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-permission-levels": {
+      "tier": "mvp",
+      "reason": "One competitor rates yes; an organisation must decide who may change a handed out dashboard.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-resync": {
+      "tier": "production",
+      "reason": "Pushing template changes to existing dashboards matters with many users; no competitor fully rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-group-dashboards": {
+      "tier": "poc",
+      "reason": "A shared dashboard per group beside personal ones is the team dashboard the app exists for.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-wizard": {
+      "tier": "mvp",
+      "reason": "Guided setup helps one organisation get started without consultancy; one competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-demo": {
+      "tier": "poc",
+      "reason": "Example dashboards are the demo data that makes the core flow demonstrable.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-report-gallery": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; a report gallery is analytics outside the core job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-delegate": {
+      "tier": "mvp",
+      "reason": "Table stakes: four competitors let non admins manage dashboards, needed in daily operation.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-bulk": {
+      "tier": "production",
+      "reason": "Bulk changes matter only at scale with many dashboards; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-export": {
+      "tier": "production",
+      "reason": "Export and import between servers is migration, a production concern; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-migrate-from": {
+      "tier": "nee",
+      "reason": "Decided no: no competitor rates yes, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-confluence": {
+      "tier": "production",
+      "reason": "Importing Confluence content is migration work for organisations switching; no competitor fully rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-registry": {
+      "tier": "later",
+      "reason": "No competitor rates yes and the end to end flow is unverified; sharing between organisations is extra.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-quota": {
+      "tier": "production",
+      "reason": "Quotas protect a large installation from misuse; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "r-personal-off": {
+      "tier": "mvp",
+      "reason": "Table stakes: four competitors let an organisation turn off personal dashboards.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-share": {
+      "tier": "mvp",
+      "reason": "Sharing with people and groups is basic team use; three competitors rate yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-public": {
+      "tier": "mvp",
+      "reason": "Two competitors offer public read only links; organisations publish dashboards to outsiders.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-public-protect": {
+      "tier": "production",
+      "reason": "Password and expiry on public links is security hardening; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-bruteforce": {
+      "tier": "production",
+      "reason": "Throttling password guesses is security hardening expected in tenders; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-notify": {
+      "tier": "mvp",
+      "reason": "People must learn that a dashboard was shared with them; a basic part of sharing.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-kiosk": {
+      "tier": "later",
+      "reason": "No competitor fully rates yes and no demand row; lobby screens are a niche use.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-schedule": {
+      "tier": "later",
+      "reason": "No competitor rates yes and no demand row; built because Ruben decided so, not because buyers ask.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-policy": {
+      "tier": "production",
+      "reason": "Deciding who may share with whom is fine grained admin for larger organisations; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-leaver": {
+      "tier": "production",
+      "reason": "Handing over dashboards of leavers matters at scale; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-discussion": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; Talk already covers discussion.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-omnichannel": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-ack-ask": {
+      "tier": "later",
+      "reason": "No competitor rates yes and no demand row; built on Ruben's decision, not buyer demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-ack-report": {
+      "tier": "later",
+      "reason": "Depends on read confirmations, which have no competitor yes and no demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-react": {
+      "tier": "later",
+      "reason": "No competitor rates yes and no demand row; emoji reactions are engagement extra.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-announcements": {
+      "tier": "production",
+      "reason": "Targeted news with comments is an intranet suite feature Workspace 365 and Viva bring to tenders.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-events": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-kb": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-communities": {
+      "tier": "later",
+      "reason": "Two intranet competitors rate yes, but communities sit outside the start page job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-digest": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; an email digest is convenience beyond the core job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-activity-stream": {
+      "tier": "nee",
+      "reason": "Decided no: the personal activity stream is the Nextcloud activity app.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "e-maintenance": {
+      "tier": "mvp",
+      "reason": "Two competitors have it; an organisation needs to warn everyone about outages.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-find-dashboard": {
+      "tier": "mvp",
+      "reason": "Two competitors support search; finding dashboards from the Nextcloud search bar is basic navigation.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-federated": {
+      "tier": "nee",
+      "reason": "Decided no: unified search is provided by Nextcloud server.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-assistant": {
+      "tier": "later",
+      "reason": "Only Workspace 365 rates yes and no demand row; built on Ruben's decision.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-place-widget": {
+      "tier": "later",
+      "reason": "No competitor rates yes and no demand; AI placement is a convenience.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-agent-tools": {
+      "tier": "later",
+      "reason": "One competitor rates yes and no demand; an AI tool surface is extra.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-ai-control": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "a-summarise": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-views": {
+      "tier": "production",
+      "reason": "View statistics with export are reporting for administrators of larger rollouts; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-optout": {
+      "tier": "later",
+      "reason": "Deferred: built, no demand; only needed with view tracking.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-health": {
+      "tier": "production",
+      "reason": "A health check is operational hardening for running at scale; competitors partial.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-prometheus": {
+      "tier": "production",
+      "reason": "Prometheus metrics serve hosting providers running at scale; competitors partial at best.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-audit": {
+      "tier": "nee",
+      "reason": "Decided no: the audit log is Nextcloud's admin_audit app.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-activity": {
+      "tier": "production",
+      "reason": "Changes in the activity stream support audit and accountability; no competitor rates yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-cleanup": {
+      "tier": "production",
+      "reason": "Cleaning data of deleted users keeps large installations healthy; two competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-cli": {
+      "tier": "production",
+      "reason": "Command line management is for hosters and scripted operations at scale; competitors partial.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-footer": {
+      "tier": "later",
+      "reason": "Deferred: partial, built, no demand; one competitor yes.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-allowlists": {
+      "tier": "later",
+      "reason": "Deferred: partial, built, no demand; occ already sets the lists.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "g-svg": {
+      "tier": "mvp",
+      "reason": "Removing scripts from uploaded icons is a security baseline before any real organisation uploads files.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-sso": {
+      "tier": "mvp",
+      "reason": "Table stakes: all five competitors support single sign on with the organisation's identity provider.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-mobile-app": {
+      "tier": "nee",
+      "reason": "Decided no: a native app is a recorded non-goal; the mobile browser and PWA cover it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-own-servers": {
+      "tier": "mvp",
+      "reason": "Running on own servers is why organisations pick Nextcloud; three competitors allow it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-theme": {
+      "tier": "mvp",
+      "reason": "Government organisations need their own colours and NL Design System theming from day one.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-custom-css": {
+      "tier": "later",
+      "reason": "Two homelab competitors rate yes; theming already covers organisational styling.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-background": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-languages": {
+      "tier": "mvp",
+      "reason": "Table stakes: all five competitors are multilingual; Dutch is required.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-standalone": {
+      "tier": "mvp",
+      "reason": "Installing on a plain Nextcloud without other products is needed for any organisation to adopt it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "p-multitenant": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-widget-twice": {
+      "tier": "mvp",
+      "reason": "Three competitors allow the same widget twice; needed for two feeds or two folders.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-teams": {
+      "tier": "nee",
+      "reason": "Decided no: no competitor rates yes, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-account-move": {
+      "tier": "nee",
+      "reason": "Decided no: no competitor rates yes, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-link-target": {
+      "tier": "later",
+      "reason": "A feature request with two competitors yes; a small preference, not needed to do the job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-auto-refresh": {
+      "tier": "mvp",
+      "reason": "Three competitors refresh on their own; a start page left open all day must stay current.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-idp-groups": {
+      "tier": "mvp",
+      "reason": "Three competitors follow identity provider groups; group dashboards depend on correct groups after sign in.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-tour": {
+      "tier": "later",
+      "reason": "One competitor rates yes; a tour helps onboarding but the wizard covers setup.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-pwa": {
+      "tier": "mvp",
+      "reason": "Table stakes: all five competitors install on a phone home screen.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-rest-api": {
+      "tier": "production",
+      "reason": "A documented API is an integration demand in tenders; three competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-proxy": {
+      "tier": "production",
+      "reason": "Outbound proxy support is required in locked down government networks; three competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-single-logout": {
+      "tier": "nee",
+      "reason": "Decided no: single logout is done by Nextcloud's login apps.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-import-bookmarks": {
+      "tier": "later",
+      "reason": "A feature request with no competitor yes; tiles can be added by hand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-notes": {
+      "tier": "later",
+      "reason": "One competitor rates yes; personal notes are an extra, Nextcloud Notes exists.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-internal-url": {
+      "tier": "later",
+      "reason": "One homelab competitor rates yes; split network addresses are a niche need.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-theme-per-dashboard": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; organisation wide theming covers most needs.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-open-inside": {
+      "tier": "later",
+      "reason": "Three competitors rate yes, but opening apps in a pane is convenience over a new tab.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-search-prefix": {
+      "tier": "later",
+      "reason": "Two homelab competitors rate yes; search shortcuts are a power user extra.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-dark-mode": {
+      "tier": "mvp",
+      "reason": "Table stakes and accessibility: four of five competitors follow the device's dark mode.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-tile-sort": {
+      "tier": "later",
+      "reason": "One competitor rates yes; sorting options are polish.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-ai-write": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-room-free": {
+      "tier": "nee",
+      "reason": "Decided no: one competitor, no demand, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-profile-fields": {
+      "tier": "later",
+      "reason": "Two competitors rate yes; extra profile fields from the identity provider are intranet extras.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-news-preview": {
+      "tier": "production",
+      "reason": "Previewing news before publishing belongs with announcements, an intranet suite feature for tenders.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-recurring-events": {
+      "tier": "nee",
+      "reason": "Decided no: no competitor rates yes, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-content-review": {
+      "tier": "nee",
+      "reason": "Decided no: no competitor rates yes, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-ai-chart": {
+      "tier": "nee",
+      "reason": "Decided no: no competitor rates yes, outside the core area.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-work-queue": {
+      "tier": "production",
+      "reason": "A tender asks for own cases on the start page; delivered through case app widgets.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-attention": {
+      "tier": "mvp",
+      "reason": "A ranked list of what needs attention today is daily start page use for case workers.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-menu": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; the organisation menu and tiles cover navigation.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-quicklinks": {
+      "tier": "later",
+      "reason": "No competitor data; tiles and bookmarks already offer shortcuts.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-public-start": {
+      "tier": "production",
+      "reason": "A tender asks for a public start page for signed out visitors; two competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "d-find-expert": {
+      "tier": "production",
+      "reason": "A tender asks to find colleagues by expertise; two intranet competitors have it.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "s-embed-site": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; embedding on websites is beyond the start page job.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-calculated-fields": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; formulas are analytics extras.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "w-map": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; a map of register objects is a specialist widget.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-integrations-gate": {
+      "tier": "production",
+      "reason": "Integrations page visibility with integriq belongs with the production integration rows.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-charts-live": {
+      "tier": "production",
+      "reason": "Real figures in chart widgets belong with the reporting rows, which are production.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-registry-live": {
+      "tier": "later",
+      "reason": "Follows r-registry, which has no competitor yes and no demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-groupfolder": {
+      "tier": "later",
+      "reason": "A storage backend option in beta with no competitor data or demand.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-comments": {
+      "tier": "later",
+      "reason": "No competitor data and no demand; Talk and the activity stream cover discussion.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-sibling-widgets": {
+      "tier": "production",
+      "reason": "Role scoped widgets from fleet apps are integration work across Conduction apps.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-person-activity": {
+      "tier": "later",
+      "reason": "Reporting one named person's activity raises privacy questions and has no demand row.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    },
+    "q-drive-nc-dashboard": {
+      "tier": "later",
+      "reason": "A research task to verify a competitor column, not a capability a customer needs.",
+      "proposedBy": "claude",
+      "proposedOn": "2026-11-17",
+      "decidedBy": null,
+      "decidedOn": null
+    }
+  }
+}

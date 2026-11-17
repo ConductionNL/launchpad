@@ -86,6 +86,42 @@ class CustomCssSanitiserTest extends TestCase {
 	}
 
 	/**
+	 * Selectors that start at the scope: a sibling combinator right after the
+	 * scope's compound reaches outside the region and is scoped; descendants,
+	 * children and the scope's own compound stay as written.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function selectorsStartingAtTheScope(): array {
+		return [
+			'general sibling'              => ['.launchpad-workspace ~ .x', '.launchpad-workspace .launchpad-workspace ~ .x'],
+			'adjacent sibling'             => ['.launchpad-workspace + body', '.launchpad-workspace .launchpad-workspace + body'],
+			'sibling without spaces'       => ['.launchpad-workspace~.x', '.launchpad-workspace .launchpad-workspace~.x'],
+			'sibling after the compound'   => ['.launchpad-workspace.dark:hover ~ div', '.launchpad-workspace .launchpad-workspace.dark:hover ~ div'],
+			'sibling after an attribute'   => ['.launchpad-workspace[data-x="a ~ b"] + p', '.launchpad-workspace .launchpad-workspace[data-x="a ~ b"] + p'],
+			'descendant'                   => ['.launchpad-workspace .tile', '.launchpad-workspace .tile'],
+			'child'                        => ['.launchpad-workspace > .tile', '.launchpad-workspace > .tile'],
+			'sibling inside the region'    => ['.launchpad-workspace .a ~ .b', '.launchpad-workspace .a ~ .b'],
+			'own compound'                 => ['.launchpad-workspace.dark', '.launchpad-workspace.dark'],
+			'combinator inside a pseudo'   => ['.launchpad-workspace:not(.a ~ .b) .c', '.launchpad-workspace:not(.a ~ .b) .c'],
+		];
+	}
+
+	#[DataProvider('selectorsStartingAtTheScope')]
+	public function testASelectorStartingAtTheScopeStaysInsideIt(string $selector, string $expected): void {
+		$result = $this->sanitiser->sanitise(css: $selector . ' { color: red; }', scope: self::SCOPE);
+
+		$this->assertSame($expected . " {\n  color: red;\n}", $result['css']);
+	}
+
+	public function testADashboardRuleReachingTheRegionsSiblingIsScoped(): void {
+		$scope  = CustomCssSanitiser::dashboardScope(uuid: 'a1b2c3d4-0000-4000-8000-000000000001');
+		$result = $this->sanitiser->sanitise(css: $scope . ' ~ .other { display: none; }', scope: $scope);
+
+		$this->assertSame($scope . ' ' . $scope . " ~ .other {\n  display: none;\n}", $result['css']);
+	}
+
+	/**
 	 * @return array<string, array{string, string}>
 	 */
 	public static function droppedDeclarations(): array {

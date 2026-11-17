@@ -249,23 +249,57 @@ final class CustomCssSanitiser {
 	}//end scopeSelectors()
 
 	/**
-	 * Prefix one selector with the scope, unless it already starts at the scope itself.
+	 * Prefix one selector with the scope, unless it already starts at the scope
+	 * itself and stays inside it. A sibling combinator (`+`, `~`) right after the
+	 * scope's compound reaches the region's siblings, outside the scope, so such
+	 * a selector is prefixed as well.
 	 *
 	 * @param string $selector The selector.
 	 * @param string $scope    The scope.
 	 *
 	 * @return string The scoped selector.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	private function scopeOne(string $selector, string $scope): string {
 		if (str_starts_with($selector, $scope) === true) {
-			$next = substr($selector, strlen($scope), 1);
-			if ($next === '' || preg_match('/[A-Za-z0-9_-]/', $next) !== 1) {
+			$rest = substr($selector, strlen($scope));
+			if (($rest === '' || preg_match('/^[A-Za-z0-9_-]/', $rest) !== 1)
+				&& self::leavesTheCompoundBySibling(rest: $rest) === false
+			) {
 				return $selector;
 			}
 		}
 
 		return $scope . ' ' . $selector;
 	}//end scopeOne()
+
+	/**
+	 * Whether the first combinator after the scope's compound is a sibling
+	 * combinator. The compound may go on with classes, ids, attributes and
+	 * pseudo-classes (their brackets and quotes are skipped); it ends at the
+	 * first top-level space or combinator.
+	 *
+	 * @param string $rest The selector after the scope.
+	 *
+	 * @return bool
+	 */
+	private static function leavesTheCompoundBySibling(string $rest): bool {
+		$nesting = ['depth' => 0, 'quote' => null];
+		$length  = strlen($rest);
+		for ($i = 0; $i < $length; $i++) {
+			$char = $rest[$i];
+			if (self::nestingStep(char: $char, nesting: $nesting) === true || $nesting['depth'] > 0) {
+				continue;
+			}
+
+			if (strpos(' >+~', $char) !== false) {
+				return in_array(ltrim(substr($rest, $i))[0] ?? '', ['+', '~'], true);
+			}
+		}
+
+		return false;
+	}//end leavesTheCompoundBySibling()
 
 	/**
 	 * Read the declarations of a rule and keep the safe ones.

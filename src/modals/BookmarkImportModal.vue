@@ -135,12 +135,25 @@ export default {
 		 * Bound to the modal's visibility.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
 		 */
 		isOpen: {
+			/**
+			 * Whether the dialog shows.
+			 *
+			 * @return {boolean}
+			 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+			 */
 			get() {
 				return this.open
 			},
 
+			/**
+			 * Closing the modal closes the dialog.
+			 *
+			 * @param {boolean} value Whether it shows.
+			 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+			 */
 			set(value) {
 				if (!value) {
 					this.close()
@@ -152,6 +165,7 @@ export default {
 		 * Whether something is chosen and nothing is in flight.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
 		 */
 		canImport() {
 			return !this.busy && this.parsed !== null && (this.folderIndexes.size + this.bookmarkIndexes.size) > 0
@@ -191,6 +205,7 @@ export default {
 		 *
 		 * @param {Error & {code?: string}} e The refusal.
 		 * @return {string}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-large-files-are-refused-in-the-browser-req-bmi-004
 		 */
 		refusal(e) {
 			if (e && e.code === 'too-large') {
@@ -208,6 +223,7 @@ export default {
 		 * @param {Set<number>} set The chosen indexes.
 		 * @param {number} index The item.
 		 * @param {boolean} checked Whether it is ticked now.
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
 		 */
 		toggle(set, index, checked) {
 			const next = new Set(set)
@@ -257,7 +273,11 @@ export default {
 			}
 		},
 
-		/** Clear what the dialog read and reported. */
+		/**
+		 * Clear what the dialog read and reported.
+		 *
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+		 */
 		reset() {
 			this.parsed = null
 			this.folderIndexes = new Set()
@@ -266,7 +286,11 @@ export default {
 			this.skipped = []
 		},
 
-		/** Close and forget. */
+		/**
+		 * Close and forget.
+		 *
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+		 */
 		close() {
 			this.reset()
 			this.$emit('close')

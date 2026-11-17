@@ -192,6 +192,15 @@ class CalculatedFieldMaterialiser {
 	 * Only keys under the widget's prefix are touched; the schema is written
 	 * only when they change.
 	 *
+	 * Access: the schema is read and written as the current user through
+	 * OpenRegister's SchemaMapper, the same path its own schema API takes.
+	 * find() runs with RBAC and multitenancy on (passed explicitly, so a
+	 * change of OpenRegister's defaults cannot turn them off here), and
+	 * update() verifies the caller's schema update permission and
+	 * organisation access before it writes. A caller who may not change the
+	 * schema gets an exception, nothing is written, and the caller downgrades
+	 * the fields to client mode.
+	 *
 	 * @param string                             $schemaId   The schema id, uuid or slug.
 	 * @param string                             $widgetId   The widget id.
 	 * @param array<string,array<string,mixed>>  $properties The properties to own, from plan().
@@ -209,7 +218,7 @@ class CalculatedFieldMaterialiser {
 			throw new RuntimeException(message: 'OpenRegister is unavailable.');
 		}
 
-		$schema  = $mapper->find(id: $schemaId);
+		$schema  = $mapper->find(id: $schemaId, _rbac: true, _multitenancy: true);
 		$current = $schema->getProperties();
 		if (is_array($current) === false) {
 			$current = [];

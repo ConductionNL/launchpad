@@ -137,11 +137,14 @@ class WidgetApiControllerServerFieldsTest extends TestCase {
 			/**
 			 * Find a schema.
 			 *
-			 * @param string|int $id The id.
+			 * @param string|int $id            The id.
+			 * @param bool       $_rbac         Whether RBAC applies.
+			 * @param bool       $_multitenancy Whether multitenancy applies.
 			 *
 			 * @return object
 			 */
-			public function find(string|int $id): object {
+			public function find(string|int $id, bool $_rbac=true, bool $_multitenancy=true): object {
+				unset($_rbac, $_multitenancy);
 				$props = $this->schemas[(string) $id];
 				return new class ((string) $id, $props) {
 					/**

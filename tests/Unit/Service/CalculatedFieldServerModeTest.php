@@ -93,13 +93,34 @@ class CalculatedFieldServerModeTest extends TestCase {
 			public bool $refuse = false;
 
 			/**
+			 * Whether find() refuses, as OpenRegister does for a schema the caller may not read.
+			 *
+			 * @var bool
+			 */
+			public bool $refuseRead = false;
+
+			/**
+			 * The access flags of every find() call.
+			 *
+			 * @var list<array{rbac: bool, multitenancy: bool}>
+			 */
+			public array $finds = [];
+
+			/**
 			 * Find a schema.
 			 *
-			 * @param string|int $id The id.
+			 * @param string|int $id            The id.
+			 * @param bool       $_rbac         Whether RBAC applies.
+			 * @param bool       $_multitenancy Whether multitenancy applies.
 			 *
 			 * @return object
 			 */
-			public function find(string|int $id): object {
+			public function find(string|int $id, bool $_rbac=false, bool $_multitenancy=false): object {
+				$this->finds[] = ['rbac' => $_rbac, 'multitenancy' => $_multitenancy];
+				if ($this->refuseRead === true) {
+					throw new RuntimeException('Access denied');
+				}
+
 				if (isset($this->schemas[(string) $id]) === false) {
 					throw new RuntimeException('not found');
 				}
@@ -428,6 +449,38 @@ class CalculatedFieldServerModeTest extends TestCase {
 		$this->assertSame('profit', $result['warnings'][0]['field']);
 		$this->assertStringContainsString('could not be updated', $result['warnings'][0]['reason']);
 	}//end testARefusedSchemaWriteDowngrades()
+
+	/**
+	 * The schema is read with OpenRegister's access checks on, so the write
+	 * runs only for a caller OpenRegister lets read and update the schema.
+	 *
+	 * @return void
+	 */
+	public function testTheSchemaIsReadWithAccessChecksOn(): void {
+		$this->save(service: $this->service(), fields: [self::field('profit', 'server', self::profit())]);
+
+		$this->assertNotSame([], $this->mapper->finds);
+		foreach ($this->mapper->finds as $flags) {
+			$this->assertSame(['rbac' => true, 'multitenancy' => true], $flags);
+		}
+
+		$this->assertSame(['orders'], $this->mapper->updates);
+	}//end testTheSchemaIsReadWithAccessChecksOn()
+
+	/**
+	 * A schema the caller may not read is never written; the field stays client-side.
+	 *
+	 * @return void
+	 */
+	public function testARefusedSchemaReadWritesNothing(): void {
+		$this->mapper->refuseRead = true;
+		$result = $this->save(service: $this->service(), fields: [self::field('profit', 'server', self::profit())]);
+
+		$this->assertSame([], $this->mapper->updates);
+		$this->assertSame(['revenue' => ['type' => 'number']], $this->mapper->schemas['orders']);
+		$this->assertSame('client', $result['fields'][0]['evaluationMode']);
+		$this->assertNull($result['fields'][0]['serverComputedFieldId']);
+	}//end testARefusedSchemaReadWritesNothing()
 
 	/**
 	 * Without OpenRegister a server field is planned as a client field.

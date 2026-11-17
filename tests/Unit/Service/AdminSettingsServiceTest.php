@@ -88,6 +88,7 @@ class AdminSettingsServiceTest extends TestCase {
 				'ssoLaunchTemplates' => [],
 				// engagement-announcements D6: no editor groups until one is chosen.
 				'announcementEditorGroups' => [],
+				'pinnedCommunities' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -181,7 +182,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('announcementEditorGroups', $settings);
 		// drill-down-cross-widget-filter REQ-CWF-010.
 		$this->assertArrayHasKey('filterTelemetryEnabled', $settings);
-		$this->assertCount(18, $settings);
+				// engagement-communities REQ-COMM-003.
+		$this->assertArrayHasKey('pinnedCommunities', $settings);
+		$this->assertCount(19, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

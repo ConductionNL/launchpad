@@ -441,6 +441,8 @@ class AdminController extends Controller {
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
 	 * @param array|null $announcementEditorGroups Groups whose members may write announcements (engagement-announcements D6).
 	 * @param bool|null  $filterTelemetryEnabled   Org-level filter telemetry opt-in (drill-down-cross-widget-filter REQ-CWF-010).
+	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
+	 *                                      communities, at most 20 (REQ-COMM-003).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -470,6 +472,7 @@ class AdminController extends Controller {
 		array|null $ssoLaunchTemplates = null,
 		array|null $announcementEditorGroups = null,
 		bool|null $filterTelemetryEnabled = null,
+		array|null $pinnedCommunities = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -499,6 +502,7 @@ class AdminController extends Controller {
 					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
 					'announcementEditorGroups'    => $announcementEditorGroups,
 					'filterTelemetryEnabled'      => $filterTelemetryEnabled,
+					'pinnedCommunities'           => $pinnedCommunities,
 				]
 			);
 

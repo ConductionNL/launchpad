@@ -42,8 +42,8 @@
 
 ## 6. Schema and Widget Service (PHP)
 
-- [ ] Task 21: Extend `WidgetEntity` schema: add nullable `calculatedFields` JSON column storing the array of field objects (id, name, label, expression, compiledExpression, returnType, evaluationMode, etc.)
-- [ ] Task 22: Create migration that adds the column to existing widgets with default `[]`
+- [x] Task 21: Extend `WidgetEntity` schema: add nullable `calculatedFields` JSON column storing the array of field objects (id, name, label, expression, compiledExpression, returnType, evaluationMode, etc.)
+- [x] Task 22: Create migration that adds the column to existing widgets with default `[]`
 - [ ] Task 23: Implement `CalculatedFieldService.php` (server-side) with: (1) `validateAndCompile(widget, expression)` calls the parser and type-checker, (2) `detectCycles(widget)` checks for cycles, (3) `evaluateExpression(ast, row): mixed` evaluates the AST for server-side use (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
   - Partly built: `CalculatedFieldCycleDetector.php` (`assertAcyclic()`, the `cycleDetected` envelope via `CalculatedFieldCycleError`) mirrors the client detector, and `CalculatedFieldEvaluator.php` evaluates; left: a PHP AST type check (`validateAndCompile`) and the service around them, which need the storage of tasks 21-22.
 - [ ] Task 24: Wire `WidgetController::create` and `::update` to validate all calculated fields before persisting via `CalculatedFieldService::validateAndCompile` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)

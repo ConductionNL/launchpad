@@ -98,14 +98,7 @@ class PlacementPayloadHydrator {
 		// arguments would break that forwarding.
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$placement->setDashboardId($dashboardId);
-		$placement->setWidgetId((string)($payload['widgetId'] ?? ''));
-		$placement->setGridX((int)($payload['gridX'] ?? 0));
-		$placement->setGridY((int)($payload['gridY'] ?? 0));
-		$placement->setGridWidth((int)($payload['gridWidth'] ?? 4));
-		$placement->setGridHeight((int)($payload['gridHeight'] ?? 4));
-		$placement->setIsVisible((int)($payload['isVisible'] ?? 1));
-		$placement->setShowTitle((int)($payload['showTitle'] ?? 1));
-		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
+		$this->applyLayout(placement: $placement, payload: $payload);
 		$placement->setCreatedAt($now);
 		$placement->setUpdatedAt($now);
 
@@ -128,6 +121,28 @@ class PlacementPayloadHydrator {
 
 		return $placement;
 	}//end hydrate()
+
+	/**
+	 * Copy the widget id, grid position and size, visibility, title flag and
+	 * sort order from a payload, with the defaults of a new placement.
+	 *
+	 * @param WidgetPlacement      $placement The placement being hydrated.
+	 * @param array<string, mixed> $payload   The placement payload.
+	 *
+	 * @return void
+	 */
+	private function applyLayout(WidgetPlacement $placement, array $payload): void {
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$placement->setWidgetId((string)($payload['widgetId'] ?? ''));
+		$placement->setGridX((int)($payload['gridX'] ?? 0));
+		$placement->setGridY((int)($payload['gridY'] ?? 0));
+		$placement->setGridWidth((int)($payload['gridWidth'] ?? 4));
+		$placement->setGridHeight((int)($payload['gridHeight'] ?? 4));
+		$placement->setIsVisible((int)($payload['isVisible'] ?? 1));
+		$placement->setShowTitle((int)($payload['showTitle'] ?? 1));
+		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+	}//end applyLayout()
 
 	/**
 	 * Copy a tile's type and fields, when the payload is a tile.

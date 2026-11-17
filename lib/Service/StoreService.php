@@ -422,16 +422,8 @@ class StoreService {
 	 * @throws RuntimeException When the archive cannot be allocated or opened.
 	 */
 	private function materialise(array $dashboards, string $slug, string $userId): string {
-		$tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-store-');
-		if ($tempPath === false) {
-			throw new RuntimeException(message: 'Could not allocate a temporary file for the install.');
-		}
-
 		$zip = new ZipArchive();
-		if ($zip->open(filename: $tempPath, flags: ZipArchive::OVERWRITE) !== true) {
-			unlink(filename: $tempPath);
-			throw new RuntimeException(message: 'Could not open the store archive for writing.');
-		}
+		$tempPath = $this->openArchive(zip: $zip);
 
 		$manifest = [
 			'schemaVersion' => ImportService::SCHEMA_VERSION,
@@ -445,19 +437,52 @@ class StoreService {
 		];
 
 		$zip->addFromString(name: 'manifest.json', content: $this->encode(payload: $manifest));
+		$this->addDashboards(zip: $zip, dashboards: $dashboards);
+		$zip->addFromString(name: 'metadata-fields.json', content: $this->encode(payload: []));
+		$zip->close();
 
+		return $tempPath;
+	}//end materialise()
+
+	/**
+	 * Allocate a temporary file and open it as a fresh archive.
+	 *
+	 * @param ZipArchive $zip The archive to open.
+	 *
+	 * @return string Path to the temporary archive.
+	 *
+	 * @throws RuntimeException When the archive cannot be allocated or opened.
+	 */
+	private function openArchive(ZipArchive $zip): string {
+		$tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-store-');
+		if ($tempPath === false) {
+			throw new RuntimeException(message: 'Could not allocate a temporary file for the install.');
+		}
+
+		if ($zip->open(filename: $tempPath, flags: ZipArchive::OVERWRITE) !== true) {
+			unlink(filename: $tempPath);
+			throw new RuntimeException(message: 'Could not open the store archive for writing.');
+		}
+
+		return $tempPath;
+	}//end openArchive()
+
+	/**
+	 * Add one `dashboards/<uuid>.json` entry per dashboard payload.
+	 *
+	 * @param ZipArchive                       $zip        The open archive.
+	 * @param array<int, array<string, mixed>> $dashboards The dashboard payloads.
+	 *
+	 * @return void
+	 */
+	private function addDashboards(ZipArchive $zip, array $dashboards): void {
 		foreach ($dashboards as $payload) {
 			$zip->addFromString(
 				name: 'dashboards/' . (string)$payload['uuid'] . '.json',
 				content: $this->encode(payload: $payload)
 			);
 		}
-
-		$zip->addFromString(name: 'metadata-fields.json', content: $this->encode(payload: []));
-		$zip->close();
-
-		return $tempPath;
-	}//end materialise()
+	}//end addDashboards()
 
 	/**
 	 * Turn the importer's result into the store page's per-component report.

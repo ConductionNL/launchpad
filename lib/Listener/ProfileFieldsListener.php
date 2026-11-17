@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Listener;
 
-use OCA\LaunchPad\Service\ProfileFieldService;
+use OCA\LaunchPad\Kernel\Contracts\ProfileFieldServiceInterface;
 use OCP\Accounts\UserUpdatedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -44,13 +44,13 @@ class ProfileFieldsListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param ProfileFieldService $profileFields Profile field service.
+	 * @param ProfileFieldServiceInterface $profileFields Profile field service.
 	 * @param LoggerInterface $logger Logger.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function __construct(
-		private readonly ProfileFieldService $profileFields,
+		private readonly ProfileFieldServiceInterface $profileFields,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

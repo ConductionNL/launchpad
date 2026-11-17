@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use Psr\Log\LoggerInterface;
@@ -43,7 +43,7 @@ class DashboardApiHistory {
 	 * @param DashboardVersionService $versionService Snapshot service (REQ-VERS-001) — automatic snapshots fire
 	 *                                                after every successful PUT via the debounced
 	 *                                                `captureSnapshot` helper.
-	 * @param AnalyticsService        $analyticsService The view-analytics service used by the `viewEvent`
+	 * @param AnalyticsServiceInterface        $analyticsService The view-analytics service used by the `viewEvent`
 	 *                                                  endpoint (REQ-ANLT-002).
 	 * @param LoggerInterface         $logger PSR logger (used by fork to report unexpected errors —
 	 *                                        REQ-DASH-021).
@@ -51,7 +51,7 @@ class DashboardApiHistory {
 	public function __construct(
 		public readonly DashboardTreeService $treeService,
 		public readonly DashboardVersionService $versionService,
-		public readonly AnalyticsService $analyticsService,
+		public readonly AnalyticsServiceInterface $analyticsService,
 		public readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

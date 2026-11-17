@@ -37,6 +37,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use OCA\LaunchPad\Kernel\Contracts\ResourceServeServiceInterface;
 use OCP\Files\IAppData;
 use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFile;
@@ -48,7 +49,7 @@ use Throwable;
  *
  * @spec openspec/changes/resource-serving/tasks.md
  */
-class ResourceServeService {
+class ResourceServeService implements ResourceServeServiceInterface {
 	/**
 	 * Map of file extension → Content-Type for the public serve route.
 	 *

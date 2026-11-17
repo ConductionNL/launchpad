@@ -134,4 +134,37 @@ describe('TileWidget', () => {
 		expect(style).toContain('--tile-bg-color: #000000')
 		expect(style).toContain('--tile-text-color: #ffffff')
 	})
+
+	describe('launch tiles (launcher-tile-launch-types)', () => {
+		it('hands a program address to the browser and shows the hint after a click', async () => {
+			const wrapper = mount(TileWidget, { props: { tile: tile({ linkType: 'program', linkValue: 'ms-word:ofe|u|https://docs.example.nl/a.docx' }) } })
+			const link = wrapper.find('a')
+			expect(link.attributes('href')).toBe('ms-word:ofe|u|https://docs.example.nl/a.docx')
+			expect(link.attributes('target')).toBe('_self')
+			expect(wrapper.find('[role="status"]').exists()).toBe(false)
+
+			await link.trigger('click')
+
+			expect(wrapper.find('[role="status"]').text()).toBe('Nothing happened? The program may not be installed on this computer.')
+		})
+
+		it('links an RDP tile to its file and a gateway tile to the gateway in a new tab', () => {
+			const rdp = mount(TileWidget, { props: { tile: tile({ linkType: 'remote-desktop', linkValue: '' }), placementId: 9, content: { remote: { mode: 'rdp', host: 'pc12' } } } }).find('a')
+			expect(rdp.attributes('href')).toBe('/nc/apps/launchpad/api/tiles/9/rdp')
+			expect(rdp.attributes('target')).toBe('_self')
+
+			const gateway = mount(TileWidget, { props: { tile: tile({ linkType: 'remote-desktop', linkValue: 'https://desktop.gemeente.nl/' }), content: { remote: { mode: 'gateway' } } } }).find('a')
+			expect(gateway.attributes('href')).toBe('https://desktop.gemeente.nl/')
+			expect(gateway.attributes('target')).toBe('_blank')
+		})
+
+		it('opens an sso tile at the address the server stored, and shows no hint for it', async () => {
+			const wrapper = mount(TileWidget, { props: { tile: tile({ linkType: 'sso', linkValue: 'https://launcher.myapps.microsoft.com/api/signin/a1b2c3?tenantId=contoso' }) } })
+			const link = wrapper.find('a')
+			expect(link.attributes('href')).toBe('https://launcher.myapps.microsoft.com/api/signin/a1b2c3?tenantId=contoso')
+			expect(link.attributes('target')).toBe('_blank')
+			await link.trigger('click')
+			expect(wrapper.find('[role="status"]').exists()).toBe(false)
+		})
+	})
 })

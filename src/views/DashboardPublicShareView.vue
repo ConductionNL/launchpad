@@ -3,12 +3,26 @@ SPDX-FileCopyrightText: 2026 Conduction B.V.
 SPDX-License-Identifier: EUPL-1.2
 
 Anonymous read-only view of a shared dashboard. Delegates password-unlock
-UI to PublicSharePasswordDialog. Requires no Nextcloud login.
+UI to PublicSharePasswordDialog. Requires no Nextcloud login. As the public
+start page (`startPage`) it carries a bar with the organisation's name and a
+"Sign in" button to the login form with `direct=1`
+(sharing-public-start-page REQ-PSP-003).
 
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
 	<div class="public-share-view">
+		<!-- The way in for staff on the public start page (REQ-PSP-003) -->
+		<nav
+			v-if="startPage"
+			class="public-share-view__start-bar"
+			:aria-label="t('launchpad', 'Sign in')">
+			<span class="public-share-view__organisation">{{ organisationName }}</span>
+			<a class="button primary public-share-view__sign-in" :href="signInHref">
+				{{ t('launchpad', 'Sign in') }}
+			</a>
+		</nav>
+
 		<!-- Password unlock dialog (extracted per ADR-004) -->
 		<PublicSharePasswordDialog
 			v-if="showPasswordModal"
@@ -58,6 +72,7 @@ import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { signInUrl } from '../utils/publicStart.js'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
@@ -77,6 +92,12 @@ export default defineComponent({
 		token: {
 			type: String,
 			required: true,
+		},
+
+		/** Rendered as the public start page: shows the sign-in bar (REQ-PSP-003). */
+		startPage: {
+			type: Boolean,
+			default: false,
 		},
 	},
 
@@ -197,7 +218,14 @@ export default defineComponent({
 			await loadShare()
 		})
 
+		// The start page's sign-in bar: the instance's name from Nextcloud's
+		// theming, and the login form with direct=1 (REQ-PSP-003).
+		const organisationName = window.OC?.theme?.name || ''
+		const signInHref = signInUrl(generateUrl)
+
 		return {
+			organisationName,
+			signInHref,
 			loading,
 			dashboard,
 			share,
@@ -218,6 +246,22 @@ export default defineComponent({
 .public-share-view {
 	min-height: 100vh;
 	padding: 1.5rem;
+}
+
+.public-share-view__start-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: -1.5rem -1.5rem 1.5rem;
+	padding: 0.75rem 1.5rem;
+	background: var(--color-main-background);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.public-share-view__organisation {
+	font-weight: bold;
+	color: var(--color-main-text);
 }
 
 .public-share-view__loading {

@@ -162,6 +162,39 @@ class PublicShareMapper extends QBMapper {
 	}//end findActiveByDashboardUuid()
 
 	/**
+	 * Every share that is not revoked and has not expired, with no password, across all dashboards.
+	 *
+	 * The shares an administrator may choose as the public start page
+	 * (sharing-public-start-page D1). Admin-only: the caller checks that.
+	 *
+	 * @return PublicShare[]
+	 *
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-administrators-choose-a-public-link-as-the-start-page-req-psp-001
+	 */
+	public function findStartPageCandidates(): array {
+		$now = $this->now();
+
+		$qb = $this->selectWhere(match: []);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
+			->andWhere($qb->expr()->isNull(x: 'password_hash'))
+			->andWhere(
+				$qb->expr()->orX(
+					$qb->expr()->isNull(x: 'expires_at'),
+					$qb->expr()->gt(
+						x: 'expires_at',
+						y: $qb->createNamedParameter(value: $now)
+					)
+				)
+			)
+			->orderBy(sort: 'created_at', order: 'ASC');
+
+		return array_map(
+			callback: fn (PublicShare $share) => $this->hydrateUrl(share: $share),
+			array: $this->findEntities(query: $qb)
+		);
+	}//end findStartPageCandidates()
+
+	/**
 	 * Soft-revoke a share by setting revokedAt to now.
 	 *
 	 * Idempotent: if revokedAt is already set, this is a no-op.

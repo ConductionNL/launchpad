@@ -38,6 +38,7 @@
  *   @e2e dashboard-sharing::owner-changes-permission-level-persists
  *   @e2e dashboard-sharing::owner-removes-a-share-persists
  *   @e2e dashboard-sharing::recipient-sees-shared-dashboard
+ *   @e2e dashboard-sharing::a-user-drives-the-full-sharing-flow-through-the-browser
  *
  * @spec openspec/changes/add-dashboard-sharing-e2e-coverage/tasks.md
  */

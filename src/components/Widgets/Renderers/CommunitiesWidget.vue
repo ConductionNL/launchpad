@@ -327,7 +327,8 @@ export default {
 
 .communities-widget__pinned {
 	font-size: 0.85em;
-	color: var(--color-primary-element-text, var(--color-main-text));
+	font-weight: bold;
+	color: var(--color-main-text);
 }
 
 .communities-widget__description,

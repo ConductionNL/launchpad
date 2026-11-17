@@ -61,6 +61,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
 - [ ] 3.18 `default-widget-bundle`: 6 scenarios, 0 cited.
 - [ ] 3.19 `effective-default-marker`: 5 scenarios, 0 cited.
+  - Written: `tests/e2e/effective-default-marker.spec.ts` cites all 5 scenarios, and their exclusions are removed from the spec. Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
 
 ## 4. Tier 3, widgets
 

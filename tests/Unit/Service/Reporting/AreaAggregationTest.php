@@ -44,8 +44,7 @@ class AreaAggregationTest extends TestCase {
 			rows: $rows,
 			areaProperty: 'district',
 			dateProperty: 'reportedAt',
-			from: new DateTimeImmutable('2026-07-01T00:00:00+00:00'),
-			until: new DateTimeImmutable('2026-10-01T00:00:00+00:00')
+			period: ['from' => new DateTimeImmutable('2026-07-01T00:00:00+00:00'), 'until' => new DateTimeImmutable('2026-10-01T00:00:00+00:00')]
 		);
 
 		$this->assertSame(5, $result['total']);
@@ -88,7 +87,7 @@ class AreaAggregationTest extends TestCase {
 			],
 			areaProperty: 'address.district',
 			dateProperty: 'at',
-			from: new DateTimeImmutable('2026-09-01')
+			period: ['from' => new DateTimeImmutable('2026-09-01')]
 		);
 
 		$this->assertSame(2, $result['total']);

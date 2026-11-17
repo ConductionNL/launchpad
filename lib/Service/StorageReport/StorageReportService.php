@@ -127,10 +127,12 @@ class StorageReportService {
 			'registers'  => $this->figures->registerCounts(),
 			'removable'  => self::removable(
 				trash: $this->figures->trashEntries(),
-				retentionDays: self::retentionDays(setting: (string) $this->config->getSystemValue('trashbin_retention_obligation', 'auto')),
 				uploads: $this->figures->uploads(),
-				referenced: $this->figures->referencedUploads(),
-				now: $now
+				policy: [
+					'retentionDays' => self::retentionDays(setting: (string) $this->config->getSystemValue('trashbin_retention_obligation', 'auto')),
+					'referenced'    => $this->figures->referencedUploads(),
+					'now'           => $now,
+				]
 			),
 		];
 	}//end report()
@@ -176,45 +178,81 @@ class StorageReportService {
 	/**
 	 * What can be removed: trash past its retention and uploads nothing names.
 	 *
-	 * @param list<array{user:string,name:string,bytes:int}> $trash         Trash entries.
-	 * @param int|null                                        $retentionDays Days trash is kept; null when it is never expired.
-	 * @param list<array{name:string,bytes:int,mtime:int}>    $uploads       Launchpad uploads.
-	 * @param array<string,true>|null                         $referenced    Upload names still named; null when unknown.
-	 * @param int                                             $now           Now (Unix time).
+	 * The policy holds `retentionDays` (int|null: days trash is kept; null when it is never expired),
+	 * `referenced` (array<string,true>|null: upload names still named; null when unknown) and
+	 * `now` (int: Unix time).
+	 *
+	 * @param list<array{user:string,name:string,bytes:int}> $trash   Trash entries.
+	 * @param list<array{name:string,bytes:int,mtime:int}>    $uploads Launchpad uploads.
+	 * @param array{retentionDays:int|null,referenced:array<string,true>|null,now:int} $policy What counts as removable.
 	 *
 	 * @return array{total:int,pastRetention:array{count:int,bytes:int,retentionDays:int|null},orphanedUploads:array{count:int,bytes:int,names:list<string>,known:bool}}
 	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
-	public static function removable(array $trash, ?int $retentionDays, array $uploads, ?array $referenced, int $now): array {
-		$past = ['count' => 0, 'bytes' => 0, 'retentionDays' => $retentionDays];
-		if ($retentionDays !== null) {
-			$cutoff = ($now - ($retentionDays * 86400));
-			foreach ($trash as $entry) {
-				if (preg_match('/\.d(\d+)$/', $entry['name'], $match) === 1 && (int) $match[1] < $cutoff) {
-					$past['count']++;
-					$past['bytes'] += $entry['bytes'];
-				}
-			}
-		}
-
-		$orphaned = ['count' => 0, 'bytes' => 0, 'names' => [], 'known' => ($referenced !== null)];
-		if ($referenced !== null) {
-			foreach ($uploads as $upload) {
-				if (isset($referenced[$upload['name']]) === true || $upload['mtime'] > ($now - self::UPLOAD_GRACE_SECONDS)) {
-					continue;
-				}
-
-				$orphaned['count']++;
-				$orphaned['bytes'] += $upload['bytes'];
-				if (count($orphaned['names']) < self::MAX_NAMES) {
-					$orphaned['names'][] = $upload['name'];
-				}
-			}
-		}
+	public static function removable(array $trash, array $uploads, array $policy): array {
+		$now      = (int) $policy['now'];
+		$past     = self::pastRetention(trash: $trash, retentionDays: $policy['retentionDays'], now: $now);
+		$orphaned = self::orphanedUploads(uploads: $uploads, referenced: $policy['referenced'], now: $now);
 
 		return ['total' => ($past['bytes'] + $orphaned['bytes']), 'pastRetention' => $past, 'orphanedUploads' => $orphaned];
 	}//end removable()
+
+	/**
+	 * Trash entries deleted longer ago than the retention.
+	 *
+	 * @param list<array{user:string,name:string,bytes:int}> $trash         Trash entries.
+	 * @param int|null                                        $retentionDays Days trash is kept; null when never expired.
+	 * @param int                                             $now           Now (Unix time).
+	 *
+	 * @return array{count:int,bytes:int,retentionDays:int|null}
+	 */
+	private static function pastRetention(array $trash, ?int $retentionDays, int $now): array {
+		$past = ['count' => 0, 'bytes' => 0, 'retentionDays' => $retentionDays];
+		if ($retentionDays === null) {
+			return $past;
+		}
+
+		$cutoff = ($now - ($retentionDays * 86400));
+		foreach ($trash as $entry) {
+			if (preg_match('/\.d(\d+)$/', $entry['name'], $match) === 1 && (int) $match[1] < $cutoff) {
+				$past['count']++;
+				$past['bytes'] += $entry['bytes'];
+			}
+		}
+
+		return $past;
+	}//end pastRetention()
+
+	/**
+	 * Uploads nothing names any more and older than the grace period.
+	 *
+	 * @param list<array{name:string,bytes:int,mtime:int}> $uploads    Launchpad uploads.
+	 * @param array<string,true>|null                      $referenced Upload names still named; null when unknown.
+	 * @param int                                          $now        Now (Unix time).
+	 *
+	 * @return array{count:int,bytes:int,names:list<string>,known:bool}
+	 */
+	private static function orphanedUploads(array $uploads, ?array $referenced, int $now): array {
+		$orphaned = ['count' => 0, 'bytes' => 0, 'names' => [], 'known' => ($referenced !== null)];
+		if ($referenced === null) {
+			return $orphaned;
+		}
+
+		foreach ($uploads as $upload) {
+			if (isset($referenced[$upload['name']]) === true || $upload['mtime'] > ($now - self::UPLOAD_GRACE_SECONDS)) {
+				continue;
+			}
+
+			$orphaned['count']++;
+			$orphaned['bytes'] += $upload['bytes'];
+			if (count($orphaned['names']) < self::MAX_NAMES) {
+				$orphaned['names'][] = $upload['name'];
+			}
+		}
+
+		return $orphaned;
+	}//end orphanedUploads()
 
 	/**
 	 * The days after which trash may be removed, from Nextcloud's `trashbin_retention_obligation`.

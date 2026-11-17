@@ -48,8 +48,8 @@ class AreaAggregation {
 	 * @param array<int, array<string, mixed>> $rows         The objects, as arrays.
 	 * @param string                           $areaProperty The property naming the area; a dot reads into an object (`address.district`).
 	 * @param string|null                      $dateProperty The property dating each object; null counts every row.
-	 * @param DateTimeImmutable|null           $from         The first moment of the period, inclusive.
-	 * @param DateTimeImmutable|null           $until        The end of the period, exclusive.
+	 * @param array{from?: ?DateTimeImmutable, until?: ?DateTimeImmutable} $period The first moment of the period
+	 *                                         (inclusive) and its end (exclusive); either absent leaves that side open.
 	 *
 	 * @return array{total: int, areas: list<array{area: string, count: int, rate: float}>, noLocation: array{count: int, rate: float}}
 	 *
@@ -59,12 +59,11 @@ class AreaAggregation {
 		array $rows,
 		string $areaProperty,
 		?string $dateProperty=null,
-		?DateTimeImmutable $from=null,
-		?DateTimeImmutable $until=null
+		array $period=[]
 	): array {
 		return $this->countAreas(
 			rows: $rows,
-			query: ['area' => $areaProperty, 'date' => $dateProperty, 'from' => $from, 'until' => $until]
+			query: ['area' => $areaProperty, 'date' => $dateProperty, 'from' => ($period['from'] ?? null), 'until' => ($period['until'] ?? null)]
 		);
 	}//end aggregate()
 

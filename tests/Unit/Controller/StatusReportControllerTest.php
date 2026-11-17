@@ -45,15 +45,19 @@ class StatusReportControllerTest extends TestCase {
 		'dueProperty'    => 'einde',
 	];
 
-	private function controller(?string $userId, StatusReportService $reports): StatusReportController {
-		return new StatusReportController($this->createMock(IRequest::class), $reports, $userId);
+	private function controller(?string $userId, StatusReportService $reports, array $params = []): StatusReportController {
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static fn (string $key, mixed $default = null): mixed => (array_key_exists($key, $params) === true ? $params[$key] : $default)
+		);
+		return new StatusReportController($request, $reports, $userId);
 	}
 
 	public function testTheDraftIsBuiltFromTheBodyOfWorkAsSent(): void {
 		$reports = $this->createMock(StatusReportService::class);
 		$reports->expects($this->once())->method('draft')->with(self::SUBJECT)->willReturn(['health' => 'on-track']);
 
-		$response = $this->controller('anna', $reports)->draft(...self::SUBJECT);
+		$response = $this->controller('anna', $reports, self::SUBJECT)->draft();
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame(['health' => 'on-track'], $response->getData());
@@ -63,7 +67,7 @@ class StatusReportControllerTest extends TestCase {
 		$reports = $this->createMock(StatusReportService::class);
 		$reports->expects($this->once())->method('keep')->with('anna', self::SUBJECT, 'at-risk', 'Behind.')->willReturn(['id' => 'uuid-1']);
 
-		$response = $this->controller('anna', $reports)->keep(...self::SUBJECT + ['health' => 'at-risk', 'summary' => 'Behind.']);
+		$response = $this->controller('anna', $reports, self::SUBJECT + ['health' => 'at-risk', 'summary' => 'Behind.'])->keep();
 
 		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
 		$this->assertSame(['id' => 'uuid-1'], $response->getData());
@@ -73,21 +77,21 @@ class StatusReportControllerTest extends TestCase {
 		$reports = $this->createMock(StatusReportService::class);
 		$reports->method('draft')->willThrowException(new StatusReportRefusedException('The deadline must be a day, as YYYY-MM-DD.'));
 		$reports->method('keep')->willThrowException(new StatusReportRefusedException('Needs OpenRegister.', 503));
-		$controller = $this->controller('anna', $reports);
+		$controller = $this->controller('anna', $reports, ['register' => 'projects', 'schema' => 'task', 'deadline' => 'soon']);
 
-		$draft = $controller->draft('projects', 'task', '', 'soon');
+		$draft = $controller->draft();
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $draft->getStatus());
 		$this->assertSame('The deadline must be a day, as YYYY-MM-DD.', $draft->getData()['error']);
-		$this->assertSame(503, $controller->keep('projects', 'task')->getStatus());
+		$this->assertSame(503, $controller->keep()->getStatus());
 	}
 
 	public function testWithoutASignedInUserNothingIsBuiltOrKept(): void {
 		$reports = $this->createMock(StatusReportService::class);
 		$reports->expects($this->never())->method('draft');
 		$reports->expects($this->never())->method('keep');
-		$controller = $this->controller(null, $reports);
+		$controller = $this->controller(null, $reports, ['register' => 'projects', 'schema' => 'task']);
 
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->draft('projects', 'task')->getStatus());
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->keep('projects', 'task')->getStatus());
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->draft()->getStatus());
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->keep()->getStatus());
 	}
 }

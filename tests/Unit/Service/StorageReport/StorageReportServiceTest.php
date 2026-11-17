@@ -149,11 +149,11 @@ class StorageReportServiceTest extends TestCase {
 			['user' => 'b', 'name' => 'no-timestamp', 'bytes' => 400],
 		];
 
-		$removable = StorageReportService::removable($trash, 10, [], [], self::NOW);
+		$removable = StorageReportService::removable($trash, [], ['retentionDays' => 10, 'referenced' => [], 'now' => self::NOW]);
 
 		$this->assertSame(['count' => 1, 'bytes' => 100, 'retentionDays' => 10], $removable['pastRetention']);
 		$this->assertSame(100, $removable['total']);
-		$this->assertSame(0, StorageReportService::removable($trash, null, [], [], self::NOW)['total']);
+		$this->assertSame(0, StorageReportService::removable($trash, [], ['retentionDays' => null, 'referenced' => [], 'now' => self::NOW])['total']);
 	}
 
 	public function testAnUploadNoRowNamesIsOrphanedOnceItIsADayOld(): void {
@@ -163,14 +163,14 @@ class StorageReportServiceTest extends TestCase {
 			['name' => 'resource_fresh.png', 'bytes' => 100, 'mtime' => self::NOW - 60],
 		];
 
-		$removable = StorageReportService::removable([], 30, $uploads, ['resource_used.png' => true], self::NOW);
+		$removable = StorageReportService::removable([], $uploads, ['retentionDays' => 30, 'referenced' => ['resource_used.png' => true], 'now' => self::NOW]);
 
 		$this->assertSame(['count' => 1, 'bytes' => 10, 'names' => ['resource_orphan.png'], 'known' => true], $removable['orphanedUploads']);
 		$this->assertSame(10, $removable['total']);
 	}
 
 	public function testWhenTheReferencesCannotBeReadNoUploadCountsAsOrphaned(): void {
-		$removable = StorageReportService::removable([], 30, [['name' => 'resource_x.png', 'bytes' => 10, 'mtime' => 0]], null, self::NOW);
+		$removable = StorageReportService::removable([], [['name' => 'resource_x.png', 'bytes' => 10, 'mtime' => 0]], ['retentionDays' => 30, 'referenced' => null, 'now' => self::NOW]);
 
 		$this->assertSame(['count' => 0, 'bytes' => 0, 'names' => [], 'known' => false], $removable['orphanedUploads']);
 		$this->assertSame(0, $removable['total']);
@@ -183,7 +183,7 @@ class StorageReportServiceTest extends TestCase {
 				'pastRetention'   => ['count' => 0, 'bytes' => 0, 'retentionDays' => 30],
 				'orphanedUploads' => ['count' => 0, 'bytes' => 0, 'names' => [], 'known' => true],
 			],
-			StorageReportService::removable([], 30, [], [], self::NOW)
+			StorageReportService::removable([], [], ['retentionDays' => 30, 'referenced' => [], 'now' => self::NOW])
 		);
 	}
 

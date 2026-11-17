@@ -139,16 +139,8 @@ class StatusReportService {
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
 	 */
 	public function keep(string $userId, array $subject, ?string $health=null, ?string $summary=null): array {
-		if ($health !== null && in_array($health, self::HEALTH, true) === false) {
-			throw new StatusReportRefusedException(message: 'The health rating must be one of: ' . implode(', ', self::HEALTH) . '.');
-		}
-
-		if ($summary !== null) {
-			$summary = trim($summary);
-			if ($summary === '' || mb_strlen($summary) > self::MAX_SUMMARY) {
-				throw new StatusReportRefusedException(message: 'The summary must have between 1 and ' . self::MAX_SUMMARY . ' characters.');
-			}
-		}
+		self::assertHealth(health: $health);
+		$summary = self::writtenSummary(summary: $summary);
 
 		$report         = $this->draft(subject: $subject);
 		$healthWritten  = ($health !== null && $health !== $report['health']);
@@ -172,6 +164,43 @@ class StatusReportService {
 
 		return $stored;
 	}//end keep()
+
+	/**
+	 * Refuse a health rating that is not one of HEALTH; null (keep the computed one) passes.
+	 *
+	 * @param string|null $health The rating the person chose.
+	 *
+	 * @return void
+	 *
+	 * @throws StatusReportRefusedException For an unknown rating.
+	 */
+	private static function assertHealth(?string $health): void {
+		if ($health !== null && in_array($health, self::HEALTH, true) === false) {
+			throw new StatusReportRefusedException(message: 'The health rating must be one of: ' . implode(', ', self::HEALTH) . '.');
+		}
+	}//end assertHealth()
+
+	/**
+	 * The person's summary, trimmed, or null when they wrote none.
+	 *
+	 * @param string|null $summary The summary as sent.
+	 *
+	 * @return string|null
+	 *
+	 * @throws StatusReportRefusedException When it is empty after trimming or longer than MAX_SUMMARY.
+	 */
+	private static function writtenSummary(?string $summary): ?string {
+		if ($summary === null) {
+			return null;
+		}
+
+		$summary = trim($summary);
+		if ($summary === '' || mb_strlen($summary) > self::MAX_SUMMARY) {
+			throw new StatusReportRefusedException(message: 'The summary must have between 1 and ' . self::MAX_SUMMARY . ' characters.');
+		}
+
+		return $summary;
+	}//end writtenSummary()
 
 	/**
 	 * Counts of the body of work: total, open, closed, overdue, the share closed and the days to the deadline.

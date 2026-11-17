@@ -176,8 +176,7 @@ class ActivityReportController extends Controller {
 			readerId: $reader,
 			readerIsAdmin: $this->groupManager->isAdmin($reader),
 			subjectId: $user,
-			from: $from,
-			to: $to
+			period: ['from' => $from, 'to' => $to]
 		);
 	}//end build()
 

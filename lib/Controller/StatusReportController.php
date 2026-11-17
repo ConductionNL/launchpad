@@ -62,16 +62,25 @@ class StatusReportController extends Controller {
 	}//end __construct()
 
 	/**
-	 * POST a body of work; answers the prefilled report, not kept.
+	 * The request fields that describe a body of work, with their defaults.
 	 *
-	 * @param string             $register       The register.
-	 * @param string             $schema         The schema.
-	 * @param string             $title          The name of the body of work.
-	 * @param string             $deadline       Its deadline (YYYY-MM-DD), if any.
-	 * @param array<string,mixed> $filters       Property filters on its objects.
-	 * @param string             $statusProperty The property holding an item's status.
-	 * @param list<string>       $closedValues   The statuses that mean closed.
-	 * @param string             $dueProperty    The property holding an item's due date.
+	 * `register`, `schema`, `title`, `deadline` (YYYY-MM-DD), `statusProperty`
+	 * and `dueProperty` are strings; `filters` (property filters on its
+	 * objects) and `closedValues` (the statuses that mean closed) are lists.
+	 */
+	private const SUBJECT_FIELDS = [
+		'register'       => '',
+		'schema'         => '',
+		'title'          => '',
+		'deadline'       => '',
+		'filters'        => [],
+		'statusProperty' => '',
+		'closedValues'   => [],
+		'dueProperty'    => '',
+	];
+
+	/**
+	 * POST a body of work (the SUBJECT_FIELDS); answers the prefilled report, not kept.
 	 *
 	 * @return JSONResponse The draft, or 400, 401 or 409.
 	 *
@@ -81,70 +90,85 @@ class StatusReportController extends Controller {
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	#[NoAdminRequired]
-	public function draft(
-		string $register='',
-		string $schema='',
-		string $title='',
-		string $deadline='',
-		array $filters=[],
-		string $statusProperty='',
-		array $closedValues=[],
-		string $dueProperty='',
-	): JSONResponse {
-		if ($this->userId === null) {
-			return $this->failure(message: 'not_logged_in', statusCode: Http::STATUS_UNAUTHORIZED);
-		}
-
-		$subject = compact('register', 'schema', 'title', 'deadline', 'filters', 'statusProperty', 'closedValues', 'dueProperty');
-		try {
-			return new JSONResponse($this->reports->draft(subject: $subject));
-		} catch (StatusReportRefusedException $refused) {
-			return $this->failure(message: $refused->getMessage(), statusCode: $refused->statusCode);
-		}
+	public function draft(): JSONResponse {
+		return $this->answer(work: fn (string $userId): JSONResponse => new JSONResponse($this->reports->draft(subject: $this->subject())));
 	}//end draft()
 
 	/**
-	 * POST a body of work with the person's rating and summary; keeps the report.
-	 *
-	 * @param string             $register       The register.
-	 * @param string             $schema         The schema.
-	 * @param string             $title          The name of the body of work.
-	 * @param string             $deadline       Its deadline (YYYY-MM-DD), if any.
-	 * @param array<string,mixed> $filters       Property filters on its objects.
-	 * @param string             $statusProperty The property holding an item's status.
-	 * @param list<string>       $closedValues   The statuses that mean closed.
-	 * @param string             $dueProperty    The property holding an item's due date.
-	 * @param string|null        $health         The rating chosen; omitted keeps the computed one.
-	 * @param string|null        $summary        The summary written; omitted keeps the computed one.
+	 * POST a body of work (the SUBJECT_FIELDS) with the person's `health` rating and
+	 * `summary`, each omitted to keep the computed one; keeps the report.
 	 *
 	 * @return JSONResponse 201 with the kept report, or 400, 401, 409 or 503.
 	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
 	 */
 	#[NoAdminRequired]
-	public function keep(
-		string $register='',
-		string $schema='',
-		string $title='',
-		string $deadline='',
-		array $filters=[],
-		string $statusProperty='',
-		array $closedValues=[],
-		string $dueProperty='',
-		?string $health=null,
-		?string $summary=null,
-	): JSONResponse {
+	public function keep(): JSONResponse {
+		return $this->answer(
+			work: fn (string $userId): JSONResponse => new JSONResponse(
+				$this->reports->keep(
+					userId: $userId,
+					subject: $this->subject(),
+					health: $this->optionalString(key: 'health'),
+					summary: $this->optionalString(key: 'summary')
+				),
+				Http::STATUS_CREATED
+			)
+		);
+	}//end keep()
+
+	/**
+	 * Run the work for the signed-in user; 401 without one, a refusal answers its own status.
+	 *
+	 * @param callable(string): JSONResponse $work The work.
+	 *
+	 * @return JSONResponse
+	 */
+	private function answer(callable $work): JSONResponse {
 		if ($this->userId === null) {
 			return $this->failure(message: 'not_logged_in', statusCode: Http::STATUS_UNAUTHORIZED);
 		}
 
-		$subject = compact('register', 'schema', 'title', 'deadline', 'filters', 'statusProperty', 'closedValues', 'dueProperty');
 		try {
-			$kept = $this->reports->keep(userId: $this->userId, subject: $subject, health: $health, summary: $summary);
+			return $work($this->userId);
 		} catch (StatusReportRefusedException $refused) {
 			return $this->failure(message: $refused->getMessage(), statusCode: $refused->statusCode);
 		}
+	}//end answer()
 
-		return new JSONResponse($kept, Http::STATUS_CREATED);
-	}//end keep()
+	/**
+	 * The body of work as sent: every SUBJECT_FIELDS key, a string or a list as its default is.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function subject(): array {
+		$subject = [];
+		foreach (self::SUBJECT_FIELDS as $key => $default) {
+			$value         = $this->request->getParam($key, $default);
+			$subject[$key] = $default;
+			if (is_array($default) === true && is_array($value) === true) {
+				$subject[$key] = $value;
+			} else if (is_array($default) === false && is_scalar($value) === true) {
+				$subject[$key] = (string) $value;
+			}
+		}
+
+		return $subject;
+	}//end subject()
+
+	/**
+	 * A request field as a string, or null when it is absent or not a string.
+	 *
+	 * @param string $key The field.
+	 *
+	 * @return string|null
+	 */
+	private function optionalString(string $key): ?string {
+		$value = $this->request->getParam($key);
+		if (is_string($value) === false) {
+			return null;
+		}
+
+		return $value;
+	}//end optionalString()
 }//end class

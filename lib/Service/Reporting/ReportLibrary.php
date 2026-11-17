@@ -248,8 +248,7 @@ class ReportLibrary {
 			rows: $rows,
 			areaProperty: $aggregation['property'],
 			dateProperty: ($aggregation['dateProperty'] ?? null),
-			from: $aggregation['from'],
-			until: $aggregation['until']
+			period: ['from' => $aggregation['from'], 'until' => $aggregation['until']]
 		);
 		$groups = array_map(
 			static fn (array $area): array => ['label' => $area['area'], 'count' => $area['count'], 'rate' => $area['rate']],

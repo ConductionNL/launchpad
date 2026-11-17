@@ -117,6 +117,69 @@ export function resolveMenuItem(item, openUserSettings) {
 	return null
 }
 
+/**
+ * The panel's destinations by section (`main`, `footer`, `settings`) for
+ * the chrome decision `App.vue` provides. The settings section opens with
+ * the personal settings and, for an administrator, the link to the admin
+ * settings, as the panel's settings foldout does.
+ *
+ * @param {{ entries: object[], isAdmin: boolean, includePersonalSettings: boolean }} chrome The chrome decision.
+ * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
+ * @return {Record<string, object[]>} The menu items by section.
+ * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ */
+export function startPageSections(chrome, openUserSettings) {
+	const bySection = Object.fromEntries(SECTIONS.map((s) => [s, []]))
+	for (const entry of chrome.entries) {
+		const section = entry.section ?? 'main'
+		if (!(section in bySection)) {
+			continue
+		}
+		const item = resolveMenuItem(entry, openUserSettings)
+		if (item) {
+			bySection[section].push(item)
+		}
+	}
+	const settings = []
+	if (chrome.includePersonalSettings && typeof openUserSettings === 'function') {
+		settings.push({
+			id: 'personal-settings',
+			label: t('launchpad', 'Personal settings'),
+			onClick: openUserSettings,
+		})
+	}
+	if (chrome.isAdmin) {
+		settings.push({
+			id: 'admin-settings-link',
+			label: t('launchpad', 'Admin settings'),
+			href: generateUrl('/settings/admin/{appId}', {
+				appId: 'launchpad',
+			}),
+			external: false,
+		})
+	}
+	bySection.settings = [...settings, ...bySection.settings]
+	return bySection
+}
+
+/**
+ * Read the chrome decision `App.vue` provides, unwrapped, with defaults
+ * that keep the panel.
+ *
+ * @param {object|null} provided The injected `launchpadChrome` (a ref or a plain value).
+ * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
+ * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ */
+export function readChrome(provided) {
+	const value = provided?.value ?? provided
+	return {
+		railSuppressed: value?.railSuppressed === true,
+		entries: Array.isArray(value?.entries) ? value.entries : [],
+		isAdmin: value?.isAdmin === true,
+		includePersonalSettings: value?.includePersonalSettings !== false,
+	}
+}
+
 export default {
 	name: 'StartPageMenu',
 
@@ -160,13 +223,7 @@ export default {
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
 		 */
 		chrome() {
-			const value = this.launchpadChrome?.value ?? this.launchpadChrome
-			return {
-				railSuppressed: value?.railSuppressed === true,
-				entries: Array.isArray(value?.entries) ? value.entries : [],
-				isAdmin: value?.isAdmin === true,
-				includePersonalSettings: value?.includePersonalSettings !== false,
-			}
+			return readChrome(this.launchpadChrome)
 		},
 
 		/**
@@ -178,40 +235,8 @@ export default {
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
 		 */
 		groups() {
-			const bySection = Object.fromEntries(SECTIONS.map((s) => [s, []]))
-			for (const entry of this.chrome.entries) {
-				const section = entry.section ?? 'main'
-				if (!(section in bySection)) {
-					continue
-				}
-				const item = resolveMenuItem(entry, this.cnOpenUserSettings)
-				if (item) {
-					bySection[section].push(item)
-				}
-			}
-			const settings = []
-			if (
-				this.chrome.includePersonalSettings
-				&& typeof this.cnOpenUserSettings === 'function'
-			) {
-				settings.push({
-					id: 'personal-settings',
-					label: t('launchpad', 'Personal settings'),
-					onClick: this.cnOpenUserSettings,
-				})
-			}
-			if (this.chrome.isAdmin) {
-				settings.push({
-					id: 'admin-settings-link',
-					label: t('launchpad', 'Admin settings'),
-					href: generateUrl('/settings/admin/{appId}', {
-						appId: 'launchpad',
-					}),
-					external: false,
-				})
-			}
-			bySection.settings = [...settings, ...bySection.settings]
-			return SECTIONS.map((id) => ({ id, items: bySection[id] })).filter(
+			const sections = startPageSections(this.chrome, this.cnOpenUserSettings)
+			return SECTIONS.map((id) => ({ id, items: sections[id] })).filter(
 				(group) => group.items.length > 0,
 			)
 		},

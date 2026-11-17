@@ -90,8 +90,8 @@
   - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
 - [x] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
   - `CalculatedFieldServerModeTest` (15 tests: create, update, unchanged save, back to client, source change, dependency order, unsupported and undeclarable fields, refused write, no OpenRegister, cleanup), `CalculatedFieldCalculationTranslatorTest` (21) and `WidgetApiControllerServerFieldsTest` (5, the endpoints).
-- [ ] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
-  - Partly built: `CalculatedFieldCycleDetectorTest.php` (7 tests) covers cross-widget cycles and order; cross-widget evaluation is in `CalculatedFieldEvaluatorTest`.
+- [x] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
+  - `tests/Unit/Service/CrossWidgetReferenceTest.php` (5 tests) through `CalculatedFieldService`: a reference to a neighbour is accepted and ordered after it, a cross-widget cycle answers `cycleDetected` naming the cycle and widgets, a neighbour's calculated value and dotted data paths are read, an absent widget reads as null. The server checks stored ASTs and does not parse text (design D3); parsing `widget:id.field` is covered by the Vitest parser suite. `CalculatedFieldCycleDetectorTest.php` (7 tests) covers the detector itself.
 
 ## 11. Testing — Frontend
 

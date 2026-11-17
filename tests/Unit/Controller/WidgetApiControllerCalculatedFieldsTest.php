@@ -74,6 +74,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(CalculatedFieldCycleDetector::class)]
 #[UsesClass(CalculatedFieldCycleError::class)]
 #[UsesClass(CalculatedFieldEvaluator::class)]
+#[UsesClass(\OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources::class)]
 #[UsesClass(CalculatedFieldValidationError::class)]
 class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 
@@ -269,6 +270,40 @@ class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 		self::assertSame('Sales', $saved[1]['customTitle']);
 		self::assertSame('string', $saved[1]['calculatedFields'][0]['returnType']);
 	}//end testValidFieldsAreStoredWithTheirReturnType()
+
+	/**
+	 * A server-mode field that reads a widget of another register is stored as client
+	 * mode and the response carries the warning (REQ-CALC-007).
+	 *
+	 * @return void
+	 */
+	public function testADowngradedFieldIsReportedInTheResponse(): void {
+		$this->params = [
+			'content'          => ['register' => 'sales', 'schema' => 'deals'],
+			'calculatedFields' => [
+				[
+					'name'               => 'ratio',
+					'evaluationMode'     => 'server',
+					'compiledExpression' => ['type' => 'fieldRef', 'source' => 'widget:11', 'path' => 'x'],
+				],
+			],
+		];
+		$saved = [];
+		$this->widgetService->method('updatePlacement')->willReturnCallback(
+			function (int $placementId, array $data) use (&$saved): WidgetPlacement {
+				$saved = $data;
+				return $this->placement(id: 9, fields: $data['calculatedFields']);
+			}
+		);
+
+		$response = $this->controller()->updatePlacement(placementId: 9);
+
+		self::assertSame(200, $response->getStatus());
+		self::assertSame('client', $saved['calculatedFields'][0]['evaluationMode']);
+		self::assertSame('downgraded_evaluation_mode', $response->getData()['warnings'][0]['warning']);
+		self::assertSame('ratio', $response->getData()['warnings'][0]['field']);
+		self::assertArrayNotHasKey('warnings', $this->placement(id: 9, fields: [])->jsonSerialize());
+	}//end testADowngradedFieldIsReportedInTheResponse()
 
 	/**
 	 * An update without calculated fields does not read the dashboard.

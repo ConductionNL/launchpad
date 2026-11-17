@@ -34,6 +34,7 @@ use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldAstChecker;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldTypeChecker;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
 use OCA\LaunchPad\Service\CalculatedFields\EvaluationError;
@@ -70,11 +71,13 @@ class CalculatedFieldService {
 	 *                                                `{name, expression, compiledExpression, ...}`.
 	 * @param array<int,array<string,mixed>> $others  The other widgets of its dashboard, `{id, calculatedFields}`.
 	 * @param array<string,mixed>            $options `allowedFunctions` (null for every built-in),
-	 *                                                `fieldSchema` and `widgetSchemas` for field types.
+	 *                                                `fieldSchema` and `widgetSchemas` for field types,
+	 *                                                `sources` (widget id => `register/schema`, see
+	 *                                                sourceKey()) to downgrade server-mode fields.
 	 *
-	 * @return array{fields: list<array<string,mixed>>, order: list<string>} The fields as given with
-	 *                                                                         `returnType` set, and the
-	 *                                                                         dependency order.
+	 * @return array{fields: list<array<string,mixed>>, order: list<string>, warnings: list<array<string,string>>}
+	 *         The fields as given with `returnType` set (and `evaluationMode` downgraded where needed),
+	 *         the dependency order, and one warning per downgraded field.
 	 *
 	 * @throws CalculatedFieldValidationError When a field is malformed or does not type-check.
 	 * @throws CalculatedFieldCycleError      When the fields depend on each other in a cycle.
@@ -100,11 +103,70 @@ class CalculatedFieldService {
 		);
 		$order      = $this->detectCycles(widgets: array_merge([['id' => $id, 'calculatedFields' => $fields]], $neighbours));
 
-		return [
-			'fields' => $this->typedFields(id: $id, fields: $fields, order: $order, options: $options),
-			'order'  => $order,
-		];
+		$typed = $this->typedFields(id: $id, fields: $fields, order: $order, options: $options);
+		if (is_array($options['sources'] ?? null) === false) {
+			return ['fields' => $typed, 'order' => $order, 'warnings' => []];
+		}
+
+		$downgraded = $this->downgradeCrossSource(id: $id, fields: $typed, sources: $options['sources']);
+		return ['fields' => $downgraded['fields'], 'order' => $order, 'warnings' => $downgraded['warnings']];
 	}//end validateAndCompile()
+
+	/**
+	 * Downgrade to client mode every server-mode field whose inputs do not all
+	 * live in the widget's own register and schema (REQ-CALC-007).
+	 *
+	 * A field in `server` or `both` mode is materialised on the widget's source
+	 * schema, so it can only read that schema: a field that references a widget
+	 * backed by another register or schema, or one whose widget has no
+	 * OpenRegister source, is persisted as `client` with a warning.
+	 *
+	 * @param string                    $id      The widget id.
+	 * @param list<array<string,mixed>> $fields  The widget's fields.
+	 * @param array<string,string>      $sources Each widget's `register/schema`, '' when it has none.
+	 *
+	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>}
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-007-cross-widget-downgrade-on-source-mismatch
+	 */
+	public function downgradeCrossSource(string $id, array $fields, array $sources): array {
+		$own         = (string) ($sources[$id] ?? '');
+		$warnings    = [];
+		$sourceCheck = new CalculatedFieldSources();
+		foreach ($fields as $index => $field) {
+			$mode = $field['evaluationMode'] ?? 'client';
+			if ($mode !== 'server' && $mode !== 'both') {
+				continue;
+			}
+
+			$reason = $sourceCheck->downgradeReason(id: $id, own: $own, ast: $field['compiledExpression'], sources: $sources);
+			if ($reason === null) {
+				continue;
+			}
+
+			$fields[$index]['evaluationMode'] = 'client';
+			$warnings[] = [
+				'warning' => 'downgraded_evaluation_mode',
+				'field'   => (string) $field['name'],
+				'reason'  => $reason."; evaluationMode downgraded from '".$mode."' to 'client'",
+			];
+		}
+
+		return ['fields' => $fields, 'warnings' => $warnings];
+	}//end downgradeCrossSource()
+
+	/**
+	 * The `register/schema` key of a placement's content.
+	 *
+	 * @param mixed $content The placement content.
+	 *
+	 * @return string `register/schema`, or '' when either is missing.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-007-cross-widget-downgrade-on-source-mismatch
+	 */
+	public static function sourceKey(mixed $content): string {
+		return (new CalculatedFieldSources())->sourceKey(content: $content);
+	}//end sourceKey()
 
 	/**
 	 * The calculated fields of a set of widgets in dependency order.

@@ -49,6 +49,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(CalculatedFieldCycleDetector::class)]
 #[UsesClass(CalculatedFieldCycleError::class)]
 #[UsesClass(CalculatedFieldEvaluator::class)]
+#[UsesClass(\OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources::class)]
 #[UsesClass(CalculatedFieldFunctions::class)]
 #[UsesClass(CalculatedFieldValues::class)]
 #[UsesClass(CalculatedFieldValidationError::class)]
@@ -285,9 +286,66 @@ class CalculatedFieldServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testAcceptsNoFields(): void {
-		self::assertSame(['fields' => [], 'order' => []], self::service()->validateAndCompile(widget: ['id' => 3, 'calculatedFields' => []]));
-		self::assertSame(['fields' => [], 'order' => []], self::service()->validateAndCompile(widget: ['id' => 3]));
+		self::assertSame(['fields' => [], 'order' => [], 'warnings' => []], self::service()->validateAndCompile(widget: ['id' => 3, 'calculatedFields' => []]));
+		self::assertSame(['fields' => [], 'order' => [], 'warnings' => []], self::service()->validateAndCompile(widget: ['id' => 3]));
 	}//end testAcceptsNoFields()
+
+	/**
+	 * A server-mode field reading a widget of another register is downgraded with a warning;
+	 * one reading the same register and schema, and a client-mode field, are kept.
+	 *
+	 * @return void
+	 */
+	public function testDowngradesServerFieldsThatReadAnotherSource(): void {
+		$cross     = self::calc('comparison', self::bin('/', self::field('target', 'widget:B'), self::field('revenue')));
+		$cross['evaluationMode'] = 'server';
+		$same      = self::calc('net', self::bin('-', self::field('revenue'), self::field('refunds', 'widget:C')));
+		$same['evaluationMode'] = 'both';
+		$client    = self::calc('local', self::field('x', 'widget:B'));
+		$widget    = ['id' => 'A', 'calculatedFields' => [$cross, $same, $client]];
+		$sources   = ['A' => 'sales/deals', 'B' => 'crm/targets', 'C' => 'sales/deals'];
+
+		$result = self::service()->validateAndCompile(widget: $widget, options: ['sources' => $sources]);
+
+		self::assertSame(['client', 'both', 'client'], array_column($result['fields'], 'evaluationMode'));
+		self::assertSame(
+			[
+				[
+					'warning' => 'downgraded_evaluation_mode',
+					'field'   => 'comparison',
+					'reason'  => "Cross-register reference; evaluationMode downgraded from 'server' to 'client'",
+				],
+			],
+			$result['warnings']
+		);
+	}//end testDowngradesServerFieldsThatReadAnotherSource()
+
+	/**
+	 * A server-mode field on a widget without an OpenRegister source cannot be materialised.
+	 *
+	 * @return void
+	 */
+	public function testDowngradesServerFieldsOfAWidgetWithoutASource(): void {
+		$field = self::calc('total', self::field('revenue'));
+		$field['evaluationMode'] = 'server';
+
+		$result = self::service()->downgradeCrossSource(id: 'A', fields: [$field], sources: ['A' => '']);
+
+		self::assertSame('client', $result['fields'][0]['evaluationMode']);
+		self::assertSame("The widget has no OpenRegister source; evaluationMode downgraded from 'server' to 'client'", $result['warnings'][0]['reason']);
+	}//end testDowngradesServerFieldsOfAWidgetWithoutASource()
+
+	/**
+	 * The source key reads an object-list's top-level and a stat's nested source.
+	 *
+	 * @return void
+	 */
+	public function testSourceKey(): void {
+		self::assertSame('5/12', CalculatedFieldService::sourceKey(content: ['register' => 5, 'schema' => 12]));
+		self::assertSame('sales/deals', CalculatedFieldService::sourceKey(content: ['source' => ['register' => 'sales', 'schema' => 'deals']]));
+		self::assertSame('', CalculatedFieldService::sourceKey(content: ['register' => 'sales']));
+		self::assertSame('', CalculatedFieldService::sourceKey(content: null));
+	}//end testSourceKey()
 
 	/**
 	 * detectCycles answers the dependency order of several widgets.

@@ -26,6 +26,7 @@ use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
+use OCA\LaunchPad\Service\CalculatedFieldService;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
@@ -649,12 +650,12 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The updated placement.
 	 */
 	private function updatedPlacement(int $placementId): JSONResponse {
-		$data = RequestDataExtractor::extractPlacementData(request: $this->request);
+		$data     = RequestDataExtractor::extractPlacementData(request: $this->request);
+		$warnings = [];
 		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
-			$data['calculatedFields'] = $this->compiledCalculatedFields(
-				placementId: $placementId,
-				fields: $data['calculatedFields']
-			);
+			$compiled = $this->compiledCalculatedFields(placementId: $placementId, data: $data);
+			$data['calculatedFields'] = $compiled['fields'];
+			$warnings = $compiled['warnings'];
 		}
 
 		$placement = $this->sources->widgetService->updatePlacement(
@@ -662,42 +663,54 @@ class WidgetApiController extends Controller {
 			data: $data
 		);
 
-		return ResponseHelper::success(
-			data: $placement->jsonSerialize()
-		);
+		$body = $placement->jsonSerialize();
+		if ($warnings !== []) {
+			// A server-mode field that had to be downgraded (REQ-CALC-007).
+			$body['warnings'] = $warnings;
+		}
+
+		return ResponseHelper::success(data: $body);
 	}//end updatedPlacement()
 
 	/**
 	 * Validate a placement's new calculated fields against its dashboard and
-	 * answer them with their `returnType` set.
+	 * answer them with their `returnType` set, server-mode fields that read
+	 * another source downgraded to client mode with a warning.
 	 *
 	 * A placement is created without calculated fields; they arrive through
 	 * this update, so this is where they are checked before persisting.
 	 *
 	 * @param int                $placementId The placement ID.
-	 * @param array<mixed,mixed> $fields      The calculated fields of the request.
+	 * @param array<string,mixed> $data       The update: its `calculatedFields`, and its `content` when it
+	 *                                        changes the placement's source.
 	 *
-	 * @return list<array<string,mixed>> The fields to store.
+	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>} The fields to store.
 	 *
 	 * @throws CalculatedFieldValidationError When a field is malformed or does not type-check.
 	 * @throws CalculatedFieldCycleError      When the dashboard's fields form a cycle.
 	 *
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-24
 	 */
-	private function compiledCalculatedFields(int $placementId, array $fields): array {
+	private function compiledCalculatedFields(int $placementId, array $data): array {
 		$dashboardId = $this->sources->widgetService->getPlacement(placementId: $placementId)->getDashboardId();
-		$others      = array_map(
-			static fn ($placement): array => [
-				'id'               => (string) $placement->getId(),
-				'calculatedFields' => $placement->getCalculatedFieldsArray(),
-			],
-			$this->sources->widgetService->getDashboardPlacements(dashboardId: $dashboardId)
+		$others      = [];
+		$keys        = [];
+		foreach ($this->sources->widgetService->getDashboardPlacements(dashboardId: $dashboardId) as $placement) {
+			$others[] = ['id' => (string) $placement->getId(), 'calculatedFields' => $placement->getCalculatedFieldsArray()];
+			$keys[(string) $placement->getId()] = CalculatedFieldService::sourceKey(content: $placement->getContentArray());
+		}
+
+		if (is_array($data['content'] ?? null) === true) {
+			$keys[(string) $placementId] = CalculatedFieldService::sourceKey(content: $data['content']);
+		}
+
+		$result = $this->sources->calculatedFields->validateAndCompile(
+			widget: ['id' => (string) $placementId, 'calculatedFields' => $data['calculatedFields']],
+			others: $others,
+			options: ['sources' => $keys]
 		);
 
-		return $this->sources->calculatedFields->validateAndCompile(
-			widget: ['id' => (string) $placementId, 'calculatedFields' => $fields],
-			others: array_values($others)
-		)['fields'];
+		return ['fields' => $result['fields'], 'warnings' => $result['warnings']];
 	}//end compiledCalculatedFields()
 
 	/**

@@ -56,7 +56,8 @@
 - [ ] Task 26: Implement `CalculatedFieldService::materializeForOpenRegister(widget): array` that, for every calculated field with `evaluationMode='server'` or `'both'`: (1) creates/updates a `computed-fields` entry on the schema, (2) populates `serverComputedFieldId` in the widget, (3) stores the expression in OpenRegister (REQ-CALC-004)
 - [ ] Task 27: Wire materialisation into `WidgetService::save()`: after widget is persisted, call `materializeForOpenRegister()` in a transaction (REQ-CALC-004)
 - [ ] Task 28: On widget delete, call `CalculatedFieldService::cleanupServerFields(widget)` to delete all orphaned `computed-fields` entries (REQ-CALC-004)
-- [ ] Task 29: Implement downgrade logic (REQ-CALC-007): when a server-mode field references a widget with a different source register, downgrade to `client` mode, set `evaluationMode='client'`, and return warning in API response
+- [x] Task 29: Implement downgrade logic (REQ-CALC-007): when a server-mode field references a widget with a different source register, downgrade to `client` mode, set `evaluationMode='client'`, and return warning in API response
+  - Built: `CalculatedFieldService::downgradeCrossSource()` (with `CalculatedFieldSources`) persists a `server`/`both` field as `client` when it reads a widget whose `register/schema` differs from its own, or when its widget has no OpenRegister source; the placement update answers with `warnings: [{warning: 'downgraded_evaluation_mode', field, reason}]`.
 
 ## 8. PHP Evaluator (Server-side)
 

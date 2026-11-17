@@ -16,4 +16,5 @@
 ## Close
 
 - [ ] 8. Playwright: one dashboard's look changes nothing else; `@import` is dropped.
+  - Written: `tests/e2e/dashboard-look-and-css.spec.ts` (the accent drawn on the green dashboard's region only, the other dashboard and the Nextcloud header unchanged; global CSS with `@import` stored and inserted without it, the scoped rule kept, the previous CSS put back). Tick it after a live run.
 - [ ] 9. Add `nl` and `en` strings, fold the delta into `openspec/specs/dashboards/spec.md` on archive, and set d-theme-per-dashboard and p-custom-css to `built` in the parity matrix with evidence lines.

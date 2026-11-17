@@ -127,10 +127,9 @@ class StatusReportService {
 	/**
 	 * Keep a report: computed again, with the person's rating and summary where they wrote one.
 	 *
-	 * @param string              $userId  Who keeps it.
-	 * @param array<string,mixed> $subject The body of work, as for draft().
-	 * @param string|null         $health  The rating the person chose; null keeps the computed one.
-	 * @param string|null         $summary The summary the person wrote; null keeps the computed one.
+	 * @param string              $userId Who keeps it.
+	 * @param array<string,mixed> $input  The body of work, as for draft(), with the person's `health`
+	 *                                    rating and `summary`, each absent or null to keep the computed one.
 	 *
 	 * @return array<string,mixed> The kept report, as stored.
 	 *
@@ -138,11 +137,12 @@ class StatusReportService {
 	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
 	 */
-	public function keep(string $userId, array $subject, ?string $health=null, ?string $summary=null): array {
+	public function keep(string $userId, array $input): array {
+		$health = ($input['health'] ?? null);
 		self::assertHealth(health: $health);
-		$summary = self::writtenSummary(summary: $summary);
+		$summary = self::writtenSummary(summary: ($input['summary'] ?? null));
 
-		$report         = $this->draft(subject: $subject);
+		$report         = $this->draft(subject: array_diff_key($input, ['health' => true, 'summary' => true]));
 		$healthWritten  = ($health !== null && $health !== $report['health']);
 		$summaryWritten = ($summary !== null && $summary !== $report['summary']);
 		if ($healthWritten === true) {

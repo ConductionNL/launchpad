@@ -113,7 +113,7 @@ class ColleagueActivityServiceTest extends TestCase {
 			self::row(3, 'carol', 'calendar_event'),
 		]);
 
-		$result = $this->service()->recent('anna', 1);
+		$result = $this->service()->recent('anna', ['limit' => 1]);
 
 		$this->assertCount(1, $result['entries']);
 		$this->assertSame(3, $result['total']);
@@ -176,7 +176,7 @@ class ColleagueActivityServiceTest extends TestCase {
 			->with('anna', (self::NOW - (90 * 86400)))
 			->willReturn([]);
 
-		$result = $this->service()->recent('anna', 500, 400);
+		$result = $this->service()->recent('anna', ['limit' => 500, 'days' => 400]);
 
 		$this->assertSame(90, $result['days']);
 		$this->assertTrue($result['available']);
@@ -185,7 +185,7 @@ class ColleagueActivityServiceTest extends TestCase {
 	public function testWithoutTheActivityAppTheWidgetSaysSo(): void {
 		$this->reader->method('rows')->willReturn(null);
 
-		$result = $this->service()->recent('anna', 0, 0);
+		$result = $this->service()->recent('anna', ['limit' => 0, 'days' => 0]);
 
 		$this->assertFalse($result['available']);
 		$this->assertSame(1, $result['days']);

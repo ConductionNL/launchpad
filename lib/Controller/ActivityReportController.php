@@ -173,10 +173,8 @@ class ActivityReportController extends Controller {
 		$reader = (string) $this->userId;
 
 		return $this->reports->report(
-			readerId: $reader,
-			readerIsAdmin: $this->groupManager->isAdmin($reader),
-			subjectId: $user,
-			period: ['from' => $from, 'to' => $to]
+			reader: ['id' => $reader, 'admin' => $this->groupManager->isAdmin($reader)],
+			query: ['subject' => $user, 'from' => $from, 'to' => $to]
 		);
 	}//end build()
 

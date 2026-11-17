@@ -74,10 +74,9 @@ class ActivityReportService {
 	/**
 	 * The activity of a person over a period, for a reader.
 	 *
-	 * @param string                          $readerId      Who reads.
-	 * @param bool                            $readerIsAdmin Whether the reader is an administrator.
-	 * @param string                          $subjectId     Whose activity.
-	 * @param array{from?:string,to?:string} $period        The first and the last day (Y-m-d).
+	 * @param array{id:string,admin:bool}                      $reader Who reads, and whether they are an administrator.
+	 * @param array{subject?:string,from?:string,to?:string} $query  Whose activity (empty: the reader's own),
+	 *                                                                 and the first and the last day (Y-m-d).
 	 *
 	 * @return array<string,mixed> The report: subject, period, purpose, counts per type, per day and the total.
 	 *
@@ -85,8 +84,10 @@ class ActivityReportService {
 	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.4
 	 */
-	public function report(string $readerId, bool $readerIsAdmin, string $subjectId, array $period): array {
-		$subjectId = trim($subjectId);
+	public function report(array $reader, array $query): array {
+		$readerId      = (string) ($reader['id'] ?? '');
+		$readerIsAdmin = (($reader['admin'] ?? false) === true);
+		$subjectId     = trim((string) ($query['subject'] ?? ''));
 		if ($subjectId === '') {
 			$subjectId = $readerId;
 		}
@@ -96,7 +97,7 @@ class ActivityReportService {
 			$this->requireMayReadOthers(readerIsAdmin: $readerIsAdmin);
 		}
 
-		[$start, $end] = self::period(from: (string) ($period['from'] ?? ''), to: (string) ($period['to'] ?? ''));
+		[$start, $end] = self::period(from: (string) ($query['from'] ?? ''), to: (string) ($query['to'] ?? ''));
 		if ($self === false) {
 			$this->dispatcher->dispatchTyped(
 				new CriticalActionPerformedEvent(

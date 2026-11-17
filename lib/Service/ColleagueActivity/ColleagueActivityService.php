@@ -88,18 +88,18 @@ class ColleagueActivityService {
 	/**
 	 * The recent activity of other people the reader may see.
 	 *
-	 * @param string $readerId The reader.
-	 * @param int    $limit    How many entries to list (1 to MAX_LIMIT).
-	 * @param int    $days     How many days back (1 to MAX_DAYS).
+	 * @param string                       $readerId The reader.
+	 * @param array{limit?:int,days?:int} $window   `limit`: how many entries to list (1 to MAX_LIMIT, default
+	 *                                              DEFAULT_LIMIT); `days`: how many days back (1 to MAX_DAYS, default DEFAULT_DAYS).
 	 *
 	 * @return array{available:bool,days:int,entries:list<array<string,mixed>>,total:int,counts:array<string,int>,actors:int}
 	 *         The listed entries, and the totals of every visible entry in the period.
 	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.2
 	 */
-	public function recent(string $readerId, int $limit=self::DEFAULT_LIMIT, int $days=self::DEFAULT_DAYS): array {
-		$limit = max(1, min($limit, self::MAX_LIMIT));
-		$days  = max(1, min($days, self::MAX_DAYS));
+	public function recent(string $readerId, array $window=[]): array {
+		$limit = max(1, min((int) ($window['limit'] ?? self::DEFAULT_LIMIT), self::MAX_LIMIT));
+		$days  = max(1, min((int) ($window['days'] ?? self::DEFAULT_DAYS), self::MAX_DAYS));
 		$since = ($this->time->getTime() - ($days * 86400));
 		$rows  = $this->reader->rows(readerId: $readerId, since: $since);
 

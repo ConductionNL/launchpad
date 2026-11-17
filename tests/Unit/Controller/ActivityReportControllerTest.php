@@ -56,7 +56,7 @@ class ActivityReportControllerTest extends TestCase {
 
 	public function testTheReportIsBuiltForTheSignedInCallerAsAdministrator(): void {
 		$reports = $this->createMock(ActivityReportService::class);
-		$reports->expects($this->once())->method('report')->with('admin', true, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-30'])->willReturn(self::REPORT);
+		$reports->expects($this->once())->method('report')->with(['id' => 'admin', 'admin' => true], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-30'])->willReturn(self::REPORT);
 
 		$response = $this->controller('admin', $reports)->report('anna', '2026-09-01', '2026-09-30');
 
@@ -66,7 +66,7 @@ class ActivityReportControllerTest extends TestCase {
 
 	public function testANonAdministratorIsPassedOnAsSuch(): void {
 		$reports = $this->createMock(ActivityReportService::class);
-		$reports->expects($this->once())->method('report')->with('bob', false, '', ['from' => '2026-09-01', 'to' => '2026-09-30'])->willReturn(['subject' => 'bob'] + self::REPORT);
+		$reports->expects($this->once())->method('report')->with(['id' => 'bob', 'admin' => false], ['subject' => '', 'from' => '2026-09-01', 'to' => '2026-09-30'])->willReturn(['subject' => 'bob'] + self::REPORT);
 
 		$this->controller('bob', $reports)->report('', '2026-09-01', '2026-09-30');
 	}

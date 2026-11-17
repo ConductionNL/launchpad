@@ -136,7 +136,7 @@ class StatusReportServiceTest extends TestCase {
 			return $report + ['id' => 'uuid-1'];
 		});
 
-		$stored = $this->service()->keep('anna', self::SUBJECT, null, "  The programme is behind on one item.\n");
+		$stored = $this->service()->keep('anna', self::SUBJECT + ['summary' => "  The programme is behind on one item.\n"]);
 
 		$this->assertSame('uuid-1', $stored['id']);
 		$this->assertSame('The programme is behind on one item.', $kept['summary']);
@@ -153,7 +153,7 @@ class StatusReportServiceTest extends TestCase {
 		$this->store->method('save')->willReturnArgument(0);
 		$draft = $this->service()->draft(self::SUBJECT);
 
-		$kept = $this->service()->keep('anna', self::SUBJECT, 'at-risk', $draft['summary']);
+		$kept = $this->service()->keep('anna', self::SUBJECT + ['health' => 'at-risk', 'summary' => $draft['summary']]);
 
 		$this->assertSame(['date' => 'computed', 'health' => 'computed', 'summary' => 'computed'], array_slice($kept['provenance'], 0, 3));
 	}
@@ -162,7 +162,7 @@ class StatusReportServiceTest extends TestCase {
 		$this->rows->method('rows')->willReturn($this->items());
 		$this->store->method('save')->willReturnArgument(0);
 
-		$kept = $this->service()->keep('anna', self::SUBJECT, 'off-track');
+		$kept = $this->service()->keep('anna', self::SUBJECT + ['health' => 'off-track']);
 
 		$this->assertSame('off-track', $kept['health']);
 		$this->assertSame('written', $kept['provenance']['health']);
@@ -179,9 +179,9 @@ class StatusReportServiceTest extends TestCase {
 			fn () => $service->draft(['register' => '', 'schema' => 'task']),
 			fn () => $service->draft(['register' => 'projects', 'schema' => 'task', 'deadline' => '15-12-2026']),
 			fn () => $service->draft(['register' => 'projects', 'schema' => 'task', 'deadline' => '2026-02-30']),
-			fn () => $service->keep('anna', self::SUBJECT, 'fine'),
-			fn () => $service->keep('anna', self::SUBJECT, null, '   '),
-			fn () => $service->keep('anna', self::SUBJECT, null, str_repeat('x', 5001)),
+			fn () => $service->keep('anna', self::SUBJECT + ['health' => 'fine']),
+			fn () => $service->keep('anna', self::SUBJECT + ['summary' => '   ']),
+			fn () => $service->keep('anna', self::SUBJECT + ['summary' => str_repeat('x', 5001)]),
 		] as $call) {
 			try {
 				$call();

@@ -66,7 +66,7 @@ class ActivityReportServiceTest extends TestCase {
 		$service = $this->service(false, '');
 
 		try {
-			$service->report('admin', true, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-30']);
+			$service->report(['id' => 'admin', 'admin' => true], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-30']);
 			$this->fail('the read was not refused');
 		} catch (ActivityReportRefusedException $refused) {
 			$this->assertSame(403, $refused->statusCode);
@@ -80,7 +80,7 @@ class ActivityReportServiceTest extends TestCase {
 
 	public function testAnAdministratorReadsAColleaguesMonthWithThePurposeAndTheReadIsAudited(): void {
 		$events = [self::event('file_changed', '2026-09-01 08:00'), self::event('file_changed', '2026-09-01 17:00'), self::event('dashboard', '2026-09-12 10:00')];
-		$report = $this->service(true, 'workload balancing', $events)->report('admin', true, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-30']);
+		$report = $this->service(true, 'workload balancing', $events)->report(['id' => 'admin', 'admin' => true], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-30']);
 
 		$this->assertSame('anna', $report['subject']);
 		$this->assertFalse($report['self']);
@@ -107,7 +107,7 @@ class ActivityReportServiceTest extends TestCase {
 		$this->expectExceptionMessage('Only an administrator can read another person\'s activity.');
 
 		try {
-			$service->report('bob', false, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-30']);
+			$service->report(['id' => 'bob', 'admin' => false], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-30']);
 		} finally {
 			$this->assertSame([], $this->audited);
 			$this->assertSame([], $this->reads);
@@ -115,7 +115,7 @@ class ActivityReportServiceTest extends TestCase {
 	}
 
 	public function testAPersonReadsTheirOwnWhileOffWithoutAnAuditEntry(): void {
-		$report = $this->service(false, '', [self::event('calendar', '2026-09-03 09:00')])->report('anna', false, '', ['from' => '2026-09-01', 'to' => '2026-09-30']);
+		$report = $this->service(false, '', [self::event('calendar', '2026-09-03 09:00')])->report(['id' => 'anna', 'admin' => false], ['subject' => '', 'from' => '2026-09-01', 'to' => '2026-09-30']);
 
 		$this->assertTrue($report['self']);
 		$this->assertSame('anna', $report['subject']);
@@ -125,12 +125,12 @@ class ActivityReportServiceTest extends TestCase {
 	}
 
 	public function testWhenItIsOnThePurposeShowsOnOnesOwnReportToo(): void {
-		$this->assertSame('workload balancing', $this->service(true)->report('anna', false, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-30'])['purpose']);
+		$this->assertSame('workload balancing', $this->service(true)->report(['id' => 'anna', 'admin' => false], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-30'])['purpose']);
 		$this->assertSame([], $this->audited);
 	}
 
 	public function testWithoutTheActivityAppTheReportSaysSo(): void {
-		$report = $this->service(false, '', null)->report('anna', false, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-01']);
+		$report = $this->service(false, '', null)->report(['id' => 'anna', 'admin' => false], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-01']);
 
 		$this->assertFalse($report['available']);
 		$this->assertSame(0, $report['total']);
@@ -140,7 +140,7 @@ class ActivityReportServiceTest extends TestCase {
 	public function testAPeriodThatIsNotOneIsRefusedAfterTheAccessCheck(): void {
 		foreach ([['2026-09-31', '2026-10-01'], ['2026-10-02', '2026-10-01'], ['2025-01-01', '2026-01-02'], ['', '2026-01-01']] as [$from, $to]) {
 			try {
-				$this->service(true)->report('anna', false, 'anna', ['from' => $from, 'to' => $to]);
+				$this->service(true)->report(['id' => 'anna', 'admin' => false], ['subject' => 'anna', 'from' => $from, 'to' => $to]);
 				$this->fail($from . '/' . $to . ' was accepted');
 			} catch (ActivityReportRefusedException $refused) {
 				$this->assertSame(400, $refused->statusCode);
@@ -148,12 +148,12 @@ class ActivityReportServiceTest extends TestCase {
 		}
 
 		$this->expectExceptionMessage(ActivityReportService::DISABLED_MESSAGE);
-		$this->service(false, '')->report('bob', true, 'anna', ['from' => 'nonsense', 'to' => '']);
+		$this->service(false, '')->report(['id' => 'bob', 'admin' => true], ['subject' => 'anna', 'from' => 'nonsense', 'to' => '']);
 	}
 
 	public function testTheCsvCarriesTheSameNumbersAsTheScreen(): void {
 		$events = [self::event('file_changed', '2026-09-01 08:00'), self::event('comments', '2026-09-01 09:00'), self::event('file_changed', '2026-09-02 08:00')];
-		$report = $this->service(true, 'workload, "balancing"', $events)->report('admin', true, 'anna', ['from' => '2026-09-01', 'to' => '2026-09-30']);
+		$report = $this->service(true, 'workload, "balancing"', $events)->report(['id' => 'admin', 'admin' => true], ['subject' => 'anna', 'from' => '2026-09-01', 'to' => '2026-09-30']);
 		$rows = array_map('str_getcsv', array_filter(explode("\n", ActivityReportService::csv($report))));
 
 		$this->assertSame(['kind', 'key', 'count'], $rows[0]);

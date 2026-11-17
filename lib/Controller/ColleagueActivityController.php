@@ -76,6 +76,6 @@ class ColleagueActivityController extends Controller {
 			return $this->failure(message: 'not_logged_in', statusCode: Http::STATUS_UNAUTHORIZED);
 		}
 
-		return new JSONResponse($this->activity->recent(readerId: $this->userId, limit: $limit, days: $days));
+		return new JSONResponse($this->activity->recent(readerId: $this->userId, window: ['limit' => $limit, 'days' => $days]));
 	}//end index()
 }//end class

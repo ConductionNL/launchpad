@@ -65,7 +65,7 @@ class StatusReportControllerTest extends TestCase {
 
 	public function testAKeptReportIsKeptForTheCallerAndAnswers201(): void {
 		$reports = $this->createMock(StatusReportService::class);
-		$reports->expects($this->once())->method('keep')->with('anna', self::SUBJECT, 'at-risk', 'Behind.')->willReturn(['id' => 'uuid-1']);
+		$reports->expects($this->once())->method('keep')->with('anna', self::SUBJECT + ['health' => 'at-risk', 'summary' => 'Behind.'])->willReturn(['id' => 'uuid-1']);
 
 		$response = $this->controller('anna', $reports, self::SUBJECT + ['health' => 'at-risk', 'summary' => 'Behind.'])->keep();
 

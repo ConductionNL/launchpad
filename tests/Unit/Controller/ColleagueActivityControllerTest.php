@@ -34,7 +34,7 @@ class ColleagueActivityControllerTest extends TestCase {
 	public function testTheActivityIsReadForTheSignedInCaller(): void {
 		$answer   = ['available' => true, 'days' => 7, 'entries' => [], 'total' => 0, 'counts' => [], 'actors' => 0];
 		$activity = $this->createMock(ColleagueActivityService::class);
-		$activity->expects($this->once())->method('recent')->with('anna', 5, 3)->willReturn($answer);
+		$activity->expects($this->once())->method('recent')->with('anna', ['limit' => 5, 'days' => 3])->willReturn($answer);
 
 		$response = (new ColleagueActivityController($this->createMock(IRequest::class), $activity, 'anna'))->index(5, 3);
 

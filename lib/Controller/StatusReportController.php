@@ -108,9 +108,7 @@ class StatusReportController extends Controller {
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				$this->reports->keep(
 					userId: $userId,
-					subject: $this->subject(),
-					health: $this->optionalString(key: 'health'),
-					summary: $this->optionalString(key: 'summary')
+					input: $this->subject() + ['health' => $this->optionalString(key: 'health'), 'summary' => $this->optionalString(key: 'summary')]
 				),
 				Http::STATUS_CREATED
 			)

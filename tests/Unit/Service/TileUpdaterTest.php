@@ -264,4 +264,30 @@ class TileUpdaterTest extends TestCase {
 			}
 		}
 	}
+
+	/**
+	 * A new tile is held to the same office-network address rules as an update.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 */
+	public function testANewTileWithAnOfficeNetworkAddressIsChecked(): void {
+		$updater = new TileUpdater();
+
+		$placement = new WidgetPlacement();
+		$updater->applyTileConfig(placement: $placement, tileData: ['content' => ['internalUrl' => 'https://zaken.intern/start']]);
+		$this->assertSame(['internalUrl' => 'https://zaken.intern/start'], $placement->getContentArray());
+
+		foreach (['javascript:alert(1)', '//evil.example', 42] as $url) {
+			$placement = new WidgetPlacement();
+			try {
+				$updater->applyTileConfig(placement: $placement, tileData: ['content' => ['internalUrl' => $url]]);
+				$this->fail('The address ' . var_export($url, true) . ' was accepted on create.');
+			} catch (\InvalidArgumentException $e) {
+				$this->assertSame('The address on the office network is not a valid address', $e->getMessage());
+				$this->assertNull($placement->getContent());
+			}
+		}
+	}
 }

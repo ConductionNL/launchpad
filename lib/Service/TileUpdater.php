@@ -43,7 +43,10 @@ class TileUpdater {
 	 *
 	 * @return void
 	 *
+	 * @throws InvalidArgumentException When the office-network address or the launch link is not allowed (HTTP 400).
+	 *
 	 * @spec openspec/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
 	 */
 	public function applyTileConfig(
 		WidgetPlacement $placement,
@@ -72,6 +75,10 @@ class TileUpdater {
 			$tileData['linkVal'] ?? ''
 		);
 		if (is_array($tileData['content'] ?? null) === true) {
+			if (array_key_exists('internalUrl', $tileData['content']) === true) {
+				$this->assertValidInternalUrl(url: $tileData['content']['internalUrl']);
+			}
+
 			$placement->setContentArray($tileData['content']);
 		}
 

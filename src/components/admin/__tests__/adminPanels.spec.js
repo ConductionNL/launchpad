@@ -10,6 +10,7 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import AnnouncementEditorsPolicy from '../AnnouncementEditorsPolicy.vue'
 import DashboardSharingPolicy from '../DashboardSharingPolicy.vue'
 import HealthPanel from '../HealthPanel.vue'
 import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
@@ -252,6 +253,46 @@ describe('DashboardSharingPolicy', () => {
 
 		await wrapper.vm.save()
 		expect(logger.error).toHaveBeenCalledWith('Failed to save sharing policy:', expect.any(Error))
+	})
+})
+
+describe('AnnouncementEditorsPolicy', () => {
+	it('loads the stored editor groups and offers the given groups', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: { data: { announcementEditorGroups: ['communicatie'] } } })
+		const wrapper = mountWith(AnnouncementEditorsPolicy, { groups: ['communicatie', 'hr'] })
+		await flushPromises()
+
+		expect(wrapper.findComponent(TagsStub).props()).toEqual({ modelValue: ['communicatie'], options: ['communicatie', 'hr'] })
+	})
+
+	it('reads a stored value that is not a list as no groups', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: { announcementEditorGroups: 'hr' } })
+		const wrapper = mountWith(AnnouncementEditorsPolicy)
+		await flushPromises()
+
+		expect(wrapper.vm.editorGroups).toEqual([])
+	})
+
+	it('saves the chosen groups on every change', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: {} })
+		const wrapper = mountWith(AnnouncementEditorsPolicy, { groups: ['a', 'b'] })
+		await flushPromises()
+
+		wrapper.findComponent(TagsStub).vm.$emit('update:modelValue', ['b'])
+		await flushPromises()
+
+		expect(api.updateAdminSettings).toHaveBeenCalledWith({ announcementEditorGroups: ['b'] })
+	})
+
+	it('logs a failed load and a failed save', async () => {
+		api.getAdminSettings.mockRejectedValue(new Error('x'))
+		api.updateAdminSettings.mockRejectedValue(new Error('y'))
+		const wrapper = mountWith(AnnouncementEditorsPolicy)
+		await flushPromises()
+		await wrapper.vm.save()
+
+		expect(logger.error).toHaveBeenCalledWith('Failed to load announcement editors:', expect.any(Error))
+		expect(logger.error).toHaveBeenCalledWith('Failed to save announcement editors:', expect.any(Error))
 	})
 })
 

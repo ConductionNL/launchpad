@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -40,11 +40,11 @@ class AdminWidgetRulesController extends Controller {
 	 * Constructor
 	 *
 	 * @param IRequest $request The request.
-	 * @param ConditionalService $conditionalService The conditional service.
+	 * @param ConditionalServiceInterface $conditionalService The conditional service.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConditionalService $conditionalService,
+		private readonly ConditionalServiceInterface $conditionalService,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()

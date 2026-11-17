@@ -162,10 +162,16 @@ class AdminSettingsService {
 			// navigation panel. Off by default so an existing instance keeps its
 			// rail; a stored value that is not a boolean reads as off.
 			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry is
+			// opt-in per organisation; only a stored `true` turns it on.
+			'filterTelemetryEnabled' => ($settings[AdminSettingKey::FILTER_TELEMETRY_ENABLED->value] ?? false) === true,
 			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
 			// them; a stored value that no longer validates reads as empty.
 			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
 			'ssoLaunchTemplates' => $this->tileLaunch->stored(setting: 'templates', stored: $settings[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] ?? null),
+			// Engagement-announcements D6: the groups whose members may write
+			// announcements besides administrators; none until one is chosen.
+			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
 			// Engagement-communities REQ-COMM-003: the Talk conversations the
 			// organisation pinned. A stored entry that is not a token is dropped.
 			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
@@ -267,6 +273,23 @@ class AdminSettingsService {
 	private function isCommunityToken(mixed $token): bool {
 		return is_string($token) === true && preg_match(pattern: self::COMMUNITY_TOKEN_PATTERN, subject: $token) === 1;
 	}//end isCommunityToken()
+
+	/**
+	 * A stored group-id list as it is read back: a list, empty when unset or not a list.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return list<mixed>
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private static function groupList(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values($stored);
+	}//end groupList()
 
 	/**
 	 * Lower bound for the numeric quota settings (dashboard-quota-limits
@@ -378,17 +401,7 @@ class AdminSettingsService {
 	 *              containing `{query}`.
 	 */
 	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+		return QueryUrlTemplate::isValid(value: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
@@ -428,9 +441,8 @@ class AdminSettingsService {
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel`,
-	 *                                   `quicksearchFallbackTarget` or `pinnedCommunities`
-	 *                                   is not a valid value.
+	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel` or
+	 *                                   `quicksearchFallbackTarget` is not a valid value.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 */
@@ -461,7 +473,9 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
+		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 
 		// Engagement-communities REQ-COMM-003: validated before it is stored.
 		$pinned = $settings['pinnedCommunities'] ?? null;
@@ -472,6 +486,32 @@ class AdminSettingsService {
 			);
 		}
 	}//end updateSettings()
+
+	/**
+	 * Persist the announcement editor groups when given, normalised like the forced-share groups.
+	 *
+	 * @param mixed $groups The group ids, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a list.
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private function persistAnnouncementEditorGroups(mixed $groups): void {
+		if ($groups === null) {
+			return;
+		}
+
+		if (is_array($groups) === false) {
+			throw new InvalidArgumentException(message: 'announcementEditorGroups must be a list of group ids.');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS,
+			value: $this->normaliseGroupList(input: $groups)
+		);
+	}//end persistAnnouncementEditorGroups()
 
 	/**
 	 * Persist the program schemes and the SSO launch templates, each checked whole first.

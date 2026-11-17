@@ -439,6 +439,8 @@ class AdminController extends Controller {
 	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
+	 * @param array|null $announcementEditorGroups Groups whose members may write announcements (engagement-announcements D6).
+	 * @param bool|null  $filterTelemetryEnabled   Org-level filter telemetry opt-in (drill-down-cross-widget-filter REQ-CWF-010).
 	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
 	 *                                      communities, at most 20 (REQ-COMM-003).
 	 *
@@ -468,6 +470,8 @@ class AdminController extends Controller {
 		string|null $sharingRecipientScope = null,
 		array|null $tileAllowedSchemes = null,
 		array|null $ssoLaunchTemplates = null,
+		array|null $announcementEditorGroups = null,
+		bool|null $filterTelemetryEnabled = null,
 		array|null $pinnedCommunities = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
@@ -496,6 +500,8 @@ class AdminController extends Controller {
 					'sharingRecipientScope'       => $sharingRecipientScope,
 					'tileAllowedSchemes'          => $tileAllowedSchemes,
 					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
+					'announcementEditorGroups'    => $announcementEditorGroups,
+					'filterTelemetryEnabled'      => $filterTelemetryEnabled,
 					'pinnedCommunities'           => $pinnedCommunities,
 				]
 			);

@@ -292,6 +292,99 @@ export function isCtrlKFocusShortcut(event) {
 }
 
 /**
+ * Split a query into a known search shortcut and the rest (REQ-SPX-002).
+ * The first word must equal a shortcut prefix, case-insensitively.
+ *
+ * @param {string} query The raw query.
+ * @param {Array<{prefix: string, name: string, urlTemplate: string}>} shortcuts The admin's shortcuts.
+ * @return {{shortcut: object, rest: string}|null} The match, or null.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function parsePrefix(query, shortcuts) {
+	const trimmed = String(query ?? '').trim()
+	if (!trimmed.startsWith('!') || !Array.isArray(shortcuts)) {
+		return null
+	}
+	const [first, ...rest] = trimmed.split(/\s+/)
+	const shortcut = shortcuts.find(
+		(entry) => String(entry?.prefix || '').toLowerCase() === first.toLowerCase(),
+	)
+	return shortcut ? { shortcut, rest: rest.join(' ') } : null
+}
+
+/**
+ * The address a shortcut opens for a query: its template with the
+ * URL-encoded query, only when the template is a valid https `{query}`
+ * address (REQ-SPX-002).
+ *
+ * @param {{urlTemplate: string}} shortcut The shortcut.
+ * @param {string} rest The query after the prefix.
+ * @return {string|null} The address, or null.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function shortcutUrl(shortcut, rest) {
+	if (!isValidFallbackTemplate(shortcut?.urlTemplate)) {
+		return null
+	}
+	return shortcut.urlTemplate.replace('{query}', encodeURIComponent(rest))
+}
+
+/**
+ * Whether a query asks for the shortcut list: `!` alone or `?` (REQ-SPX-003).
+ *
+ * @param {string} query The raw query.
+ * @return {boolean} True for the list.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function isShortcutListQuery(query) {
+	const trimmed = String(query ?? '').trim()
+	return trimmed === '!' || trimmed === '?'
+}
+
+/**
+ * Result kinds that come from a search shortcut rather than a tile.
+ *
+ * @type {string[]}
+ */
+const SHORTCUT_KINDS = ['shortcut', 'shortcut-list']
+
+/**
+ * The results a query yields from the search shortcuts: the shortcut list
+ * for `!` or `?` (REQ-SPX-003), or the one shortcut a known prefix names
+ * (REQ-SPX-002). Null when the query is neither, so tile ranking applies.
+ *
+ * @param {string} trimmed The trimmed query.
+ * @param {Array<{prefix: string, name: string, urlTemplate: string}>} shortcuts The admin's shortcuts.
+ * @return {Array<object>|null} The results, or null.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function shortcutResults(trimmed, shortcuts) {
+	if (isShortcutListQuery(trimmed) && shortcuts.length > 0) {
+		return shortcuts.map((shortcut) => ({
+			id: `shortcut-list:${shortcut.prefix}`,
+			label: `${shortcut.prefix} ${shortcut.name}`,
+			kind: 'shortcut-list',
+			shortcut,
+			item: null,
+		}))
+	}
+	const prefixed = parsePrefix(trimmed, shortcuts)
+	if (!prefixed) {
+		return null
+	}
+	return [
+		{
+			id: `shortcut:${prefixed.shortcut.prefix}`,
+			label: prefixed.shortcut.name,
+			kind: 'shortcut',
+			shortcut: prefixed.shortcut,
+			rest: prefixed.rest,
+			item: null,
+		},
+	]
+}
+
+/**
  * Factory — one instance per mounted search bar. Mirrors the
  * `useGridManager()` shape: a `reactive()` reactive `state` plus
  * plain methods, consumable from an Options-API component without
@@ -307,12 +400,24 @@ export function isCtrlKFocusShortcut(event) {
  * @param {() => string} [options.getFallbackTarget] returns the current
  *   `quicksearch_fallback_target` value; consulted lazily so the caller
  *   can change it without recreating the composable.
+ * @param {() => Array<object>} [options.getShortcuts] returns the admin's
+ *   search shortcuts (REQ-SPX-002); consulted on every recompute.
  * @return {object} the `{state, ...methods}` API — see inline method docs.
  *
  * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function useTileSearch(options = {}) {
-	const { onOpen, onFallback, getFallbackTarget } = options
+	const { onOpen, onFallback, getFallbackTarget, getShortcuts } = options
+
+	/**
+	 * The admin's shortcuts, or an empty list.
+	 *
+	 * @return {Array<object>} Shortcuts.
+	 */
+	function shortcuts() {
+		const list = typeof getShortcuts === 'function' ? getShortcuts() : []
+		return Array.isArray(list) ? list : []
+	}
 
 	const state = reactive({
 		query: '',
@@ -335,6 +440,13 @@ export function useTileSearch(options = {}) {
 		if (trimmed === '') {
 			state.results = []
 			state.activeIndex = -1
+			return
+		}
+		// REQ-SPX-002/003: a shortcut list or a known prefix wins over tile ranking.
+		const fromShortcuts = shortcutResults(trimmed, shortcuts())
+		if (fromShortcuts) {
+			state.results = fromShortcuts
+			state.activeIndex = 0
 			return
 		}
 		state.results = rankItems(trimmed, items)
@@ -412,6 +524,9 @@ export function useTileSearch(options = {}) {
 	 */
 	function pressEnter() {
 		const result = activeResult()
+		if (result && SHORTCUT_KINDS.includes(result.kind)) {
+			return pressShortcut(result)
+		}
 		if (result) {
 			if (typeof onOpen === 'function') {
 				onOpen(result.item)
@@ -424,10 +539,43 @@ export function useTileSearch(options = {}) {
 				? getFallbackTarget()
 				: FALLBACK_TARGET_NONE
 		const action = resolveFallbackAction(target, state.query.trim())
+		notifyFallback(action)
+		return action
+	}
+
+	/**
+	 * Enter on a shortcut result. On a listed shortcut it types the prefix
+	 * (REQ-SPX-003); on a prefixed query it opens the shortcut's site with
+	 * the rest of the query, or does nothing without one (REQ-SPX-002).
+	 *
+	 * @param {object} result the active `shortcut` or `shortcut-list` result.
+	 * @return {{type: 'shortcut-list', shortcut: object}|{type: 'web-search', url: string}|{type: 'none'}}
+	 *   the action taken.
+	 */
+	function pressShortcut(result) {
+		if (result.kind === 'shortcut-list') {
+			setQuery(`${result.shortcut.prefix} `)
+			return { type: 'shortcut-list', shortcut: result.shortcut }
+		}
+		const url = result.rest ? shortcutUrl(result.shortcut, result.rest) : null
+		if (!url) {
+			return { type: FALLBACK_TARGET_NONE }
+		}
+		const action = { type: 'web-search', url }
+		notifyFallback(action)
+		return action
+	}
+
+	/**
+	 * Hand a fallback action to the caller's `onFallback`, when given.
+	 *
+	 * @param {object} action the resolved action.
+	 * @return {void}
+	 */
+	function notifyFallback(action) {
 		if (typeof onFallback === 'function') {
 			onFallback(action)
 		}
-		return action
 	}
 
 	/**

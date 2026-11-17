@@ -33,7 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IUserSession;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,13 +49,13 @@ abstract class CommandBase extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared exit-code, JSON and
+	 * @param CommandServiceInterface $commandService Shared exit-code, JSON and
 	 *                                       audit-log helper.
 	 * @param IUserSession $userSession Caller resolution for the
 	 *                                  audit log (REQ-CLI-010).
 	 */
 	public function __construct(
-		protected readonly CommandService $commandService,
+		protected readonly CommandServiceInterface $commandService,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct();
@@ -137,11 +137,11 @@ abstract class CommandBase extends Command {
 	 */
 	final protected function execute(InputInterface $input, OutputInterface $output): int {
 		$started = (int)round(num: (microtime(as_float: true) * 1000));
-		$exitCode = CommandService::EXIT_ERROR;
+		$exitCode = CommandServiceInterface::EXIT_ERROR;
 		try {
 			$exitCode = $this->handle(input: $input, output: $output);
 		} catch (Throwable $e) {
-			$exitCode = CommandService::EXIT_ERROR;
+			$exitCode = CommandServiceInterface::EXIT_ERROR;
 			$envelope = $this->commandService->envelopeError(
 				exitCode: $exitCode,
 				code: 'INTERNAL_ERROR',
@@ -251,7 +251,7 @@ abstract class CommandBase extends Command {
 	final protected function emitPrettyPayload(CommandStreams $streams, array $payload): int {
 		if ($this->isJson(input: $streams->input) === true) {
 			$this->emitSuccess(input: $streams->input, output: $streams->output, data: $payload);
-			return CommandService::EXIT_SUCCESS;
+			return CommandServiceInterface::EXIT_SUCCESS;
 		}
 
 		if ($this->isQuiet(input: $streams->input) === false) {
@@ -263,7 +263,7 @@ abstract class CommandBase extends Command {
 			);
 		}
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end emitPrettyPayload()
 
 	/**
@@ -318,7 +318,12 @@ abstract class CommandBase extends Command {
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	final protected function emitDashboardNotFound(InputInterface $input, OutputInterface $output, string $uuid): int {
-		$error = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'Dashboard not found', 'context' => ['uuid' => $uuid]];
+		$error = [
+			'exitCode' => CommandServiceInterface::EXIT_NOT_FOUND,
+			'code' => 'NOT_FOUND',
+			'message' => 'Dashboard not found',
+			'context' => ['uuid' => $uuid],
+		];
 		return $this->emitError(input: $input, output: $output, error: $error);
 	}//end emitDashboardNotFound()
 

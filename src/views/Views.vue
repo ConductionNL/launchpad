@@ -275,6 +275,14 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<!-- drill-down-cross-widget-filter REQ-CWF-009. -->
+			<DashboardSavedViews
+				v-if="activeDashboard?.uuid"
+				:dashboardId="activeDashboard.uuid"
+				:userId="currentUserId"
+				:canEdit="canEdit"
+				:clauses="filterClauses"
+				@apply="onApplySavedView" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -322,6 +330,7 @@
 							:tile="getTileData(item)"
 							:editMode="isEditMode"
 							:placementId="item.id"
+							:content="item.content || null"
 							:healthPingEnabled="
 								item.content
 								&& item.content.healthPingEnabled === true
@@ -523,6 +532,7 @@ import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
+import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
@@ -538,6 +548,7 @@ import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
+import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 // Composables
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardLock } from '../composables/useDashboardLock.js'
@@ -558,8 +569,10 @@ import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
+import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { officePackContainer } from '../utils/officeTiles.js'
+import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -595,6 +608,7 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		DashboardSavedViews,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
 		EditLockBanner,
@@ -830,6 +844,16 @@ export default {
 		 */
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * The signed-in user's id, for the saved views they own.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 */
+		currentUserId() {
+			return typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : ''
 		},
 
 		/**
@@ -2504,6 +2528,8 @@ export default {
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// launcher-tile-launch-types: remote-desktop and sso settings.
+				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
 			this.openTileEditor(tileData)
 		},
@@ -2531,6 +2557,9 @@ export default {
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
 			}
+			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
+			// settings in the same blob, checked by the server with the link.
+			const content = { ...healthPingContent, ...launchContent(tileData) }
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -2541,23 +2570,52 @@ export default {
 						tileTextColor: tileData.textColor,
 						tileLinkType: tileData.linkType,
 						tileLinkValue: tileData.linkValue,
-						content: healthPingContent,
+						content,
 					})
 				} else {
-					const newPlacement = await this.addTileToDashboard(tileData)
-					// `addTile` has no `content` parameter (mirrors the
-					// `addWidget` create-then-patch pattern above) — persist
-					// the health-ping block with a follow-up patch only when
-					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
-						await this.updateWidgetPlacement(newPlacement.id, {
-							content: healthPingContent,
-						})
-					}
+					await this.createTile(tileData, content)
 				}
 				this.closeTileEditor()
 			} catch (error) {
-				logger.error('[Views] Failed to save tile:', error)
+				this.reportTileSaveError(tileData, error)
+			}
+		},
+
+		/**
+		 * Create a launcher tile from the editor's form state.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {object} content The placement's content blob.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		async createTile(tileData, content) {
+			// A launch tile is checked on create, so it carries its content.
+			const newPlacement = await this.addTileToDashboard(
+				isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
+			)
+			// `addTile` has no `content` parameter (mirrors the
+			// `addWidget` create-then-patch pattern above) — persist
+			// the health-ping block with a follow-up patch only when
+			// the author actually enabled it.
+			if (newPlacement?.id && content.healthPingEnabled) {
+				await this.updateWidgetPlacement(newPlacement.id, {
+					content,
+				})
+			}
+		},
+
+		/**
+		 * Log a failed tile save, and tell the author when the server refused a launch tile's settings.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {Error} error The failure.
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		reportTileSaveError(tileData, error) {
+			logger.error('[Views] Failed to save tile:', error)
+			if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {
+				showError(t('launchpad', 'The tile was not saved: check its address or settings.'))
 			}
 		},
 
@@ -2770,7 +2828,16 @@ export default {
 		 */
 		openFilterSession(readUrl) {
 			this.filterSession?.stop()
-			this.filterSession = useDashboardFilterSession({ dashboard: this.activeDashboard, readUrl })
+			this.filterSession = useDashboardFilterSession({
+				dashboard: this.activeDashboard,
+				readUrl,
+				// REQ-CWF-010: rows are written only when the organisation opted in.
+				telemetry: createFilterTelemetry({
+					enabled: () => loadInitialState('workspace').filterTelemetryEnabled === true,
+					dashboardId: this.activeDashboard?.uuid ?? '',
+					userId: typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : '',
+				}),
+			})
 		},
 
 		/**
@@ -2792,6 +2859,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * Apply a saved view: its clauses replace every non-pinned clause.
+		 *
+		 * @param {object} view The saved view.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 */
+		onApplySavedView(view) {
+			this.filterSession?.applyView(view?.filters ?? [])
 		},
 
 		async pushUrlForActiveDashboard() {

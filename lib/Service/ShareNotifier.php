@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCP\IGroupManager;
 use OCP\Notification\IManager as INotificationManager;
+use OCP\Notification\INotification;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -104,17 +105,12 @@ class ShareNotifier {
 		];
 		foreach ($recipients as $recipientId) {
 			try {
-				$notification = $this->notificationManager->createNotification();
+				$notification = $this->dashboardNotification(
+					userId: $recipientId,
+					dashboardId: (string)$share->getDashboardId()
+				);
 				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				$notification->setApp('launchpad')
-					// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-					->setUser($recipientId)
-					// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-					->setDateTime(new DateTime())
-					// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-					->setObject('dashboard', (string)$share->getDashboardId())
-					// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-					->setSubject('dashboard_shared', $subject);
+				$notification->setSubject('dashboard_shared', $subject);
 
 				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 				$this->notificationManager->notify($notification);
@@ -140,21 +136,39 @@ class ShareNotifier {
 		int $dashboardId,
 		string $dashboardName,
 	): void {
-		$notification = $this->notificationManager->createNotification();
+		$notification = $this->dashboardNotification(
+			userId: $newOwnerId,
+			dashboardId: (string)$dashboardId
+		);
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$notification->setApp('launchpad')
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setUser($newOwnerId)
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setDateTime(new DateTime())
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setObject('dashboard', (string)$dashboardId)
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setSubject('dashboard_ownership_transferred', [$dashboardName]);
+		$notification->setSubject('dashboard_ownership_transferred', [$dashboardName]);
 
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$this->notificationManager->notify($notification);
 	}//end ownershipTransferred()
+
+	/**
+	 * A launchpad notification about a dashboard for one user, stamped now;
+	 * the caller sets its subject.
+	 *
+	 * @param string $userId      The user to notify.
+	 * @param string $dashboardId The dashboard ID.
+	 *
+	 * @return INotification The notification without a subject.
+	 */
+	private function dashboardNotification(string $userId, string $dashboardId): INotification {
+		$notification = $this->notificationManager->createNotification();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$notification->setApp('launchpad')
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			->setUser($userId)
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			->setDateTime(new DateTime())
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			->setObject('dashboard', $dashboardId);
+
+		return $notification;
+	}//end dashboardNotification()
 
 	/**
 	 * Resolve the recipient user IDs for a share.

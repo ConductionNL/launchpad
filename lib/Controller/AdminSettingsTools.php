@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\FooterServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\FooterService;
-use OCA\LaunchPad\Service\SetupWizardService;
 use OCP\IGroupManager;
 
 /**
@@ -38,14 +38,14 @@ class AdminSettingsTools {
 	 * Constructor.
 	 *
 	 * @param AdminSettingsService $settingsService The admin settings service.
-	 * @param FooterService        $footerService Global footer settings + sanitiser (REQ-FTR-001..010).
-	 * @param SetupWizardService   $setupWizardService Setup-wizard orchestrator (REQ-WIZ-001..011).
+	 * @param FooterServiceInterface        $footerService Global footer settings + sanitiser (REQ-FTR-001..010).
+	 * @param SetupWizardServiceInterface   $setupWizardService Setup-wizard orchestrator (REQ-WIZ-001..011).
 	 * @param IGroupManager        $groupManager The Nextcloud group manager.
 	 */
 	public function __construct(
 		public readonly AdminSettingsService $settingsService,
-		public readonly FooterService $footerService,
-		public readonly SetupWizardService $setupWizardService,
+		public readonly FooterServiceInterface $footerService,
+		public readonly SetupWizardServiceInterface $setupWizardService,
 		public readonly IGroupManager $groupManager,
 	) {
 	}//end __construct()

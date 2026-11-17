@@ -897,6 +897,30 @@ export const api = {
 	},
 
 	/**
+	 * Read the public start page: whether it is on, the chosen link, whether
+	 * it can be shown and why not, and the links that may be chosen.
+	 * Admin-only on the server (sharing-public-start-page REQ-PSP-001).
+	 *
+	 * @return {Promise} Axios response resolving to
+	 *   `{ enabled, token, active, reason, candidates }`.
+	 */
+	getPublicStart() {
+		return axios.get(`${baseUrl}/api/admin/public-start`)
+	},
+
+	/**
+	 * Choose the public start page's link and switch it on or off. Admin-only
+	 * on the server; a link with a password or a past expiry answers 400
+	 * (sharing-public-start-page REQ-PSP-001).
+	 *
+	 * @param {{enabled: boolean, token: string}} data The choice.
+	 * @return {Promise} The axios response, the new status.
+	 */
+	updatePublicStart(data) {
+		return axios.put(`${baseUrl}/api/admin/public-start`, data)
+	},
+
+	/**
 	 * Read the dashboard registry connection. Admin-only on the server.
 	 *
 	 * The response never carries the token, only `tokenConfigured`.

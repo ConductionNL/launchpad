@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\ShippedTemplateService;
-use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
+use OCA\LaunchPad\Kernel\Contracts\ShippedTemplateServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\ShippedTemplateUpdateServiceInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,13 +36,13 @@ class ShippedTemplateTools {
 	/**
 	 * Constructor.
 	 *
-	 * @param ShippedTemplateService       $templates Shipped template service.
-	 * @param ShippedTemplateUpdateService $updates Updates an installed template in place.
+	 * @param ShippedTemplateServiceInterface       $templates Shipped template service.
+	 * @param ShippedTemplateUpdateServiceInterface $updates Updates an installed template in place.
 	 * @param LoggerInterface              $logger Logger.
 	 */
 	public function __construct(
-		public readonly ShippedTemplateService $templates,
-		public readonly ShippedTemplateUpdateService $updates,
+		public readonly ShippedTemplateServiceInterface $templates,
+		public readonly ShippedTemplateUpdateServiceInterface $updates,
 		public readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

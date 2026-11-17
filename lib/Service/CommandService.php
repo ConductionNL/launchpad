@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -32,27 +33,7 @@ use Psr\Log\LoggerInterface;
  * The class is intentionally stateless: it holds only the platform
  * logger and exposes pure helpers so individual commands stay thin.
  */
-class CommandService {
-	/**
-	 * Exit code for successful execution (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_SUCCESS = 0;
-
-	/**
-	 * Exit code for unhandled exceptions / generic errors (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_ERROR = 1;
-
-	/**
-	 * Exit code for invalid / malformed CLI arguments (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_INVALID_ARGS = 2;
+class CommandService implements CommandServiceInterface {
 
 	/**
 	 * Exit code for permission / authorization failures (REQ-CLI-006).
@@ -60,13 +41,6 @@ class CommandService {
 	 * @var integer
 	 */
 	public const EXIT_PERMISSION_DENIED = 3;
-
-	/**
-	 * Exit code for "resource not found" lookups (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_NOT_FOUND = 4;
 
 	/**
 	 * Exit code for batch operations that partially succeeded

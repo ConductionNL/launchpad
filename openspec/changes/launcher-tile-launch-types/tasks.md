@@ -14,5 +14,5 @@
 
 ## Close
 
-- [ ] 7. Playwright: SSO tile address and RDP download.
+- [x] 7. Playwright: SSO tile address and RDP download. Done 17 Nov 2026: `tests/e2e/tile-launch-types.spec.ts`, 3 passed on a live NC 34 (the sso tile opens the template with the URL-encoded app id in a new tab; the RDP tile downloads `<title>.rdp` with host, program and gateway and no credentials; a user who may not view the dashboard gets 403).
 - [ ] 8. Add `nl` and `en` strings, fold the delta into `openspec/specs/tiles/spec.md` on archive, and set tile-local-apps, tile-legacy-apps and tile-sso-app to `built` in the parity matrix with evidence lines. (PARTLY BUILT: the change's 40 new UI strings are in `l10n/nl.js` and `l10n/nl.json` (English is the source); tile-local-apps, tile-legacy-apps and tile-sso-app are `built` in `openspec/parity/capabilities.json` with evidence lines and where they are reached. Left: folding the delta into `openspec/specs/tiles/spec.md` and `admin-settings`, which happens on archive, after the browser checks of tasks 6 and 7.)

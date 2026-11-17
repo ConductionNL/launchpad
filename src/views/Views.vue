@@ -110,6 +110,7 @@
 					@addCustomWidget="
 						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
 					"
+					@addApp="openWidgetModal"
 					@importBookmarks="
 						onRowImportBookmarks(activeDashboard, activeDashboardSource)
 					"

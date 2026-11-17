@@ -61,6 +61,7 @@ describe('AdminSettings tabs', () => {
 			'versioning-audit',
 			'sharing',
 			'kiosk',
+			'communities',
 			'org-navigation',
 			'demo-data',
 			'group-dashboards',

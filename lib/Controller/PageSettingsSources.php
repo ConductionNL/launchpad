@@ -30,6 +30,7 @@ use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\IURLGenerator;
+use OCP\App\IAppManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -52,6 +53,8 @@ class PageSettingsSources {
 	 * @param IURLGenerator                $urlGenerator The login form address the start page falls back to.
 	 * @param SearchShortcutServiceInterface        $searchShortcuts The search shortcuts every search box honours (REQ-SPX-002).
 	 * @param CustomCssService|null        $customCss The administrator CSS for all of LaunchPad (REQ-THM-003).
+	 * @param IAppManager|null             $appManager Whether Talk is enabled for the viewer
+	 *                                                 (engagement-communities REQ-COMM-004).
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
@@ -62,6 +65,7 @@ class PageSettingsSources {
 		public readonly IURLGenerator $urlGenerator,
 		public readonly SearchShortcutServiceInterface $searchShortcuts,
 		public readonly ?CustomCssService $customCss=null,
+		public readonly ?IAppManager $appManager = null,
 	) {
 	}//end __construct()
 }//end class

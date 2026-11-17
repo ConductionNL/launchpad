@@ -74,9 +74,10 @@ class ActivityReportService {
 	/**
 	 * The activity of a person over a period, for a reader.
 	 *
-	 * @param array{id:string,admin:bool}                      $reader Who reads, and whether they are an administrator.
-	 * @param array{subject?:string,from?:string,to?:string} $query  Whose activity (empty: the reader's own),
-	 *                                                                 and the first and the last day (Y-m-d).
+	 * Query: `subject`, whose activity (empty: the reader's own), and `from` and `to`, the first and the last day (Y-m-d).
+	 *
+	 * @param array{id:string,admin:bool}                    $reader Who reads, and whether they are an administrator.
+	 * @param array{subject?:string,from?:string,to?:string} $query  Whose activity, over which days.
 	 *
 	 * @return array<string,mixed> The report: subject, period, purpose, counts per type, per day and the total.
 	 *

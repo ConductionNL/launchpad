@@ -435,6 +435,12 @@ class AdminController extends Controller {
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
+	 * @param array|null $sharingAllowedGroups The groups whose members may share; empty means everyone (REQ-SHARE-014).
+	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
+	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
+	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
+	 * @param array|null $announcementEditorGroups Groups whose members may write announcements (engagement-announcements D6).
+	 * @param bool|null  $filterTelemetryEnabled   Org-level filter telemetry opt-in (drill-down-cross-widget-filter REQ-CWF-010).
 	 * @param array|null $officeNetworks The office networks as CIDR ranges; a malformed one answers 400 (REQ-TIA-001).
 	 *
 	 * @return JSONResponse The update confirmation.
@@ -459,6 +465,12 @@ class AdminController extends Controller {
 		bool|null $allowMultipleDashboards = null,
 		int|null $defaultGridColumns = null,
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
+		array|null $sharingAllowedGroups = null,
+		string|null $sharingRecipientScope = null,
+		array|null $tileAllowedSchemes = null,
+		array|null $ssoLaunchTemplates = null,
+		array|null $announcementEditorGroups = null,
+		bool|null $filterTelemetryEnabled = null,
 		array|null $officeNetworks = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
@@ -483,6 +495,12 @@ class AdminController extends Controller {
 					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
 					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
 					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
+					'sharingAllowedGroups'        => $sharingAllowedGroups,
+					'sharingRecipientScope'       => $sharingRecipientScope,
+					'tileAllowedSchemes'          => $tileAllowedSchemes,
+					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
+					'announcementEditorGroups'    => $announcementEditorGroups,
+					'filterTelemetryEnabled'      => $filterTelemetryEnabled,
 					'officeNetworks'              => $officeNetworks,
 				]
 			);

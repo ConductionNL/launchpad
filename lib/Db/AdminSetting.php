@@ -177,6 +177,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_FORCED_SHARE_GROUPS = AdminSettingKey::FORCED_SHARE_GROUPS->value;
 
 	/**
+	 * BC alias for AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS.
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS
+	 */
+	public const KEY_ANNOUNCEMENT_EDITOR_GROUPS = AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS->value;
+
+	/**
 	 * BC alias for AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED.
 	 *
 	 * @var string
@@ -211,6 +220,24 @@ class AdminSetting extends Entity implements JsonSerializable {
 	 * @see AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET
 	 */
 	public const KEY_QUICKSEARCH_FALLBACK_TARGET = AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET->value;
+
+	/**
+	 * BC alias for AdminSettingKey::TILE_ALLOWED_SCHEMES (launcher-tile-launch-types).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::TILE_ALLOWED_SCHEMES
+	 */
+	public const KEY_TILE_ALLOWED_SCHEMES = AdminSettingKey::TILE_ALLOWED_SCHEMES->value;
+
+	/**
+	 * BC alias for AdminSettingKey::SSO_LAUNCH_TEMPLATES (launcher-tile-launch-types).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::SSO_LAUNCH_TEMPLATES
+	 */
+	public const KEY_SSO_LAUNCH_TEMPLATES = AdminSettingKey::SSO_LAUNCH_TEMPLATES->value;
 
 	/**
 	 * BC alias for AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION (runtime-shell REQ-SHELL-009).

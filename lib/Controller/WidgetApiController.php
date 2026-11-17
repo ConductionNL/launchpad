@@ -23,6 +23,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
@@ -532,11 +533,19 @@ class WidgetApiController extends Controller {
 	 * @return object The created placement.
 	 */
 	private function addTileFromRequest(int $dashboardId): object {
+		$tileData = RequestDataExtractor::extractTileData(
+			request: $this->request
+		);
+		// A program, remote-desktop or sso tile carries its settings in
+		// content, checked with the link type on create (launcher-tile-launch-types).
+		$content = $this->request->getParam(key: 'content');
+		if (is_array($content) === true) {
+			$tileData['content'] = $content;
+		}
+
 		return $this->sources->widgetService->addTileFromArray(
 			dashboardId: $dashboardId,
-			tileData: RequestDataExtractor::extractTileData(
-				request: $this->request
-			)
+			tileData: $tileData
 		);
 	}//end addTileFromRequest()
 
@@ -569,6 +578,17 @@ class WidgetApiController extends Controller {
 
 		try {
 			return $this->updatedPlacement(placementId: $placementId);
+		} catch (StalePlacementException $e) {
+			// A colleague saved this widget first: refuse, and hand back their
+			// version so the editor can make the change again on top of it.
+			return new JSONResponse(
+				[
+					'error'     => 'stale',
+					'message'   => $e->getMessage(),
+					'placement' => $e->getCurrent()->jsonSerialize(),
+				],
+				\OCP\AppFramework\Http::STATUS_CONFLICT
+			);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}

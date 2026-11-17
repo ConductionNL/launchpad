@@ -14,7 +14,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const network = vi.hoisted(() => ({ office: false }))
 
 vi.mock('../../services/healthPingClient.js', () => ({ validateHealthPingConfig: vi.fn() }))
-vi.mock('../../utils/loadInitialState.js', () => ({ isOnOfficeNetwork: () => network.office }))
+vi.mock('../../utils/loadInitialState.js', () => ({ isOnOfficeNetwork: () => network.office, loadInitialState: () => ({ tileAllowedSchemes: [], ssoLaunchTemplates: [] }) }))
 
 const { default: TileEditor } = await import('../TileEditor.vue')
 

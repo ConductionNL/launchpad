@@ -24,7 +24,7 @@ namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Service\ExportService;
+use OCA\LaunchPad\Kernel\Contracts\ExportServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -41,12 +41,12 @@ class ExportCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param ExportService $exportService Export service.
+	 * @param ExportServiceInterface $exportService Export service.
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper for
 	 *                                         site-scope iteration.
 	 */
 	public function __construct(
-		private readonly ExportService $exportService,
+		private readonly ExportServiceInterface $exportService,
 		private readonly DashboardMapper $dashboardMapper,
 	) {
 		parent::__construct();

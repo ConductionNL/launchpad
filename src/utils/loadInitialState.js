@@ -22,7 +22,7 @@ import { logger } from './logger.js'
  * server-pushed `_schemaVersion`; mismatch logs a console warning so
  * deploy-skew between PHP and JS surfaces (REQ-INIT-002).
  */
-export const INITIAL_STATE_SCHEMA_VERSION = 2
+export const INITIAL_STATE_SCHEMA_VERSION = 3
 
 /**
  * Reserved key carrying the schema version on the wire.
@@ -63,10 +63,21 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
+		// search-ai-prefix-shortcuts REQ-SPX-002: the admin's search
+		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
+		// list keeps every search box as it was.
+		searchShortcuts: [],
 		// runtime-shell REQ-SHELL-009: the dashboard view without the left
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// drill-down-cross-widget-filter REQ-CWF-010: whether the dashboard's
+		// filter bus records filter_event rows. Optional key; off by default.
+		filterTelemetryEnabled: false,
+		// launcher-tile-launch-types: what the tile editor offers for program
+		// and single sign-on tiles. Optional keys; empty lists offer nothing.
+		tileAllowedSchemes: [],
+		ssoLaunchTemplates: [],
 		// launcher-tile-internal-address REQ-TIA-003: whether the server saw
 		// this request come from an office network. Optional key: a server
 		// without the setter leaves every tile on its main address.
@@ -79,13 +90,19 @@ const PAGE_KEYS = {
 		allowUserDashboards: false,
 		linkCreateFileExtensions: ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 	},
+	// sharing-public-start-page D3 (version 3): the public link the start
+	// page at /apps/launchpad/start shows. Absent on /s/{token}, where the
+	// token is the URL's last segment.
+	'public-start': {
+		publicStartToken: '',
+	},
 }
 
 /**
  * Read every initial-state key declared for the given page, fill defaults
  * for any missing keys, and validate the schema version stamp.
  *
- * @param {('workspace'|'admin')} page Destination page identifier.
+ * @param {('workspace'|'admin'|'public-start')} page Destination page identifier.
  * @return {object} Typed snapshot — never carries `undefined` values.
  * @throws {Error} When `page` is not a known page identifier.
  * @spec openspec/specs/initial-state-contract/spec.md

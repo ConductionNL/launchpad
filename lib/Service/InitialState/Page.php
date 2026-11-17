@@ -34,4 +34,6 @@ namespace OCA\LaunchPad\Service\InitialState;
 enum Page: string {
 	case WORKSPACE = 'workspace';
 	case ADMIN = 'admin';
+	// Sharing-public-start-page D3: the public start page at /apps/launchpad/start.
+	case PUBLIC_START = 'public-start';
 }//end enum

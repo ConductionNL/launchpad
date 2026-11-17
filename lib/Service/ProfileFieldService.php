@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\ProfileValue;
 use OCA\LaunchPad\Db\ProfileFieldValues;
 use OCA\LaunchPad\Db\ProfileValueMapper;
+use OCA\LaunchPad\Kernel\Contracts\ProfileFieldServiceInterface;
 use OCP\Accounts\IAccountManager;
 use OCP\IUser;
 
@@ -45,7 +46,7 @@ use OCP\IUser;
  *
  * @spec openspec/specs/people-widget/spec.md
  */
-class ProfileFieldService {
+class ProfileFieldService implements ProfileFieldServiceInterface {
 	/**
 	 * Admin setting key holding the field definitions.
 	 *

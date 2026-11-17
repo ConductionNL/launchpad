@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCP\IGroupManager;
 use OCP\IUserManager;
+use OCA\LaunchPad\Service\SharingLimits;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -39,11 +40,13 @@ class ShareApiTools {
 	 * @param IUserManager    $userManager  Nextcloud user manager (sharee lookup).
 	 * @param IGroupManager   $groupManager Nextcloud group manager (sharee lookup).
 	 * @param LoggerInterface $logger       PSR logger.
+	 * @param SharingLimits|null $limits   Who may share and with whom; the sharee search offers only allowed recipients.
 	 */
 	public function __construct(
 		public readonly IUserManager $userManager,
 		public readonly IGroupManager $groupManager,
 		public readonly LoggerInterface $logger,
+		public readonly ?SharingLimits $limits = null,
 	) {
 	}//end __construct()
 }//end class

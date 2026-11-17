@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
 
 /**
  * Service backing the setup wizard state + completion endpoints.
@@ -36,7 +37,7 @@ use OCA\LaunchPad\Db\AdminSettingMapper;
  * the optional steps 4/5 — when their guarded capability isn't available,
  * the heuristic returns `'skipped'` so the UI can collapse the step.
  */
-class SetupWizardService {
+class SetupWizardService implements SetupWizardServiceInterface {
 	/**
 	 * Total number of wizard steps (REQ-WIZ-002).
 	 *

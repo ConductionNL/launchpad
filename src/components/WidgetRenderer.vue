@@ -22,6 +22,7 @@
 			v-else-if="isTileWidget && tileData"
 			:tile="tileData"
 			:placementId="placement.id"
+			:content="normalizedContent"
 			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
 			:pingInterval="normalizedContent.pingInterval" />
 

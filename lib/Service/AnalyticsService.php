@@ -38,12 +38,13 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardView;
 use OCA\LaunchPad\Db\DashboardViewMapper;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Reporting service for the dashboard view-analytics capability.
  */
-class AnalyticsService {
+class AnalyticsService implements AnalyticsServiceInterface {
 	/**
 	 * App-config key for the global instance-wide enable/disable
 	 * toggle (REQ-ANLT-005). Default `'true'`.
@@ -141,6 +142,33 @@ class AnalyticsService {
 
 		return ($value === 'true' || $value === '1');
 	}//end isUserOptedOut()
+
+	/**
+	 * Store whether the supplied user is opted out of analytics tracking
+	 * (REQ-ANLT-004, set from the person's own settings, REQ-ANLT-UI-001).
+	 *
+	 * @param string $userId   The user identifier.
+	 * @param bool   $optedOut `true` to stop counting this user's visits.
+	 *
+	 * @return bool The stored value.
+	 *
+	 * @spec openspec/changes/analytics-personal-opt-out/specs/dashboard-view-analytics/spec.md#requirement-a-person-turns-view-counting-off-in-their-own-settings-req-anlt-ui-001
+	 */
+	public function setUserOptedOut(string $userId, bool $optedOut): bool {
+		$value = 'false';
+		if ($optedOut === true) {
+			$value = 'true';
+		}
+
+		$this->settings->config->setUserValue(
+			$userId,
+			'launchpad',
+			self::USER_PREF_KEY_OPTOUT,
+			$value
+		);
+
+		return $optedOut;
+	}//end setUserOptedOut()
 
 	/**
 	 * Resolve the retention window in days, clamped to the

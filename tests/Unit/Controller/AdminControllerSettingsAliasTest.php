@@ -78,7 +78,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * A matcher for a full settings map that holds the expected entries.
+	 * A matcher for a full settings map (sixteen entries) that holds the expected entries.
 	 *
 	 * @param array<string, mixed> $expected The entries the map must hold.
 	 *
@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 13 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 19 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -215,6 +215,10 @@ class AdminControllerSettingsAliasTest extends TestCase {
 						'maxWidgetsPerDashboard' => null,
 						'quicksearchFallbackTarget' => null,
 						'startPageWithoutNavigation' => true,
+						'sharingAllowedGroups' => null,
+						'sharingRecipientScope' => null,
+						'tileAllowedSchemes' => null,
+						'ssoLaunchTemplates' => null,
 						'officeNetworks' => null,
 					]
 				)
@@ -222,6 +226,47 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(startPageWithoutNavigation: true);
 	}//end testStartPageWithoutNavigationIsPassedThrough()
+
+	/**
+	 * Launcher-tile-launch-types: the program schemes and SSO launch templates reach the service under their own names.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 */
+	public function testTileLaunchSettingsArePassedThrough(): void {
+		$templates = [['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'tileAllowedSchemes' => ['ms-word'], 'ssoLaunchTemplates' => $templates]));
+
+		$this->controller->updateSettings(tileAllowedSchemes: ['ms-word'], ssoLaunchTemplates: $templates);
+	}//end testTileLaunchSettingsArePassedThrough()
+	/**
+	 * Engagement-announcements D6: the announcement editor groups reach the service under their own name.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsArePassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['forcedShareGroups' => null, 'announcementEditorGroups' => ['communicatie']]));
+
+		$this->controller->updateSettings(announcementEditorGroups: ['communicatie']);
+	}//end testAnnouncementEditorGroupsArePassedThrough()
+
+	/**
+	 * Drill-down-cross-widget-filter REQ-CWF-010: the telemetry switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testFilterTelemetrySwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'filterTelemetryEnabled' => true]));
+
+		$this->controller->updateSettings(filterTelemetryEnabled: true);
+	}//end testFilterTelemetrySwitchIsPassedThrough()
 
 	/**
 	 * The office networks reach the service as given (launcher-tile-internal-address REQ-TIA-001).

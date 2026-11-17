@@ -10,7 +10,7 @@
 - [ ] Task 4: Implement `RenderPipeline` service class with method `render($export, $filterContext): RenderResult[]` handling PDF (headless Chromium, A4 portrait/landscape), PNG (viewport size, DPI), CSV (tabular data extraction), XLSX (per-widget sheets); returns array of `{format, sizeBytes, sha256, storagePath}`
 - [ ] Task 5: Implement `DeliveryDispatcher` service class with method `dispatch($export, $artefacts, $recipients): DeliveryResult[]` handling email (Nextcloud mailer), nextcloudFiles (Files API), webhook (signed POST), SFTP (phpseclib) — each delivery attempt writes immediately to audit row
 - [ ] Task 6: Implement `RetryHandler` service class with methods `scheduleRetry($deliveryId, $retryPolicy)` and `retryDelivery($deliveryId): DeliveryResult` — exponential backoff with jitter, cap at `maxBackoffSeconds`, mark permanent-failed after `maxAttempts`
-- [ ] Task 7: Implement `AuditLog` service class persisting `scheduled_export_run` rows via OpenRegister `ObjectService` with `renderArtefacts` array (format, sha256, path) and `deliveries` array (recipientId, channel, attemptCount, status, error)
+- [x] Task 7: Implement `AuditLog` service class persisting `scheduled_export_run` rows via OpenRegister `ObjectService` with `renderArtefacts` array (format, sha256, path) and `deliveries` array (recipientId, channel, attemptCount, status, error)
 
 ### Background Jobs
 

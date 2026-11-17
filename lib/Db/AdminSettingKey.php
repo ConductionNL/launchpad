@@ -74,4 +74,5 @@ enum AdminSettingKey: string {
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
 	// Drill-down-cross-widget-filter REQ-CWF-010: org-level opt-in for filter telemetry, off by default.
 	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
+	case PINNED_COMMUNITIES = 'pinned_communities';
 }//end enum

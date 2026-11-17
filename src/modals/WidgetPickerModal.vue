@@ -394,7 +394,11 @@ export default {
 			this.requestFailed = false
 		},
 
-		/** Close the request form and forget what was typed. */
+		/**
+		 * Close the request form and forget what was typed.
+		 *
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
 		closeRequestForm() {
 			this.requestFormOpen = false
 			this.requestAppName = ''

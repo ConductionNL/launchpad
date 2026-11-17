@@ -104,6 +104,11 @@ class PlacementUpdater {
 				$data['content']
 			);
 		}
+
+		// The calculated fields replace the stored list as a whole (widget-calculated-fields, task 21).
+		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
+			$placement->setCalculatedFieldsArray(fields: $data['calculatedFields']);
+		}
 	}//end applyDisplayUpdates()
 
 	/**

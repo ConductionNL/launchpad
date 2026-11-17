@@ -5085,17 +5085,19 @@
 			"id": "e-communities",
 			"area": "engagement",
 			"name": "Join topic communities where staff ask questions and share ideas.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-communities",
-				"requirement": "openspec/changes/engagement-communities/specs/communities-widget/spec.md :: The Communities widget lists open Talk conversations the viewer may join (REQ-COMM-001)"
+				"change": "openspec/changes/archive/2026-11-17-engagement-communities",
+				"requirement": "openspec/specs/communities-widget :: The Communities widget lists open Talk conversations the viewer may join (REQ-COMM-001)",
+				"evidence": "src/components/Widgets/Renderers/CommunitiesWidget.vue; src/services/talkCommunities.js; live pass 17 Nov 2026: tests/e2e/communities-widget.spec.ts passed on NC 34 with Talk 24",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -5109,7 +5111,7 @@
 			"providerHow": "research-then-code",
 			"feature": "communities-events-and-knowledge",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/engagement-communities (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-communities (openspec pass). Built since and archived 2026-11-17.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
@@ -5119,17 +5121,19 @@
 			"id": "e-digest",
 			"area": "engagement",
 			"name": "Get a daily or weekly email summing up what changed.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-activity-digest",
-				"requirement": "openspec/changes/engagement-activity-digest/specs/activity-feed-integration :: LaunchPad events can reach the activity digest email (REQ-DIGE-001)"
+				"change": "openspec/changes/archive/2026-11-17-engagement-activity-digest",
+				"requirement": "openspec/specs/activity-feed-integration :: LaunchPad events can reach the activity digest email (REQ-DIGE-001)",
+				"evidence": "lib/Activity/Settings/DashboardSharedSetting.php:73; lib/Activity/DashboardActivityEmitter.php; live pass 17 Nov 2026 on NC 34: a share queued one dashboard_shared mail row for a recipient on daily batching, an edit queued none",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -5143,7 +5147,7 @@
 			"providerHow": "research-then-code",
 			"feature": "news-and-announcements",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/engagement-activity-digest (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-activity-digest (openspec pass). Built since and archived 2026-11-17.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpPersoonlijk"

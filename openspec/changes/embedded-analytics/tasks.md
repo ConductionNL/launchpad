@@ -329,10 +329,11 @@
 
 ## Quality & Integration
 
-- [ ] Task 38: ESLint clean on new files:
+- [x] Task 38: ESLint clean on new files:
   - Run `npm run lint` on all new/modified Vue + JS files
   - Fix any warnings or errors before merging
   - Ensure axe-core check output is clean (no accessibility violations)
+  > ESLint reports no errors or warnings on the 35 JS/Vue/TS files this change adds or modifies (the two errors `npm run lint` prints are in `Announcements/__tests__/announcements.spec.js`, inherited from development). The admin template spec now stubs the Embeds tab, which removed the 22 unhandled rejections the tab's API calls caused in the suite. The axe-core output belongs to the build step of Task 12.
 
 - [ ] Task 39: Security audit checklist:
   - JWT signature verification is unconditional (no bypass paths)

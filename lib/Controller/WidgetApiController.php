@@ -24,6 +24,8 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
@@ -578,6 +580,10 @@ class WidgetApiController extends Controller {
 
 		try {
 			return $this->updatedPlacement(placementId: $placementId);
+		} catch (CalculatedFieldValidationError | CalculatedFieldCycleError $e) {
+			// A calculated field that does not check is refused before anything is
+			// saved, with the editor's error envelope (widget-calculated-fields, task 25).
+			return new JSONResponse($e->getDetail(), \OCP\AppFramework\Http::STATUS_BAD_REQUEST);
 		} catch (StalePlacementException $e) {
 			// A colleague saved this widget first: refuse, and hand back their
 			// version so the editor can make the change again on top of it.
@@ -643,17 +649,56 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The updated placement.
 	 */
 	private function updatedPlacement(int $placementId): JSONResponse {
+		$data = RequestDataExtractor::extractPlacementData(request: $this->request);
+		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
+			$data['calculatedFields'] = $this->compiledCalculatedFields(
+				placementId: $placementId,
+				fields: $data['calculatedFields']
+			);
+		}
+
 		$placement = $this->sources->widgetService->updatePlacement(
 			placementId: $placementId,
-			data: RequestDataExtractor::extractPlacementData(
-				request: $this->request
-			)
+			data: $data
 		);
 
 		return ResponseHelper::success(
 			data: $placement->jsonSerialize()
 		);
 	}//end updatedPlacement()
+
+	/**
+	 * Validate a placement's new calculated fields against its dashboard and
+	 * answer them with their `returnType` set.
+	 *
+	 * A placement is created without calculated fields; they arrive through
+	 * this update, so this is where they are checked before persisting.
+	 *
+	 * @param int                $placementId The placement ID.
+	 * @param array<mixed,mixed> $fields      The calculated fields of the request.
+	 *
+	 * @return list<array<string,mixed>> The fields to store.
+	 *
+	 * @throws CalculatedFieldValidationError When a field is malformed or does not type-check.
+	 * @throws CalculatedFieldCycleError      When the dashboard's fields form a cycle.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-24
+	 */
+	private function compiledCalculatedFields(int $placementId, array $fields): array {
+		$dashboardId = $this->sources->widgetService->getPlacement(placementId: $placementId)->getDashboardId();
+		$others      = array_map(
+			static fn ($placement): array => [
+				'id'               => (string) $placement->getId(),
+				'calculatedFields' => $placement->getCalculatedFieldsArray(),
+			],
+			$this->sources->widgetService->getDashboardPlacements(dashboardId: $dashboardId)
+		);
+
+		return $this->sources->calculatedFields->validateAndCompile(
+			widget: ['id' => (string) $placementId, 'calculatedFields' => $fields],
+			others: array_values($others)
+		)['fields'];
+	}//end compiledCalculatedFields()
 
 	/**
 	 * Remove a widget placement.

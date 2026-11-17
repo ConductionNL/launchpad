@@ -44,10 +44,12 @@
 
 - [x] Task 21: Extend `WidgetEntity` schema: add nullable `calculatedFields` JSON column storing the array of field objects (id, name, label, expression, compiledExpression, returnType, evaluationMode, etc.)
 - [x] Task 22: Create migration that adds the column to existing widgets with default `[]`
-- [ ] Task 23: Implement `CalculatedFieldService.php` (server-side) with: (1) `validateAndCompile(widget, expression)` calls the parser and type-checker, (2) `detectCycles(widget)` checks for cycles, (3) `evaluateExpression(ast, row): mixed` evaluates the AST for server-side use (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
-  - Partly built: `CalculatedFieldCycleDetector.php` (`assertAcyclic()`, the `cycleDetected` envelope via `CalculatedFieldCycleError`) mirrors the client detector, and `CalculatedFieldEvaluator.php` evaluates; left: a PHP AST type check (`validateAndCompile`) and the service around them, which need the storage of tasks 21-22.
-- [ ] Task 24: Wire `WidgetController::create` and `::update` to validate all calculated fields before persisting via `CalculatedFieldService::validateAndCompile` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
-- [ ] Task 25: Return parse/type/cycle errors as 400 with body `{error: error_code, message: ..., ...details}` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
+- [x] Task 23: Implement `CalculatedFieldService.php` (server-side) with: (1) `validateAndCompile(widget, expression)` calls the parser and type-checker, (2) `detectCycles(widget)` checks for cycles, (3) `evaluateExpression(ast, row): mixed` evaluates the AST for server-side use (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
+  - Built: `lib/Service/CalculatedFieldService.php`. The server does not re-parse the source text (design D3): `validateAndCompile()` checks each field's stored `compiledExpression` with `CalculatedFieldAstChecker` (node shapes as `isAstNode()`, built-in and allowlisted functions, argument counts), detects cycles over the widget and its dashboard neighbours, and type-checks in dependency order with `CalculatedFieldTypeChecker` (rule for rule as `typeChecker.js`), setting each field's `returnType`. `tests/fixtures/calculated-fields/type-check-cases.json` holds 60 ASTs with the client type checker's answers, and the PHP checker must give the same type or the same error envelope for each.
+- [x] Task 24: Wire `WidgetController::create` and `::update` to validate all calculated fields before persisting via `CalculatedFieldService::validateAndCompile` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
+  - Built in `WidgetApiController::updatePlacement`, the endpoint that writes `calculatedFields`; creating a placement (`addWidget`) takes no calculated fields, so there is nothing to check there.
+- [x] Task 25: Return parse/type/cycle errors as 400 with body `{error: error_code, message: ..., ...details}` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
+  - Built: a `CalculatedFieldValidationError` or `CalculatedFieldCycleError` answers 400 with its envelope (`invalidExpression`, `unknownFunction`, `functionNotAllowed`, `arityMismatch`, `functionSignature`, `typeError`, `duplicateField`, `cycleDetected`, with the `field` named) and nothing is saved. Parse errors with a column stay in the editor, which parses the text.
 
 ## 7. OpenRegister Integration (Server-side Materialisation)
 
@@ -78,7 +80,8 @@
 
 ## 10. Testing — Backend
 
-- [ ] Task 37: PHPUnit — `CalculatedFieldValidationTest.php`: parse errors, type errors, cycle detection, unknownFunction errors all return correct 400 envelope (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
+- [x] Task 37: PHPUnit — `CalculatedFieldValidationTest.php`: parse errors, type errors, cycle detection, unknownFunction errors all return correct 400 envelope (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
+  - Built as `CalculatedFieldAstCheckerTest`, `CalculatedFieldTypeCheckerTest`, `CalculatedFieldServiceTest` and `WidgetApiControllerCalculatedFieldsTest` (the 400 envelopes on the endpoint).
 - [x] Task 38: PHPUnit — `CalculatedFieldEvaluatorTest.php`: shared test suite (Task 16) runs against PHP evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
   - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
 - [ ] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)

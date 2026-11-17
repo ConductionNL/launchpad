@@ -577,8 +577,9 @@ class DashboardApiController extends Controller {
 	 *                                parent (re-roots the dashboard).
 	 * @param string|null $slug Optional new slug (REQ-DASH-024).
 	 * @param int|null $sortOrder Optional new sort order (REQ-DASH-029).
-	 * @param string|null $defaultLinkTarget Optional default tile link target;
-	 *                                       an empty string clears it.
+	 *
+	 * The optional `defaultLinkTarget` body field sets the default tile link
+	 * target; an empty string clears it ({@see self::requestedLinkTarget()}).
 	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
@@ -595,10 +596,12 @@ class DashboardApiController extends Controller {
 		?string $parentUuid = null,
 		?string $slug = null,
 		?int $sortOrder = null,
-		?string $defaultLinkTarget = null,
 	): JSONResponse {
-		// How tiles open is a dashboard edit, not metadata (launcher-tile-open-behaviour).
-		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: ($placements === null && $defaultLinkTarget === null));
+		$defaultLinkTarget = $this->requestedLinkTarget();
+		$denial = $this->denyUpdate(
+			dashboardId: $id,
+			metadataOnly: self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget)
+		);
 		if ($denial !== null) {
 			return $denial;
 		}
@@ -617,6 +620,39 @@ class DashboardApiController extends Controller {
 			]
 		);
 	}//end update()
+
+	/**
+	 * The default tile link target the update body asks for.
+	 *
+	 * @return string|null The value, or null when absent or not a string.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 */
+	private function requestedLinkTarget(): ?string {
+		$raw = $this->request->getParam(key: 'defaultLinkTarget');
+		if (is_string($raw) === false) {
+			return null;
+		}
+
+		return $raw;
+	}//end requestedLinkTarget()
+
+	/**
+	 * Whether an update leaves the placements and the way tiles open alone.
+	 *
+	 * How tiles open is a dashboard edit, not metadata, so it needs the full
+	 * edit permission like a placement change.
+	 *
+	 * @param array|null  $placements        The placements, or null.
+	 * @param string|null $defaultLinkTarget The default tile link target, or null.
+	 *
+	 * @return bool True for a metadata-only update.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 */
+	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget): bool {
+		return $placements === null && $defaultLinkTarget === null;
+	}//end isMetadataOnly()
 
 	/**
 	 * Resolve the guard chain for {@see self::update()}.

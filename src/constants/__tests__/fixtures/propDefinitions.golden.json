@@ -138,6 +138,31 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/ScheduledExports/ExportOptionFields.vue | fields": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/ScheduledExports/ExportOptionFields.vue | values": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/ScheduledExports/ExportRunHistory.vue | exportData": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/ScheduledExports/ExportStatus.vue | status": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/TileWidget.vue | tile": {
 		"type": "Object",
 		"required": true,
@@ -838,6 +863,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canScheduleExports": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardMoreMenu.vue | isEditMode": {
 		"type": "Boolean",
 		"required": false,
@@ -1404,6 +1435,17 @@
 		"validator": true,
 		"default": "general"
 	},
+	"../../modals/PreviewModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/PreviewModal.vue | exportData": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../modals/RolePermissionEditorModal.vue | row": {
 		"type": "Object",
 		"required": true,
@@ -1427,6 +1469,23 @@
 		"validator": false,
 		"default": false
 	},
+	"../../modals/RunDetailModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/RunDetailModal.vue | exportData": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/RunDetailModal.vue | run": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../modals/SaveViewModal.vue | open": {
 		"type": "Boolean",
 		"required": false,
@@ -1444,6 +1503,48 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/ScheduledExportModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/ScheduledExportModal.vue | exportData": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/ScheduledExportModal.vue | subjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/ScheduledExportModal.vue | defaultSubject": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/ScheduledExportsModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/ScheduledExportsModal.vue | subjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/ScheduledExportsModal.vue | defaultSubject": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/TemplateEditorModal.vue | open": {
 		"type": "Boolean",

@@ -106,6 +106,9 @@ const stubs = {
 	VersionHistoryModal: passthrough('VersionHistoryModal', {
 		props: { open: Boolean },
 	}),
+	ScheduledExportsModal: passthrough('ScheduledExportsModal', {
+		props: { open: Boolean, subjects: Array, defaultSubject: Object },
+	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
 	}),
@@ -349,6 +352,26 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(wrapper.find('.stub-schedule').exists()).toBe(true)
 		await dialog.vm.$emit('update:open', false)
 		expect(wrapper.find('.stub-schedule').exists()).toBe(false)
+	}, 90000)
+
+	it('the Meer menu\'s "Scheduled exports" opens the export list with the dashboards and widgets to export', async () => {
+		const { wrapper } = await mountViews({
+			widgetPlacements: [{ id: 41, widgetId: 'launchpad_text', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2, customTitle: 'KPI' }],
+		})
+		const modal = () => wrapper.findComponent({ name: 'ScheduledExportsModal' })
+		expect(modal().props('open')).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canScheduleExports).toBe(true)
+
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('scheduledExports')
+		expect(modal().props('open')).toBe(true)
+		expect(modal().props('defaultSubject')).toEqual({ type: 'dashboard', id: 'u-7' })
+		expect(modal().props('subjects')).toEqual([
+			{ type: 'dashboard', id: 'u-7', label: 'Home' },
+			{ type: 'widget', id: '41', label: expect.any(String) },
+		])
+
+		await modal().vm.$emit('close')
+		expect(modal().props('open')).toBe(false)
 	}, 90000)
 
 	it('the Meer menu\'s "Version history" opens the modal, and its close event shuts it', async () => {

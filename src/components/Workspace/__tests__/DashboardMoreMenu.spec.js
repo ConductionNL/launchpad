@@ -259,6 +259,16 @@ describe('DashboardMoreMenu', () => {
 		expect(wrapper.emitted('readReceipts')).toHaveLength(1)
 	})
 
+	it('offers "Scheduled exports…" only when the host allows it, and emits scheduledExports', () => {
+		const { wrapper: without } = mountMenu({})
+		expect(item(without, 'scheduled-exports')).toBeUndefined()
+
+		const { wrapper } = mountMenu({ canScheduleExports: true })
+		expect(item(wrapper, 'scheduled-exports').label).toBe('Scheduled exports…')
+		item(wrapper, 'scheduled-exports').onClick()
+		expect(wrapper.emitted('scheduledExports')).toHaveLength(1)
+	})
+
 	it('leaves the admin settings out for a member', () => {
 		const { wrapper } = mountMenu(
 			{},

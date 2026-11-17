@@ -98,6 +98,7 @@
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
+					:canScheduleExports="canEdit"
 					:isEditMode="isEditMode"
 					@switch="onSidebarSwitch"
 					@openAll="sidebarOpen = true"
@@ -124,6 +125,7 @@
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
+					@scheduledExports="scheduledExportsOpen = true"
 					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
@@ -205,6 +207,17 @@
 			:dashboardName="activeDashboard?.name ?? ''"
 			@close="versionHistoryOpen = false"
 			@restored="onVersionRestored" />
+
+		<!-- Scheduled exports of this user (scheduled-exports tasks 13, 19). -->
+		<ScheduledExportsModal
+			:open="scheduledExportsOpen"
+			:subjects="exportSubjects"
+			:defaultSubject="
+				activeDashboard?.uuid
+					? { type: 'dashboard', id: activeDashboard.uuid }
+					: null
+			"
+			@close="scheduledExportsOpen = false" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -510,6 +523,7 @@ import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
+import ScheduledExportsModal from '../modals/ScheduledExportsModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
 import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
@@ -579,6 +593,7 @@ export default {
 		EditLockBanner,
 		CnConfirmDialog,
 		VersionHistoryModal,
+		ScheduledExportsModal,
 		HiddenWidgetsControl,
 	},
 
@@ -799,6 +814,8 @@ export default {
 			// dashboard menu opens; absent means not known yet).
 			versionHistoryOpen: false,
 			versionSupport: {},
+			// scheduled-exports task 19: the export list opened from the menu.
+			scheduledExportsOpen: false,
 		}
 	},
 
@@ -811,6 +828,29 @@ export default {
 		 */
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * What a scheduled export can export: the dashboards the user sees
+		 * and the widgets on the active one.
+		 *
+		 * @return {object[]} `{type, id, label}` per subject.
+		 * @spec openspec/changes/scheduled-exports/tasks.md#task-19
+		 */
+		exportSubjects() {
+			const dashboards = (this.dashboards || [])
+				.filter((dashboard) => dashboard?.uuid)
+				.map((dashboard) => ({
+					type: 'dashboard',
+					id: dashboard.uuid,
+					label: dashboard.name || dashboard.uuid,
+				}))
+			const widgets = (this.widgetPlacements || []).map((placement) => ({
+				type: 'widget',
+				id: String(placement.id),
+				label: resolveWidgetTitle(placement, this.availableWidgets),
+			}))
+			return [...dashboards, ...widgets]
 		},
 
 		/**

@@ -62,6 +62,7 @@
 - [ ] Task 28: Playwright — filter context workflow: create export with two recipients (gemeente A, gemeente B) with distinct `filterContext` → manual run → verify two renders in audit row → verify each recipient gets its filtered version
 - [ ] Task 29: Playwright — failure + retry: create webhook recipient with bad URL → manual run → verify delivery marked failed → click "Retry" → verify retry scheduled → advance time → verify successful delivery on retry
 - [ ] Task 30: Playwright — retention enforcement: create export with 14-day artefact retention → fire now → advance time 15 days → check janitor purges artefacts but retains audit metadata
+  - Written: `tests/e2e/scheduled-exports-{workflow,filter-context,retry,retention}.spec.ts` with `tests/e2e/fixtures/scheduledExports.ts`. Not run yet: they need the `run` and `preview` routes of task 4, so `playwright.config.ts` lists them in `testIgnore` until then. Server time is not advanced from the browser; the backoff and retention arithmetic are covered by RetryHandlerTest and ScheduledExportJanitorTest.
 
 ### Quality Gates & Documentation
 

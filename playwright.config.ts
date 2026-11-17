@@ -72,6 +72,14 @@ export default defineConfig({
 		// `@e2e` annotations.
 		'**/docs-screenshots.spec.ts',
 
+		// ── Waiting on a backend piece, not red ──────────────────────────
+		// scheduled-exports tasks 27-30. Every test here starts with "Run now"
+		// or "Preview", and the `/api/exports/{id}/run` and `/preview` routes
+		// arrive with the render pipeline (task 4), which still waits on the
+		// widget data-source and headless-renderer decision. Remove this entry
+		// in the PR that adds those two routes, and measure the files there.
+		'**/scheduled-exports-*.spec.ts',
+
 		// ── Nothing is excluded for being RED any more ───────────────────
 		// `dashboard-sharing` was the last one. Its note said it needed a
 		// `recipient` account "the CI seed does not create" and called that a

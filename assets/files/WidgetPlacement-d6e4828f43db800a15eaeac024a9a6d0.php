@@ -74,6 +74,8 @@ use stdClass;
  * @method void setTileLinkValue(?string $tileLinkValue)
  * @method string|null getCustomIcon()
  * @method void setCustomIcon(?string $customIcon)
+ * @method string|null getCalculatedFields()
+ * @method void setCalculatedFields(?string $calculatedFields)
  * @method string|null getContent()
  * @method void setContent(?string $content)
  * @method int getRequiresAcknowledgement()
@@ -175,6 +177,15 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * @var string|null
 	 */
 	protected ?string $customIcon = null;
+
+	/**
+	 * The calculated fields of the widget, a JSON list of field definitions
+	 * (id, name, label, expression, compiledExpression, returnType,
+	 * evaluationMode, ...). Null on rows saved before the column existed.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $calculatedFields = null;
 
 	/**
 	 * Whether to show the title (SMALLINT 0/1).
@@ -460,6 +471,44 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end setContentArray()
 
 	/**
+	 * The calculated fields of the widget as a list of field definitions.
+	 *
+	 * @return list<array<string, mixed>> The fields, [] when the column is null,
+	 *                                    unparseable or not a list.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-21
+	 */
+	public function getCalculatedFieldsArray(): array {
+		if (empty($this->calculatedFields) === true) {
+			return [];
+		}
+
+		$decoded = json_decode(json: $this->calculatedFields, associative: true);
+		if (is_array($decoded) === false || array_is_list($decoded) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($decoded, static fn (mixed $field): bool => is_array($field) === true));
+	}//end getCalculatedFieldsArray()
+
+	/**
+	 * Store the calculated fields of the widget.
+	 *
+	 * @param array<array-key, mixed> $fields The field definitions; keys are dropped, non-array entries skipped.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-21
+	 */
+	public function setCalculatedFieldsArray(array $fields): void {
+		$list = array_values(array_filter($fields, static fn (mixed $field): bool => is_array($field) === true));
+		// Entity setters resolve via __call which uses $args[0]; named args
+		// would break the magic forwarding (see project memory).
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setCalculatedFields(json_encode($list));
+	}//end setCalculatedFieldsArray()
+
+	/**
 	 * Properties whose DB column deliberately differs from the derived name.
 	 *
 	 * Nextcloud rejects any identifier longer than 30 characters during app
@@ -557,6 +606,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 			'customTitle' => $this->customTitle,
 			'customIcon' => $this->customIcon,
 			'content' => self::wireObject(blob: $this->getContentArray()),
+			'calculatedFields' => $this->getCalculatedFieldsArray(),
 			'showTitle' => $this->showTitle,
 			'sortOrder' => $this->sortOrder,
 		];

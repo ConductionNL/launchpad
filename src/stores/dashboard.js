@@ -711,7 +711,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {string|number} dashboardId Id of the dashboard to open.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 * @spec openspec/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
 		 */
 		async openDashboard(dashboardId) {
 			if (!this.loadedOnce) {

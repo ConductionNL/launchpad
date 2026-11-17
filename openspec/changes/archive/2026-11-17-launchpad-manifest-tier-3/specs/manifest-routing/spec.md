@@ -1,19 +1,6 @@
----
-status: in-progress
----
-
 # Manifest routing
 
-## Purpose
-
-Make a page LaunchPad declares a page LaunchPad serves.
-
-Before this change the app had no `vue-router` at all — `createRouter` appeared
-nowhere in `src/` — and navigation was Pinia state that never touched the URL.
-`src/manifest.json` declared nine pages and the app served one: `/store`,
-`/reports` and `/flows` each redirected to `/dashboard`.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-ROUTE-001 The route table is derived, not written
 
@@ -93,6 +80,14 @@ and two bypass links are worse than one.
 
 `#launchpad-main-content` MUST keep `tabindex="-1"`, which the quick-search Esc
 contract needs independently of any link.
+
+#### Scenario: Nextcloud's skip link only
+
+- GIVEN a user opens LaunchPad's start page
+- THEN exactly one "Skip to main content" link MUST be on the page
+- AND `#launchpad-main-content` MUST carry `tabindex="-1"`
+
+@e2e exclude Checked in the live pass of 17 Nov 2026 on NC 34 (one link, tabindex -1); a single-count assertion in app-chrome would be the natural home.
 
 ### Requirement: REQ-ROUTE-006 A declared page names a component that exists
 

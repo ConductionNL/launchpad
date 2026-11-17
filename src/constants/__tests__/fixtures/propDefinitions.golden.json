@@ -1164,6 +1164,13 @@
 		"validator": false,
 		"default": "30d"
 	},
+	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/admin/tabs/OrgNavigationTab.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -1569,6 +1576,19 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | catalogueApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | requestAppFn": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../views/DashboardPublicShareView.vue | token": {
 		"type": "String",

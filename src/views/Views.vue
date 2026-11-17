@@ -362,9 +362,12 @@
 			:placedWidgetIds="placedWidgetIds"
 			:discoveredApps="discoveredApps"
 			:placedAppIds="placedDiscoveredAppIds"
+			:catalogueApps="catalogueApps"
+			:requestAppFn="requestCatalogueApp"
 			@close="closeWidgetModal"
 			@add="addWidget"
 			@addApp="addDiscoveredApp"
+			@addCatalogueApp="addCatalogueApp"
 			@addOfficePack="addOfficePack" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
@@ -539,7 +542,7 @@ import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
-import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
+import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
@@ -724,6 +727,7 @@ export default {
 			unavailableSources: {},
 			isWidgetModalOpen: false,
 			discoveredApps: [],
+			catalogueApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
 			// Tab the config drawer lands on when opened (dashboard-sharing
@@ -2177,6 +2181,7 @@ export default {
 			}
 			this.isWidgetModalOpen = true
 			this.loadDiscoveredApps()
+			this.loadCatalogueApps()
 		},
 
 		/**
@@ -2235,6 +2240,48 @@ export default {
 			} catch (error) {
 				logger.error('[Views] Failed to place a discovered app:', error)
 			}
+		},
+
+		/**
+		 * Read the app catalogue entries the user's groups may see, for the
+		 * picker's "From the app catalogue" section. A failure leaves the
+		 * section out; the rest of the picker works as before.
+		 *
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 */
+		async loadCatalogueApps() {
+			try {
+				const response = await api.catalogueApps()
+				this.catalogueApps = Array.isArray(response?.data?.apps) ? response.data.apps : []
+			} catch (error) {
+				this.catalogueApps = []
+				logger.warn('[Views] Could not load the app catalogue:', error)
+			}
+		},
+
+		/**
+		 * Place a catalogue entry as an ordinary tile through the normal tile path.
+		 *
+		 * @param {object} app The catalogue entry.
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 */
+		async addCatalogueApp(app) {
+			try {
+				await this.addTileToDashboard(tileFromCatalogueApp(app))
+			} catch (error) {
+				logger.error('[Views] Failed to place a catalogue app:', error)
+			}
+		},
+
+		/**
+		 * Send a request for a missing app; the picker shows the outcome.
+		 *
+		 * @param {{appName: string, purpose: string}} request The request.
+		 * @return {Promise} The API call.
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		requestCatalogueApp(request) {
+			return api.requestCatalogueApp(request)
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */

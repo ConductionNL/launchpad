@@ -27,8 +27,6 @@ namespace OCA\LaunchPad\Settings;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\InitialState\Page;
-use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;
@@ -73,49 +71,12 @@ class LaunchPadAdmin implements IDelegatedSettings {
 			file: 'launchpad-admin'
 		);
 
-		$allGroups = [];
-		foreach ($this->groupManager->search(search: '') as $group) {
-			$allGroups[] = [
-				'id' => $group->getGID(),
-				'displayName' => $group->getDisplayName(),
-			];
-		}
-
-		// REQ-ASET-012: prefer the new `group_order` setting (defensive
-		// read returns []). Falls back to the legacy `configured_groups`
-		// key for installs that wrote it before the cutover so the
-		// initial render still shows the admin's previous selection.
-		$configuredGroups = $this->settingsService->getGroupOrder();
-		if ($configuredGroups === []) {
-			$legacy = $this->sources->settingMapper->getValue(
-				key: 'configured_groups',
-				default: []
-			);
-			if (is_array($legacy) === true) {
-				$filtered = array_filter(
-					array: $legacy,
-					callback: static function ($entry) {
-						return is_string($entry) === true && $entry !== '';
-					}
-				);
-				$configuredGroups = array_values(array: $filtered);
-			}
-		}
-
-		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
-
-		(new InitialStateBuilder(
+		(new AdminFormState(
 			initialState: $this->initialState,
-			page: Page::ADMIN
-		))
-			->setAllGroups($allGroups)
-			->setConfiguredGroups($configuredGroups)
-			->setWidgets($this->sources->widgetService->getAvailableWidgets())
-			->setAllowUserDashboards($allowUserDashboards)
-			->setLinkCreateFileExtensions(
-				$this->sources->fileService->getAllowedExtensions()
-			)
-			->apply();
+			groupManager: $this->groupManager,
+			sources: $this->sources,
+			settingsService: $this->settingsService
+		))->provide();
 
 		return new TemplateResponse(
 			appName: Application::APP_ID,

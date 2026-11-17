@@ -84,6 +84,12 @@ export default {
 		CloseIcon,
 	},
 
+	/**
+	 * Bind the one tile panel store the tiles write to.
+	 *
+	 * @return {{panel: object}} The store, as `panel`.
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
+	 */
 	setup() {
 		return { panel: useTilePanelStore() }
 	},
@@ -105,6 +111,13 @@ export default {
 		 */
 		'panel.url': {
 			immediate: true,
+			/**
+			 * Check the address the panel now shows.
+			 *
+			 * @param {string|null} url The address, or null when closed.
+			 * @return {void}
+			 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-the-panel-only-frames-allowed-pages-req-tob-004
+			 */
 			handler(url) {
 				this.check(url)
 			},

@@ -37,6 +37,8 @@ export const useTilePanelStore = defineStore('launchpad-tile-panel', {
 		 * @param {boolean} [tile.sameOrigin] Whether the address is on this Nextcloud.
 		 * @param {HTMLElement|null} [tile.opener] The element focus returns to on close.
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
 		 */
 		open({ url, title = '', sameOrigin = false, opener = null }) {
 			this.url = url
@@ -49,6 +51,8 @@ export const useTilePanelStore = defineStore('launchpad-tile-panel', {
 		 * Close the panel and return focus to the tile that opened it.
 		 *
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
 		 */
 		close() {
 			const opener = this.opener

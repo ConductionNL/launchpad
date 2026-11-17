@@ -1062,6 +1062,23 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
+		 * Import chosen browser bookmarks onto the active dashboard. The server
+		 * appends the containers and tiles at the bottom and answers with them
+		 * and the skipped bookmarks; the new placements join the store. A 409
+		 * (not enough room left) is rethrown for the dialog to explain.
+		 *
+		 * @param {{folders: Array<object>, bookmarks: Array<object>}} chosen The chosen folders and loose bookmarks.
+		 * @return {Promise<{placements: Array<object>, skipped: Array<object>}>}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		async importBookmarks(chosen) {
+			const response = await api.importBookmarks(this.activeDashboard.id, chosen)
+			const placements = Array.isArray(response.data?.placements) ? response.data.placements : []
+			this.widgetPlacements.push(...placements)
+			return { placements, skipped: Array.isArray(response.data?.skipped) ? response.data.skipped : [] }
+		},
+
+		/**
 		 * Add a tile to the active dashboard. Tiles default to a smaller
 		 * 2×2 footprint than regular widgets but still funnel through
 		 * `placeNewWidget` so the bottom-append placement algorithm is

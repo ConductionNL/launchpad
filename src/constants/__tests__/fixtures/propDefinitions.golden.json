@@ -781,6 +781,81 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/Workspace/DashboardMoreMenu.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | source": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "user"
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | userDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | groupDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | sharedDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | defaultUuid": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canShare": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canManagePublication": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canViewHistory": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canViewReadReceipts": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | isEditMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,
@@ -1101,6 +1176,13 @@
 		"validator": false,
 		"default": "30d"
 	},
+	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/admin/tabs/OrgNavigationTab.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -1273,6 +1355,17 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/BookmarkImportModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/BookmarkImportModal.vue | importBookmarks": {
+		"type": "Function",
+		"required": true,
+		"validator": false
 	},
 	"../../modals/DashboardConfigModal.vue | open": {
 		"type": "Boolean",
@@ -1495,6 +1588,19 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | catalogueApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | requestAppFn": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../views/DashboardPublicShareView.vue | token": {
 		"type": "String",

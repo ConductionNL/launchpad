@@ -10,6 +10,7 @@
 	"types": [
 		"ai-assistant",
 		"announcements",
+		"app-tiles",
 		"attention",
 		"calendar",
 		"chart",

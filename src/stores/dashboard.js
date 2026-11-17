@@ -414,6 +414,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		// backend 7-step precedence (REQ-DASH-018).
 		primaryGroup: '',
 		loading: false,
+		// The first loadDashboards() has finished.
+		loadedOnce: false,
+		// A dashboard the address asked for before that load finished.
+		requestedDashboardId: null,
 		saving: false,
 		// REQ-RXN-003 — per-dashboard reactions summary cache.
 		// Map<uuid, {counts: {emoji: number, ...}, mine: [emoji, ...], enabled: boolean}>.
@@ -690,7 +694,31 @@ export const useDashboardStore = defineStore('dashboard', {
 				logger.error('Failed to load dashboards:', error)
 			} finally {
 				this.loading = false
+				this.loadedOnce = true
 			}
+
+			const requested = this.requestedDashboardId
+			this.requestedDashboardId = null
+			if (requested !== null && String(this.activeDashboardId) !== String(requested)) {
+				await this.switchDashboard(requested)
+			}
+		},
+
+		/**
+		 * Open the dashboard an address names (`/dashboards/:id`). Before the
+		 * first load has finished the request is kept and applied when it
+		 * does, so the stored active dashboard does not replace it.
+		 *
+		 * @param {string|number} dashboardId Id of the dashboard to open.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 */
+		async openDashboard(dashboardId) {
+			if (!this.loadedOnce) {
+				this.requestedDashboardId = dashboardId
+				return
+			}
+			await this.switchDashboard(dashboardId)
 		},
 
 		/**

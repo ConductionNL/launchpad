@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AdminCustomCssController Test
+ * AdminSettingsController administrator CSS test
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Controller
@@ -20,9 +20,11 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use InvalidArgumentException;
-use OCA\LaunchPad\Controller\AdminCustomCssController;
+use OCA\LaunchPad\Controller\AdminSettingsController;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -36,10 +38,10 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(AdminCustomCssController::class)]
+#[CoversClass(AdminSettingsController::class)]
 #[UsesClass(RequestGuard::class)]
 #[UsesClass(ResponseHelper::class)]
-class AdminCustomCssControllerTest extends TestCase {
+class AdminSettingsCustomCssTest extends TestCase {
 
 	/** @var CustomCssService&MockObject */
 	private $css;
@@ -50,21 +52,24 @@ class AdminCustomCssControllerTest extends TestCase {
 	/** @var IGroupManager&MockObject */
 	private $groupManager;
 
-	private AdminCustomCssController $controller;
+	private AdminSettingsController $controller;
 
 	protected function setUp(): void {
 		parent::setUp();
 		$this->css          = $this->createMock(CustomCssService::class);
 		$this->userSession  = $this->createMock(IUserSession::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
-		$this->controller   = new AdminCustomCssController(
+		$this->controller   = new AdminSettingsController(
 			request: $this->createMock(IRequest::class),
-			css: $this->css,
+			settingsService: $this->createMock(AdminSettingsService::class),
+			groupManager: $this->groupManager,
 			guard: new RequestGuard(
 				userSession: $this->userSession,
 				groupManager: $this->groupManager,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			)
+			),
+			shortcuts: $this->createMock(SearchShortcutServiceInterface::class),
+			css: $this->css,
 		);
 	}
 
@@ -81,23 +86,23 @@ class AdminCustomCssControllerTest extends TestCase {
 		$this->css->expects($this->never())->method('setDashboardCss');
 		$this->css->expects($this->never())->method('getGlobalCss');
 
-		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller->show()->getStatus());
-		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller->update(customCss: 'p {}')->getStatus());
-		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller->updateDashboard(uuid: 'u', customCss: 'p {}')->getStatus());
+		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller->showCustomCss()->getStatus());
+		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller->updateCustomCss(customCss: 'p {}')->getStatus());
+		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller->updateDashboardCustomCss(uuid: 'u', customCss: 'p {}')->getStatus());
 	}
 
 	public function testNobodySignedInIsRefused(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 		$this->css->expects($this->never())->method('setGlobalCss');
 
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $this->controller->update(customCss: 'p {}')->getStatus());
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $this->controller->updateCustomCss(customCss: 'p {}')->getStatus());
 	}
 
 	public function testAnAdministratorReadsTheGlobalCss(): void {
 		$this->loginAs(uid: 'noor', admin: true);
 		$this->css->method('getGlobalCss')->willReturn('.launchpad-workspace p {}');
 
-		$response = $this->controller->show();
+		$response = $this->controller->showCustomCss();
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame(['customCss' => '.launchpad-workspace p {}'], $response->getData());
@@ -108,7 +113,7 @@ class AdminCustomCssControllerTest extends TestCase {
 		$this->css->expects($this->once())->method('setGlobalCss')->with('@import url(x); p { margin: 0 }')
 			->willReturn(['customCss' => '.launchpad-workspace p { margin: 0; }', 'removed' => ['@import']]);
 
-		$response = $this->controller->update(customCss: '@import url(x); p { margin: 0 }');
+		$response = $this->controller->updateCustomCss(customCss: '@import url(x); p { margin: 0 }');
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame(['customCss' => '.launchpad-workspace p { margin: 0; }', 'removed' => ['@import']], $response->getData());
@@ -118,7 +123,7 @@ class AdminCustomCssControllerTest extends TestCase {
 		$this->loginAs(uid: 'noor', admin: true);
 		$this->css->expects($this->never())->method('setGlobalCss');
 
-		$response = $this->controller->update(customCss: ['p' => 'x']);
+		$response = $this->controller->updateCustomCss(customCss: ['p' => 'x']);
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 		$this->assertSame(['error' => 'customCss must be a string'], $response->getData());
@@ -128,7 +133,7 @@ class AdminCustomCssControllerTest extends TestCase {
 		$this->loginAs(uid: 'noor', admin: true);
 		$this->css->method('setGlobalCss')->willThrowException(new InvalidArgumentException('Custom CSS may be at most 20 KB.'));
 
-		$response = $this->controller->update(customCss: 'x');
+		$response = $this->controller->updateCustomCss(customCss: 'x');
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 		$this->assertSame(['error' => 'Custom CSS may be at most 20 KB.'], $response->getData());
@@ -139,7 +144,7 @@ class AdminCustomCssControllerTest extends TestCase {
 		$this->css->expects($this->once())->method('setDashboardCss')->with('uuid-7', 'body { display: none }')
 			->willReturn(['customCss' => 'scoped', 'removed' => []]);
 
-		$response = $this->controller->updateDashboard(uuid: 'uuid-7', customCss: 'body { display: none }');
+		$response = $this->controller->updateDashboardCustomCss(uuid: 'uuid-7', customCss: 'body { display: none }');
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame(['customCss' => 'scoped', 'removed' => []], $response->getData());
@@ -149,6 +154,6 @@ class AdminCustomCssControllerTest extends TestCase {
 		$this->loginAs(uid: 'noor', admin: true);
 		$this->css->method('setDashboardCss')->willThrowException(new DoesNotExistException('none'));
 
-		$this->assertSame(Http::STATUS_NOT_FOUND, $this->controller->updateDashboard(uuid: 'nope', customCss: 'p {}')->getStatus());
+		$this->assertSame(Http::STATUS_NOT_FOUND, $this->controller->updateDashboardCustomCss(uuid: 'nope', customCss: 'p {}')->getStatus());
 	}
 }

@@ -501,9 +501,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'admin#updateFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'PUT'],
 
 		// Administrator CSS, cleaned and scoped on save (REQ-THM-003).
-		['name' => 'adminCustomCss#show', 'url' => '/api/admin/custom-css', 'verb' => 'GET'],
-		['name' => 'adminCustomCss#update', 'url' => '/api/admin/custom-css', 'verb' => 'PUT'],
-		['name' => 'adminCustomCss#updateDashboard', 'url' => '/api/admin/custom-css/dashboards/{uuid}', 'verb' => 'PUT'],
+		['name' => 'adminSettings#showCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'GET'],
+		['name' => 'adminSettings#updateCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'PUT'],
+		['name' => 'adminSettings#updateDashboardCustomCss', 'url' => '/api/admin/custom-css/dashboards/{uuid}', 'verb' => 'PUT'],
 
 		// Admin group-priority order endpoints (REQ-ASET-012,
 		// REQ-ASET-013, REQ-ASET-014). Both admin-only via runtime

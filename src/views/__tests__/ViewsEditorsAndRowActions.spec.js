@@ -15,6 +15,7 @@
  * real Pinia store with its two publish actions spied.
  */
 
+import { showError } from '@nextcloud/dialogs'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '../../services/api.js'
@@ -25,6 +26,7 @@ vi.mock('../../services/api.js', () => ({
 	api: {
 		discoverApps: vi.fn(),
 		getCalendarWidgetCalendars: vi.fn(),
+		officeTilePack: vi.fn(),
 	},
 }))
 vi.mock('../../services/resourceService.js', () => ({
@@ -322,6 +324,59 @@ describe('Views server-app discovery', () => {
 		addTileToDashboard.mockRejectedValueOnce(error)
 		await expect(host.addDiscoveredApp({ appId: 'deck', name: 'Deck', href: '/x', icon: '' })).resolves.toBeUndefined()
 		expect(logger.error).toHaveBeenCalledWith('[Views] Failed to place a discovered app:', error)
+	})
+})
+
+describe('Views office tile pack', () => {
+	const DOC = { title: 'New document', linkType: 'create', linkValue: 'richdocuments:.docx', icon: 'icon-filetype-file', iconType: 'class' }
+	const MAIL = { title: 'Mail', linkType: 'app', linkValue: 'mail', icon: 'icon-mail', iconType: 'class' }
+
+	it('places the pack as one container titled Office and closes the picker', async () => {
+		api.officeTilePack.mockResolvedValueOnce({ data: { tiles: [DOC, MAIL] } })
+		const addWidgetToDashboard = vi.fn().mockResolvedValue({ id: 5 })
+		const closeWidgetModal = vi.fn()
+		const host = makeHost({ addWidgetToDashboard, closeWidgetModal })
+
+		await host.addOfficePack()
+
+		expect(addWidgetToDashboard).toHaveBeenCalledTimes(1)
+		const [payload, size] = addWidgetToDashboard.mock.calls[0]
+		expect(payload.type).toBe('container')
+		expect(payload.content.title).toBe('Office')
+		expect(payload.content.placements.map((p) => p.content.title)).toEqual(['New document', 'Mail'])
+		expect(size).toEqual({ w: 4, h: 3 })
+		expect(closeWidgetModal).toHaveBeenCalledTimes(1)
+	})
+
+	it('places nothing for an empty pack and says so', async () => {
+		api.officeTilePack.mockResolvedValueOnce({ data: { tiles: [] } })
+		const addWidgetToDashboard = vi.fn()
+		const host = makeHost({ addWidgetToDashboard, closeWidgetModal: vi.fn() })
+
+		await host.addOfficePack()
+
+		expect(addWidgetToDashboard).not.toHaveBeenCalled()
+		expect(showError).toHaveBeenCalledWith('This server has no office apps to make tiles for.')
+	})
+
+	it('keeps the picker open when the placement is refused', async () => {
+		api.officeTilePack.mockResolvedValueOnce({ data: { tiles: [DOC] } })
+		const closeWidgetModal = vi.fn()
+		const host = makeHost({ addWidgetToDashboard: vi.fn().mockResolvedValue(undefined), closeWidgetModal })
+
+		await host.addOfficePack()
+
+		expect(closeWidgetModal).not.toHaveBeenCalled()
+	})
+
+	it('logs and reports a failed pack request', async () => {
+		const error = new Error('down')
+		api.officeTilePack.mockRejectedValueOnce(error)
+		const host = makeHost({ addWidgetToDashboard: vi.fn(), closeWidgetModal: vi.fn() })
+
+		await expect(host.addOfficePack()).resolves.toBeUndefined()
+		expect(logger.error).toHaveBeenCalledWith('[Views] Failed to place the office tiles:', error)
+		expect(showError).toHaveBeenCalledWith('The office tiles could not be added.')
 	})
 })
 

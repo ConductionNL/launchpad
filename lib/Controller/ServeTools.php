@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\ResourceServeService;
+use OCA\LaunchPad\Kernel\Contracts\ResourceServeServiceInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,11 +35,11 @@ class ServeTools {
 	/**
 	 * Constructor.
 	 *
-	 * @param ResourceServeService $serve Filesystem + formatting helper.
+	 * @param ResourceServeServiceInterface $serve Filesystem + formatting helper.
 	 * @param LoggerInterface      $logger PSR logger.
 	 */
 	public function __construct(
-		public readonly ResourceServeService $serve,
+		public readonly ResourceServeServiceInterface $serve,
 		public readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

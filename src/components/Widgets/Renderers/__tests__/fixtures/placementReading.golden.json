@@ -871,6 +871,61 @@
 				"color": "var(--color-text-maxcontrast, var(--color-main-text))"
 			}
 		},
+		".live-tile-widget__list": {
+			"scoped": true,
+			"props": {
+				"margin": "0",
+				"padding": "0",
+				"list-style": "none",
+				"display": "flex",
+				"flex-direction": "column",
+				"gap": "6px",
+				"text-align": "start"
+			}
+		},
+		".live-tile-widget__list-detail": {
+			"scoped": true,
+			"props": {
+				"font-size": "0.85rem",
+				"color": "var(--color-text-maxcontrast)"
+			}
+		},
+		".live-tile-widget__list-item": {
+			"scoped": true,
+			"props": {
+				"display": "flex",
+				"flex-direction": "column"
+			}
+		},
+		".live-tile-widget__list-title": {
+			"scoped": true,
+			"props": {
+				"font-weight": "600",
+				"color": "var(--color-main-text)"
+			}
+		},
+		".live-tile-widget__pairs dd": {
+			"scoped": true,
+			"props": {
+				"margin": "0"
+			}
+		},
+		".live-tile-widget__pairs dt": {
+			"scoped": true,
+			"props": {
+				"font-weight": "600"
+			}
+		},
+		".live-tile-widget__pairs": {
+			"scoped": true,
+			"props": {
+				"display": "grid",
+				"grid-template-columns": "auto 1fr",
+				"gap": "4px 12px",
+				"margin": "0",
+				"text-align": "start"
+			}
+		},
 		".live-tile-widget__reading": {
 			"scoped": true,
 			"props": {
@@ -915,6 +970,31 @@
 				"gap": "8px",
 				"color": "var(--color-text-maxcontrast, var(--color-main-text))",
 				"text-align": "center"
+			}
+		},
+		".live-tile-widget__table td": {
+			"scoped": true,
+			"props": {
+				"padding": "4px 6px",
+				"border-bottom": "1px solid var(--color-border)",
+				"text-align": "start"
+			}
+		},
+		".live-tile-widget__table th": {
+			"scoped": true,
+			"props": {
+				"padding": "4px 6px",
+				"border-bottom": "1px solid var(--color-border)",
+				"text-align": "start"
+			}
+		},
+		".live-tile-widget__table": {
+			"scoped": true,
+			"props": {
+				"width": "100%",
+				"border-collapse": "collapse",
+				"font-size": "0.9rem",
+				"text-align": "start"
 			}
 		},
 		".live-tile-widget__value": {

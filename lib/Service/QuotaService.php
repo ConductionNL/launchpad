@@ -36,6 +36,7 @@ use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\Kernel\Contracts\QuotaServiceInterface;
 use Throwable;
 
 /**
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md
  */
-class QuotaService {
+class QuotaService implements QuotaServiceInterface {
 
 	/**
 	 * Provisioning-context depth. Greater than zero means the current call

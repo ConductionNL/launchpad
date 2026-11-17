@@ -15,6 +15,7 @@
 ## Read Tools (REQ-MCP-002)
 
 - [ ] Task 7: Implement the 14 read tools in `lib/Mcp/McpDashboardTools.php` (dashboard reads) and sibling handler classes: listDashboards, getDashboard, getActiveDashboard, getDashboardTree, listGroupDashboards, listWidgetTypes, listTiles, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists — all `readOnlyHint: true`, scope `read`, reach `self`
+  - progress: 6 of 14 built (listDashboards, getDashboard, getActiveDashboard, listGroupDashboards, listWidgetTypes, listTiles; tiles in `lib/Mcp/McpTileTools.php`). Left: getDashboardTree, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists.
 - [ ] Task 8: REQ-MCP-002 — Unit test: each read tool's result for a fixture caller equals the visibility the corresponding service call grants that caller (visible-set parity, not superset)
 
 ## Write Tools (REQ-MCP-003)

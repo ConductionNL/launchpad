@@ -34,6 +34,7 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\WeatherServiceInterface;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Http\Client\IResponse;
 use OCP\IAppConfig;
@@ -53,7 +54,7 @@ use Throwable;
  *     cache, the config and the l10n factory. The collaborators are the feature.
  * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
-class WeatherService {
+class WeatherService implements WeatherServiceInterface {
 	use ReadsJsonCache;
 	use ReadsPlacementContent;
 

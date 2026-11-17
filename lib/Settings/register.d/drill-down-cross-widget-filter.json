@@ -1,0 +1,254 @@
+{
+  "components": {
+    "registers": {
+      "launchpad": {
+        "schemas": [
+          "saved_view",
+          "filter_event"
+        ]
+      }
+    },
+    "schemas": {
+      "saved_view": {
+        "slug": "saved_view",
+        "icon": "BookmarkOutline",
+        "version": "1.0.0",
+        "title": "Saved view",
+        "description": "A named set of dashboard filters that can be applied in one click, kept for one dashboard.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "dashboardId",
+          "name",
+          "filters",
+          "createdBy"
+        ],
+        "properties": {
+          "dashboardId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dashboard",
+            "description": "The dashboard the view belongs to."
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "The name in the saved views list.",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "What the view shows."
+          },
+          "filters": {
+            "type": "array",
+            "title": "Filters",
+            "description": "The filter clauses the view applies.",
+            "items": {
+              "type": "object",
+              "required": [
+                "dimension",
+                "operator"
+              ],
+              "properties": {
+                "dimension": {
+                  "type": "string",
+                  "title": "Dimension",
+                  "description": "The filtered attribute, such as gemeenteCode or period.month.",
+                  "minLength": 1
+                },
+                "operator": {
+                  "type": "string",
+                  "title": "Operator",
+                  "description": "How the value is compared.",
+                  "enum": [
+                    "eq",
+                    "in",
+                    "between",
+                    "gte",
+                    "lte",
+                    "contains",
+                    "notNull"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "title": "Source",
+                  "description": "Where the clause came from.",
+                  "enum": [
+                    "userExplicit",
+                    "widgetClick",
+                    "urlBootstrap",
+                    "savedView",
+                    "parentScope"
+                  ]
+                },
+                "sourceWidgetId": {
+                  "type": "string",
+                  "title": "Source widget",
+                  "description": "The widget a widget click came from."
+                },
+                "pinned": {
+                  "type": "boolean",
+                  "title": "Pinned",
+                  "description": "A pinned clause survives Reset filters.",
+                  "default": false
+                },
+                "value": {
+                  "title": "Value",
+                  "description": "A scalar, a list, or a [low, high] pair, by operator."
+                }
+              }
+            }
+          },
+          "isShared": {
+            "type": "boolean",
+            "title": "Shared",
+            "description": "Whether other users may apply the view.",
+            "default": false
+          },
+          "sharedWith": {
+            "type": "array",
+            "title": "Shared with",
+            "description": "The users and groups it is shared with, when shared.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdBy": {
+            "type": "string",
+            "title": "Created by",
+            "description": "The user who saved the view."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created at",
+            "description": "When the view was saved."
+          }
+        }
+      },
+      "filter_event": {
+        "slug": "filter_event",
+        "icon": "ChartTimelineVariant",
+        "version": "1.0.0",
+        "title": "Filter event",
+        "description": "One filter change on a dashboard, kept only when filter telemetry is on. It holds the dimensions and operators, never the filter values.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "dashboardId",
+          "userId",
+          "eventType",
+          "filterDelta",
+          "timestamp"
+        ],
+        "properties": {
+          "dashboardId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dashboard",
+            "description": "The dashboard the change was made on."
+          },
+          "userId": {
+            "type": "string",
+            "title": "User",
+            "description": "The user who made the change."
+          },
+          "widgetId": {
+            "type": "string",
+            "title": "Widget",
+            "description": "The widget clicked, for a widget click."
+          },
+          "eventType": {
+            "type": "string",
+            "title": "Event type",
+            "description": "What happened.",
+            "enum": [
+              "apply",
+              "reset",
+              "bookmark",
+              "share"
+            ]
+          },
+          "filterDelta": {
+            "type": "array",
+            "title": "Filter change",
+            "description": "The clauses added or removed, without their values.",
+            "items": {
+              "type": "object",
+              "required": [
+                "dimension",
+                "operator"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "dimension": {
+                  "type": "string",
+                  "title": "Dimension",
+                  "description": "The filtered attribute, such as gemeenteCode or period.month.",
+                  "minLength": 1
+                },
+                "operator": {
+                  "type": "string",
+                  "title": "Operator",
+                  "description": "How the value is compared.",
+                  "enum": [
+                    "eq",
+                    "in",
+                    "between",
+                    "gte",
+                    "lte",
+                    "contains",
+                    "notNull"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "title": "Source",
+                  "description": "Where the clause came from.",
+                  "enum": [
+                    "userExplicit",
+                    "widgetClick",
+                    "urlBootstrap",
+                    "savedView",
+                    "parentScope"
+                  ]
+                },
+                "sourceWidgetId": {
+                  "type": "string",
+                  "title": "Source widget",
+                  "description": "The widget a widget click came from."
+                },
+                "pinned": {
+                  "type": "boolean",
+                  "title": "Pinned",
+                  "description": "A pinned clause survives Reset filters.",
+                  "default": false
+                }
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time",
+            "description": "When the change was made."
+          }
+        }
+      }
+    }
+  }
+}

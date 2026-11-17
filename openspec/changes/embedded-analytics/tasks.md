@@ -15,13 +15,15 @@
   - `EmbedUsageEvent.php` (OpenRegister mapper)
   - `SigningKey.php` (OpenRegister mapper)
   Plus exception classes: `EmbedTokenException`, `InvalidTokenException`, `TokenExpiredException`, `TokenRevokedException`
+  > Partly built: the four exception classes exist under `lib/Exception/` (`InvalidTokenException`, `TokenExpiredException` and `TokenRevokedException` extend `EmbedTokenException`). The mapper classes wait for the Task 1 schemas.
 
-- [ ] Task 3: Create `lib/Service/JwtSigningService.php` for JWT lifecycle:
+- [x] Task 3: Create `lib/Service/JwtSigningService.php` for JWT lifecycle:
   - Generate RS256 and ES256 key pairs (minimum 2048-bit RSA, P-256 for ECDSA)
   - Sign JWTs with the active key (includes `kid` header)
   - Verify JWT signatures against the `kid`-selected public key
   - Rotate keys: mark old key `status: retiring`, new tokens sign with new key, old tokens remain valid until expiry
   - Unit tests: signature verification, key rotation, algorithm selection
+  > Built as `lib/Service/Embed/JwtSigningService.php` (beside the other embed services), with the JWS byte encodings in `Embed/JoseEncoding`. RS256 (2048-bit) and ES256 (P-256, JOSE R||S signatures) key pairs with a public JWK; signs with the newest active key under its `kid`; verifies only against an active or retiring key of the algorithm the header names (`none`, HS256 and algorithm swaps refused), then `exp`/`nbf`; `rotate()` turns active keys retiring and adds a new active one. Keys are plain `signing_key`-shaped records: storing them and encrypting the private key belong to Task 1/4. Tests: `JwtSigningServiceTest` (12).
 
 - [ ] Task 4: Create `lib/Service/EmbedTokenService.php` for token persistence:
   - `createToken(name, description, subject, scope, hostOrigins, tenantThemeId, tokenExpiresAt, rateLimitPolicy)`: Generate JWT + persist token record + return token (shown once)
@@ -249,6 +251,7 @@
   - Verify expired JWT rejected
   - Verify revoked token rejected
   - Key rotation: old key still verifies old tokens, new key signs new tokens
+  > Partly built in `JwtSigningServiceTest`: RS256 sign/verify, wrong key, expired, key rotation. "Revoked token rejected" is the token store's check (Task 4), still to do.
 
 - [ ] Task 32: PHPUnit tests for token lifecycle:
   - Create token → retrieve JWT (once)

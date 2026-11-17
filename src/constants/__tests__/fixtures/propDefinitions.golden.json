@@ -28,6 +28,39 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/Announcements/AnnouncementCard.vue | announcement": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/Announcements/AnnouncementCard.vue | reactions": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"likes": 0,
+			"comments": 0,
+			"liked": false
+		},
+		"fresh": true
+	},
+	"../../components/Announcements/AnnouncementCard.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Announcements/NoticeBanner.vue | notice": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/Announcements/NoticeBanner.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/DashboardFooter.vue | footer": {
 		"type": "Object",
 		"required": false,
@@ -98,6 +131,13 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/RuntimeShellSearch.vue | shortcuts": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/TileWidget.vue | tile": {
 		"type": "Object",
 		"required": true,
@@ -114,6 +154,12 @@
 			"Number",
 			"String"
 		],
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/TileWidget.vue | content": {
+		"type": "Object",
 		"required": false,
 		"validator": false,
 		"default": null
@@ -221,6 +267,29 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/AnnouncementsWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/AnnouncementsWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/AnnouncementsWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"category": "",
+			"limit": 10
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/AttentionWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -321,6 +390,25 @@
 		"required": false,
 		"validator": false,
 		"default": false
+	},
+	"../../components/Widgets/Renderers/ContainerWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ContainerWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"placements": [],
+			"backgroundColor": "transparent",
+			"padding": "medium",
+			"title": "",
+			"sortBy": "manual"
+		},
+		"fresh": true
 	},
 	"../../components/Widgets/Renderers/FilesWidget.vue | content": {
 		"type": "Object",
@@ -529,6 +617,26 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/TileHost.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TileHost.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TileHost.vue | editMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/WeatherWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -597,6 +705,27 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../components/Workspace/ActiveFiltersPanel.vue | clauses": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/ActiveFiltersPanel.vue | labels": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Workspace/ActiveFiltersPanel.vue | widgetNames": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
 	},
 	"../../components/Workspace/DashboardBreadcrumb.vue | dashboard": {
 		"type": "Object",
@@ -682,6 +811,38 @@
 		"required": false,
 		"validator": false,
 		"default": 18
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | dashboardId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | userId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | clauses": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | api": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
 	},
 	"../../components/Workspace/DashboardSwitcherSidebar.vue | filterFields": {
 		"type": "Array",
@@ -800,6 +961,26 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/Workspace/SavedViewsMenu.vue | mine": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | shared": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | canSave": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,
@@ -809,6 +990,13 @@
 		"type": "String",
 		"required": true,
 		"validator": false
+	},
+	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
 	},
 	"../../components/admin/DashboardSharingPolicy.vue | groups": {
 		"type": "Array",
@@ -947,6 +1135,29 @@
 		"type": "Object",
 		"required": true,
 		"validator": true
+	},
+	"../../dialogs/OfficeFileDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/OfficeFileDialog.vue | title": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/OfficeFileDialog.vue | defaultName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/OfficeFileDialog.vue | busy": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../dialogs/PublicSharePasswordDialog.vue | error": {
 		"type": "String",
@@ -1104,6 +1315,24 @@
 		"validator": false,
 		"default": false
 	},
+	"../../modals/SaveViewModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/SaveViewModal.vue | view": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/SaveViewModal.vue | error": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../modals/TemplateEditorModal.vue | open": {
 		"type": "Boolean",
 		"required": false,
@@ -1240,6 +1469,12 @@
 		"type": "String",
 		"required": true,
 		"validator": false
+	},
+	"../../views/DashboardPublicShareView.vue | startPage": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../views/KioskPlayerView.vue | token": {
 		"type": "String",

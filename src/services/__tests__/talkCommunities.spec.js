@@ -28,6 +28,7 @@ function client(listed, own) {
 			Promise.resolve(ocs(url.endsWith('/listed-room') ? listed : own)),
 		),
 		post: vi.fn().mockResolvedValue(ocs([])),
+		delete: vi.fn().mockResolvedValue(ocs([])),
 	}
 }
 
@@ -114,11 +115,22 @@ describe('joinCommunity and communityUrl', () => {
 
 		await joinCommunity('duurzaam42', { client: http })
 
+		// Talk has no POST on participants/self (that path only removes you);
+		// joining a listable conversation is opening a session on it.
+		const session = /\/ocs\/v2\.php\/apps\/spreed\/api\/v4\/room\/duurzaam42\/participants\/active$/
 		expect(http.post).toHaveBeenCalledWith(
-			expect.stringMatching(/\/ocs\/v2\.php\/apps\/spreed\/api\/v4\/room\/duurzaam42\/participants\/self$/),
+			expect.stringMatching(session),
 			{},
 			expect.objectContaining({ headers: expect.objectContaining({ 'OCS-APIRequest': 'true' }) }),
 		)
+		expect(http.delete).toHaveBeenCalledWith(expect.stringMatching(session), expect.anything())
 		expect(communityUrl('duurzaam42')).toMatch(/\/call\/duurzaam42$/)
+	})
+
+	it('is joined even when closing the session fails', async () => {
+		const http = client([], [])
+		http.delete.mockRejectedValue(new Error('404'))
+
+		await expect(joinCommunity('duurzaam42', { client: http })).resolves.toBeUndefined()
 	})
 })

@@ -7,4 +7,4 @@
 - [x] 5. `occ launchpad:template:install`, registered in `appinfo/info.xml`. Verify: `TemplateInstallCommandTest`.
 - [x] 6. `GET /api/admin/templates/shipped` and `POST /api/admin/templates/shipped/{id}/install`. Verify: `AdminShippedTemplateControllerTest`.
 - [x] 7. Templates page: ready-made templates section and a download per template, `en` and `nl` strings. Verify: `TemplatesPage.shipped.spec.js`.
-- [ ] 8. Live check in a browser on a running instance. Not done in this change's PR: see the PR body.
+- [x] 8. Live check in a browser on a running instance. Done 17 Nov 2026 (live pass, NC 34.0.6 + OpenRegister 2.1.47 rig): the Templates page lists "Mijn werkdag" under Ready-made templates with the registers its lists read; `occ launchpad:template:install mijn-werkdag -g werkdag` installed it, and a new member of `werkdag` got their copy on the first visit and saw it in the browser.

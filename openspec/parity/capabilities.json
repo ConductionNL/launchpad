@@ -1952,8 +1952,8 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "src/App.vue:165 (startPageWithoutNavigation); src/components/Workspace/StartPageMenu.vue; live check open in the change",
-				"change": "openspec/changes/start-page-without-navigation-panel",
+				"evidence": "src/App.vue:165 (startPageWithoutNavigation); src/components/Workspace/DashboardMoreMenu.vue (the More menu holds the destinations while the panel is left out); live pass 17 Nov 2026: tests/e2e/start-page-without-navigation.spec.ts 3 passed on NC 34",
+				"change": "openspec/changes/archive/2026-11-17-start-page-without-navigation-panel",
 				"requirement": "openspec/specs/runtime-shell :: REQ-SHELL-009 Start page without navigation panel"
 			},
 			"reachedOn": "Admin settings, layout options: Start page without navigation panel; the start page then shows its destinations in a Menu button",
@@ -2207,17 +2207,19 @@
 			"id": "tile-most-used",
 			"area": "launcher",
 			"name": "The apps you use most move to the front on their own.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "partial",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting",
-				"requirement": "openspec/changes/launcher-tile-sorting/specs/container-widget :: Most used and last used read the viewer's own browser (REQ-TSO-002)"
+				"change": "openspec/changes/archive/2026-11-17-launcher-tile-sorting",
+				"requirement": "openspec/specs/container-widget :: Most used and last used read the viewer's own browser (REQ-TSO-002)",
+				"evidence": "src/utils/tileSort.js:93; src/components/Widgets/Renderers/ContainerWidget.vue:162; live pass 17 Nov 2026: tests/e2e/container-tile-sorting.spec.ts 2 passed on NC 34",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -2231,7 +2233,7 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass). Built since and archived 2026-11-17; the search above is from before that.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpWerkplek"
@@ -3999,7 +4001,7 @@
 				"owner": "ConductionNL/launchpad",
 				"change": [
 					"openspec/changes/archive/2026-07-23-admin-template-resync",
-					"openspec/changes/shipped-template-update"
+					"openspec/changes/archive/2026-11-17-shipped-template-update"
 				],
 				"requirement": [
 					"openspec/specs/admin-templates :: REQ-RESYNC-001 Re-sync action pushes template updates to existing copies",
@@ -4116,8 +4118,8 @@
 				"owner": "ConductionNL/launchpad",
 				"change": [
 					"openspec/changes/archive/2026-05-03-demo-data-showcases",
-					"openspec/changes/mijn-werkdag-template",
-					"openspec/changes/mijn-werkdag-v3"
+					"openspec/changes/archive/2026-11-17-mijn-werkdag-template",
+					"openspec/changes/archive/2026-11-17-mijn-werkdag-v3"
 				],
 				"requirement": "openspec/specs/demo-data-showcases :: REQ-DEMO-003 Install showcase endpoint"
 			},
@@ -4991,14 +4993,15 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Controller/AnnouncementController.php:84; lib/Service/AnnouncementCommentService.php:143; lib/Service/AnnouncementFollowNotifier.php:104",
+				"evidence": "lib/Controller/AnnouncementController.php:84; lib/Service/AnnouncementCommentService.php:143; lib/Service/AnnouncementFollowNotifier.php:104; live pass 17 Nov 2026: tests/e2e/announcements.spec.ts 3 passed on NC 34",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-announcements",
+				"change": "openspec/changes/archive/2026-11-17-engagement-announcements",
 				"requirement": [
-					"openspec/changes/engagement-announcements/specs/announcements :: Authors publish targeted announcements (REQ-ANN-001)",
-					"openspec/changes/engagement-announcements/specs/announcements :: Readers like and comment through Nextcloud comments (REQ-ANN-002)",
-					"openspec/changes/engagement-announcements/specs/announcements :: Readers follow categories (REQ-ANN-003)"
-				]
+					"openspec/specs/announcements :: Authors publish targeted announcements (REQ-ANN-001)",
+					"openspec/specs/announcements :: Readers like and comment through Nextcloud comments (REQ-ANN-002)",
+					"openspec/specs/announcements :: Readers follow categories (REQ-ANN-003)"
+				],
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing: a text widget can carry a message, with no likes, comments or follow",
 			"evidence": {
@@ -5012,7 +5015,7 @@
 			"providerHow": "research-then-code",
 			"feature": "news-and-announcements",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass). Built since and archived 2026-11-17.",
 			"screen": {
 				"canvas": "design-system",
 				"board": [
@@ -5187,10 +5190,11 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "src/views/WorkspaceApp.vue:74; src/components/Announcements/NoticeBanner.vue:12",
+				"evidence": "src/views/WorkspaceApp.vue:74; src/components/Announcements/NoticeBanner.vue:12; live pass 17 Nov 2026: tests/e2e/announcements.spec.ts 3 passed on NC 34",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-announcements",
-				"requirement": "openspec/changes/engagement-announcements/specs/announcements :: Notices show above every targeted dashboard for their period (REQ-ANN-005)"
+				"change": "openspec/changes/archive/2026-11-17-engagement-announcements",
+				"requirement": "openspec/specs/announcements :: Notices show above every targeted dashboard for their period (REQ-ANN-005)",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "Admin settings, Group dashboards or Templates: a text widget with a date rule",
 			"evidence": {
@@ -5205,7 +5209,7 @@
 			"feature": "news-and-announcements",
 			"featureConfidence": "medium",
 			"origin": "competitor",
-			"note": "Possible by hand with a date-limited text widget; there is no notice type. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass).",
+			"note": "Possible by hand with a date-limited text widget; there is no notice type. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass). Built since and archived 2026-11-17.",
 			"screen": {
 				"canvas": "design-system",
 				"board": [
@@ -6076,7 +6080,7 @@
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/platform-baseline",
 				"requirement": "openspec/specs/platform-baseline :: Every string is translatable and follows the user's language (REQ-PLB-004)",
-				"change": "openspec/changes/fix-l10n-domain-mismatch-mydash-calls"
+				"change": "openspec/changes/archive/2026-11-17-fix-l10n-domain-mismatch-mydash-calls"
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
@@ -6565,17 +6569,19 @@
 			"id": "d-import-bookmarks",
 			"area": "launcher",
 			"name": "Import browser bookmarks as tiles.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-bookmark-import",
-				"requirement": "openspec/changes/launcher-bookmark-import/specs/tiles :: Users can import a browser bookmarks file as tiles (REQ-BMI-001)"
+				"change": "openspec/changes/archive/2026-11-17-launcher-bookmark-import",
+				"requirement": "openspec/specs/tiles :: Users can import a browser bookmarks file as tiles (REQ-BMI-001)",
+				"evidence": "lib/Controller/BookmarkImportController.php:79; lib/Service/PlacementService.php:368; src/modals/BookmarkImportModal.vue; live pass 17 Nov 2026: tests/e2e/bookmark-import.spec.ts passed on NC 34",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6591,7 +6597,7 @@
 			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/homarr-labs/homarr/issues/1014",
-			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export). Specified 2026-09-27 in openspec/changes/launcher-bookmark-import (openspec pass).",
+			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export). Specified 2026-09-27 in openspec/changes/launcher-bookmark-import (openspec pass). Built since and archived 2026-11-17; the search above is from before that.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelToevoegen"
@@ -6832,17 +6838,19 @@
 			"id": "d-tile-sort",
 			"area": "launcher",
 			"name": "Choose how tiles in a group are sorted, such as alphabetically, by last use or at random.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting",
-				"requirement": "openspec/changes/launcher-tile-sorting/specs/container-widget :: A container sorts its tiles when viewed (REQ-TSO-001)"
+				"change": "openspec/changes/archive/2026-11-17-launcher-tile-sorting",
+				"requirement": "openspec/specs/container-widget :: A container sorts its tiles when viewed (REQ-TSO-001)",
+				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue:162; src/utils/tileSort.js:171; live pass 17 Nov 2026: tests/e2e/container-tile-sorting.spec.ts 2 passed on NC 34",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6858,7 +6866,7 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.6.0",
-			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120). Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass).",
+			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120). Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass). Built since and archived 2026-11-17; the search above is from before that.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"
@@ -6975,8 +6983,9 @@
 				"state": "built",
 				"evidence": "src/modals/AnnouncementEditorModal.vue:65; lib/Controller/AnnouncementController.php:188",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-announcements",
-				"requirement": "openspec/changes/engagement-announcements/specs/announcements :: Authors preview before publishing (REQ-ANN-004)"
+				"change": "openspec/changes/archive/2026-11-17-engagement-announcements",
+				"requirement": "openspec/specs/announcements :: Authors preview before publishing (REQ-ANN-004)",
+				"readOn": "2026-11-17"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6992,7 +7001,7 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched",
-			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass).",
+			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass). Built since and archived 2026-11-17.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpAankondiging"
@@ -7139,11 +7148,11 @@
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176",
+				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176; live pass 17 Nov 2026: with pipelinq 0.5.21 on NC 34, First today listed a member's overdue ticket with a link that opens the list",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/attention-feed",
 				"requirement": "openspec/specs/attention-feed :: REQ-ATT-004 Merging and ranking",
-				"change": "openspec/changes/cross-app-attention-feed"
+				"change": "openspec/changes/archive/2026-11-17-cross-app-attention-feed"
 			},
 			"reachedOn": "Workspace page, Add widget, First today",
 			"source": "spec-round-2026-10-07",

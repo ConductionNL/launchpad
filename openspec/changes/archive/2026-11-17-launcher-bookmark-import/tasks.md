@@ -5,5 +5,5 @@
 - [x] 3. Add `PlacementService::importBookmarks()`: URL check per bookmark, one quota check, containers for folders, bottom-append, one transaction, a skipped list in the response. Verify: PHPUnit including rollback.
 - [x] 4. Write the browser parser for the Netscape bookmark format with size and count limits. Verify: Vitest on Firefox, Chrome and Edge fixtures.
 - [x] 5. Build `src/modals/BookmarkImportModal.vue` (file picker, folder and bookmark checkboxes, skipped list) and the "Import bookmarks" entry in the dashboard menu. Verify: Vitest and an axe check.
-- [ ] 6. Playwright: import a fixture, pick one folder, see its container at the bottom.
-- [ ] 7. Add `nl` and `en` strings, fold the delta into `openspec/specs/tiles/spec.md` on archive, and set d-import-bookmarks to `built` in the parity matrix with evidence lines.
+- [x] 6. Playwright: import a fixture, pick one folder, see its container at the bottom. Done 17 Nov 2026: `tests/e2e/bookmark-import.spec.ts`, passed on a live NC 34 rig (reached through More, All dashboards, the row menu; the script bookmark is skipped).
+- [x] 7. Add `nl` and `en` strings, fold the delta into `openspec/specs/tiles/spec.md` on archive, and set d-import-bookmarks to `built` in the parity matrix with evidence lines. Done on archive 17 Nov 2026: the delta is folded into `openspec/specs/tiles/spec.md`, and d-import-bookmarks is `built` with evidence lines.

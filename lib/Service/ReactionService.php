@@ -411,13 +411,7 @@ class ReactionService {
 			userId: $userId
 		);
 
-		$offset = 0;
-		if ($cursor !== null && $cursor !== '') {
-			$candidate = (int)$cursor;
-			if ($candidate > 0) {
-				$offset = $candidate;
-			}
-		}
+		$offset = $this->cursorOffset(cursor: $cursor);
 
 		$rows = $this->reactionMapper->findByEmoji(
 			dashboardUuid: $dashboardUuid,
@@ -430,16 +424,7 @@ class ReactionService {
 			emoji: $emoji
 		);
 
-		$items = [];
-		foreach ($rows as $reaction) {
-			$reactorId = (string)$reaction->getUserId();
-			$user = $this->directory->userManager->get(uid: $reactorId);
-			$items[] = [
-				'userId' => $reactorId,
-				'displayName' => $user?->getDisplayName() ?? $reactorId,
-				'reactedAt' => $reaction->getReactedAtFormatted(),
-			];
-		}
+		$items = $this->reactorItems(reactions: $rows);
 
 		$nextOffset = ($offset + count($items));
 		$nextCursor = null;
@@ -453,6 +438,49 @@ class ReactionService {
 			'total' => $total,
 		];
 	}//end getReactorsByEmoji()
+
+	/**
+	 * The offset an opaque reactor cursor stands for; anything but a
+	 * positive integer starts at the first page.
+	 *
+	 * @param string|null $cursor The cursor from the request.
+	 *
+	 * @return int The offset.
+	 */
+	private function cursorOffset(?string $cursor): int {
+		$offset = 0;
+		if ($cursor !== null && $cursor !== '') {
+			$candidate = (int)$cursor;
+			if ($candidate > 0) {
+				$offset = $candidate;
+			}
+		}
+
+		return $offset;
+	}//end cursorOffset()
+
+	/**
+	 * One `{userId, displayName, reactedAt}` row per reaction; a reactor
+	 * without an account is shown by user ID.
+	 *
+	 * @param array $reactions The reaction rows of one page.
+	 *
+	 * @return array<int, array{userId: string, displayName: string, reactedAt: string|null}> The page items.
+	 */
+	private function reactorItems(array $reactions): array {
+		$items = [];
+		foreach ($reactions as $reaction) {
+			$reactorId = (string)$reaction->getUserId();
+			$user = $this->directory->userManager->get(uid: $reactorId);
+			$items[] = [
+				'userId' => $reactorId,
+				'displayName' => $user?->getDisplayName() ?? $reactorId,
+				'reactedAt' => $reaction->getReactedAtFormatted(),
+			];
+		}
+
+		return $items;
+	}//end reactorItems()
 
 	/**
 	 * Cascade-delete every reaction for a dashboard. Called by the

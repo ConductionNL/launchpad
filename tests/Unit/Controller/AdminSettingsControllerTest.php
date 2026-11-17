@@ -30,6 +30,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\ActionAuthService;
 
 class AdminSettingsControllerTest extends TestCase {
@@ -55,6 +56,7 @@ class AdminSettingsControllerTest extends TestCase {
 			settingsService: $this->settingsService,
 			groupManager: $this->groupManager,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
+			shortcuts: $this->createMock(SearchShortcutService::class),
 		);
 	}
 

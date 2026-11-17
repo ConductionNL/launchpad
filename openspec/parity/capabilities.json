@@ -7232,9 +7232,9 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "lib/Listener/PublicStartRedirectListener.php:117",
-				"change": "openspec/changes/sharing-public-start-page",
-				"requirement": "openspec/changes/sharing-public-start-page/specs/dashboard-public-share :: Signed-out visitors land on the start page (REQ-PSP-002)"
+				"evidence": "lib/Listener/PublicStartRedirectListener.php:117; live pass 17 Nov 2026: tests/e2e/public-start-page.spec.ts 3 passed on NC 34",
+				"change": "openspec/changes/archive/2026-11-17-sharing-public-start-page",
+				"requirement": "openspec/specs/dashboard-public-share :: Signed-out visitors land on the start page (REQ-PSP-002)"
 			},
 			"reachedOn": "the Nextcloud address: a signed-out visitor on the plain login page goes to /apps/launchpad/start (lib/Listener/PublicStartRedirectListener.php:117, lib/Controller/PageController.php:570), which shows the chosen public link with a Sign in bar (src/views/DashboardPublicShareView.vue)",
 			"evidence": {

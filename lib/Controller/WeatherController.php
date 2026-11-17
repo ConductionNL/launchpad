@@ -31,8 +31,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\WeatherServiceInterface;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\WeatherService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -53,13 +53,13 @@ class WeatherController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest          $request HTTP request.
-	 * @param WeatherService    $weatherService Resolves + caches the weather reading.
+	 * @param WeatherServiceInterface    $weatherService Resolves + caches the weather reading.
 	 * @param PermissionService $permissionService Dashboard/placement permission gate.
 	 * @param SessionLog        $session The session and logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly WeatherService $weatherService,
+		private readonly WeatherServiceInterface $weatherService,
 		private readonly PermissionService $permissionService,
 		private readonly SessionLog $session,
 	) {

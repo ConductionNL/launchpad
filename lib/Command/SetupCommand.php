@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use InvalidArgumentException;
+use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\SetupWizardService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -55,13 +55,13 @@ class SetupCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param SetupWizardService $wizardService Wizard orchestrator.
+	 * @param SetupWizardServiceInterface $wizardService Wizard orchestrator.
 	 * @param AdminSettingsService $settings Group-order persistence
 	 *                                       (Step 2 in the YAML
 	 *                                       schema).
 	 */
 	public function __construct(
-		private readonly SetupWizardService $wizardService,
+		private readonly SetupWizardServiceInterface $wizardService,
 		private readonly AdminSettingsService $settings,
 	) {
 		parent::__construct();

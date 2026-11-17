@@ -81,6 +81,8 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
 				'startPageWithoutNavigation' => false,
+				// drill-down-cross-widget-filter REQ-CWF-010: telemetry is opt-in.
+				'filterTelemetryEnabled' => false,
 				// launcher-tile-launch-types: both empty until an administrator fills them.
 				'tileAllowedSchemes' => [],
 				'ssoLaunchTemplates' => [],
@@ -177,7 +179,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
 		// engagement-announcements D6.
 		$this->assertArrayHasKey('announcementEditorGroups', $settings);
-		$this->assertCount(17, $settings);
+		// drill-down-cross-widget-filter REQ-CWF-010.
+		$this->assertArrayHasKey('filterTelemetryEnabled', $settings);
+		$this->assertCount(18, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**
@@ -381,6 +385,45 @@ class AdminSettingsServiceTest extends TestCase {
 
 		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
 	}//end testGetSettingsTreatsANonBooleanStartPageValueAsOff()
+
+	/**
+	 * Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry reads as on
+	 * only for a stored `true`.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function testFilterTelemetryIsOnOnlyForAStoredTrue(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
+			[],
+			['filter_telemetry_enabled' => true],
+			['filter_telemetry_enabled' => 'yes'],
+		);
+
+		$this->assertFalse($this->service->getSettings()['filterTelemetryEnabled']);
+		$this->assertTrue($this->service->getSettings()['filterTelemetryEnabled']);
+		$this->assertFalse($this->service->getSettings()['filterTelemetryEnabled']);
+	}//end testFilterTelemetryIsOnOnlyForAStoredTrue()
+
+	/**
+	 * The telemetry switch is stored when given and left alone when omitted.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven(): void {
+		$stored = [];
+		$this->settingMapper->method('setSetting')->willReturnCallback(
+			static function (string $key, mixed $value) use (&$stored): AdminSetting {
+				$stored[$key] = $value;
+				return new AdminSetting();
+			}
+		);
+
+		$this->service->updateSettings(settings: []);
+		$this->assertArrayNotHasKey('filter_telemetry_enabled', $stored);
+
+		$this->service->updateSettings(settings: ['filterTelemetryEnabled' => true]);
+		$this->assertSame(['filter_telemetry_enabled' => true], $stored);
+	}//end testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven()
 
 	public function testUpdateSettingsPersistsStartPageWithoutNavigation(): void {
 		$this->settingMapper->expects($this->once())

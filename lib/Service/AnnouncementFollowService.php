@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Service;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AnnouncementFollow;
 use OCA\LaunchPad\Db\AnnouncementFollowMapper;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
@@ -33,7 +34,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-follow-categories-req-ann-003
  */
-class AnnouncementFollowService {
+class AnnouncementFollowService implements AnnouncementFollowServiceInterface {
 
 	/**
 	 * Constructor.

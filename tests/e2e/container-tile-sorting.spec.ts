@@ -9,18 +9,15 @@
  * what a real user gets. Usage is counted in the viewer's browser only, so
  * the counts live in this test's page storage.
  *
- * @e2e openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+ * @e2e openspec/specs/container-widget/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
-import {
-	removeSeededDashboard,
-	type SeededDashboard,
-	seedActiveDashboard,
-} from './support/dashboardFixture.ts'
+import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',

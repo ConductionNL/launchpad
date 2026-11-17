@@ -8,18 +8,15 @@
  * ticked, and the container it becomes must land below what the dashboard
  * already holds.
  *
- * @e2e openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+ * @e2e openspec/specs/tiles/spec.md
  */
 
 import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
-import {
-	removeSeededDashboard,
-	type SeededDashboard,
-	seedActiveDashboard,
-} from './support/dashboardFixture.ts'
+import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',

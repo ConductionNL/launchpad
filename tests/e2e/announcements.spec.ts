@@ -9,7 +9,7 @@
  * The admin writes; a throwaway member reads, on a dashboard the admin
  * shares with them that holds the announcements widget.
  *
- * @e2e openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @e2e openspec/specs/announcements/spec.md
  */
 
 import type { APIRequestContext } from '@playwright/test'
@@ -44,6 +44,12 @@ async function apiAs(user: string, pass: string): Promise<APIRequestContext> {
 	})
 }
 
+let admin: APIRequestContext
+let member: { username: string; password: string } | null = null
+let dashboardId = 0
+const announcements: string[] = []
+const tomorrow = () => new Date(Date.now() + 24 * 3600 * 1000).toISOString()
+
 async function publishAnnouncement(data: Record<string, unknown>): Promise<string> {
 	const created = await admin.post(`${API}/announcements`, { data })
 	expect(created.status(), await created.text()).toBe(201)
@@ -53,12 +59,6 @@ async function publishAnnouncement(data: Record<string, unknown>): Promise<strin
 	expect(published.status(), await published.text()).toBeLessThan(300)
 	return uuid
 }
-
-let admin: APIRequestContext
-let member: { username: string; password: string } | null = null
-let dashboardId = 0
-const announcements: string[] = []
-const tomorrow = () => new Date(Date.now() + 24 * 3600 * 1000).toISOString()
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(120_000)

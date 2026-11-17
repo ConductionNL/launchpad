@@ -92,7 +92,7 @@ describe('ContainerWidget most used — REQ-TSO-002', () => {
 	})
 
 	it('counts children a bookmark import wrote without an id, keyed by the container', async () => {
-		const imported = () => applicaties().map(({ id, ...child }) => child)
+		const imported = () => applicaties().map((child) => ({ ...child, id: undefined }))
 		const props = { content: { placements: imported(), sortBy: 'most-used' }, placement: { id: 42 } }
 		const first = mount(ContainerWidget, { props })
 

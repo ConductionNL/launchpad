@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\CalendarWidgetServiceInterface;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IResponse;
@@ -61,7 +62,7 @@ use Throwable;
  *                                                   total complexity past
  *                                                   the project default.
  */
-class CalendarWidgetService {
+class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	/**
 	 * Default cache TTL for raw ICS bodies (in seconds).
 	 *

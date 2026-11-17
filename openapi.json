@@ -240,6 +240,10 @@
             "description": "Scheduled exports: dashboards and widgets rendered on a schedule and delivered to recipients."
         },
         {
+            "name": "filter-event-report",
+            "description": "The drill-down path report over a dashboard's filter telemetry."
+        },
+        {
             "name": "search-shortcuts",
             "description": "The administrator's search shortcuts: a prefix that sends a search straight to another site."
         }
@@ -5744,6 +5748,90 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/dashboards/{uuid}/filter-events/report": {
+            "get": {
+                "operationId": "filter-event-report-report",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/dashboards/{uuid}/filter-events/report — the most-used drill-down paths of a dashboard",
+                "description": "GET /api/dashboards/{uuid}/filter-events/report — the most-used drill-down paths of a dashboard, counted from its filter telemetry. A path is the sequence of filtered dimensions one user drilled through until a reset; it names dimensions only, never filter values. The dashboard's owner and administrators get every user's paths (scope `all`); another user who may view the dashboard gets only their own (scope `own`); anyone else gets 404. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "filter-event-report"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "Dashboard UUID captured from the URL.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "The most paths returned, 1 to 100.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "dashboardId": {
+                                            "type": "string"
+                                        },
+                                        "scope": {
+                                            "type": "string",
+                                            "enum": [
+                                                "all",
+                                                "own"
+                                            ]
+                                        },
+                                        "events": {
+                                            "type": "integer"
+                                        },
+                                        "paths": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "path": {
+                                                        "type": "string"
+                                                    },
+                                                    "count": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Job;
 
-use OCA\LaunchPad\Service\FeedRefreshService;
+use OCA\LaunchPad\Kernel\Contracts\FeedRefreshServiceInterface;
 use OCP\Lock\ILockingProvider;
 
 /**
@@ -35,11 +35,11 @@ class FeedRefreshRunTools {
 	/**
 	 * Constructor.
 	 *
-	 * @param FeedRefreshService $refreshService The refresh worker.
+	 * @param FeedRefreshServiceInterface $refreshService The refresh worker.
 	 * @param ILockingProvider   $lockingProvider The cluster lock provider.
 	 */
 	public function __construct(
-		public readonly FeedRefreshService $refreshService,
+		public readonly FeedRefreshServiceInterface $refreshService,
 		public readonly ILockingProvider $lockingProvider,
 	) {
 	}//end __construct()

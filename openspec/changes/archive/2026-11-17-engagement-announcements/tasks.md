@@ -19,8 +19,8 @@
 ## Close
 
 - [x] 11. Add the three demo announcements. Verify: PHPUnit on the showcase.
-- [ ] 12. Playwright for the notice flow and a liked, commented news item.
-- [ ] 13. Add `nl` and `en` strings, copy the spec to `openspec/specs/announcements/spec.md` on archive, and set e-announcements, d-news-preview and e-maintenance to `built` in the parity matrix with evidence lines.
+- [x] 12. Playwright for the notice flow and a liked, commented news item. Done 17 Nov 2026: `tests/e2e/announcements.spec.ts`, 3 passed on a live NC 34 rig (notice without an end time refused, warning banner without a close button, an info notice dismissed and gone after reload, a news item liked and commented, both counts after reload).
+- [x] 13. Add `nl` and `en` strings, copy the spec to `openspec/specs/announcements/spec.md` on archive, and set e-announcements, d-news-preview and e-maintenance to `built` in the parity matrix with evidence lines. Done on archive 17 Nov 2026: the spec is `openspec/specs/announcements/spec.md`, and e-announcements, d-news-preview and e-maintenance point at it with the e2e evidence.
 
 Built: tasks 1 to 11. Backend: `AnnouncementTablesBuilder` and migration `Version002013Date20261114000000`, `Announcement`/`AnnouncementFollow` with their mappers, `AnnouncementService` (with "Preview as" through `reachesUser()`), `AnnouncementInput`, `AnnouncementFollowService`, `AnnouncementCommentService` (likes and comments through `ICommentsManager`, object type `launchpad_announcement`), `AnnouncementFollowNotifier` and `AnnouncementNotifyJob` (`announcement_published`, once per announcement through `notified_at`), `DemoAnnouncements` (seeded with the demo data), `AnnouncementController` with thirteen routes, the four `announcement.*` actions, and `announcementEditorGroups` in the admin settings API. Frontend: the `announcements` widget and its form, `AnnouncementCard`, `NoticeBanner` and `NoticeBannerRegion` above the Workspace grid, `AnnouncementEditorModal` with the preview step, and the editor groups picker in Beheer > Sharing.
 

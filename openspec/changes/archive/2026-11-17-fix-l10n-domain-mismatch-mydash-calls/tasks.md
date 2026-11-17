@@ -64,7 +64,7 @@
 - [x] Task 6: Run `npm run lint` and confirm the new guard passes with
   zero violations after Task 2's fixes. 9 Oct: `node scripts/lint-translation-domain.js`
   prints OK, exit 0.
-- [ ] Task 7: Manually verify in a Dutch-locale (`nl`) Nextcloud session:
+- [x] Task 7: Manually verify in a Dutch-locale (`nl`) Nextcloud session: Done 17 Nov 2026 on a live NC 34 rig as an `nl` administrator: the Operations tab heading reads "Status" with "Gezond"/"Verminderd", and the widget context menu reads "Zichtbaarheidsregels…".
   open the admin Health panel (`HealthPanel.vue`) and the widget
   right-click context menu (`WidgetContextMenu.vue`) and confirm the
   previously-English "Health"/"Healthy"/"Degraded" and "Visibility

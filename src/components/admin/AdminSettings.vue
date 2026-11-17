@@ -105,6 +105,9 @@
 			<template #tab-search-shortcuts>
 				<SearchShortcutsTab />
 			</template>
+			<template #tab-app-catalogue>
+				<AppCatalogueTab :groups="injectedAllGroups" />
+			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
 			     defaults, group-shared dashboards and the default-app note,
@@ -401,6 +404,7 @@ import {
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
 import CommunitiesTab from './tabs/CommunitiesTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
@@ -446,6 +450,7 @@ export default {
 		OrgNavigationTab,
 		DemoDataTab,
 		GroupDashboardsTab,
+		AppCatalogueTab,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
@@ -635,6 +640,10 @@ export default {
 				{
 					id: 'search-shortcuts',
 					label: this.t('launchpad', 'Search shortcuts'),
+				},
+				{
+					id: 'app-catalogue',
+					label: this.t('launchpad', 'App catalogue'),
 				},
 			]
 		},

@@ -91,6 +91,21 @@ describe('ContainerWidget most used — REQ-TSO-002', () => {
 		expect(shown(reloaded)[0]).toEqual([1, 0])
 	})
 
+	it('counts children a bookmark import wrote without an id, keyed by the container', async () => {
+		const imported = () => applicaties().map((child) => ({ ...child, id: undefined }))
+		const props = { content: { placements: imported(), sortBy: 'most-used' }, placement: { id: 42 } }
+		const first = mount(ContainerWidget, { props })
+
+		const zaaksysteem = first.findAll('.container-widget__child')[2]
+		await zaaksysteem.trigger('click')
+		await zaaksysteem.trigger('click')
+		await zaaksysteem.trigger('click')
+		expect(readTileUse()['42-0'].count).toBe(3)
+
+		const reloaded = mount(ContainerWidget, { props })
+		expect(reloaded.vm.displayedChildren.map((c) => c.content.title)[0]).toBe('Zaaksysteem')
+	})
+
 	it('counts nothing in edit mode', async () => {
 		const wrapper = mountContainer({ placements: applicaties(), sortBy: 'most-used' }, true)
 		await wrapper.findAll('.container-widget__child')[0].trigger('click')

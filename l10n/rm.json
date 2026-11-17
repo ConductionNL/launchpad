@@ -1372,6 +1372,25 @@
         "Statistics": "Statisticas",
         "Count my visits": "Dumbrar mias visitas",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
-        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada."
+        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada.",
+        "%1$s asked for the app **%2$s**": "%1$s ha dumandà l'applicaziun **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s ha dumandà l'applicaziun %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Approvai u refusai ella sut Catalog d'applicaziuns en ils parameters d'administraziun da LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** è ussa en il catalog d'applicaziuns",
+        "%1$s is now in the app catalogue": "%1$s è ussa en il catalog d'applicaziuns",
+        "Add it as a tile from Add on your dashboard": "Agiuntai ella sco plattatscha via «Agiuntar» sin Sia tabla da cumond",
+        "Your request for **%1$s** was declined: %2$s": "Sia dumonda per **%1$s** è vegnida refusada: %2$s",
+        "Your request for %1$s was declined: %2$s": "Sia dumonda per %1$s è vegnida refusada: %2$s",
+        "An administrator decided on your request in the app catalogue": "In administratur ha decidì davart Sia dumonda en il catalog d'applicaziuns",
+        "Import bookmarks": "Importar marcaturas",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Tscherni la datoteca da marcaturas che Voss navigatur ha exportà e marcai quai che duai vegnir agiuntà.",
+        "Loose bookmarks": "Marcaturas singulas",
+        "This file is larger than 5 MB. Export one folder at a time.": "Questa datoteca è pli gronda che 5 MB. Exportai in ordinatur a la giada.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Questa datoteca cuntegna dapli che 2 000 marcaturas. Exportai in ordinatur a la giada.",
+        "{count} skipped: only web addresses can become tiles": "{count} sursiglientadas: mo adressas web pon daventar quadrins",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Quest dashboard po anc prender si {count}. Tscherni damain ordinaturs u marcaturas.",
+        "The bookmarks could not be imported.": "Las marcaturas n'han betg pudì vegnir importadas.",
+        "This file holds no bookmarks.": "Questa datoteca na cuntegna naginas marcaturas.",
+        "Folders": "Ordinaturs"
     }
 }

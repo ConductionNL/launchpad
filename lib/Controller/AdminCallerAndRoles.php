@@ -24,8 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\FeedRefreshServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\FeedRefreshService;
 use OCA\LaunchPad\Service\RoleService;
 use OCP\IUserSession;
 
@@ -39,15 +39,15 @@ class AdminCallerAndRoles {
 	/**
 	 * Constructor.
 	 *
-	 * @param RoleService        $roleService The LaunchPad role service (REQ-ROLE-001..011).
-	 * @param FeedRefreshService $feedRefresh The background feed refresh service used by the on-demand admin
+	 * @param RoleService                 $roleService The LaunchPad role service (REQ-ROLE-001..011).
+	 * @param FeedRefreshServiceInterface $feedRefresh The background feed refresh service used by the on-demand admin
 	 *                                        `refreshFeeds` action (REQ-BGJOB-FEED-005).
-	 * @param IUserSession       $userSession The current user session.
-	 * @param ActionAuthService  $actionAuth  ADR-023 action authorization.
+	 * @param IUserSession                $userSession The current user session.
+	 * @param ActionAuthService           $actionAuth  ADR-023 action authorization.
 	 */
 	public function __construct(
 		public readonly RoleService $roleService,
-		public readonly FeedRefreshService $feedRefresh,
+		public readonly FeedRefreshServiceInterface $feedRefresh,
 		public readonly IUserSession $userSession,
 		public readonly ActionAuthService $actionAuth,
 	) {

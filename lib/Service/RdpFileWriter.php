@@ -22,17 +22,14 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use OCA\LaunchPad\Kernel\Contracts\RdpFileWriterInterface;
+
 /**
  * Builds an RDP connection file and its download name (design D3).
  *
  * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-3
  */
-class RdpFileWriter {
-
-	/**
-	 * The media type of an RDP connection file.
-	 */
-	public const MEDIA_TYPE = 'application/x-rdp';
+class RdpFileWriter implements RdpFileWriterInterface {
 
 	/**
 	 * The file name when the tile has no usable title.

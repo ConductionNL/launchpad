@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\CalendarWidgetService;
+use OCA\LaunchPad\Kernel\Contracts\CalendarWidgetServiceInterface;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
 use OCA\LaunchPad\Service\WidgetService;
@@ -39,13 +39,13 @@ class WidgetApiSources {
 	 *
 	 * @param WidgetService          $widgetService The widget service.
 	 * @param NewsWidgetService      $newsWidgetService The news widget service.
-	 * @param CalendarWidgetService  $calendarService The calendar widget service (REQ-CAL-003).
+	 * @param CalendarWidgetServiceInterface  $calendarService The calendar widget service (REQ-CAL-003).
 	 * @param WidgetPlacementService $placementService Placement-payload validators (REQ-CONT-006).
 	 */
 	public function __construct(
 		public readonly WidgetService $widgetService,
 		public readonly NewsWidgetService $newsWidgetService,
-		public readonly CalendarWidgetService $calendarService,
+		public readonly CalendarWidgetServiceInterface $calendarService,
 		public readonly WidgetPlacementService $placementService,
 	) {
 	}//end __construct()

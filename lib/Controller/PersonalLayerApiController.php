@@ -32,8 +32,8 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\PersonalLayerMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\PersonalLayerServiceInterface;
 use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\PersonalLayerService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -57,7 +57,7 @@ class PersonalLayerApiController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param PersonalLayerService $layers Applies, saves and resets a layer.
+	 * @param PersonalLayerServiceInterface $layers Applies, saves and resets a layer.
 	 * @param PersonalLayerMapper $mapper Reads the layer for the GET.
 	 * @param DashboardService $dashboards Decides whether the caller may see it.
 	 * @param string|null $userId The acting user ID.
@@ -65,7 +65,7 @@ class PersonalLayerApiController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PersonalLayerService $layers,
+		private readonly PersonalLayerServiceInterface $layers,
 		private readonly PersonalLayerMapper $mapper,
 		private readonly DashboardService $dashboards,
 		private readonly ?string $userId,

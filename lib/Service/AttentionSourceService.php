@@ -36,6 +36,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
+use OCA\LaunchPad\Kernel\Contracts\AttentionSourceServiceInterface;
 use OCP\App\AppPathNotFoundException;
 use OCP\App\IAppManager;
 use OCP\IL10N;
@@ -48,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/attention-feed/spec.md#req-att-001
  */
-class AttentionSourceService {
+class AttentionSourceService implements AttentionSourceServiceInterface {
 	/**
 	 * Where an app keeps its declaration, relative to the app folder.
 	 *

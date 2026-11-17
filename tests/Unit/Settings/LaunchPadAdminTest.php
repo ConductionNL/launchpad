@@ -54,6 +54,7 @@ use Psr\Container\ContainerInterface;
  *
  * @covers \OCA\LaunchPad\Settings\LaunchPadAdmin
  * @covers \OCA\LaunchPad\Settings\AdminPageSources
+ * @covers \OCA\LaunchPad\Settings\AdminFormState
  * @uses   \OCA\LaunchPad\Settings\LaunchPadAdminSection
  * @uses   \OCA\LaunchPad\Service\InitialStateBuilder
  * @uses   \OCA\LaunchPad\Service\InitialState\Page

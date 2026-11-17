@@ -120,4 +120,44 @@ namespace OCA\OpenRegister\Kernel\Contracts\Value {
 			}//end __construct()
 		}//end class
 	}
+
+	if (class_exists(__NAMESPACE__ . '\\ObjectFindOptions', false) === false) {
+		/**
+		 * Stub mirroring the find options of ObjectService::find() on openregister main.
+		 */
+		final class ObjectFindOptions {
+			/**
+			 * Constructor.
+			 *
+			 * @param mixed $register The register (entity, slug or id).
+			 * @param mixed $schema   The schema (entity, slug or id).
+			 */
+			public function __construct(
+				public readonly mixed $register = null,
+				public readonly mixed $schema = null,
+			) {
+			}//end __construct()
+		}//end class
+	}
+
+	if (class_exists(__NAMESPACE__ . '\\ObjectDeletion', false) === false) {
+		/**
+		 * Stub mirroring the deletion request of ObjectService::deleteObject() on openregister main.
+		 */
+		final class ObjectDeletion {
+			/**
+			 * Constructor.
+			 *
+			 * @param string           $uuid      The object uuid.
+			 * @param ObjectFindTarget $target    The register and schema.
+			 * @param bool             $permanent Hard instead of soft delete.
+			 */
+			public function __construct(
+				public readonly string $uuid,
+				public readonly ObjectFindTarget $target = new ObjectFindTarget(),
+				public readonly bool $permanent = false,
+			) {
+			}//end __construct()
+		}//end class
+	}
 }

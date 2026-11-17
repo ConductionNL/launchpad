@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Twój wniosek został wysłany do działu IT",
     "You have 10 open requests. Wait for an answer first." : "Masz 10 otwartych wniosków. Najpierw poczekaj na odpowiedź.",
     "Your request could not be sent. Try again later." : "Nie można wysłać Twojego wniosku. Spróbuj ponownie później.",
+    "Import bookmarks" : "Importuj zakładki",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Wybierz plik zakładek wyeksportowany z przeglądarki i zaznacz, co dodać.",
+    "Loose bookmarks" : "Pojedyncze zakładki",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ten plik jest większy niż 5 MB. Eksportuj po jednym folderze.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ten plik zawiera ponad 2000 zakładek. Eksportuj po jednym folderze.",
+    "{count} skipped: only web addresses can become tiles" : "Pominięto: {count} – kafelkiem może zostać tylko adres internetowy",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ten pulpit pomieści jeszcze {count}. Wybierz mniej folderów lub zakładek.",
+    "The bookmarks could not be imported." : "Nie udało się zaimportować zakładek.",
+    "This file holds no bookmarks." : "Ten plik nie zawiera zakładek.",
+    "Folders" : "Foldery",
     "Active filters" : "Aktywne filtry",
     "Pinned filter" : "Przypięty filtr",
     "Remove filter: {label}" : "Usuń filtr: {label}",
-    "Reset filters" : "Wyczyść filtry"
+    "Reset filters" : "Wyczyść filtry",
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

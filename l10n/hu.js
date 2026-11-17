@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Kérelmét elküldtük az IT-nak",
     "You have 10 open requests. Wait for an answer first." : "10 nyitott kérelme van. Először várja meg a választ.",
     "Your request could not be sent. Try again later." : "A kérelmét nem sikerült elküldeni. Próbálja újra később.",
+    "Import bookmarks" : "Könyvjelzők importálása",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Válassza ki a böngésző által exportált könyvjelzőfájlt, majd jelölje be, mit szeretne hozzáadni.",
+    "Loose bookmarks" : "Különálló könyvjelzők",
+    "This file is larger than 5 MB. Export one folder at a time." : "A fájl nagyobb 5 MB-nál. Egyszerre egy mappát exportáljon.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "A fájl több mint 2000 könyvjelzőt tartalmaz. Egyszerre egy mappát exportáljon.",
+    "{count} skipped: only web addresses can become tiles" : "Kihagyva: {count} – csak webcímből lehet csempe",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ez az irányítópult még {count} elemet fogad. Válasszon kevesebb mappát vagy könyvjelzőt.",
+    "The bookmarks could not be imported." : "A könyvjelzőket nem sikerült importálni.",
+    "This file holds no bookmarks." : "A fájl nem tartalmaz könyvjelzőket.",
+    "Folders" : "Mappák",
     "Active filters" : "Aktív szűrők",
     "Pinned filter" : "Rögzített szűrő",
     "Remove filter: {label}" : "Szűrő eltávolítása: {label}",
-    "Reset filters" : "Szűrők visszaállítása"
+    "Reset filters" : "Szűrők visszaállítása",
 },
 "nplurals=2; plural=(n != 1);"
 );

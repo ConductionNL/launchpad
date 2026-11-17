@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "It-talba tiegħek intbagħtet lill-IT",
     "You have 10 open requests. Wait for an answer first." : "Għandek 10 talbiet miftuħa. Stenna tweġiba l-ewwel.",
     "Your request could not be sent. Try again later." : "It-talba tiegħek ma setgħetx tintbagħat. Erġa' pprova aktar tard.",
+    "Import bookmarks" : "Importa l-bookmarks",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Agħżel il-fajl tal-bookmarks li esporta l-browser tiegħek, imbagħad immarka x'għandu jiżdied.",
+    "Loose bookmarks" : "Bookmarks maqtugħin",
+    "This file is larger than 5 MB. Export one folder at a time." : "Dan il-fajl huwa akbar minn 5 MB. Esporta folder wieħed kull darba.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Dan il-fajl għandu aktar minn 2,000 bookmark. Esporta folder wieħed kull darba.",
+    "{count} skipped: only web addresses can become tiles" : "Inqabżu {count}: indirizzi tal-web biss jistgħu jsiru madum",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dan id-dashboard jista' jieħu {count} oħra. Agħżel inqas folders jew bookmarks.",
+    "The bookmarks could not be imported." : "Il-bookmarks ma setgħux jiġu importati.",
+    "This file holds no bookmarks." : "Dan il-fajl ma fih l-ebda bookmark.",
+    "Folders" : "Folders",
     "Active filters" : "Filtri attivi",
     "Pinned filter" : "Filtru mwaħħal",
     "Remove filter: {label}" : "Neħħi l-filtru: {label}",
-    "Reset filters" : "Erġa' ssettja l-filtri"
+    "Reset filters" : "Erġa' ssettja l-filtri",
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

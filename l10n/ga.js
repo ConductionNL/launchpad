@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Seoladh d'iarratas chuig IT",
     "You have 10 open requests. Wait for an answer first." : "Tá 10 n-iarratas oscailte agat. Fan ar fhreagra ar dtús.",
     "Your request could not be sent. Try again later." : "Níorbh fhéidir d'iarratas a sheoladh. Bain triail eile as ar ball.",
+    "Import bookmarks" : "Iompórtáil leabharmharcanna",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Roghnaigh an comhad leabharmharcanna a d'easpórtáil do bhrabhsálaí, ansin cuir tic leis an méid atá le cur leis.",
+    "Loose bookmarks" : "Leabharmharcanna scaoilte",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tá an comhad seo níos mó ná 5 MB. Easpórtáil fillteán amháin ag an am.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tá níos mó ná 2,000 leabharmharc sa chomhad seo. Easpórtáil fillteán amháin ag an am.",
+    "{count} skipped: only web addresses can become tiles" : "Scipeáladh {count}: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Is féidir {count} eile a chur ar an deais seo. Roghnaigh níos lú fillteán nó leabharmharcanna.",
+    "The bookmarks could not be imported." : "Níorbh fhéidir na leabharmharcanna a iompórtáil.",
+    "This file holds no bookmarks." : "Níl aon leabharmharc sa chomhad seo.",
+    "Folders" : "Fillteáin",
     "Active filters" : "Scagairí gníomhacha",
     "Pinned filter" : "Scagaire greamaithe",
     "Remove filter: {label}" : "Bain an scagaire: {label}",
-    "Reset filters" : "Athshocraigh na scagairí"
+    "Reset filters" : "Athshocraigh na scagairí",
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

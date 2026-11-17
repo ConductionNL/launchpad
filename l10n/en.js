@@ -1449,6 +1449,16 @@ OC.L10N.register(
     "Your request was sent to IT" : "Your request was sent to IT",
     "You have 10 open requests. Wait for an answer first." : "You have 10 open requests. Wait for an answer first.",
     "Your request could not be sent. Try again later." : "Your request could not be sent. Try again later.",
+    "Import bookmarks" : "Import bookmarks",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Choose the bookmarks file your browser exported, then tick what to add.",
+    "Loose bookmarks" : "Loose bookmarks",
+    "This file is larger than 5 MB. Export one folder at a time." : "This file is larger than 5 MB. Export one folder at a time.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "This file has more than 2,000 bookmarks. Export one folder at a time.",
+    "{count} skipped: only web addresses can become tiles" : "{count} skipped: only web addresses can become tiles",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "This dashboard can take {count} more. Choose fewer folders or bookmarks.",
+    "The bookmarks could not be imported." : "The bookmarks could not be imported.",
+    "This file holds no bookmarks." : "This file holds no bookmarks.",
+    "Folders" : "Folders",
     "Communities" : "Communities",
     "Loading communities…" : "Loading communities…",
     "Communities need Nextcloud Talk. Ask your administrator to enable it." : "Communities need Nextcloud Talk. Ask your administrator to enable it.",
@@ -1510,7 +1520,7 @@ OC.L10N.register(
     "Active filters" : "Active filters",
     "Pinned filter" : "Pinned filter",
     "Remove filter: {label}" : "Remove filter: {label}",
-    "Reset filters" : "Reset filters"
+    "Reset filters" : "Reset filters",
 },
 "nplurals=2; plural=(n != 1);"
 );

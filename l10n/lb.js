@@ -1442,10 +1442,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Är Ufro gouf un d'IT geschéckt",
     "You have 10 open requests. Wait for an answer first." : "Dir hutt 10 oppen Ufroen. Waart fir d'éischt op eng Äntwert.",
     "Your request could not be sent. Try again later." : "Är Ufro konnt net geschéckt ginn. Probéiert et méi spéit nach eng Kéier.",
+    "Import bookmarks" : "Lieszeechen importéieren",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Wielt d'Lieszeechendatei, déi Äre Browser exportéiert huet, a markéiert, wat derbäikomme soll.",
+    "Loose bookmarks" : "Eenzel Lieszeechen",
+    "This file is larger than 5 MB. Export one folder at a time." : "Dës Datei ass méi grouss wéi 5 MB. Exportéiert een Dossier gläichzäiteg.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Dës Datei huet méi wéi 2.000 Lieszeechen. Exportéiert een Dossier gläichzäiteg.",
+    "{count} skipped: only web addresses can become tiles" : "{count} iwwersprong: nëmme Webadressen kënne Kacheln ginn",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dësen Dashboard kann nach {count} ophuelen. Wielt manner Dossieren oder Lieszeechen.",
+    "The bookmarks could not be imported." : "D'Lieszeeche konnten net importéiert ginn.",
+    "This file holds no bookmarks." : "Dës Datei enthält keng Lieszeechen.",
+    "Folders" : "Dossieren",
     "Active filters" : "Aktiv Filteren",
     "Pinned filter" : "Fixéierte Filter",
     "Remove filter: {label}" : "Filter ewechhuelen: {label}",
-    "Reset filters" : "Filteren zrécksetzen"
+    "Reset filters" : "Filteren zrécksetzen",
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Votre demande a été envoyée au service informatique",
     "You have 10 open requests. Wait for an answer first." : "Vous avez 10 demandes en attente. Attendez d'abord une réponse.",
     "Your request could not be sent. Try again later." : "Votre demande n'a pas pu être envoyée. Réessayez plus tard.",
+    "Import bookmarks" : "Importer des favoris",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Choisissez le fichier de favoris exporté par votre navigateur, puis cochez ce que vous voulez ajouter.",
+    "Loose bookmarks" : "Favoris isolés",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ce fichier dépasse 5 Mo. Exportez un dossier à la fois.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ce fichier contient plus de 2 000 favoris. Exportez un dossier à la fois.",
+    "{count} skipped: only web addresses can become tiles" : "{count} ignoré(s) : seules les adresses web peuvent devenir des tuiles",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ce tableau de bord peut encore en accueillir {count}. Choisissez moins de dossiers ou de favoris.",
+    "The bookmarks could not be imported." : "Les favoris n'ont pas pu être importés.",
+    "This file holds no bookmarks." : "Ce fichier ne contient aucun favori.",
+    "Folders" : "Dossiers",
     "Active filters" : "Filtres actifs",
     "Pinned filter" : "Filtre épinglé",
     "Remove filter: {label}" : "Retirer le filtre : {label}",
-    "Reset filters" : "Réinitialiser les filtres"
+    "Reset filters" : "Réinitialiser les filtres",
 },
 "nplurals=2; plural=(n > 1);"
 );

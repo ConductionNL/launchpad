@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Sia dumonda è vegnida tramessa a l'IT",
     "You have 10 open requests. Wait for an answer first." : "Els avais 10 dumondas avertas. Spetgai l'emprim ina resposta.",
     "Your request could not be sent. Try again later." : "Sia dumonda n'ha betg pudì vegnir tramessa. Empruvai pli tard anc ina giada.",
+    "Import bookmarks" : "Importar marcaturas",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Tscherni la datoteca da marcaturas che Voss navigatur ha exportà e marcai quai che duai vegnir agiuntà.",
+    "Loose bookmarks" : "Marcaturas singulas",
+    "This file is larger than 5 MB. Export one folder at a time." : "Questa datoteca è pli gronda che 5 MB. Exportai in ordinatur a la giada.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Questa datoteca cuntegna dapli che 2 000 marcaturas. Exportai in ordinatur a la giada.",
+    "{count} skipped: only web addresses can become tiles" : "{count} sursiglientadas: mo adressas web pon daventar quadrins",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Quest dashboard po anc prender si {count}. Tscherni damain ordinaturs u marcaturas.",
+    "The bookmarks could not be imported." : "Las marcaturas n'han betg pudì vegnir importadas.",
+    "This file holds no bookmarks." : "Questa datoteca na cuntegna naginas marcaturas.",
+    "Folders" : "Ordinaturs",
     "Active filters" : "Filters activs",
     "Pinned filter" : "Filter fixà",
     "Remove filter: {label}" : "Allontanar il filter: {label}",
-    "Reset filters" : "Reinizialisar ils filters"
+    "Reset filters" : "Reinizialisar ils filters",
 },
 "nplurals=2; plural=(n != 1);"
 );

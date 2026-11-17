@@ -1370,6 +1370,16 @@
         "Add it as a tile from Add on your dashboard": "Lisage see oma töölaual nupu „Lisa” kaudu paanina",
         "Your request for **%1$s** was declined: %2$s": "Teie taotlus rakenduse **%1$s** kohta lükati tagasi: %2$s",
         "Your request for %1$s was declined: %2$s": "Teie taotlus rakenduse %1$s kohta lükati tagasi: %2$s",
-        "An administrator decided on your request in the app catalogue": "Administraator tegi rakenduste kataloogis teie taotluse kohta otsuse"
+        "An administrator decided on your request in the app catalogue": "Administraator tegi rakenduste kataloogis teie taotluse kohta otsuse",
+        "Import bookmarks": "Impordi järjehoidjad",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Vali brauseri eksporditud järjehoidjate fail ja märgi, mida lisada.",
+        "Loose bookmarks": "Üksikud järjehoidjad",
+        "This file is larger than 5 MB. Export one folder at a time.": "Fail on suurem kui 5 MB. Ekspordi üks kaust korraga.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Failis on üle 2000 järjehoidja. Ekspordi üks kaust korraga.",
+        "{count} skipped: only web addresses can become tiles": "Vahele jäetud: {count} – paaniks saab olla ainult veebiaadress",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Sellele töölauale mahub veel {count}. Vali vähem kaustu või järjehoidjaid.",
+        "The bookmarks could not be imported.": "Järjehoidjaid ei õnnestunud importida.",
+        "This file holds no bookmarks.": "Failis pole järjehoidjaid.",
+        "Folders": "Kaustad"
     }
 }

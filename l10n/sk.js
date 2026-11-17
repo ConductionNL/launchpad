@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Vaša žiadosť bola odoslaná na IT oddelenie",
     "You have 10 open requests. Wait for an answer first." : "Máte 10 otvorených žiadostí. Najprv počkajte na odpoveď.",
     "Your request could not be sent. Try again later." : "Vašu žiadosť sa nepodarilo odoslať. Skúste to znova neskôr.",
+    "Import bookmarks" : "Importovať záložky",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Vyberte súbor so záložkami exportovaný z prehliadača a označte, čo pridať.",
+    "Loose bookmarks" : "Samostatné záložky",
+    "This file is larger than 5 MB. Export one folder at a time." : "Súbor je väčší ako 5 MB. Exportujte vždy jeden priečinok.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Súbor obsahuje viac ako 2 000 záložiek. Exportujte vždy jeden priečinok.",
+    "{count} skipped: only web addresses can become tiles" : "Preskočené: {count} – dlaždicou sa môže stať len webová adresa",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Tento panel pojme ešte {count}. Vyberte menej priečinkov alebo záložiek.",
+    "The bookmarks could not be imported." : "Záložky sa nepodarilo importovať.",
+    "This file holds no bookmarks." : "Súbor neobsahuje žiadne záložky.",
+    "Folders" : "Priečinky",
     "Active filters" : "Aktívne filtre",
     "Pinned filter" : "Pripnutý filter",
     "Remove filter: {label}" : "Odstrániť filter: {label}",
-    "Reset filters" : "Zrušiť filtre"
+    "Reset filters" : "Zrušiť filtre",
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

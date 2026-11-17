@@ -1370,6 +1370,16 @@
         "Add it as a tile from Add on your dashboard": "Bættu því við sem reit úr „Bæta við“ á stjórnborðinu þínu",
         "Your request for **%1$s** was declined: %2$s": "Beiðni þinni um **%1$s** var hafnað: %2$s",
         "Your request for %1$s was declined: %2$s": "Beiðni þinni um %1$s var hafnað: %2$s",
-        "An administrator decided on your request in the app catalogue": "Stjórnandi hefur tekið ákvörðun um beiðni þína í forritaskránni"
+        "An administrator decided on your request in the app catalogue": "Stjórnandi hefur tekið ákvörðun um beiðni þína í forritaskránni",
+        "Import bookmarks": "Flytja inn bókamerki",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Veldu bókamerkjaskrána sem vafrinn flutti út og hakaðu við það sem á að bæta við.",
+        "Loose bookmarks": "Stök bókamerki",
+        "This file is larger than 5 MB. Export one folder at a time.": "Skráin er stærri en 5 MB. Fluttu út eina möppu í einu.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Skráin inniheldur meira en 2.000 bókamerki. Fluttu út eina möppu í einu.",
+        "{count} skipped: only web addresses can become tiles": "Sleppt: {count} – aðeins veffang getur orðið að reit",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Þetta stjórnborð rúmar {count} í viðbót. Veldu færri möppur eða bókamerki.",
+        "The bookmarks could not be imported.": "Ekki tókst að flytja inn bókamerkin.",
+        "This file holds no bookmarks.": "Skráin inniheldur engin bókamerki.",
+        "Folders": "Möppur"
     }
 }

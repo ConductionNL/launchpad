@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Teie taotlus saadeti IT-osakonnale",
     "You have 10 open requests. Wait for an answer first." : "Teil on 10 avatud taotlust. Oodake esmalt vastust.",
     "Your request could not be sent. Try again later." : "Teie taotlust ei õnnestunud saata. Proovige hiljem uuesti.",
+    "Import bookmarks" : "Impordi järjehoidjad",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Vali brauseri eksporditud järjehoidjate fail ja märgi, mida lisada.",
+    "Loose bookmarks" : "Üksikud järjehoidjad",
+    "This file is larger than 5 MB. Export one folder at a time." : "Fail on suurem kui 5 MB. Ekspordi üks kaust korraga.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Failis on üle 2000 järjehoidja. Ekspordi üks kaust korraga.",
+    "{count} skipped: only web addresses can become tiles" : "Vahele jäetud: {count} – paaniks saab olla ainult veebiaadress",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Sellele töölauale mahub veel {count}. Vali vähem kaustu või järjehoidjaid.",
+    "The bookmarks could not be imported." : "Järjehoidjaid ei õnnestunud importida.",
+    "This file holds no bookmarks." : "Failis pole järjehoidjaid.",
+    "Folders" : "Kaustad",
     "Active filters" : "Aktiivsed filtrid",
     "Pinned filter" : "Kinnitatud filter",
     "Remove filter: {label}" : "Eemalda filter: {label}",
-    "Reset filters" : "Lähtesta filtrid"
+    "Reset filters" : "Lähtesta filtrid",
 },
 "nplurals=2; plural=(n != 1);"
 );

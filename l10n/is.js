@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Beiðnin þín var send til tölvudeildar",
     "You have 10 open requests. Wait for an answer first." : "Þú ert með 10 opnar beiðnir. Bíddu fyrst eftir svari.",
     "Your request could not be sent. Try again later." : "Ekki tókst að senda beiðnina þína. Reyndu aftur síðar.",
+    "Import bookmarks" : "Flytja inn bókamerki",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Veldu bókamerkjaskrána sem vafrinn flutti út og hakaðu við það sem á að bæta við.",
+    "Loose bookmarks" : "Stök bókamerki",
+    "This file is larger than 5 MB. Export one folder at a time." : "Skráin er stærri en 5 MB. Fluttu út eina möppu í einu.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Skráin inniheldur meira en 2.000 bókamerki. Fluttu út eina möppu í einu.",
+    "{count} skipped: only web addresses can become tiles" : "Sleppt: {count} – aðeins veffang getur orðið að reit",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Þetta stjórnborð rúmar {count} í viðbót. Veldu færri möppur eða bókamerki.",
+    "The bookmarks could not be imported." : "Ekki tókst að flytja inn bókamerkin.",
+    "This file holds no bookmarks." : "Skráin inniheldur engin bókamerki.",
+    "Folders" : "Möppur",
     "Active filters" : "Virkar síur",
     "Pinned filter" : "Fest sía",
     "Remove filter: {label}" : "Fjarlægja síu: {label}",
-    "Reset filters" : "Hreinsa síur"
+    "Reset filters" : "Hreinsa síur",
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

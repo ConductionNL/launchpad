@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Ваш запит надіслано до ІТ-відділу",
     "You have 10 open requests. Wait for an answer first." : "У вас 10 відкритих запитів. Спершу дочекайтеся відповіді.",
     "Your request could not be sent. Try again later." : "Не вдалося надіслати ваш запит. Спробуйте пізніше.",
+    "Import bookmarks" : "Імпортувати закладки",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Виберіть файл закладок, експортований браузером, і позначте, що додати.",
+    "Loose bookmarks" : "Окремі закладки",
+    "This file is larger than 5 MB. Export one folder at a time." : "Файл більший за 5 МБ. Експортуйте по одній теці.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "У файлі понад 2000 закладок. Експортуйте по одній теці.",
+    "{count} skipped: only web addresses can become tiles" : "Пропущено: {count} – плиткою може стати лише вебадреса",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "На цю панель можна додати ще {count}. Виберіть менше тек або закладок.",
+    "The bookmarks could not be imported." : "Не вдалося імпортувати закладки.",
+    "This file holds no bookmarks." : "У файлі немає закладок.",
+    "Folders" : "Теки",
     "Active filters" : "Активні фільтри",
     "Pinned filter" : "Закріплений фільтр",
     "Remove filter: {label}" : "Видалити фільтр: {label}",
-    "Reset filters" : "Скинути фільтри"
+    "Reset filters" : "Скинути фільтри",
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

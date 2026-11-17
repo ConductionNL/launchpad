@@ -1442,10 +1442,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Вашето барање е испратено до ИТ",
     "You have 10 open requests. Wait for an answer first." : "Имате 10 отворени барања. Прво почекајте одговор.",
     "Your request could not be sent. Try again later." : "Вашето барање не може да се испрати. Обидете се повторно подоцна.",
+    "Import bookmarks" : "Увези обележувачи",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Изберете ја датотеката со обележувачи што ја извезе прелистувачот, па означете што да се додаде.",
+    "Loose bookmarks" : "Поединечни обележувачи",
+    "This file is larger than 5 MB. Export one folder at a time." : "Датотеката е поголема од 5 MB. Извезувајте по една папка.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Датотеката има повеќе од 2.000 обележувачи. Извезувајте по една папка.",
+    "{count} skipped: only web addresses can become tiles" : "Прескокнати: {count} – само веб-адреси можат да станат плочки",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Оваа контролна табла може да прими уште {count}. Изберете помалку папки или обележувачи.",
+    "The bookmarks could not be imported." : "Обележувачите не можеа да се увезат.",
+    "This file holds no bookmarks." : "Датотеката не содржи обележувачи.",
+    "Folders" : "Папки",
     "Active filters" : "Активни филтри",
     "Pinned filter" : "Закачен филтер",
     "Remove filter: {label}" : "Отстрани филтер: {label}",
-    "Reset filters" : "Ресетирај ги филтрите"
+    "Reset filters" : "Ресетирај ги филтрите",
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

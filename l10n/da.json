@@ -1370,6 +1370,16 @@
         "Add it as a tile from Add on your dashboard": "Tilføj den som et felt via »Tilføj« på dit dashboard",
         "Your request for **%1$s** was declined: %2$s": "Din anmodning om **%1$s** blev afvist: %2$s",
         "Your request for %1$s was declined: %2$s": "Din anmodning om %1$s blev afvist: %2$s",
-        "An administrator decided on your request in the app catalogue": "En administrator har truffet beslutning om din anmodning i app-kataloget"
+        "An administrator decided on your request in the app catalogue": "En administrator har truffet beslutning om din anmodning i app-kataloget",
+        "Import bookmarks": "Importér bogmærker",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Vælg den bogmærkefil, din browser har eksporteret, og markér det, der skal tilføjes.",
+        "Loose bookmarks": "Løse bogmærker",
+        "This file is larger than 5 MB. Export one folder at a time.": "Filen er større end 5 MB. Eksportér én mappe ad gangen.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Filen har mere end 2.000 bogmærker. Eksportér én mappe ad gangen.",
+        "{count} skipped: only web addresses can become tiles": "{count} sprunget over: kun webadresser kan blive til fliser",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Dette dashboard kan rumme {count} mere. Vælg færre mapper eller bogmærker.",
+        "The bookmarks could not be imported.": "Bogmærkerne kunne ikke importeres.",
+        "This file holds no bookmarks.": "Filen indeholder ingen bogmærker.",
+        "Folders": "Mapper"
     }
 }

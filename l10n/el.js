@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Το αίτημά σας στάλθηκε στο τμήμα IT",
     "You have 10 open requests. Wait for an answer first." : "Έχετε 10 ανοιχτά αιτήματα. Περιμένετε πρώτα μια απάντηση.",
     "Your request could not be sent. Try again later." : "Δεν ήταν δυνατή η αποστολή του αιτήματός σας. Δοκιμάστε ξανά αργότερα.",
+    "Import bookmarks" : "Εισαγωγή σελιδοδεικτών",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Επιλέξτε το αρχείο σελιδοδεικτών που εξήγαγε το πρόγραμμα περιήγησης και σημειώστε τι θα προστεθεί.",
+    "Loose bookmarks" : "Μεμονωμένοι σελιδοδείκτες",
+    "This file is larger than 5 MB. Export one folder at a time." : "Το αρχείο είναι μεγαλύτερο από 5 MB. Εξαγάγετε έναν φάκελο τη φορά.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Το αρχείο έχει περισσότερους από 2.000 σελιδοδείκτες. Εξαγάγετε έναν φάκελο τη φορά.",
+    "{count} skipped: only web addresses can become tiles" : "Παραλείφθηκαν: {count} – μόνο διευθύνσεις ιστού μπορούν να γίνουν πλακίδια",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Αυτός ο πίνακας χωράει ακόμη {count}. Επιλέξτε λιγότερους φακέλους ή σελιδοδείκτες.",
+    "The bookmarks could not be imported." : "Δεν ήταν δυνατή η εισαγωγή των σελιδοδεικτών.",
+    "This file holds no bookmarks." : "Το αρχείο δεν περιέχει σελιδοδείκτες.",
+    "Folders" : "Φάκελοι",
     "Active filters" : "Ενεργά φίλτρα",
     "Pinned filter" : "Καρφιτσωμένο φίλτρο",
     "Remove filter: {label}" : "Αφαίρεση φίλτρου: {label}",
-    "Reset filters" : "Επαναφορά φίλτρων"
+    "Reset filters" : "Επαναφορά φίλτρων",
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Pyyntösi lähetettiin IT:lle",
     "You have 10 open requests. Wait for an answer first." : "Sinulla on 10 avointa pyyntöä. Odota ensin vastausta.",
     "Your request could not be sent. Try again later." : "Pyyntöäsi ei voitu lähettää. Yritä myöhemmin uudelleen.",
+    "Import bookmarks" : "Tuo kirjanmerkit",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Valitse selaimen viemä kirjanmerkkitiedosto ja rastita lisättävät.",
+    "Loose bookmarks" : "Erilliset kirjanmerkit",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tiedosto on yli 5 Mt. Vie yksi kansio kerrallaan.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tiedostossa on yli 2 000 kirjanmerkkiä. Vie yksi kansio kerrallaan.",
+    "{count} skipped: only web addresses can become tiles" : "Ohitettu: {count} – vain verkko-osoitteista voi tulla ruutuja",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Tähän koontinäkymään mahtuu vielä {count}. Valitse vähemmän kansioita tai kirjanmerkkejä.",
+    "The bookmarks could not be imported." : "Kirjanmerkkejä ei voitu tuoda.",
+    "This file holds no bookmarks." : "Tiedostossa ei ole kirjanmerkkejä.",
+    "Folders" : "Kansiot",
     "Active filters" : "Aktiiviset suodattimet",
     "Pinned filter" : "Kiinnitetty suodatin",
     "Remove filter: {label}" : "Poista suodatin: {label}",
-    "Reset filters" : "Tyhjennä suodattimet"
+    "Reset filters" : "Tyhjennä suodattimet",
 },
 "nplurals=2; plural=(n != 1);"
 );

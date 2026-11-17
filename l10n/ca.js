@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "S'ha enviat la vostra sol·licitud al servei d'informàtica",
     "You have 10 open requests. Wait for an answer first." : "Teniu 10 sol·licituds obertes. Espereu primer una resposta.",
     "Your request could not be sent. Try again later." : "No s'ha pogut enviar la vostra sol·licitud. Torneu-ho a provar més tard.",
+    "Import bookmarks" : "Importa adreces d'interès",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Trieu el fitxer d'adreces d'interès que ha exportat el navegador i marqueu què voleu afegir.",
+    "Loose bookmarks" : "Adreces d'interès soltes",
+    "This file is larger than 5 MB. Export one folder at a time." : "Aquest fitxer supera els 5 MB. Exporteu una carpeta cada vegada.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Aquest fitxer té més de 2.000 adreces d'interès. Exporteu una carpeta cada vegada.",
+    "{count} skipped: only web addresses can become tiles" : "{count} omeses: només les adreces web poden ser mosaics",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Aquest tauler admet {count} més. Trieu menys carpetes o adreces d'interès.",
+    "The bookmarks could not be imported." : "No s'han pogut importar les adreces d'interès.",
+    "This file holds no bookmarks." : "Aquest fitxer no conté adreces d'interès.",
+    "Folders" : "Carpetes",
     "Active filters" : "Filtres actius",
     "Pinned filter" : "Filtre fixat",
     "Remove filter: {label}" : "Elimina el filtre: {label}",
-    "Reset filters" : "Restableix els filtres"
+    "Reset filters" : "Restableix els filtres",
 },
 "nplurals=2; plural=(n != 1);"
 );

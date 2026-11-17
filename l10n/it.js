@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "La tua richiesta è stata inviata all'IT",
     "You have 10 open requests. Wait for an answer first." : "Hai 10 richieste in sospeso. Attendi prima una risposta.",
     "Your request could not be sent. Try again later." : "Impossibile inviare la tua richiesta. Riprova più tardi.",
+    "Import bookmarks" : "Importa segnalibri",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Scegli il file dei segnalibri esportato dal tuo browser, poi seleziona cosa aggiungere.",
+    "Loose bookmarks" : "Segnalibri sciolti",
+    "This file is larger than 5 MB. Export one folder at a time." : "Questo file supera i 5 MB. Esporta una cartella alla volta.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Questo file contiene più di 2.000 segnalibri. Esporta una cartella alla volta.",
+    "{count} skipped: only web addresses can become tiles" : "{count} saltati: solo gli indirizzi web possono diventare riquadri",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Questa dashboard può accoglierne ancora {count}. Scegli meno cartelle o segnalibri.",
+    "The bookmarks could not be imported." : "Impossibile importare i segnalibri.",
+    "This file holds no bookmarks." : "Questo file non contiene segnalibri.",
+    "Folders" : "Cartelle",
     "Active filters" : "Filtri attivi",
     "Pinned filter" : "Filtro fissato",
     "Remove filter: {label}" : "Rimuovi filtro: {label}",
-    "Reset filters" : "Reimposta filtri"
+    "Reset filters" : "Reimposta filtri",
 },
 "nplurals=2; plural=(n != 1);"
 );

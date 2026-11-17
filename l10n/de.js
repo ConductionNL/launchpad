@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Ihre Anfrage wurde an die IT gesendet",
     "You have 10 open requests. Wait for an answer first." : "Sie haben 10 offene Anfragen. Warten Sie zuerst auf eine Antwort.",
     "Your request could not be sent. Try again later." : "Ihre Anfrage konnte nicht gesendet werden. Versuchen Sie es später erneut.",
+    "Import bookmarks" : "Lesezeichen importieren",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Wählen Sie die Lesezeichendatei, die Ihr Browser exportiert hat, und markieren Sie, was hinzugefügt werden soll.",
+    "Loose bookmarks" : "Einzelne Lesezeichen",
+    "This file is larger than 5 MB. Export one folder at a time." : "Diese Datei ist größer als 5 MB. Exportieren Sie jeweils einen Ordner.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Diese Datei enthält mehr als 2.000 Lesezeichen. Exportieren Sie jeweils einen Ordner.",
+    "{count} skipped: only web addresses can become tiles" : "{count} übersprungen: Nur Webadressen können zu Kacheln werden",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dieses Dashboard kann noch {count} aufnehmen. Wählen Sie weniger Ordner oder Lesezeichen.",
+    "The bookmarks could not be imported." : "Die Lesezeichen konnten nicht importiert werden.",
+    "This file holds no bookmarks." : "Diese Datei enthält keine Lesezeichen.",
+    "Folders" : "Ordner",
     "Active filters" : "Aktive Filter",
     "Pinned filter" : "Angehefteter Filter",
     "Remove filter: {label}" : "Filter entfernen: {label}",
-    "Reset filters" : "Filter zurücksetzen"
+    "Reset filters" : "Filter zurücksetzen",
 },
 "nplurals=2; plural=(n != 1);"
 );

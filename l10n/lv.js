@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Jūsu pieprasījums tika nosūtīts IT nodaļai",
     "You have 10 open requests. Wait for an answer first." : "Jums ir 10 atvērti pieprasījumi. Vispirms sagaidiet atbildi.",
     "Your request could not be sent. Try again later." : "Neizdevās nosūtīt Jūsu pieprasījumu. Mēģiniet vēlreiz vēlāk.",
+    "Import bookmarks" : "Importēt grāmatzīmes",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Izvēlieties pārlūka eksportēto grāmatzīmju failu un atzīmējiet, ko pievienot.",
+    "Loose bookmarks" : "Atsevišķas grāmatzīmes",
+    "This file is larger than 5 MB. Export one folder at a time." : "Fails ir lielāks par 5 MB. Eksportējiet pa vienai mapei.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Failā ir vairāk nekā 2000 grāmatzīmju. Eksportējiet pa vienai mapei.",
+    "{count} skipped: only web addresses can become tiles" : "Izlaistas: {count} – par flīzēm var kļūt tikai tīmekļa adreses",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Šajā informācijas panelī vēl ietilpst {count}. Izvēlieties mazāk mapju vai grāmatzīmju.",
+    "The bookmarks could not be imported." : "Grāmatzīmes neizdevās importēt.",
+    "This file holds no bookmarks." : "Failā nav grāmatzīmju.",
+    "Folders" : "Mapes",
     "Active filters" : "Aktīvie filtri",
     "Pinned filter" : "Piesprausts filtrs",
     "Remove filter: {label}" : "Noņemt filtru: {label}",
-    "Reset filters" : "Atiestatīt filtrus"
+    "Reset filters" : "Atiestatīt filtrus",
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

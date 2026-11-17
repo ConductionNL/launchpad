@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Vaša zahteva je bila poslana oddelku IT",
     "You have 10 open requests. Wait for an answer first." : "Imate 10 odprtih zahtev. Najprej počakajte na odgovor.",
     "Your request could not be sent. Try again later." : "Vaše zahteve ni bilo mogoče poslati. Poskusite znova pozneje.",
+    "Import bookmarks" : "Uvozi zaznamke",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Izberite datoteko z zaznamki, ki jo je izvozil brskalnik, in označite, kaj dodati.",
+    "Loose bookmarks" : "Posamezni zaznamki",
+    "This file is larger than 5 MB. Export one folder at a time." : "Datoteka je večja od 5 MB. Izvozite po eno mapo.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Datoteka vsebuje več kot 2.000 zaznamkov. Izvozite po eno mapo.",
+    "{count} skipped: only web addresses can become tiles" : "Preskočeno: {count} – ploščica je lahko le spletni naslov",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ta nadzorna plošča sprejme še {count}. Izberite manj map ali zaznamkov.",
+    "The bookmarks could not be imported." : "Zaznamkov ni bilo mogoče uvoziti.",
+    "This file holds no bookmarks." : "Datoteka ne vsebuje zaznamkov.",
+    "Folders" : "Mape",
     "Active filters" : "Dejavni filtri",
     "Pinned filter" : "Pripet filter",
     "Remove filter: {label}" : "Odstrani filter: {label}",
-    "Reset filters" : "Ponastavi filtre"
+    "Reset filters" : "Ponastavi filtre",
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

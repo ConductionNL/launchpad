@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Заявката ви е изпратена до ИТ отдела",
     "You have 10 open requests. Wait for an answer first." : "Имате 10 чакащи заявки. Първо изчакайте отговор.",
     "Your request could not be sent. Try again later." : "Заявката ви не можа да бъде изпратена. Опитайте отново по-късно.",
+    "Import bookmarks" : "Импортиране на отметки",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Изберете файла с отметки, експортиран от браузъра, и отбележете какво да се добави.",
+    "Loose bookmarks" : "Отделни отметки",
+    "This file is larger than 5 MB. Export one folder at a time." : "Файлът е по-голям от 5 MB. Експортирайте по една папка.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Файлът съдържа повече от 2000 отметки. Експортирайте по една папка.",
+    "{count} skipped: only web addresses can become tiles" : "Пропуснати: {count} – само уеб адреси могат да станат плочки",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Това табло може да поеме още {count}. Изберете по-малко папки или отметки.",
+    "The bookmarks could not be imported." : "Отметките не можаха да бъдат импортирани.",
+    "This file holds no bookmarks." : "Файлът не съдържа отметки.",
+    "Folders" : "Папки",
     "Active filters" : "Активни филтри",
     "Pinned filter" : "Закачен филтър",
     "Remove filter: {label}" : "Премахване на филтър: {label}",
-    "Reset filters" : "Нулиране на филтрите"
+    "Reset filters" : "Нулиране на филтрите",
 },
 "nplurals=2; plural=(n != 1);"
 );

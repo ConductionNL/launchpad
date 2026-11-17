@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Cererea dumneavoastră a fost trimisă către IT",
     "You have 10 open requests. Wait for an answer first." : "Aveți 10 cereri deschise. Așteptați mai întâi un răspuns.",
     "Your request could not be sent. Try again later." : "Cererea dumneavoastră nu a putut fi trimisă. Încercați din nou mai târziu.",
+    "Import bookmarks" : "Importă marcaje",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Alegeți fișierul de marcaje exportat de browser, apoi bifați ce doriți să adăugați.",
+    "Loose bookmarks" : "Marcaje separate",
+    "This file is larger than 5 MB. Export one folder at a time." : "Fișierul depășește 5 MB. Exportați câte un dosar.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Fișierul are peste 2.000 de marcaje. Exportați câte un dosar.",
+    "{count} skipped: only web addresses can become tiles" : "Omise: {count} – doar adresele web pot deveni plăci",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Acest tablou de bord mai poate primi {count}. Alegeți mai puține dosare sau marcaje.",
+    "The bookmarks could not be imported." : "Marcajele nu au putut fi importate.",
+    "This file holds no bookmarks." : "Fișierul nu conține marcaje.",
+    "Folders" : "Dosare",
     "Active filters" : "Filtre active",
     "Pinned filter" : "Filtru fixat",
     "Remove filter: {label}" : "Elimină filtrul: {label}",
-    "Reset filters" : "Resetează filtrele"
+    "Reset filters" : "Resetează filtrele",
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

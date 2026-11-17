@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Kërkesa juaj iu dërgua IT-së",
     "You have 10 open requests. Wait for an answer first." : "Keni 10 kërkesa të hapura. Prisni fillimisht një përgjigje.",
     "Your request could not be sent. Try again later." : "Kërkesa juaj nuk u dërgua dot. Riprovoni më vonë.",
+    "Import bookmarks" : "Importo faqeruajtësit",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Zgjidhni skedarin e faqeruajtësve që eksportoi shfletuesi, pastaj shënoni çfarë të shtohet.",
+    "Loose bookmarks" : "Faqeruajtës të veçantë",
+    "This file is larger than 5 MB. Export one folder at a time." : "Skedari është më i madh se 5 MB. Eksportoni një dosje në një kohë.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Skedari ka më shumë se 2.000 faqeruajtës. Eksportoni një dosje në një kohë.",
+    "{count} skipped: only web addresses can become tiles" : "U anashkaluan {count}: vetëm adresat e uebit mund të bëhen pllaka",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ky panel mund të marrë edhe {count}. Zgjidhni më pak dosje ose faqeruajtës.",
+    "The bookmarks could not be imported." : "Faqeruajtësit nuk mund të importoheshin.",
+    "This file holds no bookmarks." : "Skedari nuk përmban faqeruajtës.",
+    "Folders" : "Dosjet",
     "Active filters" : "Filtrat aktivë",
     "Pinned filter" : "Filtër i fiksuar",
     "Remove filter: {label}" : "Hiq filtrin: {label}",
-    "Reset filters" : "Rivendos filtrat"
+    "Reset filters" : "Rivendos filtrat",
 },
 "nplurals=2; plural=(n != 1);"
 );

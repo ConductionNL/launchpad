@@ -1451,10 +1451,20 @@ OC.L10N.register(
     "Your request was sent to IT" : "Forespørselen din er sendt til IT",
     "You have 10 open requests. Wait for an answer first." : "Du har 10 åpne forespørsler. Vent på svar først.",
     "Your request could not be sent. Try again later." : "Forespørselen din kunne ikke sendes. Prøv igjen senere.",
+    "Import bookmarks" : "Importer bokmerker",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Velg bokmerkefilen nettleseren eksporterte, og kryss av det som skal legges til.",
+    "Loose bookmarks" : "Løse bokmerker",
+    "This file is larger than 5 MB. Export one folder at a time." : "Filen er større enn 5 MB. Eksporter én mappe om gangen.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Filen har mer enn 2 000 bokmerker. Eksporter én mappe om gangen.",
+    "{count} skipped: only web addresses can become tiles" : "{count} hoppet over: bare nettadresser kan bli fliser",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dette dashbordet har plass til {count} til. Velg færre mapper eller bokmerker.",
+    "The bookmarks could not be imported." : "Bokmerkene kunne ikke importeres.",
+    "This file holds no bookmarks." : "Filen inneholder ingen bokmerker.",
+    "Folders" : "Mapper",
     "Active filters" : "Aktive filtre",
     "Pinned filter" : "Festet filter",
     "Remove filter: {label}" : "Fjern filter: {label}",
-    "Reset filters" : "Tilbakestill filtre"
+    "Reset filters" : "Tilbakestill filtre",
 },
 "nplurals=2; plural=(n != 1);"
 );

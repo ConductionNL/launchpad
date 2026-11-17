@@ -31,7 +31,9 @@
   - `GET /api/exports/{id}/runs/{runId}` → read single run-row details including all deliveries
   - `POST /api/exports/{id}/runs/{runId}/retry` → retry all failed deliveries in that run
   - All endpoints require `#[NoAdminRequired]` where applicable; permission checks via OpenRegister (export must be visible to user)
+  - Partly built: `lib/Controller/ScheduledExportController.php` serves list (sorted by name, `limit`/`offset`), create (201/400), read, update (next run recomputed), soft-delete, the run list, one run, and the retry of a run's deliveries that failed for good (re-armed through `RetryHandler::rearm`, attempted through `DeliveryDispatcher::retryDue`, status rolled up again; 409 when nothing failed for good). Each method checks `scheduled-export.read` or `scheduled-export.manage` (ADR-023, seeded for everyone) and reads under OpenRegister's access rules, so an invisible export or run is 404. `tests/Unit/Controller/ScheduledExportControllerTest.php`. Open: `run` and `preview`, which render and wait on task 4.
 - [ ] Task 11: Register all 11 routes in `appinfo/routes.php`
+  - Partly built: the eight routes of the endpoints above (`scheduledExport#index|create|show|update|destroy|runs|run|retry`, served under `/api/v1/` too). Open: `run` and `preview` with task 4.
 
 ### Frontend
 
@@ -65,6 +67,7 @@
 - [ ] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license EUPL-1.2`, `@copyright ...`)
 - [ ] Task 34: Hydra gates green: `hydra-gate-spdx`, `hydra-gate-modal-isolation` (export modals live in `src/modals/`, not inlined), `hydra-gate-route-auth` (all routes have permission checks)
 - [ ] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
+  - Partly built: the eight routed endpoints are in `openapi.json` (tag `scheduled-export`; `OpenApiDocumentTest` passes). Open: `run` and `preview` with task 4, and the Newman collection.
 - [ ] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions
 - [ ] Task 37: Update `CHANGELOG.md` with feature summary: "Scheduled Exports v1 — recurring exports with multi-format rendering and multi-channel delivery (email, Files, webhook, SFTP)"
 - [x] Task 38: Document in `design.md` why stale recurrence preferences are skipped per-request rather than via background job (DST/leap-day edge cases are transient; recompute on every read for consistency)

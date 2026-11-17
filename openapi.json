@@ -246,6 +246,10 @@
         {
             "name": "catalogue",
             "description": "The app catalogue: the approved apps a user may add as tiles, requests for missing apps, and the administrators' side that keeps the catalogue and decides on requests."
+        },
+        {
+            "name": "scheduled-export",
+            "description": "Scheduled exports, their run history and the manual retry of a run."
         }
     ],
     "paths": {
@@ -10556,6 +10560,425 @@
                     }
                 ],
                 "x-launchpad-stability": "internal"
+            }
+        },
+        "/exports": {
+            "get": {
+                "operationId": "scheduled-export-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/exports — the scheduled exports the user may see, sorted by name, secrets redacted (scheduled-exports task 10).",
+                "description": "GET /api/exports — the scheduled exports the user may see, sorted by name, secrets redacted (scheduled-exports task 10). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "At most this many (1 to 200, default 50).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "description": "Skip this many (default 0).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "scheduled-export-create",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/exports — create a scheduled export; its next run is computed from its recurrence (REQ-SCH-001).",
+                "description": "POST /api/exports — create a scheduled export; its next run is computed from its recurrence (REQ-SCH-001). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The export was created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/exports/{id}": {
+            "get": {
+                "operationId": "scheduled-export-show",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/exports/{id} — one scheduled export; 404 when the user may not see it.",
+                "description": "GET /api/exports/{id} — one scheduled export; 404 when the user may not see it. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The export uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "scheduled-export-update",
+                "x-launchpad-stability": "internal",
+                "summary": "PATCH /api/exports/{id} — change the fields sent; the next run is recomputed.",
+                "description": "PATCH /api/exports/{id} — change the fields sent; the next run is recomputed. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The export uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "scheduled-export-destroy",
+                "x-launchpad-stability": "internal",
+                "summary": "DELETE /api/exports/{id} — soft-delete a scheduled export.",
+                "description": "DELETE /api/exports/{id} — soft-delete a scheduled export. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The export uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/exports/{id}/runs": {
+            "get": {
+                "operationId": "scheduled-export-runs",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/exports/{id}/runs — the export's run-rows, newest first (REQ-SCH-008).",
+                "description": "GET /api/exports/{id}/runs — the export's run-rows, newest first (REQ-SCH-008). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The export uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "At most this many (1 to 200, default 50).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "description": "Skip this many (default 0).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/exports/{id}/runs/{runId}": {
+            "get": {
+                "operationId": "scheduled-export-run",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/exports/{id}/runs/{runId} — one run-row with every delivery (REQ-SCH-008).",
+                "description": "GET /api/exports/{id}/runs/{runId} — one run-row with every delivery (REQ-SCH-008). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The export uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "runId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The run-row uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/exports/{id}/runs/{runId}/retry": {
+            "post": {
+                "operationId": "scheduled-export-retry",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/exports/{id}/runs/{runId}/retry — retry the run's deliveries that failed for good (REQ-SCH-006).",
+                "description": "POST /api/exports/{id}/runs/{runId}/retry — retry the run's deliveries that failed for good (REQ-SCH-006). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "scheduled-export"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The export uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "runId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The run-row uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
             }
         }
     },

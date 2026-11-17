@@ -56,6 +56,17 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// NOTE: specific routes (`/visible`, `/group/...`, `/active`, `/{uuid}/fork`) MUST precede the
 		// wildcard `{id}` routes — Symfony matches the first that fits and
 		// would otherwise route them to the personal `getById` handler.
+		// scheduled-exports task 11: exports, their run history and the manual
+		// retry of a run (ScheduledExportController). "Run now" and "Preview"
+		// follow once the render pipeline (task 4) is built.
+		['name' => 'scheduledExport#index', 'url' => '/api/exports', 'verb' => 'GET'],
+		['name' => 'scheduledExport#create', 'url' => '/api/exports', 'verb' => 'POST'],
+		['name' => 'scheduledExport#show', 'url' => '/api/exports/{id}', 'verb' => 'GET'],
+		['name' => 'scheduledExport#update', 'url' => '/api/exports/{id}', 'verb' => 'PATCH'],
+		['name' => 'scheduledExport#destroy', 'url' => '/api/exports/{id}', 'verb' => 'DELETE'],
+		['name' => 'scheduledExport#runs', 'url' => '/api/exports/{id}/runs', 'verb' => 'GET'],
+		['name' => 'scheduledExport#run', 'url' => '/api/exports/{id}/runs/{runId}', 'verb' => 'GET'],
+		['name' => 'scheduledExport#retry', 'url' => '/api/exports/{id}/runs/{runId}/retry', 'verb' => 'POST'],
 		['name' => 'dashboardApi#list', 'url' => '/api/dashboards', 'verb' => 'GET'],
 		// Visible-to-user resolution endpoint (REQ-DASH-013).
 		['name' => 'dashboardApi#visible', 'url' => '/api/dashboards/visible', 'verb' => 'GET'],

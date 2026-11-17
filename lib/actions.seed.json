@@ -42,6 +42,8 @@
     "dashboard.unpublish": ["admin"],
     "dashboard.schedule": ["admin"],
     "dashboard.view-event": ["admin", "@all"],
+    "scheduled-export.read": ["admin", "@all"],
+    "scheduled-export.manage": ["admin", "@all"],
     "dashboard-lock.acquire": ["admin", "@all"],
     "dashboard-lock.heartbeat": ["admin", "@all"],
     "dashboard-lock.release": ["admin", "@all"],

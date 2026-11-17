@@ -39,6 +39,7 @@ namespace OCA\LaunchPad\Service;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Kernel\Contracts\ShippedTemplateServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use RuntimeException;
 use ZipArchive;
@@ -52,7 +53,7 @@ use ZipArchive;
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
-class ShippedTemplateService {
+class ShippedTemplateService implements ShippedTemplateServiceInterface {
 	/**
 	 * App config key prefix: `shipped_template_<id>` holds the UUID of the
 	 * template the last install created. Empty means not installed.
@@ -67,15 +68,6 @@ class ShippedTemplateService {
 	 * @var string
 	 */
 	public const CONFIG_VERSION_PREFIX = 'shipped_template_version_';
-
-	/**
-	 * The templates LaunchPad ships, by id. A fixed list rather than a
-	 * directory scan, so the admin page and the command show the same
-	 * templates in the same order on every instance.
-	 *
-	 * @var array<int, string>
-	 */
-	public const SHIPPED_IDS = ['mijn-werkdag'];
 
 	/**
 	 * Optional data-directory override (test seam).

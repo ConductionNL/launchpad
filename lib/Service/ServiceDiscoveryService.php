@@ -27,12 +27,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCP\INavigationManager;
 
 /**
  * Lists the apps in the current user's Nextcloud app menu.
  */
-class ServiceDiscoveryService {
+class ServiceDiscoveryService implements ServiceDiscoveryServiceInterface {
 	/**
 	 * Constructor
 	 *

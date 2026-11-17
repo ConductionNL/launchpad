@@ -80,7 +80,8 @@ class PageControllerHelpersTest extends TestCase {
 				logger: $this->logger,
 				adminSettingsService: $this->createMock(AdminSettingsService::class),
 				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
-				urlGenerator: $this->createMock(\OCP\IURLGenerator::class)
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class),
+				searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class)
 			)
 		);
 	}

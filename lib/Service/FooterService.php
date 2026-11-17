@@ -47,6 +47,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Kernel\Contracts\FooterServiceInterface;
 
 /**
  * Resolve the instance footer + per-dashboard overrides.
@@ -64,7 +65,7 @@ use OCA\LaunchPad\Db\Dashboard;
  *      REQ-FTR-005 and the test suite covers each branch.
  * @spec                                             openspec/specs/dashboards/spec.md
  */
-class FooterService {
+class FooterService implements FooterServiceInterface {
 	/**
 	 * Colour fields of the settings patch and the setting each is stored in.
 	 */

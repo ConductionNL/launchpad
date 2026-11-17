@@ -162,6 +162,9 @@ class AdminSettingsService {
 			// navigation panel. Off by default so an existing instance keeps its
 			// rail; a stored value that is not a boolean reads as off.
 			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry is
+			// opt-in per organisation; only a stored `true` turns it on.
+			'filterTelemetryEnabled' => ($settings[AdminSettingKey::FILTER_TELEMETRY_ENABLED->value] ?? false) === true,
 			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
 			// them; a stored value that no longer validates reads as empty.
 			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
@@ -299,17 +302,7 @@ class AdminSettingsService {
 	 *              containing `{query}`.
 	 */
 	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+		return QueryUrlTemplate::isValid(value: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
@@ -379,6 +372,7 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 	}//end updateSettings()

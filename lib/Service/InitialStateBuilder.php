@@ -347,6 +347,22 @@ class InitialStateBuilder {
 	}//end setQuicksearchFallbackTarget()
 
 	/**
+	 * Set the search shortcuts every search box honours (search-ai-prefix-shortcuts,
+	 * REQ-SPX-002). Optional key, like `quicksearchFallbackTarget`: the JS reader
+	 * defaults it to an empty list.
+	 *
+	 * @param array $shortcuts Validated `{prefix, name, urlTemplate}` entries.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/tile-quick-search/spec.md
+	 */
+	public function setSearchShortcuts(array $shortcuts): self {
+		$this->values['searchShortcuts'] = array_values(array: $shortcuts);
+		return $this;
+	}//end setSearchShortcuts()
+
+	/**
 	 * Set whether the dashboard view renders without the left navigation
 	 * panel (workspace).
 	 *
@@ -366,6 +382,23 @@ class InitialStateBuilder {
 		$this->values['startPageWithoutNavigation'] = $withoutNavigation;
 		return $this;
 	}//end setStartPageWithoutNavigation()
+
+	/**
+	 * Push whether the organisation opted in to filter telemetry, so the
+	 * dashboard's filter bus writes `filter_event` rows only when it did
+	 * (drill-down-cross-widget-filter REQ-CWF-010). Optional key: the JS
+	 * reader defaults to `false`.
+	 *
+	 * @param bool $enabled True when the administrator switched telemetry on.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function setFilterTelemetryEnabled(bool $enabled): self {
+		$this->values['filterTelemetryEnabled'] = $enabled;
+		return $this;
+	}//end setFilterTelemetryEnabled()
 
 	/**
 	 * Set what the tile editor offers for program and single sign-on tiles

@@ -440,6 +440,7 @@ class AdminController extends Controller {
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
 	 * @param array|null $announcementEditorGroups Groups whose members may write announcements (engagement-announcements D6).
+	 * @param bool|null  $filterTelemetryEnabled   Org-level filter telemetry opt-in (drill-down-cross-widget-filter REQ-CWF-010).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -468,6 +469,7 @@ class AdminController extends Controller {
 		array|null $tileAllowedSchemes = null,
 		array|null $ssoLaunchTemplates = null,
 		array|null $announcementEditorGroups = null,
+		bool|null $filterTelemetryEnabled = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -496,6 +498,7 @@ class AdminController extends Controller {
 					'tileAllowedSchemes'          => $tileAllowedSchemes,
 					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
 					'announcementEditorGroups'    => $announcementEditorGroups,
+					'filterTelemetryEnabled'      => $filterTelemetryEnabled,
 				]
 			);
 

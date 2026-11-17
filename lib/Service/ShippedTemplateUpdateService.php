@@ -48,6 +48,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
+use OCA\LaunchPad\Kernel\Contracts\ShippedTemplateUpdateServiceInterface;
 use RuntimeException;
 use Throwable;
 
@@ -61,7 +62,7 @@ use Throwable;
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
  */
-class ShippedTemplateUpdateService {
+class ShippedTemplateUpdateService implements ShippedTemplateUpdateServiceInterface {
 	/**
 	 * The plain fields a definition sets on a widget, and the word the
 	 * report uses for a change in each. `styleConfig` and `content` are

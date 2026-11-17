@@ -25,7 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ConfluenceImportService;
+use OCA\LaunchPad\Kernel\Contracts\ConfluenceImportServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -49,12 +49,12 @@ class ConfluenceImportController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request Request handle.
-	 * @param ConfluenceImportService $importService The import orchestrator.
+	 * @param ConfluenceImportServiceInterface $importService The import orchestrator.
 	 * @param IUserSession $userSession Current session.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConfluenceImportService $importService,
+		private readonly ConfluenceImportServiceInterface $importService,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);

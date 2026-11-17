@@ -105,6 +105,12 @@ Today, organisations work around this limitation by exporting dashboards manuall
 - Preview only (users must wait until the next scheduled fire to validate; hurts confidence).
 - Run now only, no preview (no way to validate output without sending it to recipients).
 
+### D8: The next run is recomputed on every write, not by a background sweep
+
+**Decision**: `nextRunAt` is computed by `RecurrenceResolver` whenever an export is saved, enabled or fired, from `recurrence`, `runTimezone` and the current moment. No background job revisits stored `nextRunAt` values, and a stale one (for example after an export was disabled over a DST change or a leap day) is not repaired in place: enabling recomputes it from now, so the windows missed while it was off are skipped.
+
+**Rationale**: DST and leap-day edge cases are transient. A value computed at the moment it is needed is always consistent with the rule and the time zone database in force at that moment; a sweep would have to re-derive the same value and could race the runner. Skipping missed windows on enable matches the Quartz convention in D1 (fire once per missed window only while enabled).
+
 ## Seed Data
 
 The `lib/Settings/launchpad_register.json` import includes three example scheduled exports:

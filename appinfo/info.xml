@@ -99,6 +99,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
 		<!-- engagement-announcements D5: tell category followers about newly visible announcements. -->
 		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
+		<!-- scheduled-exports REQ-SCH-007: hourly retention of export artefacts and run-rows. -->
+		<job>OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor</job>
 	</background-jobs>
 
 	<repair-steps>

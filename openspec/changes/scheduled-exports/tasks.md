@@ -15,7 +15,7 @@
 ### Background Jobs
 
 - [ ] Task 8: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportRunner` registered at one-minute granularity; fetch all enabled exports with `nextRunAt <= now()`, check for overlapping previous run (skip if running), invoke render → dispatch → audit, recompute `nextRunAt`, handle disabled creator with admin notification
-- [ ] Task 9: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor` registered at one-hour granularity; delete `renderArtefacts` files after `retention.keepArtefactsForDays` (null = forever), null out `storagePath` in run-rows, delete entire run-rows after `retention.keepAuditForDays` via OpenRegister retention hooks
+- [x] Task 9: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor` registered at one-hour granularity; delete `renderArtefacts` files after `retention.keepArtefactsForDays` (null = forever), null out `storagePath` in run-rows, delete entire run-rows after `retention.keepAuditForDays` via OpenRegister retention hooks
 
 ### Controller & Routes
 
@@ -52,7 +52,7 @@
 - [x] Task 23: PHPUnit — `DeliveryDispatcher` mocking email/Files/webhook/SFTP channels, verifying signed webhook headers, redacted SFTP password responses, per-recipient filter context applied
 - [x] Task 24: PHPUnit — `RetryHandler` exponential backoff timing, max-attempts rollover to permanent-failed, jitter application
 - [ ] Task 25: PHPUnit — `ScheduledExportRunner` background job behavior: fires enabled exports with `nextRunAt <= now()`, skips overlapping previous run, marks disabled creator as failed with admin notification, recomputes `nextRunAt` post-fire
-- [ ] Task 26: PHPUnit — `ScheduledExportJanitor` retention enforcement: deletes artefacts after `keepArtefactsForDays`, deletes run-rows after `keepAuditForDays`, handles null (forever) retention
+- [x] Task 26: PHPUnit — `ScheduledExportJanitor` retention enforcement: deletes artefacts after `keepArtefactsForDays`, deletes run-rows after `keepAuditForDays`, handles null (forever) retention
 - [ ] Task 27: Playwright — full workflow: create export with weekly recurrence → save → manual "Run now" → check run-row appears in history → preview render (PDF) → edit export → toggle enabled off → verify next fire is skipped
 - [ ] Task 28: Playwright — filter context workflow: create export with two recipients (gemeente A, gemeente B) with distinct `filterContext` → manual run → verify two renders in audit row → verify each recipient gets its filtered version
 - [ ] Task 29: Playwright — failure + retry: create webhook recipient with bad URL → manual run → verify delivery marked failed → click "Retry" → verify retry scheduled → advance time → verify successful delivery on retry
@@ -67,7 +67,7 @@
 - [ ] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
 - [ ] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions
 - [ ] Task 37: Update `CHANGELOG.md` with feature summary: "Scheduled Exports v1 — recurring exports with multi-format rendering and multi-channel delivery (email, Files, webhook, SFTP)"
-- [ ] Task 38: Document in `design.md` why stale recurrence preferences are skipped per-request rather than via background job (DST/leap-day edge cases are transient; recompute on every read for consistency)
+- [x] Task 38: Document in `design.md` why stale recurrence preferences are skipped per-request rather than via background job (DST/leap-day edge cases are transient; recompute on every read for consistency)
 
 ## Verification
 

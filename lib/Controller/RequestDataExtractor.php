@@ -68,6 +68,8 @@ class RequestDataExtractor {
 		'customIcon',
 		'styleConfig',
 		'content',
+		// The widget's calculated fields (widget-calculated-fields, task 21).
+		'calculatedFields',
 		'tileTitle',
 		'tileIcon',
 		'tileIconType',

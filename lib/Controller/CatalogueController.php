@@ -31,7 +31,6 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUser;
 
@@ -41,6 +40,8 @@ use OCP\IUser;
  * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
  */
 class CatalogueController extends Controller {
+	use GuardsActions;
+
 	/**
 	 * Constructor.
 	 *
@@ -116,25 +117,4 @@ class CatalogueController extends Controller {
 		return new JSONResponse(data: ['request' => $stored], statusCode: Http::STATUS_CREATED);
 	}//end request()
 
-	/**
-	 * Signed-in and allowed to call the action.
-	 *
-	 * @param IUser|null $user  The caller.
-	 * @param callable   $check ADR-023 action check; throws OCSForbiddenException when refused.
-	 *
-	 * @return JSONResponse|null An error response, or null when allowed.
-	 */
-	private function guard(?IUser $user, callable $check): ?JSONResponse {
-		if ($user === null) {
-			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$check($user);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		return null;
-	}//end guard()
 }//end class

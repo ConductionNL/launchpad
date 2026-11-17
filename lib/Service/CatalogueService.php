@@ -320,20 +320,9 @@ class CatalogueService {
 		}
 
 		$app = $this->create(input: $entry);
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$request->setStatus('approved');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$request->setCatalogueAppId($app->getId());
-		$request->setDecidedBy($adminId);
-		$request->setDecidedAt(self::now());
-		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$request = $this->requestMapper->update(entity: $request);
-
-		$this->notify(
-			userId: $request->getRequestedBy(),
-			subject: 'app_request_decided',
-			params: [$app->getName(), 'approved', ''],
-			requestUuid: $request->getUuid()
-		);
+		$request = $this->recordDecision(request: $request, status: 'approved', adminId: $adminId, appName: $app->getName());
 
 		return ['request' => $request, 'app' => $app];
 	}//end approve()
@@ -360,9 +349,29 @@ class CatalogueService {
 		}
 
 		$request = $this->openRequest(uuid: $requestUuid);
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$request->setStatus('declined');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$request->setDecisionNote($note);
+
+		return $this->recordDecision(request: $request, status: 'declined', adminId: $adminId, appName: $request->getAppName());
+	}//end decline()
+
+	/**
+	 * Store an administrator's decision on a request and tell the requester.
+	 *
+	 * @param AppRequest $request The open request, with any decision-specific fields set; a
+	 *                            decline carries its note, which the notification passes on.
+	 * @param string     $status  `approved` or `declined`.
+	 * @param string     $adminId The administrator.
+	 * @param string     $appName The application named in the notification.
+	 *
+	 * @return AppRequest The stored request.
+	 *
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 */
+	private function recordDecision(AppRequest $request, string $status, string $adminId, string $appName): AppRequest {
+		$note = (string) ($request->getDecisionNote() ?? '');
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$request->setStatus($status);
 		$request->setDecidedBy($adminId);
 		$request->setDecidedAt(self::now());
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -371,12 +380,12 @@ class CatalogueService {
 		$this->notify(
 			userId: $request->getRequestedBy(),
 			subject: 'app_request_decided',
-			params: [$request->getAppName(), 'declined', $note],
+			params: [$appName, $status, $note],
 			requestUuid: $request->getUuid()
 		);
 
 		return $request;
-	}//end decline()
+	}//end recordDecision()
 
 	/**
 	 * The group whose members also hear about requests, or ''.

@@ -45,6 +45,8 @@ use OCP\IUser;
  * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
  */
 class AdminCatalogueController extends Controller {
+	use GuardsActions;
+
 	/**
 	 * Constructor.
 	 *
@@ -284,35 +286,8 @@ class AdminCatalogueController extends Controller {
 	 * @return JSONResponse|null An error response, or null when allowed.
 	 */
 	private function adminGuard(callable $check): ?JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($user !== null && $this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		return $this->guard(user: $user, check: $check);
+		return $this->guardAdmin(user: $this->caller->userSession->getUser(), groupManager: $this->groupManager, check: $check);
 	}//end adminGuard()
-
-	/**
-	 * Signed-in and allowed to call the action.
-	 *
-	 * @param IUser|null $user  The caller.
-	 * @param callable   $check ADR-023 action check; throws OCSForbiddenException when refused.
-	 *
-	 * @return JSONResponse|null An error response, or null when allowed.
-	 */
-	private function guard(?IUser $user, callable $check): ?JSONResponse {
-		if ($user === null) {
-			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$check($user);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		return null;
-	}//end guard()
 
 	/**
 	 * The 404 response.

@@ -642,6 +642,7 @@ export default {
 
 		/**
 		 * @return {string} A fresh row key.
+		 * @spec openspec/changes/scheduled-exports/tasks.md#task-12
 		 */
 		nextKey() {
 			return newKey()
@@ -1163,6 +1164,7 @@ export default {
 		 *
 		 * @param {string} value What was typed.
 		 * @return {string|object|Array} The value.
+		 * @spec openspec/changes/scheduled-exports/tasks.md#task-12
 		 */
 		filterValue(value) {
 			const text = String(value ?? '').trim()

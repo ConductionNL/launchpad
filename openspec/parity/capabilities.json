@@ -7148,11 +7148,11 @@
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176",
+				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176; live pass 17 Nov 2026: with pipelinq 0.5.21 on NC 34, First today listed a member's overdue ticket with a link that opens the list",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/attention-feed",
 				"requirement": "openspec/specs/attention-feed :: REQ-ATT-004 Merging and ranking",
-				"change": "openspec/changes/cross-app-attention-feed"
+				"change": "openspec/changes/archive/2026-11-17-cross-app-attention-feed"
 			},
 			"reachedOn": "Workspace page, Add widget, First today",
 			"source": "spec-round-2026-10-07",

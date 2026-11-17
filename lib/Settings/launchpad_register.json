@@ -778,6 +778,7 @@
                   "format": "date-time"
                 },
                 "artefactIndexes": {
+                  "title": "Artefact indexes",
                   "type": "array",
                   "items": {"type": "integer", "minimum": 0},
                   "description": "Which renderArtefacts this recipient was sent, so a retry resends the same files."

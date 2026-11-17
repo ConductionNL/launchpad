@@ -24,10 +24,10 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\QuotaServiceInterface;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\MetadataService;
-use OCA\LaunchPad\Service\QuotaService;
 
 /**
  * The dashboard service and the optional quota, translation and metadata services of the dashboard
@@ -40,7 +40,7 @@ class DashboardApiServices {
 	 * Constructor.
 	 *
 	 * @param DashboardService                 $dashboardService The dashboard service.
-	 * @param QuotaService|null                $quotaService The quota-enforcement service used to gate dashboard
+	 * @param QuotaServiceInterface|null                $quotaService The quota-enforcement service used to gate dashboard
 	 *                                                       creation (dashboard-quota-limits).
 	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one
 	 *                                                             language.
@@ -48,7 +48,7 @@ class DashboardApiServices {
 	 */
 	public function __construct(
 		public readonly DashboardService $dashboardService,
-		public readonly ?QuotaService $quotaService=null,
+		public readonly ?QuotaServiceInterface $quotaService=null,
 		public readonly ?DashboardTranslationService $translationService=null,
 		public readonly ?MetadataService $metadataService=null,
 	) {

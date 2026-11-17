@@ -19,6 +19,10 @@
  * depth) because even the GET reveals every group on the system
  * (privacy concern).
  *
+ * It also serves the search shortcut list of the admin settings
+ * (`GET` and `PUT /api/admin/search-shortcuts`, tile-quick-search),
+ * admin-only and behind the ADR-023 action check.
+ *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
@@ -37,6 +41,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -48,7 +53,7 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 
 /**
- * Admin-only controller for the group-priority order setting.
+ * Admin-only controller for the group-priority order and search shortcut settings.
  */
 class AdminSettingsController extends Controller {
 	use RespondsWithErrors;
@@ -60,12 +65,14 @@ class AdminSettingsController extends Controller {
 	 * @param AdminSettingsService $settingsService Persisted-settings service.
 	 * @param IGroupManager $groupManager Group manager (admin check + listing).
 	 * @param RequestGuard $guard The session and administrator check.
+	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AdminSettingsService $settingsService,
 		private readonly IGroupManager $groupManager,
 		private readonly RequestGuard $guard,
+		private readonly SearchShortcutServiceInterface $shortcuts,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -201,6 +208,49 @@ class AdminSettingsController extends Controller {
 			]
 		);
 	}//end updateGroupOrder()
+
+	/**
+	 * The shortcut list (administrators).
+	 *
+	 * @return JSONResponse `{shortcuts: [...]}`; 401 without a user, 403 for a
+	 *                      non-administrator or a denied ADR-023 action.
+	 *
+	 * @spec openspec/specs/tile-quick-search/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function listSearchShortcuts(): JSONResponse {
+		$refused = ($this->guard->refusal() ?? $this->guard->actionRefusal(action: 'search-shortcut.list'));
+		if ($refused !== null) {
+			return $refused;
+		}
+
+		return new JSONResponse(data: ['shortcuts' => $this->shortcuts->getShortcuts()]);
+	}//end listSearchShortcuts()
+
+	/**
+	 * Replace the shortcut list (administrators).
+	 *
+	 * @param array|null $shortcuts The new list.
+	 *
+	 * @return JSONResponse `{shortcuts: [...]}`, 400, 401 or 403.
+	 *
+	 * @spec openspec/specs/tile-quick-search/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function saveSearchShortcuts(?array $shortcuts = null): JSONResponse {
+		$refused = ($this->guard->refusal() ?? $this->guard->actionRefusal(action: 'search-shortcut.save'));
+		if ($refused !== null) {
+			return $refused;
+		}
+
+		try {
+			$saved = $this->shortcuts->saveShortcuts(raw: ($shortcuts ?? []));
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		return new JSONResponse(data: ['shortcuts' => $saved]);
+	}//end saveSearchShortcuts()
 
 	/**
 	 * Assert that the active session belongs to an administrator.

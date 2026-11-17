@@ -104,7 +104,8 @@ class PageControllerStartTest extends TestCase {
 				logger: $this->createMock(originalClassName: LoggerInterface::class),
 				adminSettingsService: $this->createMock(originalClassName: AdminSettingsService::class),
 				publicStartPage: $startPage,
-				urlGenerator: $urls
+				urlGenerator: $urls,
+				searchShortcuts: $this->createMock(originalClassName: \OCA\LaunchPad\Service\SearchShortcutService::class)
 			)
 		) extends PageController {
 			/**

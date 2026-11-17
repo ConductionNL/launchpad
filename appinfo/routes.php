@@ -520,6 +520,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 
+		// Search shortcuts (search-ai-prefix-shortcuts REQ-QSP-001): admin list.
+		['name' => 'adminSettings#listSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],
+		['name' => 'adminSettings#saveSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'PUT'],
+
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.
 		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],
@@ -694,6 +698,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal
 		// `/api/dashboards/{uuid}/path` segment is matched first.
+		// The drill-down path report over a dashboard's filter events (REQ-CWF-010).
+		['name' => 'filterEventReport#report', 'url' => '/api/dashboards/{uuid}/filter-events/report', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardApi#computePath', 'url' => '/api/dashboards/{uuid}/path', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 

@@ -24,8 +24,8 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\RdpFileWriterInterface;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\RdpFileWriter;
 use OCA\LaunchPad\Service\TileLinkValidator;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -46,12 +46,12 @@ class TileLaunchController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest              $request     The request.
-	 * @param PermissionService     $permissions Decides who may view the tile's dashboard.
-	 * @param SessionLog            $session     The signed-in user.
-	 * @param WidgetPlacementMapper $placements  Reads the tile.
-	 * @param TileLinkValidator     $links       Checks the tile's RDP connection again before it is written.
-	 * @param RdpFileWriter         $rdpFiles    Writes the file.
+	 * @param IRequest               $request     The request.
+	 * @param PermissionService      $permissions Decides who may view the tile's dashboard.
+	 * @param SessionLog             $session     The signed-in user.
+	 * @param WidgetPlacementMapper  $placements  Reads the tile.
+	 * @param TileLinkValidator      $links       Checks the tile's RDP connection again before it is written.
+	 * @param RdpFileWriterInterface $rdpFiles    Writes the file.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -59,7 +59,7 @@ class TileLaunchController extends Controller {
 		private readonly SessionLog $session,
 		private readonly WidgetPlacementMapper $placements,
 		private readonly TileLinkValidator $links,
-		private readonly RdpFileWriter $rdpFiles,
+		private readonly RdpFileWriterInterface $rdpFiles,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -101,7 +101,7 @@ class TileLaunchController extends Controller {
 			statusCode: Http::STATUS_OK
 		);
 		// After construction: DataDisplayResponse sets an inline disposition of its own.
-		$response->addHeader(name: 'Content-Type', value: RdpFileWriter::MEDIA_TYPE);
+		$response->addHeader(name: 'Content-Type', value: RdpFileWriterInterface::MEDIA_TYPE);
 		$response->addHeader(
 			name: 'Content-Disposition',
 			value: $this->rdpFiles->disposition(fileName: $this->rdpFiles->fileName(title: $placement->getTileTitle()))

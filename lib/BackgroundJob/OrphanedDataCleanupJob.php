@@ -30,8 +30,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\BackgroundJob;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
-use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJob;
 use OCP\BackgroundJob\TimedJob;
@@ -64,13 +64,13 @@ class OrphanedDataCleanupJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory               $time Time factory (parent requirement).
-	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
+	 * @param OrphanedDataCleanupServiceInterface $cleanupService The orchestrator.
 	 * @param CategoryRegistryService    $registry Category registry for the auto-safe default list.
 	 * @param CleanupJobTools            $tools The app config and logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly OrphanedDataCleanupService $cleanupService,
+		private readonly OrphanedDataCleanupServiceInterface $cleanupService,
 		private readonly CategoryRegistryService $registry,
 		private readonly CleanupJobTools $tools,
 	) {

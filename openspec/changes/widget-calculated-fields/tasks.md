@@ -20,7 +20,8 @@
 - [x] Task 10: Implement `CalculatedFieldEvaluator.ts` that takes an AST and a row context (field values from source widget) and evaluates deterministically (REQ-CALC-003, REQ-CALC-005)
 - [x] Task 11: Handle all AST node types: literals, field refs (with `source='self'` and `source='widget:<id>'`), binary/unary ops, conditionals, function calls; return typed result or `null` on null propagation (REQ-CALC-005)
 - [x] Task 12: Error handling: catch runtime errors (divide by zero, null dereference, function error) and return `{error: message, expression, inputs}` so the widget can display an inline error (REQ-CALC-008)
-- [ ] Task 13: Cross-widget field refs resolved via the dashboard store's widget data at evaluation time (REQ-CALC-003)
+- [x] Task 13: Cross-widget field refs resolved via the dashboard store's widget data at evaluation time (REQ-CALC-003)
+  - Built: `evaluateDashboard()` in `src/utils/calculatedFields/dashboardValues.js` hands each field the other widgets' current data and calculated values, read from the calculated-fields store.
 - [x] Task 14: Numeric precision: all math follows IEEE 754 (JavaScript Number), test suite validates equivalence with PHP to within 1e-9 (REQ-CALC-005)
   - Validated: the shared suite holds both evaluators to its expected numbers within 1e-9 (Vitest `evaluator.spec.js`, PHPUnit `CalculatedFieldEvaluatorTest`).
 
@@ -32,8 +33,10 @@
 
 ## 5. Frontend Integration (Vue/Store)
 
-- [ ] Task 17: Add `useCalculatedFields()` composable that: (1) watches widget source data, (2) watches dashboard filters, (3) maintains a dependency graph of calculated fields, (4) re-evaluates on any change, (5) returns `{values: Map, errors: Map}` (REQ-CALC-003)
-- [ ] Task 18: Integrate into `useDashboardsStore.js`: when a widget's data arrives or filters change, re-evaluate all calculated fields on that widget and dependent widgets in topological order (REQ-CALC-003)
+- [x] Task 17: Add `useCalculatedFields()` composable that: (1) watches widget source data, (2) watches dashboard filters, (3) maintains a dependency graph of calculated fields, (4) re-evaluates on any change, (5) returns `{values: Map, errors: Map}` (REQ-CALC-003)
+  - Built: `src/composables/useCalculatedFields.js` watches the widget's data and the dashboard filters, reports them to the store and returns `{values: Map, errors: Map}`; the dependency graph is the cycle detector's topological order.
+- [x] Task 18: Integrate into `useDashboardsStore.js`: when a widget's data arrives or filters change, re-evaluate all calculated fields on that widget and dependent widgets in topological order (REQ-CALC-003)
+  - Built as its own Pinia store, `src/stores/calculatedFields.js` (the app has no `useDashboardsStore.js`): `setWidgets`, `setWidgetData` and `setFilters` re-evaluate every field of the dashboard in topological order; `dependentWidgets()` names the widgets a data change reaches.
 - [ ] Task 19: Widget component renders calculated-field values in the appropriate column/cell alongside source fields; if error, display error icon with tooltip showing expression + input value (REQ-CALC-008)
 - [ ] Task 20: Filtering/export/drill-down: calculated-field values are included in exports and can be used in drill-down but NOT as filter targets in v1 (out of scope) (REQ-CALC-010)
 
@@ -42,6 +45,7 @@
 - [ ] Task 21: Extend `WidgetEntity` schema: add nullable `calculatedFields` JSON column storing the array of field objects (id, name, label, expression, compiledExpression, returnType, evaluationMode, etc.)
 - [ ] Task 22: Create migration that adds the column to existing widgets with default `[]`
 - [ ] Task 23: Implement `CalculatedFieldService.php` (server-side) with: (1) `validateAndCompile(widget, expression)` calls the parser and type-checker, (2) `detectCycles(widget)` checks for cycles, (3) `evaluateExpression(ast, row): mixed` evaluates the AST for server-side use (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
+  - Partly built: `CalculatedFieldCycleDetector.php` (`assertAcyclic()`, the `cycleDetected` envelope via `CalculatedFieldCycleError`) mirrors the client detector, and `CalculatedFieldEvaluator.php` evaluates; left: a PHP AST type check (`validateAndCompile`) and the service around them, which need the storage of tasks 21-22.
 - [ ] Task 24: Wire `WidgetController::create` and `::update` to validate all calculated fields before persisting via `CalculatedFieldService::validateAndCompile` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
 - [ ] Task 25: Return parse/type/cycle errors as 400 with body `{error: error_code, message: ..., ...details}` (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006)
 
@@ -65,9 +69,12 @@
 
 ## 9. Format Options and Rendering
 
-- [ ] Task 34: Implement `FormatOptions` type with: number format (style, minimumFractionDigits, maximumFractionDigits, currency, locale), date format (pattern, locale), duration format (pattern)
+- [x] Task 34: Implement `FormatOptions` type with: number format (style, minimumFractionDigits, maximumFractionDigits, currency, locale), date format (pattern, locale), duration format (pattern)
+  - Built: `src/utils/calculatedFields/formatOptions.js` (JSDoc typedefs `NumberFormatOptions`, `DateFormatOptions`, `DurationFormatOptions`).
 - [ ] Task 35: In the widget's table/chart/single-value renderers, apply format options at display time ONLY (not at evaluation time) using `Intl.NumberFormat`, `Intl.DateTimeFormat`, or custom logic for durations (REQ-CALC-010)
-- [ ] Task 36: Format options do NOT affect the value passed to alerting, export, or other consumers; only the displayed string in the UI (REQ-CALC-010)
+  - Partly built: the formatters (`Intl.NumberFormat`, `Intl.DateTimeFormat`, a duration pattern) exist; calling them from the table, chart and single-value renderers is left with task 19.
+- [x] Task 36: Format options do NOT affect the value passed to alerting, export, or other consumers; only the displayed string in the UI (REQ-CALC-010)
+  - `formatCalculatedValue()` only answers a display string; the store keeps native values for alerting, export and drill-down (tested).
 
 ## 10. Testing — Backend
 
@@ -76,6 +83,7 @@
   - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
 - [ ] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
 - [ ] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
+  - Partly built: `CalculatedFieldCycleDetectorTest.php` (7 tests) covers cross-widget cycles and order; cross-widget evaluation is in `CalculatedFieldEvaluatorTest`.
 
 ## 11. Testing — Frontend
 
@@ -91,8 +99,10 @@
 - [ ] Task 47: `composer check:strict` and `eslint` pass on all new files
 - [ ] Task 48: OpenAPI / Postman / API docs: document the new Widget schema extension (`calculatedFields` array); document error response envelopes (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
 - [ ] Task 49: i18n — `nl_NL` and `en_US` translations for: error messages (parse_error, type_error, cycle_detected, unknownFunction), inline error hover text, downgrade warning
-- [ ] Task 50: SPDX — all new PHP files have `@license EUPL-1.2` + `@copyright` in docblock
-- [ ] Task 51: Changelog entry describing: calculated fields as a widget feature, dual evaluation (client + server), allowlisted function set, error handling + inline indicators, cross-widget refs + cycle detection, format options
+- [x] Task 50: SPDX — all new PHP files have `@license EUPL-1.2` + `@copyright` in docblock
+  - Every new PHP file under `lib/Service/CalculatedFields/` carries `@license EUPL-1.2`, `@copyright` and the SPDX lines.
+- [x] Task 51: Changelog entry describing: calculated fields as a widget feature, dual evaluation (client + server), allowlisted function set, error handling + inline indicators, cross-widget refs + cycle detection, format options
+  - `CHANGELOG.md` (Unreleased, Added): the evaluation engine, marked in progress until storage and materialisation land.
 - [ ] Task 52: Design.md — document the design decisions (D1–D7), rationale for dual evaluation, AST-based approach, shared test suite, format-at-render-time strategy, migration plan
 - [ ] Task 53: All hydra-gates pass (route-auth, admin-idor, semantic-auth, spdx-headers, etc.)
 

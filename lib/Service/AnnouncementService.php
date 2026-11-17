@@ -39,6 +39,7 @@ use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IGroupManager;
@@ -49,7 +50,7 @@ use OCP\IUserManager;
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
-class AnnouncementService {
+class AnnouncementService implements AnnouncementServiceInterface {
 
 	/**
 	 * The admin setting naming the editor groups; the value of

@@ -242,6 +242,10 @@
         {
             "name": "search-shortcuts",
             "description": "The administrator's search shortcuts: a prefix that sends a search straight to another site."
+        },
+        {
+            "name": "catalogue",
+            "description": "The app catalogue: the approved apps a user may add as tiles, requests for missing apps, and the administrators' side that keeps the catalogue and decides on requests."
         }
     ],
     "paths": {

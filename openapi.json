@@ -234,6 +234,14 @@
         {
             "name": "analytics-opt-out",
             "description": "The signed-in person's own analytics opt-out."
+        },
+        {
+            "name": "filter-event-report",
+            "description": "The drill-down path report over a dashboard's filter telemetry."
+        },
+        {
+            "name": "search-shortcuts",
+            "description": "The administrator's search shortcuts: a prefix that sends a search straight to another site."
         }
     ],
     "paths": {
@@ -2354,6 +2362,100 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/admin/search-shortcuts": {
+            "get": {
+                "operationId": "search-shortcuts-index",
+                "x-launchpad-stability": "internal",
+                "summary": "List the search shortcuts",
+                "description": "List the search shortcuts every search box honours: `{prefix, name, urlTemplate}` per shortcut. Needs an administrator.",
+                "tags": [
+                    "search-shortcuts"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "search-shortcuts-save",
+                "x-launchpad-stability": "internal",
+                "summary": "Replace the search shortcuts",
+                "description": "Replace the search shortcuts with the `shortcuts` list from the request body and return the stored list. An invalid list is refused with 400. Needs an administrator.",
+                "tags": [
+                    "search-shortcuts"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "shortcuts": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "prefix": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "urlTemplate": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }
@@ -5642,6 +5744,90 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/dashboards/{uuid}/filter-events/report": {
+            "get": {
+                "operationId": "filter-event-report-report",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/dashboards/{uuid}/filter-events/report — the most-used drill-down paths of a dashboard",
+                "description": "GET /api/dashboards/{uuid}/filter-events/report — the most-used drill-down paths of a dashboard, counted from its filter telemetry. A path is the sequence of filtered dimensions one user drilled through until a reset; it names dimensions only, never filter values. The dashboard's owner and administrators get every user's paths (scope `all`); another user who may view the dashboard gets only their own (scope `own`); anyone else gets 404. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "filter-event-report"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "Dashboard UUID captured from the URL.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "The most paths returned, 1 to 100.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "dashboardId": {
+                                            "type": "string"
+                                        },
+                                        "scope": {
+                                            "type": "string",
+                                            "enum": [
+                                                "all",
+                                                "own"
+                                            ]
+                                        },
+                                        "events": {
+                                            "type": "integer"
+                                        },
+                                        "paths": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "path": {
+                                                        "type": "string"
+                                                    },
+                                                    "count": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

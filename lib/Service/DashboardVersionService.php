@@ -174,11 +174,8 @@ class DashboardVersionService {
 	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
 	public function captureSnapshot(Dashboard $dashboard, string $createdBy, array $options=[]): ?DashboardVersion {
-		$options     += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
-		$snapshotJson = $options['snapshotJson'];
-		$note         = $options['note'];
-		$explicit     = $options['explicit'];
-		$uuid = (string)$dashboard->getUuid();
+		$options += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
+		$uuid     = (string)$dashboard->getUuid();
 		if ($uuid === '') {
 			// Defensive — without a UUID we have nothing to key the
 			// snapshot to. Refuse silently rather than throw because
@@ -186,10 +183,31 @@ class DashboardVersionService {
 			return null;
 		}
 
-		if ($explicit === false && $this->isDebounced(uuid: $uuid) === true) {
+		if ($options['explicit'] === false && $this->isDebounced(uuid: $uuid) === true) {
 			return null;
 		}
 
+		$entity = $this->newVersion(dashboard: $dashboard, options: $options);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setCreatedBy($createdBy);
+
+		return $this->insertVersion(entity: $entity);
+	}//end captureSnapshot()
+
+	/**
+	 * The next version row of a dashboard, not yet persisted and without
+	 * its author.
+	 *
+	 * @param Dashboard $dashboard The dashboard being snapshotted (it has a UUID).
+	 * @param array     $options   `snapshotJson`, `note` and `explicit` as
+	 *                             {@see self::captureSnapshot()} takes them.
+	 *
+	 * @return DashboardVersion The unsaved row.
+	 */
+	private function newVersion(Dashboard $dashboard, array $options): DashboardVersion {
+		$uuid         = (string)$dashboard->getUuid();
+		$snapshotJson = $options['snapshotJson'];
+		$note         = $options['note'];
 		// Auto-build the payload when the caller hands us nothing —
 		// this keeps the integration with `DashboardService` simple.
 		if ($snapshotJson === null || $snapshotJson === '') {
@@ -197,7 +215,7 @@ class DashboardVersionService {
 		}
 
 		$coercedNote = null;
-		if ($explicit === true && $note !== null && $note !== '') {
+		if ($options['explicit'] === true && $note !== null && $note !== '') {
 			$coercedNote = $note;
 		}
 
@@ -212,13 +230,25 @@ class DashboardVersionService {
 		$entity->setDashboardUuid($uuid);
 		$entity->setVersionNumber($next);
 		$entity->setSnapshotJson($snapshotJson);
-		$entity->setCreatedBy($createdBy);
 		$entity->setCreatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
 		$entity->setNote($coercedNote);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
+		return $entity;
+	}//end newVersion()
+
+	/**
+	 * Persist a version row, prune past the retention limit and refresh
+	 * the debounce key.
+	 *
+	 * @param DashboardVersion $entity The row to insert.
+	 *
+	 * @return DashboardVersion The persisted row.
+	 */
+	private function insertVersion(DashboardVersion $entity): DashboardVersion {
+		$uuid      = (string)$entity->getDashboardUuid();
 		$persisted = $this->stores->versionMapper->insert(entity: $entity);
 
 		// REQ-VERS-006: prune inline so the table never exceeds the
@@ -235,7 +265,7 @@ class DashboardVersionService {
 		$this->markDebounced(uuid: $uuid);
 
 		return $persisted;
-	}//end captureSnapshot()
+	}//end insertVersion()
 
 	/**
 	 * List the versions available for a dashboard, newest-first

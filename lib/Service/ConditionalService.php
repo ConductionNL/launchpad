@@ -28,6 +28,7 @@ use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -35,7 +36,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *
  * @spec openspec/specs/conditional-visibility/spec.md
  */
-class ConditionalService {
+class ConditionalService implements ConditionalServiceInterface {
 	/**
 	 * Constructor
 	 *

@@ -66,6 +66,7 @@ describe('AdminSettings tabs', () => {
 			'group-dashboards',
 			'detail-fields',
 			'profile-fields',
+			'search-shortcuts',
 			'app-catalogue',
 		])
 		expect(source).toContain(':tabs="beheerTabs"')

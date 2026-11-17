@@ -63,6 +63,7 @@ use Psr\Log\LoggerInterface;
  */
 #[CoversClass(WidgetApiController::class)]
 #[CoversClass(WidgetApiSources::class)]
+#[UsesClass(\OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields::class)]
 #[UsesClass(RequestActor::class)]
 #[UsesClass(RequestDataExtractor::class)]
 #[UsesClass(ResponseHelper::class)]

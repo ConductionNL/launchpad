@@ -44,6 +44,7 @@ use PHPUnit\Framework\TestCase;
  * Validation, compilation and evaluation of calculated fields.
  */
 #[CoversClass(CalculatedFieldService::class)]
+#[UsesClass(\OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields::class)]
 #[UsesClass(CalculatedFieldAstChecker::class)]
 #[UsesClass(CalculatedFieldTypeChecker::class)]
 #[UsesClass(CalculatedFieldCycleDetector::class)]

@@ -36,6 +36,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service\CalculatedFields;
 
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -123,31 +124,8 @@ class CalculatedFieldMaterialiser {
 			}
 		}
 
-		$warnings     = [];
-		$expressions  = [];
-		$unsupported  = [];
-		$changed      = true;
-		while ($changed === true) {
-			$changed     = false;
-			$keys        = $this->keysOf(widgetId: $widgetId, names: array_keys($candidates));
-			$expressions = [];
-			foreach ($candidates as $name => $index) {
-				$expression = $this->translator->translate(
-					node: ($fields[$index]['compiledExpression'] ?? null),
-					widgetId: $widgetId,
-					keys: $keys
-				);
-				$type       = $this->translator->calculationType(returnType: ($fields[$index]['returnType'] ?? null));
-				if ($expression === null || $type === null) {
-					unset($candidates[$name]);
-					$unsupported[$name] = true;
-					$changed = true;
-					continue;
-				}
-
-				$expressions[$name] = ['type' => $type, 'expression' => $expression];
-			}
-		}//end while
+		$warnings = [];
+		[$candidates, $expressions, $unsupported] = $this->materialisable(widgetId: $widgetId, fields: $fields, candidates: $candidates);
 
 		foreach ($fields as $index => $field) {
 			$name = (string) ($field['name'] ?? '');
@@ -220,7 +198,7 @@ class CalculatedFieldMaterialiser {
 	 *
 	 * @return bool True when the schema was written.
 	 *
-	 * @throws \RuntimeException When OpenRegister is unavailable.
+	 * @throws RuntimeException When OpenRegister is unavailable.
 	 * @throws Throwable         What OpenRegister throws when the schema cannot be read or written.
 	 *
 	 * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-004-server-side-evaluation-via-openregister-computed-fields
@@ -228,7 +206,7 @@ class CalculatedFieldMaterialiser {
 	public function write(string $schemaId, string $widgetId, array $properties): bool {
 		$mapper = $this->mapper();
 		if ($mapper === null) {
-			throw new \RuntimeException(message: 'OpenRegister is unavailable.');
+			throw new RuntimeException(message: 'OpenRegister is unavailable.');
 		}
 
 		$schema  = $mapper->find(id: $schemaId);
@@ -266,7 +244,7 @@ class CalculatedFieldMaterialiser {
 	 *
 	 * @return bool True when the schema was written.
 	 *
-	 * @throws \RuntimeException When OpenRegister is unavailable.
+	 * @throws RuntimeException When OpenRegister is unavailable.
 	 * @throws Throwable         What OpenRegister throws when the schema cannot be read or written.
 	 *
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-28
@@ -276,22 +254,39 @@ class CalculatedFieldMaterialiser {
 	}//end remove()
 
 	/**
-	 * The schema part of a `register/schema` source key.
+	 * Narrow the candidates to the fields that can be materialised: drop
+	 * each one that cannot be translated or declared, and repeat while that
+	 * drops a field another one reads.
 	 *
-	 * @param string $sourceKey The source key.
+	 * @param string                    $widgetId   The widget id.
+	 * @param list<array<string,mixed>> $fields     The fields.
+	 * @param array<string,int>         $candidates Server-mode name => index.
 	 *
-	 * @return string The schema, or '' when there is none.
-	 *
-	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-26
+	 * @return array{0: array<string,int>, 1: array<string,array{type: string, expression: mixed}>, 2: array<string,true>}
+	 *         The materialisable candidates, their declarations, and the names dropped.
 	 */
-	public static function schemaOf(string $sourceKey): string {
-		$slash = strpos($sourceKey, '/');
-		if ($slash === false) {
-			return '';
-		}
+	private function materialisable(string $widgetId, array $fields, array $candidates): array {
+		$unsupported = [];
+		do {
+			$dropped     = false;
+			$keys        = $this->keysOf(widgetId: $widgetId, names: array_keys($candidates));
+			$expressions = [];
+			foreach ($candidates as $name => $index) {
+				$expression = $this->translator->translate(node: ($fields[$index]['compiledExpression'] ?? null), widgetId: $widgetId, keys: $keys);
+				$type       = $this->translator->calculationType(returnType: ($fields[$index]['returnType'] ?? null));
+				if ($expression === null || $type === null) {
+					unset($candidates[$name]);
+					$unsupported[$name] = true;
+					$dropped = true;
+					continue;
+				}
 
-		return substr($sourceKey, ($slash + 1));
-	}//end schemaOf()
+				$expressions[$name] = ['type' => $type, 'expression' => $expression];
+			}
+		} while ($dropped === true);
+
+		return [$candidates, $expressions, $unsupported];
+	}//end materialisable()
 
 	/**
 	 * The schema properties of the materialised fields, dependencies first.

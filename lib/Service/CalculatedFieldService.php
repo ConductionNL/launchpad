@@ -35,11 +35,11 @@ use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldMaterialiser;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldTypeChecker;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
 use OCA\LaunchPad\Service\CalculatedFields\EvaluationError;
-use Throwable;
 
 /**
  * Validates, compiles and evaluates calculated fields on the server.
@@ -47,6 +47,13 @@ use Throwable;
  * @spec openspec/changes/widget-calculated-fields/tasks.md#task-23
  */
 class CalculatedFieldService {
+
+	/**
+	 * Keeps server-mode fields materialised on OpenRegister.
+	 *
+	 * @var CalculatedFieldServerFields
+	 */
+	private readonly CalculatedFieldServerFields $serverFields;
 
 	/**
 	 * Constructor.
@@ -65,8 +72,9 @@ class CalculatedFieldService {
 		private readonly CalculatedFieldTypeChecker $typeChecker,
 		private readonly CalculatedFieldCycleDetector $cycleDetector,
 		private readonly CalculatedFieldEvaluator $evaluator,
-		private readonly ?CalculatedFieldMaterialiser $materialiser=null,
+		?CalculatedFieldMaterialiser $materialiser=null,
 	) {
+		$this->serverFields = new CalculatedFieldServerFields(materialiser: $materialiser);
 	}//end __construct()
 
 	/**
@@ -162,85 +170,41 @@ class CalculatedFieldService {
 
 	/**
 	 * Decide, before a widget is persisted, which of its server-mode fields
-	 * will be materialised on OpenRegister and set their `serverComputedFieldId`
-	 * (REQ-CALC-004). A field OpenRegister cannot evaluate alike is downgraded
-	 * to client mode with a warning; without OpenRegister every server-mode
-	 * field is.
+	 * will be materialised on OpenRegister (REQ-CALC-004).
 	 *
 	 * @param string                    $id     The widget id.
 	 * @param list<array<string,mixed>> $fields The validated fields, from validateAndCompile().
 	 *
 	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>}
 	 *
+	 * @see CalculatedFieldServerFields::plan()
+	 *
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-26
 	 */
 	public function planServerFields(string $id, array $fields): array {
-		if ($this->materialiser === null) {
-			return ['fields' => $fields, 'warnings' => []];
-		}
-
-		$plan = $this->materialiser->plan(widgetId: $id, fields: $fields);
-		if ($plan['properties'] !== [] && $this->materialiser->isAvailable() === false) {
-			$down = $this->materialiser->downgradeAll(fields: $plan['fields'], reason: 'OpenRegister is unavailable');
-			return ['fields' => $down['fields'], 'warnings' => array_merge($plan['warnings'], $down['warnings'])];
-		}
-
-		return ['fields' => $plan['fields'], 'warnings' => $plan['warnings']];
+		return $this->serverFields->plan(id: $id, fields: $fields);
 	}//end planServerFields()
 
 	/**
-	 * Write a persisted widget's server-mode fields to its OpenRegister
-	 * source schema, replacing the properties the widget owned there, and
-	 * remove them from the schema it was backed by before when its source
-	 * changed (REQ-CALC-004).
+	 * Write a persisted widget's server-mode fields to its OpenRegister source
+	 * schema (REQ-CALC-004).
 	 *
-	 * When the schema cannot be written (OpenRegister refuses the current
-	 * user, or the schema is gone) nothing is materialised: every server-mode
-	 * field is answered as a client field with a warning, for the caller to
-	 * persist.
-	 *
-	 * @param array<string,mixed> $widget   The widget: `id`, `calculatedFields` from planServerFields(),
-	 *                                      `source` (its `register/schema`, see sourceKey()).
+	 * @param array<string,mixed> $widget   The widget: `id`, `calculatedFields`, `source`.
 	 * @param array<string,mixed> $previous The widget before this save: `source` and `calculatedFields`.
 	 *
 	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>, changed: bool}
-	 *         The fields as they now stand, warnings, and whether they differ from the ones given.
+	 *
+	 * @see CalculatedFieldServerFields::materialise()
 	 *
 	 * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-004-server-side-evaluation-via-openregister-computed-fields
 	 */
 	public function materializeForOpenRegister(array $widget, array $previous=[]): array {
-		$id     = (string) ($widget['id'] ?? '');
-		$fields = $this->declaredFields(fields: $widget['calculatedFields'] ?? []);
-		$none   = ['fields' => $fields, 'warnings' => [], 'changed' => false];
-		if ($this->materialiser === null || $this->materialiser->isAvailable() === false) {
-			return $none;
-		}
-
-		$schema    = CalculatedFieldMaterialiser::schemaOf(sourceKey: (string) ($widget['source'] ?? ''));
-		$oldSchema = CalculatedFieldMaterialiser::schemaOf(sourceKey: (string) ($previous['source'] ?? ''));
-		$hadServer = self::hasServerFields(fields: $previous['calculatedFields'] ?? []);
-		$warnings  = [];
-		if ($hadServer === true && $oldSchema !== '' && $oldSchema !== $schema) {
-			$warnings = $this->cleanupServerFields(widget: ['id' => $id, 'source' => (string) $previous['source']]);
-		}
-
-		$plan = $this->materialiser->plan(widgetId: $id, fields: $fields);
-		if ($schema === '' || ($plan['properties'] === [] && ($hadServer === false || $oldSchema !== $schema))) {
-			return ['fields' => $fields, 'warnings' => $warnings, 'changed' => false];
-		}
-
-		try {
-			$this->materialiser->write(schemaId: $schema, widgetId: $id, properties: $plan['properties']);
-		} catch (Throwable) {
-			$down = $this->materialiser->downgradeAll(fields: $plan['fields'], reason: 'the source schema could not be updated');
-			return [
-				'fields'   => $down['fields'],
-				'warnings' => array_merge($warnings, $down['warnings']),
-				'changed'  => $down['warnings'] !== [],
-			];
-		}
-
-		return ['fields' => $plan['fields'], 'warnings' => $warnings, 'changed' => $plan['fields'] !== $fields];
+		return $this->serverFields->materialise(
+			id: (string) ($widget['id'] ?? ''),
+			fields: $this->declaredFields(fields: $widget['calculatedFields'] ?? []),
+			source: (string) ($widget['source'] ?? ''),
+			previous: $previous
+		);
 	}//end materializeForOpenRegister()
 
 	/**
@@ -254,28 +218,11 @@ class CalculatedFieldService {
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-28
 	 */
 	public function cleanupServerFields(array $widget): array {
-		$schema = CalculatedFieldMaterialiser::schemaOf(sourceKey: (string) ($widget['source'] ?? ''));
-		if ($this->materialiser === null || $schema === '' || $this->materialiser->isAvailable() === false) {
-			return [];
-		}
-
-		try {
-			$this->materialiser->remove(schemaId: $schema, widgetId: (string) ($widget['id'] ?? ''));
-		} catch (Throwable) {
-			return [
-				[
-					'warning' => 'server_fields_not_removed',
-					'field'   => '',
-					'reason'  => 'the calculated properties on the source schema could not be removed',
-				],
-			];
-		}
-
-		return [];
+		return $this->serverFields->cleanup(id: (string) ($widget['id'] ?? ''), source: (string) ($widget['source'] ?? ''));
 	}//end cleanupServerFields()
 
 	/**
-	 * Whether any of the fields was materialised on OpenRegister.
+	 * Whether any of the stored fields was materialised on OpenRegister.
 	 *
 	 * @param mixed $fields The stored fields.
 	 *
@@ -283,18 +230,8 @@ class CalculatedFieldService {
 	 *
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-28
 	 */
-	public static function hasServerFields(mixed $fields): bool {
-		if (is_array($fields) === false) {
-			return false;
-		}
-
-		foreach ($fields as $field) {
-			if (is_array($field) === true && is_string($field['serverComputedFieldId'] ?? null) === true && $field['serverComputedFieldId'] !== '') {
-				return true;
-			}
-		}
-
-		return false;
+	public function hasServerFields(mixed $fields): bool {
+		return $this->serverFields->hasServerFields(fields: $fields);
 	}//end hasServerFields()
 
 	/**

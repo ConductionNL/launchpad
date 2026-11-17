@@ -45,6 +45,7 @@ use PHPUnit\Framework\TestCase;
  * Cross-widget references, checked and evaluated on the server.
  */
 #[CoversClass(CalculatedFieldService::class)]
+#[UsesClass(\OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields::class)]
 #[UsesClass(CalculatedFieldAstChecker::class)]
 #[UsesClass(CalculatedFieldTypeChecker::class)]
 #[UsesClass(CalculatedFieldCycleDetector::class)]

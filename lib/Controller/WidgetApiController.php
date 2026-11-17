@@ -657,7 +657,7 @@ class WidgetApiController extends Controller {
 			// A source change moves the widget's materialised fields with it, so
 			// its stored fields are checked again against the new source.
 			$before = $this->sources->widgetService->getPlacement(placementId: $placementId);
-			if (CalculatedFieldService::hasServerFields(fields: $before->getCalculatedFieldsArray()) === true) {
+			if ($this->sources->calculatedFields->hasServerFields(fields: $before->getCalculatedFieldsArray()) === true) {
 				$data['calculatedFields'] = $before->getCalculatedFieldsArray();
 			}
 		}
@@ -789,7 +789,7 @@ class WidgetApiController extends Controller {
 		try {
 			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
 			$warnings  = [];
-			if (CalculatedFieldService::hasServerFields(fields: $placement->getCalculatedFieldsArray()) === true) {
+			if ($this->sources->calculatedFields->hasServerFields(fields: $placement->getCalculatedFieldsArray()) === true) {
 				// The widget's materialised fields leave its source schema with it
 				// (widget-calculated-fields, task 28).
 				$warnings = $this->sources->calculatedFields->cleanupServerFields(

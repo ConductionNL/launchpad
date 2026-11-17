@@ -41,6 +41,7 @@ use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCalculationTranslator;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldMaterialiser;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldTypeChecker;
 use OCA\LaunchPad\Service\CalculatedFieldService;
@@ -75,6 +76,7 @@ use RuntimeException;
 #[UsesClass(WidgetPlacement::class)]
 #[UsesClass(CalculatedFieldService::class)]
 #[UsesClass(CalculatedFieldMaterialiser::class)]
+#[UsesClass(CalculatedFieldServerFields::class)]
 #[UsesClass(CalculatedFieldCalculationTranslator::class)]
 #[UsesClass(CalculatedFieldAstChecker::class)]
 #[UsesClass(CalculatedFieldTypeChecker::class)]

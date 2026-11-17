@@ -105,7 +105,8 @@
 
 ## 12. Quality and Documentation
 
-- [ ] Task 47: `composer check:strict` and `eslint` pass on all new files
+- [x] Task 47: `composer check:strict` and `eslint` pass on all new files
+  - On every new lib file of the change: `php -l`, phpcs, phpmd, psalm and phpstan report nothing (fixed a psalm `InvalidOperand` in `CalculatedFieldFunctions::toNumber`, same behaviour); spec annotations, initial-state and licence checks pass; eslint reports nothing on `src/utils/calculatedFields`, the composable and the store. The repository-wide `composer check:strict` still fails on findings outside this change.
 - [x] Task 48: OpenAPI / Postman / API docs: document the new Widget schema extension (`calculatedFields` array); document error response envelopes (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
   - `openapi.json`: `CalculatedField`, `CalculatedFieldError` (the 400 envelope) and `CalculatedFieldWarning` schemas, the request body and 200/400 responses of `PUT /widgets/{placementId}`, and the cleanup warning on `DELETE`. Postman (`tests/integration/launchpad.postman_collection.json`): a valid field answered with its `returnType`, an unknown function answered 400. `docs/features/widgets.md`: a Calculated fields section.
 - [ ] Task 49: i18n — `nl_NL` and `en_US` translations for: error messages (parse_error, type_error, cycle_detected, unknownFunction), inline error hover text, downgrade warning
@@ -116,6 +117,7 @@
 - [x] Task 52: Design.md — document the design decisions (D1–D7), rationale for dual evaluation, AST-based approach, shared test suite, format-at-render-time strategy, migration plan
   - D1–D7, the rationale, the migration plan and the value semantics were in `design.md`; added the build notes for server-mode materialisation (what OpenRegister's computed-field entry is, the translated subset, ordering instead of a cross-store transaction).
 - [ ] Task 53: All hydra-gates pass (route-auth, admin-idor, semantic-auth, spdx-headers, etc.)
+  - Not ticked: `run-hydra-gates.sh` reports 12 failing gates, none in this change's files (composer audit, manifest, OR-abstraction in the Embed and permission services, Embed spec anchors and write capabilities, schema titles, icons, reports page, app chrome, walkthrough flows); every gate that reads this change's files passes.
 
 ## Verification
 

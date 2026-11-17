@@ -33,6 +33,7 @@ use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCalculationTranslator;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldMaterialiser;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldTypeChecker;
 use OCA\LaunchPad\Service\CalculatedFieldService;
@@ -47,6 +48,7 @@ use RuntimeException;
  */
 #[CoversClass(CalculatedFieldService::class)]
 #[CoversClass(CalculatedFieldMaterialiser::class)]
+#[CoversClass(CalculatedFieldServerFields::class)]
 #[UsesClass(CalculatedFieldCalculationTranslator::class)]
 #[UsesClass(CalculatedFieldAstChecker::class)]
 #[UsesClass(CalculatedFieldTypeChecker::class)]
@@ -473,9 +475,10 @@ class CalculatedFieldServerModeTest extends TestCase {
 	 * @return void
 	 */
 	public function testHasServerFields(): void {
-		$this->assertTrue(CalculatedFieldService::hasServerFields(fields: [['serverComputedFieldId' => 'launchpad_7__a']]));
-		$this->assertFalse(CalculatedFieldService::hasServerFields(fields: [['serverComputedFieldId' => null], 'x']));
-		$this->assertFalse(CalculatedFieldService::hasServerFields(fields: 'x'));
+		$service = $this->service();
+		$this->assertTrue($service->hasServerFields(fields: [['serverComputedFieldId' => 'launchpad_7__a']]));
+		$this->assertFalse($service->hasServerFields(fields: [['serverComputedFieldId' => null], 'x']));
+		$this->assertFalse($service->hasServerFields(fields: 'x'));
 	}//end testHasServerFields()
 
 	/**
@@ -485,7 +488,7 @@ class CalculatedFieldServerModeTest extends TestCase {
 	 */
 	public function testKeys(): void {
 		$this->assertSame('launchpad_7__net_revenue', CalculatedFieldMaterialiser::fieldKey(widgetId: '7', name: 'net-revenue'));
-		$this->assertSame('orders', CalculatedFieldMaterialiser::schemaOf(sourceKey: 'reg/orders'));
-		$this->assertSame('', CalculatedFieldMaterialiser::schemaOf(sourceKey: ''));
+		$this->assertSame('orders', (new CalculatedFieldServerFields())->schemaOf(sourceKey: 'reg/orders'));
+		$this->assertSame('', (new CalculatedFieldServerFields())->schemaOf(sourceKey: ''));
 	}//end testKeys()
 }//end class

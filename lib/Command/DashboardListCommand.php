@@ -25,7 +25,7 @@ namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,13 +46,13 @@ class DashboardListCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
 	 * @param IUserManager $userManager For `--user` validation.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly IUserManager $userManager,
@@ -133,14 +133,14 @@ class DashboardListCommand extends CommandBase {
 				output: $output,
 				data: ['dashboards' => $rows, 'count' => count(value: $rows)]
 			);
-			return CommandService::EXIT_SUCCESS;
+			return CommandServiceInterface::EXIT_SUCCESS;
 		}
 
 		if ($this->isQuiet(input: $input) === false) {
 			$this->writeTable(output: $output, rows: $rows);
 		}
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end handle()
 
 	/**
@@ -156,7 +156,7 @@ class DashboardListCommand extends CommandBase {
 			&& in_array(needle: $filters->status, haystack: self::ALLOWED_STATUS, strict: true) === false
 		) {
 			return [
-				'exitCode' => CommandService::EXIT_INVALID_ARGS,
+				'exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS,
 				'code'     => 'INVALID_ARGUMENT',
 				'message'  => 'Invalid --status value: ' . $filters->status,
 				'context'  => ['allowed' => self::ALLOWED_STATUS],
@@ -165,7 +165,7 @@ class DashboardListCommand extends CommandBase {
 
 		if ($filters->user !== null && $this->userManager->userExists(uid: $filters->user) === false) {
 			return [
-				'exitCode' => CommandService::EXIT_NOT_FOUND,
+				'exitCode' => CommandServiceInterface::EXIT_NOT_FOUND,
 				'code'     => 'NOT_FOUND',
 				'message'  => 'User not found: ' . $filters->user,
 				'context'  => ['userId' => $filters->user],

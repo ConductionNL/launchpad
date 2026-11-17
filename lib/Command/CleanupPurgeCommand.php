@@ -32,8 +32,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
-use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,14 +48,14 @@ class CleanupPurgeCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
+	 * @param OrphanedDataCleanupServiceInterface $cleanupService The orchestrator.
 	 * @param CategoryRegistryService $registry Category registry
 	 *                                          (for the
 	 *                                          unknown-name
 	 *                                          error path).
 	 */
 	public function __construct(
-		private readonly OrphanedDataCleanupService $cleanupService,
+		private readonly OrphanedDataCleanupServiceInterface $cleanupService,
 		private readonly CategoryRegistryService $registry,
 	) {
 		parent::__construct();

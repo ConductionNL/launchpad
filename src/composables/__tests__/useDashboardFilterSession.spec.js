@@ -87,3 +87,24 @@ describe('hierarchiesOf / levelLabels', () => {
 		expect(levelLabels([{ id: 'x', levels: [{ dimension: 'a', label: '' }, { dimension: 'b', label: 'B' }] }])).toEqual({ b: 'B' })
 	})
 })
+
+describe('useDashboardFilterSession applyView', () => {
+	it('a saved view replaces the non-pinned clauses and keeps the pinned ones (REQ-CWF-009)', () => {
+		const { location, history } = browserAt('https://cloud.example/apps/launchpad/')
+		const session = useDashboardFilterSession({ dashboard: { hierarchies: [] }, readUrl: false, location, history })
+		session.bus.hydrate([
+			{ dimension: 'status', operator: 'eq', value: 'open', pinned: false },
+			{ dimension: 'period.month', operator: 'eq', value: '2026-01', source: 'userExplicit', pinned: true },
+		])
+
+		session.applyView([
+			{ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355', source: 'widgetClick' },
+			{ dimension: 'period.month', operator: 'eq', value: '2026-09' },
+		])
+
+		expect(session.clauses.value.map((clause) => [clause.dimension, clause.value, clause.source])).toEqual([
+			['period.month', '2026-01', 'userExplicit'],
+			['gemeenteCode', 'GM0355', 'savedView'],
+		])
+	})
+})

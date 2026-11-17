@@ -29,6 +29,7 @@ use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementFollow;
 use OCA\LaunchPad\Db\AnnouncementFollowMapper;
 use OCA\LaunchPad\Db\AnnouncementMapper;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowNotifierInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -45,7 +46,7 @@ use Throwable;
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-follow-categories-req-ann-003
  */
-class AnnouncementFollowNotifier {
+class AnnouncementFollowNotifier implements AnnouncementFollowNotifierInterface {
 
 	/**
 	 * The notification subject.

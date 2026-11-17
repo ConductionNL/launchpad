@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\CalendarWidgetServiceInterface;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IResponse;
@@ -61,7 +62,7 @@ use Throwable;
  *                                                   total complexity past
  *                                                   the project default.
  */
-class CalendarWidgetService {
+class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	/**
 	 * Default cache TTL for raw ICS bodies (in seconds).
 	 *
@@ -165,29 +166,54 @@ class CalendarWidgetService {
 		$internalCalendars = (array)($config['internalCalendars'] ?? []);
 		$externalIcsUrls = (array)($config['externalIcsUrls'] ?? []);
 
-		$events = [];
-		$failures = [];
+		$result = [
+			'events' => [],
+			'failures' => [],
+		];
 
 		if ($internalCalendars !== []) {
-			$internalResult = $this->fetchInternalEvents(
-				principals: $internalCalendars,
-				from: $from,
-				to: $to
+			$result = $this->appendResult(
+				result: $result,
+				source: $this->fetchInternalEvents(principals: $internalCalendars, from: $from, to: $to)
 			);
-			$events = array_merge($events, $internalResult['events']);
-			$failures = array_merge($failures, $internalResult['failures']);
 		}
 
 		if ($externalIcsUrls !== []) {
-			$externalResult = $this->fetchExternalIcsEvents(
-				urls: $externalIcsUrls,
-				from: $from,
-				to: $to
+			$result = $this->appendResult(
+				result: $result,
+				source: $this->fetchExternalIcsEvents(urls: $externalIcsUrls, from: $from, to: $to)
 			);
-			$events = array_merge($events, $externalResult['events']);
-			$failures = array_merge($failures, $externalResult['failures']);
 		}
 
+		return [
+			'events' => $this->sortedByStart(events: $result['events']),
+			'failures' => $result['failures'],
+		];
+	}//end getEvents()
+
+	/**
+	 * One source's events and failures appended to those gathered so far.
+	 *
+	 * @param array{events: array<int, array<string, mixed>>, failures: array<int, string>} $result The result so far.
+	 * @param array{events: array<int, array<string, mixed>>, failures: array<int, string>} $source One source's result.
+	 *
+	 * @return array{events: array<int, array<string, mixed>>, failures: array<int, string>}
+	 */
+	private function appendResult(array $result, array $source): array {
+		return [
+			'events' => array_merge($result['events'], $source['events']),
+			'failures' => array_merge($result['failures'], $source['failures']),
+		];
+	}//end appendResult()
+
+	/**
+	 * Events ordered by their ISO start.
+	 *
+	 * @param array<int, array<string, mixed>> $events The events.
+	 *
+	 * @return array<int, array<string, mixed>> The same events, sorted.
+	 */
+	private function sortedByStart(array $events): array {
 		usort(
 			array: $events,
 			callback: static function (array $eventA, array $eventB): int {
@@ -195,11 +221,8 @@ class CalendarWidgetService {
 			}
 		);
 
-		return [
-			'events' => $events,
-			'failures' => $failures,
-		];
-	}//end getEvents()
+		return $events;
+	}//end sortedByStart()
 
 	/**
 	 * List the current user's internal calendars for the config-form picker

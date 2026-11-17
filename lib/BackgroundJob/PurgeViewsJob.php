@@ -34,7 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -50,13 +50,13 @@ class PurgeViewsJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory     $time Time factory used by the parent `TimedJob` to gate the next-run decision.
-	 * @param AnalyticsService $analyticsService Analytics service (cutoff date + log context).
+	 * @param AnalyticsServiceInterface $analyticsService Analytics service (cutoff date + log context).
 	 * @param PurgeMappers     $mappers The view and tile click mappers.
 	 * @param LoggerInterface  $logger PSR logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly AnalyticsService $analyticsService,
+		private readonly AnalyticsServiceInterface $analyticsService,
 		private readonly PurgeMappers $mappers,
 		private readonly LoggerInterface $logger,
 	) {

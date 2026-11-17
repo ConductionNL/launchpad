@@ -13,6 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@nextcloud/l10n', () => ({
 	translate: (_app, text, vars = {}) =>
 		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
+	translatePlural: (_app, one, many, count) =>
+		(count === 1 ? one : many).replace('%n', String(count)),
 }))
 vi.mock('../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 

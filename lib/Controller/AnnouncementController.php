@@ -31,9 +31,9 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
-use OCA\LaunchPad\Service\AnnouncementCommentService;
-use OCA\LaunchPad\Service\AnnouncementFollowService;
-use OCA\LaunchPad\Service\AnnouncementService;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementCommentServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -58,17 +58,17 @@ class AnnouncementController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest            $request       The request.
-	 * @param AnnouncementService $announcements The announcements.
+	 * @param AnnouncementServiceInterface $announcements The announcements.
 	 * @param RequestGuard        $guard         The session user and the action check.
-	 * @param AnnouncementFollowService $follows The followed categories.
-	 * @param AnnouncementCommentService|null $reactions Likes and comments through Nextcloud's comments service.
+	 * @param AnnouncementFollowServiceInterface $follows The followed categories.
+	 * @param AnnouncementCommentServiceInterface|null $reactions Likes and comments through Nextcloud's comments service.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AnnouncementService $announcements,
+		private readonly AnnouncementServiceInterface $announcements,
 		private readonly RequestGuard $guard,
-		private readonly AnnouncementFollowService $follows,
-		private readonly ?AnnouncementCommentService $reactions = null,
+		private readonly AnnouncementFollowServiceInterface $follows,
+		private readonly ?AnnouncementCommentServiceInterface $reactions = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -250,7 +250,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function comments(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.read') ?? $this->withReactions(
-			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+			run: fn (string $userId, AnnouncementCommentServiceInterface $reactions): JSONResponse => new JSONResponse(
 				['comments' => $reactions->commentsOn(userId: $userId, uuid: $uuid)]
 			)
 		);
@@ -268,7 +268,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function comment(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.comment') ?? $this->withReactions(
-			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+			run: fn (string $userId, AnnouncementCommentServiceInterface $reactions): JSONResponse => new JSONResponse(
 				$reactions->comment(userId: $userId, uuid: $uuid, message: (string) $this->request->getParam(key: 'message', default: '')),
 				Http::STATUS_CREATED
 			)
@@ -287,7 +287,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function like(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.comment') ?? $this->withReactions(
-			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+			run: fn (string $userId, AnnouncementCommentServiceInterface $reactions): JSONResponse => new JSONResponse(
 				$reactions->like(userId: $userId, uuid: $uuid)
 			)
 		);
@@ -305,7 +305,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function unlike(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.comment') ?? $this->withReactions(
-			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+			run: fn (string $userId, AnnouncementCommentServiceInterface $reactions): JSONResponse => new JSONResponse(
 				$reactions->unlike(userId: $userId, uuid: $uuid)
 			)
 		);

@@ -10,10 +10,12 @@
 	"types": [
 		"ai-assistant",
 		"announcements",
+		"app-tiles",
 		"attention",
 		"calendar",
 		"chart",
 		"clock",
+		"communities",
 		"container",
 		"delta",
 		"divider",

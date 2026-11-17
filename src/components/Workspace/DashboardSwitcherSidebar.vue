@@ -175,6 +175,9 @@
 								@addCustomWidget="
 									onRowAddCustomWidget(dashboard, section.source)
 								"
+								@importBookmarks="
+									onRowImportBookmarks(dashboard, section.source)
+								"
 								@delete="onRowDelete(dashboard, section.source)"
 								@setDefault="onRowSetDefault(dashboard, section.source)" />
 						</li>
@@ -495,6 +498,8 @@ export default {
 		'toggleEdit',
 		'openConfig',
 		'addCustomWidget',
+		// launcher-bookmark-import REQ-BMI-001 — `(dashboard, source)`.
+		'importBookmarks',
 		// wave3.7 — `(dashboard, source)`. The host pins this row as
 		// the user's default via `POST /api/dashboards/default`.
 		'setDefault',
@@ -785,6 +790,17 @@ export default {
 		 */
 		onRowAddCustomWidget(dashboard, source) {
 			this.$emit('addCustomWidget', dashboard, source)
+		},
+
+		/**
+		 * Re-emit the row's "Import bookmarks" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		onRowImportBookmarks(dashboard, source) {
+			this.$emit('importBookmarks', dashboard, source)
 		},
 
 		/**

@@ -486,6 +486,51 @@ describe('useDashboardStore — persistActivePreference (REQ-DASH-019)', () => {
 	})
 })
 
+describe('useDashboardStore — a dashboard the address names', () => {
+	it('is opened after the first load, so the stored preference does not replace it', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		mockApi.getVisibleDashboards.mockResolvedValue({
+			data: [
+				{ id: 35, uuid: 'linked', source: 'user', name: 'Route check' },
+				{ id: 36, uuid: 'stored', source: 'user', name: 'Andere' },
+			],
+		})
+		mockApi.getActiveDashboard.mockResolvedValue({
+			data: { dashboard: { id: 36, uuid: 'stored' }, placements: [{ id: 9 }], permissionLevel: 'full' },
+		})
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 35, uuid: 'linked' }, placements: [], permissionLevel: 'full', isOwner: true },
+		})
+		mockApi.activateDashboard.mockResolvedValue({ data: {} })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+
+		await store.openDashboard('35')
+		expect(mockApi.getDashboardById).not.toHaveBeenCalled()
+		await store.loadDashboards()
+
+		expect(store.activeDashboard.uuid).toBe('linked')
+		expect(store.widgetPlacements).toEqual([])
+		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('linked')
+	})
+
+	it('is opened at once when the first load has finished', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.loadedOnce = true
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 35, uuid: 'linked' }, placements: [], permissionLevel: 'full', isOwner: true },
+		})
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+
+		await store.openDashboard(35)
+
+		expect(store.activeDashboard.uuid).toBe('linked')
+		expect(store.requestedDashboardId).toBeNull()
+	})
+})
+
 describe('useDashboardStore — switchDashboard wires the active-pref POST', () => {
 	it('calls setActiveDashboardPreference with the new uuid after a successful switch', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')

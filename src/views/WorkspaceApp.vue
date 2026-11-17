@@ -374,7 +374,7 @@ export default {
 					return
 				}
 
-				store.switchDashboard(id)
+				store.openDashboard(id)
 			},
 		},
 	},

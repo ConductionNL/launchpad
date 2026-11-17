@@ -162,6 +162,9 @@ class AdminSettingsService {
 			// navigation panel. Off by default so an existing instance keeps its
 			// rail; a stored value that is not a boolean reads as off.
 			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry is
+			// opt-in per organisation; only a stored `true` turns it on.
+			'filterTelemetryEnabled' => ($settings[AdminSettingKey::FILTER_TELEMETRY_ENABLED->value] ?? false) === true,
 			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
 			// them; a stored value that no longer validates reads as empty.
 			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
@@ -169,8 +172,107 @@ class AdminSettingsService {
 			// Engagement-announcements D6: the groups whose members may write
 			// announcements besides administrators; none until one is chosen.
 			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
+			// Engagement-communities REQ-COMM-003: the Talk conversations the
+			// organisation pinned. A stored entry that is not a token is dropped.
+			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
 		];
 	}//end getSettings()
+
+	/**
+	 * Most Talk conversations an administrator may pin (engagement-communities D3).
+	 *
+	 * @var int
+	 */
+	public const PINNED_COMMUNITIES_MAX = 20;
+
+	/**
+	 * The shape of a Talk conversation token (engagement-communities D3).
+	 *
+	 * @var string
+	 */
+	public const COMMUNITY_TOKEN_PATTERN = '/^[a-z0-9]{4,30}$/';
+
+	/**
+	 * The pinned communities as stored, keeping only the entries that are
+	 * tokens, without duplicates, at most {@see self::PINNED_COMMUNITIES_MAX}.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int, string> The pinned tokens, in the order pinned.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	private function readPinnedCommunities(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		$tokens = array_filter(
+			array: array_values($stored),
+			callback: fn (mixed $token): bool => $this->isCommunityToken(token: $token)
+		);
+
+		return array_slice(array: array_values(array_unique($tokens)), offset: 0, length: self::PINNED_COMMUNITIES_MAX);
+	}//end readPinnedCommunities()
+
+	/**
+	 * Validate the pinned communities an administrator saves: a list of at most
+	 * {@see self::PINNED_COMMUNITIES_MAX} Talk conversation tokens. Surrounding
+	 * blanks are trimmed, empty entries and duplicates are dropped.
+	 *
+	 * @param array $tokens The tokens as submitted.
+	 *
+	 * @return array<int, string> The tokens to store, in the order given.
+	 *
+	 * @throws InvalidArgumentException When an entry is not a token, or there are too many.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	public function normalisePinnedCommunities(array $tokens): array {
+		$clean = [];
+		foreach ($tokens as $token) {
+			if (is_string($token) === true) {
+				$token = trim($token);
+			}
+
+			if ($token === '') {
+				continue;
+			}
+
+			if ($this->isCommunityToken(token: $token) === false) {
+				$shown = '(not text)';
+				if (is_scalar($token) === true) {
+					$shown = (string) $token;
+				}
+
+				throw new InvalidArgumentException(
+					message: "Invalid value for pinnedCommunities: '" . $shown . "' is not a Talk conversation token "
+						. '(4 to 30 lowercase letters and digits).'
+				);
+			}
+
+			$clean[$token] = $token;
+		}//end foreach
+
+		if (count($clean) > self::PINNED_COMMUNITIES_MAX) {
+			throw new InvalidArgumentException(
+				message: 'Invalid value for pinnedCommunities: at most ' . self::PINNED_COMMUNITIES_MAX . ' conversations can be pinned.'
+			);
+		}
+
+		return array_values($clean);
+	}//end normalisePinnedCommunities()
+
+	/**
+	 * Whether a value is a Talk conversation token.
+	 *
+	 * @param mixed $token The value.
+	 *
+	 * @return bool True for 4 to 30 lowercase letters and digits.
+	 */
+	private function isCommunityToken(mixed $token): bool {
+		return is_string($token) === true && preg_match(pattern: self::COMMUNITY_TOKEN_PATTERN, subject: $token) === 1;
+	}//end isCommunityToken()
 
 	/**
 	 * A stored group-id list as it is read back: a list, empty when unset or not a list.
@@ -299,17 +401,7 @@ class AdminSettingsService {
 	 *              containing `{query}`.
 	 */
 	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+		return QueryUrlTemplate::isValid(value: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
@@ -343,7 +435,9 @@ class AdminSettingsService {
 	 *                                       `quicksearchFallbackTarget` (`'none'`,
 	 *                                       `'unified-search'` or an `https` URL template containing
 	 *                                       `{query}`, REQ-QSEARCH-004) and
-	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009).
+	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009) and
+	 *                                       `pinnedCommunities` (Talk conversation tokens,
+	 *                                       at most 20, REQ-COMM-003).
 	 *
 	 * @return void
 	 *
@@ -379,8 +473,18 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
+
+		// Engagement-communities REQ-COMM-003: validated before it is stored.
+		$pinned = $settings['pinnedCommunities'] ?? null;
+		if (is_array($pinned) === true) {
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_PINNED_COMMUNITIES,
+				value: $this->normalisePinnedCommunities(tokens: $pinned)
+			);
+		}
 	}//end updateSettings()
 
 	/**

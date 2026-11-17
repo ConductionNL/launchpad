@@ -27,7 +27,7 @@ use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\ConditionalRule;
-use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -57,7 +57,7 @@ class VisibilityPreviewController extends Controller {
 	 * Constructor
 	 *
 	 * @param IRequest $request The request.
-	 * @param ConditionalService $conditionalService The conditional service
+	 * @param ConditionalServiceInterface $conditionalService The conditional service
 	 *                                               (shared evaluation
 	 *                                               pipeline).
 	 * @param string|null $userId The authenticated user
@@ -65,7 +65,7 @@ class VisibilityPreviewController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConditionalService $conditionalService,
+		private readonly ConditionalServiceInterface $conditionalService,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);

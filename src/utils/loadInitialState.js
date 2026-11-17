@@ -63,14 +63,28 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
+		// search-ai-prefix-shortcuts REQ-SPX-002: the admin's search
+		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
+		// list keeps every search box as it was.
+		searchShortcuts: [],
 		// runtime-shell REQ-SHELL-009: the dashboard view without the left
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// drill-down-cross-widget-filter REQ-CWF-010: whether the dashboard's
+		// filter bus records filter_event rows. Optional key; off by default.
+		filterTelemetryEnabled: false,
 		// launcher-tile-launch-types: what the tile editor offers for program
 		// and single sign-on tiles. Optional keys; empty lists offer nothing.
 		tileAllowedSchemes: [],
 		ssoLaunchTemplates: [],
+		// engagement-communities REQ-COMM-004: whether Talk is enabled for the
+		// viewer. Optional key; `false` makes the Communities widget explain
+		// that Talk is needed instead of calling it.
+		talkEnabled: false,
+		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
+		// organisation pinned, in the order pinned. Optional key.
+		pinnedCommunities: [],
 	},
 	admin: {
 		allGroups: [],

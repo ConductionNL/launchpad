@@ -84,6 +84,9 @@
 			<template #tab-kiosk>
 				<KioskTab />
 			</template>
+			<template #tab-communities>
+				<CommunitiesTab />
+			</template>
 			<template #tab-org-navigation>
 				<OrgNavigationTab :groups="injectedAllGroups" />
 			</template>
@@ -398,6 +401,7 @@ import {
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import CommunitiesTab from './tabs/CommunitiesTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
@@ -435,6 +439,7 @@ export default {
 		MetadataFieldsSettings,
 		TileLaunchSettings,
 		KioskTab,
+		CommunitiesTab,
 		ProfileFieldsTab,
 		SearchShortcutsTab,
 		SharingTab,
@@ -609,6 +614,7 @@ export default {
 				},
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
 				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
+				{ id: 'communities', label: this.t('launchpad', 'Communities') },
 				{
 					id: 'org-navigation',
 					label: this.t('launchpad', 'Org navigation'),

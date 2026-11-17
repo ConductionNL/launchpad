@@ -75,4 +75,5 @@ enum AdminSettingKey: string {
 	// Drill-down-cross-widget-filter REQ-CWF-010: org-level opt-in for filter telemetry, off by default.
 	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
 	case OFFICE_NETWORKS = 'office_networks';
+	case PINNED_COMMUNITIES = 'pinned_communities';
 }//end enum

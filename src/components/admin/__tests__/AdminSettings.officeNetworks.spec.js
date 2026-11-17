@@ -55,7 +55,7 @@ const SectionStub = {
 async function mountPage(settings) {
 	api.getAdminSettings.mockResolvedValue({ data: settings })
 	const stubs = { CnAdminSettingsShell: ShellStub, CnSettingsSection: SectionStub }
-	for (const name of ['TemplatesPage', 'OperationsTab', 'RolesPermissionsTab', 'VersioningAuditTab', 'SharingTab', 'KioskTab', 'OrgNavigationTab', 'DemoDataTab', 'GroupDashboardsTab', 'MetadataFieldsSettings', 'ProfileFieldsTab', 'SetupWizardModal', 'TileLaunchSettings']) {
+	for (const name of ['TemplatesPage', 'OperationsTab', 'RolesPermissionsTab', 'VersioningAuditTab', 'SharingTab', 'KioskTab', 'OrgNavigationTab', 'DemoDataTab', 'GroupDashboardsTab', 'MetadataFieldsSettings', 'ProfileFieldsTab', 'SetupWizardModal', 'TileLaunchSettings', 'CommunitiesTab']) {
 		stubs[name] = { name, render: () => h('div') }
 	}
 	const wrapper = mount(AdminSettings, {

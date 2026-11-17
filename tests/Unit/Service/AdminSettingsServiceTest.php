@@ -91,6 +91,7 @@ class AdminSettingsServiceTest extends TestCase {
 				'officeNetworks' => [],
 				'currentAddress' => '',
 				'currentAddressInOfficeNetworks' => false,
+				'pinnedCommunities' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -188,7 +189,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('officeNetworks', $settings);
 		$this->assertArrayHasKey('currentAddress', $settings);
 		$this->assertArrayHasKey('currentAddressInOfficeNetworks', $settings);
-		$this->assertCount(21, $settings);
+		// engagement-communities REQ-COMM-003.
+		$this->assertArrayHasKey('pinnedCommunities', $settings);
+		$this->assertCount(22, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

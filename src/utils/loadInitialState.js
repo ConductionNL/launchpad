@@ -82,6 +82,13 @@ const PAGE_KEYS = {
 		// this request come from an office network. Optional key: a server
 		// without the setter leaves every tile on its main address.
 		onOfficeNetwork: false,
+		// engagement-communities REQ-COMM-004: whether Talk is enabled for the
+		// viewer. Optional key; `false` makes the Communities widget explain
+		// that Talk is needed instead of calling it.
+		talkEnabled: false,
+		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
+		// organisation pinned, in the order pinned. Optional key.
+		pinnedCommunities: [],
 	},
 	admin: {
 		allGroups: [],

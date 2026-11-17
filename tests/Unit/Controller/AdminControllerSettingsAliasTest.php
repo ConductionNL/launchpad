@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 19 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -280,4 +280,32 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(officeNetworks: ['10.20.0.0/16']);
 	}//end testOfficeNetworksArePassedThrough()
+
+	/**
+	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the
+	 * service, and a refused list answers 400 with the service's reason.
+	 *
+	 * @return void
+	 */
+	public function testPinnedCommunitiesArePassedThroughAndARefusalIsABadRequest(): void {
+		$calls = 0;
+		$this->settingsService->expects($this->exactly(2))
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'pinnedCommunities' => ['vraagict']]))
+			->willReturnCallback(
+				static function () use (&$calls): void {
+					$calls++;
+					if ($calls === 2) {
+						throw new \InvalidArgumentException('at most 20 conversations can be pinned');
+					}
+				}
+			);
+
+		$first = $this->controller->updateSettings(pinnedCommunities: ['vraagict']);
+		$this->assertSame(200, $first->getStatus(), json_encode($first->getData()));
+
+		$refused = $this->controller->updateSettings(pinnedCommunities: ['vraagict']);
+		$this->assertSame(400, $refused->getStatus());
+		$this->assertSame(['error' => 'at most 20 conversations can be pinned'], $refused->getData());
+	}//end testPinnedCommunitiesArePassedThroughAndARefusalIsABadRequest()
 }//end class

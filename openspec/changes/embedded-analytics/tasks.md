@@ -319,13 +319,13 @@
   - `docs/embed/troubleshooting.md` — Common issues (CSP errors, CORS, origin mismatch)
   > Written as `docs/embed/overview.md`, `admin-guide.md` (the admin API, since the token manager UI of Tasks 15-18 is still to come), `integration-guide.md`, `sdk-reference.md` and `troubleshooting.md` (every refusal code).
 
-- [ ] Task 37: i18n for new UI strings:
+- [x] Task 37: i18n for new UI strings:
   - Token manager: create, revoke, re-issue, usage, accessibility warning
   - Theme manager: create, edit, delete, preview
   - Admin notification: token revoked, policy updated
   - All strings in both NL (Dutch) + EN (English)
   - Add to `src/translations/nl.json` + `src/translations/en.json`
-  > Not done in this build: the new admin strings are wrapped in `t('launchpad', …)`, but the app's catalogue is checked by the l10n parity gate across every required locale, so adding them to `l10n/` means translating them into all of those locales in one pass (NL included), which is translation work rather than code.
+  > The 115 new frontend strings (two of them plurals, keyed `_<singular>_::_<plural>_`) are in `l10n/en.js` and translated in `l10n/nl.js`; the app keeps its catalogues in `l10n/`, not `src/translations/`. Identical to English in NL as cognates: Sites, Logo, Tokens, `Widget {id}`, `Dashboard {name}`. The other locales the parity check lists (a warning-only CI lane) still need these strings; that is a translation pass, not code.
 
 ## Quality & Integration
 

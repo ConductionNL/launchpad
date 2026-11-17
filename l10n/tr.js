@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Yalnızca ekle",
     "Add to dashboard" : "Panoya ekle",
     "Add Widget" : "Araç ekle",
+    "Add widget" : "Bileşen ekle",
     "Add custom widget…" : "Özel araç ekle…",
     "Add dashboard" : "Pano ekle",
     "Powered by" : "Tarafından desteklenmektedir",

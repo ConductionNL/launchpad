@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Tikai pievienot",
     "Add to dashboard" : "Pievienot vadības panelim",
     "Add Widget" : "Pievienot sīkrīku",
+    "Add widget" : "Pievienot sīkrīku",
     "Add custom widget…" : "Pievienot pielāgotu sīkrīku…",
     "Add dashboard" : "Pievienot vadības paneli",
     "Powered by" : "Darbina",

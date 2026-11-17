@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Iba pridať",
     "Add to dashboard" : "Pridať na nástenku",
     "Add Widget" : "Pridať Widget",
+    "Add widget" : "Pridať widget",
     "Add custom widget…" : "Pridať vlastný Widget…",
     "Add dashboard" : "Pridať nástenku",
     "Powered by" : "Poháňané technológiou",

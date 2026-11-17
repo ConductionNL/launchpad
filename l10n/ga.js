@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Cuir leis amháin",
     "Add to dashboard" : "Cuir leis an deais",
     "Add Widget" : "Cuir Giuirléid Leis",
+    "Add widget" : "Cuir giuirléid leis",
     "Add custom widget…" : "Cuir giuirléid shaincheaptha leis…",
     "Add dashboard" : "Cuir deais leis",
     "Powered by" : "Á chumhachtú ag",

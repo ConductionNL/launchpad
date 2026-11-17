@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Aðeins bæta við",
     "Add to dashboard" : "Bæta við stjórnborð",
     "Add Widget" : "Bæta við græju",
+    "Add widget" : "Bæta við græju",
     "Add custom widget…" : "Bæta við sérsniðinni græju…",
     "Add dashboard" : "Bæta við stjórnborði",
     "Powered by" : "Keyrt með",

@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Ajout uniquement",
     "Add to dashboard" : "Ajouter au tableau de bord",
     "Add Widget" : "Ajouter un widget",
+    "Add widget" : "Ajouter un widget",
     "Add custom widget…" : "Ajouter un widget personnalisé…",
     "Add dashboard" : "Ajouter un tableau de bord",
     "Powered by" : "Propulsé par",

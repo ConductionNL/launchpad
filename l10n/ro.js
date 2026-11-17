@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Doar adăugare",
     "Add to dashboard" : "Adăugați la tabloul de bord",
     "Add Widget" : "Adăugați un widget",
+    "Add widget" : "Adăugați un widget",
     "Add custom widget…" : "Adăugați un widget personalizat…",
     "Add dashboard" : "Adăugați un tablou de bord",
     "Powered by" : "Furnizat de",

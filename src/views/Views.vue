@@ -107,6 +107,7 @@
 					@openConfig="
 						onRowOpenConfig(activeDashboard, activeDashboardSource)
 					"
+					@addWidget="openWidgetModal"
 					@addCustomWidget="
 						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
 					"

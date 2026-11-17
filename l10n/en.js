@@ -35,6 +35,7 @@ OC.L10N.register(
     "Add only" : "Add only",
     "Add to dashboard" : "Add to dashboard",
     "Add Widget" : "Add Widget",
+    "Add widget" : "Add widget",
     "Add custom widget…" : "Add custom widget…",
     "Add dashboard" : "Add dashboard",
     "Powered by" : "Powered by",

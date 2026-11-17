@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Tilføj kun",
     "Add to dashboard" : "Tilføj til dashboard",
     "Add Widget" : "Tilføj widget",
+    "Add widget" : "Tilføj widget",
     "Add custom widget…" : "Tilføj brugerdefineret widget…",
     "Add dashboard" : "Tilføj dashboard",
     "Powered by" : "Drevet af",

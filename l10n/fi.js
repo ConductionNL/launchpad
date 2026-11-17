@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Vain lisäys",
     "Add to dashboard" : "Lisää kojelautaan",
     "Add Widget" : "Lisää pienoisohjelma",
+    "Add widget" : "Lisää pienoisohjelma",
     "Add custom widget…" : "Lisää mukautettu pienoisohjelma…",
     "Add dashboard" : "Lisää kojelauta",
     "Powered by" : "Toteuttaja",

@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Csak hozzáadás",
     "Add to dashboard" : "Hozzáadás az irányítópulthoz",
     "Add Widget" : "Modul hozzáadása",
+    "Add widget" : "Modul hozzáadása",
     "Add custom widget…" : "Egyéni modul hozzáadása…",
     "Add dashboard" : "Irányítópult hozzáadása",
     "Powered by" : "Üzemelteti:",

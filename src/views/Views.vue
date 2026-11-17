@@ -275,6 +275,14 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<!-- drill-down-cross-widget-filter REQ-CWF-009. -->
+			<DashboardSavedViews
+				v-if="activeDashboard?.uuid"
+				:dashboardId="activeDashboard.uuid"
+				:userId="currentUserId"
+				:canEdit="canEdit"
+				:clauses="filterClauses"
+				@apply="onApplySavedView" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -524,6 +532,7 @@ import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
+import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
@@ -539,6 +548,7 @@ import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
+import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 // Composables
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardLock } from '../composables/useDashboardLock.js'
@@ -559,6 +569,7 @@ import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
+import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
@@ -597,6 +608,7 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		DashboardSavedViews,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
 		EditLockBanner,
@@ -832,6 +844,16 @@ export default {
 		 */
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * The signed-in user's id, for the saved views they own.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 */
+		currentUserId() {
+			return typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : ''
 		},
 
 		/**
@@ -2806,7 +2828,16 @@ export default {
 		 */
 		openFilterSession(readUrl) {
 			this.filterSession?.stop()
-			this.filterSession = useDashboardFilterSession({ dashboard: this.activeDashboard, readUrl })
+			this.filterSession = useDashboardFilterSession({
+				dashboard: this.activeDashboard,
+				readUrl,
+				// REQ-CWF-010: rows are written only when the organisation opted in.
+				telemetry: createFilterTelemetry({
+					enabled: () => loadInitialState('workspace').filterTelemetryEnabled === true,
+					dashboardId: this.activeDashboard?.uuid ?? '',
+					userId: typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : '',
+				}),
+			})
 		},
 
 		/**
@@ -2828,6 +2859,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * Apply a saved view: its clauses replace every non-pinned clause.
+		 *
+		 * @param {object} view The saved view.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 */
+		onApplySavedView(view) {
+			this.filterSession?.applyView(view?.filters ?? [])
 		},
 
 		async pushUrlForActiveDashboard() {

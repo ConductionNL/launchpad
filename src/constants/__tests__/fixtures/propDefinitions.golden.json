@@ -877,6 +877,38 @@
 		"validator": false,
 		"default": 18
 	},
+	"../../components/Workspace/DashboardSavedViews.vue | dashboardId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | userId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | clauses": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | api": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Workspace/DashboardSwitcherSidebar.vue | filterFields": {
 		"type": "Array",
 		"required": false,
@@ -993,6 +1025,26 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | mine": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | shared": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | canSave": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",
@@ -1316,6 +1368,24 @@
 		"required": false,
 		"validator": false,
 		"default": false
+	},
+	"../../modals/SaveViewModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/SaveViewModal.vue | view": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/SaveViewModal.vue | error": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
 	},
 	"../../modals/TemplateEditorModal.vue | open": {
 		"type": "Boolean",

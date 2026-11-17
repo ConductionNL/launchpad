@@ -722,6 +722,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal
 		// `/api/dashboards/{uuid}/path` segment is matched first.
+		// The drill-down path report over a dashboard's filter events (REQ-CWF-010).
+		['name' => 'filterEventReport#report', 'url' => '/api/dashboards/{uuid}/filter-events/report', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardApi#computePath', 'url' => '/api/dashboards/{uuid}/path', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 

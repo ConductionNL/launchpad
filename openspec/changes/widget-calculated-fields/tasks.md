@@ -95,7 +95,8 @@
 
 ## 11. Testing — Frontend
 
-- [ ] Task 41: Vitest — `parser.test.ts`: 100+ cases covering all AST node types, operators, functions, error cases (REQ-CALC-001, REQ-CALC-002, REQ-CALC-009)
+- [x] Task 41: Vitest — `parser.test.ts`: 100+ cases covering all AST node types, operators, functions, error cases (REQ-CALC-001, REQ-CALC-002, REQ-CALC-009)
+  - `src/utils/calculatedFields/__tests__/parser.cases.spec.js`: 183 table cases (every binary and unary operator with associativity, every literal kind, references, all 39 built-ins at minimum arity, every arity bound refused, unknown and disallowed functions, 22 malformed inputs answered as column-positioned parse errors), beside the 10 cases of `parser.spec.js`.
 - [x] Task 42: Vitest — `evaluator.test.ts`: shared test suite runs against TypeScript evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
 - [x] Task 43: Vitest — `cycleDetector.test.ts`: cycle detection rejects self-refs, mutual refs, longer cycles; accepts acyclic (REQ-CALC-006)
 - [ ] Task 44: Playwright — render a widget with calculated fields; verify values appear in the table/chart; verify inline errors show on evaluation failure; verify other widgets still render (REQ-CALC-003, REQ-CALC-008)

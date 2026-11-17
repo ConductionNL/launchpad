@@ -104,6 +104,9 @@ export default {
 	props: {
 		content: OBJECT_PROP,
 
+		/** The container's own placement; its id keys children that have none. */
+		placement: OBJECT_PROP,
+
 		editMode: FLAG_PROP,
 	},
 
@@ -121,10 +124,26 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/specs/container-widget/spec.md */
+		/**
+		 * The stored children. A child without an id or uuid of its own (a
+		 * bookmark import writes them that way) gets `<container id>-<index>`
+		 * as its uuid, so its use can be counted and it keeps one key.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
 		children() {
 			const list = this.content?.placements
-			return Array.isArray(list) ? list : []
+			if (!Array.isArray(list)) {
+				return []
+			}
+			const owner = this.placement?.id
+			if (owner === undefined || owner === null) {
+				return list
+			}
+			return list.map((child, index) => (childUseKey(child) === ''
+				? { ...child, uuid: `${owner}-${index}` }
+				: child))
 		},
 
 		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */

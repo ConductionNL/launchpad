@@ -60,6 +60,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
 - [ ] 3.18 `default-widget-bundle`: 6 scenarios, 0 cited.
+  - Written: `tests/e2e/default-widget-bundle.spec.ts` cites 4 scenarios (the create response and the rendered grid, the preset tile columns, the envelope, the loading shim held on the active-dashboard read). The 2 left keep a reasoned exclusion naming their PHPUnit tests: the seedDefaults flag of the bootstrap (not visible in a browser) and the admin-template override (no e2e yet). Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
 - [ ] 3.19 `effective-default-marker`: 5 scenarios, 0 cited.
   - Written: `tests/e2e/effective-default-marker.spec.ts` cites all 5 scenarios, and their exclusions are removed from the spec. Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
 

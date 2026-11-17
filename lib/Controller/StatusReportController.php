@@ -75,6 +75,9 @@ class StatusReportController extends Controller {
 	 *
 	 * @return JSONResponse The draft, or 400, 401 or 409.
 	 *
+	 * @no-admin-idor-exempt No stored object is addressed and nothing is kept; the objects counted are read through
+	 *   OpenRegister's object search as the caller, so the caller's own read rights scope them.
+	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	#[NoAdminRequired]

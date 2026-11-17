@@ -81,6 +81,9 @@ class ReportApiController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
+	 * @no-admin-idor-exempt The report id names a shipped report definition, not a stored object; the rows it reads
+	 *   come from OpenRegister's object search as the caller, so the caller's own read rights scope them.
+	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	#[NoAdminRequired]

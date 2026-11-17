@@ -111,6 +111,24 @@
 							]
 						}
 					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "report-run-about",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 4
+					},
+					{
+						"id": "2",
+						"widgetId": "report-run-result",
+						"gridX": 0,
+						"gridY": 4,
+						"gridWidth": 12,
+						"gridHeight": 8
+					}
 				]
 			}
 		}

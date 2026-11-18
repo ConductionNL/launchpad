@@ -93,6 +93,7 @@ describe('AdminSettings: general settings', () => {
 			allowMultiDash: true,
 			startPageWithoutNavigation: false,
 			filterTelemetryEnabled: false,
+			defaultAppEnabled: true,
 			defaultGridCols: 12,
 			maxDashboardsPerUser: 5,
 			maxWidgetsPerDashboard: 10000,
@@ -107,6 +108,16 @@ describe('AdminSettings: general settings', () => {
 
 		expect(api.updateAdminSettings).toHaveBeenLastCalledWith(expect.objectContaining({ filterTelemetryEnabled: true }))
 		expect(wrapper.find('[data-testid="admin-filter-telemetry-enabled"]').exists()).toBe(true)
+	})
+
+	it('saves the default app switch as a boolean, on unless switched off (REQ-PSP-003)', async () => {
+		const wrapper = await mountSettings()
+
+		wrapper.vm.updateSetting('defaultAppEnabled', false)
+		await flushPromises()
+
+		expect(api.updateAdminSettings).toHaveBeenLastCalledWith(expect.objectContaining({ defaultAppEnabled: false }))
+		expect(wrapper.find('[data-testid="admin-default-app-enabled"]').exists()).toBe(true)
 	})
 
 	it.each([

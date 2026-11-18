@@ -39,10 +39,12 @@ class AdminSettingsService {
 	 *
 	 * @param AdminSettingMapper      $settingMapper The admin setting mapper.
 	 * @param TileLaunchSettings|null $tileLaunch    Checks the program schemes and SSO launch templates; built when not injected.
+	 * @param DefaultAppSetting|null  $defaultApp    Sets or gives back the instance default app (REQ-PSP-003); without it the toggle is only stored.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
 		?TileLaunchSettings $tileLaunch = null,
+		private readonly ?DefaultAppSetting $defaultApp = null,
 	) {
 		$this->tileLaunch = ($tileLaunch ?? new TileLaunchSettings());
 	}//end __construct()
@@ -175,6 +177,9 @@ class AdminSettingsService {
 			// Engagement-communities REQ-COMM-003: the Talk conversations the
 			// organisation pinned. A stored entry that is not a token is dropped.
 			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
+			// REQ-PSP-003: LaunchPad is the default app after sign-in; on unless
+			// an administrator switched it off.
+			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];
 	}//end getSettings()
 
@@ -477,6 +482,8 @@ class AdminSettingsService {
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 
+		$this->persistDefaultApp(enabled: $settings['defaultAppEnabled'] ?? null);
+
 		// Engagement-communities REQ-COMM-003: validated before it is stored.
 		$pinned = $settings['pinnedCommunities'] ?? null;
 		if (is_array($pinned) === true) {
@@ -486,6 +493,38 @@ class AdminSettingsService {
 			);
 		}
 	}//end updateSettings()
+
+	/**
+	 * Switch LaunchPad being the default app (REQ-PSP-003) when a value is given.
+	 *
+	 * Through {@see DefaultAppSetting} switching off gives the default app back
+	 * and switching on sets it when none is chosen; without that service only
+	 * the toggle is stored.
+	 *
+	 * @param mixed $enabled The new toggle value, or null to leave it as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a boolean.
+	 *
+	 * @spec openspec/specs/dashboard-public-share/spec.md#requirement-the-start-page-offers-a-way-in-for-staff-req-psp-003
+	 */
+	private function persistDefaultApp(mixed $enabled): void {
+		if ($enabled === null) {
+			return;
+		}
+
+		if (is_bool($enabled) === false) {
+			throw new InvalidArgumentException(message: 'defaultAppEnabled must be a boolean.');
+		}
+
+		if ($this->defaultApp !== null) {
+			$this->defaultApp->setEnabled(enabled: $enabled);
+			return;
+		}
+
+		$this->settingMapper->setSetting(key: AdminSettingKey::DEFAULT_APP_ENABLED->value, value: $enabled);
+	}//end persistDefaultApp()
 
 	/**
 	 * Persist the announcement editor groups when given, normalised like the forced-share groups.

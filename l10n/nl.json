@@ -1818,6 +1818,11 @@
         "Under Templates you build the dashboards that groups and new users get.": "Onder Sjablonen maak je de dashboards die groepen en nieuwe gebruikers krijgen.",
         "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.": "Onder Rollen en rechten kies je wie LaunchPad mag beheren en wat elke rol mag wijzigen.",
         "Under Sharing you set who may share dashboards and with whom.": "Onder Delen stel je in wie dashboards mag delen en met wie.",
-        "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports."
+        "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports.",
+        "Opens in": "Opent in",
+        "As the dashboard decides": "Zoals het dashboard bepaalt",
+        "Panel beside the tiles": "Paneel naast de tegels",
+        "Web addresses in a new tab, apps in the same tab": "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+        "This address cannot open in the panel.": "Dit adres kan niet in het paneel openen."
     }
 }

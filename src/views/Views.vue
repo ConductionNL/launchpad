@@ -297,6 +297,8 @@
 								&& item.content.healthPingEnabled === true
 							"
 							:pingInterval="item.content && item.content.pingInterval"
+							:linkTarget="(item.content && item.content.linkTarget) || null"
+							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -2569,6 +2571,8 @@ export default {
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// Launcher-tile-open-behaviour D1: '' follows the dashboard.
+				linkTarget: content.linkTarget || '',
 				// launcher-tile-launch-types: remote-desktop and sso settings.
 				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
@@ -2597,6 +2601,11 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+			}
+			// Launcher-tile-open-behaviour D1: the link target rides in the
+			// same content blob; absent means "follow the dashboard".
+			if (tileData.linkTarget) {
+				healthPingContent.linkTarget = tileData.linkTarget
 			}
 			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
 			// settings in the same blob, checked by the server with the link.
@@ -2639,7 +2648,7 @@ export default {
 			// `addWidget` create-then-patch pattern above) — persist
 			// the health-ping block with a follow-up patch only when
 			// the author actually enabled it.
-			if (newPlacement?.id && content.healthPingEnabled) {
+			if (newPlacement?.id && (content.healthPingEnabled || content.linkTarget)) {
 				await this.updateWidgetPlacement(newPlacement.id, {
 					content,
 				})
@@ -2683,6 +2692,7 @@ export default {
 		 * @param {string} config.icon Icon key or URL.
 		 * @param {string} [config.parentUuid] Parent uuid, '' for none (edit only).
 		 * @param {string} [config.slug] Web address name (edit only).
+		 * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async saveDashboardConfig({
@@ -2692,6 +2702,7 @@ export default {
 			icon,
 			parentUuid,
 			slug,
+			defaultLinkTarget,
 		}) {
 			this.configSaveError = ''
 			try {
@@ -2706,6 +2717,10 @@ export default {
 					}
 					if (slug) {
 						data.slug = slug
+					}
+					// launcher-tile-open-behaviour D2: '' clears the default.
+					if (defaultLinkTarget !== undefined) {
+						data.defaultLinkTarget = defaultLinkTarget
 					}
 					await api.updateDashboard(id, data)
 					await this.loadDashboards()

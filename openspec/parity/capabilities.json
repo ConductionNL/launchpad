@@ -2253,8 +2253,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/TileLaunchController.php:82 (GET /api/tiles/{placementId}/rdp, view check, .rdp file from checked fields); lib/Service/TileLinkValidator.php:128; gateway mode opens its https address (src/utils/tileLaunch.js)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-launch-types",
-				"requirement": "openspec/changes/launcher-tile-launch-types/specs/tiles :: A tile can start a remote desktop or a published program (REQ-TLT-002)"
+				"change": "openspec/changes/archive/2026-11-19-launcher-tile-launch-types",
+				"requirement": "openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles :: A tile can start a remote desktop or a published program (REQ-TLT-002)"
 			},
 			"reachedOn": "Workspace page (/apps/launchpad/), Edit dashboard, a tile's editor: Opens > Remote desktop (web gateway or RDP file)",
 			"evidence": {
@@ -2268,7 +2268,7 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-tile-launch-types (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"
@@ -2288,8 +2288,8 @@
 				"state": "built",
 				"evidence": "lib/Service/TileLinkValidator.php:108 (program scheme on the admin list, never a forbidden one); src/components/TileWidget.vue:175 (follows the scheme address, hint after a click)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-launch-types",
-				"requirement": "openspec/changes/launcher-tile-launch-types/specs/tiles :: A tile can start a program on the user's computer (REQ-TLT-001)"
+				"change": "openspec/changes/archive/2026-11-19-launcher-tile-launch-types",
+				"requirement": "openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles :: A tile can start a program on the user's computer (REQ-TLT-001)"
 			},
 			"reachedOn": "Workspace page (/apps/launchpad/), Edit dashboard, a tile's editor: Opens > Program on this computer; the schemes are allowed on the LaunchPad admin page, Algemeen > Program and sign-on tiles",
 			"evidence": {
@@ -2303,7 +2303,7 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-tile-launch-types (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"
@@ -2323,8 +2323,8 @@
 				"state": "built",
 				"evidence": "lib/Service/TileLinkValidator.php:108 (sso address resolved on the server from the admin template and the URL-encoded app id); src/modals/TileEditor.vue:200 (template picker, no address field)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-launch-types",
-				"requirement": "openspec/changes/launcher-tile-launch-types/specs/tiles :: A tile can start single sign-on into a company app (REQ-TLT-003)"
+				"change": "openspec/changes/archive/2026-11-19-launcher-tile-launch-types",
+				"requirement": "openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles :: A tile can start single sign-on into a company app (REQ-TLT-003)"
 			},
 			"reachedOn": "Workspace page (/apps/launchpad/), Edit dashboard, a tile's editor: Opens > Single sign-on app; templates on the LaunchPad admin page, Algemeen > Program and sign-on tiles",
 			"evidence": {
@@ -2338,7 +2338,7 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-tile-launch-types (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"
@@ -2358,10 +2358,10 @@
 				"state": "built",
 				"evidence": "src/modals/WidgetPickerModal.vue:38 'From the app catalogue' section in the add flow, filled from GET /api/catalogue; lib/Service/CatalogueService.php:152 listFor() returns only the entries the caller's groups may see; lib/Service/CatalogueService.php:254 request() stores the request, notifies administrators and the manager group, at most 10 open; src/components/admin/tabs/AppCatalogueTab.vue:33 admin App catalogue tab: open requests with approve and decline, entries with group picker",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-app-catalogue",
+				"change": "openspec/changes/archive/2026-11-19-launcher-app-catalogue",
 				"requirement": [
-					"openspec/changes/launcher-app-catalogue/specs/app-catalogue :: Users add catalogue apps as tiles from the add flow (REQ-ACAT-002)",
-					"openspec/changes/launcher-app-catalogue/specs/app-catalogue :: Users can ask for a missing app (REQ-ACAT-003)"
+					"openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue :: Users add catalogue apps as tiles from the add flow (REQ-ACAT-002)",
+					"openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue :: Users can ask for a missing app (REQ-ACAT-003)"
 				]
 			},
 			"reachedOn": "Workspace page (/apps/launchpad/), Add in edit mode, section 'From the app catalogue'; admin settings, LaunchPad, tab App catalogue",
@@ -2376,7 +2376,7 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-app-catalogue (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-app-catalogue (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelToevoegen"
@@ -2386,17 +2386,18 @@
 			"id": "tile-discover-containers",
 			"area": "launcher",
 			"name": "Turn a running service on your server into a tile in one click.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "yes",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-discover-server-services",
-				"requirement": "openspec/changes/launcher-discover-server-services/specs/tiles :: One click turns a discovered app into a tile (REQ-DISC-002)"
+				"change": "openspec/changes/archive/2026-11-19-launcher-discover-server-services",
+				"requirement": "openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles :: One click turns a discovered app into a tile (REQ-DISC-002)",
+				"evidence": "lib/Service/ServiceDiscoveryService.php:54 discover() lists the server's apps from INavigationManager::getAll('link') without LaunchPad; appinfo/routes.php:380 GET /api/tiles/discover; src/modals/WidgetPickerModal.vue:130 the 'Discovered on this server' section and :151 the 'On this dashboard' mark. Tests: tests/Unit/Service/ServiceDiscoveryServiceTest.php, src/modals/__tests__/WidgetPickerModal.discovered.spec.js, tests/e2e/discover-server-services.spec.ts (passed live 19 Nov 2026 with Deck 1.18.6)."
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -2410,7 +2411,7 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-discover-server-services (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-discover-server-services (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelToevoegen"
@@ -3187,8 +3188,8 @@
 				"state": "built",
 				"evidence": "lib/Service/LiveTileListMapper.php:51 (list, table and key-value displays over up to six mapped fields, mapped on the server for both source modes, lib/Service/LiveTileService.php:260); src/components/Widgets/Renderers/LiveTileWidget.vue:49; tests/e2e/live-tile-lists.spec.ts",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/integrations-live-tile-lists",
-				"requirement": "openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget :: A live tile can show a list, a table or key-value pairs (REQ-LTC-001)"
+				"change": "openspec/changes/archive/2026-11-19-integrations-live-tile-lists",
+				"requirement": "openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget :: A live tile can show a list, a table or key-value pairs (REQ-LTC-001)"
 			},
 			"reachedOn": "Workspace page, Live tile widget pointed at a JSON address",
 			"evidence": {
@@ -3203,7 +3204,7 @@
 			"feature": "runtime-or-consumption",
 			"featureConfidence": "high",
 			"origin": "competitor",
-			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes. Corrected 2026-09-27 (openspec pass): a connector mode exists; it calls Integriq's DashboardDatasourceService::resolve(), which applies the source's stored authentication (lib/Service/LiveTileService.php:380). What is missing is mapping more than one field and choosing how to show it. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass).",
+			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes. Corrected 2026-09-27 (openspec pass): a connector mode exists; it calls Integriq's DashboardDatasourceService::resolve(), which applies the source's stored authentication (lib/Service/LiveTileService.php:380). What is missing is mapping more than one field and choosing how to show it. Specified 2026-09-27 in openspec/changes/archive/2026-11-19-integrations-live-tile-lists (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpWidgetInstellen"
@@ -3391,8 +3392,8 @@
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Service/NewsWidgetService.php:133; lib/Service/IframeService.php:9; documents: the Latest documents preset, SharePoint and Confluence variants (src/components/Widgets/Renderers/LiveTileWidgetForm.vue:222) over a list live tile (lib/Service/LiveTileListMapper.php:51)",
-				"change": "openspec/changes/integrations-live-tile-lists",
-				"requirement": "openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget :: A preset shows another intranet's latest documents (REQ-LTC-004)"
+				"change": "openspec/changes/archive/2026-11-19-integrations-live-tile-lists",
+				"requirement": "openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget :: A preset shows another intranet's latest documents (REQ-LTC-004)"
 			},
 			"reachedOn": "Workspace page, Add widget, News (the other intranet's RSS or Atom feed) or Embed (its page, when the host is allowed)",
 			"evidence": {
@@ -3406,7 +3407,7 @@
 			"providerHow": "research-then-code",
 			"feature": "runtime-or-consumption",
 			"origin": "competitor",
-			"note": "Corrected 2026-09-27 (openspec pass): the news widget reads RSS and Atom feeds from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames an allowed page (lib/Service/IframeService.php:9), the same half Homarr and Dashy are rated partial for; the other intranet's documents are missing. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass).",
+			"note": "Corrected 2026-09-27 (openspec pass): the news widget reads RSS and Atom feeds from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames an allowed page (lib/Service/IframeService.php:9), the same half Homarr and Dashy are rated partial for; the other intranet's documents are missing. Specified 2026-09-27 in openspec/changes/archive/2026-11-19-integrations-live-tile-lists (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
@@ -5385,7 +5386,7 @@
 				]
 			},
 			"reachedOn": "nothing",
-			"note": "corrections round 9 (2026-09-28): built.change names openspec/changes/mcp-tool-surface, open on development at 9d5535a with 0 of 28 tasks checked, whose proposal specifies a LaunchpadToolProvider with 14 read and 35 write MCP tools over dashboards, widgets, tiles and sharing; lib/Mcp does not exist yet, so the rating stays no; source: the corrections-9 list of specified rows that named no change.",
+			"note": "corrections round 9 (2026-09-28): built.change names openspec/changes/mcp-tool-surface, open on development at 9d5535a with 0 of 28 tasks checked, whose proposal specifies a LaunchPadToolProvider with 14 read and 35 write MCP tools over dashboards, widgets, tiles and sharing; lib/Mcp does not exist yet, so the rating stays no; source: the corrections-9 list of specified rows that named no change.",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "launchpad-ai-dashboard-assistant",
@@ -6013,17 +6014,18 @@
 			"id": "p-custom-css",
 			"area": "platform",
 			"name": "Add your own CSS to restyle the dashboard.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "partial",
 			"nextcloud-dashboard": "no",
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/platform-dashboard-theme-and-css",
-				"requirement": "openspec/changes/platform-dashboard-theme-and-css/specs/dashboards :: Administrators add custom CSS, cleaned and scoped (REQ-THM-003)"
+				"change": "openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css",
+				"requirement": "openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards :: Administrators add custom CSS, cleaned and scoped (REQ-THM-003)",
+				"evidence": "lib/Service/CustomCssSanitiser.php:113 sanitise() drops @import and unsafe values and :233 scopeSelectors() prefixes every selector with the dashboard or workspace scope; lib/Service/CustomCssService.php:84 setGlobalCss() and :104 setDashboardCss() store the cleaned CSS; src/components/admin/AdminCustomCss.vue the admin editor; src/utils/customCss.js inserts it. Tests: tests/Unit/Service/CustomCssSanitiserTest.php, tests/Unit/Service/CustomCssServiceTest.php, src/components/admin/__tests__/AdminCustomCss.spec.js, src/utils/__tests__/customCss.spec.js, tests/e2e/dashboard-look-and-css.spec.ts (passed live 19 Nov 2026)."
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -6037,7 +6039,7 @@
 			"providerHow": "research-then-code",
 			"feature": "theming-and-languages",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpBeheerAlgemeen"
@@ -6281,13 +6283,13 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "src/components/TileWidget.vue:41",
-				"change": "openspec/changes/launcher-tile-open-behaviour",
+				"evidence": "lib/Service/TileLinkTarget.php:54 the three targets (same-tab, new-tab, side-panel), :71 validated() refuses an unknown one and :98 resolve() applies the tile's choice, then the dashboard default, then the link type; lib/Service/DashboardService.php:3815 stores defaultLinkTarget per dashboard; src/utils/tileLinkTarget.js:42 resolveLinkTarget() mirrors it in the page; src/modals/TileEditor.vue:232 the 'Opens in' choice. Tests: tests/Unit/Service/TileLinkTargetTest.php, tests/Unit/Service/DashboardServiceLinkTargetTest.php, src/utils/__tests__/tileLinkTarget.spec.js, src/components/__tests__/TileWidget.linkTarget.spec.js.",
+				"change": "openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour",
 				"requirement": [
-					"openspec/changes/launcher-tile-open-behaviour/specs/tiles :: A tile carries its own link target (REQ-TOB-001)",
-					"openspec/changes/launcher-tile-open-behaviour/specs/tiles :: A dashboard sets the default target for its tiles (REQ-TOB-002)"
+					"openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles :: A tile carries its own link target (REQ-TOB-001)",
+					"openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles :: A dashboard sets the default target for its tiles (REQ-TOB-002)"
 				]
 			},
 			"reachedOn": "Workspace page, any tile",
@@ -6304,7 +6306,7 @@
 			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/51332",
-			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778. Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass).",
+			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778. Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"
@@ -6668,8 +6670,8 @@
 				"state": "built",
 				"evidence": "lib/Service/OfficeNetworkService.php:69 isOfficeRequest() matches IRequest::getRemoteAddress() against the stored office networks through OCP\\Security\\Ip\\IFactory; lib/Service/AdminSettingsService.php:179-183 answers officeNetworks, currentAddress and currentAddressInOfficeNetworks and lib/Controller/AdminController.php:476 refuses a malformed range with 400; lib/Controller/PageController.php:200 provides onOfficeNetwork through lib/Service/InitialStateBuilder.php:445; lib/Service/TileUpdater.php:192 validates content.internalUrl; src/components/TileWidget.vue:209-224 opens the internal address only on the office network; src/modals/TileEditor.vue:223 'Address on the office network' and :494 the address-in-effect line; src/components/admin/AdminSettings.vue:261 the 'Office networks' section. Tests: tests/Unit/Service/OfficeNetworkServiceTest.php, tests/Unit/Service/TileUpdaterTest.php, src/components/__tests__/TileWidget.officeNetwork.spec.js, src/modals/__tests__/TileEditor.officeNetwork.spec.js, src/components/admin/__tests__/AdminSettings.officeNetworks.spec.js, tests/e2e/launcher-tile-internal-address.spec.ts",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-internal-address",
-				"requirement": "openspec/changes/launcher-tile-internal-address/specs/tiles :: The tile opens the address that fits the network (REQ-TIA-003)"
+				"change": "openspec/changes/archive/2026-11-19-launcher-tile-internal-address",
+				"requirement": "openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles :: The tile opens the address that fits the network (REQ-TIA-003)"
 			},
 			"reachedOn": "Workspace page, Edit tile, Address on the office network; office networks on the LaunchPad admin page, General tab",
 			"evidence": {
@@ -6685,7 +6687,7 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.4.0",
-			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on. Specified 2026-09-27 in openspec/changes/launcher-tile-internal-address (openspec pass).",
+			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on. Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-tile-internal-address (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"
@@ -6702,12 +6704,12 @@
 			"homarr": "partial",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "lib/Migration/DashboardTableBuilder.php:173",
-				"change": "openspec/changes/platform-dashboard-theme-and-css",
+				"evidence": "lib/Service/DashboardLook.php:148 assertAccentReadable() refuses an accent under 3:1 on the background and :128 textColorFor() picks the text colour; lib/Migration/Version002014Date20261114120000.php adds the look columns; src/modals/DashboardConfigModal.vue:197-204 the Look panel (accent, background colour, background image) of one dashboard; src/utils/dashboardLook.js scopes the look to that dashboard's region. Tests: tests/Unit/Service/DashboardLookTest.php, tests/Unit/Service/DashboardServiceLookTest.php, src/modals/__tests__/DashboardConfigModal.look.spec.js, src/utils/__tests__/dashboardLook.spec.js, tests/e2e/dashboard-look-and-css.spec.ts (passed live 19 Nov 2026).",
+				"change": "openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css",
 				"requirement": [
-					"openspec/changes/platform-dashboard-theme-and-css/specs/dashboards :: Each dashboard can have its own look (REQ-THM-001)",
+					"openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards :: Each dashboard can have its own look (REQ-THM-001)",
 					"openspec/specs/dashboard-language-content :: The workspace page shows the reader's language (REQ-LANGUI-002)",
 					"openspec/specs/dashboards :: Update Dashboard (REQ-DASH-004)"
 				]
@@ -6726,7 +6728,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.0.0",
-			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255). Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass).",
+			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255). Specified 2026-09-27 in openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpDashboardInstellingen"
@@ -6743,11 +6745,11 @@
 			"homarr": "partial",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "src/components/Widgets/Renderers/IframeWidget.vue:38",
-				"change": "openspec/changes/launcher-tile-open-behaviour",
-				"requirement": "openspec/changes/launcher-tile-open-behaviour/specs/tiles :: A tile can open its app in a panel beside the tiles (REQ-TOB-003)"
+				"evidence": "src/components/Workspace/TileSidePanel.vue the panel beside the tiles (close button, Escape with focus back on the tile, one panel at a time, framing check with the 'Open in new tab' fallback), mounted in src/views/WorkspaceApp.vue:107; src/stores/tilePanel.js the one panel the tiles open. Tests: src/components/Workspace/__tests__/TileSidePanel.spec.js, src/stores/__tests__/tilePanel.spec.js, tests/e2e/tile-side-panel.spec.ts (passed live 19 Nov 2026).",
+				"change": "openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour",
+				"requirement": "openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles :: A tile can open its app in a panel beside the tiles (REQ-TOB-003)"
 			},
 			"reachedOn": "Workspace page, Add widget, Embed",
 			"evidence": {
@@ -6763,7 +6765,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41). Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass).",
+			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41). Specified 2026-09-27 in openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour (openspec pass).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelBewerken"

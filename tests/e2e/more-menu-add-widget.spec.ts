@@ -7,8 +7,8 @@
  * server. The picker was unreachable from the start page after the edit
  * toolbar went; this entry is its way in again.
  *
- * @e2e openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
- * @e2e openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md
+ * @e2e openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+ * @e2e openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md
  * @e2e openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md
  */
 

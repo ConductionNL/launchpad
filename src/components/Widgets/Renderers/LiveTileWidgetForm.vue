@@ -347,7 +347,7 @@ export default {
 		 * The displays a tile can have.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		displayOptions() {
 			return [
@@ -362,7 +362,7 @@ export default {
 		 * What a mapped field is for.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		roleOptions() {
 			return [
@@ -377,7 +377,7 @@ export default {
 		 * The mapping presets.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-preset-shows-another-intranets-latest-documents-req-ltc-004
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-preset-shows-another-intranets-latest-documents-req-ltc-004
 		 */
 		presetOptions() {
 			return [
@@ -421,7 +421,7 @@ export default {
 		 * so a tile saved before lists existed is stored as it was.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		displayContent() {
 			if (this.display === 'value') {
@@ -553,7 +553,7 @@ export default {
 		 * starts with one title field.
 		 *
 		 * @param {string} val The display; falsy is a single value.
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		onDisplayChange(val) {
 			this.display = val || 'value'
@@ -567,7 +567,7 @@ export default {
 		 * Set how many rows a list or table shows.
 		 *
 		 * @param {string|number} val The limit.
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		onLimitChange(val) {
 			this.limit = val
@@ -580,7 +580,7 @@ export default {
 		 * @param {number} index The row.
 		 * @param {string} key label, path or role.
 		 * @param {string} val The new value.
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		updateMapping(index, key, val) {
 			this.mapping = this.mapping.map((field, at) => (at === index ? { ...field, [key]: val } : field))
@@ -590,7 +590,7 @@ export default {
 		/**
 		 * Add a mapped field, up to six.
 		 *
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		addMapping() {
 			if (this.mapping.length >= MAX_FIELDS) {
@@ -604,7 +604,7 @@ export default {
 		 * Remove a mapped field.
 		 *
 		 * @param {number} index The row.
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		removeMapping(index) {
 			this.mapping = this.mapping.filter((_, at) => at !== index)
@@ -616,7 +616,7 @@ export default {
 		 * The source stays the author's choice.
 		 *
 		 * @param {{value: string}|string|null} option The chosen preset.
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-preset-shows-another-intranets-latest-documents-req-ltc-004
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-preset-shows-another-intranets-latest-documents-req-ltc-004
 		 */
 		applyPreset(option) {
 			const preset = DOCUMENT_PRESETS[option?.value ?? option]
@@ -684,7 +684,7 @@ export default {
 		 * every field with a path, and a limit from 1 to 50.
 		 *
 		 * @return {string[]} the display errors.
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		displayErrors() {
 			if (!['list', 'table', 'keyvalue'].includes(this.display)) {

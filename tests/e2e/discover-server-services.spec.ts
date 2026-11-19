@@ -11,26 +11,26 @@
  * Deck is enabled through the OCS apps API first; on an instance where Deck
  * is not installed the test is skipped with that reason.
  *
- * The add flow is opened through "More" → "Add app" (launchpad#1300). The
+ * The add flow is opened through "More" → "Add widget". The
  * account is a throwaway non-admin account logged in from an empty storage
  * state.
  *
  * Gate-19 @e2e traceability:
  *   @e2e discover-server-services::deck-discovered-and-placed
  *
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { BASE_URL } from './support/baseUrl.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -51,17 +51,11 @@ let deckEnabled = false
  * @return the context; the caller disposes it.
  */
 async function apiAs(who?: Account): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: who
-			? { username: who.username, password: who.password }
-			: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return contextFor(who?.username ?? ADMIN.user, who?.password ?? ADMIN.pass)
 }
 
 /**
- * Open the add flow ("More" → "Add app") and return the picker.
+ * Open the add flow ("More" → "Add widget") and return the picker.
  *
  * @param page the page.
  * @return the picker dialog.
@@ -71,7 +65,7 @@ async function openAddFlow(page: Page): Promise<Locator> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-app"]').click()
+	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
 	const picker = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(picker).toBeVisible({ timeout: 10_000 })
 	return picker

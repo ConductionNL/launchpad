@@ -78,6 +78,7 @@ class DashboardVersionService {
 	private const BLOB_SETTERS = [
 		'styleConfig' => 'setStyleConfigArray',
 		'content' => 'setContentArray',
+		'calculatedFields' => 'setCalculatedFieldsArray',
 	];
 
 	/**

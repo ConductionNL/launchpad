@@ -167,24 +167,6 @@
 			@update:open="onDeleteDialog"
 			@confirm="confirmDeleteDashboard" />
 
-		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
-		<CnConfirmDialog
-			v-if="forceReleaseDialogOpen"
-			:dialogTitle="t('launchpad', 'Take over editing?')"
-			:message="
-				t(
-					'launchpad',
-					'{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.',
-					{
-						name:
-							editLock.state.holderName
-							|| t('launchpad', 'A colleague'),
-					},
-				)
-			"
-			:confirmLabel="t('launchpad', 'Take over')"
-			@confirm="onTakeOverConfirmed"
-			@close="forceReleaseDialogOpen = false" />
 
 		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
 		<ScheduleDashboardDialog
@@ -215,12 +197,18 @@
 			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
+		<!-- platform-dashboard-theme-and-css REQ-THM-001: the dashboard's own
+		     look is drawn on this region only, as scoped CSS variables; the
+		     header, the navigation and other dashboards keep the theme. -->
 		<div
-			class="launchpad-container"
+			class="launchpad-container launchpad-dashboard"
 			:class="{
 				'launchpad-edit-mode': isEditMode,
 				'launchpad-container--fill': fillsHeight,
-			}">
+			}"
+			:data-dashboard-uuid="activeDashboard?.uuid || null"
+			:style="dashboardLookStyle"
+			data-testid="launchpad-dashboard-region">
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
@@ -252,12 +240,12 @@
 				data-testid="publication-note">
 				{{ publicationNote }}
 			</p>
-			<EditLockBanner
-				:status="editLock.state.status"
-				:holderName="editLock.state.holderName"
-				:expiresIn="editLock.state.expiresIn"
-				:isAdmin="isAdmin === true"
-				@takeOver="forceReleaseDialogOpen = true" />
+			<!-- building-edit-a-dashboard-together: no lock in edit mode; a
+				refusal says so, and colleagues editing are shown. -->
+			<EditLockBanner :status="presence.state.status" />
+			<CoEditorsBanner
+				v-if="isEditMode"
+				:editors="presence.state.editors" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="gridLayout"
@@ -479,7 +467,6 @@
 <script>
 import {
 	CnAddWidgetModal,
-	CnConfirmDialog,
 	CnDashboardGrid,
 	CnWidgetStyleEditorModal,
 	getDashboardColumnOpts,
@@ -499,6 +486,7 @@ import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
+import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
@@ -522,7 +510,7 @@ import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 // Composables
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
-import { useDashboardLock } from '../composables/useDashboardLock.js'
+import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
@@ -538,6 +526,8 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
+import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -580,8 +570,8 @@ export default {
 		DashboardSavedViews,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
+		CoEditorsBanner,
 		EditLockBanner,
-		CnConfirmDialog,
 		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
@@ -788,13 +778,12 @@ export default {
 			deleteChildCount: 0,
 			// Why the dashboard configuration could not be saved.
 			configSaveError: '',
-			// dashboard-edit-lock-ui: the editing lock of the active
-			// dashboard (REQ-LOCKUI-001..003) and the take-over dialog.
-			editLock: useDashboardLock({
-				onLost: () => this.onEditLockLost(),
+			// building-edit-a-dashboard-together: who else edits the active
+			// dashboard; edit mode no longer takes a lock.
+			presence: useDashboardPresence({
+				onRefused: () => this.onPresenceRefused(),
 			}),
 
-			forceReleaseDialogOpen: false,
 			// sharing-dashboard-schedule-screen: the schedule dialog.
 			scheduleDialogOpen: false,
 			scheduleError: '',
@@ -807,6 +796,17 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The active dashboard's own look as scoped CSS variables, or no style
+		 * for a dashboard that follows the theme (REQ-THM-001).
+		 *
+		 * @return {object} the inline style for the dashboard region.
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		dashboardLookStyle() {
+			return lookStyle(this.activeDashboard)
+		},
+
 		/**
 		 * The open dashboard's filter clauses, for the active-filters panel.
 		 *
@@ -1202,6 +1202,23 @@ export default {
 
 	watch: {
 		/**
+		 * The administrator CSS of the dashboard on screen, already scoped to
+		 * its region by the server, inserted as text (REQ-THM-003, D4).
+		 *
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 */
+		'activeDashboard.customCss': {
+			immediate: true,
+			/**
+			 * @param {string|null} css The scoped CSS of the dashboard on screen.
+			 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+			 */
+			handler(css) {
+				applyCustomCss(DASHBOARD_STYLE_ID, css)
+			},
+		},
+
+		/**
 		 * Editing makes the greeting row a draggable grid item: the controls
 		 * float while editing and dock again after.
 		 *
@@ -1390,6 +1407,7 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		applyCustomCss(DASHBOARD_STYLE_ID, '')
 		this.filterSession?.stop()
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
@@ -1398,8 +1416,8 @@ export default {
 		window.removeEventListener('popstate', this.handleHistoryPopState)
 		this.headerActionsObserver?.disconnect()
 		this.headerActionsObserver = null
-		// Leaving the page while editing gives the lock back.
-		this.editLock.release()
+		// Leaving the page while editing withdraws the presence.
+		this.presence.stop()
 	},
 
 	methods: {
@@ -1521,6 +1539,8 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				// launcher-tile-internal-address REQ-TIA-002: the office-network address, in `content`.
+				internalUrl: (placement.content && placement.content.internalUrl) || '',
 			}
 		},
 
@@ -1865,11 +1885,12 @@ export default {
 		},
 
 		/**
-		 * Enter or leave edit mode. Entering asks for the dashboard's
-		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
+		 * Enter or leave edit mode. Entering announces this person as an
+		 * editor of the dashboard; leaving withdraws it
+		 * (building-edit-a-dashboard-together, task 1.4).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async toggleEditMode() {
 			if (!this.isEditMode) {
@@ -1877,16 +1898,17 @@ export default {
 				return
 			}
 			this.leaveEditMode()
-			await this.editLock.release()
+			await this.presence.stop()
 		},
 
 		/**
-		 * Enter edit mode only when the lock is granted. A colleague's lock
-		 * (409), a refusal (403) or a failed request all leave the page
-		 * read-only and the banner says why.
+		 * Enter edit mode, also while colleagues edit the same dashboard:
+		 * every change is saved per widget, so nobody's change is lost. Only a
+		 * refusal (no edit rights, or an unknown dashboard) keeps the page
+		 * read-only, and the banner says why.
 		 *
 		 * @return {Promise<boolean>} Whether the page is in edit mode now.
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async enterEditMode() {
 			if (this.isEditMode) {
@@ -1896,16 +1918,16 @@ export default {
 			if (!uuid) {
 				return false
 			}
-			const granted = await this.editLock.acquire(String(uuid))
-			if (granted) {
+			const allowed = await this.presence.start(String(uuid))
+			if (allowed) {
 				this.isEditMode = true
 			}
-			return granted
+			return allowed
 		},
 
 		/**
-		 * Drop edit mode and every edit-only surface. The lock itself is
-		 * released by the caller.
+		 * Drop edit mode and every edit-only surface. The presence itself is
+		 * withdrawn by the caller.
 		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
@@ -1919,42 +1941,29 @@ export default {
 		},
 
 		/**
-		 * Before another dashboard becomes active: leave edit mode, give the
-		 * lock back and clear a banner that was about the previous one.
+		 * A renewal was refused (edit rights gone, or the dashboard deleted):
+		 * back to view mode; the banner says why.
+		 *
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
+		 */
+		onPresenceRefused() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+		},
+
+		/**
+		 * Before another dashboard becomes active: leave edit mode, withdraw
+		 * the presence and clear a banner that was about the previous one.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async dropEditLock() {
 			if (this.isEditMode) {
 				this.leaveEditMode()
 			}
-			await this.editLock.release()
-		},
-
-		/**
-		 * A refresh answered 404: someone else holds the lock now. Back to
-		 * view mode; the banner says what happened (REQ-LOCKUI-002).
-		 *
-		 * @spec openspec/specs/dashboard-locking/spec.md
-		 */
-		onEditLockLost() {
-			if (this.isEditMode) {
-				this.leaveEditMode()
-			}
-		},
-
-		/**
-		 * Administrator confirmed the take-over: force-release, then edit.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
-		 */
-		async onTakeOverConfirmed() {
-			this.forceReleaseDialogOpen = false
-			if (await this.editLock.takeOver()) {
-				this.isEditMode = true
-			}
+			await this.presence.stop()
 		},
 
 		/**
@@ -2567,6 +2576,7 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				internalUrl: content.internalUrl || '',
 				// service-health-ping: config lives in the placement's
 				// `content` JSON blob, no schema change (REQ-HPING-001).
 				healthPingEnabled: content.healthPingEnabled === true,
@@ -2603,6 +2613,8 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002: validated by the server.
+				internalUrl: tileData.internalUrl || '',
 			}
 			// Launcher-tile-open-behaviour D1: the link target rides in the
 			// same content blob; absent means "follow the dashboard".
@@ -2648,9 +2660,10 @@ export default {
 			)
 			// `addTile` has no `content` parameter (mirrors the
 			// `addWidget` create-then-patch pattern above) — persist
-			// the health-ping block with a follow-up patch only when
-			// the author actually enabled it.
-			if (newPlacement?.id && (content.healthPingEnabled || content.linkTarget)) {
+			// the health-ping block (and the office-network address,
+			// launcher-tile-internal-address REQ-TIA-002, and the link target)
+			// with a follow-up patch only when the author actually set one.
+			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget)) {
 				await this.updateWidgetPlacement(newPlacement.id, {
 					content,
 				})
@@ -2694,6 +2707,7 @@ export default {
 		 * @param {string} config.icon Icon key or URL.
 		 * @param {string} [config.parentUuid] Parent uuid, '' for none (edit only).
 		 * @param {string} [config.slug] Web address name (edit only).
+		 * @param {object} [config.look] The changed look fields (REQ-THM-001), edit only.
 		 * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
@@ -2704,6 +2718,7 @@ export default {
 			icon,
 			parentUuid,
 			slug,
+			look,
 			defaultLinkTarget,
 		}) {
 			this.configSaveError = ''
@@ -2719,6 +2734,11 @@ export default {
 					}
 					if (slug) {
 						data.slug = slug
+					}
+					// REQ-THM-001: only a changed look is sent, so a rename
+					// stays a metadata edit.
+					if (look) {
+						Object.assign(data, look)
 					}
 					// launcher-tile-open-behaviour D2: '' clears the default.
 					if (defaultLinkTarget !== undefined) {
@@ -2745,6 +2765,14 @@ export default {
 		 */
 		treeSaveMessage(error) {
 			const message = error?.response?.data?.message ?? ''
+			// REQ-THM-002: the server's measured ratio, in the user's language.
+			if (error?.response?.data?.error === 'contrast_too_low') {
+				return t(
+					'launchpad',
+					'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)',
+					{ ratio: Number(error.response.data.ratio).toFixed(1) },
+				)
+			}
 			if (message === 'Setting this parent would create a cycle') {
 				return t(
 					'launchpad',

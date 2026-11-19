@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Само добавяне",
     "Add to dashboard" : "Добавяне към таблото",
     "Add Widget" : "Добавяне на уиджет",
+    "Add widget" : "Добавяне на уиджет",
     "Add custom widget…" : "Добавяне на персонализиран уиджет…",
     "Add dashboard" : "Добавяне на табло",
     "Powered by" : "Задвижвано от",

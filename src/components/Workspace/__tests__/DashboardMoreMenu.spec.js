@@ -169,6 +169,7 @@ describe('DashboardMoreMenu', () => {
 					'edit',
 					'config',
 					'add-widget',
+					'add-custom-widget',
 					'add-app',
 					'share',
 					'set-default',
@@ -219,7 +220,8 @@ describe('DashboardMoreMenu', () => {
 		const events = {
 			edit: 'toggleEdit',
 			config: 'openConfig',
-			'add-widget': 'addCustomWidget',
+			'add-widget': 'addWidget',
+			'add-custom-widget': 'addCustomWidget',
 			'add-app': 'addApp',
 			share: 'share',
 			'set-default': 'setDefault',

@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Только добавление",
     "Add to dashboard" : "Добавить на панель управления",
     "Add Widget" : "Добавить виджет",
+    "Add widget" : "Добавить виджет",
     "Add custom widget…" : "Добавить пользовательский виджет…",
     "Add dashboard" : "Добавить панель управления",
     "Powered by" : "Работает на",

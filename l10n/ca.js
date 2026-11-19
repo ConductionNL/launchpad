@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Només afegeix",
     "Add to dashboard" : "Afegeix al tauler",
     "Add Widget" : "Afegeix un giny",
+    "Add widget" : "Afegeix un giny",
     "Add custom widget…" : "Afegeix un giny personalitzat…",
     "Add dashboard" : "Afegeix un tauler",
     "Powered by" : "Funciona amb",

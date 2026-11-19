@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Bare legg til",
     "Add to dashboard" : "Legg til på kontrollpanel",
     "Add Widget" : "Legg til modul",
+    "Add widget" : "Legg til modul",
     "Add custom widget…" : "Legg til egendefinert modul…",
     "Add dashboard" : "Legg til kontrollpanel",
     "Powered by" : "Drevet av",

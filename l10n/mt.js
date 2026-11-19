@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Żid biss",
     "Add to dashboard" : "Żid mad-dashboard",
     "Add Widget" : "Żid Widget",
+    "Add widget" : "Żid widget",
     "Add custom widget…" : "Żid widget personalizzat…",
     "Add dashboard" : "Żid dashboard",
     "Powered by" : "Imħaddem minn",

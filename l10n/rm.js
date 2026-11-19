@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Mo agiuntar",
     "Add to dashboard" : "Agiuntar a la tabla da cumond",
     "Add Widget" : "Agiuntar widget",
+    "Add widget" : "Agiuntar widget",
     "Add custom widget…" : "Agiuntar widget persunalisà…",
     "Add dashboard" : "Agiuntar ina tabla da cumond",
     "Powered by" : "Cun il sustegn da",

@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Tik pridėti",
     "Add to dashboard" : "Pridėti prie valdymo skydo",
     "Add Widget" : "Pridėti valdiklį",
+    "Add widget" : "Pridėti valdiklį",
     "Add custom widget…" : "Pridėti pasirinktinį valdiklį…",
     "Add dashboard" : "Pridėti valdymo skydą",
     "Powered by" : "Veikia su",

@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Nëmme derbäifügen",
     "Add to dashboard" : "Zum Dashboard derbäifügen",
     "Add Widget" : "Widget derbäifügen",
+    "Add widget" : "Widget derbäifügen",
     "Add custom widget…" : "Personaliséiert Widget derbäifügen…",
     "Add dashboard" : "Dashboard derbäifügen",
     "Powered by" : "Ënnerstëtzt vun",

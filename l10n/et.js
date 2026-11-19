@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Ainult lisamine",
     "Add to dashboard" : "Lisa töölauale",
     "Add Widget" : "Lisa vidin",
+    "Add widget" : "Lisa vidin",
     "Add custom widget…" : "Lisa kohandatud vidin…",
     "Add dashboard" : "Lisa töölaud",
     "Powered by" : "Töötab tarkvaral",

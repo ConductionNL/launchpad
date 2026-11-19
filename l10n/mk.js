@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Само додај",
     "Add to dashboard" : "Додај на контролната табла",
     "Add Widget" : "Додај виџет",
+    "Add widget" : "Додај виџет",
     "Add custom widget…" : "Додај прилагоден виџет…",
     "Add dashboard" : "Додај контролна табла",
     "Powered by" : "Овозможено од",

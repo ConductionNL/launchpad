@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Samo dodavanje",
     "Add to dashboard" : "Dodaj na nadzornu ploču",
     "Add Widget" : "Dodaj widget",
+    "Add widget" : "Dodaj widget",
     "Add custom widget…" : "Dodaj prilagođeni widget…",
     "Add dashboard" : "Dodaj nadzornu ploču",
     "Powered by" : "Pogoni",

@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Samo dodajanje",
     "Add to dashboard" : "Dodaj na nadzorno ploščo",
     "Add Widget" : "Dodaj gradnik",
+    "Add widget" : "Dodaj gradnik",
     "Add custom widget…" : "Dodaj gradnik po meri …",
     "Add dashboard" : "Dodaj nadzorno ploščo",
     "Powered by" : "Poganja",

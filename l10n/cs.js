@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Pouze přidat",
     "Add to dashboard" : "Přidat na nástěnku",
     "Add Widget" : "Přidat widget",
+    "Add widget" : "Přidat widget",
     "Add custom widget…" : "Přidat vlastní widget…",
     "Add dashboard" : "Přidat nástěnku",
     "Powered by" : "Poháněno",

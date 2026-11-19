@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Vetëm shto",
     "Add to dashboard" : "Shto në pult",
     "Add Widget" : "Shto Vegël",
+    "Add widget" : "Shto vegël",
     "Add custom widget…" : "Shto vegël të personalizuar…",
     "Add dashboard" : "Shto pult",
     "Powered by" : "Mundësuar nga",

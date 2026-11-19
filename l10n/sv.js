@@ -101,6 +101,7 @@ OC.L10N.register(
     "Add only" : "Endast lägg till",
     "Add to dashboard" : "Lägg till på instrumentpanel",
     "Add Widget" : "Lägg till widget",
+    "Add widget" : "Lägg till widget",
     "Add custom widget…" : "Lägg till anpassad widget…",
     "Add dashboard" : "Lägg till instrumentpanel",
     "Powered by" : "Drivs av",

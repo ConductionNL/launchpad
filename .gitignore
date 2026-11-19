@@ -19,7 +19,7 @@ Thumbs.db
 
 # Dependencies
 /vendor/
-/node_modules/
+/node_modules
 
 # Build artifacts
 /js/

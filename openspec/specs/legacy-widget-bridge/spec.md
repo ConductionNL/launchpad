@@ -21,8 +21,6 @@ The bridge holds two in-memory maps on a singleton:
 Both maps persist for the lifetime of the page. Registration is additive — re-registering an appId overwrites the previous callback.
 ## Requirements
 
-@e2e exclude purely client-side JavaScript bridge for legacy OCA.Dashboard.register() — no Playwright-observable DOM surface; bridge internals tested by Vitest unit tests
-
 ### Requirement: Intercept legacy widget registration at bootstrap (REQ-LWB-001)
 
 The system MUST intercept calls to `window.OCA.Dashboard.register` and `window.OCA.Dashboard.registerStatus` made by legacy Nextcloud widgets so that their render callbacks can be captured for later mounting by LaunchPad. Interception is installed once when the bridge singleton is constructed. The system MUST preserve any previously installed `register` / `registerStatus` implementation so that Nextcloud code that depends on the original registrar continues to work.
@@ -40,6 +38,8 @@ The system MUST intercept calls to `window.OCA.Dashboard.register` and `window.O
 - WHEN a legacy app calls `window.OCA.Dashboard.registerStatus("user_status", callback)`
 - THEN the system MUST store the `("user_status", callback)` pair in a separate status-callback map
 - AND the system MUST invoke any previously installed `registerStatus` handler
+
+@e2e exclude the status-callback map is private to the module-scoped widgetBridge singleton and nothing in src/ reads it (`mountStatusWidget` has no caller), so a browser cannot observe the stored pair. The forwarding to a previously installed `registerStatus` is observable and tests/e2e/legacy-widget-bridge.spec.ts asserts it, uncited, in the capture-a-regular-widget-callback test. No unit test pins the capture: src/services/__tests__/widgetBridge.spec.js seeds `statusCallbacks` directly.
 
 #### Scenario: Initialise OCA namespace when missing
 
@@ -67,6 +67,8 @@ The system MUST provide a way for LaunchPad to render a legacy widget by invokin
 - THEN the system MUST NOT clear the container
 - AND the system MUST emit a diagnostic `console.warn` naming the missing widgetId
 
+@e2e exclude WidgetRenderer only calls `widgetBridge.mountWidget` after `hasWidgetCallback` returns true (`tryMountLegacyWidget` in src/components/WidgetRenderer.vue), so the product never reaches the warn branch from a browser; an unregistered legacy placement retries and logs `[WidgetRenderer] Failed to mount widget` instead. No unit test pins the warn branch.
+
 #### Scenario: Registered callback throws during rendering
 
 - GIVEN a registered callback for `"broken"` throws on invocation
@@ -85,6 +87,8 @@ The system MUST provide a way to render a legacy status widget. Status widgets d
 - THEN the system MUST clear the container
 - AND the system MUST invoke the callback as `callback(containerEl)` with a single argument
 
+@e2e exclude `mountStatusWidget` has no caller anywhere in src/ (only its definition in src/services/widgetBridge.js), and the bridge singleton is module-private, so no page renders a status widget through it. The clearing clause is pinned by vitest src/services/__tests__/widgetBridge.spec.js 'removes the previous content before calling a status widget callback'; the single-argument call is pinned by no test.
+
 #### Scenario: Mount request for an unregistered status widget
 
 - GIVEN no callback has been registered for a status widgetId
@@ -92,12 +96,16 @@ The system MUST provide a way to render a legacy status widget. Status widgets d
 - THEN the system MUST NOT clear the container
 - AND the system MUST NOT emit a diagnostic warning
 
+@e2e exclude `mountStatusWidget` has no caller anywhere in src/ (only its definition in src/services/widgetBridge.js), and the bridge singleton is module-private, so no page renders a status widget through it. No unit test pins the silent no-op.
+
 #### Scenario: Status-widget callback throws during rendering
 
 - GIVEN a registered status-widget callback throws on invocation
 - WHEN LaunchPad calls `mountStatusWidget` for that widget
 - THEN the system MUST catch the error and log it together with the widgetId
 - AND the error MUST NOT propagate
+
+@e2e exclude `mountStatusWidget` has no caller anywhere in src/ (only its definition in src/services/widgetBridge.js), and the bridge singleton is module-private, so no page renders a status widget through it. No unit test pins the catch.
 
 **Notes**: The missing-callback behaviour differs between `mountWidget` (warn) and `mountStatusWidget` (silent). This is observed, not obviously intentional — status widgets may legitimately be absent on dashboards that do not request them, while regular widgets are usually explicit. Flagged for future REQ tightening once a call-site audit confirms the rationale.
 
@@ -113,12 +121,16 @@ The system MUST expose a way for LaunchPad render logic to query which widget ca
 - WHEN LaunchPad calls `hasWidgetCallback("weather_status")`
 - THEN the system MUST return `false`
 
+@e2e exclude the bridge singleton is module-private and `hasWidgetCallback` is only read inside WidgetRenderer to decide whether to mount, so its return values are not observable from a browser (the true branch is exercised by the mount test in tests/e2e/legacy-widget-bridge.spec.ts, the false branch by nothing visible). No unit test pins the two return values directly; vitest src/services/__tests__/widgetBridge.spec.js only spies on it through `pollForCallback`.
+
 #### Scenario: Enumerate all registered widget IDs
 
 - GIVEN callbacks have been registered for three widgets (`"notes"`, `"activity"`, `"recommendations"`) in that order
 - WHEN LaunchPad calls `getRegisteredWidgetIds()`
 - THEN the system MUST return an array containing exactly those three appIds
 - AND the order of appIds MUST reflect registration order (Map iteration order)
+
+@e2e exclude the bridge singleton is module-private and `getRegisteredWidgetIds` is only read by debug log lines in WidgetRenderer (`mountLegacyWidget` / `reportLegacyMountFailure`, silent unless `launchpad:debug` is set), and the page's other widget bundles may register too, so an exact three-id list in order is not observable. No unit test pins it.
 
 **Notes**: `hasWidgetCallback` and `getRegisteredWidgetIds` are combined into a single REQ because they expose the same read-only inspection capability over the widget-callback map. Status callbacks are not exposed via either query — the bridge does not currently need introspection on the status map. Noted for future REQ extension if that need arises.
 
@@ -135,12 +147,16 @@ This helper exists to support the `nc-widget` renderer (REQ-WDG-019), which need
 - AND a `OCA.Dashboard.register('notes', cb)` call happens 600 ms later
 - THEN the promise MUST resolve `true` within ~800 ms (next poll tick after registration)
 
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-005: resolves true when callback registers mid-poll'.
+
 #### Scenario: Resolve false on timeout
 
 - GIVEN no callback for `'fictional_widget'` is ever registered
 - WHEN `pollForCallback('fictional_widget')` is invoked
 - THEN after ~3 seconds (15 x 200 ms) the promise MUST resolve `false`
 - AND no further interval ticks MUST fire
+
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-005: resolves false after timeout when nothing registers'; the no-further-ticks clause is asserted only by src/__tests__/widgetBridge.test.js 'stops polling after timeout — no further interval ticks fire', which tests an inline copy of the class, not the shipped module.
 
 #### Scenario: Abort cancels polling
 
@@ -150,12 +166,16 @@ This helper exists to support the `nc-widget` renderer (REQ-WDG-019), which need
 - AND the underlying `setInterval` MUST be cleared
 - AND no further poll ticks MUST run
 
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-005: aborts immediately when the signal fires'; the interval-cleared clause is asserted only by src/__tests__/widgetBridge.test.js 'resolves false and clears interval when signal is aborted mid-poll', against an inline copy of the class.
+
 #### Scenario: Already-registered callback resolves immediately
 
 - GIVEN a callback for `'notes'` IS already in the bridge map
 - WHEN `pollForCallback('notes')` is invoked
 - THEN the promise MUST resolve `true` synchronously (or on the very next microtask)
 - AND no `setInterval` MUST be scheduled
+
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-006: synchronously resolves true when callback already registered'; the no-setInterval clause is asserted only by src/__tests__/widgetBridge.test.js 'does NOT start a setInterval when callback is already registered', against an inline copy of the class.
 
 ### Requirement: hasWidgetCallback consistency (REQ-LWB-006)
 
@@ -166,6 +186,8 @@ This helper exists to support the `nc-widget` renderer (REQ-WDG-019), which need
 - WHEN the polling helper checks for registration
 - THEN it MUST call `this.hasWidgetCallback(widgetId)`
 - AND the result of `hasWidgetCallback` and the poll's first synchronous check MUST agree
+
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-006: pollForCallback uses hasWidgetCallback as single source of truth'.
 
 ### Requirement: REQ-LWB-005 Polling helper for late callback registration
 
@@ -180,12 +202,16 @@ This helper exists to support the `nc-widget` renderer (REQ-WDG-019), which need
 - AND a `OCA.Dashboard.register('notes', cb)` call happens 600 ms later
 - THEN the promise MUST resolve `true` within ~800 ms (next poll tick after registration)
 
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-005: resolves true when callback registers mid-poll'.
+
 #### Scenario: Resolve false on timeout
 
 - GIVEN no callback for `'fictional_widget'` is ever registered
 - WHEN `pollForCallback('fictional_widget')` is invoked
 - THEN after ~3 seconds (15 x 200 ms) the promise MUST resolve `false`
 - AND no further interval ticks MUST fire
+
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-005: resolves false after timeout when nothing registers'; the no-further-ticks clause is asserted only by src/__tests__/widgetBridge.test.js 'stops polling after timeout — no further interval ticks fire', which tests an inline copy of the class, not the shipped module.
 
 #### Scenario: Abort cancels polling
 
@@ -195,12 +221,16 @@ This helper exists to support the `nc-widget` renderer (REQ-WDG-019), which need
 - AND the underlying `setInterval` MUST be cleared
 - AND no further poll ticks MUST run
 
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-005: aborts immediately when the signal fires'; the interval-cleared clause is asserted only by src/__tests__/widgetBridge.test.js 'resolves false and clears interval when signal is aborted mid-poll', against an inline copy of the class.
+
 #### Scenario: Already-registered callback resolves immediately
 
 - GIVEN a callback for `'notes'` IS already in the bridge map
 - WHEN `pollForCallback('notes')` is invoked
 - THEN the promise MUST resolve `true` synchronously (or on the very next microtask)
 - AND no `setInterval` MUST be scheduled
+
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-006: synchronously resolves true when callback already registered'; the no-setInterval clause is asserted only by src/__tests__/widgetBridge.test.js 'does NOT start a setInterval when callback is already registered', against an inline copy of the class.
 
 ### Requirement: REQ-LWB-006 hasWidgetCallback consistency
 
@@ -212,3 +242,4 @@ This helper exists to support the `nc-widget` renderer (REQ-WDG-019), which need
 - THEN it MUST call `this.hasWidgetCallback(widgetId)`
 - AND the result of `hasWidgetCallback` and the poll's first synchronous check MUST agree
 
+@e2e exclude `pollForCallback` has no caller in src/ (only its definition in src/services/widgetBridge.js; the nc-widget renderer, CnNcWidgetWidget in @conduction/nextcloud-vue, reads `OCA.Dashboard.callbacks` itself), and the bridge singleton is module-private, so no browser path reaches it; it also needs fake timers to pin interval ticks. Pinned by vitest src/services/__tests__/widgetBridge.spec.js 'REQ-LWB-006: pollForCallback uses hasWidgetCallback as single source of truth'.

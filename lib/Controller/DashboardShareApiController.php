@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\ShareGrant;
 use OCP\AppFramework\Controller;
@@ -43,6 +44,8 @@ use Throwable;
  * are delegated to DashboardShareService.
  *
  * @spec openspec/specs/dashboard-sharing/spec.md
+ *
+ * @psalm-import-type LaunchPadShare from ResponseDefinitions
  */
 class DashboardShareApiController extends Controller {
 	/**
@@ -69,6 +72,10 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @return DataResponse The list of shares.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadShare>, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -100,6 +107,10 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @return DataResponse The created/updated share.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_CREATED, LaunchPadShare, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -137,6 +148,10 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @return DataResponse Empty 204 on success.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_NO_CONTENT, array{}, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -161,10 +176,14 @@ class DashboardShareApiController extends Controller {
 	 * Atomically replace all shares for a dashboard. REQ-SHARE-009.
 	 *
 	 * @param int $id The dashboard ID.
-	 * @param array|null $shares The new share list.
+	 * @param list<array{shareType: string, shareWith: string, permissionLevel?: string}>|null $shares The new share list.
 	 *
 	 * @return DataResponse The new full share list.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadShare>, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]

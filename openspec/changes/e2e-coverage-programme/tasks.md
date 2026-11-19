@@ -49,6 +49,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.3 `admin-templates`: 86 scenarios, 0 cited, blanket.
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/footer-customization-api.spec.ts`, `tests/e2e/footer-customization-render.spec.ts` (helper `tests/e2e/support/footerSettings.ts`), 46 scenarios cited (29 of them as `test.fixme` because the footer never renders, see the PR), 1 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.7 `navigation-editor-org`: 45 scenarios, 0 cited, blanket.

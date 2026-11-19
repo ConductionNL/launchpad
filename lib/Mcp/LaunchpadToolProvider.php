@@ -376,6 +376,85 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'scope' => 'delete', 'reach' => 'self', 'readOnlyHint' => false, 'destructiveHint' => true,
 			'inputSchema' => self::PLACEMENT_ID_ARGUMENT,
 		],
+		[
+			'id' => 'launchpad.createDashboard',
+			'name' => 'Create dashboard',
+			'description' => 'Create a personal dashboard, seeded with the default widgets.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'description' => ['type' => 'string', 'maxLength' => 2000],
+					'icon' => ['type' => 'string'],
+					'parentUuid' => ['type' => 'string'],
+					'slug' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'sortOrder' => ['type' => 'integer'],
+				],
+				'required' => ['name'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateDashboard',
+			'name' => 'Update dashboard',
+			'description' => 'Rename, describe, move or re-slug a dashboard whose details you may edit.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'description' => ['type' => 'string', 'maxLength' => 2000],
+					'icon' => ['type' => 'string'],
+					'parentUuid' => ['type' => 'string'],
+					'slug' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'sortOrder' => ['type' => 'integer'],
+				],
+				'required' => ['dashboardId'],
+			],
+		],
+		[
+			'id' => 'launchpad.deleteDashboard',
+			'name' => 'Delete dashboard',
+			'description' => 'Delete a dashboard you own; set cascade to delete its child dashboards too.',
+			'scope' => 'delete', 'reach' => 'self', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'cascade' => ['type' => 'boolean'],
+				],
+				'required' => ['dashboardId'],
+			],
+		],
+		[
+			'id' => 'launchpad.switchActiveDashboard',
+			'name' => 'Switch active dashboard',
+			'description' => 'Make a dashboard the one LaunchPad opens on for you.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => self::DASHBOARD_UUID_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.setDefaultDashboard',
+			'name' => 'Set default dashboard',
+			'description' => 'Make a dashboard your default.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => self::DASHBOARD_UUID_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.forkDashboard',
+			'name' => 'Fork dashboard',
+			'description' => 'Copy a dashboard you can see, or a gallery template, as your own dashboard.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+				],
+				'required' => ['dashboardUuid'],
+			],
+		],
 	];
 
 	/**
@@ -411,6 +490,12 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.createTile' => [McpWidgetTools::class, 'createTile'],
 		'launchpad.updateTile' => [McpWidgetTools::class, 'updateTile'],
 		'launchpad.deleteTile' => [McpWidgetTools::class, 'deleteTile'],
+		'launchpad.createDashboard' => [McpDashboardWriteTools::class, 'createDashboard'],
+		'launchpad.updateDashboard' => [McpDashboardWriteTools::class, 'updateDashboard'],
+		'launchpad.deleteDashboard' => [McpDashboardWriteTools::class, 'deleteDashboard'],
+		'launchpad.switchActiveDashboard' => [McpDashboardWriteTools::class, 'switchActiveDashboard'],
+		'launchpad.setDefaultDashboard' => [McpDashboardWriteTools::class, 'setDefaultDashboard'],
+		'launchpad.forkDashboard' => [McpDashboardWriteTools::class, 'forkDashboard'],
 	];
 
 	/**

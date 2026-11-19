@@ -225,6 +225,24 @@ class McpDashboardGate {
 	}//end requireRemoveWidget()
 
 	/**
+	 * A refusal when the caller may not create a dashboard, or may not have one
+	 * more, or NULL to proceed. Any failure of the permission check denies.
+	 *
+	 * @param bool $hasDashboards Whether the caller already has a dashboard.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function requireCreateDashboard(bool $hasDashboards): ?array {
+		return $this->refuseUnless(
+			check: fn (string $userId): bool => $this->permissions->canCreateDashboard(userId: $userId)
+				&& ($hasDashboards === false || $this->permissions->canHaveMultipleDashboards()),
+			message: 'You may not create a dashboard, or not another one.'
+		);
+	}//end requireCreateDashboard()
+
+	/**
 	 * A forbidden refusal unless the check allows the caller. A check that
 	 * throws denies.
 	 *

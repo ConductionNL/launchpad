@@ -2261,7 +2261,20 @@ OC.L10N.register(
     "Web addresses in a new tab, apps in the same tab" : "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
     "This address cannot open in the panel." : "Dit adres kan niet in het paneel openen.",
     "You have no access to this scope: {name}" : "Je hebt geen toegang tot dit bereik: {name}",
-    "{name} filter changed: {from} → {to}" : "Filter {name} gewijzigd: {from} → {to}"
+    "{name} filter changed: {from} → {to}" : "Filter {name} gewijzigd: {from} → {to}",
+    "The formula cannot be read." : "De formule is niet te lezen.",
+    "The formula mixes values that do not go together, such as text and a number." : "De formule combineert waarden die niet samengaan, zoals tekst en een getal.",
+    "The formula refers back to itself through other fields." : "De formule verwijst via andere velden naar zichzelf terug.",
+    "The formula uses a function that does not exist." : "De formule gebruikt een functie die niet bestaat.",
+    "The formula uses a function this instance does not allow." : "De formule gebruikt een functie die deze omgeving niet toestaat.",
+    "A function in the formula has the wrong number of values." : "Een functie in de formule krijgt het verkeerde aantal waarden.",
+    "A function in the formula is given the wrong kind of value." : "Een functie in de formule krijgt het verkeerde soort waarde.",
+    "Two calculated fields on this widget have the same name." : "Twee berekende velden op deze widget hebben dezelfde naam.",
+    "This field is calculated in the browser only: it cannot be stored in the register." : "Dit veld wordt alleen in de browser berekend: het kan niet in het register worden opgeslagen.",
+    "This value could not be calculated ({reason})." : "Deze waarde kon niet worden berekend ({reason}).",
+    "Formula: {expression}" : "Formule: {expression}",
+    "Values read: {inputs}" : "Gelezen waarden: {inputs}",
+    "empty" : "leeg"
 },
 "nplurals=2; plural=(n != 1);"
 );

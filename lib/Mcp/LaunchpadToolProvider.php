@@ -333,32 +333,42 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			return $result;
 		}
 
-		return $result + ['audit' => $this->auditRecord(toolId: $toolId, arguments: $arguments, result: $result)];
+		return $result + ['audit' => $this->auditRecord(toolId: $toolId, arguments: $arguments) + ['outcome' => self::outcomeOf(result: $result)]];
 	}//end invokeTool()
 
 	/**
-	 * What hermiq's audit trail records for a write tool call: the tool, its
-	 * target, the caller and whether it went through (REQ-MCP-006).
+	 * What hermiq's audit trail records about a write tool call: the tool, its
+	 * target and the caller (REQ-MCP-006). The outcome is added beside it.
 	 *
 	 * @param string               $toolId    The tool id.
 	 * @param array<string, mixed> $arguments The arguments.
-	 * @param array<string, mixed> $result    The handler's answer.
 	 *
-	 * @return array{tool: string, target: mixed, caller: string, outcome: string}
+	 * @return array{tool: string, target: mixed, caller: string}
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-14
 	 */
-	private function auditRecord(string $toolId, array $arguments, array $result): array {
-		$outcome = 'done';
-		if (($result['isError'] ?? false) === true) {
-			$outcome = (string)($result['error'] ?? 'failed');
-		}
-
+	private function auditRecord(string $toolId, array $arguments): array {
 		return [
 			'tool' => $toolId,
 			'target' => ($arguments['dashboardUuid'] ?? $arguments['dashboardId'] ?? null),
 			'caller' => $this->container->get(McpDashboardGate::class)->currentUserId(),
-			'outcome' => $outcome,
 		];
 	}//end auditRecord()
+
+	/**
+	 * The outcome of a tool call: `done`, or the refusal's error code.
+	 *
+	 * @param array<string, mixed> $result The handler's answer.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-14
+	 */
+	private static function outcomeOf(array $result): string {
+		if (($result['isError'] ?? false) === true) {
+			return (string)($result['error'] ?? 'failed');
+		}
+
+		return 'done';
+	}//end outcomeOf()
 }//end class

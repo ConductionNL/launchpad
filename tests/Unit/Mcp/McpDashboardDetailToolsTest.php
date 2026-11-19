@@ -272,8 +272,9 @@ class McpDashboardDetailToolsTest extends TestCase {
 		$versions->expects($this->never())->method('createExplicitSnapshot');
 		$tools = new McpHistoryTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, versions: $versions);
 
-		$this->assertSame(expected: 'invalid_arguments', actual: $tools->restoreDashboardVersion(args: ['dashboardUuid' => self::UUID, 'versionNumber' => 0])['error']);
-		$this->assertSame(expected: 'forbidden', actual: $tools->restoreDashboardVersion(args: ['dashboardUuid' => self::UUID, 'versionNumber' => 2])['error']);
+		$restore = static fn (int $versionNumber): array => ['dashboardUuid' => self::UUID, 'versionNumber' => $versionNumber];
+		$this->assertSame(expected: 'invalid_arguments', actual: $tools->restoreDashboardVersion(args: $restore(0))['error']);
+		$this->assertSame(expected: 'forbidden', actual: $tools->restoreDashboardVersion(args: $restore(2))['error']);
 		$this->assertSame(expected: 'forbidden', actual: $tools->createDashboardVersion(args: ['dashboardUuid' => self::UUID])['error']);
 	}//end testVersionWritesRefuse()
 

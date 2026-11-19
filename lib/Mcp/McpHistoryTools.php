@@ -66,9 +66,13 @@ class McpHistoryTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function listVersions(array $args): array {
-		return $this->onDashboard(
-			args: $args,
-			action: 'dashboard-version.list-versions',
+		$refusal = $this->refusal(args: $args, action: 'dashboard-version.list-versions');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->withDashboard(
+			uuid: (string)$args['dashboardUuid'],
 			operation: fn (Dashboard $dashboard, string $userId): array => $this->versions->listVersions(
 				dashboard: $dashboard,
 				requestingUser: $userId
@@ -86,14 +90,14 @@ class McpHistoryTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function createDashboardVersion(array $args): array {
-		$refusal = $this->validator->string(args: $args, name: 'note', min: 1, max: 500, required: false);
+		$refusal = ($this->validator->string(args: $args, name: 'note', min: 1, max: 500, required: false)
+			?? $this->refusal(args: $args, action: 'dashboard-version.create-version'));
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		return $this->onDashboard(
-			args: $args,
-			action: 'dashboard-version.create-version',
+		return $this->withDashboard(
+			uuid: (string)$args['dashboardUuid'],
 			operation: fn (Dashboard $dashboard, string $userId): array => [
 				'version' => $this->versions->createExplicitSnapshot(
 					dashboard: $dashboard,
@@ -114,14 +118,14 @@ class McpHistoryTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function restoreDashboardVersion(array $args): array {
-		$refusal = $this->validator->id(args: $args, name: 'versionNumber');
+		$refusal = ($this->validator->id(args: $args, name: 'versionNumber')
+			?? $this->refusal(args: $args, action: 'dashboard-version.restore-version'));
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		return $this->onDashboard(
-			args: $args,
-			action: 'dashboard-version.restore-version',
+		return $this->withDashboard(
+			uuid: (string)$args['dashboardUuid'],
 			operation: function (Dashboard $dashboard, string $userId) use ($args): array {
 				$result = $this->versions->restoreVersion(
 					dashboard: $dashboard,
@@ -134,24 +138,30 @@ class McpHistoryTools {
 	}//end restoreDashboardVersion()
 
 	/**
-	 * Check the UUID and the ADR-023 action, find the dashboard and run the
-	 * operation on it, mapping the version service's refusals as the routes do.
+	 * A refusal for a bad dashboard UUID or a caller without the route's
+	 * ADR-023 action, or NULL to proceed.
 	 *
-	 * @param array<string, mixed>                    $args      The tool arguments.
-	 * @param string                                  $action    The route's ADR-023 action.
+	 * @param array<string, mixed> $args   The tool arguments.
+	 * @param string               $action The route's ADR-023 action.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function refusal(array $args, string $action): ?array {
+		return ($this->validator->uuid(args: $args, name: 'dashboardUuid') ?? $this->gate->requireAction(action: $action));
+	}//end refusal()
+
+	/**
+	 * Find the dashboard and run the operation on it for the caller, mapping
+	 * the version service's refusals as the routes do.
+	 *
+	 * @param string                                   $uuid      The dashboard UUID.
 	 * @param Closure(Dashboard, string): array<mixed> $operation The service call.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function onDashboard(array $args, string $action, Closure $operation): array {
-		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid') ?? $this->gate->requireAction(action: $action));
-		if ($refusal !== null) {
-			return $refusal;
-		}
-
+	private function withDashboard(string $uuid, Closure $operation): array {
 		try {
-			$dashboard = $this->dashboards->findByUuid(uuid: (string)$args['dashboardUuid']);
-			return $operation($dashboard, $this->gate->currentUserId());
+			return $operation($this->dashboards->findByUuid(uuid: $uuid), $this->gate->currentUserId());
 		} catch (DoesNotExistException $e) {
 			return $this->validator->failure(exception: $e);
 		} catch (Exception $e) {
@@ -161,5 +171,5 @@ class McpHistoryTools {
 
 			return $this->validator->failure(exception: $e);
 		}
-	}//end onDashboard()
+	}//end withDashboard()
 }//end class

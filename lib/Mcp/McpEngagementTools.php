@@ -116,13 +116,16 @@ class McpEngagementTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function addReaction(array $args): array {
+		$refusal = ($this->reactionArgumentsRefusal(args: $args) ?? $this->gate->requireAction(action: 'dashboard-reaction.add-reaction'));
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
 		return $this->react(
-			args: $args,
-			action: 'dashboard-reaction.add-reaction',
-			operation: fn (string $uuid, string $userId, string $emoji): array => $this->reactions->addReaction(
-				dashboardUuid: $uuid,
+			operation: fn (string $userId): array => $this->reactions->addReaction(
+				dashboardUuid: (string)$args['dashboardUuid'],
 				userId: $userId,
-				emoji: $emoji
+				emoji: (string)$args['emoji']
 			)
 		);
 	}//end addReaction()
@@ -137,35 +140,45 @@ class McpEngagementTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function removeReaction(array $args): array {
+		$refusal = ($this->reactionArgumentsRefusal(args: $args) ?? $this->gate->requireAction(action: 'dashboard-reaction.remove-reaction'));
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
 		return $this->react(
-			args: $args,
-			action: 'dashboard-reaction.remove-reaction',
-			operation: fn (string $uuid, string $userId, string $emoji): array => [
-				'removed' => $this->reactions->removeReaction(dashboardUuid: $uuid, userId: $userId, emoji: $emoji),
+			operation: fn (string $userId): array => [
+				'removed' => $this->reactions->removeReaction(
+					dashboardUuid: (string)$args['dashboardUuid'],
+					userId: $userId,
+					emoji: (string)$args['emoji']
+				),
 			]
 		);
 	}//end removeReaction()
 
 	/**
-	 * Check the arguments and the ADR-023 action, then run a reaction change,
-	 * mapping the reaction service's refusals as the routes do.
+	 * A refusal for a bad dashboard UUID or emoji, or NULL to proceed.
 	 *
-	 * @param array<string, mixed>                           $args      The tool arguments.
-	 * @param string                                         $action    The route's ADR-023 action.
-	 * @param Closure(string, string, string): array<mixed> $operation The service call.
+	 * @param array<string, mixed> $args The tool arguments.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function reactionArgumentsRefusal(array $args): ?array {
+		return ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->validator->string(args: $args, name: 'emoji', min: 1, max: 32));
+	}//end reactionArgumentsRefusal()
+
+	/**
+	 * Run a reaction change for the caller, mapping the reaction service's
+	 * refusals as the routes do.
+	 *
+	 * @param Closure(string): array<mixed> $operation The service call, given the caller.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function react(array $args, string $action, Closure $operation): array {
-		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
-			?? $this->validator->string(args: $args, name: 'emoji', min: 1, max: 32)
-			?? $this->gate->requireAction(action: $action));
-		if ($refusal !== null) {
-			return $refusal;
-		}
-
+	private function react(Closure $operation): array {
 		try {
-			return $operation((string)$args['dashboardUuid'], $this->gate->currentUserId(), (string)$args['emoji']);
+			return $operation($this->gate->currentUserId());
 		} catch (PermissionDeniedException | ReactionsDisabledException $e) {
 			return $this->validator->refuse(code: 'forbidden', message: $e->getMessage());
 		} catch (Throwable $e) {

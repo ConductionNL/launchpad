@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Mcp;
 
 use Closure;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Service\MetadataService;
@@ -66,11 +67,16 @@ class McpMetadataTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function getDashboardMetadata(array $args): array {
-		return $this->onDashboard(
-			args: $args,
-			action: 'dashboard-metadata.get-metadata',
-			guard: fn (int $dashboardId): ?array => $this->gate->requireView(dashboardId: $dashboardId),
-			operation: fn (string $uuid): array => ['metadata' => $this->metadata->getMetadataForDashboard(dashboardUuid: $uuid)]
+		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->gate->requireAction(action: 'dashboard-metadata.get-metadata'));
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->withDashboard(
+			uuid: (string)$args['dashboardUuid'],
+			operation: fn (Dashboard $dashboard): array => ($this->gate->requireView(dashboardId: (int)$dashboard->getId())
+				?? ['metadata' => $this->metadata->getMetadataForDashboard(dashboardUuid: (string)$dashboard->getUuid())])
 		);
 	}//end getDashboardMetadata()
 
@@ -84,48 +90,54 @@ class McpMetadataTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function setDashboardMetadata(array $args): array {
+		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->gate->requireAction(action: 'dashboard-metadata.set-metadata'));
 		if (is_array($args['metadata'] ?? null) === false) {
-			return $this->validator->refuse(code: 'invalid_arguments', message: 'Argument metadata must be an object of field keys to values.');
+			$refusal ??= $this->validator->refuse(code: 'invalid_arguments', message: 'Argument metadata must be an object of field keys to values.');
 		}
 
-		return $this->onDashboard(
-			args: $args,
-			action: 'dashboard-metadata.set-metadata',
-			guard: fn (int $dashboardId): ?array => $this->gate->requireMetadataEdit(dashboardId: $dashboardId),
-			operation: function (string $uuid) use ($args): array {
-				try {
-					return ['metadata' => $this->metadata->setMetadataForDashboard(dashboardUuid: $uuid, keyValues: $args['metadata'])];
-				} catch (InvalidMetadataFieldException $e) {
-					return $this->validator->refuse(code: 'invalid_arguments', message: $e->getMessage());
-				}
-			}
-		);
-	}//end setDashboardMetadata()
-
-	/**
-	 * Check the UUID and the ADR-023 action, find the dashboard, apply the
-	 * per-dashboard guard and run the operation.
-	 *
-	 * @param array<string, mixed>          $args      The tool arguments.
-	 * @param string                        $action    The route's ADR-023 action.
-	 * @param Closure(int): (array|null)    $guard     The per-dashboard check.
-	 * @param Closure(string): array<mixed> $operation The service call, given the UUID.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function onDashboard(array $args, string $action, Closure $guard, Closure $operation): array {
-		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid') ?? $this->gate->requireAction(action: $action));
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		$uuid = (string)$args['dashboardUuid'];
+		return $this->withDashboard(
+			uuid: (string)$args['dashboardUuid'],
+			operation: fn (Dashboard $dashboard): array => ($this->gate->requireMetadataEdit(dashboardId: (int)$dashboard->getId())
+				?? $this->writeMetadata(uuid: (string)$dashboard->getUuid(), values: $args['metadata']))
+		);
+	}//end setDashboardMetadata()
+
+	/**
+	 * Write the values, refusing an unknown or invalid field as the route does.
+	 *
+	 * @param string              $uuid   The dashboard UUID.
+	 * @param array<string, mixed> $values Field key to value.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function writeMetadata(string $uuid, array $values): array {
+		try {
+			return ['metadata' => $this->metadata->setMetadataForDashboard(dashboardUuid: $uuid, keyValues: $values)];
+		} catch (InvalidMetadataFieldException $e) {
+			return $this->validator->refuse(code: 'invalid_arguments', message: $e->getMessage());
+		}
+	}//end writeMetadata()
+
+	/**
+	 * Find the dashboard and run the operation on it.
+	 *
+	 * @param string                      $uuid      The dashboard UUID.
+	 * @param Closure(Dashboard): array<mixed> $operation The check and the service call.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function withDashboard(string $uuid, Closure $operation): array {
 		try {
 			$dashboard = $this->dashboards->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException $e) {
 			return $this->validator->failure(exception: $e);
 		}
 
-		return ($guard((int)$dashboard->getId()) ?? $operation($uuid));
-	}//end onDashboard()
+		return $operation($dashboard);
+	}//end withDashboard()
 }//end class

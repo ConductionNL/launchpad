@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use Throwable;
  * rows of one action are folded into one event. Only the type and the time
  * are kept; nothing measures hours.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-006-activity-as-a-figure-and-as-a-calendar
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-006-activity-as-a-figure-and-as-a-calendar
  */
 class ActivityEventReader {
 
@@ -50,7 +50,7 @@ class ActivityEventReader {
 	 *
 	 * @param IDBConnection $db The database.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.5
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.5
 	 */
 	public function __construct(
 		private readonly IDBConnection $db,
@@ -66,7 +66,7 @@ class ActivityEventReader {
 	 *
 	 * @return list<array{type:string,timestamp:int}>|null The events.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.5
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.5
 	 */
 	public function events(string $userId, int $from, int $until): ?array {
 		try {
@@ -94,7 +94,7 @@ class ActivityEventReader {
 	 *
 	 * @return list<array{type:string,timestamp:int}> The events.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.5
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.5
 	 */
 	public static function fold(array $rows): array {
 		$events = [];

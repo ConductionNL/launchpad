@@ -23,6 +23,7 @@
 		:supportDialog="supportNoteForThisAccount"
 		:userSettingsSections="userSettingsSections"
 		:translate="translateForApp"
+		:requiresApps="[]"
 		appId="launchpad">
 		<!--
 		  runtime-shell REQ-SHELL-009: the start page without the navigation

@@ -263,7 +263,7 @@ export default {
 		 * and the widget's settings are never touched.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
 		 */
 		shownItems() {
 			return filterRows(this.items, this.rowFilter, ['title', 'summary', 'sourceTitle'])

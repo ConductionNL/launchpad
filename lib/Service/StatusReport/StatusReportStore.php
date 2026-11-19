@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use Throwable;
  * service and its option values are named as strings and resolved at call
  * time, and without them the store answers null.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
  */
 class StatusReportStore {
 
@@ -72,7 +72,7 @@ class StatusReportStore {
 	 * @param ContainerInterface $container Resolves OpenRegister's object service at call time.
 	 * @param LoggerInterface    $logger    Logs a save that failed.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -87,7 +87,7 @@ class StatusReportStore {
 	 *
 	 * @return array<string,mixed>|null
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.1
 	 */
 	public function save(array $report): ?array {
 		if (class_exists(self::SAVE_OPTIONS) === false || class_exists(self::FIND_TARGET) === false) {

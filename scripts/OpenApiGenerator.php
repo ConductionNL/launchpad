@@ -385,10 +385,14 @@ final class OpenApiGenerator {
 			$stability = 'internal';
 		}
 
+		if ($summary === '') {
+			$summary = $method;
+		}
+
 		$operation = [
 			'operationId'           => $tag.'-'.self::kebab(name: $method),
 			'x-launchpad-stability' => $stability,
-			'summary'               => ($summary !== '' ? $summary : $method),
+			'summary'               => $summary,
 			'description'           => str_replace("\n\n", ' ', $text),
 			'tags'                  => [$tag],
 			self::ACCESS_KEY        => $access,
@@ -491,7 +495,8 @@ final class OpenApiGenerator {
 	 */
 	private function parameter(array $param, string $in, bool $required): array {
 		$schema = $this->paramSchema(param: $param);
-		$plain  = (isset($schema['type']) === true && is_string($schema['type']) === true && in_array($schema['type'], ['string', 'integer', 'number', 'boolean'], true) === true);
+		$type   = ($schema['type'] ?? null);
+		$plain  = (is_string($type) === true && in_array($type, ['string', 'integer', 'number', 'boolean'], true) === true);
 		if ($in === 'path' || $plain === false) {
 			$schema = $this->scalarOf(schema: $schema);
 		}
@@ -677,7 +682,10 @@ final class OpenApiGenerator {
 	private function document(array $paths, array $tags, array $overlay, array $definitions): array {
 		ksort($paths);
 		foreach ($paths as $path => $item) {
-			uksort($item, static fn (string $left, string $right): int => (array_search($left, self::VERB_ORDER, true) <=> array_search($right, self::VERB_ORDER, true)));
+			uksort(
+				$item,
+				static fn (string $left, string $right): int => (array_search($left, self::VERB_ORDER, true) <=> array_search($right, self::VERB_ORDER, true))
+			);
 			$paths[$path] = $item;
 		}
 

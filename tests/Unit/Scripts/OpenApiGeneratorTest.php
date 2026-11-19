@@ -93,10 +93,10 @@ class OpenApiGeneratorTest extends TestCase {
 	public function testOnlyVersionedRoutesAreOperations(): void {
 		$document = $this->document();
 
-		self::assertSame('3.1.0', $document['openapi']);
-		self::assertSame(['/gadgets', '/gadgets/retired', '/gadgets/{id}/face', '/gadgets/{uuid}'], array_keys($document['paths']));
-		self::assertSame(['get', 'post'], array_keys($document['paths']['/gadgets']));
-		self::assertSame([['name' => 'gadget', 'description' => 'Gadgets for the generator tests.']], $document['tags']);
+		self::assertSame(expected: '3.1.0', actual: $document['openapi']);
+		self::assertSame(expected: ['/gadgets', '/gadgets/retired', '/gadgets/{id}/face', '/gadgets/{uuid}'], actual: array_keys($document['paths']));
+		self::assertSame(expected: ['get', 'post'], actual: array_keys($document['paths']['/gadgets']));
+		self::assertSame(expected: [['name' => 'gadget', 'description' => 'Gadgets for the generator tests.']], actual: $document['tags']);
 	}//end testOnlyVersionedRoutesAreOperations()
 
 	/**
@@ -107,11 +107,14 @@ class OpenApiGeneratorTest extends TestCase {
 	public function testTextStabilityAndAccess(): void {
 		$index = $this->document()['paths']['/gadgets']['get'];
 
-		self::assertSame('gadget-index', $index['operationId']);
-		self::assertSame('public', $index['x-launchpad-stability']);
-		self::assertSame('List the gadgets', $index['summary']);
-		self::assertSame('List the gadgets. Second sentence. See `self::show()` for one. Needs a signed-in Nextcloud user.', $index['description']);
-		self::assertSame('internal', $this->document()['paths']['/gadgets/{uuid}']['get']['x-launchpad-stability']);
+		self::assertSame(expected: 'gadget-index', actual: $index['operationId']);
+		self::assertSame(expected: 'public', actual: $index['x-launchpad-stability']);
+		self::assertSame(expected: 'List the gadgets', actual: $index['summary']);
+		self::assertSame(
+			expected: 'List the gadgets. Second sentence. See `self::show()` for one. Needs a signed-in Nextcloud user.',
+			actual: $index['description']
+		);
+		self::assertSame(expected: 'internal', actual: $this->document()['paths']['/gadgets/{uuid}']['get']['x-launchpad-stability']);
 	}//end testTextStabilityAndAccess()
 
 	/**
@@ -123,15 +126,21 @@ class OpenApiGeneratorTest extends TestCase {
 		$document = $this->document();
 
 		self::assertSame(
-			[
+			expected: [
 				['name' => 'filter', 'in' => 'query', 'required' => true, 'description' => 'A filter.', 'schema' => ['type' => 'string']],
 				['name' => 'limit', 'in' => 'query', 'required' => false, 'description' => 'At most this many.', 'schema' => ['type' => 'integer']],
 			],
-			$document['paths']['/gadgets']['get']['parameters']
+			actual: $document['paths']['/gadgets']['get']['parameters']
 		);
 		self::assertSame(
-			['name' => 'uuid', 'in' => 'path', 'required' => true, 'description' => 'The gadget.', 'schema' => ['type' => 'string', 'format' => 'uuid']],
-			$document['paths']['/gadgets/{uuid}']['get']['parameters'][0]
+			expected: [
+				'name'        => 'uuid',
+				'in'          => 'path',
+				'required'    => true,
+				'description' => 'The gadget.',
+				'schema'      => ['type' => 'string', 'format' => 'uuid'],
+			],
+			actual: $document['paths']['/gadgets/{uuid}']['get']['parameters'][0]
 		);
 	}//end testPathAndQueryParameters()
 
@@ -143,12 +152,12 @@ class OpenApiGeneratorTest extends TestCase {
 	public function testRequestBody(): void {
 		$body = $this->document()['paths']['/gadgets']['post']['requestBody'];
 
-		self::assertTrue($body['required']);
+		self::assertTrue(condition: $body['required']);
 		$schema = $body['content']['application/json']['schema'];
-		self::assertSame(['name'], $schema['required']);
-		self::assertSame(['name', 'tags', 'colour'], array_keys($schema['properties']));
-		self::assertSame(['type' => 'string'], $schema['properties']['colour']);
-		self::assertSame('array', $schema['properties']['tags']['type']);
+		self::assertSame(expected: ['name'], actual: $schema['required']);
+		self::assertSame(expected: ['name', 'tags', 'colour'], actual: array_keys($schema['properties']));
+		self::assertSame(expected: ['type' => 'string'], actual: $schema['properties']['colour']);
+		self::assertSame(expected: 'array', actual: $schema['properties']['tags']['type']);
 	}//end testRequestBody()
 
 	/**
@@ -159,13 +168,16 @@ class OpenApiGeneratorTest extends TestCase {
 	public function testResponsesFromTheCode(): void {
 		$paths = $this->document()['paths'];
 
-		self::assertSame([200, 401, 403, 404], array_keys($paths['/gadgets/{uuid}']['get']['responses']));
-		self::assertSame([201, 401, 403], array_keys($paths['/gadgets']['post']['responses']));
-		self::assertSame([200], array_keys($paths['/gadgets/{id}/face']['get']['responses']));
-		self::assertSame([], $paths['/gadgets/{id}/face']['get']['security']);
-		self::assertStringEndsWith('It needs no login.', $paths['/gadgets/{id}/face']['get']['description']);
-		self::assertStringEndsWith('Needs an administrator, or a user the matching admin setting is delegated to.', $paths['/gadgets']['post']['description']);
-		self::assertSame(['$ref' => '#/components/responses/Problem404'], $paths['/gadgets/{uuid}']['get']['responses']['404']);
+		self::assertSame(expected: [200, 401, 403, 404], actual: array_keys($paths['/gadgets/{uuid}']['get']['responses']));
+		self::assertSame(expected: [201, 401, 403], actual: array_keys($paths['/gadgets']['post']['responses']));
+		self::assertSame(expected: [200], actual: array_keys($paths['/gadgets/{id}/face']['get']['responses']));
+		self::assertSame(expected: [], actual: $paths['/gadgets/{id}/face']['get']['security']);
+		self::assertStringEndsWith(suffix: 'It needs no login.', string: $paths['/gadgets/{id}/face']['get']['description']);
+		self::assertStringEndsWith(
+			suffix: 'Needs an administrator, or a user the matching admin setting is delegated to.',
+			string: $paths['/gadgets']['post']['description']
+		);
+		self::assertSame(expected: ['$ref' => '#/components/responses/Problem404'], actual: $paths['/gadgets/{uuid}']['get']['responses']['404']);
 	}//end testResponsesFromTheCode()
 
 	/**
@@ -178,16 +190,17 @@ class OpenApiGeneratorTest extends TestCase {
 		$index    = $document['paths']['/gadgets']['get']['responses'];
 
 		// The body scan found a 201, but the declaration says 200. Numeric keys decode as integers.
-		self::assertSame([200, 401], array_keys($index));
+		self::assertSame(expected: [200, 401], actual: array_keys($index));
 		self::assertSame(
-			['type' => 'array', 'items' => ['$ref' => '#/components/schemas/FixtureGadget']],
-			$index['200']['content']['application/json']['schema']
+			expected: ['type' => 'array', 'items' => ['$ref' => '#/components/schemas/FixtureGadget']],
+			actual: $index['200']['content']['application/json']['schema']
 		);
 
 		$retired = $document['paths']['/gadgets/retired']['delete']['responses'];
-		self::assertSame([401, 403, 410], array_keys($retired));
-		self::assertSame(['$ref' => '#/components/schemas/Problem'], $retired['410']['content']['application/problem+json']['schema']['allOf'][0]);
-		self::assertSame('Gone.', $retired['410']['description']);
+		self::assertSame(expected: [401, 403, 410], actual: array_keys($retired));
+		$problem = $retired['410']['content']['application/problem+json']['schema'];
+		self::assertSame(expected: ['$ref' => '#/components/schemas/Problem'], actual: $problem['allOf'][0]);
+		self::assertSame(expected: 'Gone.', actual: $retired['410']['description']);
 	}//end testDeclaredResponseShapes()
 
 	/**
@@ -211,12 +224,12 @@ class OpenApiGeneratorTest extends TestCase {
 		]);
 		$show = $document['paths']['/gadgets/{uuid}']['get'];
 
-		self::assertSame(['title' => 'Fixture', 'version' => '9'], $document['info']);
-		self::assertSame('Reworded. Needs a signed-in Nextcloud user.', $show['description']);
-		self::assertSame(['description' => 'No such gadget.'], $show['responses']['404']);
-		self::assertSame(['anyOf' => [['type' => 'object']]], $show['responses']['200']['content']['application/json']['schema']);
-		self::assertArrayHasKey('Problem404', $document['components']['responses']);
-		self::assertSame(['type' => 'object'], $document['components']['schemas']['Problem']);
+		self::assertSame(expected: ['title' => 'Fixture', 'version' => '9'], actual: $document['info']);
+		self::assertSame(expected: 'Reworded. Needs a signed-in Nextcloud user.', actual: $show['description']);
+		self::assertSame(expected: ['description' => 'No such gadget.'], actual: $show['responses']['404']);
+		self::assertSame(expected: ['anyOf' => [['type' => 'object']]], actual: $show['responses']['200']['content']['application/json']['schema']);
+		self::assertArrayHasKey(key: 'Problem404', array: $document['components']['responses']);
+		self::assertSame(expected: ['type' => 'object'], actual: $document['components']['schemas']['Problem']);
 	}//end testOverlay()
 
 	/**
@@ -228,10 +241,10 @@ class OpenApiGeneratorTest extends TestCase {
 		$types   = new OpenApiTypeMapper(aliases: ['FixtureGadget' => true, 'FixtureCount' => true]);
 		$schemas = OpenApiGenerator::definitions(file: self::FIXTURES.'/ResponseDefinitions.php', types: $types);
 
-		self::assertSame(['FixtureGadget', 'FixtureCount'], array_keys($schemas));
-		self::assertSame(['id', 'name'], $schemas['FixtureGadget']['required']);
-		self::assertTrue($schemas['FixtureGadget']['additionalProperties']);
-		self::assertFalse($schemas['FixtureCount']['additionalProperties']);
+		self::assertSame(expected: ['FixtureGadget', 'FixtureCount'], actual: array_keys($schemas));
+		self::assertSame(expected: ['id', 'name'], actual: $schemas['FixtureGadget']['required']);
+		self::assertTrue(condition: $schemas['FixtureGadget']['additionalProperties']);
+		self::assertFalse(condition: $schemas['FixtureCount']['additionalProperties']);
 	}//end testDefinitions()
 
 	/**
@@ -240,8 +253,8 @@ class OpenApiGeneratorTest extends TestCase {
 	 * @return void
 	 */
 	public function testARouteWithoutItsMethodFails(): void {
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('gadget#missing');
+		$this->expectException(exception: \RuntimeException::class);
+		$this->expectExceptionMessage(message: 'gadget#missing');
 
 		$this->generator()->generate(routes: ['routes' => [['name' => 'gadget#missing', 'url' => '/api/v1/x', 'verb' => 'GET']]], overlay: []);
 	}//end testARouteWithoutItsMethodFails()
@@ -257,12 +270,15 @@ class OpenApiGeneratorTest extends TestCase {
 			['name' => 'gadget#face', 'url' => '/api/v1/b/{id}', 'verb' => 'GET'],
 		]], overlay: []);
 
-		self::assertSame('gadget-face', $document['paths']['/a/{id}']['get']['operationId']);
-		self::assertSame('gadget-face-2', $document['paths']['/b/{id}']['get']['operationId']);
-		self::assertSame('dashboard-share-api', OpenApiGenerator::kebab(name: 'dashboardShareApi'));
+		self::assertSame(expected: 'gadget-face', actual: $document['paths']['/a/{id}']['get']['operationId']);
+		self::assertSame(expected: 'gadget-face-2', actual: $document['paths']['/b/{id}']['get']['operationId']);
+		self::assertSame(expected: 'dashboard-share-api', actual: OpenApiGenerator::kebab(name: 'dashboardShareApi'));
 		self::assertSame(
-			['a' => ['b' => 1, 'c' => 2], 'r' => ['x' => 1], 'schema' => ['allOf' => [1]]],
-			OpenApiGenerator::merge(base: ['a' => ['b' => 1], 'r' => ['$ref' => '#'], 'schema' => ['z' => 1]], override: ['a' => ['c' => 2], 'r' => ['x' => 1], 'schema' => ['allOf' => [1]]])
+			expected: ['a' => ['b' => 1, 'c' => 2], 'r' => ['x' => 1], 'schema' => ['allOf' => [1]]],
+			actual: OpenApiGenerator::merge(
+				base: ['a' => ['b' => 1], 'r' => ['$ref' => '#'], 'schema' => ['z' => 1]],
+				override: ['a' => ['c' => 2], 'r' => ['x' => 1], 'schema' => ['allOf' => [1]]]
+			)
 		);
 	}//end testUniqueIdsKebabAndMerge()
 }//end class

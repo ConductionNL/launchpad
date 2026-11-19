@@ -55,7 +55,8 @@ final class OpenApiDocument {
 			controllerDir: $root.'/lib/Controller',
 			namespace: 'OCA\LaunchPad\Controller'
 		);
-		$overlay     = (array) self::decoded(value: json_decode((string) file_get_contents(__DIR__.'/openapi-overlay.json'), false, 512, JSON_THROW_ON_ERROR));
+		$overlayJson = (string) file_get_contents(__DIR__.'/openapi-overlay.json');
+		$overlay     = (array) self::decoded(value: json_decode($overlayJson, false, 512, JSON_THROW_ON_ERROR));
 		$routes      = require $root.'/appinfo/routes.php';
 
 		return $generator->generate(

@@ -49,13 +49,13 @@ class OpenApiTypeMapperTest extends TestCase {
 	 */
 	public function testScalarsAndNullables(): void {
 		$mapper = $this->mapper();
-		self::assertSame(['type' => 'integer'], $mapper->schemaOf(type: 'int'));
-		self::assertSame(['type' => 'boolean'], $mapper->schemaOf(type: 'true'));
-		self::assertSame(['type' => ['string', 'null']], $mapper->schemaOf(type: '?string'));
-		self::assertSame(['type' => ['integer', 'null']], $mapper->schemaOf(type: 'int|null'));
-		self::assertSame([], $mapper->schemaOf(type: 'mixed'));
-		self::assertSame([], $mapper->schemaOf(type: 'Some\Entity'));
-		self::assertSame([], $mapper->schemaOf(type: 'array{'));
+		self::assertSame(expected: ['type' => 'integer'], actual: $mapper->schemaOf(type: 'int'));
+		self::assertSame(expected: ['type' => 'boolean'], actual: $mapper->schemaOf(type: 'true'));
+		self::assertSame(expected: ['type' => ['string', 'null']], actual: $mapper->schemaOf(type: '?string'));
+		self::assertSame(expected: ['type' => ['integer', 'null']], actual: $mapper->schemaOf(type: 'int|null'));
+		self::assertSame(expected: [], actual: $mapper->schemaOf(type: 'mixed'));
+		self::assertSame(expected: [], actual: $mapper->schemaOf(type: 'Some\Entity'));
+		self::assertSame(expected: [], actual: $mapper->schemaOf(type: 'array{'));
 	}//end testScalarsAndNullables()
 
 	/**
@@ -65,13 +65,16 @@ class OpenApiTypeMapperTest extends TestCase {
 	 */
 	public function testCollectionsAndAliases(): void {
 		$mapper = $this->mapper();
-		self::assertEquals(['type' => 'array', 'items' => (object) ['$ref' => '#/components/schemas/Gadget']], $mapper->schemaOf(type: 'list<Gadget>'));
-		self::assertEquals(['type' => 'array', 'items' => (object) ['type' => 'integer']], $mapper->schemaOf(type: 'int[]'));
-		self::assertEquals(['type' => 'object', 'additionalProperties' => (object) []], $mapper->schemaOf(type: 'array<string, mixed>'));
-		self::assertEquals(['type' => 'array', 'items' => (object) ['type' => 'string']], $mapper->schemaOf(type: 'array<int, string>'));
 		self::assertEquals(
-			['anyOf' => [['$ref' => '#/components/schemas/Gadget'], ['type' => 'null']]],
-			$mapper->schemaOf(type: 'Gadget|null')
+			expected: ['type' => 'array', 'items' => (object) ['$ref' => '#/components/schemas/Gadget']],
+			actual: $mapper->schemaOf(type: 'list<Gadget>')
+		);
+		self::assertEquals(expected: ['type' => 'array', 'items' => (object) ['type' => 'integer']], actual: $mapper->schemaOf(type: 'int[]'));
+		self::assertEquals(expected: ['type' => 'object', 'additionalProperties' => (object) []], actual: $mapper->schemaOf(type: 'array<string, mixed>'));
+		self::assertEquals(expected: ['type' => 'array', 'items' => (object) ['type' => 'string']], actual: $mapper->schemaOf(type: 'array<int, string>'));
+		self::assertEquals(
+			expected: ['anyOf' => [['$ref' => '#/components/schemas/Gadget'], ['type' => 'null']]],
+			actual: $mapper->schemaOf(type: 'Gadget|null')
 		);
 	}//end testCollectionsAndAliases()
 
@@ -83,16 +86,16 @@ class OpenApiTypeMapperTest extends TestCase {
 	public function testShapes(): void {
 		$mapper = $this->mapper();
 		self::assertEquals(
-			[
+			expected: [
 				'type'                 => 'object',
 				'properties'           => ['id' => (object) ['type' => 'integer'], 'note' => (object) ['type' => ['string', 'null']]],
 				'required'             => ['id'],
 				'additionalProperties' => false,
 			],
-			$mapper->schemaOf(type: 'array{id: int, note?: string|null}')
+			actual: $mapper->schemaOf(type: 'array{id: int, note?: string|null}')
 		);
-		self::assertTrue($mapper->schemaOf(type: 'array{id: int, ...}')['additionalProperties']);
-		self::assertEquals(['type' => 'string', 'const' => 'gone'], $mapper->schemaOf(type: "'gone'"));
+		self::assertTrue(condition: $mapper->schemaOf(type: 'array{id: int, ...}')['additionalProperties']);
+		self::assertEquals(expected: ['type' => 'string', 'const' => 'gone'], actual: $mapper->schemaOf(type: "'gone'"));
 	}//end testShapes()
 
 	/**
@@ -102,9 +105,9 @@ class OpenApiTypeMapperTest extends TestCase {
 	 */
 	public function testStatusOf(): void {
 		$mapper = $this->mapper();
-		self::assertSame(410, $mapper->statusOf(node: $mapper->parse(type: 'Http::STATUS_GONE')));
-		self::assertSame(204, $mapper->statusOf(node: $mapper->parse(type: '204')));
-		self::assertNull($mapper->statusOf(node: $mapper->parse(type: 'Http::STATUS_*')));
-		self::assertNull($mapper->statusOf(node: $mapper->parse(type: 'int')));
+		self::assertSame(expected: 410, actual: $mapper->statusOf(node: $mapper->parse(type: 'Http::STATUS_GONE')));
+		self::assertSame(expected: 204, actual: $mapper->statusOf(node: $mapper->parse(type: '204')));
+		self::assertNull(actual: $mapper->statusOf(node: $mapper->parse(type: 'Http::STATUS_*')));
+		self::assertNull(actual: $mapper->statusOf(node: $mapper->parse(type: 'int')));
 	}//end testStatusOf()
 }//end class

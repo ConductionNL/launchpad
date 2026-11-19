@@ -42,7 +42,7 @@ class OpenApiDriftTest extends TestCase {
 	 * @return void
 	 */
 	public function testIdenticalDocumentsPass(): void {
-		self::assertSame([], OpenApiDrift::problems(committed: "{}\n", generated: "{}\n"));
+		self::assertSame(expected: [], actual: OpenApiDrift::problems(committed: "{}\n", generated: "{}\n"));
 	}//end testIdenticalDocumentsPass()
 
 	/**
@@ -56,9 +56,9 @@ class OpenApiDriftTest extends TestCase {
 
 		$problems = OpenApiDrift::problems(committed: OpenApiGenerator::encode(document: $stale), generated: OpenApiGenerator::encode(document: $fresh));
 
-		self::assertCount(2, $problems);
-		self::assertStringContainsString('composer openapi:generate', $problems[0]);
-		self::assertSame('  changed: GET /gadgets', $problems[1]);
+		self::assertCount(expectedCount: 2, haystack: $problems);
+		self::assertStringContainsString(needle: 'composer openapi:generate', haystack: $problems[0]);
+		self::assertSame(expected: '  changed: GET /gadgets', actual: $problems[1]);
 	}//end testStaleDocumentFailsNamingTheOperation()
 
 	/**
@@ -72,15 +72,18 @@ class OpenApiDriftTest extends TestCase {
 			$paths['/p'.$i] = ['get' => ['summary' => 'a']];
 		}
 
-		$changed = OpenApiDrift::changedParts(committed: ['info' => ['title' => 'A'], 'paths' => $paths], generated: ['info' => ['title' => 'B'], 'paths' => []]);
-		self::assertSame('info', $changed[0]);
-		self::assertCount(13, $changed);
+		$changed = OpenApiDrift::changedParts(
+			committed: ['info' => ['title' => 'A'], 'paths' => $paths],
+			generated: ['info' => ['title' => 'B'], 'paths' => []]
+		);
+		self::assertSame(expected: 'info', actual: $changed[0]);
+		self::assertCount(expectedCount: 13, haystack: $changed);
 
 		$problems = OpenApiDrift::problems(
 			committed: OpenApiGenerator::encode(document: ['paths' => $paths]),
 			generated: OpenApiGenerator::encode(document: ['paths' => []])
 		);
-		self::assertSame('  ... and 2 more', end($problems));
+		self::assertSame(expected: '  ... and 2 more', actual: end($problems));
 	}//end testChangedSectionsAndLongLists()
 
 	/**
@@ -92,9 +95,9 @@ class OpenApiDriftTest extends TestCase {
 		$root      = dirname(__DIR__, 3);
 		$committed = (string) file_get_contents($root.'/openapi.json');
 
-		self::assertSame([], OpenApiDrift::problems(committed: $committed, generated: OpenApiDocument::encodedFor(root: $root)));
-		self::assertSame('3.1.0', json_decode($committed, true)['openapi']);
-		self::assertStringNotContainsString('"nullable"', $committed);
+		self::assertSame(expected: [], actual: OpenApiDrift::problems(committed: $committed, generated: OpenApiDocument::encodedFor(root: $root)));
+		self::assertSame(expected: '3.1.0', actual: json_decode($committed, true)['openapi']);
+		self::assertStringNotContainsString(needle: '"nullable"', haystack: $committed);
 	}//end testTheCommittedDocumentIsCurrent()
 
 	/**
@@ -105,6 +108,6 @@ class OpenApiDriftTest extends TestCase {
 	public function testDecodedKeepsEmptyObjects(): void {
 		$decoded = OpenApiDocument::decoded(value: json_decode('{"a": {}, "b": [], "c": {"d": 1}}', false));
 
-		self::assertSame('{"a":{},"b":[],"c":{"d":1}}', json_encode($decoded));
+		self::assertSame(expected: '{"a":{},"b":[],"c":{"d":1}}', actual: json_encode($decoded));
 	}//end testDecodedKeepsEmptyObjects()
 }//end class

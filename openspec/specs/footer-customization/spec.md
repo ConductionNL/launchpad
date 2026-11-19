@@ -11,8 +11,6 @@ Footer Customization provides per-instance branding, legal disclaimers, and cont
 ## Data Model
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Admin Footer Settings (oc_launchpad_admin_settings extended)
 
 Settings are stored as key-value pairs:
@@ -308,6 +306,7 @@ Footer content MUST support language-tagged variants. The footer renderer MUST s
 - THEN the UI MUST show tabs for each language variant (e.g., "English", "Dutch")
 - AND the admin can edit and preview each variant independently
 - NOTE: This is a UI requirement; spec does not mandate exact UI behavior, only that variants can be configured and rendered correctly
+@e2e exclude never built: LaunchPad has no footer settings tab or language-variant editor (nothing in src/ calls /api/admin/footer-settings; `git log --all -S footerHtml -- src` and `-S footer-settings -- src` find no commit), so there is no control to drive; no Vitest test exists either
 
 ### Requirement: REQ-FTR-008 Print Support and CSS
 

@@ -85,6 +85,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 24 specs, 817 scenarios.
 
 - [ ] 4.1 `text-display-widget`: 90 scenarios, 9 cited.
+  - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
 - [ ] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.

@@ -185,6 +185,20 @@ class McpDashboardWriteToolsTest extends TestCase {
 	}//end testUpdateDashboard()
 
 	/**
+	 * updateDashboard needs no name, but refuses a bad one or a bad description it is given.
+	 *
+	 * @return void
+	 */
+	public function testUpdateDashboardChecksTheFieldsItIsGiven(): void {
+		$this->gate->method('requireMetadataEdit')->willReturn(null);
+		$this->dashboards->expects($this->never())->method('updateDashboard');
+
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->updateDashboard(args: ['dashboardId' => 9, 'name' => ''])['error']);
+		$long = ['dashboardId' => 9, 'description' => str_repeat(string: 'x', times: 2001)];
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->updateDashboard(args: $long)['error']);
+	}//end testUpdateDashboardChecksTheFieldsItIsGiven()
+
+	/**
 	 * deleteDashboard passes the cascade choice and names a refusal for children.
 	 *
 	 * @return void

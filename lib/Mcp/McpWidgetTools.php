@@ -131,7 +131,7 @@ class McpWidgetTools {
 	 */
 	public function addTileToDashboard(array $args): array {
 		$refusal = ($this->tileRefusal(args: $args, required: true)
-			?? $this->validator->id(args: $args, name: 'dashboardId')
+			?? $this->validator->positiveId(args: $args, name: 'dashboardId')
 			?? $this->validator->grid(args: $args)
 			?? $this->gate->requireAction(action: 'widget.add-tile')
 			?? $this->gate->requireWidgetPermission(operation: 'add', id: (int)$args['dashboardId']));
@@ -247,7 +247,7 @@ class McpWidgetTools {
 	 * @return array<string, mixed>|null
 	 */
 	private function addRefusal(array $args): ?array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId') ?? $this->validator->grid(args: $args));
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId') ?? $this->validator->grid(args: $args));
 		if ($refusal === null && array_key_exists('content', $args) === true && is_array($args['content']) === false) {
 			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'Argument content must be an object.');
 		}
@@ -268,7 +268,7 @@ class McpWidgetTools {
 	 * @return array<string, mixed>|null
 	 */
 	private function changeRefusal(array $args): ?array {
-		$refusal = ($this->validator->id(args: $args, name: 'placementId') ?? $this->validator->grid(args: $args));
+		$refusal = ($this->validator->positiveId(args: $args, name: 'placementId') ?? $this->validator->grid(args: $args));
 		$leftToApp = array_diff(array_keys($args), self::PLACEMENT_FIELDS, self::TILE_FIELDS, ['placementId']);
 		if ($refusal === null && $leftToApp !== []) {
 			$refusal = $this->validator->refuse(
@@ -292,7 +292,7 @@ class McpWidgetTools {
 	 * @return array<string, mixed>|null
 	 */
 	private function removeRefusal(array $args): ?array {
-		return ($this->validator->id(args: $args, name: 'placementId')
+		return ($this->validator->positiveId(args: $args, name: 'placementId')
 			?? $this->gate->requireAction(action: 'widget.remove-placement')
 			?? $this->gate->requireWidgetPermission(operation: 'remove', id: (int)$args['placementId']));
 	}//end removeRefusal()
@@ -309,9 +309,18 @@ class McpWidgetTools {
 	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) Creating and changing a tile differ only in which fields are required.
 	 */
 	private function tileRefusal(array $args, bool $required): ?array {
-		return ($this->validator->string(args: $args, name: 'title', min: 1, max: 255, required: $required)
-			?? $this->validator->oneOf(args: $args, name: 'linkType', allowed: ['app', 'url'], required: $required)
-			?? $this->validator->string(args: $args, name: 'linkValue', min: 1, max: 2048, required: $required));
+		if ($required === true) {
+			return ($this->validator->string(args: $args, name: 'title', min: 1, max: 255)
+				?? $this->validator->oneOf(args: $args, name: 'linkType', allowed: ['app', 'url'])
+				?? $this->validator->string(args: $args, name: 'linkValue', min: 1, max: 2048));
+		}
+
+		$title     = $this->validator->string(args: $args, name: 'title', min: 1, max: 255);
+		$linkType  = $this->validator->oneOf(args: $args, name: 'linkType', allowed: ['app', 'url']);
+		$linkValue = $this->validator->string(args: $args, name: 'linkValue', min: 1, max: 2048);
+		return ($this->validator->optional(args: $args, name: 'title', refusal: $title)
+			?? $this->validator->optional(args: $args, name: 'linkType', refusal: $linkType)
+			?? $this->validator->optional(args: $args, name: 'linkValue', refusal: $linkValue));
 	}//end tileRefusal()
 
 	/**

@@ -99,6 +99,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
 		<!-- engagement-announcements D5: tell category followers about newly visible announcements. -->
 		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
+		<!-- dashboards-and-who-may-see-them REQ-DWMS-010: the storage report's daily snapshot. -->
+		<job>OCA\LaunchPad\BackgroundJob\StorageSnapshotJob</job>
 	</background-jobs>
 
 	<repair-steps>

@@ -38,6 +38,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateResyncService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
@@ -80,6 +81,9 @@ class TemplateResyncServiceTest extends TestCase {
 	/** @var LoggerInterface&MockObject */
 	private $logger;
 
+	/** @var PersonalLayerService&MockObject */
+	private $personalLayers;
+
 	private TemplateResyncService $service;
 
 	protected function setUp(): void {
@@ -92,6 +96,7 @@ class TemplateResyncServiceTest extends TestCase {
 		$this->notificationManager = $this->createMock(INotificationManager::class);
 		$this->jobList = $this->createMock(IJobList::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->personalLayers = $this->createMock(PersonalLayerService::class);
 
 		$this->service = new TemplateResyncService(
 			stores: new ResyncStores(
@@ -102,7 +107,8 @@ class TemplateResyncServiceTest extends TestCase {
 			),
 			activityPublisher: $this->activityPublisher,
 			notificationManager: $this->notificationManager,
-			logger: $this->logger
+			logger: $this->logger,
+			personalLayers: $this->personalLayers
 		);
 	}
 
@@ -400,6 +406,11 @@ class TemplateResyncServiceTest extends TestCase {
 			->method('delete')
 			->with($this->callback(fn (WidgetPlacement $p) => $p->getId() === 301));
 
+		// The removal sweeps the personal layers on the copy (REQ-DWMS-001, task 1.5).
+		$this->personalLayers->expects($this->once())
+			->method('pruneDashboard')
+			->with(101, [300, 301]);
+
 		$result = $this->service->applyResync(
 			templateId: 1,
 			strategy: TemplateResyncService::STRATEGY_OVERWRITE,
@@ -509,6 +520,44 @@ class TemplateResyncServiceTest extends TestCase {
 	// ---------------------------------------------------------------
 	// Idempotency, audit, notification (REQ-RESYNC-005)
 	// ---------------------------------------------------------------
+
+	public function testAReSyncThatRemovesNothingLeavesTheLayersAlone(): void {
+		$template = $this->makeTemplate();
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$copy = $this->makeCopy(id: 101, userId: 'bob');
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$copy]);
+		$linksCopy = $this->makePlacement(id: 300, dashboardId: 101, widgetId: 'links', gridX: 6, templatePlacementId: 10);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, [$this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links')]],
+			[101, [$linksCopy]],
+		]);
+
+		$this->personalLayers->expects($this->never())->method('pruneDashboard');
+
+		$result = $this->service->applyResync(templateId: 1, strategy: TemplateResyncService::STRATEGY_OVERWRITE, actingAdminId: 'admin1');
+
+		$this->assertSame(1, $result['affectedCount']);
+	}
+
+	public function testAFailedLayerSweepIsLoggedAndTheReSyncStillCounts(): void {
+		$template = $this->makeTemplate();
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$copy = $this->makeCopy(id: 101, userId: 'bob');
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$copy]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, []],
+			[101, [$this->makePlacement(id: 301, dashboardId: 101, widgetId: 'personal-widget', templatePlacementId: null)]],
+		]);
+		$this->personalLayers->method('pruneDashboard')->willThrowException(new \RuntimeException('db gone'));
+
+		$this->logger->expects($this->once())
+			->method('warning')
+			->with('launchpad.template_resync.layer_prune_failed', $this->callback(static fn (array $context): bool => $context['dashboardId'] === 101));
+
+		$result = $this->service->applyResync(templateId: 1, strategy: TemplateResyncService::STRATEGY_OVERWRITE, actingAdminId: 'admin1');
+
+		$this->assertSame(1, $result['affectedCount']);
+	}
 
 	public function testReapplyingAnUnchangedTemplateIsANoOp(): void {
 		$template = $this->makeTemplate();

@@ -8,6 +8,7 @@
 		"Add or remove a type in the registry and here in the same commit; the vitest names the drift."
 	],
 	"types": [
+		"activity-report",
 		"ai-assistant",
 		"announcements",
 		"app-tiles",
@@ -15,6 +16,7 @@
 		"calendar",
 		"chart",
 		"clock",
+		"colleague-activity",
 		"communities",
 		"container",
 		"delta",
@@ -38,6 +40,7 @@
 		"spend-analytics",
 		"stat",
 		"stats-block",
+		"status-report",
 		"table",
 		"text",
 		"tile",

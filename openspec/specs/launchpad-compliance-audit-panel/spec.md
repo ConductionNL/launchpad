@@ -29,8 +29,6 @@ deadline alert, portfolio filter).
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented widget — `launchpad_compliance_audit` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, OR-GraphQL/audit-trail-immutable consumption, docudesk deep-link, and Specter-sourced data rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
-
 ### REQ-CAP-001: The system SHALL register a `launchpad_compliance_audit` widget type
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the
@@ -47,11 +45,15 @@ declaration.
 - **AND** the entry MUST surface in `listWidgetTypes()` with all
   required fields non-null
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no registry entry and no EXPECTED_TYPES entry to assert.
+
 #### Scenario: Widget appears in the Add modal
 
 - **GIVEN** the Add Widget modal is open
 - **WHEN** the user opens the type picker
 - **THEN** `Compliance audit` MUST be selectable
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no `Compliance audit` type for the Add Widget modal's type picker to offer.
 
 ### REQ-CAP-002: The widget content shape SHALL declare posture, filter, and alert configuration
 
@@ -73,6 +75,8 @@ The placement MUST persist `{type: 'compliance-audit', content: {...}}` with:
 - **THEN** validation MUST pass
 - **AND** the defaults above MUST apply to unset fields
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no content-shape validator or default set for this type to exercise.
+
 #### Scenario: Unknown framework slug accepted (forward-compat)
 
 - **GIVEN** `content.frameworks = ['BIO', 'CUSTOM-FRAMEWORK-X']`
@@ -81,6 +85,8 @@ The placement MUST persist `{type: 'compliance-audit', content: {...}}` with:
   for unknown frameworks rather than blocking placement save (the
   framework definition lives on the compliance sibling app, not
   in launchpad)
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no `frameworks` validation to exercise.
 
 ### REQ-CAP-003: The audit-trail card SHALL be consumed from OR's `audit-trail-immutable` abstraction — never from a local audit table
 
@@ -100,6 +106,8 @@ the audit trail (ADR-022 anti-pattern: "Home-grown audit trails").
 - **AND** the GraphQL query MUST target OR's `/graphql` (no local
   table read, no axios to OR)
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no audit-trail card and no GraphQL query for it.
+
 #### Scenario: OR absent renders empty-state inline
 
 - **GIVEN** OR is not reachable (`/graphql` returns 404)
@@ -108,11 +116,15 @@ the audit trail (ADR-022 anti-pattern: "Home-grown audit trails").
   `t('launchpad', 'Audit trail unavailable — OpenRegister not reachable')`
 - **AND** other cards on the widget MUST continue to render
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no audit card, and the 'Audit trail unavailable' string is not in src/ or l10n/en.js.
+
 #### Scenario: No write to audit trail
 
 - **GIVEN** the compliance-audit widget source files
 - **WHEN** scanned for POST / PUT against `/apps/openregister/.*audit`
 - **THEN** zero matches MUST exist — the widget is read-only
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There are no widget source files to scan; the clause is a static source scan, not browser behaviour.
 
 ### REQ-CAP-004: The retention card SHALL consume OR's `archival-destruction-workflow` + shillinq retention rules
 
@@ -134,6 +146,8 @@ locally and MUST NOT cache retention metadata.
 - **AND** the Selectielijst reference for the largest bucket MUST
   surface as a tooltip
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no retention card and no archival/retention-rules query.
+
 #### Scenario: shillinq absent partial-renders the card
 
 - **GIVEN** OR present but shillinq absent
@@ -142,6 +156,8 @@ locally and MUST NOT cache retention metadata.
 - **AND** the Selectielijst tooltip MUST display
   `t('launchpad', 'Retention rules unavailable — shillinq not installed')`
 - **AND** no error MUST throw
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no retention card, and the 'Retention rules unavailable' string is not in src/ or l10n/en.js.
 
 ### REQ-CAP-005: The widget SHALL surface deadline alerts with cross-session persistence (Specter acceptance)
 
@@ -160,6 +176,8 @@ widget reuses the placement's existing
 - **WHEN** the viewer opens the dashboard
 - **THEN** an alert MUST display naming the deadline and due date
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no compliance-deadline source or alert to render.
+
 #### Scenario: Alert persists until acknowledged (Specter source)
 
 - **GIVEN** an unacknowledged imminent deadline alert
@@ -169,12 +187,16 @@ widget reuses the placement's existing
   `content.acknowledgements` map via the existing widget PUT
   endpoint (no new endpoint added)
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no deadline alert, and no code writes `content.acknowledgements` for it.
+
 #### Scenario: Passed deadline updates to overdue (Specter source)
 
 - **GIVEN** the deadline has passed without acknowledgement
 - **WHEN** the viewer next loads the dashboard
 - **THEN** the alert MUST update to reflect overdue status (red
   styling + revised copy)
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no deadline alert with an overdue state.
 
 ### REQ-CAP-006: The portfolio filter SHALL scope the widget's queries server-side, not client-side (Specter acceptance)
 
@@ -193,6 +215,8 @@ client-side filter MUST NOT replace the server-side variable.
 - **AND** the GraphQL document MUST reference the variable in its
   argument list
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no widget query carrying a `portfolioFilter` variable.
+
 #### Scenario: Cleared filter widens result set (Specter source)
 
 - **GIVEN** a portfolio filter is active
@@ -202,12 +226,16 @@ client-side filter MUST NOT replace the server-side variable.
 - **AND** the dashboard cards MUST update to reflect every portfolio
   the viewer can read
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no portfolio filter control or query to re-issue.
+
 #### Scenario: Summary metrics reflect filter (Specter source)
 
 - **GIVEN** multiple portfolios exist AND the filter is applied
 - **WHEN** the cards re-render
 - **THEN** the audit-trail count, retention bucket counts, and
   evidence count MUST reflect only the selected portfolio's data
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There are no audit, retention or evidence cards whose counts could be filtered.
 
 ### REQ-CAP-007: The evidence card SHALL surface docudesk-attached compliance documents via OR's `object-interactions`
 
@@ -224,6 +252,8 @@ endpoints directly — uploads stay with docudesk.
 - **THEN** the evidence card MUST list each document with title +
   attachment date + framework tag
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There is no evidence card and no object-interactions files query.
+
 #### Scenario: Click deep-links to docudesk
 
 - **GIVEN** an evidence row
@@ -231,12 +261,16 @@ endpoints directly — uploads stay with docudesk.
 - **THEN** the browser MUST navigate to the docudesk viewer URL
   (resolved via OR's deep-link registry)
 
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There are no evidence rows to click and no deep-link resolution for them.
+
 #### Scenario: Read-only evidence
 
 - **GIVEN** the compliance-audit widget source files
 - **WHEN** scanned for HTTP `POST` / `PUT` / `DELETE` to
   `/apps/docudesk/`
 - **THEN** zero matches MUST exist
+
+@e2e exclude never built: `launchpad_compliance_audit` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither it nor a `compliance-audit` type key is in widgetRegistry.js, src/manifest.json or lib/widget-types.json (the only `compliance-audit` string under src/ is a doc comment in src/modals/AcknowledgementReportModal.vue). No unit or Newman test covers it either. There are no widget source files to scan; the clause is a static source scan, not browser behaviour.
 
 ## Non-Functional Requirements
 

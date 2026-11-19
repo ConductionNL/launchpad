@@ -110,9 +110,7 @@ class TileUpdater {
 		WidgetPlacement $placement,
 		array $data,
 	): void {
-		// Launcher-tile-open-behaviour D1: the tile's link target rides in
-		// content; anything but the three values is refused before saving.
-		$this->validatedLinkTarget(value: ($data['content']['linkTarget'] ?? null), field: 'content.linkTarget');
+		$this->checkContentUpdate(content: ($data['content'] ?? null));
 
 		if (isset($data['tileTitle']) === true) {
 			$placement->setTileTitle($data['tileTitle']);
@@ -152,15 +150,34 @@ class TileUpdater {
 			);
 		}
 
-		if (isset($data['content']) === true
-			&& is_array($data['content']) === true
-			&& array_key_exists('internalUrl', $data['content']) === true
-		) {
-			$this->assertValidInternalUrl(url: $data['content']['internalUrl']);
-		}
-
 		$this->checkLaunchLink(placement: $placement);
 	}//end applyTileUpdates()
+
+	/**
+	 * Refuse an update whose content carries a link target or an office-network address that is not allowed.
+	 *
+	 * @param mixed $content The `content` of the update, when given.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When `content.linkTarget` or `content.internalUrl` is not allowed.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 */
+	private function checkContentUpdate(mixed $content): void {
+		if (is_array($content) === false) {
+			return;
+		}
+
+		// Launcher-tile-open-behaviour D1: the tile's link target rides in
+		// content; anything but the three values is refused before saving.
+		$this->validatedLinkTarget(value: ($content['linkTarget'] ?? null), field: 'content.linkTarget');
+
+		if (array_key_exists('internalUrl', $content) === true) {
+			$this->assertValidInternalUrl(url: $content['internalUrl']);
+		}
+	}//end checkContentUpdate()
 
 	/**
 	 * A link target as given, or null when none is given.

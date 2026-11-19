@@ -176,19 +176,32 @@ class AdminSettingsService {
 			// Engagement-announcements D6: the groups whose members may write
 			// announcements besides administrators; none until one is chosen.
 			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
-			// Launcher-tile-internal-address REQ-TIA-001: the office networks
-			// as CIDR ranges; none by default, so no tile changes address.
-			'officeNetworks' => $this->storedOfficeNetworks(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
-			// Read only: the administrator's own address and whether it falls
-			// inside those ranges, so a wrong proxy setup shows at once.
-			'currentAddress' => ($this->officeNetworks?->currentAddress() ?? ''),
-			'currentAddressInOfficeNetworks' => ($this->officeNetworks?->isOfficeRequest() ?? false),
+			...$this->officeNetworkSettings(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
 			// Engagement-communities REQ-COMM-003: the Talk conversations the
 			// organisation pinned. A stored entry that is not a token is dropped.
 			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
 			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];
 	}//end getSettings()
+
+	/**
+	 * The office networks as CIDR ranges, none by default so no tile changes
+	 * address, plus the administrator's own address and whether it falls inside
+	 * them, so a wrong proxy setup shows at once (REQ-TIA-001).
+	 *
+	 * @param mixed $stored The stored ranges.
+	 *
+	 * @return array{officeNetworks: list<string>, currentAddress: string, currentAddressInOfficeNetworks: bool}
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md
+	 */
+	private function officeNetworkSettings(mixed $stored): array {
+		return [
+			'officeNetworks' => $this->storedOfficeNetworks(stored: $stored),
+			'currentAddress' => ($this->officeNetworks?->currentAddress() ?? ''),
+			'currentAddressInOfficeNetworks' => ($this->officeNetworks?->isOfficeRequest() ?? false),
+		];
+	}//end officeNetworkSettings()
 
 	/**
 	 * Most Talk conversations an administrator may pin (engagement-communities D3).

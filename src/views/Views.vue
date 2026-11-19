@@ -1521,6 +1521,8 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				// launcher-tile-internal-address REQ-TIA-002: the office-network address, in `content`.
+				internalUrl: (placement.content && placement.content.internalUrl) || '',
 			}
 		},
 
@@ -2567,6 +2569,7 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				internalUrl: content.internalUrl || '',
 				// service-health-ping: config lives in the placement's
 				// `content` JSON blob, no schema change (REQ-HPING-001).
 				healthPingEnabled: content.healthPingEnabled === true,
@@ -2603,6 +2606,8 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002: validated by the server.
+				internalUrl: tileData.internalUrl || '',
 			}
 			// Launcher-tile-open-behaviour D1: the link target rides in the
 			// same content blob; absent means "follow the dashboard".
@@ -2648,9 +2653,10 @@ export default {
 			)
 			// `addTile` has no `content` parameter (mirrors the
 			// `addWidget` create-then-patch pattern above) — persist
-			// the health-ping block with a follow-up patch only when
-			// the author actually enabled it.
-			if (newPlacement?.id && (content.healthPingEnabled || content.linkTarget)) {
+			// the health-ping block (and the office-network address,
+			// launcher-tile-internal-address REQ-TIA-002, and the link target)
+			// with a follow-up patch only when the author actually set one.
+			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget)) {
 				await this.updateWidgetPlacement(newPlacement.id, {
 					content,
 				})

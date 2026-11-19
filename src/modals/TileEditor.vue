@@ -219,6 +219,14 @@
 					"
 					type="text" />
 
+				<NcTextField
+					v-model="form.internalUrl"
+					:label="t('launchpad', 'Address on the office network')"
+					:placeholder="t('launchpad', 'Optional, e.g. http://intranet.local')"
+					type="text" />
+				<p class="tile-editor__hint-small tile-editor__address-in-effect">
+					{{ addressInEffect }}
+				</p>
 				<!-- Launcher-tile-open-behaviour: how the tile opens. -->
 				<fieldset class="tile-editor__opens-in" data-test="tile-editor-opens-in">
 					<legend>{{ t('launchpad', 'Opens in') }}</legend>
@@ -321,11 +329,12 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
+import { translate as t } from '@nextcloud/l10n'
 import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateIframeUrl } from '../services/iframeClient.js'
-import { loadInitialState } from '../utils/loadInitialState.js'
+import { isOnOfficeNetwork, loadInitialState } from '../utils/loadInitialState.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
@@ -378,6 +387,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
 				linkTarget: '',
 				healthPingEnabled: false,
 				healthUrl: '',
@@ -387,6 +397,7 @@ export default {
 			},
 
 			healthUrlError: '',
+			onOfficeNetwork: isOnOfficeNetwork(),
 			panelRefusal: '',
 			MIN_PING_INTERVAL,
 			DEFAULT_RDP_PORT,
@@ -512,6 +523,20 @@ export default {
 			}
 			return t('launchpad', 'Allowed schemes: {schemes}', { schemes: this.launchOptions.schemes.join(', ') })
 		},
+
+		/**
+		 * Which address this tile opens for the author right now, from the
+		 * same server answer every viewer gets (launcher-tile-internal-address D3).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 */
+		addressInEffect() {
+			if (this.onOfficeNetwork) {
+				return t('launchpad', 'You are on the office network: this tile opens the internal address')
+			}
+			return t('launchpad', 'You are not on the office network: this tile opens the main address')
+		},
 	},
 
 	watch: {
@@ -539,6 +564,7 @@ export default {
 					this.form = {
 						...launchFields({}),
 						...newTile,
+						internalUrl: newTile.internalUrl || '',
 						iconType: newTile.iconType || 'class',
 						linkTarget: newTile.linkTarget || '',
 					}
@@ -594,6 +620,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
 				linkTarget: '',
 				healthPingEnabled: false,
 				healthUrl: '',

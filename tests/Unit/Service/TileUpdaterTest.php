@@ -229,6 +229,70 @@ class TileUpdaterTest extends TestCase {
 	}
 
 	/**
+	 * The office-network address takes http, https and paths on this instance, and an empty value clears it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 */
+	public function testAnOfficeNetworkAddressInTheAllowedFormsIsKept(): void {
+		$placement = new WidgetPlacement();
+		$updater = new TileUpdater();
+
+		foreach (['http://zaken.intern', 'https://zaken.gemeente.nl/start?x=1', '/apps/files', '', null] as $url) {
+			$updater->applyTileUpdates(placement: $placement, data: ['content' => ['internalUrl' => $url]]);
+		}
+
+		$this->addToAssertionCount(1);
+	}
+
+	/**
+	 * Any other office-network address is refused before the placement is saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 */
+	public function testAnyOtherOfficeNetworkAddressIsRefused(): void {
+		$updater = new TileUpdater();
+
+		foreach (['javascript:alert(1)', 'data:text/html,x', '//evil.example', 'ftp://zaken.intern', 'zaken.intern', 'http://', "/apps/files\n", 42] as $url) {
+			try {
+				$updater->applyTileUpdates(placement: new WidgetPlacement(), data: ['content' => ['internalUrl' => $url]]);
+				$this->fail('The address ' . var_export($url, true) . ' was accepted.');
+			} catch (\InvalidArgumentException $e) {
+				$this->assertSame('The address on the office network is not a valid address', $e->getMessage());
+			}
+		}
+	}
+
+	/**
+	 * A new tile is held to the same office-network address rules as an update.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 */
+	public function testANewTileWithAnOfficeNetworkAddressIsChecked(): void {
+		$updater = new TileUpdater();
+
+		$placement = new WidgetPlacement();
+		$updater->applyTileConfig(placement: $placement, tileData: ['content' => ['internalUrl' => 'https://zaken.intern/start']]);
+		$this->assertSame(['internalUrl' => 'https://zaken.intern/start'], $placement->getContentArray());
+
+		foreach (['javascript:alert(1)', '//evil.example', 42] as $url) {
+			$placement = new WidgetPlacement();
+			try {
+				$updater->applyTileConfig(placement: $placement, tileData: ['content' => ['internalUrl' => $url]]);
+				$this->fail('The address ' . var_export($url, true) . ' was accepted on create.');
+			} catch (\InvalidArgumentException $e) {
+				$this->assertSame('The address on the office network is not a valid address', $e->getMessage());
+				$this->assertNull($placement->getContent());
+			}
+		}
+	}
+
+	/**
 	 * A new tile stores each link target in its content; none leaves content alone.
 	 *
 	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md

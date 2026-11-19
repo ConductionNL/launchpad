@@ -197,6 +197,7 @@ class PageController extends Controller {
 				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
 				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
 			)
+			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isTalkEnabled())
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();

@@ -4,8 +4,8 @@ name: LaunchPad
 url: "https://github.com/ConductionNL/launchpad"
 landingURL: "https://launchpad.conduction.nl"
 logo: img/app-store.svg
-softwareVersion: "1.1.6-beta.20261002211709"
-releaseDate: "2026-10-02"
+softwareVersion: "1.1.0"
+releaseDate: "2026-09-06"
 developmentStatus: beta
 softwareType: "standalone/other"
 

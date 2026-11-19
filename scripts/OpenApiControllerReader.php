@@ -20,7 +20,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/governance-rest-api-reference/design.md
+ * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
  */
 
 declare(strict_types=1);
@@ -59,7 +59,7 @@ use PHPStan\PhpDocParser\ParserConfig;
 /**
  * Reads what the OpenAPI generator needs from a controller's source.
  *
- * @spec openspec/changes/governance-rest-api-reference/design.md
+ * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
  */
 final class OpenApiControllerReader {
 
@@ -125,7 +125,7 @@ final class OpenApiControllerReader {
 	 *
 	 * @return array{class: string, summary: string, methods: array<string, array<string, mixed>>}|null
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public function read(string $file): ?array {
 		$parser = (new ParserFactory())->createForHostVersion();
@@ -173,7 +173,7 @@ final class OpenApiControllerReader {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public function firstSentence(string $text): string {
 		$paragraph = trim(explode("\n\n", $text)[0]);

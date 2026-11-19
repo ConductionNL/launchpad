@@ -186,7 +186,7 @@ class WidgetApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	#[NoAdminRequired]
@@ -511,7 +511,7 @@ class WidgetApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/widgets/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -587,7 +587,7 @@ class WidgetApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadPlacement, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -802,7 +802,7 @@ class WidgetApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

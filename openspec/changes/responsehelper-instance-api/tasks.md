@@ -1,19 +1,18 @@
 # Tasks — ResponseHelper instance API
 
-> **BLOCKED: awaiting a human decision on `proposal.md`.**
-> Nothing below may start until the proposal is approved. The sequencing is
-> spec-first by design — see "Why this is a proposal and not a patch".
+> Approved by Ruben on 19 Nov 2026.
 
 ## 1. Spec amendment (must land first, on its own)
 
-- [ ] 1.1 Amend `openspec/specs/dashboards/spec.md` REQ-DASH-040: restate the
+- [x] 1.1 Amend `openspec/specs/dashboards/spec.md` REQ-DASH-040: restate the
       envelope contract for an injected instance; rewrite the four scenarios that
       name `ResponseHelper::unauthorized()`, `::forbidden()`, `::success()` and
       `::serializeList()`.
-- [ ] 1.2 Amend REQ-DASH-041: restate for `$this->responseHelper->error()`; rewrite
+- [x] 1.2 Amend REQ-DASH-041: restate for `$this->responseHelper->error()`; rewrite
       both scenarios.
-- [ ] 1.3 Decide and record whether `serializeList()` stays static (it is a pure
-      function with no dependencies — see Impact risk 2).
+- [x] 1.3 Decide and record whether `serializeList()` stays static (it is a pure
+      function with no dependencies — see Impact risk 2). Decided: it becomes an
+      instance method, for one call shape across controllers.
 
 ## 2. Implementation (only after 1 is merged)
 

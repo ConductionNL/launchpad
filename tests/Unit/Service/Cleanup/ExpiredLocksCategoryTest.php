@@ -75,7 +75,7 @@ class ExpiredLocksCategoryTest extends TestCase {
 	 * @return void
 	 */
 	public function testTierAndAvailability(): void {
-		$this->assertTrue(condition: $this->category->getSafeToPurgeAutomatically());
+		$this->assertTrue(condition: $this->category->isSafeToPurgeAutomatically());
 		$this->assertTrue(condition: $this->category->isAvailable());
 	}
 

@@ -74,11 +74,11 @@ class OrphanedWidgetPlacementsCategory implements CleanupCategoryInterface {
 	 *
 	 * @return bool False.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
-	public function getSafeToPurgeAutomatically(): bool {
+	public function isSafeToPurgeAutomatically(): bool {
 		return false;
-	}//end getSafeToPurgeAutomatically()
+	}//end isSafeToPurgeAutomatically()
 
 	/**
 	 * Always available — `launchpad_widget_placements` ships in the core

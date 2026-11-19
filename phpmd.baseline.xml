@@ -81,11 +81,6 @@
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DashboardVersionService.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/FilesWidgetService.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/RoleFeaturePermissionService.php"/>
-  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/CleanupCategoryInterface.php" method="getSafeToPurgeAutomatically"/>
-  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/ExpiredLocksCategory.php" method="getSafeToPurgeAutomatically"/>
-  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/OrphanedConditionalRulesCategory.php" method="getSafeToPurgeAutomatically"/>
-  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/OrphanedSharesCategory.php" method="getSafeToPurgeAutomatically"/>
-  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/OrphanedWidgetPlacementsCategory.php" method="getSafeToPurgeAutomatically"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/AcknowledgementController.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Db/WidgetPlacement.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/AcknowledgementService.php"/>

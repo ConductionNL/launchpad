@@ -112,7 +112,7 @@ class CategoryRegistryService {
 
 	/**
 	 * The names of every category whose
-	 * `getSafeToPurgeAutomatically()` returns `true` (REQ-CLN-008).
+	 * `isSafeToPurgeAutomatically()` returns `true` (REQ-CLN-008).
 	 *
 	 * Used as the factory default for the daily background job's
 	 * auto-purge config and as the "checked by default" set in the
@@ -121,12 +121,12 @@ class CategoryRegistryService {
 	 * @return array<int, string> The Tier-A category names.
 	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
 	public function getAutoSafeCategoryNames(): array {
 		$names = [];
 		foreach ($this->categories as $name => $category) {
-			if ($category->getSafeToPurgeAutomatically() === true) {
+			if ($category->isSafeToPurgeAutomatically() === true) {
 				$names[] = $name;
 			}
 		}

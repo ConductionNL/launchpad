@@ -25,6 +25,7 @@ const ORIGIN_PATTERN = /^https?:\/\/(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[
  *
  * @param {string} origin The origin.
  * @return {string}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function normaliseOrigin(origin) {
 	return String(origin ?? '').trim().replace(/\/+$/, '').toLowerCase()
@@ -79,6 +80,7 @@ export function tokenStatus(token, now = Date.now()) {
  *
  * @param {string} text The lines.
  * @return {object}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function parseFilterContext(text) {
 	const context = {}
@@ -97,6 +99,7 @@ export function parseFilterContext(text) {
  *
  * @param {object} context The filter context.
  * @return {string}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function formatFilterContext(context) {
 	return Object.entries(context ?? {}).map(([name, value]) => `${name}=${value}`).join('\n')
@@ -107,6 +110,7 @@ export function formatFilterContext(context) {
  *
  * @param {string} text The list.
  * @return {Array<string>}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function splitList(text) {
 	return [...new Set(String(text ?? '').split(/[\n,]/).map((item) => item.trim()).filter((item) => item !== ''))]
@@ -118,6 +122,7 @@ export function splitList(text) {
  * @param {string|number} requestsPerMinute Requests per minute ('' for the default).
  * @param {string|number} burstSize Burst size ('' for the default).
  * @return {object|null}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function rateLimitPolicy(requestsPerMinute, burstSize) {
 	if (requestsPerMinute === '' || requestsPerMinute === null || requestsPerMinute === undefined) {
@@ -180,6 +185,7 @@ export function updatePayload(form) {
  * @param {object|null} token The token's metadata.
  * @param {object} defaults {subjectType, subjectId} for a new token.
  * @return {object}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function formFromToken(token = null, defaults = {}) {
 	const policy = token?.rateLimitPolicy ?? null

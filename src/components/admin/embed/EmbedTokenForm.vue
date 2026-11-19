@@ -251,10 +251,12 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		editing() {
 			return this.token !== null
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		subjectTypes() {
 			return [
 				{ id: 'dashboard', label: t('launchpad', 'A dashboard') },
@@ -262,6 +264,7 @@ export default {
 			]
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		modes() {
 			return [
 				{ id: 'read', label: t('launchpad', 'Read only') },
@@ -269,6 +272,7 @@ export default {
 			]
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		actions() {
 			return [
 				{ id: 'interact', label: t('launchpad', 'Change filters') },
@@ -277,10 +281,12 @@ export default {
 			]
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		selectedDashboard() {
 			return this.dashboards.find((dashboard) => dashboard.id === this.form.dashboardId) ?? null
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		placementOptions() {
 			return this.placements.map((placement) => ({
 				id: placement.id,
@@ -288,18 +294,22 @@ export default {
 			}))
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		selectedPlacement() {
 			return this.placementOptions.find((option) => String(option.id) === String(this.form.subjectId)) ?? null
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		themeOptions() {
 			return [{ id: '', name: t('launchpad', 'Default theme') }, ...this.themes]
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		selectedTheme() {
 			return this.themeOptions.find((theme) => theme.id === (this.form.tenantThemeId ?? '')) ?? this.themeOptions[0]
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		csp() {
 			return cspPreview(this.form.hostOrigins)
 		},
@@ -375,6 +385,7 @@ export default {
 		 * Remove an origin.
 		 *
 		 * @param {string} origin The origin.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		removeOrigin(origin) {
 			this.form.hostOrigins = this.form.hostOrigins.filter((item) => item !== origin)

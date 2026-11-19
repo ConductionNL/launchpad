@@ -23,6 +23,7 @@ export const embedApi = {
 	 * Whether embed usage telemetry is collected.
 	 *
 	 * @return {Promise<boolean>}
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 	 */
 	async telemetryEnabled() {
 		const { data } = await axios.get(`${baseUrl}/api/embed-settings/telemetry`)
@@ -34,6 +35,7 @@ export const embedApi = {
 	 *
 	 * @param {boolean} enabled Whether to collect.
 	 * @return {Promise<boolean>}
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 	 */
 	async setTelemetryEnabled(enabled) {
 		const { data } = await axios.put(`${baseUrl}/api/embed-settings/telemetry`, { enabled })

@@ -87,6 +87,7 @@ export default {
 		 * The revocation reasons, labelled.
 		 *
 		 * @return {Array<{id: string, label: string}>}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		reasonOptions() {
 			const labels = {

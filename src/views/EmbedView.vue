@@ -54,6 +54,7 @@ export default {
 	name: 'EmbedView',
 	components: { NcEmptyContent, NcLoadingIcon, PublicDashboardGrid },
 
+	/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 	setup() {
 		const context = useEmbedContext({ win: window, load: loadSubject })
 		let stop = () => {}

@@ -118,6 +118,7 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		charts() {
 			if (!this.report) {
 				return []
@@ -175,6 +176,7 @@ export default {
 		 * @param {number} count The count.
 		 * @param {number} max The largest count.
 		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		barWidth(count, max) {
 			return max > 0 ? `${Math.round((count / max) * 100)}%` : '0%'
@@ -197,7 +199,11 @@ export default {
 			return lines.join('\n') + '\n'
 		},
 
-		/** Download the CSV. */
+		/**
+		 * Download the CSV.
+		 *
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
+		 */
 		exportCsv() {
 			const url = URL.createObjectURL(new Blob([this.csv()], { type: 'text/csv' }))
 			const link = document.createElement('a')

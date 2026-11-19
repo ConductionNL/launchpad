@@ -23,6 +23,7 @@ import { decodeClaims, MESSAGES, post } from '../embed-sdk/src/postMessage.js'
  *
  * @param {string} pathname The page path.
  * @return {{subjectType: string, subjectId: string, base: string}}
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function subjectOf(pathname) {
 	const match = /^(.*)\/embed\/(widget|dashboard)\/([^/]+)\/?$/.exec(String(pathname || ''))
@@ -39,6 +40,7 @@ export function subjectOf(pathname) {
  * @param {Window} options.win The iframe's window.
  * @param {(url: string, token: string, params: object) => Promise<object>} options.load Fetches the subject.
  * @return {object} The context.
+ * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
  */
 export function useEmbedContext({ win, load }) {
 	const subject = subjectOf(win.location.pathname)

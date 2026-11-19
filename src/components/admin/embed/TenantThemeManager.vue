@@ -170,6 +170,7 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		variables() {
 			const labels = {
 				'--c-primary': t('launchpad', 'Primary colour'),
@@ -180,10 +181,12 @@ export default {
 			return VARIABLES.map((variable) => ({ ...variable, label: labels[variable.name] }))
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		cssProblem() {
 			return onlyRootRules(this.form.customCss) ? '' : t('launchpad', 'Custom CSS may only set :root rules.')
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		previewStyle() {
 			const vars = this.form.cssVariables
 			return {
@@ -195,6 +198,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		safeLogo() {
 			return /^https:\/\//.test(this.form.logoUrl) ? this.form.logoUrl : ''
 		},
@@ -208,7 +212,10 @@ export default {
 	methods: {
 		t,
 
-		/** @return {object} A new theme's form. */
+		/**
+		 * @return {object} A new theme's form.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
+		 */
 		emptyForm() {
 			return {
 				name: '',
@@ -236,6 +243,7 @@ export default {
 		 * Open the form for a theme, or for a new one.
 		 *
 		 * @param {object|null} theme The theme.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		edit(theme) {
 			const form = this.emptyForm()
@@ -300,6 +308,7 @@ export default {
 		 * Copy a theme's JSON (name, variables, logo, custom CSS) for documentation.
 		 *
 		 * @param {object} theme The theme.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		async copyJson(theme) {
 			const { name, cssVariables, logoUrl, customCss } = theme

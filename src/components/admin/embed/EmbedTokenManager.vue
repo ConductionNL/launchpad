@@ -230,7 +230,11 @@ export default {
 			this.loading = false
 		},
 
-		/** Open the create form. */
+		/**
+		 * Open the create form.
+		 *
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
+		 */
 		startCreate() {
 			this.selected = null
 			this.view = 'create'
@@ -240,13 +244,18 @@ export default {
 		 * Show a token's details.
 		 *
 		 * @param {object} token The token.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		open(token) {
 			this.selected = token
 			this.view = 'detail'
 		},
 
-		/** Back to the list. */
+		/**
+		 * Back to the list.
+		 *
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
+		 */
 		backToList() {
 			this.selected = null
 			this.view = 'list'
@@ -349,13 +358,18 @@ export default {
 		 * Show a freshly issued JWT.
 		 *
 		 * @param {object} result {jwt, ...}.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		showIssued(result) {
 			this.issued = result
 			this.copied = false
 		},
 
-		/** Copy the issued JWT to the clipboard. */
+		/**
+		 * Copy the issued JWT to the clipboard.
+		 *
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
+		 */
 		async copyJwt() {
 			try {
 				await navigator.clipboard.writeText(this.issued.jwt)
@@ -369,6 +383,7 @@ export default {
 		 * Put an updated token in the list.
 		 *
 		 * @param {object} token The token's metadata.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		replace(token) {
 			this.tokens = this.tokens.map((item) => (item.id === token.id ? token : item))
@@ -380,6 +395,7 @@ export default {
 		 * @param {Error} error The failure.
 		 * @param {string} fallback The fallback message.
 		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		messageOf(error, fallback) {
 			return error?.response?.data?.message || fallback
@@ -388,6 +404,7 @@ export default {
 		/**
 		 * @param {object} token The token.
 		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		statusOf(token) {
 			return tokenStatus(token)
@@ -396,6 +413,7 @@ export default {
 		/**
 		 * @param {object} token The token.
 		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		statusLabel(token) {
 			return {
@@ -408,6 +426,7 @@ export default {
 		/**
 		 * @param {object} token The token.
 		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		subjectLabel(token) {
 			const subject = token.subject ?? {}
@@ -421,6 +440,7 @@ export default {
 		/**
 		 * @param {object} token The token.
 		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md
 		 */
 		scopeLabel(token) {
 			if (token.scope?.mode !== 'read-with-interactions') {

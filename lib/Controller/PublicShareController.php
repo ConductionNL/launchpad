@@ -29,6 +29,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Controller;
@@ -56,6 +57,8 @@ use Psr\Log\LoggerInterface;
  *      MaxDelayReached and the PublicPage / NoCSRFRequired attributes.
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+ *
+ * @psalm-import-type LaunchPadPublicShare from ResponseDefinitions
  */
 class PublicShareController extends Controller {
 	/**
@@ -88,6 +91,10 @@ class PublicShareController extends Controller {
 	 *
 	 * @return DataResponse HTTP 201 with share payload or 403/404 on failure.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_CREATED, LaunchPadPublicShare, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -124,6 +131,10 @@ class PublicShareController extends Controller {
 	 *
 	 * @return DataResponse HTTP 200 array of active shares or 403/404.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadPublicShare>, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -157,6 +168,10 @@ class PublicShareController extends Controller {
 	 *
 	 * @return DataResponse HTTP 204 or 403/404.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_NO_CONTENT, array{}, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]

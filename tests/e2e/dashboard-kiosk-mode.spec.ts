@@ -700,14 +700,19 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 		)
 		try {
 			const route = await page.goto(`${APP}/${secret.slug}`)
+			// Wait for the shell's own dashboard read instead of `networkidle`,
+			// which never settles on Nextcloud (ADR-074 rule 4). The absence
+			// assertions below are only meaningful once that read has answered.
+			const dashboardsRead = page.waitForResponse(
+				(res) => res.url().includes('/apps/launchpad/api/dashboards'),
+				{ timeout: 30_000 },
+			)
 			const routeFlagged = await page.goto(`${APP}/${secret.slug}?kiosk=1`)
 			expect(routeFlagged?.status()).toBe(route?.status())
 			await expect(page.locator('.workspace-shell')).toBeVisible({
 				timeout: 30_000,
 			})
-			await page
-				.waitForLoadState('networkidle', { timeout: 15_000 })
-				.catch(() => undefined)
+			await dashboardsRead
 			await expect(page.getByText(secret.text)).toHaveCount(0)
 			await expect(page.getByText(secret.name)).toHaveCount(0)
 		} finally {

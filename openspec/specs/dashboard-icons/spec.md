@@ -59,8 +59,6 @@ Two shared Vue components consume these exports:
 ## Requirements
 
 
-@e2e exclude icon-system scenarios test frontend registry + resource-upload API — resource uploads require admin API access not covered by UI-only tests
-
 ### Requirement: REQ-ICON-001 Curated registry of built-in icons
 
 The system MUST maintain a curated registry of at least 15 built-in dashboard icons drawn from `vue-material-design-icons`. The registry MUST include at minimum these names: `ViewDashboard`, `Home`, `ChartBar`, `Cog`, `AccountGroup`, `Calendar`, `FileDocument`, `Bell`, `Star`, `Heart`, `BookOpenVariant`, `Lightbulb`, `RocketLaunch`, `Earth`, `Briefcase`. Any consumer that renders an icon by name MUST resolve it through this registry — there MUST NOT be parallel ad-hoc registries elsewhere.
@@ -129,6 +127,8 @@ When the admin UI renders an icon picker (e.g. when creating or editing a dashbo
 
 #### Scenario: Picker stays in sync when registry grows
 
+@e2e exclude Needs a code change to the registry module (a 17-entry DASHBOARD_ICONS), which an e2e run cannot make. The e2e for "Picker reflects registry size" compares the picker against the registry read at test time rather than a fixed 15, so it would catch this drift; no LaunchPad Vitest test pins it (tests/vitest/stubs/conduction-nextcloud-vue.js stubs the library wholesale).
+
 - GIVEN the registry is extended to 17 entries in a future change
 - WHEN the icon picker `<select>` renders without code changes
 - THEN it MUST emit exactly 17 `<option>` elements
@@ -139,12 +139,16 @@ Each icon component import in the registry module MUST be a separate `import` st
 
 #### Scenario: Bundle includes only referenced icons
 
+@e2e exclude A production-bundle inspection of js/main.js, not browser behaviour. No test pins it: no LaunchPad Vitest or build check inspects the bundle. Its GIVEN (no other consumer of vue-material-design-icons) does not hold in LaunchPad, which imports many of those icons directly.
+
 - GIVEN a production webpack build with no other consumers of `vue-material-design-icons`
 - WHEN the bundled `js/main.js` is inspected
 - THEN it MUST include at most the 15 icons listed in REQ-ICON-001
 - AND it MUST NOT include the full library
 
 #### Scenario: No wildcard imports in registry module
+
+@e2e exclude A source-code fact, not browser behaviour. `src/constants/dashboardIcons.js` never existed in this repository (`git log --all`); the registry is `components/CnWidgetGrid/widgetIcons.js` in @conduction/nextcloud-vue, which imports each icon on its own line. No LaunchPad test pins it.
 
 - GIVEN the source file `src/constants/dashboardIcons.js`
 - WHEN its import statements are inspected
@@ -217,6 +221,8 @@ The shared `IconRenderer` component MUST accept a single `name` prop (string or 
 - AND MUST NOT render an empty placeholder
 
 #### Scenario: Alt text for custom URL icons
+
+@e2e exclude No LaunchPad surface passes an `alt` prop to the renderer (CnDashboardIcon in @conduction/nextcloud-vue; grep `CnDashboardIcon` under src/), so `alt="Marketing"` cannot be reached from the browser. No LaunchPad Vitest test pins the prop (the library is stubbed in tests/vitest/stubs/conduction-nextcloud-vue.js). The fallback clause, a non-empty alt with no prop, is asserted in passing by tests/e2e/dashboard-icons.spec.ts on every URL icon in the switcher.
 
 - GIVEN `IconRenderer` is rendered with `name="/apps/launchpad/resource/abc.png"` and an `alt` prop of `"Marketing"`
 - THEN the rendered `<img>` MUST have `alt="Marketing"`

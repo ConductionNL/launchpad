@@ -33,7 +33,6 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 - The action menu's edit entries: "Add custom widget…", "Save dashboard", "Dashboard configuration…"
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
-@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
 
 #### Scenario: Non-edit user has no edit affordances visible
 
@@ -55,7 +54,8 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 
 #### Scenario: Add-widget dropdown lists all widget types
 
-@e2e exclude registry-driven dropdown contents — covered by Vitest component test
+@e2e exclude REQ-SHELL-003 was REMOVED by openspec/changes/archive/2026-05-03-runtime-shell-trim (the toolbar with its Add Widget dropdown and Save Layout button was deleted; layout edits save per placement), but this spec was never synced, so there is no control to drive. The toolbar's absence is pinned by src/views/__tests__/WorkspaceApp.spec.js "does not render an in-page edit toolbar even when canEdit=true".
+
 - GIVEN the widget-type registry contains 5 entries
 - WHEN the user opens the Add Widget dropdown
 - THEN it MUST display 5 menu items, one per registered type
@@ -63,7 +63,8 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 
 #### Scenario: Save sends layout to correct endpoint
 
-@e2e exclude PUT request shape/endpoint assertion — covered by Vitest + Newman
+@e2e exclude REQ-SHELL-003 was REMOVED by openspec/changes/archive/2026-05-03-runtime-shell-trim (the toolbar with its Add Widget dropdown and Save Layout button was deleted; layout edits save per placement), but this spec was never synced, so there is no control to drive. The toolbar's absence is pinned by src/views/__tests__/WorkspaceApp.spec.js "does not render an in-page edit toolbar even when canEdit=true".
+
 - GIVEN `dashboardSource: 'user'` and `activeDashboardId: 'abc'`
 - WHEN the user clicks Save
 - THEN the system MUST send `PUT /api/dashboards/abc` with body `{layout: <current widgets>}`
@@ -71,6 +72,8 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 - AND show an error toast on 4xx or 5xx
 
 #### Scenario: Save button disabled while in flight
+
+@e2e exclude REQ-SHELL-003 was REMOVED by openspec/changes/archive/2026-05-03-runtime-shell-trim (the toolbar with its Add Widget dropdown and Save Layout button was deleted; layout edits save per placement), but this spec was never synced, so there is no control to drive. The toolbar's absence is pinned by src/views/__tests__/WorkspaceApp.spec.js "does not render an in-page edit toolbar even when canEdit=true".
 
 - GIVEN a Save request is in flight
 - WHEN the user attempts to click Save again
@@ -118,9 +121,10 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 ### Requirement: Empty state (REQ-SHELL-005)
 
 When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
-@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
 
 #### Scenario: Empty state with creation enabled
+
+@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account resolves to, so no account gets the empty state without deleting the shipped default on a shared instance (runtime-shell-canEdit.spec.ts keeps its attempt as fixme for this reason). The branch is pinned by src/views/__tests__/WorkspaceApp.spec.js "empty state with allowUserDashboards renders Create CTA" and WorkspaceApp.behaviour.spec.js "creates a first dashboard from the empty state".
 
 - GIVEN no active dashboard is resolved
 - AND `allowUserDashboards` is `true`
@@ -129,6 +133,8 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 - AND clicking it MUST call `POST /api/dashboards` with a default name
 
 #### Scenario: Empty state with creation disabled
+
+@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account resolves to, so no account gets the empty state without deleting the shipped default on a shared instance (runtime-shell-canEdit.spec.ts keeps its attempt as fixme for this reason). The branch is pinned by src/views/__tests__/WorkspaceApp.spec.js "empty state without allowUserDashboards hides Create CTA".
 
 - GIVEN no active dashboard is resolved
 - AND `allowUserDashboards` is `false`
@@ -139,7 +145,6 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 ### Requirement: Sidebar backdrop (REQ-SHELL-006)
 
 When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop that intercepts clicks and closes the sidebar. The backdrop MUST start at the same `top` offset as the Nextcloud header (50 px) and span the rest of the viewport. Clicks on the sidebar itself MUST NOT close the sidebar.
-@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
 
 #### Scenario: Backdrop closes sidebar on click
 
@@ -156,9 +161,10 @@ When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop th
 ### Requirement: Lifecycle hooks (REQ-SHELL-007)
 
 The shell MUST register a global `document.click` listener on mount (delegated to the grid composable's `handleClickOutside`) and remove it on unmount. The GridStack instance MUST be initialised after `nextTick()` (so the grid container ref is non-null) and destroyed on unmount.
-@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
 
 #### Scenario: Listener and grid registered after mount
+
+@e2e exclude Internal mount/unmount wiring with no browser-observable outcome. The document listener the shell registers today is `keydown` (Escape closes the sidebar), not a `click`/`handleClickOutside` one, which no longer exists in src/; its add/remove is pinned by src/views/__tests__/WorkspaceApp.behaviour.spec.js "stops listening for Escape once unmounted". The grid is created and destroyed by the shared library's grid component inside Views.vue; no LaunchPad unit test pins that.
 
 - GIVEN the shell component is being mounted
 - WHEN the `onMounted` hook runs
@@ -166,6 +172,8 @@ The shell MUST register a global `document.click` listener on mount (delegated t
 - AND after `nextTick()` the GridStack instance MUST be initialised against the grid container ref
 
 #### Scenario: Listener cleanup on unmount
+
+@e2e exclude Internal mount/unmount wiring with no browser-observable outcome. The document listener the shell registers today is `keydown` (Escape closes the sidebar), not a `click`/`handleClickOutside` one, which no longer exists in src/; its add/remove is pinned by src/views/__tests__/WorkspaceApp.behaviour.spec.js "stops listening for Escape once unmounted". The grid is created and destroyed by the shared library's grid component inside Views.vue; no LaunchPad unit test pins that.
 
 - GIVEN the shell has mounted and registered the click listener
 - WHEN the shell unmounts (e.g. user navigates away)
@@ -185,14 +193,10 @@ The shared library's first-open support note (`CnSupportDialog`: donate, get sup
 - WHEN he opens LaunchPad
 - THEN no "Support LaunchPad" dialog MUST open
 
-@e2e exclude The note is mounted by the shared library from one prop; the prop's value per account is pinned by src/__tests__/App.supportNote.spec.js. Not seen in a browser by this change.
-
 #### Scenario: An administrator's first visit keeps the note
 - GIVEN Ruben is an administrator and has never opened LaunchPad
 - WHEN he opens LaunchPad
 - THEN the note MUST open once, as before
-
-@e2e exclude Pinned by src/__tests__/App.supportNote.spec.js.
 
 ### Requirement: REQ-SHELL-009 Start page without navigation panel
 
@@ -239,8 +243,6 @@ When the option is off, or the initial state does not carry the key, nothing cha
 LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`, lines 470-525), and the shell MUST hand that manifest to the shared library's `CnAppRoot` (`src/App.vue:16-17`), which draws the tour with `CnWalkthrough`. The tour SHALL be `launchpad:getting-started`, titled "Getting started", triggered on a user's first visit, with three steps in this order: "Welcome to Launchpad" centred on the Workspace page, "Open Dashboards from the menu" pointing at the `dashboards` menu item, and a step pointing at the Flows menu item that the user may skip. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
 
 Written on 2026-10-07 after the fact, from the code on `development`; covers parity row `d-tour`. The tour does not visit the admin settings.
-
-@e2e exclude The tour is drawn by nextcloud-vue's CnWalkthrough from a manifest block; no LaunchPad Playwright spec drives it. Written after the fact.
 
 #### Scenario: A first visit starts the tour
 - GIVEN Pieter has never completed the LaunchPad tour

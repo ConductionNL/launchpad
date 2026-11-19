@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -35,6 +36,9 @@ use OCP\IRequest;
 
 /**
  * Controller for tile API endpoints.
+ *
+ * @psalm-import-type LaunchPadTile from ResponseDefinitions
+ * @psalm-import-type LaunchPadGone from ResponseDefinitions
  */
 class TileApiController extends Controller {
 	/**
@@ -75,6 +79,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The list of tiles.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, list<LaunchPadTile>, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -125,6 +133,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The HTTP 410 Gone envelope.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_GONE, LaunchPadGone, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-28
 	 */
 	#[NoAdminRequired]
@@ -148,6 +160,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The HTTP 410 Gone envelope.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_GONE, LaunchPadGone, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-30
 	 */
 	#[NoAdminRequired]
@@ -169,6 +185,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The HTTP 410 Gone envelope.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_GONE, LaunchPadGone, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-31
 	 */
 	#[NoAdminRequired]

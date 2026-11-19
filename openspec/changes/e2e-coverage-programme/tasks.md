@@ -53,6 +53,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/footer-customization-api.spec.ts`, `tests/e2e/footer-customization-render.spec.ts` (helper `tests/e2e/support/footerSettings.ts`), 46 scenarios cited (29 of them as `test.fixme` because the footer never renders, see the PR), 1 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.7 `navigation-editor-org`: 45 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/navigation-editor-org-api.spec.ts`, `tests/e2e/navigation-editor-org-editor.spec.ts`, `tests/e2e/navigation-editor-org-panel.spec.ts` (helper `tests/e2e/support/orgNavigation.ts`), 45 scenarios cited (22 tests are `test.fixme` for suspected defects, see the PR), 0 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.8 `tiles`: 38 scenarios, 0 cited.
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.

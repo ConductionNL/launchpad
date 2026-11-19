@@ -34,8 +34,6 @@ Indexes:
 ## Requirements
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-DASH-038 Translation Schema
 
 The system MUST store per-language content variants for a dashboard in a dedicated `oc_launchpad_dash_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.
@@ -45,6 +43,7 @@ The system MUST store per-language content variants for a dashboard in a dedicat
 - GIVEN the schema migration is applied
 - THEN the `oc_launchpad_dash_translations` table MUST exist with columns: `id` (auto-increment primary key), `dashboardUuid VARCHAR(36)`, `languageCode VARCHAR(16)`, `name VARCHAR(255)`, `description LONGTEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt DATETIME`, `updatedAt DATETIME`
 - AND a composite unique constraint MUST exist on `(dashboardUuid, languageCode)` to prevent duplicate language variants per dashboard
+@e2e exclude the schema shape (columns, types, indexes) is not observable over HTTP, and no test pins lib/Migration/DashboardTranslationTableBuilder.php (none exists); the unique pair's effect is asserted by duplicate-language-returns-conflict-error
 
 #### Scenario: Primary variant enforcement
 
@@ -58,6 +57,7 @@ The system MUST store per-language content variants for a dashboard in a dedicat
 - WHEN the schema migration runs
 - THEN the system MUST auto-create a primary translation row with the dashboard's existing `widgetTreeJson`, `name`, `description`, and `languageCode` set to the dashboard owner's Nextcloud locale (`\OCP\IConfig::getUserValue($userId, 'core', 'lang')`, fallback to 'en' if not set)
 - AND the existing widget tree MUST remain in `oc_launchpad_dashboards` during the transition period (marked for future deprecation)
+@e2e exclude never built: lib/Migration/Version001017Date20260502130000.php only creates the table (its header says the backfill happens lazily in the service, not at migration time); the lazy seed is pinned in tests/Unit/Service/DashboardTranslationServiceTest.php (testSeedPrimaryUsesOwnerLocale, testSeedPrimaryFallsBackToEnglish)
 
 #### Scenario: Variant isolation from dashboard record
 
@@ -284,6 +284,7 @@ Existing dashboards without translation rows MUST continue to function as before
 - THEN the system MUST treat the dashboard's existing `widgetTreeJson`, `name`, `description` as the primary variant
 - AND the response MUST include `availableLanguages: ['en']` (or the owner's locale if available)
 - AND MUST be indistinguishable from a post-migration dashboard with one primary variant
+@e2e exclude needs a dashboard with no translation rows, and every create path seeds one (DashboardService::completeNewDashboard); the in-memory materialisation is pinned in tests/Unit/Controller/DashboardTranslationApiControllerResolvedTest.php and tests/Unit/Service/DashboardTranslationServiceTest.php (testMaterialiseLegacyVariantUsesDashboardFields)
 
 #### Scenario: Post-migration, dashboard has backfilled primary translation
 
@@ -291,6 +292,7 @@ Existing dashboards without translation rows MUST continue to function as before
 - WHEN a query is issued for the dashboard's translations
 - THEN exactly one translation row MUST exist with `isPrimary=1`
 - AND the row's `languageCode` MUST match the dashboard owner's Nextcloud locale at migration time (or 'en' fallback)
+@e2e exclude needs a dashboard that predates the migration, and the migration has no backfill step (see Backwards-compatible backfill); the seed in the owner's language is pinned in tests/Unit/Service/DashboardTranslationServiceTest.php (testSeedPrimaryUsesOwnerLocale, testSeedPrimaryIdempotent)
 
 #### Scenario: Dashboard deletion cascades to translations
 
@@ -299,6 +301,7 @@ Existing dashboards without translation rows MUST continue to function as before
 - THEN the system MUST delete the dashboard record
 - AND all 3 translation rows MUST be cascade-deleted via `DashboardTranslationMapper::deleteByDashboardUuid()`
 - AND subsequent queries for the dashboard's translations MUST return empty results
+@e2e exclude a deleted dashboard's translation rows cannot be observed: every translation route answers 404 once the parent is gone. Only the delegation is pinned (tests/Unit/Service/DashboardTranslationServiceTest.php testDeleteAllForDashboardForwardsToMapper); no test pins that DashboardService::deleteChildRows calls it
 
 #### Scenario: Admin template dashboard with translations
 
@@ -307,6 +310,7 @@ Existing dashboards without translation rows MUST continue to function as before
 - THEN the system MUST create a personal dashboard copy with its own primary variant in the user's locale
 - AND the copied variant's widget tree, name, description MUST be seeded from the template's primary variant
 - AND the copied dashboard MUST be independent from the template (translation updates to the template do NOT affect the copy)
+@e2e exclude cannot be seeded: admin templates are stored with userId null (lib/Service/AdminTemplateService.php:263) and every translation write requires the caller to own the dashboard (DashboardTranslationApiController::assertOwner), so no request can give a template variants; TemplateService::createDashboardFromTemplate also seeds no translation for the copy. No test pins it
 
 #### Scenario: Migration rollback removes translation table
 
@@ -314,10 +318,9 @@ Existing dashboards without translation rows MUST continue to function as before
 - WHEN the migration is rolled back via `postSchemaChange()` in reverse
 - THEN the `oc_launchpad_dash_translations` table MUST be dropped
 - AND existing dashboard records MUST remain unaffected (the widget tree is still in `oc_launchpad_dashboards`)
+@e2e exclude never built: lib/Migration/Version001017Date20260502130000.php has only changeSchema() and no rollback step (git log -S postSchemaChange on it finds nothing), and Nextcloud never runs migrations in reverse; no test exists
 
 ### Requirement: A dashboard owner manages language versions in the settings dialog (REQ-LANGUI-001)
-
-@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
 
 The dashboard settings dialog MUST have a "Languages" tab, hidden while creating, listing each variant with its language and marking the primary. It MUST let the owner add a variant blank or copied from an existing language, edit its name and description, delete a non-primary variant, and make another variant primary.
 
@@ -334,8 +337,6 @@ The dashboard settings dialog MUST have a "Languages" tab, hidden while creating
 - **THEN** Dutch is marked primary and English is a normal variant
 
 ### Requirement: The workspace page shows the reader's language (REQ-LANGUI-002)
-
-@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
 
 When a dashboard has more than one variant, the workspace page MUST show the variant that matches the reader's Nextcloud language, and the primary with a visible note when none matches.
 

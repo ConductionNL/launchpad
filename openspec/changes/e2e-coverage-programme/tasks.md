@@ -14,13 +14,17 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 8 specs, 343 scenarios.
 
 - [ ] 1.1 `admin-settings`: 83 scenarios, 2 cited, blanket. Access requirements in progress 2026-09-11. Its settings-behaviour scenarios stay open under this task.
+  - Spec written: `tests/e2e/admin-settings-api.spec.ts`, `tests/e2e/admin-settings-dashboard-effects.spec.ts`, `tests/e2e/admin-settings-groups.spec.ts`, `tests/e2e/admin-settings-ui.spec.ts` (helper `tests/e2e/support/adminSettings.ts`), 58 scenarios cited, 13 excluded with a reason, blanket removed, not yet run (cloud, 2026-11-19)
 - [ ] 1.2 `admin-roles`: 55 scenarios, 0 cited, blanket. In progress 2026-09-11.
+  - Spec written: `tests/e2e/admin-roles.spec.ts`, `tests/e2e/admin-roles-enforcement.spec.ts` (helper `tests/e2e/support/roles.ts`), 55 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
 - [ ] 1.3 `conditional-visibility`: 49 scenarios, 0 cited, blanket. In progress 2026-09-11.
   - Spec written: `tests/e2e/conditional-visibility.spec.ts`, `tests/e2e/conditional-visibility-evaluation.spec.ts` (helper `tests/e2e/support/visibilityRules.ts`), 52 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
 - [ ] 1.4 `permissions`: 42 scenarios, 0 cited, blanket. In progress 2026-09-11, with `admin-roles` and the access requirements of `admin-settings`.
   - Spec written: `tests/e2e/permissions.spec.ts` (new) and `tests/e2e/dashboard-permission-levels.spec.ts` (tightened), 40 scenarios cited, 2 excluded with a reason, blanket removed, not yet run (cloud, 2026-11-19)
 - [ ] 1.5 `dashboard-public-share`: 38 scenarios, 25 cited. In progress 2026-09-11.
+  - Spec written: `tests/e2e/public-start-page-admin.spec.ts`, `tests/e2e/ci/public-share-view-count.spec.ts`, 31 scenarios cited, 14 excluded with a reason, requirement-level excludes replaced per scenario, not yet run (cloud, 2026-11-19)
 - [ ] 1.6 `dashboard-sharing`: 34 scenarios, 10 cited. In progress 2026-09-11. Supersedes `add-dashboard-sharing-e2e-coverage`.
+  - Spec written: `tests/e2e/ci/dashboard-share-access.spec.ts`, `tests/e2e/ci/dashboard-share-notifications.spec.ts`, `tests/e2e/ci/dashboard-share-user-deletion.spec.ts`, `tests/e2e/dashboard-sharing-limits.spec.ts` (helpers `tests/e2e/support/shareApi.ts`, `tests/e2e/support/notifications.ts`), 37 scenarios cited, 1 excluded with a reason, not yet run (cloud, 2026-11-19)
 - [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
   - Spec written: `tests/e2e/role-feature-permissions.spec.ts` (helpers in `tests/e2e/fixtures/role-feature-permissions.ts`), 27 scenarios cited, not yet run (cloud, 2026-11-19)
 - [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
@@ -122,6 +126,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
   - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
+  - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
 - [ ] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
 - [ ] 4.15 `launchpad-spend-analytics-widget`: 21 scenarios, 0 cited, blanket.
@@ -144,6 +149,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 14 specs, 419 scenarios.
 
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-view-analytics.spec.ts, 53 scenarios cited, not yet run (cloud, 2026-11-19), 18 excluded with reasons
 - [ ] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/background-job-feed-refresh.spec.ts, 6 scenarios cited, not yet run (cloud, 2026-11-19), 50 excluded with reasons
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.

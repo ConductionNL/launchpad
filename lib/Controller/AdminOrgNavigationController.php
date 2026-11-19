@@ -80,11 +80,15 @@ class AdminOrgNavigationController extends Controller {
 	 * @param IRequest             $request Inbound request.
 	 * @param OrgNavigationSources $sources The org navigation service and the admin setting mapper.
 	 * @param RequestGuard $guard The administrator check.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly OrgNavigationSources $sources,
 		private readonly RequestGuard $guard,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -100,6 +104,7 @@ class AdminOrgNavigationController extends Controller {
 	 *                      effective `language`.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
@@ -124,7 +129,7 @@ class AdminOrgNavigationController extends Controller {
 			userId: $user->getUID()
 		);
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: [
 				'tree' => $filtered,
 				'language' => $language,
@@ -143,6 +148,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The persisted tree (unchanged) on success.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateOrgNavigation(
@@ -169,7 +175,7 @@ class AdminOrgNavigationController extends Controller {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: [
 				'tree' => $tree,
 				'language' => $language,
@@ -183,6 +189,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The current effective position.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getPosition(): JSONResponse {
@@ -191,7 +198,7 @@ class AdminOrgNavigationController extends Controller {
 			return $refusal;
 		}
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: ['position' => $this->readPosition()]
 		);
 	}//end getPosition()
@@ -206,6 +213,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The persisted position on success.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updatePosition(?string $position = null): JSONResponse {
@@ -228,7 +236,7 @@ class AdminOrgNavigationController extends Controller {
 			value: $position
 		);
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: ['position' => $position]
 		);
 	}//end updatePosition()

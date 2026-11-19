@@ -49,6 +49,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -81,12 +86,18 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		$session->method('getUser')->willReturn($this->createMock(IUser::class));
 
 		return new WidgetApiController(
-			$this->request,
-			new WidgetApiSources($this->widgetService, $this->newsService, $this->calendarService, $this->placementService),
-			$this->permissionService,
-			new WidgetApiPolicy($this->roleFeaturePerm, $this->createMock(LoggerInterface::class)),
-			new RequestActor($session, $this->createMock(ActionAuthService::class)),
-			$userId,
+			request: $this->request,
+			sources: new WidgetApiSources($this->widgetService, $this->newsService, $this->calendarService, $this->placementService),
+			access: new WidgetApiAccess(permissionService: $this->permissionService, policy: new WidgetApiPolicy(
+				$this->roleFeaturePerm,
+				$this->createMock(originalClassName: LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(originalClassName: ActionAuthService::class)
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 

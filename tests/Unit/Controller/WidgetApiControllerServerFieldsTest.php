@@ -61,6 +61,10 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Materialisation on placement update and removal.
@@ -278,8 +282,8 @@ class WidgetApiControllerServerFieldsTest extends TestCase {
 		$container->method('get')->willReturn($this->mapper);
 
 		return new WidgetApiController(
-			$request,
-			new WidgetApiSources(
+			request: $request,
+			sources: new WidgetApiSources(
 				$this->widgetService,
 				$this->createMock(NewsWidgetService::class),
 				$this->createMock(CalendarWidgetService::class),
@@ -292,10 +296,16 @@ class WidgetApiControllerServerFieldsTest extends TestCase {
 					materialiser: new CalculatedFieldMaterialiser(translator: new CalculatedFieldCalculationTranslator(), container: $container)
 				)
 			),
-			$permissions,
-			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class)),
-			new RequestActor($session, $this->createMock(ActionAuthService::class)),
-			'alice',
+			access: new WidgetApiAccess(permissionService: $permissions, policy: new WidgetApiPolicy(
+				$this->createMock(originalClassName: RoleFeaturePermissionService::class),
+				$this->createMock(originalClassName: LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(originalClassName: ActionAuthService::class)
+			), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}//end controller()
 

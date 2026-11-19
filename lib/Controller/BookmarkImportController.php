@@ -36,9 +36,8 @@ use OCP\IRequest;
 /**
  * `POST /api/dashboard/{dashboardId}/tiles/import`.
  *
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is the app's
- *  stateless response factory, called statically by every controller, and
- *  {@see BookmarkImportPlan::fromRequest()} is a named constructor of a value.
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see BookmarkImportPlan::fromRequest()}
+ *  is a named constructor of a value.
  *
  * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
  */
@@ -49,15 +48,15 @@ class BookmarkImportController extends Controller {
 	 * @param IRequest          $request           The request.
 	 * @param WidgetService     $widgetService     Creates the placements.
 	 * @param PermissionService $permissionService Whether the user may add to the dashboard.
-	 * @param RequestActor      $actor             The session and the action check.
-	 * @param string|null       $userId            The current user ID.
+	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly WidgetService $widgetService,
 		private readonly PermissionService $permissionService,
-		private readonly RequestActor $actor,
-		private readonly ?string $userId,
+		private readonly ActorResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -74,18 +73,19 @@ class BookmarkImportController extends Controller {
 	 * @return JSONResponse 201 with `placements` and `skipped`; 400, 401, 403 or 409.
 	 *
 	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function import(int $dashboardId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null || $this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$user = $this->context->actor->userSession->getUser();
+		if ($user === null || $this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.import-bookmarks');
+		$this->context->actor->actionAuth->requireAction($user, 'widget.import-bookmarks');
 
-		if ($this->permissionService->canAddWidget(userId: $this->userId, dashboardId: $dashboardId) === false) {
-			return ResponseHelper::forbidden();
+		if ($this->permissionService->canAddWidget(userId: $this->context->userId, dashboardId: $dashboardId) === false) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
@@ -95,16 +95,16 @@ class BookmarkImportController extends Controller {
 			);
 			$created = $this->widgetService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::invalidArgument(message: $e->getMessage());
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
 		} catch (QuotaExceededException $e) {
-			return ResponseHelper::quotaExceeded(exception: $e);
+			return $this->context->responseHelper->quotaExceeded(exception: $e);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
-				'placements' => ResponseHelper::serializeList(entities: $created),
+				'placements' => $this->context->responseHelper->serializeList(entities: $created),
 				'skipped' => $plan->skipped(),
 			],
 			statusCode: 201

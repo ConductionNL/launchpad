@@ -52,13 +52,15 @@ class TileApiController extends Controller {
 	 * @param IRequest     $request The request.
 	 * @param TileSources  $sources The tile service, translator and service discovery.
 	 * @param ActionCaller $caller The session and the action check.
-	 * @param string|null  $userId The user ID.
+	 * @param UserResponses $context Holds the userId and responseHelper.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly TileSources $sources,
 		private readonly ActionCaller $caller,
-		private readonly ?string $userId,
+		private readonly UserResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -74,6 +76,7 @@ class TileApiController extends Controller {
 	 * @return JSONResponse The list of tiles.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -83,10 +86,10 @@ class TileApiController extends Controller {
 			return $refusal;
 		}
 
-		$tiles = $this->sources->tileService->getUserTiles(userId: $this->userId);
+		$tiles = $this->sources->tileService->getUserTiles(userId: $this->context->userId);
 
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $tiles)
+		return $this->context->responseHelper->success(
+			data: $this->context->responseHelper->serializeList(entities: $tiles)
 		);
 	}//end index()
 
@@ -206,8 +209,10 @@ class TileApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
 	 * @see ActionCaller::refusal()
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		return $this->caller->refusal(userId: $this->userId, action: $action);
+		return $this->caller->refusal(userId: $this->context->userId, action: $action);
 	}//end actionRefusal()
 }//end class

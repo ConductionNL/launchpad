@@ -22,23 +22,9 @@
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/PeopleWidgetService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/AppInfo/Application.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Command/SetupCommand.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AcknowledgementController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminDemoShowcasesController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminOrgNavigationController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminSettingsController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminWidgetRulesController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AnalyticsController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardApiController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardMetadataController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardReactionApiController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardTranslationApiController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/MetadataAdminController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/PageController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/PeopleWidgetController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/RoleFeaturePermissionApiController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/RuleApiController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/TileApiController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/WidgetApiController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Db/DashboardMapper.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/MigrationTableBuilder.php"/>

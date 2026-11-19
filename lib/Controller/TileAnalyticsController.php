@@ -54,17 +54,12 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for tile usage-analytics endpoints.
  *
  * @spec openspec/specs/dashboard-view-analytics/spec.md
  *
- * @SuppressWarnings(PHPMD.StaticAccess)           {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app; calling
- *  it statically is its intended usage and injecting it would add a
- *  collaborator with no state to every controller.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) An analytics endpoint reads
  *  across several aggregates by nature; every collaborator here is a mapper or
  *  service it must query to answer one request. Splitting the controller would
@@ -81,13 +76,15 @@ class TileAnalyticsController extends Controller {
 	 *                                                   service.
 	 * @param ActionAuthService $actionAuth ADR-023 action
 	 *                                      authorization.
-	 * @param IUserSession $userSession Current user session.
+	 * @param TileAnalyticsContext $context Holds the userSession and responseHelper.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly TileAnalyticsServiceInterface $tileAnalyticsService,
 		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
+		private readonly TileAnalyticsContext $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -109,10 +106,11 @@ class TileAnalyticsController extends Controller {
 	 *                      does not exist.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function recordClick(string $placementId): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->context->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
@@ -151,15 +149,16 @@ class TileAnalyticsController extends Controller {
 	 *                      unauthenticated.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function config(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->context->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
 				'enabled' => $this->tileAnalyticsService->isTrackingActiveFor(userId: $user->getUID()),
 			]
@@ -175,6 +174,7 @@ class TileAnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function topTiles(
@@ -195,7 +195,7 @@ class TileAnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end topTiles()
 
 	/**
@@ -208,6 +208,7 @@ class TileAnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function dashboardBreakdown(
@@ -228,7 +229,7 @@ class TileAnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end dashboardBreakdown()
 
 	/**
@@ -270,9 +271,11 @@ class TileAnalyticsController extends Controller {
 	 * @param string $action The action identifier to require.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		$check = new SessionActionCheck(userSession: $this->userSession, actionAuth: $this->actionAuth);
+		$check = new SessionActionCheck(userSession: $this->context->userSession, actionAuth: $this->actionAuth);
 		return $check->refusal(action: $action);
 	}//end actionRefusal()
 }//end class

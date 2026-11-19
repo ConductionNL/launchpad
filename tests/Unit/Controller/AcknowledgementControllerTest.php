@@ -32,6 +32,9 @@ use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Unit tests for AcknowledgementController authorization.
@@ -101,7 +104,7 @@ class AcknowledgementControllerTest extends TestCase {
 				logger: $this->logger
 			),
 			groupManager: $this->groupManager,
-			userId: $userId
+			context: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}
 

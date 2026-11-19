@@ -47,6 +47,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -72,17 +77,20 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$session->method('getUser')->willReturn($this->sessionUser ? $user : null);
 
 		return new DashboardApiController(
-			$this->createMock(IRequest::class),
-			new DashboardApiServices($this->dashboardService),
-			$this->permissionService,
-			new DashboardApiHistory(
+			request: $this->createMock(originalClassName: IRequest::class),
+			services: new DashboardApiServices($this->dashboardService),
+			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				$this->treeService,
 				$this->createMock(DashboardVersionService::class),
 				$this->createMock(AnalyticsService::class),
 				$this->logger,
-			),
-			new RequestActor($session, $this->createMock(ActionAuthService::class)),
-			$userId,
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(originalClassName: ActionAuthService::class)
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 

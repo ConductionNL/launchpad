@@ -50,6 +50,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * The placement rows of addWidget, case by case.
@@ -222,16 +227,14 @@ class AddWidgetGoldenTest extends TestCase {
 					calendarService: $this->createMock(CalendarWidgetService::class),
 					placementService: $this->createMock(WidgetPlacementService::class)
 				),
-				permissionService: $permissions,
-				policy: new WidgetApiPolicy(
+				access: new WidgetApiAccess(permissionService: $permissions, policy: new WidgetApiPolicy(
 					roleFeaturePerm: $roles,
 					logger: $this->createMock(LoggerInterface::class)
-				),
-				actor: new RequestActor(
+				)),
+				context: new ActorResponses(actor: new RequestActor(
 					userSession: $session,
 					actionAuth: $this->createMock(ActionAuthService::class)
-				),
-				userId: 'alice'
+				), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger())))
 			);
 
 			$response = $controller->addWidget(...$args);

@@ -46,10 +46,14 @@ class RoleFeaturePermissionApiController extends Controller {
 	 *
 	 * @param IRequest $request The HTTP request.
 	 * @param RoleFeaturePermissionService $service Permission service.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly RoleFeaturePermissionService $service,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -60,10 +64,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse The list of permission rows.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listPermissions(): JSONResponse {
-		return self::listed(rows: $this->service->listPermissions());
+		return $this->listed(rows: $this->service->listPermissions());
 	}//end listPermissions()
 
 	/**
@@ -89,10 +94,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse Empty 204 on success.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deletePermission(int $id): JSONResponse {
-		return self::deleted(delete: fn () => $this->service->deletePermission(id: $id));
+		return $this->deleted(delete: fn () => $this->service->deletePermission(id: $id));
 	}//end deletePermission()
 
 	/**
@@ -101,10 +107,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse The list of layout default rows.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listLayoutDefaults(): JSONResponse {
-		return self::listed(rows: $this->service->listLayoutDefaults());
+		return $this->listed(rows: $this->service->listLayoutDefaults());
 	}//end listLayoutDefaults()
 
 	/**
@@ -127,10 +134,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse Empty 204 on success.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteLayoutDefault(int $id): JSONResponse {
-		return self::deleted(delete: fn () => $this->service->deleteLayoutDefault(id: $id));
+		return $this->deleted(delete: fn () => $this->service->deleteLayoutDefault(id: $id));
 	}//end deleteLayoutDefault()
 
 	/**
@@ -139,10 +147,12 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @param Entity[] $rows The rows.
 	 *
 	 * @return JSONResponse The serialised rows.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	private static function listed(array $rows): JSONResponse {
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $rows)
+	private function listed(array $rows): JSONResponse {
+		return $this->responseHelper->success(
+			data: $this->responseHelper->serializeList(entities: $rows)
 		);
 	}//end listed()
 
@@ -153,21 +163,23 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @param Closure(array): Entity $save Saves the payload.
 	 *
 	 * @return JSONResponse The saved row, or the error.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function created(Closure $save): JSONResponse {
 		try {
 			$entity = $save($this->readJsonBody());
-			return ResponseHelper::success(
+			return $this->responseHelper->success(
 				data: $entity->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (\InvalidArgumentException $e) {
-			return ResponseHelper::error(
+			return $this->responseHelper->error(
 				exception: $e,
 				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}//end try
 	}//end created()
 
@@ -177,13 +189,15 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @param Closure(): void $delete Deletes the row.
 	 *
 	 * @return JSONResponse The empty answer, or the error.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	private static function deleted(Closure $delete): JSONResponse {
+	private function deleted(Closure $delete): JSONResponse {
 		try {
 			$delete();
 			return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 		} catch (DoesNotExistException $e) {
-			return ResponseHelper::error(
+			return $this->responseHelper->error(
 				exception: $e,
 				statusCode: Http::STATUS_NOT_FOUND
 			);

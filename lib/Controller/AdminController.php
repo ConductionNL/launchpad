@@ -95,13 +95,15 @@ class AdminController extends Controller {
 	 * @param IRequest            $request The request.
 	 * @param AdminTemplateTools  $templates The template, resync, export and import services.
 	 * @param AdminSettingsTools  $settings The settings, footer and setup wizard services and the group manager.
-	 * @param AdminCallerAndRoles $caller The user session, the action check and the role and feed refresh services.
+	 * @param AdminContext $context Holds the caller and responseHelper.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AdminTemplateTools $templates,
 		private readonly AdminSettingsTools $settings,
-		private readonly AdminCallerAndRoles $caller,
+		private readonly AdminContext $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -113,9 +115,11 @@ class AdminController extends Controller {
 	 * not an NC admin, or null when the guard passes.
 	 *
 	 * @return JSONResponse|null Non-null means the request must be rejected.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->caller->userSession->getUser();
+		$user = $this->context->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(
 				data: ['error' => 'Not authenticated'],
@@ -139,13 +143,14 @@ class AdminController extends Controller {
 	 * @return JSONResponse The list of templates.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listTemplates(): JSONResponse {
 		$templates = $this->templates->templateService->listTemplates();
 
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $templates)
+		return $this->context->responseHelper->success(
+			data: $this->context->responseHelper->serializeList(entities: $templates)
 		);
 	}//end listTemplates()
 
@@ -157,6 +162,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The template data.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getTemplate(int $id): JSONResponse {
@@ -164,18 +170,18 @@ class AdminController extends Controller {
 			$result = $this->templates->templateService->getTemplateWithPlacements(
 				id: $id
 			);
-			$placements = ResponseHelper::serializeList(
+			$placements = $this->context->responseHelper->serializeList(
 				entities: $result['placements']
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: [
 					'template' => $result['template']->jsonSerialize(),
 					'placements' => $placements,
 				]
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(
+			return $this->context->responseHelper->error(
 				exception: $e,
 				statusCode: Http::STATUS_NOT_FOUND
 			);
@@ -194,6 +200,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The created template.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createTemplate(
@@ -214,12 +221,12 @@ class AdminController extends Controller {
 				]
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: $template->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end createTemplate()
 
@@ -268,6 +275,8 @@ class AdminController extends Controller {
 	 * @param array<string, mixed> $fields     The nullable template fields by name.
 	 *
 	 * @return JSONResponse The updated template, or the error.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function saveTemplate(int $templateId, array $fields): JSONResponse {
 		try {
@@ -276,11 +285,11 @@ class AdminController extends Controller {
 				data: $this->buildUpdateData(fields: $fields)
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: $template->jsonSerialize()
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end saveTemplate()
 
@@ -292,15 +301,16 @@ class AdminController extends Controller {
 	 * @return JSONResponse The deletion confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteTemplate(int $id): JSONResponse {
 		try {
 			$this->templates->templateService->deleteTemplate(id: $id);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end deleteTemplate()
 
@@ -331,6 +341,7 @@ class AdminController extends Controller {
 	 *                      on guard failure.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-001-re-sync-action-pushes-template-updates-to-existing-copies
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function resyncTemplate(
@@ -343,7 +354,7 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		$user = $this->caller->userSession->getUser();
+		$user = $this->context->caller->userSession->getUser();
 		$actingAdminId = '';
 		if ($user !== null) {
 			$actingAdminId = $user->getUID();
@@ -357,15 +368,15 @@ class AdminController extends Controller {
 				actingAdminId: $actingAdminId
 			);
 
-			return ResponseHelper::success(data: $result);
+			return $this->context->responseHelper->success(data: $result);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::error(
+			return $this->context->responseHelper->error(
 				exception: $e,
 				statusCode: Http::STATUS_BAD_REQUEST,
 				message: $e->getMessage()
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end resyncTemplate()
 
@@ -375,10 +386,11 @@ class AdminController extends Controller {
 	 * @return JSONResponse The admin settings.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-1
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getSettings(): JSONResponse {
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: $this->settings->settingsService->getSettings()
 		);
 	}//end getSettings()
@@ -449,6 +461,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The update confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
@@ -512,11 +525,11 @@ class AdminController extends Controller {
 				]
 			);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
 		} catch (\InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end updateSettings()
 
@@ -531,6 +544,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The settings object, or 401/403 on guard failure.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getFooterSettings(): JSONResponse {
@@ -539,7 +553,7 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: $this->settings->footerService->getGlobalSettings()
 		);
 	}//end getFooterSettings()
@@ -569,6 +583,7 @@ class AdminController extends Controller {
 	 *                                                  body uses getParams() for array_key_exists semantics.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateFooterSettings(
@@ -591,7 +606,7 @@ class AdminController extends Controller {
 			return $this->footerFailure(exception: $e);
 		}
 
-		return ResponseHelper::success(data: ['status' => 'ok']);
+		return $this->context->responseHelper->success(data: ['status' => 'ok']);
 	}//end updateFooterSettings()
 
 	/**
@@ -654,6 +669,7 @@ class AdminController extends Controller {
 	 * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function export(
@@ -669,7 +685,7 @@ class AdminController extends Controller {
 			return $this->failure(message: 'Unsupported scope: ' . $scope, statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->caller->userSession->getUser()?->getUID();
+		$userId = (string)$this->context->caller->userSession->getUser()?->getUID();
 
 		if ($scope === 'site') {
 			return $this->templates->exportService->exportSite(currentUserId: $userId);
@@ -719,6 +735,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The import summary, or an error response.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function import(bool $preserveUuids = false): JSONResponse {
@@ -732,7 +749,7 @@ class AdminController extends Controller {
 			return $this->failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->caller->userSession->getUser()?->getUID();
+		$userId = (string)$this->context->caller->userSession->getUser()?->getUID();
 
 		try {
 			$result = $this->templates->importService->import(
@@ -775,6 +792,8 @@ class AdminController extends Controller {
 	 * @param array<string, mixed> $result The import service result.
 	 *
 	 * @return JSONResponse The import summary.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function importSummary(array $result): JSONResponse {
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
@@ -788,7 +807,7 @@ class AdminController extends Controller {
 			);
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
 				'importedDashboardCount' => $result['importedDashboardCount'],
 				'skippedDashboardCount' => $result['skippedDashboardCount'],
@@ -807,14 +826,15 @@ class AdminController extends Controller {
 	 * @return JSONResponse The list of role assignments, or 401/403.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listRoles(): JSONResponse {
 
-		$assignments = $this->caller->roleService->listAssignments();
+		$assignments = $this->context->caller->roleService->listAssignments();
 
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $assignments)
+		return $this->context->responseHelper->success(
+			data: $this->context->responseHelper->serializeList(entities: $assignments)
 		);
 	}//end listRoles()
 
@@ -833,6 +853,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The created assignment, or an error envelope.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createRole(
@@ -841,10 +862,10 @@ class AdminController extends Controller {
 		string|null $role = null,
 	): JSONResponse {
 
-		$assignedBy = (string)$this->caller->userSession->getUser()->getUID();
+		$assignedBy = (string)$this->context->caller->userSession->getUser()->getUID();
 
 		try {
-			$assignment = $this->caller->roleService->assignRole(
+			$assignment = $this->context->caller->roleService->assignRole(
 				userId: $userId,
 				groupId: $groupId,
 				role: (string)$role,
@@ -856,7 +877,7 @@ class AdminController extends Controller {
 			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: $assignment->jsonSerialize(),
 			statusCode: Http::STATUS_CREATED
 		);
@@ -890,14 +911,15 @@ class AdminController extends Controller {
 	 * @return JSONResponse Empty success or error envelope.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteRole(int $id): JSONResponse {
 
 		try {
-			$this->caller->roleService->removeRole(id: $id);
+			$this->context->caller->roleService->removeRole(id: $id);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Role assignment not found'
 			)->setStatus(status: Http::STATUS_NOT_FOUND);
 		}
@@ -917,26 +939,27 @@ class AdminController extends Controller {
 	 * @return JSONResponse The role / source envelope, or 401.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getMyRole(): JSONResponse {
-		$user = $this->caller->userSession->getUser();
+		$user = $this->context->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->caller->actionAuth->requireAction($user, 'admin.get-my-role');
+			$this->context->caller->actionAuth->requireAction($user, 'admin.get-my-role');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
 		$userId = (string)$user->getUID();
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
-				'role' => $this->caller->roleService->getEffectiveRole(userId: $userId),
-				'source' => $this->caller->roleService->getRoleSource(userId: $userId),
+				'role' => $this->context->caller->roleService->getEffectiveRole(userId: $userId),
+				'source' => $this->context->caller->roleService->getRoleSource(userId: $userId),
 			]
 		);
 	}//end getMyRole()
@@ -953,6 +976,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The aggregate refresh summary.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function refreshFeedsNow(?string $feedUrl = null): JSONResponse {
@@ -973,7 +997,7 @@ class AdminController extends Controller {
 			}
 		}
 
-		$summary = $this->caller->feedRefresh->refreshAll(onlyUrl: $feedUrl);
+		$summary = $this->context->caller->feedRefresh->refreshAll(onlyUrl: $feedUrl);
 
 		return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
 	}//end refreshFeedsNow()
@@ -1046,6 +1070,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The wizard state, or 401/403.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getWizardState(): JSONResponse {
@@ -1054,7 +1079,7 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: $this->settings->setupWizardService->getWizardState()
 		);
 	}//end getWizardState()
@@ -1068,6 +1093,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse The post-completion wizard state, or 401/403.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function completeWizard(): JSONResponse {
@@ -1076,7 +1102,7 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: $this->settings->setupWizardService->markWizardComplete()
 		);
 	}//end completeWizard()

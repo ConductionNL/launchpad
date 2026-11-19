@@ -37,6 +37,11 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * The update action's patch payload, case by case.
@@ -141,18 +146,16 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $service
 			),
-			permissionService: $permissions,
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			),
-			userId: 'alice'
+			), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end controller()
 

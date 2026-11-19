@@ -15,6 +15,7 @@
  *
  * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
  * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-4
+ * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -28,16 +29,32 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Helper for building common JSON responses in controllers.
+ *
+ * Injected into controllers by the DI container, which also supplies the
+ * logger that records every exception passed to error().
  */
 class ResponseHelper {
+	/**
+	 * Constructor.
+	 *
+	 * @param LoggerInterface $logger Records the exceptions passed to error().
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
+
 	/**
 	 * Create an unauthorized response.
 	 *
 	 * @return JSONResponse The unauthorized response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function unauthorized(): JSONResponse {
+	public function unauthorized(): JSONResponse {
 		return new JSONResponse(
 			data: ['error' => 'Not logged in'],
 			statusCode: Http::STATUS_UNAUTHORIZED
@@ -52,8 +69,9 @@ class ResponseHelper {
 	 * @return JSONResponse The forbidden response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function forbidden(
+	public function forbidden(
 		string $message = 'Access denied',
 	): JSONResponse {
 		return new JSONResponse(
@@ -66,33 +84,28 @@ class ResponseHelper {
 	 * Create an error response from an exception.
 	 *
 	 * Per ADR-005: never return the raw exception message to the client.
-	 * Callers SHOULD pass their injected LoggerInterface so the real
-	 * exception is recorded in the server log; the client only ever sees
-	 * the generic `$message` (defaulting to "Operation failed").
+	 * The exception is logged at ERROR level through the injected logger;
+	 * the client only ever sees the generic `$message` (defaulting to
+	 * "Operation failed").
 	 *
 	 * @param \Exception $exception The exception.
 	 * @param int $statusCode The HTTP status code.
-	 * @param LoggerInterface|null $logger When provided, the exception is
-	 *                                     logged at ERROR level before
-	 *                                     the response is returned.
 	 * @param string $message Generic client-facing message.
 	 *
 	 * @return JSONResponse The error response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-4
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function error(
+	public function error(
 		\Exception $exception,
 		int $statusCode = Http::STATUS_BAD_REQUEST,
-		?LoggerInterface $logger = null,
 		string $message = 'Operation failed',
 	): JSONResponse {
-		if ($logger !== null) {
-			$logger->error(
-				message: $exception->getMessage(),
-				context: ['exception' => $exception]
-			);
-		}
+		$this->logger->error(
+			message: $exception->getMessage(),
+			context: ['exception' => $exception]
+		);
 
 		return new JSONResponse(
 			data: ['error' => $message],
@@ -116,8 +129,9 @@ class ResponseHelper {
 	 * @return JSONResponse The HTTP 409 Conflict response.
 	 *
 	 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-002-dashboard-count-enforcement
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function quotaExceeded(
+	public function quotaExceeded(
 		QuotaExceededException $exception,
 	): JSONResponse {
 		return new JSONResponse(
@@ -134,8 +148,9 @@ class ResponseHelper {
 	 * @return JSONResponse The 400 response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function invalidArgument(string $message): JSONResponse {
+	public function invalidArgument(string $message): JSONResponse {
 		return new JSONResponse(
 			data: [
 				'status' => 'error',
@@ -155,8 +170,9 @@ class ResponseHelper {
 	 * @return JSONResponse The success response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function success(
+	public function success(
 		array $data,
 		int $statusCode = Http::STATUS_OK,
 	): JSONResponse {
@@ -174,8 +190,9 @@ class ResponseHelper {
 	 * @return array The serialized entities.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
-	public static function serializeList(array $entities): array {
+	public function serializeList(array $entities): array {
 		$serialized = [];
 		foreach ($entities as $entity) {
 			$serialized[] = $entity->jsonSerialize();

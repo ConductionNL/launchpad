@@ -92,6 +92,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/files-widget.spec.ts`, `files-widget-listing.spec.ts`, `files-widget-navigation.spec.ts`, `files-widget-actions.spec.ts`, `files-widget-access.spec.ts`; 6 scenarios excluded with reasons, 51 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
 - [ ] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
 - [ ] 4.6 `links-widget`: 52 scenarios, 0 cited.

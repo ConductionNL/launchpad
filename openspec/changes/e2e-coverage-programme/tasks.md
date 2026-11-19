@@ -106,10 +106,12 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
 - [ ] 5.7 `prometheus-metrics`: 23 scenarios, 0 cited, blanket.
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.
+  - Spec written: tests/e2e/launchpad-adopt-or-abstractions.spec.ts (+ tests/e2e/support/orWidget.ts), 3 new scenarios cited (4 with manifest-boot.spec.ts), 16 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
 - [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
 - [ ] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/runtime-or-consumption.spec.ts (+ tests/e2e/support/orWidget.ts), 7 scenarios cited, 4 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
 

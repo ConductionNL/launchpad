@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/mcp-tool-surface/tasks.md#task-8
+ * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
  */
 
 declare(strict_types=1);
@@ -16,6 +17,8 @@ namespace Unit\Mcp;
 use Exception;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardVersion;
+use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Mcp\McpEngagementTools;
@@ -25,6 +28,7 @@ use OCA\LaunchPad\Service\AcknowledgementService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\ReactionService;
+use OCA\LaunchPad\Service\ReactionsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -221,4 +225,139 @@ class McpDashboardDetailToolsTest extends TestCase {
 			actual: $tools->listPendingAcknowledgements(args: [])
 		);
 	}//end testAFailingServiceStaysGeneric()
+
+	/**
+	 * A version is created and restored through the service, for the caller.
+	 *
+	 * @return void
+	 */
+	public function testVersionWritesCallTheService(): void {
+		$this->gate->method('requireAction')->willReturn(null);
+		$dashboard = $this->found();
+		$version   = new DashboardVersion();
+		$version->setVersionNumber(3);
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->expects($this->once())->method('createExplicitSnapshot')->willReturnCallback(
+			callback: static fn (Dashboard $asked, string $requestingUser, ?string $note): DashboardVersion => match (true) {
+				$asked === $dashboard && $requestingUser === 'alice' && $note === 'before the demo' => $version,
+			}
+		);
+		$versions->expects($this->once())->method('restoreVersion')->willReturnCallback(
+			callback: static fn (Dashboard $asked, int $versionNumber, string $restoringUser): array => match (true) {
+				$asked === $dashboard && $versionNumber === 3 && $restoringUser === 'alice' => ['version' => $version, 'snapshot' => ['a' => 1]],
+			}
+		);
+		$tools = new McpHistoryTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, versions: $versions);
+
+		$this->assertSame(
+			expected: ['version' => $version->jsonSerialize()],
+			actual: $tools->createDashboardVersion(args: ['dashboardUuid' => self::UUID, 'note' => 'before the demo'])
+		);
+		$this->assertSame(
+			expected: ['version' => $version->jsonSerialize(), 'snapshot' => ['a' => 1]],
+			actual: $tools->restoreDashboardVersion(args: ['dashboardUuid' => self::UUID, 'versionNumber' => 3])
+		);
+	}//end testVersionWritesCallTheService()
+
+	/**
+	 * A bad version number or a non-owner changes nothing.
+	 *
+	 * @return void
+	 */
+	public function testVersionWritesRefuse(): void {
+		$this->allow(allowed: 'dashboard-version.restore-version');
+		$this->found();
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->method('restoreVersion')->willThrowException(exception: new Exception(DashboardVersionService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN));
+		$versions->expects($this->never())->method('createExplicitSnapshot');
+		$tools = new McpHistoryTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, versions: $versions);
+
+		$this->assertSame(expected: 'invalid_arguments', actual: $tools->restoreDashboardVersion(args: ['dashboardUuid' => self::UUID, 'versionNumber' => 0])['error']);
+		$this->assertSame(expected: 'forbidden', actual: $tools->restoreDashboardVersion(args: ['dashboardUuid' => self::UUID, 'versionNumber' => 2])['error']);
+		$this->assertSame(expected: 'forbidden', actual: $tools->createDashboardVersion(args: ['dashboardUuid' => self::UUID])['error']);
+	}//end testVersionWritesRefuse()
+
+	/**
+	 * Metadata is set only when the caller may edit it, and a bad field is refused.
+	 *
+	 * @return void
+	 */
+	public function testSetDashboardMetadata(): void {
+		$this->allow(allowed: 'dashboard-metadata.set-metadata');
+		$this->found();
+		$this->gate->method('requireMetadataEdit')->willReturnCallback(
+			callback: static fn (int $dashboardId): ?array => match ($dashboardId) {
+				9 => null,
+				default => ['isError' => true],
+			}
+		);
+		$metadata = $this->createMock(originalClassName: MetadataService::class);
+		$metadata->method('setMetadataForDashboard')->willReturnCallback(
+			callback: static fn (string $dashboardUuid, array $keyValues): array => match ($keyValues) {
+				['owner' => 'Team B'] => ['owner' => 'Team B'],
+				default => throw new InvalidMetadataFieldException('Unknown field color'),
+			}
+		);
+		$tools = new McpMetadataTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, metadata: $metadata);
+
+		$this->assertSame(
+			expected: ['metadata' => ['owner' => 'Team B']],
+			actual: $tools->setDashboardMetadata(args: ['dashboardUuid' => self::UUID, 'metadata' => ['owner' => 'Team B']])
+		);
+		$this->assertSame(
+			expected: ['isError' => true, 'error' => 'invalid_arguments', 'message' => 'Unknown field color'],
+			actual: $tools->setDashboardMetadata(args: ['dashboardUuid' => self::UUID, 'metadata' => ['color' => 'red']])
+		);
+		$this->assertSame(expected: 'invalid_arguments', actual: $tools->setDashboardMetadata(args: ['dashboardUuid' => self::UUID])['error']);
+	}//end testSetDashboardMetadata()
+
+	/**
+	 * A caller who may not edit the metadata changes nothing.
+	 *
+	 * @return void
+	 */
+	public function testSetDashboardMetadataRefusesANonEditor(): void {
+		$this->allow(allowed: 'dashboard-metadata.set-metadata');
+		$this->found();
+		$this->gate->method('requireMetadataEdit')->willReturn(McpArgumentValidator::error(code: 'forbidden', message: 'x'));
+		$metadata = $this->createMock(originalClassName: MetadataService::class);
+		$metadata->expects($this->never())->method('setMetadataForDashboard');
+		$tools = new McpMetadataTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, metadata: $metadata);
+
+		$this->assertSame(
+			expected: 'forbidden',
+			actual: $tools->setDashboardMetadata(args: ['dashboardUuid' => self::UUID, 'metadata' => ['owner' => 'Team B']])['error']
+		);
+	}//end testSetDashboardMetadataRefusesANonEditor()
+
+	/**
+	 * Reactions are added and removed through the service; a refusal of the
+	 * service is a forbidden answer.
+	 *
+	 * @return void
+	 */
+	public function testReactionWrites(): void {
+		$this->gate->method('requireAction')->willReturn(null);
+		$reactions = $this->createMock(originalClassName: ReactionService::class);
+		$reactions->method('addReaction')->willReturnCallback(
+			callback: static fn (string $dashboardUuid, string $userId, string $emoji): array => ['counts' => [$emoji => 1], 'by' => $userId]
+		);
+		$reactions->method('removeReaction')->willThrowException(exception: new ReactionsDisabledException('Reactions are off'));
+		$tools = new McpEngagementTools(
+			gate: $this->gate,
+			validator: new McpArgumentValidator(),
+			reactions: $reactions,
+			acknowledgements: $this->createMock(originalClassName: AcknowledgementService::class)
+		);
+
+		$this->assertSame(
+			expected: ['counts' => ['x' => 1], 'by' => 'alice'],
+			actual: $tools->addReaction(args: ['dashboardUuid' => self::UUID, 'emoji' => 'x'])
+		);
+		$this->assertSame(
+			expected: ['isError' => true, 'error' => 'forbidden', 'message' => 'Reactions are off'],
+			actual: $tools->removeReaction(args: ['dashboardUuid' => self::UUID, 'emoji' => 'x'])
+		);
+		$this->assertSame(expected: 'invalid_arguments', actual: $tools->addReaction(args: ['dashboardUuid' => self::UUID, 'emoji' => ''])['error']);
+	}//end testReactionWrites()
 }//end class

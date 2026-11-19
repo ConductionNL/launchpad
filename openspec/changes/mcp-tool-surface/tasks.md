@@ -22,16 +22,20 @@
 ## Write Tools (REQ-MCP-003)
 
 - [ ] Task 9: Implement the 18 `self`-reach write tools (dashboard CRUD, active/default, fork, widget add/update/remove, tile CRUD + addTileToDashboard, version create/restore, metadata set, reaction add/remove) with per-tool `inputSchema`
+  - progress: 5 of 18 built (createDashboardVersion, restoreDashboardVersion, setDashboardMetadata, addReaction, removeReaction). Left: dashboard CRUD, switchActive/setDefault, fork, widget add/update/remove, addTileToDashboard, and createTile/updateTile/deleteTile, whose routes now answer 410 Gone (see the open question in the hand-back).
 - [ ] Task 10: Implement the 4 `user`-reach tools (shareDashboard, replaceShares, unshareDashboard, setPublicationState)
 - [ ] Task 11: Implement the 5 `external`-reach tools (createPublicShareLink, revokePublicShareLink, createKioskPlaylist, updateKioskPlaylist, deleteKioskPlaylist)
 - [ ] Task 12: Implement the 8 `instance`-reach tools (group dashboard CRUD, setGroupDefault, template create/update/delete/resync)
-- [ ] Task 13: REQ-MCP-003 — Unit test on the descriptor fixture: every write tool declares exactly one scope ∈ {create, update, delete} and one reach ∈ {self, user, instance, external}; no write carries `readOnlyHint: true`
-- [ ] Task 14: REQ-MCP-006 — Annotate all `delete`-scope and all `external`-reach tools with the destructive/approval flag hermiq's approval gate consumes; every handler result includes tool id, target identifier, caller uid, and outcome for the audit trail
+- [x] Task 13: REQ-MCP-003 — Unit test on the descriptor fixture: every write tool declares exactly one scope ∈ {create, update, delete} and one reach ∈ {self, user, instance, external}; no write carries `readOnlyHint: true`
+  - `LaunchpadToolProviderTest::testEveryToolCarriesItsGrantAnnotations` holds for every descriptor, so each write tool added later is checked too.
+- [x] Task 14: REQ-MCP-006 — Annotate all `delete`-scope and all `external`-reach tools with the destructive/approval flag hermiq's approval gate consumes; every handler result includes tool id, target identifier, caller uid, and outcome for the audit trail
+  - Hints are top-level keys, as OpenRegister's `IMcpToolProvider::getTools()` reads them (`readOnlyHint`, `destructiveHint`); they were nested under `annotations`, where OpenRegister never saw them. The provider adds `audit: {tool, target, caller, outcome}` to every write tool's answer, refusals included. The test holds for every descriptor.
 
 ## Exclusions (REQ-MCP-007)
 
 - [ ] Task 15: Unit test asserting catalogue closure: the descriptor set equals exactly the REQ-MCP-002 + REQ-MCP-003 ids, and contains no tool for viewEvent, tile-click recording, `acknowledgement#acknowledge`, resource/preview/files uploads, lock endpoints, wizard, Confluence import, cleanup, demo showcases, bulk ops, export/import, or settings surfaces
-- [ ] Task 16: Document the exclusion rationale in the provider's class docblock so a future "completeness" sweep reads why before adding
+- [x] Task 16: Document the exclusion rationale in the provider's class docblock so a future "completeness" sweep reads why before adding
+  - The class docblock of `LaunchpadToolProvider` lists the exclusions and why.
 
 ## Schema Overlay (REQ-MCP-009)
 

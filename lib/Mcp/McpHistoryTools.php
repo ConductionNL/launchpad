@@ -3,9 +3,9 @@
 /**
  * LaunchPad McpHistoryTools
  *
- * The read tool over a dashboard's saved versions. It applies the ADR-023
- * action of `GET /api/dashboards/{uuid}/versions` and calls the service that
- * route calls (mcp-tool-surface REQ-MCP-002).
+ * The tools over a dashboard's saved versions: list, create and restore. Each
+ * applies the ADR-023 action of its `/api/dashboards/{uuid}/versions` route and
+ * calls the service that route calls (mcp-tool-surface REQ-MCP-002, REQ-MCP-003).
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -26,13 +26,15 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use Closure;
 use Exception;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
- * The version read tool.
+ * The version tools.
  *
  * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
  */
@@ -64,23 +66,100 @@ class McpHistoryTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function listVersions(array $args): array {
-		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
-			?? $this->gate->requireAction(action: 'dashboard-version.list-versions'));
+		return $this->onDashboard(
+			args: $args,
+			action: 'dashboard-version.list-versions',
+			operation: fn (Dashboard $dashboard, string $userId): array => $this->versions->listVersions(
+				dashboard: $dashboard,
+				requestingUser: $userId
+			)
+		);
+	}//end listVersions()
+
+	/**
+	 * Save the dashboard's current state as a named version.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, note.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function createDashboardVersion(array $args): array {
+		$refusal = $this->validator->string(args: $args, name: 'note', min: 1, max: 500, required: false);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->onDashboard(
+			args: $args,
+			action: 'dashboard-version.create-version',
+			operation: fn (Dashboard $dashboard, string $userId): array => [
+				'version' => $this->versions->createExplicitSnapshot(
+					dashboard: $dashboard,
+					requestingUser: $userId,
+					note: ($args['note'] ?? null)
+				)->jsonSerialize(),
+			]
+		);
+	}//end createDashboardVersion()
+
+	/**
+	 * Restore the dashboard to one of its saved versions.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, versionNumber.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function restoreDashboardVersion(array $args): array {
+		$refusal = $this->validator->id(args: $args, name: 'versionNumber');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->onDashboard(
+			args: $args,
+			action: 'dashboard-version.restore-version',
+			operation: function (Dashboard $dashboard, string $userId) use ($args): array {
+				$result = $this->versions->restoreVersion(
+					dashboard: $dashboard,
+					versionNumber: (int)$args['versionNumber'],
+					restoringUser: $userId
+				);
+				return ['version' => $result['version']->jsonSerialize(), 'snapshot' => $result['snapshot']];
+			}
+		);
+	}//end restoreDashboardVersion()
+
+	/**
+	 * Check the UUID and the ADR-023 action, find the dashboard and run the
+	 * operation on it, mapping the version service's refusals as the routes do.
+	 *
+	 * @param array<string, mixed>                    $args      The tool arguments.
+	 * @param string                                  $action    The route's ADR-023 action.
+	 * @param Closure(Dashboard, string): array<mixed> $operation The service call.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function onDashboard(array $args, string $action, Closure $operation): array {
+		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid') ?? $this->gate->requireAction(action: $action));
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
 		try {
 			$dashboard = $this->dashboards->findByUuid(uuid: (string)$args['dashboardUuid']);
-			return $this->versions->listVersions(dashboard: $dashboard, requestingUser: $this->gate->currentUserId());
+			return $operation($dashboard, $this->gate->currentUserId());
 		} catch (DoesNotExistException $e) {
 			return $this->validator->failure(exception: $e);
 		} catch (Exception $e) {
 			if ($e->getMessage() === DashboardVersionService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN) {
-				return $this->validator->refuse(code: 'forbidden', message: 'Only the owner or an administrator may see the versions.');
+				return $this->validator->refuse(code: 'forbidden', message: 'Only the owner or an administrator may do this.');
 			}
 
 			return $this->validator->failure(exception: $e);
 		}
-	}//end listVersions()
+	}//end onDashboard()
 }//end class

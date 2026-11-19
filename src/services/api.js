@@ -291,7 +291,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response.
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	joinPresence(uuid) {
 		return axios.post(
@@ -306,7 +306,7 @@ export const api = {
 	 * @param {string} uuid UUID of the dashboard.
 	 * @param {boolean} [onPageHide] Whether the page is closing.
 	 * @return {Promise} Axios response (204).
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	leavePresence(uuid, onPageHide = false) {
 		return axios.delete(

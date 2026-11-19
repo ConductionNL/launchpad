@@ -25,7 +25,7 @@ export const PRESENCE_BEAT_MS = 30 * 1000
  * @param {object} [options] Options.
  * @param {() => void} [options.onRefused] Called when a renewal is refused.
  * @return {{state: object, start: (uuid: string) => Promise<boolean>, stop: () => Promise<void>}}
- * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
  */
 export function useDashboardPresence({ onRefused } = {}) {
 	const state = reactive({

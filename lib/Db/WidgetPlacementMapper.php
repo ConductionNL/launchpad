@@ -262,7 +262,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return bool True when the version was claimed; false when a colleague saved first.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	public function claimVersion(int $id, int $expected): bool {
 		$qb = $this->db->getQueryBuilder();

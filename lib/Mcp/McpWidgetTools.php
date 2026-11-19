@@ -230,14 +230,9 @@ class McpWidgetTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function deleteTile(array $args): array {
-		$refusal = $this->removeRefusal(args: $args);
+		$refusal = ($this->removeRefusal(args: $args) ?? $this->notATile(placementId: (int)$args['placementId']));
 		if ($refusal !== null) {
 			return $refusal;
-		}
-
-		$placement = $this->tilePlacement(placementId: (int)$args['placementId']);
-		if (is_array($placement) === true) {
-			return $placement;
 		}
 
 		return $this->remove(placementId: (int)$args['placementId']);
@@ -372,6 +367,22 @@ class McpWidgetTools {
 
 		return $placement;
 	}//end tilePlacement()
+
+	/**
+	 * A refusal when the placement is not a tile, or NULL to proceed.
+	 *
+	 * @param int $placementId The placement.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function notATile(int $placementId): ?array {
+		$placement = $this->tilePlacement(placementId: $placementId);
+		if (is_array($placement) === true) {
+			return $placement;
+		}
+
+		return null;
+	}//end notATile()
 
 	/**
 	 * Add the placement through WidgetService::addWidget(), as the route does.

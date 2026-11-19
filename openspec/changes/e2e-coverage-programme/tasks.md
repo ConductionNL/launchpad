@@ -96,9 +96,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
 - [ ] 4.21 `label-widget`: 12 scenarios, 11 cited.
+  - Spec written: tests/e2e/label-widget-content-edit.spec.ts, 1 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.
 - [ ] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
 - [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
 
 ## 5. Tier 4, admin, operations and integrations
 

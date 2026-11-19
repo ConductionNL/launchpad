@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use Throwable;
  * database answers. A read that fails answers empty (or null for the
  * register counts) rather than a guess.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
  */
 class StorageFigures {
 
@@ -74,7 +74,7 @@ class StorageFigures {
 	 *
 	 * @param IDBConnection $db The database.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public function __construct(
 		private readonly IDBConnection $db,
@@ -86,7 +86,7 @@ class StorageFigures {
 	 *
 	 * @return array<string,int>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public function homeUsage(): array {
 		$usage = [];
@@ -105,7 +105,7 @@ class StorageFigures {
 	 *
 	 * @return array<string,int>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public function serviceUsage(): array {
 		$usage = [];
@@ -132,7 +132,7 @@ class StorageFigures {
 	 *
 	 * @return list<array{user:string,name:string,bytes:int}>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
 	public function trashEntries(): array {
 		$entries = [];
@@ -151,7 +151,7 @@ class StorageFigures {
 	 *
 	 * @return list<array{name:string,bytes:int,mtime:int}>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
 	public function uploads(): array {
 		$uploads = [];
@@ -167,7 +167,7 @@ class StorageFigures {
 	 *
 	 * @return array<string,true>|null The names, or null when a table could not be read (then nothing counts as orphaned).
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
 	public function referencedUploads(): ?array {
 		$names = [];
@@ -199,7 +199,7 @@ class StorageFigures {
 	 *
 	 * @return array<string,int>|null
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public function registerCounts(): ?array {
 		try {
@@ -232,7 +232,7 @@ class StorageFigures {
 	 *
 	 * @return array<string,true>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
 	public static function resourceNames(string $text): array {
 		preg_match_all('/resource_[A-Za-z0-9.]+\.[A-Za-z0-9]+/', $text, $found);
@@ -246,7 +246,7 @@ class StorageFigures {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public static function userOfStorage(string $storageId): ?string {
 		foreach (['home::', 'object::user:'] as $prefix) {

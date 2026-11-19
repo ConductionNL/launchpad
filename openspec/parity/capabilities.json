@@ -1440,7 +1440,7 @@
 				"owner": "ConductionNL/launchpad",
 				"change": [
 					"openspec/changes/archive/2026-09-29-dashboards-personal-hide-ui",
-					"openspec/changes/dashboards-and-who-may-see-them"
+					"openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them"
 				],
 				"requirement": "openspec/specs/dashboards :: A person can hide a widget for themselves (REQ-PERSUI-001)"
 			},
@@ -4155,8 +4155,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboards-and-who-may-see-them",
-				"requirement": "openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them :: REQ-DWMS-003 Reports the product ships"
+				"change": "openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them",
+				"requirement": "openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them :: REQ-DWMS-003 Reports the product ships"
 			},
 			"reachedOn": "nothing yet",
 			"evidence": {

@@ -4,7 +4,7 @@
  *
  * Status reports: the product prefills the figures, the rating and a
  * summary; a person may rewrite the rating and the summary before keeping it
- * (openspec/changes/dashboards-and-who-may-see-them REQ-DWMS-004).
+ * (openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them REQ-DWMS-004).
  */
 
 import axios from '@nextcloud/axios'
@@ -18,7 +18,7 @@ const SUBJECT_KEYS = ['register', 'schema', 'title', 'deadline', 'statusProperty
  *
  * @param {object} content the widget content
  * @return {object} the subject
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
  */
 export function subjectOf(content) {
 	const subject = {}
@@ -58,7 +58,7 @@ function refusalOf(error) {
  *
  * @param {object} subject the body of work, from subjectOf
  * @return {Promise<object>} the draft, or a refusal
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
  */
 export async function draftStatusReport(subject) {
 	try {
@@ -77,7 +77,7 @@ export async function draftStatusReport(subject) {
  * @param {string} health the rating
  * @param {string} summary the summary
  * @return {Promise<object>} the kept report, or a refusal
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
  */
 export async function keepStatusReport(subject, health, summary) {
 	try {

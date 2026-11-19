@@ -676,7 +676,7 @@ export default {
 		 * The dashboard default choices for how tiles open.
 		 *
 		 * @return {Array<{id: string, label: string}>}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		linkTargetChoices() {
 			return [
@@ -834,12 +834,12 @@ export default {
 			return this.form.name.trim().length > 0 && this.lookValid
 		},
 
-		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
 		lookAccentHex() {
 			return normaliseHex(this.look.accent)
 		},
 
-		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
 		lookBackgroundHex() {
 			return normaliseHex(this.look.background)
 		},
@@ -848,7 +848,7 @@ export default {
 		 * A colour field that holds something other than a colour.
 		 *
 		 * @return {string} the message, or '' when both fields are empty or colours.
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 */
 		lookFormatError() {
 			const bad = [this.look.accent, this.look.background].some(
@@ -857,12 +857,12 @@ export default {
 			return bad ? t('launchpad', 'Enter colors like #1f5c3a.') : ''
 		},
 
-		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
 		lookAccentCheck() {
 			return accentCheck(this.lookAccentHex, this.lookBackgroundHex)
 		},
 
-		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
 		lookValid() {
 			return this.lookFormatError === '' && this.lookAccentCheck.readable
 		},
@@ -872,7 +872,7 @@ export default {
 		 * or null when nothing changed, so a rename stays a metadata edit.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 */
 		lookPayload() {
 			const fields = {
@@ -991,7 +991,7 @@ export default {
 		 *
 		 * @param {Event} event The file input's change event.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 */
 		async onLookImage(event) {
 			const file = event?.target?.files?.[0]

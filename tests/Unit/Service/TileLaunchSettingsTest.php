@@ -9,7 +9,7 @@
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
  */
 
 declare(strict_types=1);
@@ -103,7 +103,7 @@ class TileLaunchSettingsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-single-sign-on-into-a-company-app-req-tlt-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-single-sign-on-into-a-company-app-req-tlt-003
 	 */
 	public function testAnHttpsTemplateWithTheAppIdIsKept(): void {
 		$keycloak = ['key' => 'keycloak', 'name' => ' Keycloak ', 'urlTemplate' => 'https://sso.example.nl/realms/gemeente/protocol/saml/clients/{appId}'];
@@ -119,7 +119,7 @@ class TileLaunchSettingsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-single-sign-on-into-a-company-app-req-tlt-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-single-sign-on-into-a-company-app-req-tlt-003
 	 */
 	public function testABadTemplateIsRefused(): void {
 		$bad = [

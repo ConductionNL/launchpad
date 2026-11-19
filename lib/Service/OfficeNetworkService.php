@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  *
- * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use Psr\Log\LoggerInterface;
  * proxies and forwarded-for headers. No ranges listed means never on the
  * office network, so nothing changes until an administrator sets them.
  *
- * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
  */
 class OfficeNetworkService {
 
@@ -49,7 +49,7 @@ class OfficeNetworkService {
 	 * @param AdminSettingMapper $settingMapper Reads the stored ranges.
 	 * @param LoggerInterface    $logger        Reports a stored range that no longer parses.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 	 */
 	public function __construct(
 		private readonly IRequest $request,
@@ -64,7 +64,7 @@ class OfficeNetworkService {
 	 *
 	 * @return bool True when its address falls in one of the stored ranges.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 	 */
 	public function isOfficeRequest(): bool {
 		return $this->isInside(address: $this->currentAddress(), ranges: $this->storedRanges());
@@ -75,7 +75,7 @@ class OfficeNetworkService {
 	 *
 	 * @return string The address; empty when there is none.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 	 */
 	public function currentAddress(): string {
 		return $this->request->getRemoteAddress();
@@ -89,7 +89,7 @@ class OfficeNetworkService {
 	 *
 	 * @return bool True when one range contains it.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 	 */
 	public function isInside(string $address, array $ranges): bool {
 		if ($ranges === [] || $address === '') {
@@ -124,7 +124,7 @@ class OfficeNetworkService {
 	 *
 	 * @throws InvalidArgumentException When one is not a valid IPv4 or IPv6 CIDR range; nothing is stored then.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 	 */
 	public function normaliseRanges(array $ranges): array {
 		$clean = [];

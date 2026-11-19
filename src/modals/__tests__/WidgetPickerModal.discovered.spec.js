@@ -6,7 +6,7 @@
  * runs for the user, marks the ones already on the dashboard, and a click
  * asks the host to place one as a tile.
  *
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
  */
 
 import { mount } from '@vue/test-utils'

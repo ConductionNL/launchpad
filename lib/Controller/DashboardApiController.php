@@ -30,6 +30,7 @@ use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\MetadataService;
@@ -76,6 +77,13 @@ use OCP\IRequest;
  *                                                  fragment the routing
  *                                                  surface.
  * @spec                                             openspec/specs/dashboards/spec.md
+ *
+ * @psalm-import-type LaunchPadDashboard from ResponseDefinitions
+ * @psalm-import-type LaunchPadDashboardList from ResponseDefinitions
+ * @psalm-import-type LaunchPadDashboardEnvelope from ResponseDefinitions
+ * @psalm-import-type LaunchPadCreatedDashboard from ResponseDefinitions
+ * @psalm-import-type LaunchPadPlacement from ResponseDefinitions
+ * @psalm-import-type LaunchPadStatusOk from ResponseDefinitions
  */
 class DashboardApiController extends Controller {
 	use RespondsWithErrors;
@@ -109,6 +117,10 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The list of dashboards.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardList|list<LaunchPadDashboard>, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-17
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -141,6 +153,10 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The visible dashboards.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardList|list<LaunchPadDashboard>, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboards/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -185,6 +201,10 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The active dashboard data.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardEnvelope, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -251,6 +271,10 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The dashboard envelope (200) or
 	 *                      `{'error': 'Not found'}` (404).
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardEnvelope, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-21
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -409,7 +433,7 @@ class DashboardApiController extends Controller {
 	/**
 	 * Create a new dashboard.
 	 *
-	 * @param mixed $name The dashboard name.
+	 * @param string|array<string, mixed>|null $name The dashboard name; a legacy client sends the whole body under it.
 	 * @param string|null $description The description.
 	 * @param string|null $icon The icon registry key (or NULL/empty to use the default).
 	 * @param string|null $parentUuid Optional parent dashboard UUID
@@ -422,6 +446,10 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The created dashboard.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadCreatedDashboard, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
 	#[NoAdminRequired]
@@ -582,7 +610,7 @@ class DashboardApiController extends Controller {
 	 * @param int $id The dashboard ID.
 	 * @param string|null $name The name.
 	 * @param string|null $description The description.
-	 * @param array|null $placements The placements.
+	 * @param list<array<string, mixed>>|null $placements The placements.
 	 * @param string|null $icon The icon registry key, URL, or NULL to leave unchanged.
 	 * @param string|null $parentUuid Optional new parent UUID (REQ-DASH-023);
 	 *                                explicit empty string clears the
@@ -601,8 +629,12 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, array{dashboard: LaunchPadDashboard}, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	#[NoAdminRequired]
 	public function update(
@@ -649,7 +681,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return array{themeAccent: ?string, themeBackgroundColor: ?string, themeBackgroundResource: ?string, customCss: ?string}
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	private function lookParams(): array {
 		$look = [];
@@ -674,7 +706,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyCustomCss(?string $customCss): ?JSONResponse {
@@ -690,7 +722,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return string|null The value, or null when absent or not a string.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
 	 */
 	private function requestedLinkTarget(): ?string {
 		$raw = $this->request->getParam(key: 'defaultLinkTarget');
@@ -712,7 +744,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return bool True for a metadata-only update.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
 	 */
 	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget): bool {
 		return $placements === null && $defaultLinkTarget === null;
@@ -833,6 +865,10 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The deletion confirmation.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-20
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

@@ -18,7 +18,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
  * `custom_css` column. Only the cleaned form is ever stored. Callers check
  * that the user is an administrator.
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 class CustomCssService {
 
@@ -59,7 +59,7 @@ class CustomCssService {
 	 *
 	 * @return string The cleaned CSS.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	public function getGlobalCss(): string {
 		$value = $this->settings->getValue(key: AdminSetting::KEY_CUSTOM_CSS, default: '');
@@ -79,7 +79,7 @@ class CustomCssService {
 	 *
 	 * @throws InvalidArgumentException When the CSS is larger than 20 KB.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	public function setGlobalCss(string $css): array {
 		$result = $this->sanitiser->sanitise(css: $css, scope: CustomCssSanitiser::GLOBAL_SCOPE);
@@ -99,7 +99,7 @@ class CustomCssService {
 	 * @throws InvalidArgumentException When the CSS is larger than 20 KB.
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException When there is no such dashboard.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	public function setDashboardCss(string $uuid, string $css): array {
 		$dashboard = $this->dashboards->findByUuid(uuid: $uuid);

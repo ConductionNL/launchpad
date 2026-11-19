@@ -31,6 +31,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
 - [ ] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-versioning.spec.ts, tests/e2e/dashboard-versioning-ui.spec.ts, 29 scenarios cited, not yet run (cloud, 2026-11-19). 14 excluded with a reason.
 - [ ] 2.4 `orphaned-data-cleanup`: 36 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/orphaned-data-cleanup.spec.ts, 13 scenarios cited, not yet run (cloud, 2026-11-19). 23 excluded with a reason.
 - [ ] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.

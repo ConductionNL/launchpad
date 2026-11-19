@@ -2031,6 +2031,10 @@
         "This value could not be calculated ({reason}).": "Deze waarde kon niet worden berekend ({reason}).",
         "Formula: {expression}": "Formule: {expression}",
         "Values read: {inputs}": "Gelezen waarden: {inputs}",
-        "empty": "leeg"
+        "empty": "leeg",
+        "Active filters": "Actieve filters",
+        "Pinned filter": "Vastgezet filter",
+        "Remove filter: {label}": "Filter verwijderen: {label}",
+        "Reset filters": "Filters wissen"
     }
 }

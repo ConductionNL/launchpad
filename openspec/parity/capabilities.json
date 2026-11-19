@@ -3184,8 +3184,8 @@
 			"homarr": "yes",
 			"dashy": "partial",
 			"built": {
-				"state": "specified",
-				"evidence": "lib/Service/LiveTileService.php:22",
+				"state": "built",
+				"evidence": "lib/Service/LiveTileListMapper.php:51 (list, table and key-value displays over up to six mapped fields, mapped on the server for both source modes, lib/Service/LiveTileService.php:260); src/components/Widgets/Renderers/LiveTileWidget.vue:49; tests/e2e/live-tile-lists.spec.ts",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/integrations-live-tile-lists",
 				"requirement": "openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget :: A live tile can show a list, a table or key-value pairs (REQ-LTC-001)"
@@ -3388,9 +3388,9 @@
 			"homarr": "partial",
 			"dashy": "partial",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "lib/Service/NewsWidgetService.php:133; lib/Service/IframeService.php:9",
+				"evidence": "lib/Service/NewsWidgetService.php:133; lib/Service/IframeService.php:9; documents: the Latest documents preset, SharePoint and Confluence variants (src/components/Widgets/Renderers/LiveTileWidgetForm.vue:222) over a list live tile (lib/Service/LiveTileListMapper.php:51)",
 				"change": "openspec/changes/integrations-live-tile-lists",
 				"requirement": "openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget :: A preset shows another intranet's latest documents (REQ-LTC-004)"
 			},

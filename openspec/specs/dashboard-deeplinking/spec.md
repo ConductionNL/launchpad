@@ -60,7 +60,7 @@ The route MUST be the LAST entry in the route table so every
 literal `/api/...` and explicit page route is matched first.
 
 #### Scenario: Catch-all route registered last
-@e2e exclude route-table registration is a PHP source-code assertion — not browser-drivable
+@e2e exclude the order of the route table is not visible in a browser; its effect (an API route is not shadowed) is the e2e of the health-check scenario below, and the catch-all's place after the literal routes is pinned by tests/Unit/Controller/PageControllerStartTest.php::testTheStartRouteComesBeforeTheDeepLinkCatchAll
 - **GIVEN** `appinfo/routes.php` is loaded
 - **WHEN** the route table is inspected
 - **THEN** a route named `page#deepLink` with URL `/{deepLink}` and the negative-lookahead requirement MUST be present
@@ -82,7 +82,6 @@ delegate to `index($deepLink)` which:
    a stale slug.**
 
 #### Scenario: Stale slug falls back silently
-@e2e exclude server-side path resolution + fallback is validated via Newman/PHPUnit HTTP contract, not browser
 - **GIVEN** a user visits `/apps/launchpad/{stale-slug}`
 - **WHEN** `PageController::deepLink()` resolves the path
 - **THEN** it MUST fall back to the seven-step resolver and return a 200 TemplateResponse
@@ -102,7 +101,6 @@ silently normalised to `/apps/launchpad/new-parent/child` without a
 reload.
 
 #### Scenario: Canonical path passed through initial state
-@e2e exclude initial-state plumbing of the canonical path is a server-render assertion
 - **GIVEN** the active dashboard has been resolved
 - **WHEN** `PageController::index()` renders
 - **THEN** it MUST compute the canonical slug-chain via `DashboardTreeService::computePath(uuid)`
@@ -127,7 +125,6 @@ result is a valid response (`""`) for dashboards with NULL slugs —
 those are unaddressable.
 
 #### Scenario: Endpoint returns canonical slug-chain
-@e2e exclude HTTP-contract endpoint verified via Newman/PHPUnit, not browser
 - **GIVEN** a dashboard with UUID `u1` and canonical path `finance/q1-roadmap`
 - **WHEN** `GET /api/dashboards/u1/path` is called
 - **THEN** the response MUST contain `{ "data": { "path": "finance/q1-roadmap" } }`
@@ -150,7 +147,6 @@ already correct from the server-side render); it fires only on
 subsequent transitions.
 
 #### Scenario: Switching dashboard pushes history entry
-@e2e exclude asserts history.pushState call/URL internals — covered by Vitest component test
 - **GIVEN** the workspace is loaded on dashboard A
 - **WHEN** the user switches to dashboard B via the sidebar
 - **THEN** the browser URL MUST change to `/apps/launchpad/{B-path}` via `history.pushState`
@@ -170,7 +166,6 @@ the user's expectation. Visiting any URL the user hasn't seen
 before still works because step 3 hits the resolver.
 
 #### Scenario: Back button navigates to previous dashboard
-@e2e exclude asserts popstate-listener resolution internals — covered by Vitest component test
 - **GIVEN** the user has switched from dashboard A to dashboard B
 - **WHEN** the user presses the browser back button
 - **THEN** the `popstate` listener MUST resolve the previous path and switch the active dashboard back to A
@@ -188,7 +183,6 @@ The catch-all route MUST come AFTER every `/api/...` entry in
 `routes.php`.
 
 #### Scenario: API health check still routes after catch-all
-@e2e exclude Newman API regression assertion, not browser-drivable
 - **GIVEN** the catch-all route is registered
 - **WHEN** `GET /api/health` is called
 - **THEN** it MUST return 200 and NOT be shadowed by the catch-all

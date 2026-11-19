@@ -1831,6 +1831,11 @@
         "The report was saved as a dashboard of your own.": "Het rapport is opgeslagen als je eigen dashboard.",
         "The report could not be saved as a dashboard. An unavailable report cannot be saved.": "Het rapport kon niet als dashboard worden opgeslagen. Een rapport dat niet beschikbaar is, kan niet worden opgeslagen.",
         "About this report": "Over dit rapport",
-        "Result": "Uitkomst"
+        "Result": "Uitkomst",
+        "Opens in": "Opent in",
+        "As the dashboard decides": "Zoals het dashboard bepaalt",
+        "Panel beside the tiles": "Paneel naast de tegels",
+        "Web addresses in a new tab, apps in the same tab": "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+        "This address cannot open in the panel.": "Dit adres kan niet in het paneel openen."
     }
 }

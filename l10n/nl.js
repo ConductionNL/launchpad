@@ -1957,7 +1957,12 @@ OC.L10N.register(
     "Due date property" : "Eigenschap met de vervaldatum",
     "An open item past this date counts as overdue." : "Een open item na deze datum telt als te laat.",
     "A status report needs the register and the schema of the body of work." : "Een statusrapport heeft het register en het schema van het werk nodig.",
-    "Status report" : "Statusrapport"
+    "Status report" : "Statusrapport",
+    "Opens in" : "Opent in",
+    "As the dashboard decides" : "Zoals het dashboard bepaalt",
+    "Panel beside the tiles" : "Paneel naast de tegels",
+    "Web addresses in a new tab, apps in the same tab" : "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+    "This address cannot open in the panel." : "Dit adres kan niet in het paneel openen."
 },
 "nplurals=2; plural=(n != 1);"
 );

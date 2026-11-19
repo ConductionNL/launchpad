@@ -175,6 +175,26 @@
 					}}
 				</p>
 
+				<!-- REQ-PSP-003: on by default; switching it off gives the
+				     default app back. -->
+				<NcCheckboxRadioSwitch
+					type="switch"
+					:modelValue="settings.defaultAppEnabled"
+					data-testid="admin-default-app-enabled"
+					@update:modelValue="
+						updateSetting('defaultAppEnabled', $event)
+					">
+					{{ t('launchpad', 'Open LaunchPad after signing in') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, LaunchPad is the default app, so people land on their Workspace page after signing in. A default app chosen by the administrator is kept. Switching this off restores Nextcloud\'s own default.',
+						)
+					}}
+				</p>
+
 				<!-- drill-down-cross-widget-filter REQ-CWF-010: off by default;
 				     only later filter changes are recorded. -->
 				<NcCheckboxRadioSwitch
@@ -445,6 +465,8 @@ export default {
 				startPageWithoutNavigation: false,
 				// drill-down-cross-widget-filter REQ-CWF-010: off by default.
 				filterTelemetryEnabled: false,
+				// REQ-PSP-003: on by default.
+				defaultAppEnabled: true,
 				defaultGridColumns: 12,
 				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
 				maxDashboardsPerUser: 0,
@@ -691,6 +713,7 @@ export default {
 						this.settings.startPageWithoutNavigation === true,
 					filterTelemetryEnabled:
 						this.settings.filterTelemetryEnabled === true,
+					defaultAppEnabled: this.settings.defaultAppEnabled !== false,
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].

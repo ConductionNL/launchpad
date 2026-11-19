@@ -54,7 +54,6 @@ MUST link to `https://nextcloud.com` with the `icon-nextcloud` CSS
 class (`tileIconType: 'class'`).
 
 #### Scenario: New dashboard ships four seeded placements
-@e2e exclude seed-bundle insertion is validated via PHPUnit/Newman create-response contract, not browser
 - **GIVEN** a user creates a new dashboard via `POST /api/dashboard`
 - **WHEN** the create completes
 - **THEN** the response MUST contain exactly four widget placements (Conduction, Sendent, Nextcloud tiles + files widget) at the grid coordinates listed above
@@ -73,7 +72,6 @@ while `'preset'` keeps the placements on the registry-backed
 `TileWidget` renderer (REQ-WDG-022).
 
 #### Scenario: Preset tiles serialize flat tile columns
-@e2e exclude jsonSerialize column emission is a PHPUnit serialization assertion, not browser
 - **GIVEN** a seeded tile placement with `tileType='preset'`
 - **WHEN** `WidgetPlacement::jsonSerialize()` runs
 - **THEN** the flat `tile*` columns (title / icon / link) MUST be emitted
@@ -88,7 +86,7 @@ delegate to `seedDefaultWidgets()` so first-login users get the same
 four-widget bundle when no admin template applies.
 
 #### Scenario: Bootstrap does not seed the default bundle
-@e2e exclude bootstrap seed-flag behaviour is a PHPUnit service assertion, not browser
+@e2e exclude the seedDefaults flag is an internal call argument a browser cannot see; pinned by tests/Unit/Service/DashboardServiceCreateDefaultsTest.php (testCreateWithoutSeedFlagInsertsNoPlacements, testEnsureDefaultDashboardProvisionsAndSeedsWhenAbsent) and DashboardServiceCreationGoldenTest::testProvisionedDashboardPlacements
 - **GIVEN** the first-login bootstrap runs `tryCreateFromTemplate()`
 - **WHEN** no admin template applies
 - **THEN** `createDashboard()` MUST be called with `seedDefaults: false` and the role-default seed MUST apply instead
@@ -98,7 +96,7 @@ four-widget bundle when no admin template applies.
 WHEN an admin template applies (the `DashboardResolver::handleTemplateResult()` path) the resolver MUST seed the dashboard with the template's declared widget set, NOT the four-widget bundle. Template authors own the layout; the default bundle is for users who didn't get an admin template.
 
 #### Scenario: Admin template overrides the default bundle
-@e2e exclude template seed selection is a PHPUnit resolver assertion, not browser
+@e2e exclude no e2e yet: needs an admin template applied to a group the account is in; pinned by tests/Unit/Service/DashboardResolverGoldenTest.php::testTemplateRung and DashboardServiceCreationGoldenTest::testProvisionWithATemplateHandsItToTheResolver
 - **GIVEN** an admin template applies during dashboard resolution
 - **WHEN** `handleTemplateResult()` seeds the dashboard
 - **THEN** the dashboard MUST receive the template's declared widget set, NOT the four-widget default bundle
@@ -122,7 +120,6 @@ backend that omits the `placements` key fall back to `[]`
 gracefully.
 
 #### Scenario: Create response includes placements envelope
-@e2e exclude create-response envelope shape is a Newman/PHPUnit HTTP-contract assertion, not browser
 - **GIVEN** a user creates a new dashboard
 - **WHEN** `POST /api/dashboard` returns
 - **THEN** the response MUST include both `dashboard` and `placements` keys, matching the `GET /api/dashboard` envelope shape
@@ -143,7 +140,6 @@ This eliminates the flash where the empty-state rendered briefly
 during the initial `loadDashboards()` call.
 
 #### Scenario: Loading shim shown during initial fetch
-@e2e exclude transient loading-state shim — not reliably observable in headless CI; covered by Vitest component test
 - **GIVEN** the workspace is loading and `activeDashboard` is null
 - **WHEN** `Views.vue` renders while `loading` is true
 - **THEN** an `NcLoadingIcon` shim MUST be shown instead of the "No dashboard yet" empty-state

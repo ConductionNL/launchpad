@@ -58,12 +58,15 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/navigation-editor-org-api.spec.ts`, `tests/e2e/navigation-editor-org-editor.spec.ts`, `tests/e2e/navigation-editor-org-panel.spec.ts` (helper `tests/e2e/support/orgNavigation.ts`), 45 scenarios cited (22 tests are `test.fixme` for suspected defects, see the PR), 0 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.8 `tiles`: 38 scenarios, 0 cited.
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/dashboard-reactions.spec.ts`, `tests/e2e/dashboard-reactions-ui.spec.ts`, 27 scenarios cited, 6 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
   - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-icons.spec.ts (new), 21 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
+  - Spec written: tests/e2e/conditional-visibility-editor.spec.ts, 23 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
 - [ ] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
@@ -88,6 +91,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
+  - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
@@ -110,6 +114,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
 - [ ] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
+  - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
 - [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
 - [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.

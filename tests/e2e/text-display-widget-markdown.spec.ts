@@ -22,14 +22,14 @@
  *   @e2e text-display-widget::emphasis-marks-render-to-inline-tags
  *   @e2e text-display-widget::inline-code-renders-to-code-tag
  *   @e2e text-display-widget::links-preserve-href-and-render-anchor-tag
- *   @e2e text-display-widget::bullet-lists-render-as-ul-li
- *   @e2e text-display-widget::ordered-lists-render-as-ol-li
+ *   @e2e text-display-widget::bullet-lists-render-as-ulli
+ *   @e2e text-display-widget::ordered-lists-render-as-olli
  *   @e2e text-display-widget::block-quotes-render-as-blockquote
  *   @e2e text-display-widget::tables-render-to-semantic-table-markup
  *   @e2e text-display-widget::script-tags-in-markdown-are-stripped
  *   @e2e text-display-widget::event-handlers-are-removed-from-parsed-elements
  *   @e2e text-display-widget::data-attributes-are-removed-from-links
- *   @e2e text-display-widget::target-blank-links-get-rel-attribute
+ *   @e2e text-display-widget::targetblank-links-get-rel-attribute
  *   @e2e text-display-widget::html-mode-is-shown-by-default-for-existing-widgets
  *   @e2e text-display-widget::markdown-mode-is-shown-for-markdown-mode-widgets
  *   @e2e text-display-widget::toggling-mode-preserves-text-content
@@ -296,7 +296,7 @@ test.describe('text widget — CommonMark parsing (REQ-TXMD-002)', () => {
 		await link.click({ trial: true })
 	})
 
-	// @e2e text-display-widget::bullet-lists-render-as-ul-li
+	// @e2e text-display-widget::bullet-lists-render-as-ulli
 	test('- items become a ul with three li, and indentation nests a list', async ({ page }) => {
 		const { bodies } = await render(
 			page,
@@ -311,7 +311,7 @@ test.describe('text widget — CommonMark parsing (REQ-TXMD-002)', () => {
 		await expect(bodies[1].locator(':scope > ul > li')).toHaveCount(2)
 	})
 
-	// @e2e text-display-widget::ordered-lists-render-as-ol-li
+	// @e2e text-display-widget::ordered-lists-render-as-olli
 	test('1. 2. 3. become an ol with three li in sequence', async ({ page }) => {
 		const body = await markdown(page, '1. First\n2. Second\n3. Third')
 		const list = body.locator(':scope > ol')
@@ -376,7 +376,7 @@ test.describe('text widget — sanitising parsed markdown (REQ-TXMD-003)', () =>
 		).toBeNull()
 	})
 
-	// @e2e text-display-widget::target-blank-links-get-rel-attribute
+	// @e2e text-display-widget::targetblank-links-get-rel-attribute
 	test('a target="_blank" link keeps target and gains rel="noopener noreferrer"', async ({
 		page,
 	}) => {

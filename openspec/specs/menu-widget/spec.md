@@ -35,7 +35,6 @@ Each item carries:
 ### Requirement: REQ-MENU-001 Widget registration and default structure
 
 The system MUST register a widget `type: 'menu'` in `widgetRegistry.js` with default `widgetContent` shape:
-@e2e exclude widget registration tested via widget-in-picker scenario
 
 ```json
 {
@@ -70,8 +69,7 @@ The `items` array MUST support objects with:
 
 ### Requirement: REQ-MENU-002 Config schema and depth validation
 
-The `items` array MUST allow up to 3 levels of nesting (top-level + 2 child levels).
-@e2e exclude config schema and depth validation tests PHP validator via REST — Newman scope Any item with `children` deeper than 2 levels MUST be rejected at placement-save time with HTTP 400 `{error: 'Menu items can nest at most 3 levels deep'}`.
+The `items` array MUST allow up to 3 levels of nesting (top-level + 2 child levels). Any item with `children` deeper than 2 levels MUST be rejected at placement-save time with HTTP 400 `{error: 'Menu items can nest at most 3 levels deep'}`.
 
 Server-side validation MUST recursively check all items in the saved placement's `widgetContent.items` and reject the placement if depth > 3.
 
@@ -96,6 +94,7 @@ Valid field values:
 - THEN the placement MUST save successfully
 
 #### Scenario: Invalid style value rejected in form validation
+@e2e exclude unreachable through the product: the form's style control is a closed NcSelect offering only dropdown/megamenu/tree, and CnMenuWidgetForm (@conduction/nextcloud-vue) coerces any other stored style to `dropdown` on load and its validate() has no style check, so no user action puts 'invalid-style' in the form. The API-level refusal the NOTE relies on is pinned by tests/Unit/Service/MenuServiceTest.php::testInvalidStyleRejected; no unit test exists for a form-side check because none was built
 
 - GIVEN the form has `style: 'invalid-style'` before save
 - WHEN the form validates
@@ -105,7 +104,6 @@ Valid field values:
 ### Requirement: REQ-MENU-003 Dropdown style
 
 When `style === 'dropdown'`, the renderer MUST:
-@e2e exclude dropdown style tests CSS dropdown positioning — requires a placed menu widget; seeded state not in CI fixture
 
 - Render top-level items in a horizontal bar (or vertical if `orientation === 'vertical'`).
 - Open a popover dropdown below (or beside, depending on space) when a top-level item with children is clicked or focused.
@@ -146,7 +144,6 @@ When `style === 'dropdown'`, the renderer MUST:
 ### Requirement: REQ-MENU-004 Megamenu style
 
 When `style === 'megamenu'`, the renderer MUST:
-@e2e exclude megamenu style tests CSS panel layout — requires a placed menu widget
 
 - Render top-level items in a horizontal bar.
 - Open a full-width panel below the bar when any top-level item is clicked, containing all level-2 items grouped by their parent top-level item.
@@ -186,7 +183,6 @@ When `style === 'megamenu'`, the renderer MUST:
 ### Requirement: REQ-MENU-005 Tree style
 
 When `style === 'tree'`, the renderer MUST:
-@e2e exclude tree style tests recursive item rendering — requires a placed menu widget
 
 - Render items as a vertical hierarchical list.
 - Render top-level items without children as clickable links; items with children MUST show a caret to the left.
@@ -227,7 +223,6 @@ When `style === 'tree'`, the renderer MUST:
 ### Requirement: REQ-MENU-006 Active item detection and highlighting
 
 The renderer MUST detect the active item based on the current page URL and highlight it and its ancestors. The `activeItemHighlight` field controls the style:
-@e2e exclude active item detection tests window.location.pathname matching — requires a placed menu widget and controlled navigation
 
 - `'underline'`: bottom border on the active item and ancestor items
 - `'background'`: light background colour on the active item and ancestor items
@@ -271,7 +266,6 @@ An item is "active" if its `url` matches the current window location (exact matc
 ### Requirement: REQ-MENU-007 Keyboard navigation
 
 The renderer MUST support keyboard navigation conforming to WAI-ARIA Menu/Menubar pattern:
-@e2e exclude keyboard navigation tests complex focus-trap pattern — requires placed widget and keyboard sequence; Vitest scope
 
 - **Tab**: move focus to the next top-level item; if at the last item, move focus out of the widget. Close any open dropdowns/flyouts.
 - **Shift+Tab**: move focus to the previous top-level item; if at the first item, move focus out of the widget. Close any open dropdowns.
@@ -314,7 +308,6 @@ The renderer MUST support keyboard navigation conforming to WAI-ARIA Menu/Menuba
 ### Requirement: REQ-MENU-008 External link handling
 
 When an item's `url` starts with `http://` or `https://`, it is treated as an external URL. Clicking an external URL MUST:
-@e2e exclude external link handling tests rel=noopener on links — requires a placed menu widget with configured external links
 
 1. Open the link in a new tab via `window.open(url, '_blank', 'noopener,noreferrer')`
 2. Apply `rel="noopener noreferrer"` to any fallback `<a>` tag for progressive enhancement
@@ -345,7 +338,6 @@ Internal URLs (starting with `/` or no protocol) MUST use `router.push()` or a s
 ### Requirement: REQ-MENU-009 Add/edit form with drag-and-drop editor
 
 The menu sub-form for `AddWidgetModal` MUST include:
-@e2e exclude add/edit form with drag-and-drop editor tests complex form inside placed widget — requires seeded placement
 
 1. A **Config section** with dropdowns for `style`, `orientation` (disabled for tree), `activeItemHighlight`, and toggles for `showIcons` and `expandedByDefault` (only shown for tree).
 2. A **Tree editor** for building the `items` array:
@@ -365,6 +357,7 @@ When editing an existing widget, all fields MUST pre-fill from `editingWidget.co
 - AND changes MUST update the content before save
 
 #### Scenario: Drag-and-drop reorders items
+@e2e exclude never built: the menu widget's tree editor (CnMenuItemEditor in @conduction/nextcloud-vue, used by CnMenuWidgetForm) has add/remove/edit buttons but no drag handle or drop handling; the draggable CnMenuTreeNode is the app-manifest menu editor (ADR-041), not this form. No unit test exists
 
 - GIVEN a tree editor with two top-level items [A, B]
 - WHEN the user drags A below B
@@ -387,7 +380,6 @@ When editing an existing widget, all fields MUST pre-fill from `editingWidget.co
 ### Requirement: REQ-MENU-010 Icon resolution
 
 The `icon` field of a menu item MUST follow the same dual-mode convention as `link-button-widget` (REQ-LBN-002):
-@e2e exclude icon resolution tests IconRenderer dispatch — Vitest component scope
 
 - A custom URL (starts with `/` or `http`) MUST render as `<img>` inside the menu item
 - A bare name MUST render via the shared `IconRenderer` (built-in MDI component)
@@ -397,7 +389,7 @@ Icon size MUST be 16-24 px (smaller than REQ-LBN-002's 48 px, to fit in a menu l
 
 #### Scenario: MDI icon in dropdown
 
-- GIVEN content `{style: 'dropdown', items: [{label: 'Settings', icon: 'mdiCog'}]}`
+- GIVEN content `{style: 'dropdown', items: [{label: 'Settings', icon: 'Cog'}]}`
 - WHEN the widget renders
 - THEN the item MUST display the settings icon to the left of "Settings"
 
@@ -410,7 +402,6 @@ Icon size MUST be 16-24 px (smaller than REQ-LBN-002's 48 px, to fit in a menu l
 ### Requirement: REQ-MENU-011 Empty state
 
 When the `items` array is empty or not provided, the renderer MUST display a placeholder message: **"No menu items yet — click the gear icon to add some."**
-@e2e exclude empty state tests Vue empty component inside a placed widget — requires seeded empty-menu placement
 
 The gear icon in the message MUST be clickable and open the edit form if the user is an admin/dashboard editor. For non-editors, the message MUST be non-interactive.
 

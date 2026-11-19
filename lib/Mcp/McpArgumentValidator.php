@@ -210,4 +210,22 @@ class McpArgumentValidator {
 			default => self::error(code: 'failed', message: 'The operation failed.'),
 		};
 	}//end failure()
+
+	/**
+	 * Run a service call and answer its result, or the envelope of the
+	 * exception it threw (see failure()).
+	 *
+	 * @param \Closure(): array<string, mixed> $operation The service call.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
+	 */
+	public function attempt(\Closure $operation): array {
+		try {
+			return $operation();
+		} catch (Throwable $e) {
+			return $this->failure(exception: $e);
+		}
+	}//end attempt()
 }//end class

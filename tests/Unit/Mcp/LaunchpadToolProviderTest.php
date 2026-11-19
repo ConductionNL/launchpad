@@ -17,8 +17,9 @@ use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Mcp\McpEngagementTools;
+use OCP\IUser;
+use OCP\IUserSession;
 
 /**
  * The catalogue's ids and annotations, and dispatch.
@@ -71,9 +72,11 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return LaunchpadToolProvider
 	 */
 	private function provider(array $handlers = []): LaunchpadToolProvider {
-		$gate = $this->createMock(originalClassName: McpDashboardGate::class);
-		$gate->method('currentUserId')->willReturn('alice');
-		$handlers += [McpDashboardGate::class => $gate];
+		$user = $this->createMock(originalClassName: IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$session = $this->createMock(originalClassName: IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+		$handlers += [IUserSession::class => $session];
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(callback: static fn (string $id): object => $handlers[$id]);
 
@@ -200,4 +203,78 @@ class LaunchpadToolProviderTest extends TestCase {
 		);
 		$this->assertSame(expected: 'forbidden', actual: $provider->invokeTool(toolId: 'launchpad.removeReaction', arguments: $args)['audit']['outcome']);
 	}//end testAWriteCarriesItsAuditRecord()
+
+	/**
+	 * The write catalogue is exactly the 35 tools of REQ-MCP-003, each at its
+	 * reach, and no tool exists for the deliberate exclusions of REQ-MCP-007.
+	 *
+	 * @return void
+	 */
+	public function testTheWriteCatalogueIsClosed(): void {
+		$expected = [
+			'self' => [
+				'launchpad.createDashboard',
+				'launchpad.updateDashboard',
+				'launchpad.deleteDashboard',
+				'launchpad.switchActiveDashboard',
+				'launchpad.setDefaultDashboard',
+				'launchpad.forkDashboard',
+				'launchpad.addWidget',
+				'launchpad.updateWidgetPlacement',
+				'launchpad.removeWidget',
+				'launchpad.addTileToDashboard',
+				'launchpad.createTile',
+				'launchpad.updateTile',
+				'launchpad.deleteTile',
+				'launchpad.createDashboardVersion',
+				'launchpad.restoreDashboardVersion',
+				'launchpad.setDashboardMetadata',
+				'launchpad.addReaction',
+				'launchpad.removeReaction',
+			],
+			'user' => [
+				'launchpad.shareDashboard',
+				'launchpad.replaceShares',
+				'launchpad.unshareDashboard',
+				'launchpad.setPublicationState',
+			],
+			'external' => [
+				'launchpad.createPublicShareLink',
+				'launchpad.revokePublicShareLink',
+				'launchpad.createKioskPlaylist',
+				'launchpad.updateKioskPlaylist',
+				'launchpad.deleteKioskPlaylist',
+			],
+			'instance' => [
+				'launchpad.createGroupDashboard',
+				'launchpad.updateGroupDashboard',
+				'launchpad.deleteGroupDashboard',
+				'launchpad.setGroupDefault',
+				'launchpad.createTemplate',
+				'launchpad.updateTemplate',
+				'launchpad.deleteTemplate',
+				'launchpad.resyncTemplate',
+			],
+		];
+		$actual = [];
+		foreach (LaunchpadToolProvider::TOOL_DESCRIPTORS as $tool) {
+			if ($tool['scope'] !== 'read') {
+				$actual[$tool['reach']][] = $tool['id'];
+			}
+		}
+
+		foreach ($expected as $reach => $ids) {
+			sort($ids);
+			sort($actual[$reach]);
+			$this->assertSame(expected: $ids, actual: $actual[$reach], message: $reach);
+		}
+
+		$this->assertSame(expected: array_keys($expected), actual: array_keys($actual));
+		$ids = implode(' ', array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id'));
+		$excludedSurfaces = ['viewEvent', 'Click', 'acknowledge(?!ments)', 'upload', 'Lock', 'Wizard', 'Confluence'];
+		$excludedSurfaces = [...$excludedSurfaces, 'cleanup', 'Showcase', 'Bulk', 'export', 'import', 'Settings'];
+		foreach ($excludedSurfaces as $excluded) {
+			$this->assertDoesNotMatchRegularExpression(pattern: '/' . $excluded . '/i', string: $ids, message: $excluded);
+		}
+	}//end testTheWriteCatalogueIsClosed()
 }//end class

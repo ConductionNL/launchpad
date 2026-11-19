@@ -39,6 +39,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Mcp;
 
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
+use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -59,6 +60,22 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'emoji' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 32],
 		],
 		'required' => ['dashboardUuid', 'emoji'],
+	];
+
+	/**
+	 * The argument that names a write tool's target, in order of preference.
+	 *
+	 * @var list<string>
+	 */
+	private const TARGET_KEYS = ['dashboardUuid', 'dashboardId', 'placementId', 'shareId', 'playlistId', 'templateId', 'groupId'];
+
+	private const GROUP_DASHBOARD_ARGUMENT = [
+		'type' => 'object',
+		'properties' => [
+			'groupId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+			'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+		],
+		'required' => ['groupId', 'dashboardUuid'],
 	];
 
 	private const DASHBOARD_FIELDS = [
@@ -449,6 +466,249 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 				'required' => ['dashboardUuid'],
 			],
 		],
+		[
+			'id' => 'launchpad.shareDashboard',
+			'name' => 'Share dashboard',
+			'description' => 'Share a dashboard you own with a user or a group, at a permission level.',
+			'scope' => 'create', 'reach' => 'user', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'shareType' => ['type' => 'string', 'enum' => ['user', 'group']],
+					'shareWith' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'permissionLevel' => ['type' => 'string', 'enum' => ['view_only', 'add_only', 'full']],
+				],
+				'required' => ['dashboardId', 'shareType', 'shareWith', 'permissionLevel'],
+			],
+		],
+		[
+			'id' => 'launchpad.replaceShares',
+			'name' => 'Replace shares',
+			'description' => 'Replace every share of a dashboard you own with the given list.',
+			'scope' => 'update', 'reach' => 'user', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'shares' => ['type' => 'array', 'items' => ['type' => 'object']],
+				],
+				'required' => ['dashboardId', 'shares'],
+			],
+		],
+		[
+			'id' => 'launchpad.unshareDashboard',
+			'name' => 'Unshare dashboard',
+			'description' => 'Remove one share of a dashboard you own.',
+			'scope' => 'delete', 'reach' => 'user', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'shareId' => ['type' => 'integer', 'minimum' => 1],
+				],
+				'required' => ['shareId'],
+			],
+		],
+		[
+			'id' => 'launchpad.setPublicationState',
+			'name' => 'Set publication state',
+			'description' => 'Publish, unpublish or schedule a dashboard you own or administer.',
+			'scope' => 'update', 'reach' => 'user', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+					'state' => ['type' => 'string', 'enum' => ['published', 'draft', 'scheduled']],
+					'publishAt' => ['type' => 'string'],
+					'unpublishAt' => ['type' => 'string'],
+				],
+				'required' => ['dashboardUuid', 'state'],
+			],
+		],
+		[
+			'id' => 'launchpad.createPublicShareLink',
+			'name' => 'Create public share link',
+			'description' => 'Mint an anonymous public link to a dashboard you own, optionally with a password and an expiry date.',
+			'scope' => 'create', 'reach' => 'external', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+					'password' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'expiresAt' => ['type' => 'string'],
+				],
+				'required' => ['dashboardUuid'],
+			],
+		],
+		[
+			'id' => 'launchpad.revokePublicShareLink',
+			'name' => 'Revoke public share link',
+			'description' => 'Revoke a public link of a dashboard you own.',
+			'scope' => 'delete', 'reach' => 'external', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+					'shareId' => ['type' => 'integer', 'minimum' => 1],
+				],
+				'required' => ['dashboardUuid', 'shareId'],
+			],
+		],
+		[
+			'id' => 'launchpad.createKioskPlaylist',
+			'name' => 'Create kiosk playlist',
+			'description' => 'Create a kiosk playlist: an anonymous full-screen rotation of dashboards.',
+			'scope' => 'create', 'reach' => 'external', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'entries' => ['type' => 'array', 'items' => ['type' => 'object']],
+					'refreshSeconds' => ['type' => 'integer'],
+				],
+				'required' => ['name', 'entries'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateKioskPlaylist',
+			'name' => 'Update kiosk playlist',
+			'description' => 'Change a kiosk playlist you own.',
+			'scope' => 'update', 'reach' => 'external', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'playlistId' => ['type' => 'integer', 'minimum' => 1],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'entries' => ['type' => 'array', 'items' => ['type' => 'object']],
+					'refreshSeconds' => ['type' => 'integer'],
+				],
+				'required' => ['playlistId', 'name', 'entries'],
+			],
+		],
+		[
+			'id' => 'launchpad.deleteKioskPlaylist',
+			'name' => 'Delete kiosk playlist',
+			'description' => 'Revoke a kiosk playlist you own; its kiosk link stops working.',
+			'scope' => 'delete', 'reach' => 'external', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'playlistId' => ['type' => 'integer', 'minimum' => 1],
+				],
+				'required' => ['playlistId'],
+			],
+		],
+		[
+			'id' => 'launchpad.createGroupDashboard',
+			'name' => 'Create group dashboard',
+			'description' => 'Create a dashboard shared with a group. Administrators only.',
+			'scope' => 'create', 'reach' => 'instance', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'groupId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'description' => ['type' => 'string'],
+				],
+				'required' => ['groupId', 'name'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateGroupDashboard',
+			'name' => 'Update group dashboard',
+			'description' => 'Change a group dashboard. Administrators only.',
+			'scope' => 'update', 'reach' => 'instance', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'groupId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'description' => ['type' => 'string'],
+					'gridColumns' => ['type' => 'integer'],
+					'placements' => ['type' => 'array'],
+				],
+				'required' => ['groupId', 'dashboardUuid'],
+			],
+		],
+		[
+			'id' => 'launchpad.deleteGroupDashboard',
+			'name' => 'Delete group dashboard',
+			'description' => 'Delete a group dashboard. Administrators only.',
+			'scope' => 'delete', 'reach' => 'instance', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => self::GROUP_DASHBOARD_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.setGroupDefault',
+			'name' => 'Set group default',
+			'description' => 'Make a group dashboard the default of its group. Administrators only.',
+			'scope' => 'update', 'reach' => 'instance', 'readOnlyHint' => false,
+			'inputSchema' => self::GROUP_DASHBOARD_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.createTemplate',
+			'name' => 'Create template',
+			'description' => 'Create an admin dashboard template. Administrators only.',
+			'scope' => 'create', 'reach' => 'instance', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'description' => ['type' => 'string'],
+					'targetGroups' => ['type' => 'array', 'items' => ['type' => 'string']],
+					'permissionLevel' => ['type' => 'string', 'enum' => ['view_only', 'add_only', 'full']],
+					'isDefault' => ['type' => 'boolean'],
+				],
+				'required' => ['name'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateTemplate',
+			'name' => 'Update template',
+			'description' => 'Change an admin dashboard template. Administrators only.',
+			'scope' => 'update', 'reach' => 'instance', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'templateId' => ['type' => 'integer', 'minimum' => 1],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'description' => ['type' => 'string'],
+					'targetGroups' => ['type' => 'array', 'items' => ['type' => 'string']],
+					'permissionLevel' => ['type' => 'string', 'enum' => ['view_only', 'add_only', 'full']],
+					'isDefault' => ['type' => 'boolean'],
+					'gridColumns' => ['type' => 'integer'],
+				],
+				'required' => ['templateId'],
+			],
+		],
+		[
+			'id' => 'launchpad.deleteTemplate',
+			'name' => 'Delete template',
+			'description' => 'Delete an admin dashboard template. Administrators only.',
+			'scope' => 'delete', 'reach' => 'instance', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'templateId' => ['type' => 'integer', 'minimum' => 1],
+				],
+				'required' => ['templateId'],
+			],
+		],
+		[
+			'id' => 'launchpad.resyncTemplate',
+			'name' => 'Resync template',
+			'description' => 'Bring the dashboards made from a template in line with it; a dry run, the default, only reports. Administrators only.',
+			'scope' => 'update', 'reach' => 'instance', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'templateId' => ['type' => 'integer', 'minimum' => 1],
+					'strategy' => ['type' => 'string', 'enum' => ['overwrite', 'merge']],
+					'dryRun' => ['type' => 'boolean'],
+				],
+				'required' => ['templateId', 'strategy'],
+			],
+		],
 	];
 
 	/**
@@ -463,7 +723,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.getActiveDashboard' => [McpDashboardTools::class, 'getActiveDashboard'],
 		'launchpad.listGroupDashboards' => [McpDashboardTools::class, 'listGroupDashboards'],
 		'launchpad.listWidgetTypes' => [McpDashboardTools::class, 'listWidgetTypes'],
-		'launchpad.listTiles' => [McpTileTools::class, 'listTiles'],
+		'launchpad.listTiles' => [McpCatalogueTools::class, 'listTiles'],
 		'launchpad.getDashboardTree' => [McpCatalogueTools::class, 'getDashboardTree'],
 		'launchpad.listShares' => [McpSharingTools::class, 'listShares'],
 		'launchpad.listVersions' => [McpHistoryTools::class, 'listVersions'],
@@ -471,7 +731,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.getDashboardMetadata' => [McpMetadataTools::class, 'getDashboardMetadata'],
 		'launchpad.getReactions' => [McpEngagementTools::class, 'getReactions'],
 		'launchpad.listPendingAcknowledgements' => [McpEngagementTools::class, 'listPendingAcknowledgements'],
-		'launchpad.listKioskPlaylists' => [McpSharingTools::class, 'listKioskPlaylists'],
+		'launchpad.listKioskPlaylists' => [McpExternalTools::class, 'listKioskPlaylists'],
 		'launchpad.createDashboardVersion' => [McpHistoryTools::class, 'createDashboardVersion'],
 		'launchpad.restoreDashboardVersion' => [McpHistoryTools::class, 'restoreDashboardVersion'],
 		'launchpad.setDashboardMetadata' => [McpMetadataTools::class, 'setDashboardMetadata'],
@@ -490,6 +750,23 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.switchActiveDashboard' => [McpDashboardWriteTools::class, 'switchActiveDashboard'],
 		'launchpad.setDefaultDashboard' => [McpDashboardWriteTools::class, 'setDefaultDashboard'],
 		'launchpad.forkDashboard' => [McpDashboardWriteTools::class, 'forkDashboard'],
+		'launchpad.shareDashboard' => [McpSharingTools::class, 'shareDashboard'],
+		'launchpad.replaceShares' => [McpSharingTools::class, 'replaceShares'],
+		'launchpad.unshareDashboard' => [McpSharingTools::class, 'unshareDashboard'],
+		'launchpad.setPublicationState' => [McpDashboardWriteTools::class, 'setPublicationState'],
+		'launchpad.createPublicShareLink' => [McpExternalTools::class, 'createPublicShareLink'],
+		'launchpad.revokePublicShareLink' => [McpExternalTools::class, 'revokePublicShareLink'],
+		'launchpad.createKioskPlaylist' => [McpExternalTools::class, 'createKioskPlaylist'],
+		'launchpad.updateKioskPlaylist' => [McpExternalTools::class, 'updateKioskPlaylist'],
+		'launchpad.deleteKioskPlaylist' => [McpExternalTools::class, 'deleteKioskPlaylist'],
+		'launchpad.createGroupDashboard' => [McpInstanceTools::class, 'createGroupDashboard'],
+		'launchpad.updateGroupDashboard' => [McpInstanceTools::class, 'updateGroupDashboard'],
+		'launchpad.deleteGroupDashboard' => [McpInstanceTools::class, 'deleteGroupDashboard'],
+		'launchpad.setGroupDefault' => [McpInstanceTools::class, 'setGroupDefault'],
+		'launchpad.createTemplate' => [McpInstanceTools::class, 'createTemplate'],
+		'launchpad.updateTemplate' => [McpInstanceTools::class, 'updateTemplate'],
+		'launchpad.deleteTemplate' => [McpInstanceTools::class, 'deleteTemplate'],
+		'launchpad.resyncTemplate' => [McpInstanceTools::class, 'resyncTemplate'],
 	];
 
 	/**
@@ -540,11 +817,12 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	public function invokeTool(string $toolId, array $arguments): array {
 		$handler = (self::TOOL_HANDLERS[$toolId] ?? null);
 		if ($handler === null) {
-			return (new McpArgumentValidator())->refuse(
-				code: 'unknown_tool',
-				message: "Unknown tool id '{$toolId}'. Available tools: "
-					. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.'
-			);
+			return [
+				'isError' => true,
+				'error' => 'unknown_tool',
+				'message' => "Unknown tool id '{$toolId}'. Available tools: "
+					. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.',
+			];
 		}
 
 		[$class, $method] = $handler;
@@ -570,8 +848,8 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	private function auditRecord(string $toolId, array $arguments): array {
 		return [
 			'tool' => $toolId,
-			'target' => ($arguments['dashboardUuid'] ?? $arguments['dashboardId'] ?? $arguments['placementId'] ?? null),
-			'caller' => $this->container->get(McpDashboardGate::class)->currentUserId(),
+			'target' => (array_values(array_intersect_key($arguments, array_flip(self::TARGET_KEYS)))[0] ?? null),
+			'caller' => (string)($this->container->get(IUserSession::class)->getUser()?->getUID() ?? ''),
 		];
 	}//end auditRecord()
 

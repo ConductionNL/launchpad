@@ -79,7 +79,7 @@ class McpDashboardWriteTools {
 		}
 
 		$userId = $this->gate->currentUserId();
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args, $userId): array {
 				$this->services->dashboardService->assertPersonalDashboardsAllowed();
 				$hasDashboards = ($this->services->dashboardService->getUserDashboards(userId: $userId) !== []);
@@ -124,7 +124,7 @@ class McpDashboardWriteTools {
 			$data['parentUuid'] = null;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args, $data): array {
 				$dashboard = $this->services->dashboardService->updateDashboard(
 					dashboardId: (int)$args['dashboardId'],
@@ -183,7 +183,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setActivePreference(userId: $this->gate->currentUserId(), uuid: (string)$args['dashboardUuid']);
 				return ['active' => (string)$args['dashboardUuid']];
@@ -206,7 +206,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setDefaultPreference(userId: $this->gate->currentUserId(), uuid: (string)$args['dashboardUuid']);
 				return ['default' => (string)$args['dashboardUuid']];
@@ -232,7 +232,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => ['dashboard' => $this->services->dashboardService->forkAsPersonal(
 				userId: $this->gate->currentUserId(),
 				sourceUuid: (string)$args['dashboardUuid'],
@@ -240,6 +240,52 @@ class McpDashboardWriteTools {
 			)->jsonSerialize()]
 		);
 	}//end forkDashboard()
+
+	/**
+	 * Publish, unpublish or schedule a dashboard the caller owns or administers.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, state (published, draft, scheduled), publishAt, unpublishAt.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
+	 */
+	public function setPublicationState(array $args): array {
+		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->validator->oneOf(args: $args, name: 'state', allowed: ['published', 'draft', 'scheduled']));
+		if ($refusal === null && ($args['state'] ?? '') === 'scheduled' && empty($args['publishAt']) === true && empty($args['unpublishAt']) === true) {
+			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'A schedule needs publishAt, unpublishAt or both.');
+		}
+
+		$action = ['published' => 'dashboard.publish', 'draft' => 'dashboard.unpublish', 'scheduled' => 'dashboard.schedule'][$args['state'] ?? ''] ?? '';
+		$refusal ??= $this->gate->requireAction(action: $action);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$uuid   = (string)$args['dashboardUuid'];
+		$userId = $this->gate->currentUserId();
+		try {
+			$dashboard = match ($args['state']) {
+				'published' => $this->services->dashboardService->publishDashboard(uuid: $uuid, userId: $userId),
+				'draft' => $this->services->dashboardService->unpublish(uuid: $uuid, userId: $userId),
+				default => $this->services->dashboardService->schedule(
+					uuid: $uuid,
+					publishAt: ($args['publishAt'] ?? null),
+					userId: $userId,
+					unpublishAt: ($args['unpublishAt'] ?? null)
+				),
+			};
+		} catch (Throwable $e) {
+			if ($e->getMessage() === $this->services->dashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN) {
+				return $this->validator->refuse(code: 'forbidden', message: 'Only the owner or an administrator may publish this dashboard.');
+			}
+
+			return $this->validator->failure(exception: $e);
+		}
+
+		return ['dashboard' => $dashboard->jsonSerialize()];
+	}//end setPublicationState()
 
 	/**
 	 * A refusal for bad dashboard fields.
@@ -293,19 +339,4 @@ class McpDashboardWriteTools {
 			$this->history->logger->warning(message: 'launchpad: automatic version snapshot failed', context: ['exception' => $t]);
 		}
 	}//end snapshot()
-
-	/**
-	 * Run a service call, mapping its failures to the tools' envelopes.
-	 *
-	 * @param \Closure(): array<string, mixed> $operation The service call.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function run(\Closure $operation): array {
-		try {
-			return $operation();
-		} catch (Throwable $e) {
-			return $this->validator->failure(exception: $e);
-		}
-	}//end run()
 }//end class

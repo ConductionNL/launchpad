@@ -27,6 +27,8 @@ use OCA\LaunchPad\Service\DashboardVersionService;
 use Psr\Log\NullLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Mcp\McpCatalogueSources;
+use OCA\LaunchPad\Service\TileService;
 
 /**
  * getDashboardTree is the tree filtered to the caller's visible set, and
@@ -85,7 +87,7 @@ class McpCatalogueToolsTest extends TestCase {
 				analyticsService: $this->createMock(originalClassName: AnalyticsServiceInterface::class),
 				logger: new NullLogger()
 			),
-			templates: $this->templates
+			sources: new McpCatalogueSources(templates: $this->templates, tiles: $this->createMock(originalClassName: TileService::class))
 		);
 	}//end tools()
 

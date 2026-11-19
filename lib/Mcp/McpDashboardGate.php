@@ -191,6 +191,7 @@ class McpDashboardGate {
 				'add' => $this->permissions->canAddWidget(userId: $userId, dashboardId: $id),
 				'style' => $this->permissions->canStyleWidget(userId: $userId, placementId: $id),
 				'remove' => $this->permissions->canRemoveWidget(userId: $userId, placementId: $id),
+				default => false,
 			},
 			message: 'You may not change the widgets here.'
 		);

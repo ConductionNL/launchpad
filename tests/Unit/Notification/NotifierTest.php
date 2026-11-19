@@ -197,7 +197,7 @@ class NotifierTest extends TestCase {
 				'setParsedSubject ["[Pieter asked for the app Kaartviewer]"]',
 				'setRichMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]",[]]',
 				'setParsedMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]"]',
-				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+				'setLink ["https:\/\/host\/settings\/admin\/launchpad"]',
 			]],
 			['app_request_decided', ['Kaartviewer', 'approved', ''], [
 				'setRichSubject ["[**Kaartviewer** is now in the app catalogue]",[]]',

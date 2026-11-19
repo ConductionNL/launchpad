@@ -1,8 +1,10 @@
 # ResponseHelper: migrate from an all-static helper to an injected instance API
 
-> **STATUS: RAISED FOR HUMAN DECISION — NOT APPROVED, NOT STARTED.**
-> This change is deliberately spec-first. No code has been changed. See
-> "Why this is a proposal and not a patch" below.
+> **STATUS: APPROVED by Ruben on 19 Nov 2026.** Spec-first: the spec amendment
+> lands in its own PR, the code follows in the next one. `serializeList()` becomes
+> an instance method like the other helpers (task 1.3), so controllers use one call
+> shape. The helper now has seven methods: `invalidArgument()` was added after this
+> proposal was measured.
 
 ## Why
 

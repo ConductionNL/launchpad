@@ -1546,56 +1546,56 @@ The system MUST accept dashboard creation parameters from EITHER a structured JS
 
 ### REQ-DASH-040: Dashboard response envelope shape and status codes
 
-The system MUST return every dashboard API response as a `JSONResponse` built through `ResponseHelper`. The envelope contract is:
+The system MUST return every dashboard API response as a `JSONResponse` built through an injected `ResponseHelper` instance (`$this->responseHelper`), which the DI container constructs with its own `LoggerInterface`. Controllers MUST NOT call `ResponseHelper` statically. The envelope contract is:
 
 - Success responses use `{...payload...}` with status 200 (default) or a caller-specified 2xx code
 - Unauthorized responses use `{ "error": "Not logged in" }` with status 401
 - Forbidden responses use `{ "error": <message> }` with status 403 (default message: `"Access denied"`)
 - Error responses use `{ "error": <generic-message> }` with status 400 (or caller-specified)
-- List responses MUST be serialized via `ResponseHelper::serializeList()` which calls `jsonSerialize()` on each element
+- List responses MUST be serialized via `$this->responseHelper->serializeList()` which calls `jsonSerialize()` on each element. `serializeList()` is an instance method like the others, so every controller uses one call shape.
 
 #### Scenario: Unauthorized helper returns canonical 401
 
 - GIVEN no authenticated user
-- WHEN a controller calls `ResponseHelper::unauthorized()`
+- WHEN a controller calls `$this->responseHelper->unauthorized()`
 - THEN the response body is `{ "error": "Not logged in" }` with HTTP status 401
 
 #### Scenario: Forbidden helper accepts custom message
 
-- WHEN a controller calls `ResponseHelper::forbidden('Dashboard creation not allowed')`
+- WHEN a controller calls `$this->responseHelper->forbidden('Dashboard creation not allowed')`
 - THEN the response body is `{ "error": "Dashboard creation not allowed" }` with HTTP status 403
 
 #### Scenario: Success helper accepts custom status
 
-- WHEN a controller calls `ResponseHelper::success(['id' => 1], 201)`
+- WHEN a controller calls `$this->responseHelper->success(['id' => 1], 201)`
 - THEN the response body is `{ "id": 1 }` with HTTP status 201
 
 #### Scenario: Serialize list of dashboards
 
 - GIVEN an array of three `Dashboard` entities (each implementing `JsonSerializable`)
-- WHEN a controller calls `ResponseHelper::serializeList($dashboards)`
+- WHEN a controller calls `$this->responseHelper->serializeList($dashboards)`
 - THEN it returns an array of three associative arrays, each the result of calling `jsonSerialize()` on the corresponding entity
 
 ### REQ-DASH-041: Exception-to-error response without message leak
 
-The system MUST translate caught exceptions into JSON error responses via `ResponseHelper::error()` without ever exposing the raw exception message to the client (ADR-005). Callers SHOULD pass a `LoggerInterface` so the real exception (message + stack) is recorded at ERROR level on the server; the client always receives a generic `$message` (default `"Operation failed"`) and the caller-specified HTTP status (default 400).
+The system MUST translate caught exceptions into JSON error responses via `$this->responseHelper->error()` without ever exposing the raw exception message to the client (ADR-005). The helper holds a non-optional `LoggerInterface` injected by the DI container, so every caught exception (message + stack) is recorded at ERROR level on the server; callers do not pass a logger. The client always receives a generic `$message` (default `"Operation failed"`) and the caller-specified HTTP status (default 400).
 
 #### Scenario: Caught exception is logged and a generic error is returned
 
 - GIVEN a controller catches `\RuntimeException('Database constraint X violated')`
-- AND the controller has an injected `LoggerInterface`
-- WHEN the controller calls `ResponseHelper::error($e, 500, $logger, 'Could not save dashboard')`
+- AND the controller has an injected `ResponseHelper`
+- WHEN the controller calls `$this->responseHelper->error($e, 500, 'Could not save dashboard')`
 - THEN the logger records the raw `'Database constraint X violated'` message at ERROR level with the exception in the context
 - AND the response body is `{ "error": "Could not save dashboard" }` with HTTP status 500
 
-#### Scenario: Logger omitted — exception is silently swallowed
+#### Scenario: Default error is logged and stays generic
 
 - GIVEN a controller catches `\RuntimeException('secret')`
-- WHEN the controller calls `ResponseHelper::error($e, 400, null, 'Operation failed')`
+- WHEN the controller calls `$this->responseHelper->error($e)`
 - THEN the response body is `{ "error": "Operation failed" }` with HTTP status 400
-- AND no log entry is written (observed behaviour — see Notes)
+- AND the logger records `'secret'` at ERROR level, so no caught exception goes unlogged
 
 #### Notes (REQ-DASH-038..041)
 
-- The "logger optional" path in `ResponseHelper::error()` is a latent risk: a caller that forgets to wire the logger gets silently dropped exceptions with no audit trail. Future-tightening TODO: make `LoggerInterface` non-nullable in a follow-up change once every call site is converted.
+- `ResponseHelper::error()` no longer has a "logger optional" path: the logger is a constructor dependency, so a caller cannot forget it (change `responsehelper-instance-api`).
 - `serializeList()` assumes every element implements `jsonSerialize()` — passing plain arrays results in a fatal `Error: Call to a member function jsonSerialize() on array`. This is a precondition, not a defensive check.

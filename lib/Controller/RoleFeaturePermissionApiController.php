@@ -48,7 +48,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @param RoleFeaturePermissionService $service Permission service.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -64,7 +64,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse The list of permission rows.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listPermissions(): JSONResponse {
@@ -94,7 +94,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse Empty 204 on success.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deletePermission(int $id): JSONResponse {
@@ -107,7 +107,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse The list of layout default rows.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listLayoutDefaults(): JSONResponse {
@@ -134,7 +134,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse Empty 204 on success.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteLayoutDefault(int $id): JSONResponse {
@@ -148,7 +148,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 *
 	 * @return JSONResponse The serialised rows.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function listed(array $rows): JSONResponse {
 		return $this->responseHelper->success(
@@ -164,7 +164,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 *
 	 * @return JSONResponse The saved row, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function created(Closure $save): JSONResponse {
 		try {
@@ -190,7 +190,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 *
 	 * @return JSONResponse The empty answer, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function deleted(Closure $delete): JSONResponse {
 		try {

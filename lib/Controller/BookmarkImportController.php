@@ -50,7 +50,7 @@ class BookmarkImportController extends Controller {
 	 * @param PermissionService $permissionService Whether the user may add to the dashboard.
 	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -73,7 +73,7 @@ class BookmarkImportController extends Controller {
 	 * @return JSONResponse 201 with `placements` and `skipped`; 400, 401, 403 or 409.
 	 *
 	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function import(int $dashboardId): JSONResponse {

@@ -54,7 +54,7 @@ class TileApiController extends Controller {
 	 * @param ActionCaller $caller The session and the action check.
 	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -76,7 +76,7 @@ class TileApiController extends Controller {
 	 * @return JSONResponse The list of tiles.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -210,7 +210,7 @@ class TileApiController extends Controller {
 	 *
 	 * @see ActionCaller::refusal()
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		return $this->caller->refusal(userId: $this->context->userId, action: $action);

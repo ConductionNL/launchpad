@@ -59,7 +59,7 @@ class MetadataAdminController extends Controller {
 	 * @param RequestGuard $guard The administrator check.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -77,7 +77,7 @@ class MetadataAdminController extends Controller {
 	 * @return JSONResponse The fields array + count, or 403.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listFields(): JSONResponse {
@@ -152,7 +152,7 @@ class MetadataAdminController extends Controller {
 	 * @return JSONResponse 200 + field, 404 when missing, 403 for non-admins.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getField(int $id): JSONResponse {
@@ -185,7 +185,7 @@ class MetadataAdminController extends Controller {
 	 *                      404 when missing, 403 for non-admins.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateField(
@@ -236,7 +236,7 @@ class MetadataAdminController extends Controller {
 	 *                      404 when missing, 403 for non-admins.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteField(int $id, bool $cascade = false): JSONResponse {

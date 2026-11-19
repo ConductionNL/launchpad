@@ -64,7 +64,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @param ActionCaller       $caller The session and the action check.
 	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -85,7 +85,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return JSONResponse The list payload.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function list(string $uuid): JSONResponse {
@@ -122,7 +122,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return JSONResponse The created variant.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function create(
@@ -166,7 +166,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse The created variant or the error envelope.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createVariantResponse(string $uuid, TranslationVariantDraft $draft): JSONResponse {
 		try {
@@ -212,7 +212,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse The mapped response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mapCreateFailure(Exception $exception): JSONResponse {
 		if ($exception->getMessage() === DashboardTranslationService::ERR_LANGUAGE_EXISTS) {
@@ -284,7 +284,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return JSONResponse The status payload.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid, string $lang): JSONResponse {
@@ -358,7 +358,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse The variant or the error envelope.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function respondWithVariant(\Closure $operation): JSONResponse {
 		try {
@@ -418,7 +418,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse The resolved payload or the error envelope.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function resolvedResponse(string $uuid, Dashboard $dashboard): JSONResponse {
 		$variant = $this->resolveVariant(
@@ -581,7 +581,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The error envelope or null on success.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function assertOwner(string $uuid): ?JSONResponse {
 		try {
@@ -604,7 +604,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null when the caller may proceed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		$user = $this->caller->userSession->getUser();

@@ -56,7 +56,7 @@ class AdminDemoShowcasesController extends Controller {
 	 * @param RequestGuard $guard The administrator check.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -73,7 +73,7 @@ class AdminDemoShowcasesController extends Controller {
 	 * @return JSONResponse Showcase descriptors, or 401/403.
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {

@@ -49,7 +49,7 @@ class PeopleWidgetController extends Controller {
 	 * @param PeopleWidgetService $service People widget service.
 	 * @param ActorResponses $context Holds the actionAuth, userSession, userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -88,7 +88,7 @@ class PeopleWidgetController extends Controller {
 	 * @SuppressWarnings(PHPMD.ShortVariable) `q` is the query parameter's public name.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -153,7 +153,7 @@ class PeopleWidgetController extends Controller {
 	 *
 	 * @return JSONResponse The error envelope.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function badRequest(InvalidArgumentException $exception, string $message): JSONResponse {
 		return $this->context->responseHelper->error(

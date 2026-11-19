@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/governance-rest-api-reference/design.md
+ * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ require_once __DIR__.'/OpenApiGenerator.php';
 /**
  * Builds the document of a checkout.
  *
- * @spec openspec/changes/governance-rest-api-reference/design.md
+ * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
  */
 final class OpenApiDocument {
 
@@ -43,7 +43,7 @@ final class OpenApiDocument {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function build(string $root): array {
 		$codes       = OpenApiGenerator::statusCodes(httpFile: $root.'/vendor/nextcloud/ocp/OCP/AppFramework/Http.php');
@@ -73,7 +73,7 @@ final class OpenApiDocument {
 	 *
 	 * @return mixed
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function decoded(mixed $value): mixed {
 		if ($value instanceof \stdClass) {
@@ -99,7 +99,7 @@ final class OpenApiDocument {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function encodedFor(string $root): string {
 		return OpenApiGenerator::encode(document: self::build(root: $root));

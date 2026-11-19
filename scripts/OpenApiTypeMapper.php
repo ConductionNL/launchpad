@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/governance-rest-api-reference/design.md
+ * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
  */
 
 declare(strict_types=1);
@@ -51,7 +51,7 @@ use PHPStan\PhpDocParser\ParserConfig;
  * A class name, `mixed` and anything not understood become `{}` (any value),
  * so an unknown type documents less, never something wrong.
  *
- * @spec openspec/changes/governance-rest-api-reference/design.md
+ * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
  */
 final class OpenApiTypeMapper {
 
@@ -123,7 +123,7 @@ final class OpenApiTypeMapper {
 	 *
 	 * @return TypeNode|null
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public function parse(string $type): ?TypeNode {
 		try {
@@ -141,7 +141,7 @@ final class OpenApiTypeMapper {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public function schemaOf(string $type): array {
 		$node = $this->parse(type: $type);
@@ -159,7 +159,7 @@ final class OpenApiTypeMapper {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public function schema(TypeNode $node): array {
 		return match (true) {
@@ -181,7 +181,7 @@ final class OpenApiTypeMapper {
 	 *
 	 * @return int|null
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public function statusOf(TypeNode $node): ?int {
 		if ($node instanceof ConstTypeNode === false) {

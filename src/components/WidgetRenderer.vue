@@ -15,7 +15,10 @@
 			v-if="registryEntry"
 			:content="normalizedContent"
 			:placement="placement"
-			v-bind="rendererProps" />
+			v-bind="rendererProps"
+			@data="onWidgetData" />
+
+		<CalculatedValues v-if="registryEntry" :placement="placement" />
 
 		<!-- Custom Tile Widget (legacy path: widgetId === 'tile-{id}') -->
 		<TileWidget
@@ -75,6 +78,7 @@ import {
 import { mapActions, storeToRefs } from 'pinia'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import TileWidget from './TileWidget.vue'
+import CalculatedValues from './Widgets/CalculatedFields/CalculatedValues.vue'
 import {
 	NULLABLE_OBJECT_PROP,
 	REQUIRED_OBJECT_PROP,
@@ -85,6 +89,7 @@ import {
 	buildRendererExtraProps,
 	buildWidgetDataProvide,
 } from '../services/widgetDataAdapters.js'
+import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { logger } from '../utils/logger.js'
@@ -138,6 +143,7 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		AlertCircleOutline,
+		CalculatedValues,
 		TileWidget,
 	},
 
@@ -393,6 +399,20 @@ export default {
 
 	methods: {
 		...mapActions(useWidgetStore, ['loadWidgetItems', 'refreshWidgetItems']),
+
+		/**
+		 * Hand what a self-fetching widget shows to the calculated fields of
+		 * its placement, so they evaluate over it (REQ-CALC-003).
+		 *
+		 * @param {object} data The widget's `data` summary.
+		 * @return {void}
+		 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+		 */
+		onWidgetData(data) {
+			if (this.placement?.id !== undefined && this.placement?.id !== null) {
+				useCalculatedFieldsStore().setWidgetData(String(this.placement.id), data)
+			}
+		},
 
 		/** @spec openspec/specs/widgets/spec.md */
 		setupStoreSubscription() {

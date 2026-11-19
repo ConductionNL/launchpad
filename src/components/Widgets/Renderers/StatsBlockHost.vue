@@ -12,7 +12,8 @@
 		:showZeroCount="props.showZeroCount"
 		:horizontal="props.horizontal"
 		:route="props.route"
-		:iconClass="props.iconClass" />
+		:iconClass="props.iconClass"
+		@data="$emit('data', $event)" />
 </template>
 
 <script>
@@ -30,6 +31,8 @@ export default {
 	name: 'StatsBlockHost',
 
 	components: { CnStatsBlockWidget },
+
+	emits: ['data'],
 
 	props: {
 		/** The placement's content blob — `{ title, dataSource, props }`. */

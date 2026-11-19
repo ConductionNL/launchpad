@@ -10,7 +10,8 @@
 		:widgetId="widgetId"
 		:selectable="publishing"
 		v-bind="passthroughProps"
-		@select="onSelect" />
+		@select="onSelect"
+		@data="$emit('data', $event)" />
 </template>
 
 <script>
@@ -65,6 +66,8 @@ export default {
 	name: 'ChartHost',
 
 	components: { CnChartWidget },
+
+	emits: ['data'],
 
 	inject: {
 		/** The open dashboard's filter bus (a ref to it), or null. */

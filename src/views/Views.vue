@@ -535,6 +535,7 @@ import {
 	sourceKey,
 } from '../services/sourceAvailability.js'
 // Stores
+import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
@@ -1242,6 +1243,22 @@ export default {
 
 	watch: {
 		/**
+		 * The calculated fields re-evaluate when the dashboard's filters change (REQ-CALC-003).
+		 *
+		 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+		 */
+		filterClauses: {
+			immediate: true,
+			/**
+			 * @param {object[]} clauses The active filter clauses.
+			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+			 */
+			handler(clauses) {
+				useCalculatedFieldsStore().setFilters(clauses || [])
+			},
+		},
+
+		/**
 		 * The administrator CSS of the dashboard on screen, already scoped to
 		 * its region by the server, inserted as text (REQ-THM-003, D4).
 		 *
@@ -1270,7 +1287,8 @@ export default {
 
 		/**
 		 * Ask, once per source, whether the registers the hideable lists read
-		 * are on this instance (REQ-TMPL-022).
+		 * are on this instance (REQ-TMPL-022), and hand the placements to the
+		 * calculated fields (widget-calculated-fields REQ-CALC-003).
 		 *
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 		 */
@@ -1279,8 +1297,9 @@ export default {
 			/**
 			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 			 */
-			handler() {
+			handler(placements) {
 				this.probeHideableSources()
+				useCalculatedFieldsStore().setWidgets(placements || [])
 			},
 		},
 

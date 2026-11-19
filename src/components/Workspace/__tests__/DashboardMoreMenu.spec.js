@@ -17,7 +17,7 @@ vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 }))
 vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
-	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars.appId),
+	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
 }))
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnGroupedMenu: {
@@ -170,7 +170,6 @@ describe('DashboardMoreMenu', () => {
 					'config',
 					'add-widget',
 					'add-custom-widget',
-					'add-app',
 					'share',
 					'set-default',
 					'versions',
@@ -222,7 +221,6 @@ describe('DashboardMoreMenu', () => {
 			config: 'openConfig',
 			'add-widget': 'addWidget',
 			'add-custom-widget': 'addCustomWidget',
-			'add-app': 'addApp',
 			share: 'share',
 			'set-default': 'setDefault',
 			versions: 'versionHistory',
@@ -261,6 +259,27 @@ describe('DashboardMoreMenu', () => {
 		expect(item(wrapper, 'edit').label).toBe('Save dashboard')
 		item(wrapper, 'read-receipts').onClick()
 		expect(wrapper.emitted('readReceipts')).toHaveLength(1)
+	})
+
+	it('offers "Scheduled exports…" only when the host allows it, and emits scheduledExports', () => {
+		const { wrapper: without } = mountMenu({})
+		expect(item(without, 'scheduled-exports')).toBeUndefined()
+
+		const { wrapper } = mountMenu({ canScheduleExports: true })
+		expect(item(wrapper, 'scheduled-exports').label).toBe('Scheduled exports…')
+		item(wrapper, 'scheduled-exports').onClick()
+		expect(wrapper.emitted('scheduledExports')).toHaveLength(1)
+	})
+
+	it('offers "Create embed token" to an administrator, linking to Beheer ▸ Embeds with the dashboard', () => {
+		const { wrapper: without } = mountMenu({})
+		expect(item(without, 'embed')).toBeUndefined()
+
+		const { wrapper } = mountMenu({ canEmbed: true })
+		const embed = item(wrapper, 'embed')
+		expect(embed.label).toBe('Create embed token')
+		expect(embed.href).toContain('tab=embeds')
+		expect(embed.href).toContain('embedType=dashboard')
 	})
 
 	it('leaves the admin settings out for a member', () => {

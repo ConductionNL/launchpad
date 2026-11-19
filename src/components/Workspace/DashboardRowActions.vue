@@ -163,6 +163,16 @@
 			{{ t('launchpad', 'Create embed token') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canScheduleExports"
+			:closeAfterClick="true"
+			data-testid="cog-scheduled-exports"
+			@click="$emit('scheduledExports')">
+			<template #icon>
+				<CalendarExport :size="20" />
+			</template>
+			{{ t('launchpad', 'Scheduled exports…') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="isOwner"
 			:closeAfterClick="true"
 			data-testid="cog-delete"
@@ -181,6 +191,7 @@ import { generateUrl } from '@nextcloud/router'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
 import BookmarkPlusOutline from 'vue-material-design-icons/BookmarkPlusOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
@@ -199,6 +210,23 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
+
+/**
+ * The address of Beheer ▸ Embeds with a dashboard pre-selected.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @return {string}
+ * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+ */
+export function embedAdminHref(dashboard) {
+	const query = new URLSearchParams({
+		tab: 'embeds',
+		embedType: 'dashboard',
+		embedId: String(dashboard?.uuid ?? ''),
+		embedDashboard: String(dashboard?.id ?? ''),
+	})
+	return `${generateUrl('/settings/admin/launchpad')}?${query.toString()}`
+}
 
 /**
  * Whether the caller owns a dashboard: a row under "My dashboards" (the
@@ -235,6 +263,7 @@ export default {
 		StarCheck,
 		ShareVariant,
 		CalendarClock,
+		CalendarExport,
 		Publish,
 		PublishOff,
 		History,
@@ -307,6 +336,13 @@ export default {
 		canViewHistory: FLAG_PROP,
 
 		/*
+		 * scheduled-exports task 19: when true the menu renders "Scheduled
+		 * exports…" beside Share, which emits `scheduledExports` so the host
+		 * opens the export list. Off by default, so sidebar rows do not show it.
+		 */
+		canScheduleExports: FLAG_PROP,
+
+		/*
 		 * NcActions toggle button style. Defaults to the subtle
 		 * `tertiary-no-background` used at the edge of each sidebar row;
 		 * the top-right active cog passes `secondary` so it matches the
@@ -340,6 +376,7 @@ export default {
 		'unpublish',
 		'schedule',
 		'versionHistory',
+		'scheduledExports',
 		'menuOpen',
 	],
 
@@ -351,13 +388,7 @@ export default {
 		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
 		 */
 		embedHref() {
-			const query = new URLSearchParams({
-				tab: 'embeds',
-				embedType: 'dashboard',
-				embedId: String(this.dashboard.uuid ?? ''),
-				embedDashboard: String(this.dashboard.id ?? ''),
-			})
-			return `${generateUrl('/settings/admin/launchpad')}?${query.toString()}`
+			return embedAdminHref(this.dashboard)
 		},
 
 		/*

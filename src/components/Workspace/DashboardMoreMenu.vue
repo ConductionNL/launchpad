@@ -26,8 +26,10 @@ import { markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import EyeOffOutline from 'vue-material-design-icons/EyeOffOutline.vue'
@@ -49,7 +51,7 @@ import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
 import ViewGridPlusOutline from 'vue-material-design-icons/ViewGridPlusOutline.vue'
-import { isOwnedDashboard } from './DashboardRowActions.vue'
+import { embedAdminHref, isOwnedDashboard } from './DashboardRowActions.vue'
 import { readChrome, startPageSections } from './StartPageMenu.vue'
 
 /** How many dashboards the menu lists before "All dashboards". */
@@ -216,6 +218,24 @@ export default {
 			default: false,
 		},
 
+		/**
+		 * Whether "Scheduled exports…" is offered; it emits `scheduledExports`
+		 * so the host opens the export list (scheduled-exports task 19).
+		 */
+		canScheduleExports: {
+			type: Boolean,
+			default: false,
+		},
+
+		/**
+		 * Whether "Create embed token" is offered; it opens Beheer ▸ Embeds
+		 * with this dashboard pre-selected (embedded-analytics task 40).
+		 */
+		canEmbed: {
+			type: Boolean,
+			default: false,
+		},
+
 		/** Whether the dashboard is being edited. */
 		isEditMode: {
 			type: Boolean,
@@ -230,7 +250,6 @@ export default {
 		'openConfig',
 		'addWidget',
 		'addCustomWidget',
-		'addApp',
 		'setDefault',
 		'share',
 		'publish',
@@ -238,6 +257,7 @@ export default {
 		'schedule',
 		'versionHistory',
 		'readReceipts',
+		'scheduledExports',
 		'delete',
 		'menuOpen',
 	],
@@ -407,15 +427,6 @@ export default {
 					icon: markRaw(ViewGridPlusOutline),
 					event: 'addCustomWidget',
 				},
-				// launcher-app-catalogue REQ-ACAT-002: the add flow with the app
-				// catalogue, the apps this server runs and the "Can't find your
-				// app?" request form.
-				this.canEdit && {
-					id: 'add-app',
-					label: t('launchpad', 'Add app'),
-					icon: markRaw(StoreOutline),
-					event: 'addApp',
-				},
 				this.canShare && {
 					id: 'share',
 					label: t('launchpad', 'Share'),
@@ -462,9 +473,23 @@ export default {
 					icon: markRaw(CheckDecagramOutline),
 					event: 'readReceipts',
 				},
+				this.canScheduleExports && {
+					id: 'scheduled-exports',
+					label: t('launchpad', 'Scheduled exports…'),
+					icon: markRaw(CalendarExport),
+					event: 'scheduledExports',
+				},
 			]
 				.filter(Boolean)
 				.map((item) => this.eventItem(item))
+			if (this.canEmbed && this.dashboard.uuid) {
+				items.push({
+					id: 'embed',
+					label: t('launchpad', 'Create embed token'),
+					icon: markRaw(CodeTags),
+					href: embedAdminHref(this.dashboard),
+				})
+			}
 			const groups = [
 				{
 					id: 'this-dashboard',

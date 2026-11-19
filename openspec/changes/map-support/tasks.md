@@ -9,13 +9,14 @@
 > autoFit). LaunchPad's `widgetRegistry.js` offers every communal type with a
 > form, so `map` is in the widget picker without a LaunchPad change, and the
 > build rules say pages and widgets come from the shared widgets rather than a
-> hand-built one. The items below are left unticked: they describe a
-> `vue2-leaflet` widget for a Vue 2 code base that no longer exists
-> (launchpad is on Vue 3, and `widgetTypes.js` / `store/modules/widgetData.js`
-> are gone). PDOK tiles, an RD (EPSG:28992) projection and polygon spatial
-> filters are not in the library widget; they belong in nextcloud-vue.
+> hand-built one. The items below are left unticked. They were written for a
+> `vue2-leaflet` widget in a Vue 2 code base that no longer exists (launchpad is
+> on Vue 3, and `widgetTypes.js` / `store/modules/widgetData.js` are gone); the
+> library is now `@vue-leaflet/vue-leaflet`, the Vue 3 port. PDOK tiles, an RD
+> (EPSG:28992) projection and polygon spatial filters are not in the library
+> widget; they belong in nextcloud-vue.
 
-- [ ] Add `vue2-leaflet` + `leaflet` + `proj4` to `package.json`; register `<l-map>` / `<l-tile-layer>` / `<l-geo-json>` globals in the dashboard view bootstrap.
+- [ ] Add `@vue-leaflet/vue-leaflet` (^0.10.1, the Vue 3 port; Ruben, 19 Nov 2026) + `leaflet` + `proj4` to `package.json`; import `LMap` / `LTileLayer` / `LGeoJson` in the map widget (vue-leaflet registers no globals).
 - [ ] Create `src/components/widgets/MapWidget.vue` with: tile layer (PDOK BRT default), GeoJSON renderer, click-to-detail handler, basic legend, loading / empty / error states.
 - [ ] Create `src/components/widgets/MapWidgetConfig.vue` for the dashboard-author UI: register/schema picker, geo-property selector, spatial-filter mode (none / bbox / polygon), clustering threshold.
 - [ ] Register `map` in `src/constants/widgetTypes.js` with a label, icon (MDI `Map`), and config-component reference.

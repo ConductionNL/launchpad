@@ -2,25 +2,19 @@
 
 ## Frontend
 
-> Superseded by the shared library. `@conduction/nextcloud-vue` (^2.180,
-> launchpad's pin) ships `CnMapWidget` and `CnMapWidgetForm` and registers them
-> communally as the `map` dashboard widget type (Leaflet with clustering, an
-> OpenStreetMap basemap, `markers.dataSource` as register + schema or url,
-> autoFit). LaunchPad's `widgetRegistry.js` offers every communal type with a
-> form, so `map` is in the widget picker without a LaunchPad change, and the
-> build rules say pages and widgets come from the shared widgets rather than a
-> hand-built one. The items below are left unticked. They were written for a
-> `vue2-leaflet` widget in a Vue 2 code base that no longer exists (launchpad is
-> on Vue 3, and `widgetTypes.js` / `store/modules/widgetData.js` are gone); the
-> library is now `@vue-leaflet/vue-leaflet`, the Vue 3 port. PDOK tiles, an RD
-> (EPSG:28992) projection and polygon spatial filters are not in the library
-> widget; they belong in nextcloud-vue.
+> Built in the shared library, not in LaunchPad (Ruben, 19 Nov 2026).
+> `@conduction/nextcloud-vue` ships `CnMapWidget` and `CnMapWidgetForm` and
+> registers them communally as the `map` dashboard widget type; LaunchPad's
+> `widgetRegistry.js` offers every communal type with a form, so `map` is in the
+> widget picker without a LaunchPad widget. LaunchPad adds no map library of its
+> own (no `@vue-leaflet/vue-leaflet`, no `vue2-leaflet`). The library is extended
+> instead, keeping the stored content shape of existing map widgets: new keys
+> are optional, and a chosen base map is stored as an ordinary `basemaps[]` item.
 
-- [ ] Add `@vue-leaflet/vue-leaflet` (^0.10.1, the Vue 3 port; Ruben, 19 Nov 2026) + `leaflet` + `proj4` to `package.json`; import `LMap` / `LTileLayer` / `LGeoJson` in the map widget (vue-leaflet registers no globals).
-- [ ] Create `src/components/widgets/MapWidget.vue` with: tile layer (PDOK BRT default), GeoJSON renderer, click-to-detail handler, basic legend, loading / empty / error states.
-- [ ] Create `src/components/widgets/MapWidgetConfig.vue` for the dashboard-author UI: register/schema picker, geo-property selector, spatial-filter mode (none / bbox / polygon), clustering threshold.
-- [ ] Register `map` in `src/constants/widgetTypes.js` with a label, icon (MDI `Map`), and config-component reference.
-- [ ] Wire `widgetData.js` (or equivalent store module) to call OpenRegister's spatial-query API when the widget type is `map`. Pass through bbox / polygon / nearest-N filters from the widget config.
+- [ ] PDOK tile sources in the shared map widget: `CnMapWidgetForm` offers OpenStreetMap and the PDOK BRT achtergrondkaart (standaard, grijs, pastel) and luchtfoto presets, in EPSG:3857, stored as plain `basemaps[]` items (nextcloud-vue PR [ConductionNL/nextcloud-vue#2219](https://github.com/ConductionNL/nextcloud-vue/pull/2219), against main, not yet merged).
+- [ ] Geo-property data source in the shared map widget: `markers.geoProperty` draws each object from that property, a GeoJSON geometry of any type (point, line, polygon, multi-geometry) or a lat/lng value, falling back to `@self.geo` (same PR).
+- [ ] Raise launchpad's `@conduction/nextcloud-vue` pin to the release that carries that PR.
+- [ ] Spatial filters (bbox / polygon / nearest-N) in the shared widget's data source, through OpenRegister's geo filters. Not in the PR above.
 - [ ] Click-to-detail: clicking a feature opens the underlying object's deep-link in a new tab using the deep-link-registry.
 
 ## Backend

@@ -57,6 +57,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
 - [ ] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
+  - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
 - [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.

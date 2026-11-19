@@ -21,7 +21,7 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Full unit suite green (baseline 1525 tests / 3877 assertions / 3 skipped).
+- [x] 3.1 Full unit suite green (baseline 1525 tests / 3877 assertions / 3 skipped).
 - [x] 3.2 Re-measure PHPMD with the baseline deleted — expect 5 `BooleanGetMethodName`
       findings retired and no new findings.
 - [x] 3.3 Remove the corresponding entries from `phpmd.baseline.xml`.

@@ -75,7 +75,7 @@ interface CleanupCategoryInterface {
 	 *
 	 * @return bool True for Tier-A categories.
 	 *
-	 * @spec openspec/changes/cleanup-category-boolean-getter-name/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
 	public function isSafeToPurgeAutomatically(): bool;
 

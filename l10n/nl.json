@@ -1823,6 +1823,11 @@
         "Token %1$s has been revoked by %2$s": "Token %1$s is ingetrokken door %2$s",
         "Reason: %1$s": "Reden: %1$s",
         "Notes: %1$s": "Toelichting: %1$s",
-        "Revocation timestamp: %1$s": "Ingetrokken op: %1$s"
+        "Revocation timestamp: %1$s": "Ingetrokken op: %1$s",
+        "Opens in": "Opent in",
+        "As the dashboard decides": "Zoals het dashboard bepaalt",
+        "Panel beside the tiles": "Paneel naast de tegels",
+        "Web addresses in a new tab, apps in the same tab": "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+        "This address cannot open in the panel.": "Dit adres kan niet in het paneel openen."
     }
 }

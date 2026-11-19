@@ -219,6 +219,28 @@
 					"
 					type="text" />
 
+				<!-- Launcher-tile-open-behaviour: how the tile opens. -->
+				<fieldset class="tile-editor__opens-in" data-test="tile-editor-opens-in">
+					<legend>{{ t('launchpad', 'Opens in') }}</legend>
+					<NcCheckboxRadioSwitch
+						v-for="option in linkTargetOptions"
+						:key="option.value"
+						:modelValue="form.linkTarget"
+						:value="option.value"
+						:disabled="option.disabled"
+						name="tile-link-target"
+						type="radio"
+						@update:modelValue="form.linkTarget = $event">
+						{{ option.label }}
+					</NcCheckboxRadioSwitch>
+					<p
+						v-if="panelRefusal"
+						class="tile-editor__hint"
+						data-test="tile-editor-panel-refusal">
+						{{ panelRefusal }}
+					</p>
+				</fieldset>
+
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
@@ -302,8 +324,10 @@ import { mdiLink } from '@mdi/js'
 import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
+import { validateIframeUrl } from '../services/iframeClient.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
+import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 const MIN_PING_INTERVAL = 15
 const DEFAULT_PING_INTERVAL = 60
@@ -354,6 +378,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				linkTarget: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -362,6 +387,7 @@ export default {
 			},
 
 			healthUrlError: '',
+			panelRefusal: '',
 			MIN_PING_INTERVAL,
 			DEFAULT_RDP_PORT,
 			// launcher-tile-launch-types: the admin's allowed schemes and the
@@ -371,6 +397,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The "Opens in" choices. The panel is unavailable for an outside
+		 * address whose host is not on the embed allow-list.
+		 *
+		 * @return {Array<{value: string, label: string, disabled: boolean}>}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		linkTargetOptions() {
+			return [
+				{ value: '', label: t('launchpad', 'As the dashboard decides'), disabled: false },
+				{ value: SAME_TAB, label: t('launchpad', 'Same tab'), disabled: false },
+				{ value: NEW_TAB, label: t('launchpad', 'New tab'), disabled: false },
+				{ value: SIDE_PANEL, label: t('launchpad', 'Panel beside the tiles'), disabled: this.panelRefusal !== '' },
+			]
+		},
+
 		isOpen: {
 			/** @spec openspec/specs/tiles/spec.md */
 			get() {
@@ -473,6 +515,16 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Re-check whether the address may open in the panel whenever it changes.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		'form.linkValue': function() {
+			this.checkPanelAllowed()
+		},
+
 		tile: {
 			immediate: true,
 			/**
@@ -488,6 +540,7 @@ export default {
 						...launchFields({}),
 						...newTile,
 						iconType: newTile.iconType || 'class',
+						linkTarget: newTile.linkTarget || '',
 					}
 				} else {
 					this.resetForm()
@@ -541,6 +594,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				linkTarget: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -624,6 +678,35 @@ export default {
 			}
 		},
 
+		/**
+		 * Whether the address may open in the panel. An address on this
+		 * Nextcloud (an app, an internal path) always may; an outside one only
+		 * when its host is on the embed allow-list. A refused address cannot
+		 * keep the panel as its choice.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		async checkPanelAllowed() {
+			const value = String(this.form.linkValue || '').trim()
+			if (this.form.linkType !== 'url' || !/^https?:\/\//i.test(value)) {
+				this.panelRefusal = ''
+				return
+			}
+			const result = await validateIframeUrl({ url: value })
+			if (String(this.form.linkValue || '').trim() !== value) {
+				return
+			}
+			if (result.valid === false) {
+				this.panelRefusal = t('launchpad', 'This address cannot open in the panel.')
+				if (this.form.linkTarget === SIDE_PANEL) {
+					this.form.linkTarget = ''
+				}
+			} else {
+				this.panelRefusal = ''
+			}
+		},
+
 		/** @spec openspec/specs/tiles/spec.md */
 		saveTile() {
 			this.$emit('save', {
@@ -640,6 +723,17 @@ export default {
 <style scoped>
 .tile-editor {
 	padding: 20px;
+}
+
+.tile-editor__opens-in {
+	margin: 16px 0;
+	border: 0;
+	padding: 0;
+}
+
+.tile-editor__opens-in legend {
+	font-weight: bold;
+	margin-bottom: 4px;
 }
 
 .tile-editor__fieldset {
@@ -757,6 +851,12 @@ export default {
 	margin: 0;
 	font-size: 13px;
 	color: var(--color-warning-text, var(--color-text-maxcontrast));
+}
+
+.tile-editor__hint {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
 }
 
 .tile-editor__hint-small {

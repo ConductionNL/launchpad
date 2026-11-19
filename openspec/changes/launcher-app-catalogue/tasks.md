@@ -12,6 +12,7 @@
 ## Frontend
 
 - [x] 6. Add the "From the app catalogue" section to `src/modals/WidgetPickerModal.vue`, creating a tile through the existing tile call. Verify: Vitest.
+  - Entry point: the picker had no menu entry left (the toolbar that opened it was removed), so "More" → "Add app" (`DashboardMoreMenu`, `canEdit` only) now opens it.
 - [ ] 7. Add the "Can't find your app?" request form. Verify: Vitest and an axe check.
   - Done in code: the form in `WidgetPickerModal` with Vitest (sent, limit, failure). Open: the axe check, which needs a browser.
 - [x] 8. Add the admin "App catalogue" section: entries with group picker (`NcSelect` with input label) and the request list with approve and decline. Verify: Vitest.
@@ -21,5 +22,6 @@
 
 - [x] 9. Add the four demo entries to `DemoShowcasesService`. Verify: PHPUnit on the showcase.
 - [ ] 10. Playwright for the add path, group visibility and the decline path.
+  - Written: `tests/e2e/app-catalogue.spec.ts` (member adds the entry as a tile, non-member sees it neither in the picker nor from `GET /api/catalogue`, a request sent from the picker is declined on the admin tab with a note and the requester is notified), run as non-admin throwaway accounts. Open: the run against a live instance.
 - [ ] 11. Add `nl` and `en` strings, copy the spec to `openspec/specs/app-catalogue/spec.md` on archive, and set tile-catalogue to `built` in the parity matrix with evidence lines.
   - Done: the 44 frontend strings (picker catalogue section, request form, admin tab) and the 9 notifier strings in `en` and all 36 required locales; tile-catalogue set to `built` with evidence lines in `openspec/parity/capabilities.json`. Open: copying the spec to `openspec/specs/app-catalogue/spec.md`, which happens on archive.

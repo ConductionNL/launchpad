@@ -10,6 +10,7 @@ A tile that shows live data from an outside source: one value with a format and 
 The system MUST register a `launchpad_livetile` widget with the Nextcloud Dashboard Widget API (v2) so it appears in the widget picker.
 
 #### Scenario: Widget appears in discovery
+@e2e exclude never built as written: there is no `launchpad_livetile` Dashboard API widget, no `supportsV2`/`IReloadableWidget` (`git log --all -S launchpad_livetile -- src lib appinfo templates` finds only 5c110d12, which registered the frontend-only `livetile` type in src/constants/widgetRegistry.js instead and dropped the provider task); no test pins that registry entry.
 - GIVEN the LaunchPad app is installed and enabled
 - WHEN the user opens the "Add Widget" modal on a dashboard
 - THEN the live-data tile MUST appear in the widget list with id `launchpad_livetile`
@@ -17,6 +18,7 @@ The system MUST register a `launchpad_livetile` widget with the Nextcloud Dashbo
 - AND the widget MUST declare `supportsV2 = true` and implement `IReloadableWidget`
 
 #### Scenario: Registration via IManager
+@e2e exclude never built: no `LiveTileWidgetProvider` exists and nothing registers with `IManager` (`git log --all -S LiveTileWidgetProvider -- src lib appinfo templates` returns nothing; 5c110d12 notes the app has no lib/Widget provider layer); no test pins it.
 - GIVEN `OCP\Dashboard\IManager` is available
 - WHEN the LaunchPad app boots
 - THEN the app MUST register `LiveTileWidgetProvider`
@@ -102,6 +104,7 @@ The system MUST treat OpenConnector as an optional leaf and remain functional wh
 - AND existing `connector`-mode tiles MUST render an informative "data source unavailable" state, not crash
 
 #### Scenario: No direct class dependency
+@e2e exclude a code-structure property with no browser surface; the capability probe and the container lookup are pinned by tests/Unit/Service/LiveTileServiceTest.php (testProbeAsksForTheConnectorsRealServiceClass, testResolvesViaConnectorWhenAvailable, testIsConnectorAvailableFalseWhenAppDisabled); no test checks for a static import.
 - GIVEN the LaunchPad codebase
 - WHEN resolving a `connector`-mode tile
 - THEN LaunchPad MUST call OpenConnector through its documented runtime source-run API guarded by a capability probe, and MUST NOT statically import OpenConnector PHP classes
@@ -111,6 +114,8 @@ The system MUST treat OpenConnector as an optional leaf and remain functional wh
 A live tile MUST accept a display of `value` (the default), `list`, `table` or `keyvalue`, a mapping of up to six fields each with a label, a path and a role (title, link, date or field), and a limit between 1 and 50. A tile saved before this change MUST keep rendering its single value.
 
 #### Scenario: Ticket list from a connected system
+
+@e2e exclude needs an Integriq "TOPdesk" source, which the CI fixture does not have and which Nextcloud resolves server-side; the connector node mapping is pinned by tests/Unit/Service/LiveTileListsTest.php::testAConnectorNodeIsMappedTheSameWay, the list rendering by live-tile-lists.spec.ts and src/components/Widgets/Renderers/__tests__/LiveTileWidget.lists.spec.js.
 
 - **GIVEN** Integriq holds a source "TOPdesk" with stored credentials and Ella adds a live tile in connector mode with source "TOPdesk", expression `$.incidents`, display "List", limit 5, and mapping title `briefDescription`, link `url`, date `callDate`
 - **WHEN** Pieter opens the Workspace page

@@ -31,14 +31,14 @@ use PHPUnit\Framework\TestCase;
 class OpenApiDocumentTest extends TestCase {
 
 	/**
-	 * The document is OpenAPI 3.0 and its server is the versioned API root.
+	 * The document is OpenAPI 3.1 and its server is the versioned API root.
 	 *
 	 * @return void
 	 */
 	public function testTheServerIsVersioned(): void {
 		$document = self::document();
 
-		$this->assertStringStartsWith(prefix: '3.0.', string: $document['openapi']);
+		$this->assertStringStartsWith(prefix: '3.1.', string: $document['openapi']);
 		$this->assertStringEndsWith(suffix: '/apps/launchpad/api/v1', string: $document['servers'][0]['url']);
 	}//end testTheServerIsVersioned()
 

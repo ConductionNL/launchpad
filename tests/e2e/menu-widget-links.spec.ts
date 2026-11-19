@@ -24,10 +24,10 @@
  * Gate-19 @e2e traceability:
  *   @e2e menu-widget::exact-url-match-highlights-active-item
  *   @e2e menu-widget::route-prefix-match-for-internal-routes
- *   @e2e menu-widget::external-urls-don-t-auto-highlight
- *   @e2e menu-widget::activeitemhighlight-left-bar-renders-left-border
+ *   @e2e menu-widget::external-urls-dont-auto-highlight
+ *   @e2e menu-widget::activeitemhighlightleft-bar-renders-left-border
  *   @e2e menu-widget::external-url-opens-in-new-tab
- *   @e2e menu-widget::internal-url-uses-router-push
+ *   @e2e menu-widget::internal-url-uses-routerpush
  *   @e2e menu-widget::fallback-a-tag-has-rel-attribute
  *   @e2e menu-widget::mdi-icon-in-dropdown
  *   @e2e menu-widget::custom-url-icon-in-tree
@@ -177,7 +177,7 @@ test.describe('menu widget — active item (REQ-MENU-006)', () => {
 		await expect(treeRow(widget, 'Elsewhere')).not.toHaveClass(ACTIVE)
 	})
 
-	// @e2e menu-widget::external-urls-don-t-auto-highlight
+	// @e2e menu-widget::external-urls-dont-auto-highlight
 	test('an external URL is never highlighted, while an internal match on the same page is', async ({ page }) => {
 		const slug = `e2e-menu-external-${RUN}`
 		const dash = await seed('ExternalHi', {
@@ -199,7 +199,7 @@ test.describe('menu widget — active item (REQ-MENU-006)', () => {
 		await expect(external).not.toHaveClass(IN_PATH)
 	})
 
-	// @e2e menu-widget::activeitemhighlight-left-bar-renders-left-border
+	// @e2e menu-widget::activeitemhighlightleft-bar-renders-left-border
 	test('left-bar draws a 4-6 px left border on the active item only', async ({ page }) => {
 		const slug = `e2e-menu-leftbar-${RUN}`
 		const dash = await seed('LeftBar', {
@@ -263,7 +263,7 @@ test.describe('menu widget — links (REQ-MENU-008)', () => {
 		}
 	})
 
-	// @e2e menu-widget::internal-url-uses-router-push
+	// @e2e menu-widget::internal-url-uses-routerpush
 	test('an internal item navigates in the same tab without a page load', async ({ page, context }) => {
 		// `/store` stands in for the scenario's `/dashboard`: a route the app's
 		// router knows, so arriving there is observable.

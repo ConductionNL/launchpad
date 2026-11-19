@@ -177,8 +177,7 @@ class AdminSettingsService {
 			// announcements besides administrators; none until one is chosen.
 			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
 			...$this->officeNetworkSettings(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
-			// Engagement-communities REQ-COMM-003: the Talk conversations the
-			// organisation pinned. A stored entry that is not a token is dropped.
+			// REQ-COMM-003: the pinned Talk conversations; an entry that is not a token is dropped.
 			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
 			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];

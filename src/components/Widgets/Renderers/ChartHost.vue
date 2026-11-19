@@ -17,8 +17,8 @@
 import { CnChartWidget } from '@conduction/nextcloud-vue'
 import { showInfo, showWarning } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
-import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { levelLabels as hierarchyLevelLabels } from '../../../composables/useDashboardFilterSession.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { logger } from '../../../utils/logger.js'
 import { busDeclarationsOf, consumedFilter, publishedClauses, withBusFilter } from '../../../utils/widgetBusConsumption.js'
 import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
@@ -171,6 +171,24 @@ export default {
 		},
 	},
 
+	watch: {
+		busCheck: {
+			immediate: true,
+			/**
+			 * Log why a chart stays off the bus (REQ-CWF-008).
+			 *
+			 * @param {{findings: Array<object>}} check The check.
+			 * @return {void}
+			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+			 */
+			handler(check) {
+				for (const finding of check.findings) {
+					logger.warn(`[launchpad] widget ${this.widgetId} is not on the filter bus: ${finding.code} (${finding.dimension})`)
+				}
+			},
+		},
+	},
+
 	methods: {
 		/**
 		 * Publish the reader's pick to the bus, and say so when it replaced
@@ -194,24 +212,6 @@ export default {
 					showInfo(t('launchpad', '{name} filter changed: {from} → {to}', { name, from: String(answer.audit.from), to: String(answer.audit.to) }))
 				}
 			}
-		},
-	},
-
-	watch: {
-		busCheck: {
-			immediate: true,
-			/**
-			 * Log why a chart stays off the bus (REQ-CWF-008).
-			 *
-			 * @param {{findings: Array<object>}} check The check.
-			 * @return {void}
-			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
-			 */
-			handler(check) {
-				for (const finding of check.findings) {
-					logger.warn(`[launchpad] widget ${this.widgetId} is not on the filter bus: ${finding.code} (${finding.dimension})`)
-				}
-			},
 		},
 	},
 }

@@ -155,4 +155,28 @@ class SubjectTablesTest extends TestCase {
 		$this->expectException(RenderException::class);
 		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: []);
 	}//end testDashboardWithoutCreatorIsRefused()
+
+	/**
+	 * A widget's calculated fields follow its table as one row of values,
+	 * evaluated over the rows the recipient's filter left.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-20
+	 */
+	public function testCalculatedFieldsFollowTheirWidgetEvaluatedOverTheFilteredRows(): void {
+		$dashboard = $this->dashboard();
+		$total     = ['type' => 'fieldRef', 'source' => 'self', 'path' => 'total'];
+		$dashboard['widgets'][0]['calculatedFields'] = [['name' => 'cases', 'label' => 'Cases shown', 'compiledExpression' => $total]];
+		$store = $this->createMock(originalClassName: ExportObjectStore::class);
+		$store->method('find')->willReturn($dashboard);
+
+		$tables = (new SubjectTables(store: $store))->tables(
+			export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'],
+			filterContext: ['gemeenteCode' => 'GM0355']
+		);
+
+		$this->assertSame(expected: ['title' => 'Bezwaren: calculated fields', 'headers' => ['Cases shown'], 'rows' => [[1]]], actual: $tables[1]);
+		$this->assertSame(expected: 'list', actual: $tables[2]['title']);
+	}//end testCalculatedFieldsFollowTheirWidgetEvaluatedOverTheFilteredRows()
 }//end class

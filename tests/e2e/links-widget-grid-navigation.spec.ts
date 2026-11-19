@@ -21,8 +21,8 @@
  *   @e2e links-widget::single-column-layout
  *   @e2e links-widget::six-column-layout
  *   @e2e links-widget::responsive-behavior-on-mobile
- *   @e2e links-widget::external-url-uses-rel-noopener-noreferrer
- *   @e2e links-widget::internal-url-preserves-window-opener
+ *   @e2e links-widget::external-url-uses-relnoopener-noreferrer
+ *   @e2e links-widget::internal-url-preserves-windowopener
  *   @e2e links-widget::same-window-navigation
  *   @e2e links-widget::internal-link-in-same-window
  *   @e2e links-widget::click-handler-does-not-fire-in-edit-mode
@@ -316,7 +316,7 @@ test('on a phone-sized viewport every link stays reachable', async ({ page }) =>
 
 // ── REQ-LNKS-010 Navigation ──────────────────────────────────────────────
 
-// @e2e links-widget::external-url-uses-rel-noopener-noreferrer
+// @e2e links-widget::external-url-uses-relnoopener-noreferrer
 test('an external link opens in a new tab with noopener noreferrer, leaving the tab no opener', async ({
 	page,
 	context,
@@ -352,7 +352,7 @@ test('an external link opens in a new tab with noopener noreferrer, leaving the 
 	await popup.close()
 })
 
-// @e2e links-widget::internal-url-preserves-window-opener
+// @e2e links-widget::internal-url-preserves-windowopener
 test('an internal link opens in a new tab that can still reach window.opener', async ({
 	page,
 	context,

@@ -31,14 +31,12 @@ class WidgetService {
 	 * @param PlacementService $placementService Placement service for CRUD.
 	 * @param WidgetRendering  $rendering The formatter and item loader.
 	 * @param MenuService      $menuService Validator for `menu` widgets (REQ-MENU-002).
-	 * @param MapContentValidator $mapValidator Validator for `map` widgets (map-support).
 	 */
 	public function __construct(
 		private readonly WidgetPlatform $platform,
 		private readonly PlacementService $placementService,
 		private readonly WidgetRendering $rendering,
 		private readonly MenuService $menuService = new MenuService(),
-		private readonly MapContentValidator $mapValidator = new MapContentValidator(),
 	) {
 	}//end __construct()
 
@@ -60,7 +58,7 @@ class WidgetService {
 	 */
 	public function validateWidgetContent(string $widgetType, array $content): void {
 		if ($widgetType === 'map') {
-			$this->mapValidator->validate(content: $content);
+			(new MapContentValidator())->validate(content: $content);
 			return;
 		}
 

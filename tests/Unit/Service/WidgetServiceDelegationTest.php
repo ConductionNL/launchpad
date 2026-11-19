@@ -127,6 +127,18 @@ class WidgetServiceDelegationTest extends TestCase {
 		$this->addToAssertionCount(1);
 	}
 
+	/**
+	 * A map whose spatial filter does not read is refused before it is saved (map-support).
+	 *
+	 * @spec openspec/changes/map-support/tasks.md#backend
+	 */
+	public function testAddWidgetRejectsAMapWhoseSpatialFilterDoesNotRead(): void {
+		$this->placements->expects($this->never())->method('addWidget');
+
+		$this->expectException(InvalidArgumentException::class);
+		$this->service->addWidget(dashboardId: 3, widgetId: 'map', layout: ['content' => ['markers' => ['dataSource' => ['register' => 'r', 'schema' => 's', 'spatialFilter' => ['bbox' => [1, 2, 3]]]]]]);
+	}
+
 	public function testValidateWidgetContentAcceptsAValidMenu(): void {
 		$this->service->validateWidgetContent(widgetType: 'menu', content: ['style' => 'tree', 'items' => 'not-a-list']);
 

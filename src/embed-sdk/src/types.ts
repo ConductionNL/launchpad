@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Type definitions of `@launchpad/embed-sdk` (embedded-analytics task 19).
+ * Type definitions of `@conduction/launchpad-embed` (embedded-analytics task 19).
  *
  * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-006--js-sdk-exposes-render-event-and-resize-apis
  */

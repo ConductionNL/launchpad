@@ -1,4 +1,4 @@
-# @launchpad/embed-sdk
+# @conduction/launchpad-embed
 
 Embed a LaunchPad widget or dashboard in any web page with an embed token.
 
@@ -14,10 +14,24 @@ dashboard and the exact origins of the pages that may show it. The token is show
   style="border: 0; width: 100%; height: 400px"></iframe>
 ```
 
+## Script tag (UMD)
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@conduction/launchpad-embed/dist/embed-sdk.umd.js"></script>
+<script>
+  LaunchPadEmbed.render(document.getElementById('woo'), {
+    baseUrl: 'https://cloud.example.nl/index.php/apps/launchpad',
+    token: '<jwt>',
+    subjectType: 'widget',
+    subjectId: '42',
+  })
+</script>
+```
+
 ## JavaScript (ESM)
 
 ```js
-import { LaunchPadEmbed } from '@launchpad/embed-sdk'
+import { LaunchPadEmbed } from '@conduction/launchpad-embed'
 
 const embed = await LaunchPadEmbed.render(document.getElementById('woo'), {
   baseUrl: 'https://cloud.example.nl/index.php/apps/launchpad',
@@ -47,3 +61,8 @@ The package ships its types (`src/types.ts`): `EmbedConfig`, `EmbedInstance`, `E
   framing from other origins (`Content-Security-Policy: frame-ancestors`).
 - A read token cannot change anything, whatever runs in the page: writes are refused by the
   server.
+
+## Releases
+
+The package is published to npm from the LaunchPad repository on every stable release, with the
+same version as the app (`.github/workflows/publish-embed-sdk.yml`).

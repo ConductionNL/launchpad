@@ -1,4 +1,4 @@
-# @launchpad/embed-sdk reference
+# @conduction/launchpad-embed reference
 
 ## `LaunchPadEmbed.render(container, config)`
 

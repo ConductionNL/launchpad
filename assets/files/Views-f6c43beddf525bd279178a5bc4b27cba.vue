@@ -93,6 +93,7 @@
 					:defaultUuid="defaultDashboardUuid"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
+					:canEmbed="isAdmin === true"
 					:canManagePublication="canManagePublication"
 					:canViewHistory="canViewVersionHistory"
 					:canScheduleExports="canEdit"

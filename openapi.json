@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.7-unstable.20261005190000",
+        "version": "1.1.7-unstable.20261114090000",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -98,6 +98,10 @@
         {
             "name": "dashboard-lock-api",
             "description": "Controller for dashboard editing-lock endpoints (REQ-LOCK-001..008)."
+        },
+        {
+            "name": "dashboard-presence-api",
+            "description": "Controller for who is editing a dashboard (building-edit-a-dashboard-together)."
         },
         {
             "name": "dashboard-metadata",
@@ -236,16 +240,24 @@
             "description": "The signed-in person's own analytics opt-out."
         },
         {
-            "name": "scheduled-export",
-            "description": "Scheduled exports: dashboards and widgets rendered on a schedule and delivered to recipients."
-        },
-        {
             "name": "filter-event-report",
             "description": "The drill-down path report over a dashboard's filter telemetry."
         },
         {
             "name": "search-shortcuts",
             "description": "The administrator's search shortcuts: a prefix that sends a search straight to another site."
+        },
+        {
+            "name": "catalogue",
+            "description": "The app catalogue: the approved apps a user may add as tiles, requests for missing apps, and the administrators' side that keeps the catalogue and decides on requests."
+        },
+        {
+            "name": "activity-report",
+            "description": "A person's activity as counts and a calendar, gated by a purpose and logged."
+        },
+        {
+            "name": "scheduled-export",
+            "description": "Scheduled exports: dashboards and widgets rendered on a schedule and delivered to recipients."
         }
     ],
     "paths": {
@@ -1493,6 +1505,154 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/custom-css": {
+            "get": {
+                "operationId": "admin-custom-css-show",
+                "x-launchpad-stability": "internal",
+                "summary": "Read the stored CSS for all of LaunchPad (REQ-THM-003)",
+                "description": "Read the stored CSS for all of LaunchPad (REQ-THM-003). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "admin-custom-css-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Clean, scope and store the CSS for all of LaunchPad (REQ-THM-003)",
+                "description": "Clean, scope and store the CSS for all of LaunchPad (REQ-THM-003). Answers with the stored CSS and what the cleaning removed; 400 for a value that is no string or is over 20 KB. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "admin"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "customCss": {
+                                        "type": "string",
+                                        "description": "The CSS; an empty string clears it."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/custom-css/dashboards/{uuid}": {
+            "put": {
+                "operationId": "admin-custom-css-update-dashboard",
+                "x-launchpad-stability": "internal",
+                "summary": "Clean, scope and store the CSS for one dashboard (REQ-THM-003)",
+                "description": "Clean, scope and store the CSS for one dashboard (REQ-THM-003), scoped to that dashboard's region. Answers with the stored CSS and what the cleaning removed; 400 for a value that is no string or is over 20 KB, 404 for an unknown dashboard. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The dashboard's UUID."
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "customCss": {
+                                        "type": "string",
+                                        "description": "The CSS; an empty string clears it."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -4173,6 +4333,131 @@
                 }
             }
         },
+        "/dashboard/{dashboardId}/tiles/import": {
+            "post": {
+                "operationId": "bookmark-import-import",
+                "summary": "Import chosen browser bookmarks as containers and tiles",
+                "description": "Import chosen browser bookmarks onto a dashboard (launcher-bookmark-import REQ-BMI-001..003): each folder becomes a container of link tiles, each loose bookmark a tile, appended at the bottom. Addresses that are not http or https are skipped and listed back. The widget quota is checked for the whole import; nothing is created when it does not fit. Needs a signed-in Nextcloud user who may add to the dashboard.",
+                "tags": [
+                    "widget-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "dashboardId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Dashboard ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "folders": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "bookmarks": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "url": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "bookmarks": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The placements were created; `skipped` lists the bookmarks that were not, with the reason.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "placements": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "skipped": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    },
+                                                    "reason": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
         "/dashboard/{dashboardId}/widgets": {
             "post": {
                 "operationId": "widget-api-add-widget",
@@ -5606,6 +5891,85 @@
                         "content": {
                             "application/json": {
                                 "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/dashboards/{uuid}/presence": {
+            "post": {
+                "operationId": "dashboard-presence-api-join",
+                "x-launchpad-stability": "internal",
+                "summary": "Announce or renew the caller's editing of a dashboard",
+                "description": "Announce or renew the caller's editing of a dashboard and answer the colleagues editing it, each with display name and start time (building-edit-a-dashboard-together). Needs edit rights on the dashboard and a signed-in Nextcloud user.",
+                "tags": [
+                    "dashboard-presence-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "dashboard-presence-api-leave",
+                "x-launchpad-stability": "internal",
+                "summary": "Withdraw the caller from a dashboard's editors",
+                "description": "Withdraw the caller from a dashboard's editors. Idempotent. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "dashboard-presence-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
                             }
                         }
                     },
@@ -9730,7 +10094,7 @@
                 "operationId": "widget-api-update-placement",
                 "x-launchpad-stability": "public",
                 "summary": "Update a widget placement",
-                "description": "Update a widget placement. Needs a signed-in Nextcloud user.",
+                "description": "Update a widget placement. Needs a signed-in Nextcloud user. A body with `calculatedFields` is checked first (structure, allowed functions, argument counts, types, cycles across the dashboard) and refused with 400 and a `CalculatedFieldError` when a field fails; the stored fields come back with `returnType` set. Server-mode fields are then written to the widget's OpenRegister source schema as read-only calculated properties.",
                 "tags": [
                     "widget-api"
                 ],
@@ -9755,12 +10119,59 @@
                         },
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "object",
+                                    "description": "The updated placement.",
+                                    "properties": {
+                                        "calculatedFields": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CalculatedField"
+                                            }
+                                        },
+                                        "warnings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CalculatedFieldWarning"
+                                            },
+                                            "description": "Present when a calculated field was saved differently from how it was sent."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "A calculated field was refused.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CalculatedFieldError"
+                                }
                             }
                         }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "The placement fields to change.",
+                                "properties": {
+                                    "calculatedFields": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/CalculatedField"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -9768,7 +10179,7 @@
                 "operationId": "widget-api-remove-placement",
                 "x-launchpad-stability": "public",
                 "summary": "Remove a widget placement",
-                "description": "Remove a widget placement. Needs a signed-in Nextcloud user.",
+                "description": "Remove a widget placement. Needs a signed-in Nextcloud user. The calculated properties its server-mode fields own on the OpenRegister source schema are removed with it; when OpenRegister refuses, the placement is still removed and `warnings` says so.",
                 "tags": [
                     "widget-api"
                 ],
@@ -9793,7 +10204,21 @@
                         },
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "warnings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CalculatedFieldWarning"
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
@@ -9904,6 +10329,1154 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/catalogue": {
+            "get": {
+                "operationId": "catalogue-index",
+                "summary": "The catalogue entries the caller's groups may see",
+                "description": "The catalogue entries the caller's groups may see. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "catalogue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/catalogue/requests": {
+            "post": {
+                "operationId": "catalogue-request",
+                "summary": "Ask for an application the catalogue lacks",
+                "description": "Ask for an application the catalogue lacks. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "appName": {
+                                        "description": "The application."
+                                    },
+                                    "purpose": {
+                                        "description": "What the caller needs it for."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "429": {
+                        "description": "Too many open requests."
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/admin/catalogue": {
+            "get": {
+                "operationId": "admin-catalogue-index",
+                "summary": "Every catalogue entry, the open requests and the catalogue manager group",
+                "description": "Every catalogue entry, the open requests and the catalogue manager group. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "post": {
+                "operationId": "admin-catalogue-create",
+                "summary": "Add a catalogue entry",
+                "description": "Add a catalogue entry. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The app's name."
+                                    },
+                                    "description": {
+                                        "description": "A short description."
+                                    },
+                                    "icon": {
+                                        "description": "An icon class or image address."
+                                    },
+                                    "iconType": {
+                                        "description": "class or url."
+                                    },
+                                    "linkType": {
+                                        "description": "app (a Nextcloud app id) or url."
+                                    },
+                                    "linkValue": {
+                                        "description": "The app id or the web address."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids that see the entry; empty means everyone."
+                                    },
+                                    "sortOrder": {
+                                        "description": "Position in the catalogue."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/admin/catalogue/settings": {
+            "put": {
+                "operationId": "admin-catalogue-set-manager-group",
+                "summary": "Name the group whose members also hear about requests",
+                "description": "Name the group whose members also hear about requests. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "managerGroup": {
+                                        "description": "The group id; empty for none."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/admin/catalogue/requests/{uuid}/approve": {
+            "post": {
+                "operationId": "admin-catalogue-approve",
+                "summary": "Approve a request with the catalogue entry the administrator completed",
+                "description": "Approve a request with the catalogue entry the administrator completed. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The app's name."
+                                    },
+                                    "description": {
+                                        "description": "A short description."
+                                    },
+                                    "icon": {
+                                        "description": "An icon class or image address."
+                                    },
+                                    "iconType": {
+                                        "description": "class or url."
+                                    },
+                                    "linkType": {
+                                        "description": "app (a Nextcloud app id) or url."
+                                    },
+                                    "linkValue": {
+                                        "description": "The app id or the web address."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids that see the entry; empty means everyone."
+                                    },
+                                    "sortOrder": {
+                                        "description": "Position in the catalogue."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/admin/catalogue/requests/{uuid}/decline": {
+            "post": {
+                "operationId": "admin-catalogue-decline",
+                "summary": "Decline a request with a note",
+                "description": "Decline a request with a note. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "note": {
+                                        "description": "Why; required."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/admin/catalogue/{uuid}": {
+            "put": {
+                "operationId": "admin-catalogue-update",
+                "summary": "Change a catalogue entry",
+                "description": "Change a catalogue entry. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The app's name."
+                                    },
+                                    "description": {
+                                        "description": "A short description."
+                                    },
+                                    "icon": {
+                                        "description": "An icon class or image address."
+                                    },
+                                    "iconType": {
+                                        "description": "class or url."
+                                    },
+                                    "linkType": {
+                                        "description": "app (a Nextcloud app id) or url."
+                                    },
+                                    "linkValue": {
+                                        "description": "The app id or the web address."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids that see the entry; empty means everyone."
+                                    },
+                                    "sortOrder": {
+                                        "description": "Position in the catalogue."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-launchpad-stability": "internal"
+            },
+            "delete": {
+                "operationId": "admin-catalogue-destroy",
+                "summary": "Remove a catalogue entry",
+                "description": "Remove a catalogue entry. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/reports": {
+            "get": {
+                "operationId": "report-api-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the report gallery",
+                "description": "GET the shipped reports, each with whether it can run on this instance and the registers or schemas it misses. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "report-api"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/reports/{reportId}": {
+            "get": {
+                "operationId": "report-api-run",
+                "x-launchpad-stability": "internal",
+                "summary": "GET one report run",
+                "description": "GET one report run with the declared parameters as query values. An unavailable report answers with the missing names. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "report-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The report.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/reports/{reportId}/dashboard": {
+            "post": {
+                "operationId": "report-api-save",
+                "x-launchpad-stability": "internal",
+                "summary": "POST a report result as a dashboard",
+                "description": "POST a report result as a new dashboard owned by the caller. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "report-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The report.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/activity-report": {
+            "get": {
+                "operationId": "activity-report-report",
+                "x-launchpad-stability": "internal",
+                "summary": "GET a person's activity over a period",
+                "description": "GET a person's activity over a period as counts per activity type and per day (UTC), from the activity events; nothing reports hours. Anybody reads their own. Another person's activity is refused with 403 until an administrator turned activity reporting on with a purpose, is read only by an administrator, carries the purpose, and every such read is written to the audit log. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "activity-report"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whose activity; omitted for the caller's own.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "The first day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "The last day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/activity-report/export": {
+            "get": {
+                "operationId": "activity-report-export",
+                "x-launchpad-stability": "internal",
+                "summary": "GET a person's activity over a period as CSV",
+                "description": "The same report as CSV, with the same numbers: one row per activity type, one per active day, and the total. The same rules as the report decide who may have it. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "activity-report"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whose activity; omitted for the caller's own.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "The first day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "The last day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/activity-reporting": {
+            "get": {
+                "operationId": "activity-report-policy",
+                "x-launchpad-stability": "internal",
+                "summary": "GET whether activity reporting on named people is on",
+                "description": "Whether activity reporting on named people is on, and the purpose it serves. Administrators only.",
+                "tags": [
+                    "activity-report"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "activity-report-update-policy",
+                "x-launchpad-stability": "internal",
+                "summary": "PUT the activity reporting switch",
+                "description": "Turn activity reporting on named people on or off. Turning it on needs a purpose, which every report on a named person shows. Administrators only.",
+                "tags": [
+                    "activity-report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean"
+                                    },
+                                    "purpose": {
+                                        "type": "string",
+                                        "maxLength": 500
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/colleague-activity": {
+            "get": {
+                "operationId": "colleague-activity-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET recent colleague activity",
+                "description": "GET what other people did recently, as the caller may see it: the caller's own activity stream from the activity app, without the caller's own actions, and without events on a dashboard the caller cannot see now. A left-out entry is absent, not redacted, and is not in any count. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "colleague-activity"
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many entries to list, 1 to 50.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many days back, 1 to 90.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/admin/storage-report": {
+            "get": {
+                "operationId": "storage-report-report",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the storage report",
+                "description": "GET storage use per workspace (a Nextcloud group: the files of its members) and per service (files, trash, versions, each app's app data), now and as a twelve-month series of daily snapshots, the object count per register, and the removable total named apart: trash past its retention and launchpad uploads no row names. Read from the platform's own figures, never by walking files or objects. Administrators only; anybody else gets 403.",
+                "tags": [
+                    "storage-report"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/storage-report/export": {
+            "get": {
+                "operationId": "storage-report-export",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the storage report as CSV",
+                "description": "GET the storage report as CSV: the total, each workspace and service with its twelve months, and the removable total. Administrators only; anybody else gets 403.",
+                "tags": [
+                    "storage-report"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/status-reports/draft": {
+            "post": {
+                "operationId": "status-report-draft",
+                "x-launchpad-stability": "internal",
+                "summary": "POST a body of work for its prefilled status report",
+                "description": "POST a body of work (the objects of one schema in one register, optionally filtered) and get its status report prefilled, not kept: the figures (total, open, closed, overdue, share closed, days to the deadline), the health rating they give and a summary, each marked computed. The objects are read as the caller. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "status-report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "register",
+                                    "schema"
+                                ],
+                                "properties": {
+                                    "register": {
+                                        "type": "string",
+                                        "description": "The register slug of the body of work."
+                                    },
+                                    "schema": {
+                                        "type": "string",
+                                        "description": "The schema slug of its items."
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "deadline": {
+                                        "type": "string",
+                                        "description": "YYYY-MM-DD."
+                                    },
+                                    "filters": {
+                                        "type": "object"
+                                    },
+                                    "statusProperty": {
+                                        "type": "string",
+                                        "description": "Default status."
+                                    },
+                                    "closedValues": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "dueProperty": {
+                                        "type": "string",
+                                        "description": "Default deadline."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
+        },
+        "/status-reports": {
+            "post": {
+                "operationId": "status-report-keep",
+                "x-launchpad-stability": "internal",
+                "summary": "POST a status report to keep",
+                "description": "POST a body of work with the rating and summary a person chose, and keep the report in the launchpad register: the figures are computed again and always marked computed, the rating and the summary are marked written when they differ from the computed ones. Needs a signed-in Nextcloud user and OpenRegister (503 without it).",
+                "tags": [
+                    "status-report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "register",
+                                    "schema"
+                                ],
+                                "properties": {
+                                    "register": {
+                                        "type": "string",
+                                        "description": "The register slug of the body of work."
+                                    },
+                                    "schema": {
+                                        "type": "string",
+                                        "description": "The schema slug of its items."
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "deadline": {
+                                        "type": "string",
+                                        "description": "YYYY-MM-DD."
+                                    },
+                                    "filters": {
+                                        "type": "object"
+                                    },
+                                    "statusProperty": {
+                                        "type": "string",
+                                        "description": "Default status."
+                                    },
+                                    "closedValues": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "dueProperty": {
+                                        "type": "string",
+                                        "description": "Default deadline."
+                                    },
+                                    "health": {
+                                        "type": "string",
+                                        "enum": [
+                                            "on-track",
+                                            "at-risk",
+                                            "off-track"
+                                        ]
+                                    },
+                                    "summary": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
                     }
                 }
             }
@@ -10540,6 +12113,137 @@
                     "status"
                 ],
                 "additionalProperties": true
+            },
+            "CalculatedField": {
+                "type": "object",
+                "description": "A calculated field of a widget placement: a formula over the widget's data, other calculated fields and other widgets on the dashboard, stored as its source text and its compiled AST.",
+                "required": [
+                    "name",
+                    "compiledExpression"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The field's id."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The identifier other fields reference it by; unique on the widget."
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "The column or series label."
+                    },
+                    "expression": {
+                        "type": "string",
+                        "description": "The formula as written, e.g. `(revenue - refunds) / revenue * 100`."
+                    },
+                    "compiledExpression": {
+                        "type": "object",
+                        "description": "The AST the editor's parser produced: nodes `literal`, `fieldRef` (`source` is `self` or `widget:<id>`), `calculatedRef`, `binary`, `unary`, `if` and `call`. The server checks it rather than re-parsing the text."
+                    },
+                    "returnType": {
+                        "type": "string",
+                        "enum": [
+                            "number",
+                            "string",
+                            "boolean",
+                            "date",
+                            "duration",
+                            "null"
+                        ],
+                        "description": "Set by the server's type check on save.",
+                        "readOnly": true
+                    },
+                    "evaluationMode": {
+                        "type": "string",
+                        "enum": [
+                            "client",
+                            "server",
+                            "both"
+                        ],
+                        "default": "client",
+                        "description": "`client` evaluates in the browser; `server` and `both` also materialise the value on the widget's OpenRegister source schema."
+                    },
+                    "serverComputedFieldId": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "The key of the calculated property on the source schema (`launchpad_<placement>__<name>`), null when the field is not materialised."
+                    },
+                    "formatOptions": {
+                        "type": "object",
+                        "description": "Display formatting (number, date or duration), applied when the value is rendered only."
+                    }
+                }
+            },
+            "CalculatedFieldError": {
+                "type": "object",
+                "description": "Why a placement's calculated fields were refused; nothing is saved.",
+                "required": [
+                    "error",
+                    "message"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "enum": [
+                            "invalidField",
+                            "invalidExpression",
+                            "duplicateField",
+                            "unknownFunction",
+                            "functionNotAllowed",
+                            "arityMismatch",
+                            "functionSignature",
+                            "typeError",
+                            "cycleDetected"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "field": {
+                        "type": "string",
+                        "description": "The field the error is about."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The function, for function errors."
+                    },
+                    "cycle": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "For `cycleDetected`: the cycle as `<widget>.<field>`, first node repeated at the end."
+                    },
+                    "widgets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "For `cycleDetected`: the widgets in the cycle."
+                    }
+                }
+            },
+            "CalculatedFieldWarning": {
+                "type": "object",
+                "description": "A save that went through with a change: a server-mode field stored as a client field (`downgraded_evaluation_mode`: it reads another register or schema, OpenRegister cannot evaluate it alike, or the source schema could not be updated), or calculated properties left on the schema of a removed widget (`server_fields_not_removed`).",
+                "properties": {
+                    "warning": {
+                        "type": "string",
+                        "enum": [
+                            "downgraded_evaluation_mode",
+                            "server_fields_not_removed"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                }
             }
         },
         "responses": {

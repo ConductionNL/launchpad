@@ -52,7 +52,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.1.7-unstable.20261114110000</version>
+	<version>1.1.7-unstable.20261119100000</version>
 	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -103,6 +103,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor</job>
 		<!-- engagement-announcements D5: tell category followers about newly visible announcements. -->
 		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
+		<!-- dashboards-and-who-may-see-them REQ-DWMS-010: the storage report's daily snapshot. -->
+		<job>OCA\LaunchPad\BackgroundJob\StorageSnapshotJob</job>
 	</background-jobs>
 
 	<repair-steps>
@@ -147,6 +149,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     dashboard at all and renders the "contact your administrator"
 			     empty state. -->
 			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
+			<!-- REQ-PSP-003: sign-in lands on the Workspace page. Only fills an
+			     unset default app; the admin toggle (on by default) gives it back. -->
+			<step>OCA\LaunchPad\Repair\SetDefaultApp</step>
 		</install>
 	</repair-steps>
 

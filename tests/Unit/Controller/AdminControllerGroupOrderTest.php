@@ -22,6 +22,7 @@ namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\AdminSettingsController;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\CustomCssService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -56,6 +57,7 @@ class AdminControllerGroupOrderTest extends TestCase {
 			groupManager: $this->groupManager,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 			shortcuts: $this->createMock(SearchShortcutService::class),
+			css: $this->createMock(CustomCssService::class),
 		);
 	}
 

@@ -19,7 +19,9 @@ Metrics are collected at request time from database queries and system informati
 - **MetricsCollector**: Orchestrates metric collection, delegates to MetricsQueryService
 - **MetricsQueryService**: Executes database queries for entity counts
 - **HealthController**: Handles health check requests, performs database connectivity test
+
 ## Requirements
+
 ### Requirement: Metrics Endpoint (REQ-PROM-001)
 
 The system MUST expose a Prometheus-compatible metrics endpoint accessible to
@@ -240,6 +242,22 @@ The metrics endpoint MUST respond quickly to avoid blocking Prometheus scrape in
 - WHEN two scrapes overlap
 - THEN both requests MUST complete successfully
 - AND no locking or caching issues MUST occur
+
+### Requirement: The admin page shows the app's health (REQ-PROM-011)
+
+The Operations tab of the LaunchPad admin page MUST show a Health panel that reads the health check endpoint (REQ-PROM-007). The panel MUST show "Checking…" while it waits, then "Healthy" or "Degraded" with the result in words, not only a colour.
+
+#### Scenario: A healthy app
+
+- **GIVEN** Noor is a Nextcloud administrator and the health check answers `status: "ok"`
+- **WHEN** she opens the Operations tab of the LaunchPad admin page
+- **THEN** the Health panel says "Healthy"
+
+#### Scenario: A degraded app
+
+- **GIVEN** the health check reports that the database cannot be reached
+- **WHEN** Noor opens the Operations tab
+- **THEN** the Health panel says "Degraded"
 
 ## Non-Functional Requirements
 

@@ -14,6 +14,8 @@
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
+ *
+ * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
  */
 
 declare(strict_types=1);
@@ -64,7 +66,7 @@ if (class_exists(ObjectSaveOptions::class) === false) {
 		 * @param string|null      $uuid   The object to update.
 		 */
 		public function __construct(
-			public readonly ObjectFindTarget $target = new ObjectFindTarget(),
+			public readonly ?ObjectFindTarget $target = new ObjectFindTarget(),
 			public readonly ?string $uuid = null,
 		) {
 		}

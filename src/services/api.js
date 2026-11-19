@@ -286,6 +286,36 @@ export const api = {
 	},
 
 	/**
+	 * Announce or renew editing a dashboard; resolves to
+	 * `{editors: [{displayName, since}]}`, the colleagues editing it.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 */
+	joinPresence(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/presence`,
+		)
+	},
+
+	/**
+	 * Stop editing a dashboard. With `onPageHide` the request survives the
+	 * page closing (fetch adapter with `keepalive`).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {boolean} [onPageHide] Whether the page is closing.
+	 * @return {Promise} Axios response (204).
+	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 */
+	leavePresence(uuid, onPageHide = false) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/presence`,
+			onPageHide ? { adapter: 'fetch', fetchOptions: { keepalive: true } } : undefined,
+		)
+	},
+
+	/**
 	 * Force-release another person's lock; administrators only (REQ-LOCK-005).
 	 *
 	 * @param {string} uuid UUID of the dashboard.
@@ -661,6 +691,18 @@ export const api = {
 	},
 
 	/**
+	 * Import chosen browser bookmarks onto a dashboard as containers and tiles.
+	 *
+	 * @param {number|string} dashboardId Numeric id of the target dashboard.
+	 * @param {{folders: Array<object>, bookmarks: Array<object>}} data The chosen folders and loose bookmarks.
+	 * @return {Promise} Axios response with `{placements, skipped}`; 409 when the import does not fit the quota.
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+	 */
+	importBookmarks(dashboardId, data) {
+		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/tiles/import`, data)
+	},
+
+	/**
 	 * The apps this server runs for the current user, to place as tiles.
 	 *
 	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.
@@ -668,6 +710,27 @@ export const api = {
 	 */
 	discoverApps() {
 		return axios.get(`${baseUrl}/api/tiles/discover`)
+	},
+
+	/**
+	 * The app catalogue entries the current user's groups may see.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ uuid, name, description, icon, iconType, linkType, linkValue }] }`.
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+	 */
+	catalogueApps() {
+		return axios.get(`${baseUrl}/api/catalogue`)
+	},
+
+	/**
+	 * Ask IT for an app the catalogue lacks.
+	 *
+	 * @param {{appName: string, purpose: string}} request The app and what it is needed for.
+	 * @return {Promise} Axios response resolving to `{ request }`; a 429 carries `code: 'request_limit'`.
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 */
+	requestCatalogueApp(request) {
+		return axios.post(`${baseUrl}/api/catalogue/requests`, request)
 	},
 
 	/**
@@ -956,6 +1019,27 @@ export const api = {
 	 */
 	updateAdminSettings(data) {
 		return axios.put(`${baseUrl}/api/admin/settings`, data)
+	},
+
+	/**
+	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
+	 *
+	 * @return {Promise} Axios response resolving to `{ customCss }`.
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	getCustomCss() {
+		return axios.get(`${baseUrl}/api/admin/custom-css`)
+	},
+
+	/**
+	 * Save the administrator CSS for all of LaunchPad; the server cleans and scopes it.
+	 *
+	 * @param {string} customCss The CSS; '' clears it.
+	 * @return {Promise} Axios response resolving to `{ customCss, removed }`.
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	updateCustomCss(customCss) {
+		return axios.put(`${baseUrl}/api/admin/custom-css`, { customCss })
 	},
 
 	// Admin group-priority order (REQ-ASET-012/013/014).

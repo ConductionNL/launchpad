@@ -933,6 +933,11 @@ class DashboardService {
 			throw new Exception(message: 'Access denied');
 		}
 
+		// REQ-THM-003: only administrators set custom CSS.
+		if (array_key_exists('customCss', $data) === true && $this->isAdmin(userId: $userId) === false) {
+			throw new Exception(message: 'Access denied');
+		}
+
 		$this->applyDashboardUpdates(
 			dashboard: $dashboard,
 			data: $data
@@ -3610,6 +3615,8 @@ class DashboardService {
 		$this->applyFieldUpdates(dashboard: $dashboard, data: $data);
 		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
 		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
+		$this->applyLookUpdates(dashboard: $dashboard, data: $data);
+		$this->applyLinkTargetUpdate(dashboard: $dashboard, data: $data);
 
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
@@ -3617,6 +3624,162 @@ class DashboardService {
 
 		$this->applyPlacementUpdates(data: $data);
 	}//end applyDashboardUpdates()
+
+	/**
+	 * Apply a patched look: accent, background colour and background image (REQ-THM-001/002).
+	 *
+	 * An empty string clears a field, so the dashboard follows the theme
+	 * again. Colours are stored as lower-case `#rrggbb`, the image as a
+	 * LaunchPad resource file name. Whenever the accent or the background
+	 * changes, the accent that results must reach 3:1 against the background
+	 * that results (the instance's when the dashboard has none).
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a colour or image is malformed, or the accent is too pale.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 */
+	private function applyLookUpdates(Dashboard $dashboard, array $data): void {
+		$colours    = $this->patchedColours(
+			data: $data,
+			current: ['themeAccent' => $dashboard->getThemeAccent(), 'themeBackgroundColor' => $dashboard->getThemeBackgroundColor()]
+		);
+		$accent     = $colours['themeAccent'];
+		$background = $colours['themeBackgroundColor'];
+		$this->applyBackgroundResourceUpdate(dashboard: $dashboard, data: $data);
+
+		$colourChanged = array_key_exists('themeAccent', $data) === true || array_key_exists('themeBackgroundColor', $data) === true;
+		if ($colourChanged === true && $accent !== null) {
+			DashboardLook::assertAccentReadable(accent: $accent, background: $background);
+		}
+
+		$dashboard->setThemeAccent($accent);
+		$dashboard->setThemeBackgroundColor($background);
+		$this->applyCustomCssUpdate(dashboard: $dashboard, data: $data);
+	}//end applyLookUpdates()
+
+	/**
+	 * The colours a patch leaves in the look: per field the current one when
+	 * the patch does not name it, null when it sends an empty value, else the
+	 * value as lower-case `#rrggbb` (REQ-THM-001). Fields are read in the order
+	 * of `$current`, so the accent is judged before the background.
+	 *
+	 * @param array<string, mixed>       $data    The update payload.
+	 * @param array<string, string|null> $current The dashboard's colours now, by field.
+	 *
+	 * @return array<string, string|null> The colours to store, by field.
+	 *
+	 * @throws InvalidArgumentException When a colour is malformed.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 */
+	private function patchedColours(array $data, array $current): array {
+		$labels = ['themeAccent' => 'The accent', 'themeBackgroundColor' => 'The background colour'];
+		foreach (array_keys($current) as $key) {
+			if (array_key_exists($key, $data) === false) {
+				continue;
+			}
+
+			$current[$key] = null;
+			if (trim((string)$data[$key]) !== '') {
+				$current[$key] = DashboardLook::normaliseHex(colour: (string)$data[$key], field: $labels[$key]);
+			}
+		}
+
+		return $current;
+	}//end patchedColours()
+
+	/**
+	 * Apply a patched background image: a LaunchPad resource file name, or
+	 * none for an empty value (REQ-THM-001).
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the name is no LaunchPad resource.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 */
+	private function applyBackgroundResourceUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists('themeBackgroundResource', $data) === false) {
+			return;
+		}
+
+		$resource = trim((string)$data['themeBackgroundResource']);
+		if ($resource !== '' && DashboardLook::isResourceName(name: $resource) === false) {
+			throw new InvalidArgumentException('The background image must be an image uploaded to LaunchPad.');
+		}
+
+		$stored = null;
+		if ($resource !== '') {
+			$stored = $resource;
+		}
+
+		$dashboard->setThemeBackgroundResource($stored);
+	}//end applyBackgroundResourceUpdate()
+
+	/**
+	 * Apply patched administrator CSS, cleaned and scoped to this dashboard (REQ-THM-003).
+	 *
+	 * The caller has checked that the user is an administrator. An empty
+	 * value clears the CSS.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the CSS is larger than 20 KB.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function applyCustomCssUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists('customCss', $data) === false) {
+			return;
+		}
+
+		$result = (new CustomCssSanitiser())->sanitise(
+			css: (string)$data['customCss'],
+			scope: CustomCssSanitiser::dashboardScope(uuid: (string)$dashboard->getUuid())
+		);
+
+		$stored = null;
+		if ($result['css'] !== '') {
+			$stored = $result['css'];
+		}
+
+		$dashboard->setCustomCss($stored);
+	}//end applyCustomCssUpdate()
+
+	/**
+	 * Apply the patched default link target, when the payload names one.
+	 *
+	 * An empty value clears it, so tiles follow the link-type rule again.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the value is not a link target.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	private function applyLinkTargetUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists(key: 'defaultLinkTarget', array: $data) === false) {
+			return;
+		}
+
+		$dashboard->setDefaultLinkTarget(
+			TileLinkTarget::validated(value: $data['defaultLinkTarget'], field: 'defaultLinkTarget')
+		);
+	}//end applyLinkTargetUpdate()
 
 	/**
 	 * Apply a patched placement position list, when the payload has one.

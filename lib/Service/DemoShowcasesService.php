@@ -138,11 +138,13 @@ class DemoShowcasesService {
 	 * @param ShowcaseStores   $stores The dashboard and placement mappers, the database and the lock provider.
 	 * @param ShowcasePlatform $platform App config, dashboard manager, URL generator and event dispatcher.
 	 * @param LoggerInterface  $logger PSR-3 logger.
+	 * @param CatalogueService|null $catalogue Seeds the demo app catalogue entries on an install (launcher-app-catalogue).
 	 */
 	public function __construct(
 		private readonly ShowcaseStores $stores,
 		private readonly ShowcasePlatform $platform,
 		private readonly LoggerInterface $logger,
+		private readonly ?CatalogueService $catalogue = null,
 	) {
 		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
@@ -484,6 +486,7 @@ class DemoShowcasesService {
 			showcaseId: $showcaseId,
 			dashboardUuid: $installedUuid
 		);
+		$this->seedCatalogue();
 
 		$this->logger->info(
 			message: 'Installed demo showcase',
@@ -501,6 +504,30 @@ class DemoShowcasesService {
 			'alreadyInstalled' => false,
 		];
 	}//end doInstallShowcase()
+
+	/**
+	 * Give an empty app catalogue the demo entries a municipality would
+	 * recognise (launcher-app-catalogue, design "Seed data"). A failure is
+	 * logged and does not undo the showcase.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-9
+	 */
+	private function seedCatalogue(): void {
+		if ($this->catalogue === null) {
+			return;
+		}
+
+		try {
+			$this->catalogue->seedDemoEntries();
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				message: 'Could not seed the demo app catalogue: ' . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+		}
+	}//end seedCatalogue()
 
 	/**
 	 * Uninstall a previously-installed showcase.

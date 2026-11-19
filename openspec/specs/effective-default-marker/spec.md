@@ -44,7 +44,6 @@ confusing than helpful.
 WHEN `DashboardSwitcherSidebar.vue` renders any sidebar section (primary-group / default-group / personal) each row MUST consult `isDefaultDashboard(dashboard)` AND render a `<span class="dashboard-switcher-sidebar__default-marker">` containing a `Star` icon when the result is true. The marker appears between the dashboard's own icon and its label so the dashboard's icon stays anchored to the left edge.
 
 #### Scenario: Star renders on the effective-default row
-@e2e exclude marker-render assertion on a specific DOM node — covered by Vitest component test
 - **GIVEN** the sidebar renders with one dashboard being the effective default
 - **WHEN** the rows render
 - **THEN** that row MUST show a `Star` icon inside a `dashboard-switcher-sidebar__default-marker` span
@@ -68,7 +67,6 @@ resolver's first five steps:
 The pin always wins over group fallbacks.
 
 #### Scenario: Pin wins over group fallback
-@e2e exclude resolver-precedence logic — covered by Vitest component test
 - **GIVEN** the user has pinned dashboard A and a group default B exists
 - **WHEN** `isDefaultDashboard()` is evaluated for each row
 - **THEN** only dashboard A MUST be marked as the effective default
@@ -81,7 +79,6 @@ LaunchPad"* and an `aria-label` with the shorter *"Default dashboard"*
 so screen readers announce the marker.
 
 #### Scenario: Marker carries tooltip and aria-label
-@e2e exclude title/aria-label attribute assertion — covered by Vitest component test
 - **GIVEN** the effective-default marker is rendered
 - **WHEN** the marker span is inspected
 - **THEN** it MUST carry a `title` attribute with the localised default-dashboard copy
@@ -95,7 +92,6 @@ Pinning a different dashboard via the cog menu MUST move the marker
 in the same render tick.
 
 #### Scenario: Marker moves when pin changes
-@e2e exclude same-tick reactive re-render assertion — covered by Vitest component test
 - **GIVEN** dashboard A is currently marked as default
 - **WHEN** the user pins dashboard B via the cog menu
 - **THEN** the marker MUST move to dashboard B in the same render tick without a page reload
@@ -106,7 +102,6 @@ The marker's color MUST be `var(--color-warning, #e9a800)` so it
 inherits Nextcloud theme overrides (light/dark variants).
 
 #### Scenario: Marker color uses theme variable
-@e2e exclude CSS custom-property color is a computed-style assertion — Vitest/visual-regression scope, not browser flow
 - **GIVEN** the marker is rendered
 - **WHEN** its color is computed
 - **THEN** it MUST resolve to `var(--color-warning, #e9a800)` so it follows theme overrides

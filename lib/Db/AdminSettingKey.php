@@ -72,6 +72,11 @@ enum AdminSettingKey: string {
 	case PUBLIC_START_SHARE_TOKEN = 'public_start_share_token';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
+	case CUSTOM_CSS = 'custom_css';
 	// Drill-down-cross-widget-filter REQ-CWF-010: org-level opt-in for filter telemetry, off by default.
 	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
+	case OFFICE_NETWORKS = 'office_networks';
+	case PINNED_COMMUNITIES = 'pinned_communities';
+	// REQ-PSP-003: LaunchPad is the default app after sign-in unless switched off; on by default.
+	case DEFAULT_APP_ENABLED = 'default_app_enabled';
 }//end enum

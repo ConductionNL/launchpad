@@ -18,7 +18,7 @@ import WorkspaceApp from '../WorkspaceApp.vue'
 
 const dashboardStore = {
 	activeDashboardId: null,
-	switchDashboard: vi.fn(),
+	openDashboard: vi.fn(),
 	createDashboard: vi.fn(),
 }
 const orgNavStore = { shouldRender: false, position: 'top' }
@@ -53,6 +53,7 @@ function mountShell({ provide = {}, route = { params: {} } } = {}) {
 				OrgNavigationPanel: { name: 'OrgNavigationPanel', render: () => h('nav', { class: 'org-nav-stub' }) },
 				SidebarBackdrop: { name: 'SidebarBackdrop', emits: ['close'], render: () => h('div', { class: 'backdrop-stub' }) },
 				StartPageMenu: true,
+				TileSidePanel: true,
 				NcButton: {
 					name: 'NcButton',
 					emits: ['click'],
@@ -81,14 +82,14 @@ describe('WorkspaceApp route parameter', () => {
 		dashboardStore.activeDashboardId = 'a'
 		mountShell({ route: { params: { id: 'b' } } })
 
-		expect(dashboardStore.switchDashboard).toHaveBeenCalledWith('b')
+		expect(dashboardStore.openDashboard).toHaveBeenCalledWith('b')
 	})
 
 	it('does not switch to the dashboard that is already active, compared as text', () => {
 		dashboardStore.activeDashboardId = 7
 		mountShell({ route: { params: { id: '7' } } })
 
-		expect(dashboardStore.switchDashboard).not.toHaveBeenCalled()
+		expect(dashboardStore.openDashboard).not.toHaveBeenCalled()
 	})
 
 	it('does nothing without a dashboard in the route', () => {
@@ -96,7 +97,7 @@ describe('WorkspaceApp route parameter', () => {
 			mountShell({ route: { params: { id } } }).unmount()
 		}
 
-		expect(dashboardStore.switchDashboard).not.toHaveBeenCalled()
+		expect(dashboardStore.openDashboard).not.toHaveBeenCalled()
 	})
 })
 

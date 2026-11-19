@@ -219,6 +219,36 @@
 					"
 					type="text" />
 
+				<NcTextField
+					v-model="form.internalUrl"
+					:label="t('launchpad', 'Address on the office network')"
+					:placeholder="t('launchpad', 'Optional, e.g. http://intranet.local')"
+					type="text" />
+				<p class="tile-editor__hint-small tile-editor__address-in-effect">
+					{{ addressInEffect }}
+				</p>
+				<!-- Launcher-tile-open-behaviour: how the tile opens. -->
+				<fieldset class="tile-editor__opens-in" data-test="tile-editor-opens-in">
+					<legend>{{ t('launchpad', 'Opens in') }}</legend>
+					<NcCheckboxRadioSwitch
+						v-for="option in linkTargetOptions"
+						:key="option.value"
+						:modelValue="form.linkTarget"
+						:value="option.value"
+						:disabled="option.disabled"
+						name="tile-link-target"
+						type="radio"
+						@update:modelValue="form.linkTarget = $event">
+						{{ option.label }}
+					</NcCheckboxRadioSwitch>
+					<p
+						v-if="panelRefusal"
+						class="tile-editor__hint"
+						data-test="tile-editor-panel-refusal">
+						{{ panelRefusal }}
+					</p>
+				</fieldset>
+
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
@@ -299,11 +329,14 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
+import { translate as t } from '@nextcloud/l10n'
 import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
-import { loadInitialState } from '../utils/loadInitialState.js'
+import { validateIframeUrl } from '../services/iframeClient.js'
+import { isOnOfficeNetwork, loadInitialState } from '../utils/loadInitialState.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
+import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 const MIN_PING_INTERVAL = 15
 const DEFAULT_PING_INTERVAL = 60
@@ -354,6 +387,8 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
+				linkTarget: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -362,6 +397,8 @@ export default {
 			},
 
 			healthUrlError: '',
+			onOfficeNetwork: isOnOfficeNetwork(),
+			panelRefusal: '',
 			MIN_PING_INTERVAL,
 			DEFAULT_RDP_PORT,
 			// launcher-tile-launch-types: the admin's allowed schemes and the
@@ -371,6 +408,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The "Opens in" choices. The panel is unavailable for an outside
+		 * address whose host is not on the embed allow-list.
+		 *
+		 * @return {Array<{value: string, label: string, disabled: boolean}>}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		linkTargetOptions() {
+			return [
+				{ value: '', label: t('launchpad', 'As the dashboard decides'), disabled: false },
+				{ value: SAME_TAB, label: t('launchpad', 'Same tab'), disabled: false },
+				{ value: NEW_TAB, label: t('launchpad', 'New tab'), disabled: false },
+				{ value: SIDE_PANEL, label: t('launchpad', 'Panel beside the tiles'), disabled: this.panelRefusal !== '' },
+			]
+		},
+
 		isOpen: {
 			/** @spec openspec/specs/tiles/spec.md */
 			get() {
@@ -470,9 +523,33 @@ export default {
 			}
 			return t('launchpad', 'Allowed schemes: {schemes}', { schemes: this.launchOptions.schemes.join(', ') })
 		},
+
+		/**
+		 * Which address this tile opens for the author right now, from the
+		 * same server answer every viewer gets (launcher-tile-internal-address D3).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 */
+		addressInEffect() {
+			if (this.onOfficeNetwork) {
+				return t('launchpad', 'You are on the office network: this tile opens the internal address')
+			}
+			return t('launchpad', 'You are not on the office network: this tile opens the main address')
+		},
 	},
 
 	watch: {
+		/**
+		 * Re-check whether the address may open in the panel whenever it changes.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		'form.linkValue': function() {
+			this.checkPanelAllowed()
+		},
+
 		tile: {
 			immediate: true,
 			/**
@@ -487,7 +564,9 @@ export default {
 					this.form = {
 						...launchFields({}),
 						...newTile,
+						internalUrl: newTile.internalUrl || '',
 						iconType: newTile.iconType || 'class',
+						linkTarget: newTile.linkTarget || '',
 					}
 				} else {
 					this.resetForm()
@@ -541,6 +620,8 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
+				linkTarget: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -624,6 +705,35 @@ export default {
 			}
 		},
 
+		/**
+		 * Whether the address may open in the panel. An address on this
+		 * Nextcloud (an app, an internal path) always may; an outside one only
+		 * when its host is on the embed allow-list. A refused address cannot
+		 * keep the panel as its choice.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		async checkPanelAllowed() {
+			const value = String(this.form.linkValue || '').trim()
+			if (this.form.linkType !== 'url' || !/^https?:\/\//i.test(value)) {
+				this.panelRefusal = ''
+				return
+			}
+			const result = await validateIframeUrl({ url: value })
+			if (String(this.form.linkValue || '').trim() !== value) {
+				return
+			}
+			if (result.valid === false) {
+				this.panelRefusal = t('launchpad', 'This address cannot open in the panel.')
+				if (this.form.linkTarget === SIDE_PANEL) {
+					this.form.linkTarget = ''
+				}
+			} else {
+				this.panelRefusal = ''
+			}
+		},
+
 		/** @spec openspec/specs/tiles/spec.md */
 		saveTile() {
 			this.$emit('save', {
@@ -640,6 +750,17 @@ export default {
 <style scoped>
 .tile-editor {
 	padding: 20px;
+}
+
+.tile-editor__opens-in {
+	margin: 16px 0;
+	border: 0;
+	padding: 0;
+}
+
+.tile-editor__opens-in legend {
+	font-weight: bold;
+	margin-bottom: 4px;
 }
 
 .tile-editor__fieldset {
@@ -757,6 +878,12 @@ export default {
 	margin: 0;
 	font-size: 13px;
 	color: var(--color-warning-text, var(--color-text-maxcontrast));
+}
+
+.tile-editor__hint {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
 }
 
 .tile-editor__hint-small {

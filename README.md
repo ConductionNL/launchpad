@@ -17,7 +17,7 @@
 
 ---
 
-LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
+LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs. LaunchPad is available in the [Nextcloud App Store](https://apps.nextcloud.com/apps/launchpad).
 
 📚 **[Step-by-step tutorials](https://launchpad.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
 

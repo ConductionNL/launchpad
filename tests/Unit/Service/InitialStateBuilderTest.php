@@ -133,6 +133,8 @@ class InitialStateBuilderTest extends TestCase {
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
 			->setStartPageWithoutNavigation(true)
+			->setOnOfficeNetwork(true)
+			->setCustomCss(".launchpad-workspace p {\n  margin: 0;\n}")
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -147,6 +149,54 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertTrue($sink['allowUserDashboards']);
 		// runtime-shell REQ-SHELL-009, an optional key: pushed when set.
 		$this->assertTrue($sink['startPageWithoutNavigation']);
+		// launcher-tile-internal-address REQ-TIA-003, an optional key: pushed when set.
+		$this->assertTrue($sink['onOfficeNetwork']);
+		// REQ-THM-003, an optional key: the stored administrator CSS.
+		$this->assertSame(".launchpad-workspace p {\n  margin: 0;\n}", $sink['customCss']);
+	}
+
+	/**
+	 * Engagement-communities: whether Talk is enabled and the pinned tokens are
+	 * optional workspace keys, pushed only when set (REQ-COMM-003, REQ-COMM-004).
+	 *
+	 * @return void
+	 */
+	public function testTalkAndPinnedCommunitiesArePushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)
+			->setTalkEnabled(true)
+			->setPinnedCommunities([2 => 'vraagict', 5 => 'duurzaam42'])
+			->apply();
+
+		$this->assertTrue($sink['talkEnabled']);
+		$this->assertSame(['vraagict', 'duurzaam42'], $sink['pinnedCommunities']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('talkEnabled', $bare);
+		$this->assertArrayNotHasKey('pinnedCommunities', $bare);
+	}
+
+	/**
+	 * A workspace builder with every required key set, writing into the sink.
+	 *
+	 * @param array $sink The recorded state.
+	 *
+	 * @return InitialStateBuilder
+	 */
+	private function workspaceBuilder(array &$sink): InitialStateBuilder {
+		return (new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('default')
+			->setPrimaryGroupName('')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null);
 	}
 
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {

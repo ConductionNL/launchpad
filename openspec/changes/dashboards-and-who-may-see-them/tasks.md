@@ -6,40 +6,40 @@
 - [x] 1.2 Apply the layer over a shared dashboard at render time, and only for its owner.
 - [x] 1.3 Refuse hiding a placement marked compulsory by `admin-templates`.
 - [x] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
-- [ ] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. `pruneOrphans()` is written and tested, and nothing calls it. The reason is below.
+- [x] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. `TemplateResyncService` calls `PersonalLayerService::pruneDashboard()` after a re-sync that removed placements; it sweeps every layer on that dashboard through `PersonalLayerMapper::findByDashboard()`.
 - [x] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
 - [x] 1.7 PHPUnit from the READER: a saved layer changes what `DashboardService` hands back, on the landing read and on the by-id read, and reaches nobody else.
 
 ## 2. The report library
 
-- [ ] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas.
-- [ ] 2.2 Ship a first set of definitions with the app and list them in a gallery.
-- [ ] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
-- [ ] 2.4 Save a result as an ordinary dashboard owned by the saver.
-- [ ] 2.5 PHPUnit on the availability check and on save-as-dashboard.
+- [x] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas. `Reporting\ReportDefinitions::check()`.
+- [x] 2.2 Ship a first set of definitions with the app and list them in a gallery. Shipped: `lib/Settings/reports.json` (three reports) and the gallery data at `GET /api/reports`. The gallery is manifest configuration (`src/manifest.d/dashboards-and-who-may-see-them.json`): an index page over that endpoint (the library's `endpoint` source) listing each report with Available or Unavailable and the missing registers and schemas, a row that opens the run (`GET /api/reports/{id}`) on a detail page over the same source, and Save as dashboard on both as an `api-call` to `POST /api/reports/{id}/dashboard`; a card on the Reports page leads to it.
+- [x] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
+- [x] 2.4 Save a result as an ordinary dashboard owned by the saver. `POST /api/reports/{reportId}/dashboard`: a dashboard of the caller holding one chart of the result.
+- [x] 2.5 PHPUnit on the availability check and on save-as-dashboard.
 
 ## 3. The status report
 
-- [ ] 3.1 Add the status report object: date, health rating, summary, figures, and per value whether it was computed or written.
-- [ ] 3.2 Prefill the rating and the figures from the body of work.
-- [ ] 3.3 Let a person edit the summary before keeping the report.
-- [ ] 3.4 PHPUnit on prefill and on the computed-versus-written record.
+- [x] 3.1 Add the status report object: date, health rating, summary, figures, and per value whether it was computed or written. — built: schema `status_report` in the launchpad register (`lib/Settings/register.d/dashboards-and-who-may-see-them.json`, register version 1.0.3) with `provenance` per value; kept through OpenRegister's published object service (`StatusReport\StatusReportStore`), 503 without OpenRegister.
+- [x] 3.2 Prefill the rating and the figures from the body of work. — built: `POST /api/status-reports/draft` reads the objects of one schema in one register as the caller (optional filters, status and due-date properties, closed values) and computes total, open, closed, overdue, share closed and days to the deadline, the rating (off track: deadline passed with items open or more than a quarter of the open items overdue; at risk: anything overdue, or within 14 days of the deadline with less than 75% closed) and a summary.
+- [x] 3.3 Let a person edit the summary before keeping the report. — built: `POST /api/status-reports` keeps the report with the person's summary and rating, computing the figures again (a person cannot write them). The screen is the dashboard widget `status-report` (`StatusReportWidget`; its form names the body of work: register, schema, deadline, status property, closed values, due-date property): Prepare report shows the computed figures read-only with the prefilled rating and summary, the person changes either, Keep report stores it and shows back which values were computed and which were written by a person. Vitest on the widget (9), its form (3) and its client (6).
+- [x] 3.4 PHPUnit on prefill and on the computed-versus-written record. — built: `StatusReportServiceTest` (11), `StatusReportStoreTest` (4), `StatusReportControllerTest` (4), and the shipped register carrying the schema (`ImportLaunchpadRegisterTest`).
 
 ## 4. Activity reporting
 
-- [ ] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty.
-- [ ] 4.2 Show the purpose on every screen reporting on a named person.
-- [ ] 4.3 Write an audit entry for every read of another person's activity.
-- [ ] 4.4 Let a person read their own without the setting and without a log entry.
-- [ ] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events.
-- [ ] 4.6 Export both as CSV, with totals equal to the screen.
-- [ ] 4.7 PHPUnit on the gate, the self-read exception and the audit entry.
+- [x] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty. — built: `ActivityReport\ActivityReportingPolicy` (app config, off by default; turning it on without a purpose, or with one over 500 characters, is refused; a stored switch without a purpose reads as off), read and set by administrators at `GET`/`PUT /api/admin/activity-reporting`.
+- [x] 4.2 Show the purpose on every screen reporting on a named person. — built: every response and the CSV carry the purpose, and the screen is the dashboard widget `activity-report` (`ActivityReportWidget`, form: the period it opens on): a person and a period, the purpose shown above any report about a named person, counts per type with the total, a calendar of intensity per day and the CSV of the report as shown. A refusal is said in words: reporting is off and how an administrator turns it on, only an administrator reads another person, or the period is wrong. Vitest on the widget (12), its form (3) and its client (6).
+- [x] 4.3 Write an audit entry for every read of another person's activity. — built: every read of another person's activity dispatches Nextcloud's `CriticalActionPerformedEvent` (the admin audit log) with the subject, the period, the reader and the purpose.
+- [x] 4.4 Let a person read their own without the setting and without a log entry. — built: `ActivityReportService::report()` gives anybody their own activity whatever the switch, with no audit entry; another person's is refused with 403 while the switch is off (the answer says how to turn it on) and for a non-administrator, before anything is read.
+- [x] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events. — built: `GET /api/activity-report?user=&from=&to=` counts per activity type and per day (UTC, a day without activity absent, at most 366 days), from the activity app's events (`ActivityEventReader`, one event per action however many people it was shown to); nothing measures hours. Without the activity app the report says `available: false`.
+- [x] 4.6 Export both as CSV, with totals equal to the screen. — built: `GET /api/activity-report/export` returns the same report as CSV (purpose, subject, period, a row per type and per day, the total), under the same rules.
+- [x] 4.7 PHPUnit on the gate, the self-read exception and the audit entry. — built: `ActivityReportServiceTest` (9: the gate, the self-read exception, the audit entry, the figures, the CSV totals), `ActivityReportingPolicyTest` (5), `ActivityEventReaderTest` (3), `ActivityReportControllerTest` (6).
 
 ## 5. Colleague activity
 
-- [ ] 5.1 Add the widget over the existing activity feed.
-- [ ] 5.2 Filter to what the reader may see, and exclude filtered entries from every count.
-- [ ] 5.3 PHPUnit on the permission filter, including its effect on the totals.
+- [x] 5.1 Add the widget over the existing activity feed. — built: widget type `colleague-activity` (`ColleagueActivityWidget` with its form: lines and days back) over `GET /api/colleague-activity`, which reads the activity app's rows addressed to the reader (`ColleagueActivityReader`), without the reader's own actions; no second feed.
+- [x] 5.2 Filter to what the reader may see, and exclude filtered entries from every count. — built: `ColleagueActivityService` checks every event on a launchpad dashboard against the dashboard as it is now (`PermissionService::canViewDashboard()`); an event on a dashboard the reader cannot see, or that is gone, is absent, and the total, the per-type counts and the number of colleagues are taken from what remains.
+- [x] 5.3 PHPUnit on the permission filter, including its effect on the totals. — built: `ColleagueActivityServiceTest` (7), `ColleagueActivityReaderTest` (2), `ColleagueActivityControllerTest` (2); Vitest on the widget (7) and its form (3).
 
 ## 6. In-widget search
 
@@ -49,17 +49,17 @@
 
 ## 7. Geographic reporting
 
-- [ ] 7.1 Add the aggregation: counts and rates per declared area property over a period.
-- [ ] 7.2 Count objects with no location in an explicit bucket.
-- [ ] 7.3 PHPUnit on the bucket, including the empty case.
+- [x] 7.1 Add the aggregation: counts and rates per declared area property over a period. `Reporting\AreaAggregation`, run by the shipped report kind `area` (section 2).
+- [x] 7.2 Count objects with no location in an explicit bucket.
+- [x] 7.3 PHPUnit on the bucket, including the empty case.
 
 ## 8. Storage reporting
 
-- [ ] 8.1 Read use per workspace and per service from the platform figures and register counts.
-- [ ] 8.2 Keep a daily series and report twelve months.
-- [ ] 8.3 Name the removable total: past retention, orphaned uploads.
-- [ ] 8.4 Export as CSV, administrator-only, and refuse others with 403.
-- [ ] 8.5 PHPUnit on the admin guard and on the removable calculation.
+- [x] 8.1 Read use per workspace and per service from the platform figures and register counts. — built: `StorageReport\StorageFigures` reads the folder sizes the file cache keeps (the figure Nextcloud's quota uses) and the object count per register, never walking files or objects. A workspace is a Nextcloud group (its members' files; a person in two groups counts in both, so the total in use comes from the services); a service is files, trash or versions over every home, or one app's app data. `GET /api/admin/storage-report`.
+- [x] 8.2 Keep a daily series and report twelve months. — built: `StorageSnapshotJob` keeps one snapshot a day (totals only) in launchpad's app data (`StorageSeries`, at most 400 days, no table); the report gives the total, every workspace and every service per month for the last twelve months, the month's last snapshot, empty for a month without one.
+- [x] 8.3 Name the removable total: past retention, orphaned uploads. — built: apart from the total in use, trash entries older than Nextcloud's `trashbin_retention_obligation` (`auto` is 30 days, `disabled` expires nothing) and launchpad uploads older than a day that no launchpad row names; when the rows cannot be read, no upload counts as orphaned.
+- [x] 8.4 Export as CSV, administrator-only, and refuse others with 403. — built: `GET /api/admin/storage-report/export`, the same numbers as CSV; both routes carry the admin-setting attribute and the service refuses anybody who is not an administrator with 403 again.
+- [x] 8.5 PHPUnit on the admin guard and on the removable calculation. — built: `StorageReportServiceTest` (10), `StorageFiguresTest` (7), `StorageSeriesTest` (4), `StorageReportControllerTest` (4), `StorageSnapshotJobTest` (2).
 
 ## 9. Handover
 
@@ -119,15 +119,13 @@ Three routes, all `#[NoAdminRequired]`, all reading the caller's own user id
 from the session. No route takes a user id from the request, so one person's
 layer is unreachable through another's.
 
-**Sections 2 to 8 are not built.** The report library, the status report,
-activity reporting and its purpose gate, colleague activity, in-widget search,
-geographic reporting and storage reporting are untouched, and their boxes are
-still open above. Section 6 needs Vitest, and an earlier draft of this file
-said Vitest could not run here because `npm ci` refused over a
-`package.json` and `package-lock.json` that were out of sync. That is not
-true on this tip. The two files agree on every dependency, and
-`npm run test` runs the suite: 748 tests across 69 files. So the reason
-section 6 is open is the plain one. Nobody built it.
+**Sections 2 to 8 are built on the server.** The report library (section 2),
+the status report (3), activity reporting with its purpose gate (4), colleague
+activity (5), in-widget search (6), geographic reporting (7) and storage
+reporting (8) each have their endpoint, their rules and their PHPUnit; section 5
+also has its widget and section 6 its Vitest. The screens are built too: the report gallery (2.2) is manifest configuration
+over the reports endpoint, and the status report (3.3) and the activity report
+(4.2) are dashboard widgets, as colleague activity (5) is, each over its endpoint.
 
 **Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and
 openregister halves have not been handed over, because sections 2 to 8 are what

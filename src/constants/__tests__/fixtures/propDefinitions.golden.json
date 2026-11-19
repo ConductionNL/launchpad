@@ -201,6 +201,18 @@
 		"validator": false,
 		"default": 60
 	},
+	"../../components/TileWidget.vue | linkTarget": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/TileWidget.vue | defaultLinkTarget": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/WidgetRenderer.vue | widget": {
 		"type": "Object",
 		"required": false,
@@ -262,6 +274,28 @@
 		"required": false,
 		"validator": false,
 		"default": [],
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"days": 30
+		},
 		"fresh": true
 	},
 	"../../components/Widgets/Renderers/AiAssistantWidget.vue | content": {
@@ -389,6 +423,59 @@
 			"hourFormat": "auto",
 			"timezone": "",
 			"showDate": true
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"limit": 10,
+			"days": 7
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"title": "",
+			"onlyPinned": false
 		},
 		"fresh": true
 	},
@@ -642,6 +729,26 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/StatusReportWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/StatusReportWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/StatusReportWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/TileHost.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -752,6 +859,13 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Workspace/CoEditorsBanner.vue | editors": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/Workspace/DashboardBreadcrumb.vue | dashboard": {
 		"type": "Object",
 		"required": false,
@@ -763,6 +877,81 @@
 		"required": false,
 		"validator": false,
 		"default": null
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | source": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "user"
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | userDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | groupDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | sharedDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | defaultUuid": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canShare": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canManagePublication": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canViewHistory": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canViewReadReceipts": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | isEditMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
@@ -1090,6 +1279,13 @@
 		"validator": false,
 		"default": "30d"
 	},
+	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/admin/tabs/OrgNavigationTab.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -1262,6 +1458,17 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/BookmarkImportModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/BookmarkImportModal.vue | importBookmarks": {
+		"type": "Function",
+		"required": true,
+		"validator": false
 	},
 	"../../modals/DashboardConfigModal.vue | open": {
 		"type": "Boolean",
@@ -1554,6 +1761,19 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | catalogueApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | requestAppFn": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../views/DashboardPublicShareView.vue | token": {
 		"type": "String",

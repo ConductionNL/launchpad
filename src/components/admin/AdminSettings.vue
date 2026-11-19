@@ -84,6 +84,9 @@
 			<template #tab-kiosk>
 				<KioskTab />
 			</template>
+			<template #tab-communities>
+				<CommunitiesTab />
+			</template>
 			<template #tab-org-navigation>
 				<OrgNavigationTab :groups="injectedAllGroups" />
 			</template>
@@ -101,6 +104,9 @@
 			</template>
 			<template #tab-search-shortcuts>
 				<SearchShortcutsTab />
+			</template>
+			<template #tab-app-catalogue>
+				<AppCatalogueTab :groups="injectedAllGroups" />
 			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
@@ -165,6 +171,26 @@
 						t(
 							'launchpad',
 							'When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Marketplace, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.',
+						)
+					}}
+				</p>
+
+				<!-- REQ-PSP-003: on by default; switching it off gives the
+				     default app back. -->
+				<NcCheckboxRadioSwitch
+					type="switch"
+					:modelValue="settings.defaultAppEnabled"
+					data-testid="admin-default-app-enabled"
+					@update:modelValue="
+						updateSetting('defaultAppEnabled', $event)
+					">
+					{{ t('launchpad', 'Open LaunchPad after signing in') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, LaunchPad is the default app, so people land on their Workspace page after signing in. A default app chosen by the administrator is kept. Switching this off restores Nextcloud\'s own default.',
 						)
 					}}
 				</p>
@@ -248,6 +274,46 @@
 				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
 				<TileLaunchSettings />
 
+				<!-- launcher-tile-internal-address REQ-TIA-001: the office networks a
+				     tile's office-network address is used on. Saved on its own, so a
+				     malformed range never blocks the other settings. -->
+				<CnSettingsSection
+					:name="t('launchpad', 'Office networks')"
+					data-testid="admin-office-networks">
+					<p class="launchpad-admin__hint">
+						{{
+							t(
+								'launchpad',
+								'On these networks a tile with an address on the office network opens that address. One IPv4 or IPv6 range per line, such as 10.20.0.0/16.',
+							)
+						}}
+					</p>
+					<label class="launchpad-admin__label" for="launchpad-office-networks">
+						{{ t('launchpad', 'Office network ranges') }}
+					</label>
+					<textarea
+						id="launchpad-office-networks"
+						v-model="officeNetworksText"
+						class="launchpad-admin__textarea"
+						rows="4"
+						data-testid="admin-office-networks-input" />
+					<p
+						v-if="officeNetworksError"
+						class="launchpad-admin__error"
+						role="alert"
+						data-testid="admin-office-networks-error">
+						{{ officeNetworksError }}
+					</p>
+					<p class="launchpad-admin__hint" data-testid="admin-office-networks-current">
+						{{ currentAddressLine }}
+					</p>
+					<NcButton
+						data-testid="admin-office-networks-save"
+						@click="saveOfficeNetworks">
+						{{ t('launchpad', 'Save office networks') }}
+					</NcButton>
+				</CnSettingsSection>
+
 				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
 				     `set-group-default` / `group-default-badge` data-test hooks. -->
 				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
@@ -320,6 +386,11 @@
 					}}
 				</p>
 				</CnSettingsSection>
+
+				<!-- Administrator CSS, cleaned and scoped on save (REQ-THM-003). -->
+				<CnSettingsSection :name="t('launchpad', 'Custom CSS')">
+					<AdminCustomCss />
+				</CnSettingsSection>
 			</template>
 		</CnAdminSettingsShell>
 
@@ -357,7 +428,10 @@ import {
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
+import AdminCustomCss from './AdminCustomCss.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
+import CommunitiesTab from './tabs/CommunitiesTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
@@ -379,6 +453,7 @@ export default {
 	name: 'AdminSettings',
 
 	components: {
+		AdminCustomCss,
 		CnAdminSettingsShell,
 		CnSettingsSection,
 		CnWalkthrough,
@@ -395,12 +470,14 @@ export default {
 		MetadataFieldsSettings,
 		TileLaunchSettings,
 		KioskTab,
+		CommunitiesTab,
 		ProfileFieldsTab,
 		SearchShortcutsTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
 		GroupDashboardsTab,
+		AppCatalogueTab,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
@@ -435,11 +512,17 @@ export default {
 				startPageWithoutNavigation: false,
 				// drill-down-cross-widget-filter REQ-CWF-010: off by default.
 				filterTelemetryEnabled: false,
+				// REQ-PSP-003: on by default.
+				defaultAppEnabled: true,
 				defaultGridColumns: 12,
 				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
 				maxDashboardsPerUser: 0,
 				maxWidgetsPerDashboard: 0,
 			},
+
+			// launcher-tile-internal-address REQ-TIA-001.
+			officeNetworksText: '',
+			officeNetworksError: '',
 
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('launchpad', 'View only') },
@@ -474,6 +557,24 @@ export default {
 		 */
 		adminTourReady() {
 			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general'
+		},
+
+		/**
+		 * The administrator's own address and whether it is inside the
+		 * office networks, so a wrong proxy setup shows at once.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 */
+		currentAddressLine() {
+			const address = this.settings.currentAddress || ''
+			if (address === '') {
+				return ''
+			}
+			if (this.settings.currentAddressInOfficeNetworks === true) {
+				return this.t('launchpad', 'Your current address is {address}, which is inside the office networks.', { address })
+			}
+			return this.t('launchpad', 'Your current address is {address}, which is outside the office networks.', { address })
 		},
 
 		/**
@@ -547,6 +648,7 @@ export default {
 				},
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
 				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
+				{ id: 'communities', label: this.t('launchpad', 'Communities') },
 				{
 					id: 'org-navigation',
 					label: this.t('launchpad', 'Org navigation'),
@@ -567,6 +669,10 @@ export default {
 				{
 					id: 'search-shortcuts',
 					label: this.t('launchpad', 'Search shortcuts'),
+				},
+				{
+					id: 'app-catalogue',
+					label: this.t('launchpad', 'App catalogue'),
 				},
 			]
 		},
@@ -649,6 +755,7 @@ export default {
 				const settingsRes = await api.getAdminSettings()
 				const data = settingsRes.data?.data ?? settingsRes.data
 				if (data) {
+					this.officeNetworksText = (Array.isArray(data.officeNetworks) ? data.officeNetworks : []).join('\n')
 					this.settings = {
 						...this.settings,
 						...data,
@@ -676,6 +783,7 @@ export default {
 						this.settings.startPageWithoutNavigation === true,
 					filterTelemetryEnabled:
 						this.settings.filterTelemetryEnabled === true,
+					defaultAppEnabled: this.settings.defaultAppEnabled !== false,
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].
@@ -689,6 +797,36 @@ export default {
 			} catch (error) {
 				logger.error('Failed to save settings:', error)
 			}
+		},
+
+		/**
+		 * Save the office networks, one range per line, and show the server's
+		 * verdict on the administrator's own address. A malformed range is
+		 * refused by the server and nothing is stored.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 */
+		async saveOfficeNetworks() {
+			this.officeNetworksError = ''
+			const ranges = this.officeNetworksText
+				.split(/[\n,]+/)
+				.map((range) => range.trim())
+				.filter((range) => range !== '')
+			try {
+				await api.updateAdminSettings({ officeNetworks: ranges })
+			} catch (error) {
+				this.officeNetworksError = this.t('launchpad', 'This is not a valid network range')
+				// The server names the range it refused after a colon; keep the
+				// translated sentence and add that range to it.
+				const detail = error?.response?.data?.error || error?.response?.data?.message
+				const named = typeof detail === 'string' ? detail.match(/^This is not a valid network range: (.+)$/) : null
+				if (named) {
+					this.officeNetworksError += ': ' + named[1]
+				}
+				return
+			}
+			await this.loadData()
 		},
 
 		/**
@@ -951,5 +1089,21 @@ export default {
 .launchpad-admin__wizard-rerun {
 	display: flex;
 	justify-content: flex-end;
+}
+
+.launchpad-admin__label {
+	display: block;
+	margin-top: 8px;
+	font-weight: bold;
+}
+
+.launchpad-admin__textarea {
+	width: 100%;
+	max-width: 480px;
+	font-family: monospace;
+}
+
+.launchpad-admin__error {
+	color: var(--color-error-text);
 }
 </style>

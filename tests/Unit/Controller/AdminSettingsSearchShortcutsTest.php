@@ -27,6 +27,7 @@ use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCP\AppFramework\Http;
@@ -87,6 +88,7 @@ class AdminSettingsSearchShortcutsTest extends TestCase {
 			groupManager: $groups,
 			guard: new RequestGuard(userSession: $session, groupManager: $groups, actionAuth: $auth),
 			shortcuts: $service,
+			css: $this->createMock(CustomCssService::class),
 		);
 	}//end controller()
 

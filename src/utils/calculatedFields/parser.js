@@ -49,7 +49,7 @@ const READERS = [readWhitespace, readComparison, readPunctuation, readString, re
  * Split an expression into tokens, each with its 1-based column.
  *
  * @param {string} source - The expression.
- * @return {Array<{kind: string, value: *, column: number}>}
+ * @return {Array<{kind: string, value: string|number|null, column: number}>}
  */
 function tokenize(source) {
 	const tokens = []

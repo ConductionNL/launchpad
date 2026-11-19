@@ -24,7 +24,8 @@
 			:placementId="placement.id"
 			:content="normalizedContent"
 			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
-			:pingInterval="normalizedContent.pingInterval" />
+			:pingInterval="normalizedContent.pingInterval"
+			:linkTarget="normalizedContent.linkTarget || null" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">
@@ -268,6 +269,7 @@ export default {
 					textColor: this.placement.tileTextColor,
 					linkType: this.placement.tileLinkType,
 					linkValue: this.placement.tileLinkValue,
+					internalUrl: (this.placement.content && this.placement.content.internalUrl) || '',
 				}
 			}
 			// Referenced tile: resolve the Tile entity from the store by id.

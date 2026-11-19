@@ -15,6 +15,8 @@ namespace Unit\Mcp;
 
 use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Each check refuses with a structured error and accepts a valid value.
@@ -92,4 +94,29 @@ class McpArgumentValidatorTest extends TestCase {
 		$this->assertNotNull($validator->id(['id' => 0], 'id'));
 		$this->assertNotNull($validator->id(['id' => '7'], 'id'));
 	}//end testId()
+
+	/**
+	 * refuse() is the error envelope, and failure() names a missing or
+	 * forbidden target but keeps every other failure generic.
+	 *
+	 * @return void
+	 */
+	public function testRefuseAndFailureEnvelopes(): void {
+		$validator = new McpArgumentValidator();
+
+		$this->assertSame(
+			expected: ['isError' => true, 'error' => 'forbidden', 'message' => 'No.'],
+			actual: $validator->refuse(code: 'forbidden', message: 'No.')
+		);
+		$this->assertSame(expected: 'not_found', actual: $validator->failure(exception: new DoesNotExistException('gone'))['error']);
+		$this->assertSame(expected: 'forbidden', actual: $validator->failure(exception: new ForbiddenException('not yours'))['error']);
+		$this->assertSame(
+			expected: ['isError' => true, 'error' => 'invalid_arguments', 'message' => 'Bad title'],
+			actual: $validator->failure(exception: new \InvalidArgumentException('Bad title'))
+		);
+		$this->assertSame(
+			expected: ['isError' => true, 'error' => 'failed', 'message' => 'The operation failed.'],
+			actual: $validator->failure(exception: new \RuntimeException('SQLSTATE secret'))
+		);
+	}//end testRefuseAndFailureEnvelopes()
 }//end class

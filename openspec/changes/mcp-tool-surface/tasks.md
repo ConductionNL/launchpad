@@ -14,9 +14,10 @@
 
 ## Read Tools (REQ-MCP-002)
 
-- [ ] Task 7: Implement the 14 read tools in `lib/Mcp/McpDashboardTools.php` (dashboard reads) and sibling handler classes: listDashboards, getDashboard, getActiveDashboard, getDashboardTree, listGroupDashboards, listWidgetTypes, listTiles, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists — all `readOnlyHint: true`, scope `read`, reach `self`
-  - progress: 6 of 14 built (listDashboards, getDashboard, getActiveDashboard, listGroupDashboards, listWidgetTypes, listTiles; tiles in `lib/Mcp/McpTileTools.php`). Left: getDashboardTree, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists.
-- [ ] Task 8: REQ-MCP-002 — Unit test: each read tool's result for a fixture caller equals the visibility the corresponding service call grants that caller (visible-set parity, not superset)
+- [x] Task 7: Implement the 14 read tools in `lib/Mcp/McpDashboardTools.php` (dashboard reads) and sibling handler classes: listDashboards, getDashboard, getActiveDashboard, getDashboardTree, listGroupDashboards, listWidgetTypes, listTiles, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists — all `readOnlyHint: true`, scope `read`, reach `self`
+  - All 14 built. The eight added: `McpCatalogueTools` (getDashboardTree, listTemplates), `McpSharingTools` (listShares, listKioskPlaylists), `McpHistoryTools` (listVersions), `McpMetadataTools` (getDashboardMetadata, with the gate's new `requireView()` over `PermissionService::canViewDashboard()`), `McpEngagementTools` (getReactions, listPendingAcknowledgements). Each applies its route's check (the ADR-023 action, or only a session where the route asks none) and calls its route's service. The provider resolves each tool's handler from the container through `TOOL_HANDLERS` when the tool runs.
+- [x] Task 8: REQ-MCP-002 — Unit test: each read tool's result for a fixture caller equals the visibility the corresponding service call grants that caller (visible-set parity, not superset)
+  - `McpCatalogueToolsTest`, `McpSharingToolsTest`, `McpDashboardDetailToolsTest`, with the existing `McpDashboardToolsTest` and `McpTileToolsTest`: each tool answers exactly what its service gives the fixture caller, and a refused caller reaches no service.
 
 ## Write Tools (REQ-MCP-003)
 

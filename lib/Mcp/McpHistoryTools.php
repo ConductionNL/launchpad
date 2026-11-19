@@ -90,7 +90,7 @@ class McpHistoryTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function createDashboardVersion(array $args): array {
-		$refusal = ($this->validator->string(args: $args, name: 'note', min: 1, max: 500, required: false)
+		$refusal = ($this->validator->optional(args: $args, name: 'note', refusal: $this->validator->string(args: $args, name: 'note', min: 1, max: 500))
 			?? $this->refusal(args: $args, action: 'dashboard-version.create-version'));
 		if ($refusal !== null) {
 			return $refusal;
@@ -118,7 +118,7 @@ class McpHistoryTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function restoreDashboardVersion(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'versionNumber')
+		$refusal = ($this->validator->positiveId(args: $args, name: 'versionNumber')
 			?? $this->refusal(args: $args, action: 'dashboard-version.restore-version'));
 		if ($refusal !== null) {
 			return $refusal;

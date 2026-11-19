@@ -33,8 +33,6 @@ Each dashboard record is stored in the `oc_launchpad_dashboards` table with the 
 
 ## Requirements
 
-@e2e exclude all 163 scenarios test REST/service/factory/tree API — dashboard CRUD and tree ops have no dedicated UI flow in v1.0.5 (UI flows tested via runtime-shell, dashboard-switcher, tiles, widgets specs)
-
 ### Requirement: Create Personal Dashboard (REQ-DASH-001)
 
 Users MUST be able to create new personal dashboards with a name, optional description, and default grid configuration.
@@ -77,6 +75,7 @@ Users MUST be able to create new personal dashboards with a name, optional descr
   - "recommendations" widget at (0, 0) with size 6x5
   - "activity" widget at (6, 0) with size 6x5
 - AND both placements MUST have `showTitle: 1`, `isVisible: 1`, and appropriate sortOrder values
+@e2e exclude GIVEN unreachable on the CI instance: SeedDefaultDashboard seeds a `default`-group dashboard that every new user resolves to before tryCreateFromTemplate() runs, and removing it would empty the shared instance; the product also seeds the tile and Files bundle now, not recommendations/activity (the scenario text is stale). Pinned by tests/Unit/Service/DashboardServiceCreateDefaultsTest.php::testSeedDefaultsInsertsThreeTilesAndFilesWidget and tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testProvisionedDashboardPlacements
 
 ### Requirement: List User Dashboards (REQ-DASH-002)
 
@@ -134,6 +133,7 @@ Users MUST be able to retrieve their currently active dashboard along with its p
 - WHEN he sends GET /api/dashboard
 - THEN the system MUST create a default "My Dashboard" with recommendations and activity widgets
 - AND the response MUST return the newly created dashboard
+@e2e exclude needs an instance without the seeded `default`-group dashboard (SeedDefaultDashboard), which getEffectiveDashboard() answers before it provisions a personal one; removing it would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testProvisionedDashboardPlacements
 
 #### Scenario: First-time user with dashboards disabled and no template
 - GIVEN user "eve" has no dashboards
@@ -142,6 +142,7 @@ Users MUST be able to retrieve their currently active dashboard along with its p
 - WHEN she sends GET /api/dashboard
 - THEN the system MUST return null (no dashboard available)
 - AND the response MUST return HTTP 404 or an empty result
+@e2e exclude needs an instance without the seeded `default`-group dashboard (SeedDefaultDashboard), which is answered first; removing it would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testNoTemplateAndNoPersonalDashboardsProvisionsNothing
 
 ### Requirement: Update Dashboard (REQ-DASH-004)
 
@@ -375,12 +376,14 @@ The system MUST support a third dashboard type `group_shared` in addition to `us
 - GIVEN any caller attempts to insert a dashboard row with `type='group_shared'` and `groupId IS NULL`
 - THEN the system MUST throw `\InvalidArgumentException` (enforced by `DashboardFactory::create()`)
 - AND no row MUST be persisted
+@e2e exclude no HTTP route can create a group_shared dashboard without a groupId (the group is a required path segment of POST /api/dashboards/group/{groupId}), so this is an internal factory invariant; pinned by tests/Unit/Service/DashboardFactoryGroupSharedTest.php::testCreateGroupSharedRequiresGroupId and ::testCreateGroupSharedRejectsEmptyGroupId
 
 #### Scenario: Invariant — non-`group_shared` types must not have a `groupId`
 
 - GIVEN any caller attempts to insert a dashboard with `type='user'` and `groupId='marketing'`
 - THEN the system MUST throw `\InvalidArgumentException`
 - AND no row MUST be persisted
+@e2e exclude no HTTP route passes a groupId to a user-type create (POST /api/dashboard takes none), so this is an internal factory invariant; pinned by tests/Unit/Service/DashboardFactoryGroupSharedTest.php::testCreateUserTypeRejectsGroupId
 
 ### Requirement: REQ-DASH-012 Default-group sentinel
 
@@ -431,6 +434,7 @@ Each returned dashboard MUST carry an additional `source` field with values `'us
 - GIVEN a group-shared dashboard exists where the user is a member of the targeted group AND that same dashboard's UUID also appears in another result set (rare edge case from a future multi-group support or a misconfigured fixture)
 - WHEN she calls `GET /api/dashboards/visible`
 - THEN it MUST appear only once in the response
+@e2e exclude the GIVEN cannot be built through the API: a group-shared row reaches a user through her groups or the `default` sentinel only, and it cannot be shared to her because DashboardShareService::assertOwner() needs an owner; the mapper's UUID dedup is pinned by tests/Unit/Db/DashboardMapperGroupSharedTest.php::testFindVisibleToUserDeduplicatesByUuid
 
 #### Scenario: User with no personal dashboards still gets visible result
 
@@ -447,6 +451,7 @@ Each returned dashboard MUST carry an additional `source` field with values `'us
 - AND no default-group dashboards exist
 - WHEN she calls `GET /api/dashboards/visible`
 - THEN the response MUST contain exactly 1 dashboard with `source='user'`
+@e2e exclude needs an instance with no `default`-group dashboard at all, and SeedDefaultDashboard seeds one; removing it would empty the shared instance. Pinned by tests/Unit/Db/DashboardMapperGroupSharedTest.php::testFindVisibleToUserZeroGroupsPersonalAndDefault and ::testFindVisibleToUserNothingReturnsEmpty
 
 #### Scenario: Admin gets group-shared dashboards as `source='group'` even though they own them
 
@@ -486,6 +491,7 @@ The system MUST expose CRUD endpoints scoped to a group:
 - THEN the system MUST delete the dashboard
 - AND return HTTP 200
 - NOTE: the default group is curated, not user-bound — admins can intentionally clear it
+@e2e exclude needs the `default` group to hold exactly one dashboard, but it holds the instance's seeded one, which other specs rely on; deleting one of two would pass without the exemption and prove nothing. Pinned by tests/Unit/Service/DashboardServiceGroupSharedTest.php::testDeleteGroupSharedAllowsLastInDefaultGroup
 
 #### Scenario: Update on a group-shared dashboard rejects userId field changes
 
@@ -655,6 +661,7 @@ The resolver MUST attach a `source` field to the returned dashboard descriptor w
 - THEN the resolver MUST return `null`
 - AND the response MUST include `activeDashboardId: ''` in initial state
 - AND the page MUST render the empty-state UI
+@e2e exclude needs a brand-new install with no dashboard of any type, which would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceActiveResolutionTest.php::testStep7EmptyStateReturnsNull and tests/Unit/Controller/PageControllerHelpersTest.php::testNoActiveDashboardDescribesAnEmptyGroupWorkspace
 
 ### Requirement: REQ-DASH-019 Persist active-dashboard preference
 
@@ -729,6 +736,7 @@ The fork operation MUST execute inside a single database transaction. If any par
 - THEN the new dashboard row MUST also be removed (transaction rolled back)
 - AND `S`'s placements MUST remain visible to alice
 - AND alice's previously active dashboard (if any) MUST remain active
+@e2e exclude needs a database error injected while the cloned placements are inserted, which a live instance cannot be made to raise on demand; pinned by tests/Unit/Service/DashboardServiceForkTest.php::testForkRollsBackOnPlacementCloneFailure
 
 ### Requirement: REQ-DASH-022 Fork does not duplicate uploaded resources
 

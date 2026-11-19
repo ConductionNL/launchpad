@@ -412,7 +412,7 @@ describe('Views — read receipts and the colleagues editing', () => {
 
 		axios.post.mockImplementation(() => Promise.resolve({ data: { editors: [marieke] } }))
 
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
 		await flushPromises()
 		expect(wrapper.findComponent({ name: 'CoEditorsBanner' }).props('editors')).toEqual([marieke])
 	}, 90000)

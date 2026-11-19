@@ -316,7 +316,35 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(config.props('initialTab')).toBe('general')
 	}, 90000)
 
-	it('the Meer menu\'s "Add widget" opens the custom-widget modal for the active dashboard', async () => {
+	it('the Meer menu\'s "Add widget" opens the widget picker with the server apps and the catalogue', async () => {
+		const discovered = [{ appId: 'files', name: 'Files', href: '/apps/files', icon: '' }]
+		const catalogue = [{ uuid: 'c-1', name: 'Mail', icon: '', iconType: 'url' }]
+		routeAxios({
+			get: (url) => {
+				if (url === `${BASE}/api/tiles/discover`) {
+					return Promise.resolve({ data: { apps: discovered } })
+				}
+				if (url === `${BASE}/api/catalogue`) {
+					return Promise.resolve({ data: { apps: catalogue } })
+				}
+				return Promise.resolve({ data: {} })
+			},
+		})
+		const { wrapper } = await mountViews()
+		const picker = () => wrapper.findComponent({ name: 'WidgetPickerModal' })
+		expect(picker().vm.$attrs.open).toBe(false)
+
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
+		await flushPromises()
+
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(picker().vm.$attrs.open).toBe(true)
+		expect(picker().vm.$attrs.discoveredApps).toEqual(discovered)
+		expect(picker().vm.$attrs.catalogueApps).toEqual(catalogue)
+		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(false)
+	}, 90000)
+
+	it('the Meer menu\'s "Add custom widget…" opens the custom-widget modal for the active dashboard', async () => {
 		const { wrapper, dashStore } = await mountViews()
 		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addCustomWidget')
 		await flushPromises()

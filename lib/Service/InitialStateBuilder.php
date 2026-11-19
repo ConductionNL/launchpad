@@ -384,6 +384,24 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set the administrator CSS for all of LaunchPad (workspace).
+	 *
+	 * Optional key, like {@see self::setStartPageWithoutNavigation()}. The
+	 * value is the cleaned and scoped CSS the server stored; the page inserts
+	 * it as the text of a style element, never as markup (REQ-THM-003).
+	 *
+	 * @param string $customCss The stored CSS, or '' for none.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	public function setCustomCss(string $customCss): self {
+		$this->values['customCss'] = $customCss;
+		return $this;
+	}//end setCustomCss()
+
+	/**
 	 * Push whether the organisation opted in to filter telemetry, so the
 	 * dashboard's filter bus writes `filter_event` rows only when it did
 	 * (drill-down-cross-widget-filter REQ-CWF-010). Optional key: the JS
@@ -428,6 +446,24 @@ class InitialStateBuilder {
 		$this->values['ssoLaunchTemplates'] = $names;
 		return $this;
 	}//end setTileLaunchOptions()
+
+	/**
+	 * Set whether this request comes from inside the office networks.
+	 *
+	 * Optional key, like {@see self::setStartPageWithoutNavigation()}: a
+	 * server that never calls it leaves the JS reader's `false` default, so
+	 * every tile opens its main address (launcher-tile-internal-address D1).
+	 *
+	 * @param bool $onOfficeNetwork True when the request address falls in an office network.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 */
+	public function setOnOfficeNetwork(bool $onOfficeNetwork): self {
+		$this->values['onOfficeNetwork'] = $onOfficeNetwork;
+		return $this;
+	}//end setOnOfficeNetwork()
 
 	/**
 	 * Set whether Nextcloud Talk is enabled for the viewer (workspace).

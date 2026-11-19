@@ -115,6 +115,7 @@ import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { useTilePanelStore } from '../stores/tilePanel.js'
+import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
 import { isSameOrigin, NEW_TAB, resolveLinkTarget, SIDE_PANEL } from '../utils/tileLinkTarget.js'
@@ -246,19 +247,33 @@ export default {
 		},
 
 		/**
+		 * Whether this tile opens its office-network address: only when the
+		 * server saw the request come from an office network and the tile has one.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 */
+		opensInternalUrl() {
+			return typeof this.tile.internalUrl === 'string'
+				&& this.tile.internalUrl !== ''
+				&& isOnOfficeNetwork()
+		},
+
+		/**
 		 * @spec openspec/specs/tiles/spec.md
 		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 		 */
 		tileUrl() {
 			const launch = launchHref(this.tile, this.content, this.placementId, generateUrl)
 			if (launch !== null) {
 				return launch
 			}
-			const value = this.tile.linkValue
+			const value = this.opensInternalUrl ? this.tile.internalUrl : this.tile.linkValue
 			if (this.isCreateTile) {
 				return '#'
 			}
-			if (this.tile.linkType === 'app') {
+			if (this.opensInternalUrl === false && this.tile.linkType === 'app') {
 				return generateUrl('/apps/' + value)
 			}
 			// Internal absolute paths (e.g. /apps/deck, /apps/text) MUST go

@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
@@ -581,6 +582,12 @@ class DashboardApiController extends Controller {
 	 * The optional `defaultLinkTarget` body field sets the default tile link
 	 * target; an empty string clears it ({@see self::requestedLinkTarget()}).
 	 *
+	 * The look travels in the same body and is read by {@see self::lookParams()}:
+	 * `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the
+	 * theme, REQ-THM-001), `themeBackgroundResource` (a resource file name,
+	 * empty for none) and `customCss` (administrator CSS, empty to clear,
+	 * REQ-THM-003).
+	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
@@ -597,11 +604,13 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
+		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
+		$look = $this->lookParams();
 		$defaultLinkTarget = $this->requestedLinkTarget();
-		$denial = $this->denyUpdate(
-			dashboardId: $id,
-			metadataOnly: self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget)
-		);
+		$metadataOnly = self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget)
+			&& array_filter($look, static fn ($value): bool => $value !== null) === [];
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly)
+			?? $this->denyCustomCss(customCss: $look['customCss']);
 		if ($denial !== null) {
 			return $denial;
 		}
@@ -617,9 +626,52 @@ class DashboardApiController extends Controller {
 				'slug'        => $slug,
 				'sortOrder'   => $sortOrder,
 				'defaultLinkTarget' => $defaultLinkTarget,
-			]
+			] + $look
 		);
 	}//end update()
+
+	/**
+	 * The look fields of an update body, by name, in patch order.
+	 *
+	 * A field that is absent, or that is not a string, is null and leaves the
+	 * dashboard's value alone; an empty string clears it (REQ-THM-001, REQ-THM-003).
+	 *
+	 * @return array{themeAccent: ?string, themeBackgroundColor: ?string, themeBackgroundResource: ?string, customCss: ?string}
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function lookParams(): array {
+		$look = [];
+		foreach (['themeAccent', 'themeBackgroundColor', 'themeBackgroundResource', 'customCss'] as $field) {
+			$value = $this->request->getParam(key: $field);
+			$look[$field] = null;
+			if (is_string($value) === true) {
+				$look[$field] = $value;
+			}
+		}
+
+		return $look;
+	}//end lookParams()
+
+	/**
+	 * The refusal of custom CSS from a user who is no administrator.
+	 *
+	 * REQ-THM-003: custom CSS is an administrator tool, even on a dashboard
+	 * the user may edit.
+	 *
+	 * @param string|null $customCss The CSS of the update, or null when it sends none.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function denyCustomCss(?string $customCss): ?JSONResponse {
+		if ($customCss === null || $this->services->dashboardService->isAdmin(userId: (string)$this->userId) === true) {
+			return null;
+		}
+
+		return ResponseHelper::forbidden();
+	}//end denyCustomCss()
 
 	/**
 	 * The default tile link target the update body asks for.
@@ -735,6 +787,12 @@ class DashboardApiController extends Controller {
 
 			return ResponseHelper::success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
+			);
+		} catch (ContrastTooLowException $e) {
+			// REQ-THM-002: the measured ratio travels with the refusal.
+			return new JSONResponse(
+				data: ['status' => 'error', 'error' => 'contrast_too_low', 'ratio' => $e->getRatio(), 'message' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		} catch (InvalidArgumentException $e) {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations

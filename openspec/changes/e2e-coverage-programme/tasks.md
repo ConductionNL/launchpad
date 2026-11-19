@@ -27,6 +27,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 11 specs, 341 scenarios.
 
 - [ ] 2.1 `dashboard-bulk-operations`: 50 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-bulk-operations.spec.ts, tests/e2e/dashboard-bulk-operations-ui.spec.ts, 44 scenarios cited, not yet run (cloud, 2026-11-19). 6 excluded with a reason.
 - [ ] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
 - [ ] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.

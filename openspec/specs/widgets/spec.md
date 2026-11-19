@@ -555,6 +555,7 @@ The popover MUST close when the user clicks anywhere outside its bounding box (i
 - WHEN the unmount lifecycle runs
 - THEN the document-level `click` listener MUST be removed
 - AND no popover state MUST leak into a subsequent mount
+@e2e exclude a document-level listener's removal on unmount is not observable from a browser test; pinned by src/composables/__tests__/useGridManager.spec.js ("REQ-WDG-016: detach removes the document click listener (no leaks across mounts)")
 
 ### Requirement: Position constraints (REQ-WDG-017)
 
@@ -715,6 +716,8 @@ The tile widget type MUST be selectable from the unified "Add custom widget" pic
 - **AND** no console errors MUST occur from the missing `placement.content` field
 
 ### Requirement: REQ-WDG-023 Widget registry completeness verifiable in CI
+
+@e2e exclude these scenarios are about the Vitest suite failing on a broken registry, not about runtime behaviour; pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js itself (EXPECTED_TYPES set equality, listWidgetTypes surfacing, required-field checks)
 
 The widget registry (`src/constants/widgetRegistry.js`) MUST be covered by an explicit completeness test (`src/constants/__tests__/widgetRegistry.completeness.spec.js`) that asserts a canonical EXPECTED_TYPES set:
 
@@ -912,6 +915,7 @@ The popover MUST close when the user clicks anywhere outside its bounding box (i
 - WHEN the unmount lifecycle runs
 - THEN the document-level `click` listener MUST be removed
 - AND no popover state MUST leak into a subsequent mount
+@e2e exclude a document-level listener's removal on unmount is not observable from a browser test; pinned by src/composables/__tests__/useGridManager.spec.js ("REQ-WDG-016: detach removes the document click listener (no leaks across mounts)")
 
 ### Requirement: REQ-WDG-017 Position constraints
 
@@ -1006,6 +1010,8 @@ When a Nextcloud dashboard widget declares a reload interval above zero, LaunchP
 
 ### Requirement: Another app's widget shows that app's items for the viewer (REQ-WDG-030)
 
+@e2e exclude needs the Mail and Deck apps, which the CI instance (NC 32 + openregister) does not have; no Mail- or Deck-specific test exists — the generic item path is pinned by tests/Unit/Service/WidgetItemLoaderTest.php and the nc-widget list rendering by tests/e2e/widgets-nc-widget.spec.ts
+
 When a person places a widget that another Nextcloud app registers, such as the Mail app's mailbox widget or Deck's upcoming cards, LaunchPad MUST ask that app for the items it holds for the viewer and list them with their title, subtitle and icon. Each item MUST link to the item in its own app. When the app returns no items, the widget MUST show the app's own empty message.
 
 #### Scenario: A mailbox preview
@@ -1086,18 +1092,21 @@ Widgets that implement none of the optional capability interfaces MUST receive t
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN the result has `itemApiVersions: []`, `buttons: []`, `reloadInterval: 0`, `iconUrl: null`, `itemIconsRound: false`
 - AND the result still includes the base `id`, `title`, `order`, `iconClass`, `widgetUrl` from the widget
+@e2e exclude a PHP formatter contract over mock IWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testPlainWidgetGetsTheBaseShapeWithDefaults
 
 #### Scenario: Format a widget that implements both API versions
 
 - GIVEN an `IWidget` that implements both `IAPIWidget` and `IAPIWidgetV2`
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN the result has `itemApiVersions: [1, 2]` (in declaration order, V1 first)
+@e2e exclude a PHP formatter contract over mock IWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testApiVersionsListV1ThenV2
 
 #### Scenario: Format a button widget includes per-button serialization
 
 - GIVEN an `IButtonWidget` whose `getWidgetButtons($userId)` returns two buttons (Add: `link=/add`, Settings: `link=/settings`)
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN `result.buttons` is `[{type: 'Add', text: '...', link: '/add'}, {type: 'Settings', text: '...', link: '/settings'}]`
+@e2e exclude a PHP formatter contract over mock IButtonWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testButtonsAreAskedForTheUserAndFlattened
 
 ### REQ-WDG-025: Widget item loader strategy
 
@@ -1115,18 +1124,21 @@ The result MUST be keyed by widget ID and MUST contain one entry per non-skipped
 - GIVEN a registered-widgets map containing only `widget-a`
 - WHEN `loadItems($widgets, $userId, ['widget-a', 'widget-unknown'], 7)` is called
 - THEN the result contains exactly one key `'widget-a'` (no entry for `'widget-unknown'`)
+@e2e exclude a PHP loader contract over mock widgets, no browser surface; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testUnknownIdsAreSkippedAndOnlyRequestedWidgetsLoad
 
 #### Scenario: V2-capable widget uses V2 API
 
 - GIVEN a widget that implements both `IAPIWidget` and `IAPIWidgetV2`
 - WHEN the loader processes that widget
 - THEN `getItemsV2()` is called (V1 API is NOT called)
+@e2e exclude which PHP interface method the loader calls is not observable over HTTP; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV2IsPreferredWhenTheWidgetImplementsBoth
 
 #### Scenario: Non-API widget gets empty-default envelope
 
 - GIVEN a widget that implements neither `IAPIWidget` nor `IAPIWidgetV2`
 - WHEN the loader processes that widget
 - THEN the entry for that widget ID is `{items: [], emptyContentMessage: '', halfEmptyContentMessage: ''}`
+@e2e exclude needs a registered widget implementing neither item API, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testWidgetWithoutItemApiGetsAnEmptyEntry
 
 ### REQ-WDG-026: Widget item serialization and empty-content messaging
 
@@ -1137,12 +1149,14 @@ The system MUST serialize widget items via `WidgetItem::jsonSerialize()` (both V
 - GIVEN a V2 widget returning two items + empty message `'No items'` + half-empty message `'Almost empty'`
 - WHEN the loader processes that widget
 - THEN the entry has `items: [<2 serialized items>], emptyContentMessage: 'No items', halfEmptyContentMessage: 'Almost empty'`
+@e2e exclude needs a V2 widget with fixed items and messages, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV2WidgetReturnsSerializedItemsAndMessages
 
 #### Scenario: V1 serializes items and returns empty messages
 
 - GIVEN a V1 widget returning three items
 - WHEN the loader processes that widget
 - THEN the entry has `items: [<3 serialized items>], emptyContentMessage: '', halfEmptyContentMessage: ''`
+@e2e exclude needs a V1 widget with fixed items, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV1WidgetReturnsSerializedItemsWithEmptyMessages
 
 #### Notes (REQ-WDG-024..026)
 

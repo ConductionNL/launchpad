@@ -1,32 +1,8 @@
 {
-	"name": "@conduction/launchpad-embed",
-	"version": "1.1.7",
-	"description": "Embed LaunchPad widgets and dashboards in any web page.",
+	"private": true,
+	"description": "The LaunchPad embed SDK, built into js/embed-sdk/ and served by the app at /apps/launchpad/embed-sdk/.",
 	"license": "EUPL-1.2",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/ConductionNL/launchpad.git",
-		"directory": "src/embed-sdk"
-	},
-	"publishConfig": {
-		"access": "public",
-		"provenance": true
-	},
 	"sideEffects": false,
 	"type": "module",
-	"exports": {
-		".": {
-			"types": "./src/types.ts",
-			"import": "./dist/embed-sdk.esm.js",
-			"require": "./dist/embed-sdk.umd.js"
-		}
-	},
-	"main": "dist/embed-sdk.umd.js",
-	"module": "dist/embed-sdk.esm.js",
-	"types": "src/types.ts",
-	"files": [
-		"dist",
-		"src",
-		"README.md"
-	]
+	"types": "src/types.ts"
 }

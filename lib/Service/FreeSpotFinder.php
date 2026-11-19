@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -27,7 +27,7 @@ namespace OCA\LaunchPad\Service;
 /**
  * Places a rectangle on a grid without overlapping the occupied ones.
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 class FreeSpotFinder {
 
@@ -40,7 +40,7 @@ class FreeSpotFinder {
 	 *
 	 * @return array{gridX:int,gridY:int,gridWidth:int,gridHeight:int} The spot, the width kept within the grid.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	public function place(array $occupied, int $columns, array $wanted): array {
 		$columns = max(1, $columns);

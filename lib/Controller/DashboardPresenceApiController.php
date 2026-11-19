@@ -24,7 +24,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -45,7 +45,7 @@ use OCP\IRequest;
 /**
  * Announces and withdraws an editor's presence on a dashboard.
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 class DashboardPresenceApiController extends Controller {
 	use RespondsWithErrors;
@@ -58,7 +58,7 @@ class DashboardPresenceApiController extends Controller {
 	 * @param RequestGuard             $guard    The action gate.
 	 * @param string|null              $userId   The signed-in user.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	public function __construct(
 		IRequest $request,
@@ -79,7 +79,7 @@ class DashboardPresenceApiController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	#[NoAdminRequired]
 	public function join(string $uuid): JSONResponse {
@@ -106,7 +106,7 @@ class DashboardPresenceApiController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	#[NoAdminRequired]
 	public function leave(string $uuid): JSONResponse {

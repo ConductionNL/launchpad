@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use OCP\IUserManager;
 /**
  * Keeps and reads the editors present on a dashboard.
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 class DashboardPresenceService {
 
@@ -63,7 +63,7 @@ class DashboardPresenceService {
 	 * @param IUserManager      $userManager       Gives an editor's display name.
 	 * @param ITimeFactory      $timeFactory       Tells the time.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	public function __construct(
 		ICacheFactory $cacheFactory,
@@ -90,7 +90,7 @@ class DashboardPresenceService {
 	 * @throws DoesNotExistException When the dashboard does not exist.
 	 * @throws ForbiddenException When the person may not edit the dashboard.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	public function join(string $dashboardUuid, string $userId): array {
 		$dashboard = $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
@@ -121,7 +121,7 @@ class DashboardPresenceService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 	 */
 	public function leave(string $dashboardUuid, string $userId): void {
 		$editors = $this->present(dashboardUuid: $dashboardUuid, now: $this->timeFactory->getTime());

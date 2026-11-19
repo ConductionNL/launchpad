@@ -1929,7 +1929,7 @@ export default {
 		 * (building-edit-a-dashboard-together, task 1.4).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async toggleEditMode() {
 			if (!this.isEditMode) {
@@ -1947,7 +1947,7 @@ export default {
 		 * read-only, and the banner says why.
 		 *
 		 * @return {Promise<boolean>} Whether the page is in edit mode now.
-		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async enterEditMode() {
 			if (this.isEditMode) {
@@ -1983,7 +1983,7 @@ export default {
 		 * A renewal was refused (edit rights gone, or the dashboard deleted):
 		 * back to view mode; the banner says why.
 		 *
-		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		onPresenceRefused() {
 			if (this.isEditMode) {
@@ -1996,7 +1996,7 @@ export default {
 		 * the presence and clear a banner that was about the previous one.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async dropEditLock() {
 			if (this.isEditMode) {

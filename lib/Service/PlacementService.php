@@ -235,7 +235,7 @@ class PlacementService {
 	 *
 	 * @throws StalePlacementException When the change was made on an older version.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	private function nextVersion(WidgetPlacement $placement, array $data): int {
 		if (array_key_exists('version', $data) === false || is_numeric($data['version']) === false) {
@@ -259,7 +259,7 @@ class PlacementService {
 	 *
 	 * @return array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	private function freeSpot(int $dashboardId, array $wanted): array {
 		$occupied = array_map(

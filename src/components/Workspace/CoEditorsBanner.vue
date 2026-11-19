@@ -40,7 +40,7 @@ import { LIST_PROP } from '../../constants/propDefinitions.js'
  *
  * @param {string} name The display name.
  * @return {string}
- * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
  */
 export function initialsOf(name) {
 	const words = String(name ?? '').trim().split(/\s+/).filter(Boolean)
@@ -57,7 +57,7 @@ export function initialsOf(name) {
  *
  * @param {string} since The ISO date-time.
  * @return {string} The time, or the input when it cannot be read.
- * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
  */
 export function clockTime(since) {
 	const date = new Date(since)
@@ -71,7 +71,7 @@ export function clockTime(since) {
  * CoEditorsBanner: in edit mode, who else edits this dashboard and since
  * when, with their initials (building-edit-a-dashboard-together, LpBewerken).
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 export default {
 	name: 'CoEditorsBanner',
@@ -88,7 +88,7 @@ export default {
 	computed: {
 		/**
 		 * @return {string} The line about the colleague editing longest.
-		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
 		 */
 		message() {
 			const first = this.editors[0] ?? {}

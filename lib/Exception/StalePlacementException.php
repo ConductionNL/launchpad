@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -29,7 +29,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 /**
  * A refused save on an older widget version.
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 class StalePlacementException extends \RuntimeException {
 
@@ -38,7 +38,7 @@ class StalePlacementException extends \RuntimeException {
 	 *
 	 * @param WidgetPlacement $current The widget as saved now.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	public function __construct(private readonly WidgetPlacement $current) {
 		parent::__construct(message: 'A colleague changed this widget first.');
@@ -49,7 +49,7 @@ class StalePlacementException extends \RuntimeException {
 	 *
 	 * @return WidgetPlacement
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	public function getCurrent(): WidgetPlacement {
 		return $this->current;

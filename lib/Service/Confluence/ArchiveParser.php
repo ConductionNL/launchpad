@@ -491,7 +491,7 @@ class ArchiveParser {
 		$doc = new DOMDocument();
 		$previous = libxml_use_internal_errors(use_errors: true);
 		$loaded = $doc->loadHTML(
-			source: '<?xml encoding="UTF-8"?>' . $html,
+			source: '<?xml encoding="UTF-8"?>' . self::shieldStorageMarkup(html: $html),
 			options: LIBXML_NONET
 		);
 		libxml_clear_errors();
@@ -521,7 +521,7 @@ class ArchiveParser {
 				$out .= $doc->saveHTML(node: $child);
 			}
 
-			$trimmed = trim($out);
+			$trimmed = trim(self::restoreStorageMarkup(html: $out));
 			if ($trimmed !== '') {
 				return $trimmed;
 			}
@@ -529,6 +529,46 @@ class ArchiveParser {
 
 		return $this->extractBodyFallback(html: $html);
 	}//end extractBody()
+
+	/**
+	 * Hide Confluence storage markup from the HTML parser, which drops the
+	 * `ac:`/`ri:` prefix of element names (so `<ac:link>` becomes the void
+	 * `<link>` and loses its children) and turns CDATA into text.
+	 *
+	 * @param string $html The page HTML.
+	 *
+	 * @return string The HTML with storage element names and CDATA shielded.
+	 */
+	private static function shieldStorageMarkup(string $html): string {
+		$html = (string)preg_replace(pattern: '/<(\/?)(ac|ri):/i', replacement: '<$1$2--', subject: $html);
+		// A self-closing tag is not void to the HTML parser, so close it explicitly.
+		$html = (string)preg_replace(
+			pattern: '/<((?:ac|ri)--[A-Za-z0-9-]+)([^>]*?)\s*\/>/i',
+			replacement: '<$1$2></$1>',
+			subject: $html
+		);
+		return (string)preg_replace_callback(
+			pattern: '/<!\[CDATA\[(.*?)\]\]>/s',
+			callback: static fn (array $m): string => '<!--cdata:' . base64_encode($m[1]) . '-->',
+			subject: $html
+		);
+	}//end shieldStorageMarkup()
+
+	/**
+	 * Undo shieldStorageMarkup() on serialised body HTML.
+	 *
+	 * @param string $html The serialised body.
+	 *
+	 * @return string The body with storage element names and CDATA restored.
+	 */
+	private static function restoreStorageMarkup(string $html): string {
+		$html = (string)preg_replace(pattern: '/<(\/?)(ac|ri)--/i', replacement: '<$1$2:', subject: $html);
+		return (string)preg_replace_callback(
+			pattern: '/<!--cdata:([A-Za-z0-9+\/=]*)-->/',
+			callback: static fn (array $m): string => '<![CDATA[' . base64_decode($m[1]) . ']]>',
+			subject: $html
+		);
+	}//end restoreStorageMarkup()
 
 	/**
 	 * Regex fallback for body extraction when DOMXPath finds nothing.

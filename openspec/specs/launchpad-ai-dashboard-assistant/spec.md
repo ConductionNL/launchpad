@@ -17,8 +17,6 @@ Decided on 29 Sep 2026 (DECISIONS row 16, row `a-assistant`), replacing the earl
 
 ## Requirements
 
-@e2e exclude a live answer needs a running hermiq with a model on the instance; the widget is asserted in src/components/Widgets/Renderers/__tests__/AiAssistantWidget.spec.js and src/components/Widgets/Renderers/__tests__/noModelClient.spec.js, the registry in src/constants/__tests__/widgetRegistry.completeness.spec.js
-
 ### Requirement: REQ-ADA-001: The system SHALL register an `ai-assistant` widget type
 
 The widget MUST be registered in `src/constants/widgetRegistry.js` with `renderer`, `form`, `defaultContent`, `displayName` and `icon`, and listed in `lib/widget-types.json`, like every LaunchPad-rendered widget type.
@@ -45,6 +43,8 @@ LaunchPad-rendered widgets are declared in the registry, not in `src/manifest.js
 
 #### Scenario: Manifest unchanged
 
+@e2e exclude a build-time CLI check over src/manifest.json with nothing for a browser to drive; `npm run check:manifest` (scripts/check-manifest.js, part of `npm run lint`) pins that it passes, and no test pins that the manifest names neither the widget nor hermiq
+
 - **GIVEN** `npm run check:manifest`
 - **WHEN** it runs
 - **THEN** it passes and the manifest names neither the widget nor hermiq
@@ -66,6 +66,8 @@ Every question MUST go to hermiq's chat endpoints (`/apps/hermiq/api/chat/stream
 - **THEN** the input is not offered and the widget says the assistant needs hermiq; the rest of the dashboard works
 
 #### Scenario: No LLM client in launchpad
+
+@e2e exclude a static scan of the src/ tree, not runtime behaviour; pinned by src/components/Widgets/Renderers/__tests__/noModelClient.spec.js
 
 - **GIVEN** the launchpad `src/` tree
 - **WHEN** scanned for `openai`, `@anthropic-ai`, `@ollama`, `llphant` imports or a `localhost:11434` string
@@ -108,6 +110,8 @@ Conversation turns MUST live only in the widget's own state for the page session
 - **THEN** the widget starts empty and makes no history request
 
 #### Scenario: No backend persistence route added
+
+@e2e exclude a read of appinfo/routes.php, not runtime behaviour; no test pins it (no test in tests/Unit or src/**/__tests__ names these paths), and the e2e history-scoped-to-session test asserts the browser asks for no history
 
 - **GIVEN** `appinfo/routes.php` after this widget ships
 - **WHEN** it is read

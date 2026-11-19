@@ -74,10 +74,12 @@ class OrphanedConditionalRulesCategory implements CleanupCategoryInterface {
 	 * recovering, so this category is opt-in only.
 	 *
 	 * @return bool False.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
-	public function getSafeToPurgeAutomatically(): bool {
+	public function isSafeToPurgeAutomatically(): bool {
 		return false;
-	}//end getSafeToPurgeAutomatically()
+	}//end isSafeToPurgeAutomatically()
 
 	/**
 	 * Always available — `launchpad_conditional_rules` ships in the core

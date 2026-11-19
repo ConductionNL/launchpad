@@ -64,6 +64,17 @@ class ExportObjectStore {
 	}//end __construct()
 
 	/**
+	 * Whether OpenRegister is there to read and write objects.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-6
+	 */
+	public function isAvailable(): bool {
+		return $this->objectService() !== null;
+	}//end isAvailable()
+
+	/**
 	 * Every object of a schema matching the filters.
 	 *
 	 * @param string               $schema  The schema slug.

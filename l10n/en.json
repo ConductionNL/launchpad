@@ -1599,6 +1599,8 @@
         "Active filters": "Active filters",
         "Pinned filter": "Pinned filter",
         "Remove filter: {label}": "Remove filter: {label}",
-        "Reset filters": "Reset filters"
+        "Reset filters": "Reset filters",
+        "Discussion": "Discussion",
+        "No conversation linked to this dashboard yet": "No conversation linked to this dashboard yet"
     }
 }

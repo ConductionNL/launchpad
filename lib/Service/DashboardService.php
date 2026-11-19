@@ -32,6 +32,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
@@ -1372,7 +1373,10 @@ class DashboardService {
 		// POST /api/dashboards/group/{groupId}/default endpoint.
 		$dashboard->setIsDefault(0);
 
-		return $this->stores->dashboardMapper->insert(entity: $dashboard);
+		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
+		$this->announceAudience(dashboard: $persisted);
+
+		return $persisted;
 	}//end createGroupShared()
 
 	/**
@@ -3505,9 +3509,24 @@ class DashboardService {
 
 		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
 		$this->seedDefaultWidgets(dashboardId: $persisted->getId());
+		$this->announceAudience(dashboard: $persisted);
 
 		return $persisted;
 	}//end ensureDefaultDashboard()
+
+	/**
+	 * Announce a new group dashboard's audience, so its discussion object is
+	 * written (openregister-leaf-integrations).
+	 *
+	 * @param Dashboard $dashboard The persisted group dashboard.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-4
+	 */
+	private function announceAudience(Dashboard $dashboard): void {
+		$this->outlets->eventDispatcher?->dispatchTyped(new DashboardAudienceChangedEvent(dashboardId: (int)$dashboard->getId()));
+	}//end announceAudience()
 
 	/**
 	 * Seed the default widget bundle on a freshly-created dashboard.

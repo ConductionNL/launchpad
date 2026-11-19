@@ -62,6 +62,13 @@ Access to a dashboard's discussion MUST be gated by the same authorization the d
 - **WHEN** `bob` attempts to access that dashboard's Talk discussion
 - **THEN** access MUST be denied with the same outcome as accessing the dashboard itself
 
+#### Scenario: The discussion object carries the dashboard's audience
+
+- **GIVEN** `alice` shares her dashboard with user `bob` and group `finance`
+- **WHEN** the share is saved
+- **THEN** the dashboard's OpenRegister object MUST carry `audienceUsers: ["alice", "bob"]` and `audienceGroups: ["finance"]`
+- **AND** the Dashboard schema's read rule MUST admit a reader only through those fields
+
 #### Scenario: Revoking a share ends discussion access
 
 - **GIVEN** `alice` had a share on a dashboard and participated in its discussion
@@ -80,7 +87,7 @@ When the Talk app is not installed or is disabled, the leaf MUST degrade silentl
 
 ### Requirement: REQ-LEAF-005 No launchpad-side wrapper code
 
-Per ADR-022 (apps consume OR abstractions), launchpad MUST NOT add controllers, routes, or services that proxy Talk or the leaf. Room lifecycle, membership, and messages are the leaf's and Talk's responsibility. The only server-side artifact of this capability is the register.d overlay.
+Launchpad MUST NOT add controllers, routes or services that proxy Talk or the leaf (ADR-022). Its server-side artifacts are the register.d overlay and the service that keeps a shared dashboard's OpenRegister object and its audience in step with the dashboard.
 
 #### Scenario: No proxy endpoints appear
 

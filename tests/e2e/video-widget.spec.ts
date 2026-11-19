@@ -38,7 +38,7 @@
  *   @e2e video-widget::youtube-iframe-autoplay
  *   @e2e video-widget::aspect-ratio-options
  *   @e2e video-widget::aspect-ratio-css-property-modern
- *   @e2e video-widget::portrait-video-9-16
+ *   @e2e video-widget::portrait-video-916
  *   @e2e video-widget::empty-state-no-video-configured
  *   @e2e video-widget::invalid-url-error
  *
@@ -525,7 +525,7 @@ test.describe('video widget: aspect ratio (REQ-VID-009)', () => {
 		expectFills(await boxOf(iframe), outer, 'the iframe')
 	})
 
-	// @e2e video-widget::portrait-video-9-16
+	// @e2e video-widget::portrait-video-916
 	test('a 9:16 placement in a landscape cell is height-constrained and undistorted', async ({ page }) => {
 		const id = await seed({ sourceType: 'youtube', videoUrl: YT_EMBED, aspectRatio: '9:16' }, { w: 6, h: 3 })
 		await openWorkspace(page)

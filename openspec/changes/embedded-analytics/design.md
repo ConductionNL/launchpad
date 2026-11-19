@@ -271,7 +271,7 @@ Three realistic scenarios for Netherlands municipalities:
 1. **Phase 1 — Backend services**: JWT signing service (key generation + rotation), EmbedTokenService (CRUD + validation), RateLimitService. Test coverage, no user-facing endpoints yet.
 2. **Phase 2 — Public render route**: GET /apps/launchpad/embed/{subjectType}/{subjectId}?token=<jwt>, CSP headers, read-only enforcement, usage telemetry.
 3. **Phase 3 — Admin UI**: EmbedTokenManager component (create, revoke, view usage), tenant theme manager, signing key rotation UI.
-4. **Phase 4 — JS-SDK**: @launchpad/embed-sdk package (ESM + UMD), postMessage handshake, event relay.
+4. **Phase 4 — JS-SDK**: @conduction/launchpad-embed package (ESM + UMD), postMessage handshake, event relay.
 5. **Phase 5 — Integration**: Modify dashboard/widget rendering to accept token scope context, apply theming, wire up accessibility checks.
 
 ## Open Questions

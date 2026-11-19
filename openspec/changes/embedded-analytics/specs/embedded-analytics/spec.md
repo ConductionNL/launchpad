@@ -644,14 +644,14 @@ THEN:
 
 ### Requirement: REQ-EMB-006 — JS-SDK exposes render, event, and resize APIs
 
-The system SHALL publish a JS-SDK (`@launchpad/embed-sdk`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
+The system SHALL publish a JS-SDK (`@conduction/launchpad-embed`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
 
 #### Scenario: 6.1 — SDK initialization and iframe creation
 
 GIVEN a host page (e.g., a SaaS customer portal) that imports the SDK:
   ```html
-  <script src="https://cdn.example.com/@launchpad/embed-sdk@1.0.0/dist/embed-sdk.umd.js"></script>
-  <!-- OR ESM: import LaunchPadEmbed from '@launchpad/embed-sdk'; -->
+  <script src="https://cdn.example.com/@conduction/launchpad-embed@1.0.0/dist/embed-sdk.umd.js"></script>
+  <!-- OR ESM: import LaunchPadEmbed from '@conduction/launchpad-embed'; -->
   ```
 WHEN the host page calls:
   ```javascript
@@ -764,8 +764,8 @@ THEN the SDK SHALL:
 GIVEN a TypeScript host application
 WHEN it imports the SDK:
   ```typescript
-  import LaunchPadEmbed from '@launchpad/embed-sdk';
-  import type { EmbedConfig, EmbedInstance } from '@launchpad/embed-sdk';
+  import LaunchPadEmbed from '@conduction/launchpad-embed';
+  import type { EmbedConfig, EmbedInstance } from '@conduction/launchpad-embed';
   
   const config: EmbedConfig = {
     token: 'eyJ...',
@@ -786,7 +786,7 @@ THEN the IDE SHALL provide autocomplete and type checking
 GIVEN a vanilla JavaScript page (no build step, no module bundler)
 WHEN it loads the UMD bundle:
   ```html
-  <script src="https://unpkg.com/@launchpad/embed-sdk@1.0.0/dist/embed-sdk.umd.js"></script>
+  <script src="https://unpkg.com/@conduction/launchpad-embed@1.0.0/dist/embed-sdk.umd.js"></script>
   ```
 THEN the SDK is available as a global:
   ```javascript
@@ -857,7 +857,7 @@ THEN the SDK package SHALL be published to npm with:
   - TypeScript definitions: `dist/embed-sdk.d.ts`
   - Minified versions: `dist/embed-sdk.esm.min.js`, `dist/embed-sdk.umd.min.js`
   - Source maps for debugging
-  - Package name: `@launchpad/embed-sdk`
+  - Package name: `@conduction/launchpad-embed`
   - Version matching the LaunchPad app version
 
 ### Requirement: REQ-EMB-007 — Rate limiting and request budgeting per token

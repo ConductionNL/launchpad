@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @launchpad/embed-sdk — embed a LaunchPad widget or dashboard in any page
+ * @conduction/launchpad-embed — embed a LaunchPad widget or dashboard in any page
  * (embedded-analytics tasks 19-22, REQ-EMB-006).
  *
  *   const embed = await LaunchPadEmbed.render(container, {

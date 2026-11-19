@@ -113,7 +113,7 @@ The embed SHALL apply the token's `tenantThemeId` (if set) by injecting `cssVari
 
 ### REQ-EMB-006 — JS-SDK exposes render, event, and resize APIs
 
-The system SHALL publish a JS-SDK (`@launchpad/embed-sdk`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
+The system SHALL publish a JS-SDK (`@conduction/launchpad-embed`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
 
 - GIVEN a host page that imports the SDK and calls `render` with a valid token
   WHEN the SDK initialises

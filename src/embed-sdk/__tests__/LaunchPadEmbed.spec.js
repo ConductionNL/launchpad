@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @launchpad/embed-sdk: render creates the iframe and completes the
+ * @conduction/launchpad-embed: render creates the iframe and completes the
  * handshake, events reach every listener until removed, resize posts and
  * resolves, messages from any other window or origin are ignored, and two
  * embeds on one page do not hear each other (embedded-analytics task 34).

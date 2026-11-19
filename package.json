@@ -76,7 +76,7 @@
 		"@vue/tsconfig": "^0.9.1",
 		"eslint": "^10.11.0",
 		"eslint-config-prettier": "^10.1.8",
-		"jsdom": "^30.0.1",
+		"jsdom": "^31.0.1",
 		"prettier": "^3.9.8",
 		"stylelint": "^17.15.0",
 		"terser-webpack-plugin": "^5.3.11",

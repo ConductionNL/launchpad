@@ -29,7 +29,6 @@ At least one of `folderPath` or `fileId` MUST be present so the placement always
 ## Requirements
 
 
-@e2e exclude all scenarios test PHP file listing/upload/delete endpoints — requires Nextcloud Files ACL setup beyond the test fixture
 
 ### Requirement: REQ-FLS-001 Widget registration
 
@@ -39,7 +38,7 @@ The system MUST register a LaunchPad dashboard widget with id `launchpad_files` 
 
 - GIVEN the files-widget capability is installed and enabled
 - WHEN a user opens the LaunchPad widget picker dialog
-- THEN the `launchpad_files` widget MUST appear in the list with a title (e.g., "Files") and an icon
+- THEN the Files widget (widget type `files`) MUST appear in the list with a title (e.g., "Files") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -53,9 +52,10 @@ The system MUST register a LaunchPad dashboard widget with id `launchpad_files` 
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `launchpad_files` widget MUST still be discoverable in the picker
+- THEN the Files widget (widget type `files`) MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
+@e2e exclude never built: no `OCP\Dashboard\IWidget` with id `launchpad_files` exists in lib/ (git log --all -S launchpad_files touches only openspec/ and docs), so `GET /api/widgets` has no such entry to carry id, title, icon_url or v2 support; the files type is a frontend registry entry (displayName and icon in @conduction/nextcloud-vue CnFilesWidget/index.js), and no unit test in this repository pins that metadata
 
 - GIVEN the widget is registered
 - WHEN the widget picker fetches widget metadata
@@ -140,6 +140,7 @@ The system MUST expose `GET /api/widgets/files/{placementId}/contents?cursor=&li
 - NOTE: Cursor implementation is opaque to the frontend; the backend may use file ID offsets, timestamps, or other strategies
 
 #### Scenario: Permission-aware item listing
+@e2e exclude needs per-file read rights inside one folder (an unreadable sibling next to readable ones), which plain Nextcloud sharing cannot express and the CI fixture has no ACL app (groupfolders advanced permissions) for; pinned by tests/Unit/Service/FilesWidgetServiceTest.php::testUnreadableChildrenAreSilentlyOmitted and ::testBuildFileMetadataSurfacesPermissionFlags
 
 - GIVEN a folder with files: A (user can read), B (user cannot read), C (user can read, can edit), D (user can read, can delete)
 - WHEN the user fetches folder contents
@@ -188,6 +189,7 @@ The system MUST enforce view-time permission checks: only files and folders the 
 - AND the widget MUST gracefully show the access-denied empty state
 
 #### Scenario: Mixed permissions within folder
+@e2e exclude needs a subfolder the viewer cannot read inside a folder they can, which plain Nextcloud sharing cannot express and the CI fixture has no ACL app (groupfolders advanced permissions) for; pinned by tests/Unit/Service/FilesWidgetServiceTest.php::testUnreadableChildrenAreSilentlyOmitted
 
 - GIVEN a folder with a subfolder that the user cannot read
 - AND other files in the main folder that the user can read
@@ -263,6 +265,7 @@ When a user clicks on a file, the widget MUST open the standard Nextcloud file v
 - AND the breadcrumb and contents MUST update
 
 #### Scenario: Deep-link preserves file context
+@e2e exclude previewing and editing an .xlsx in the Files app needs an office suite (Collabora or OnlyOffice), which the CI fixture does not provide; the deep link itself and the Files app opening the file by id are asserted by click-file-to-open-in-files-app in tests/e2e/files-widget-navigation.spec.ts, and no unit test covers the Files app side
 
 - GIVEN a file `/Documents/Marketing/budget.xlsx` with fileId `555`
 - WHEN the user clicks it in the widget
@@ -430,6 +433,7 @@ The system MUST support MIME type filtering (empty filter = all files) and multi
 - AND each row MUST be clickable (file → deep-link; folder → navigate)
 
 #### Scenario: Grid mode with thumbnails
+@e2e exclude a video thumbnail needs ffmpeg and the Movie preview provider, neither of which the CI fixture enables, so the video clause cannot pass there; the image-thumbnail half is asserted in grid mode by config-for-thumbnails in tests/e2e/files-widget.spec.ts, the backend half (thumbnailUrl only when a preview provider exists) by tests/Unit/Service/FilesWidgetServiceTest.php::testBuildFileMetadataEmitsThumbnailWhenPreviewAvailable and ::testBuildFileMetadataOmitsThumbnailWhenNoPreview
 
 - GIVEN a placement with `viewMode: 'grid'` and `showThumbnails: true`
 - AND the folder contains: image.png, document.pdf, video.mp4
@@ -446,6 +450,7 @@ The system MUST support MIME type filtering (empty filter = all files) and multi
 - AND the grid MUST load faster (no thumbnail rendering)
 
 #### Scenario: Tree mode hierarchical display
+@e2e exclude never built: no collapsible tree exists in the renderer (@conduction/nextcloud-vue CnFilesWidget.vue `viewMode` maps 'tree' to the list layout, "Tree navigation is not implemented"), and no unit test pins a tree
 
 - GIVEN a placement with `viewMode: 'tree'`
 - AND the folder structure: `root/ > docs/ > 2024/ > [files]` and `root/ > images/ > [files]`

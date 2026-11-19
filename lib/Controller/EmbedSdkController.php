@@ -30,6 +30,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataDisplayResponse;
@@ -38,6 +39,8 @@ use OCP\IRequest;
 
 /**
  * The public, cacheable route of the embed SDK bundles.
+ *
+ * @spec openspec/changes/embedded-analytics/tasks.md#task-24
  */
 class EmbedSdkController extends Controller {
 
@@ -59,14 +62,12 @@ class EmbedSdkController extends Controller {
 	/**
 	 * Constructor.
 	 *
+	 * @param string      $appName    The app id, from the container.
 	 * @param IRequest    $request    The request.
-	 * @param IAppManager $appManager Locates the app's directory and version.
+	 * @param IAppManager $appManager Locates the built bundles and the app version.
 	 */
-	public function __construct(
-		IRequest $request,
-		private readonly IAppManager $appManager,
-	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+	public function __construct(string $appName, IRequest $request, private readonly IAppManager $appManager) {
+		parent::__construct(appName: $appName, request: $request);
 	}//end __construct()
 
 	/**
@@ -80,14 +81,14 @@ class EmbedSdkController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 600, period: 60)]
 	public function bundle(string $file): Response {
 		if (array_key_exists($file, self::FILES) === false) {
 			return $this->notFound();
 		}
 
-		$path    = $this->appManager->getAppPath(appId: Application::APP_ID).'/js/embed-sdk/'.$file;
-		$content = (is_file($path) === true) ? file_get_contents($path) : false;
-		if ($content === false) {
+		$content = $this->builtFile(file: $file);
+		if ($content === null) {
 			return $this->notFound();
 		}
 
@@ -103,6 +104,27 @@ class EmbedSdkController extends Controller {
 
 		return $response;
 	}//end bundle()
+
+	/**
+	 * The contents of a built bundle, or null when it was not built.
+	 *
+	 * @param string $file The bundle's file name, one of FILES.
+	 *
+	 * @return string|null
+	 */
+	private function builtFile(string $file): ?string {
+		$path = $this->appManager->getAppPath(appId: Application::APP_ID).'/js/embed-sdk/'.$file;
+		if (is_file($path) === false) {
+			return null;
+		}
+
+		$content = file_get_contents($path);
+		if ($content === false) {
+			return null;
+		}
+
+		return $content;
+	}//end builtFile()
 
 	/**
 	 * The answer for a name that is not a bundle, or a bundle not built.

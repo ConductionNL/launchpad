@@ -78,7 +78,7 @@ class TileUpdater {
 			$placement->setContentArray($tileData['content']);
 		}
 
-		$linkTarget = TileLinkTarget::validated(value: ($tileData['linkTarget'] ?? null));
+		$linkTarget = $this->validatedLinkTarget(value: ($tileData['linkTarget'] ?? null), field: 'linkTarget');
 		if ($linkTarget !== null) {
 			$placement->setContentArray(
 				array_merge($placement->getContentArray(), ['linkTarget' => $linkTarget])
@@ -107,9 +107,7 @@ class TileUpdater {
 	): void {
 		// Launcher-tile-open-behaviour D1: the tile's link target rides in
 		// content; anything but the three values is refused before saving.
-		if (is_array($data['content'] ?? null) === true && array_key_exists('linkTarget', $data['content']) === true) {
-			TileLinkTarget::validated(value: $data['content']['linkTarget'], field: 'content.linkTarget');
-		}
+		$this->validatedLinkTarget(value: ($data['content']['linkTarget'] ?? null), field: 'content.linkTarget');
 
 		if (isset($data['tileTitle']) === true) {
 			$placement->setTileTitle($data['tileTitle']);
@@ -151,6 +149,24 @@ class TileUpdater {
 
 		$this->checkLaunchLink(placement: $placement);
 	}//end applyTileUpdates()
+
+	/**
+	 * A link target as given, or null when none is given.
+	 *
+	 * @param mixed  $value The value.
+	 * @param string $field The field name, for the refusal message.
+	 *
+	 * @return string|null
+	 *
+	 * @throws \InvalidArgumentException When the value is not a link target.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) TileLinkTarget holds the rule as a pure function.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	private function validatedLinkTarget(mixed $value, string $field): ?string {
+		return TileLinkTarget::validated(value: $value, field: $field);
+	}//end validatedLinkTarget()
 
 	/**
 	 * Check a program, remote-desktop or sso tile as it will be saved, and

@@ -67,7 +67,6 @@ The grid MUST initialize with the correct configuration when a dashboard is load
 ### Requirement: Drag to Reposition (REQ-GRID-002)
 
 Users MUST be able to drag widgets to new positions on the grid in edit mode.
-@e2e exclude drag-to-reposition requires live GridStack drag events — fragile in headless Playwright; composite regression covered by wave3 runtime-shell tests
 
 #### Scenario: Drag a widget to a new position
 - GIVEN the dashboard is in edit mode
@@ -107,7 +106,6 @@ Users MUST be able to drag widgets to new positions on the grid in edit mode.
 ### Requirement: Resize by Edge Dragging (REQ-GRID-003)
 
 Users MUST be able to resize widgets by dragging their edges or corners in edit mode.
-@e2e exclude resize-by-edge requires live GridStack resize events — same fragility as REQ-GRID-002
 
 #### Scenario: Resize a widget horizontally
 - GIVEN the dashboard is in edit mode
@@ -182,7 +180,6 @@ The grid MUST support two distinct interaction modes controlled by the `editMode
 ### Requirement: Position Persistence (REQ-GRID-005)
 
 Grid position changes MUST be communicated to the parent component for API persistence.
-@e2e exclude position persistence tested via Vue composable event-emit — not directly observable in Playwright without mock
 
 #### Scenario: Save after grid change
 - GIVEN the user drags a widget to a new position
@@ -218,8 +215,6 @@ Grid position changes MUST be communicated to the parent component for API persi
 - AND the placement's gridX, gridY, gridWidth, gridHeight MUST be updated from the grid item's x, y, w, h values
 
 ### Requirement: REQ-GRID-006 Widget Auto-Layout (bottom-append placement)
-
-@e2e exclude bottom-append placement is composable math; Vitest unit scope (src/composables/__tests__/useGridManager.spec.js), browser outcome covered by REQ-GRID-001 init test
 
 When a new widget is added to a dashboard, the system MUST place it in a fresh row directly below all existing widgets, without overlapping any existing widget and without moving any existing widget. The algorithm MUST be:
 
@@ -345,7 +340,6 @@ The grid MUST also adapt to the container width while maintaining the active col
 ### Requirement: Grid Accessibility (REQ-GRID-008)
 
 The grid MUST support keyboard navigation and screen reader compatibility.
-@e2e exclude grid accessibility (Tab focus ordering, ARIA roles) requires pre-seeded placements and screen reader emulation — Vitest axe scope
 
 #### Scenario: Keyboard navigation between widgets
 - GIVEN the dashboard is in view mode
@@ -370,7 +364,6 @@ The grid MUST support keyboard navigation and screen reader compatibility.
 ### Requirement: Tile vs Widget Rendering (REQ-GRID-009)
 
 The grid MUST distinguish between tile placements and widget placements for rendering.
-@e2e exclude tile vs widget rendering dispatch tests WidgetWrapper prop-threading — Vitest component scope; browser manifestation covered by tiles and widgets specs
 
 #### Scenario: Tile placement renders TileWidget
 - GIVEN a placement with `tileType: "custom"` and inline tile data (tileTitle, tileIcon, etc.)
@@ -402,27 +395,28 @@ The grid MUST distinguish between tile placements and widget placements for rend
 ### Requirement: Grid Styling (REQ-GRID-010)
 
 The grid MUST apply consistent visual styling to all grid items.
-@e2e exclude grid CSS styling (backdrop-filter, border-radius, placeholder colours) tests computed styles at pixel level — visual regression / Vitest snapshot scope
 
 #### Scenario: Grid item content styling
 - GIVEN a grid item is rendered
 - WHEN the item is displayed
 - THEN `.grid-stack-item-content` MUST have: background blur via `backdrop-filter`, large border radius via `--border-radius-large`, and `overflow: hidden`
+@e2e exclude pixel-level CSS (backdrop-filter, border-radius) — visual styling, no unit test pins it; the scoped rule is in src/views/Views.vue `.launchpad-container :deep(.grid-stack-item-content)`
 
 #### Scenario: Placeholder styling during drag
 - GIVEN the user is dragging a widget in edit mode
 - WHEN a placeholder appears showing the drop target
 - THEN `.grid-stack-placeholder > .placeholder-content` MUST have: a primary element light background and a 2px dashed border in primary color with large border radius
+@e2e exclude pixel-level CSS of GridStack's drag placeholder — visual styling only; no unit test pins it
 
 #### Scenario: Placement key regeneration
 - GIVEN a widget placement is updated (e.g., style change)
 - WHEN the grid re-renders
 - THEN the placement key MUST include the `updatedAt` timestamp and `styleConfig` hash to force re-rendering via `getPlacementKey()`
+@e2e exclude Vue render key, not observable in the browser; the shipped key is the bare id (src/views/Views.vue placementItemKey, pinned by src/views/__tests__/ViewsPlacementActions.spec.js "keys a placement by its id as text") so this scenario's updatedAt/styleConfig key is stale
 
 ### Requirement: Grid Synchronization (REQ-GRID-011)
 
 The grid MUST stay synchronized with the placements prop when items are added or removed externally.
-@e2e exclude grid sync uses Vue watcher + nextTick internals — observable as DOM behaviour but requires complex timing; covered by Vitest
 
 #### Scenario: New placement added to props
 - GIVEN the placements array receives a new placement via the parent component
@@ -439,11 +433,11 @@ The grid MUST stay synchronized with the placements prop when items are added or
 - GIVEN the DashboardGrid component is about to be destroyed
 - WHEN `beforeDestroy` lifecycle hook fires
 - THEN `grid.destroy(false)` MUST be called (false = do not remove DOM elements)
+@e2e exclude component lifecycle internal to nextcloud-vue CnDashboardGrid (unmount calls grid.destroy(false)); nothing to observe in the browser and no LaunchPad test pins it
 
 ### Requirement: Cell geometry constants (REQ-GRID-012)
 
 The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). These constants MUST live in a single shared module exported from the grid composable, not duplicated in component templates.
-@e2e exclude cell geometry constants are source-code assertions; grep + import checks cannot be driven from Playwright
 
 #### Scenario: Cell height read from constant
 
@@ -451,6 +445,7 @@ The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). Th
 - WHEN any other module needs the cell height (e.g. for collision math or CSS calc)
 - THEN it MUST import the constant
 - AND grep for hardcoded `60` in grid contexts MUST return only the composable definition
+@e2e exclude source-code import/grep assertion; pinned by src/composables/__tests__/useGridManager.spec.js ("CELL_HEIGHT is 60 px")
 
 #### Scenario: 12-col, 60px, 8px margin renders predictable height
 
@@ -473,7 +468,7 @@ The system MUST pin `gridstack` to a major version that supports `columnOpts.bre
 ### Requirement: Placement helper is the single placement authority (REQ-GRID-014)
 
 All "add widget" code paths (toolbar dropdown, keyboard shortcut, drag-from-picker) MUST go through a single `placeNewWidget(spec)` helper exported from the grid composable. Inline calls to `grid.addWidget` outside this helper are forbidden.
-@e2e exclude single placement authority is a source-code grep assertion — cannot be driven from Playwright
+@e2e exclude source-code structure (which module calls grid.addWidget / placeNewWidget), not browser behaviour; pinned by the grep guard in src/composables/__tests__/useGridManager.spec.js and by src/stores/__tests__/dashboard.golden.spec.js; the placement outcome is cited under REQ-GRID-006
 
 #### Scenario: Single source of truth
 

@@ -1580,6 +1580,8 @@
         "New announcement in %1$s: %2$s": "New announcement in %1$s: %2$s",
         "Open LaunchPad to read the announcement": "Open LaunchPad to read the announcement",
         "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.",
-        "Who else is editing?": "Who else is editing?"
+        "Who else is editing?": "Who else is editing?",
+        "You have no access to this scope: {name}": "You have no access to this scope: {name}",
+        "{name} filter changed: {from} → {to}": "{name} filter changed: {from} → {to}"
     }
 }

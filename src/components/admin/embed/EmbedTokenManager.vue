@@ -98,12 +98,12 @@
 			<table v-else class="embed-token-manager__table" data-test="embed-token-table">
 				<thead>
 					<tr>
-						<th>{{ t('launchpad', 'Name') }}</th>
-						<th>{{ t('launchpad', 'Status') }}</th>
-						<th>{{ t('launchpad', 'Embeds') }}</th>
-						<th>{{ t('launchpad', 'Created') }}</th>
-						<th>{{ t('launchpad', 'Revoked') }}</th>
-						<th><span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span></th>
+						<th scope="col">{{ t('launchpad', 'Name') }}</th>
+						<th scope="col">{{ t('launchpad', 'Status') }}</th>
+						<th scope="col">{{ t('launchpad', 'Embeds') }}</th>
+						<th scope="col">{{ t('launchpad', 'Created') }}</th>
+						<th scope="col">{{ t('launchpad', 'Revoked') }}</th>
+						<th scope="col"><span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span></th>
 					</tr>
 				</thead>
 				<tbody>

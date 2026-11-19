@@ -38,6 +38,7 @@ use OCA\LaunchPad\Service\Embed\RateLimitService;
 use OCA\LaunchPad\Service\Embed\UsageTelemetryService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
@@ -90,6 +91,7 @@ class EmbedController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 300, period: 60)]
 	public function render(string $subjectType, string $subjectId): Response {
 		$token    = $this->admitted(subjectType: $subjectType, subjectId: $subjectId);
 		$verdict  = $this->spend(token: $token);
@@ -116,6 +118,7 @@ class EmbedController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 600, period: 60)]
 	public function data(string $subjectType, string $subjectId): Response {
 		$token   = $this->admitted(subjectType: $subjectType, subjectId: $subjectId);
 		$verdict = $this->spend(token: $token);

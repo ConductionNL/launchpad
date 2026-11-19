@@ -30,6 +30,7 @@ use OCA\LaunchPad\Service\Embed\JoseEncoding;
 use OCA\LaunchPad\Service\Embed\RateLimitService;
 use OCA\LaunchPad\Service\Embed\ScopeEnforcementService;
 use OCA\LaunchPad\Service\Embed\UsageTelemetryService;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -41,6 +42,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use ReflectionProperty;
 
 #[CoversClass(EmbedController::class)]
@@ -223,6 +225,21 @@ class EmbedControllerTest extends TestCase {
 			'rateLimitPolicy' => $policy,
 		]);
 	}//end token()
+
+	/**
+	 * The two public embed routes carry a per-address volume ceiling (ADR-082).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
+	 */
+	public function testThePublicRoutesAreRateLimitedPerAddress(): void {
+		foreach (['render' => 300, 'data' => 600] as $name => $limit) {
+			$attributes = (new ReflectionMethod(EmbedController::class, $name))->getAttributes(AnonRateLimit::class);
+			$this->assertCount(1, $attributes, $name);
+			$this->assertSame(['limit' => $limit, 'period' => 60], $attributes[0]->getArguments(), $name);
+		}
+	}//end testThePublicRoutesAreRateLimitedPerAddress()
 
 	/**
 	 * @return array<string, string>

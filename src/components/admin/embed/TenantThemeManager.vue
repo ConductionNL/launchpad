@@ -74,12 +74,12 @@
 			<table v-else class="tenant-theme-manager__table" data-test="tenant-theme-table">
 				<thead>
 					<tr>
-						<th>{{ t('launchpad', 'Name') }}</th>
-						<th>{{ t('launchpad', 'Primary colour') }}</th>
-						<th>{{ t('launchpad', 'Logo') }}</th>
-						<th>{{ t('launchpad', 'Created') }}</th>
-						<th>{{ t('launchpad', 'Tokens') }}</th>
-						<th><span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span></th>
+						<th scope="col">{{ t('launchpad', 'Name') }}</th>
+						<th scope="col">{{ t('launchpad', 'Primary colour') }}</th>
+						<th scope="col">{{ t('launchpad', 'Logo') }}</th>
+						<th scope="col">{{ t('launchpad', 'Created') }}</th>
+						<th scope="col">{{ t('launchpad', 'Tokens') }}</th>
+						<th scope="col"><span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span></th>
 					</tr>
 				</thead>
 				<tbody>

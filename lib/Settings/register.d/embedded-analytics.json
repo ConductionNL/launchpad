@@ -34,11 +34,13 @@
         "properties": {
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The name administrators know the token by."
           },
           "description": {
             "type": "string",
-            "title": "Description"
+            "title": "Description",
+            "description": "What the token is for and where it is embedded."
           },
           "tokenHash": {
             "type": "string",
@@ -56,13 +58,19 @@
                 "enum": [
                   "widget",
                   "dashboard"
-                ]
+                ],
+                "title": "Subject type",
+                "description": "Whether the token renders one widget or a whole dashboard."
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "title": "Subject id",
+                "description": "The id of the widget or dashboard the token renders."
               },
               "filterContext": {
-                "type": "object"
+                "type": "object",
+                "title": "Pinned filters",
+                "description": "Filters applied to every render; the host page cannot change them."
               }
             },
             "required": [
@@ -80,13 +88,17 @@
                 "enum": [
                   "read",
                   "read-with-interactions"
-                ]
+                ],
+                "title": "Mode",
+                "description": "read shows the embed only; read-with-interactions also allows the actions listed in allowed actions."
               },
               "allowedFilters": {
                 "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "title": "Allowed filters",
+                "description": "The filter fields the host page may set on top of the pinned filters."
               },
               "allowedActions": {
                 "type": "array",
@@ -97,7 +109,9 @@
                     "export",
                     "drillDown"
                   ]
-                }
+                },
+                "title": "Allowed actions",
+                "description": "The interactions the embed may perform, such as drill-down or export."
               }
             },
             "required": [
@@ -114,7 +128,8 @@
           },
           "tenantThemeId": {
             "type": "string",
-            "title": "Tenant theme"
+            "title": "Tenant theme",
+            "description": "The tenant theme the embed is styled with; empty for the default look."
           },
           "tokenExpiresAt": {
             "type": "string",
@@ -125,7 +140,8 @@
           "revokedAt": {
             "type": "string",
             "title": "Revoked at",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the token was revoked; empty while it is valid."
           },
           "revocationReason": {
             "type": "string",
@@ -136,15 +152,18 @@
               "host_decommissioned",
               "re-issued",
               "other"
-            ]
+            ],
+            "description": "Why the token was revoked."
           },
           "revocationNotes": {
             "type": "string",
-            "title": "Revocation notes"
+            "title": "Revocation notes",
+            "description": "Free text the administrator added when revoking."
           },
           "revokedBy": {
             "type": "string",
-            "title": "Revoked by"
+            "title": "Revoked by",
+            "description": "The user id of the administrator who revoked the token."
           },
           "rateLimitPolicy": {
             "type": "object",
@@ -153,11 +172,15 @@
             "properties": {
               "requestsPerMinute": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "title": "Requests per minute",
+                "description": "How many render and data requests the token may make per minute."
               },
               "burstSize": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "title": "Burst size",
+                "description": "How many requests above the per-minute rate are allowed in a short burst."
               }
             }
           },
@@ -168,17 +191,20 @@
           },
           "createdBy": {
             "type": "string",
-            "title": "Created by"
+            "title": "Created by",
+            "description": "The user id of the administrator who issued the token."
           },
           "createdAt": {
             "type": "string",
             "title": "Created at",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the token was issued."
           },
           "updatedAt": {
             "type": "string",
             "title": "Updated at",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the token was last changed."
           }
         }
       },
@@ -202,7 +228,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The name administrators know the theme by."
           },
           "cssVariables": {
             "type": "object",
@@ -212,7 +239,8 @@
           "logoUrl": {
             "type": "string",
             "title": "Logo URL",
-            "format": "uri"
+            "format": "uri",
+            "description": "The address of the logo shown in embeds with this theme."
           },
           "customCss": {
             "type": "string",
@@ -221,12 +249,14 @@
           },
           "createdBy": {
             "type": "string",
-            "title": "Created by"
+            "title": "Created by",
+            "description": "The user id of the administrator who created the theme."
           },
           "createdAt": {
             "type": "string",
             "title": "Created at",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the theme was created."
           }
         }
       },
@@ -252,7 +282,8 @@
         "properties": {
           "tokenId": {
             "type": "string",
-            "title": "Token"
+            "title": "Token",
+            "description": "The embed token the request came with."
           },
           "eventType": {
             "type": "string",
@@ -264,11 +295,13 @@
               "drillDown",
               "export",
               "rateLimited"
-            ]
+            ],
+            "description": "What happened in the embed."
           },
           "hostOrigin": {
             "type": "string",
-            "title": "Host origin"
+            "title": "Host origin",
+            "description": "The origin of the page that framed the embed."
           },
           "userAgent": {
             "type": "string",
@@ -289,27 +322,32 @@
               "medium",
               "large",
               "unknown"
-            ]
+            ],
+            "description": "The size class of the embed frame."
           },
           "timestamp": {
             "type": "string",
             "title": "Timestamp",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the event happened."
           },
           "responseStatusCode": {
             "type": "integer",
             "title": "Status code",
             "minimum": 100,
-            "maximum": 599
+            "maximum": 599,
+            "description": "The HTTP status LaunchPad answered with."
           },
           "responseLatencyMs": {
             "type": "integer",
             "title": "Latency (ms)",
-            "minimum": 0
+            "minimum": 0,
+            "description": "How long LaunchPad took to answer, in milliseconds."
           },
           "correlationId": {
             "type": "string",
-            "title": "Correlation id"
+            "title": "Correlation id",
+            "description": "The id that ties this event to its request in the logs."
           }
         }
       },
@@ -334,7 +372,8 @@
         "properties": {
           "kid": {
             "type": "string",
-            "title": "Key id"
+            "title": "Key id",
+            "description": "The key id that tokens name in their header."
           },
           "algorithm": {
             "type": "string",
@@ -342,15 +381,18 @@
             "enum": [
               "RS256",
               "ES256"
-            ]
+            ],
+            "description": "The signature algorithm of the key."
           },
           "publicKeyJwk": {
             "type": "object",
-            "title": "Public key (JWK)"
+            "title": "Public key (JWK)",
+            "description": "The public key as a JSON Web Key, as published to hosts that verify tokens."
           },
           "publicKeyPem": {
             "type": "string",
-            "title": "Public key (PEM)"
+            "title": "Public key (PEM)",
+            "description": "The public key in PEM form."
           },
           "privateKeyEncrypted": {
             "type": "string",
@@ -364,17 +406,20 @@
               "active",
               "retiring",
               "revoked"
-            ]
+            ],
+            "description": "active signs new tokens; retiring only verifies tokens it signed; revoked verifies nothing."
           },
           "createdAt": {
             "type": "string",
             "title": "Created at",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the key was created."
           },
           "retiredAt": {
             "type": "string",
             "title": "Retired at",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the key stopped signing new tokens; empty while it is active."
           }
         }
       }

@@ -100,7 +100,7 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_VERSION = '1.0.4';
+	private const REGISTER_VERSION = '1.0.5';
 
 	/**
 	 * Constructor.

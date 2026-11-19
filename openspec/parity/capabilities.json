@@ -798,7 +798,7 @@
 			"area": "governance",
 			"overlay": null,
 			"specs": [
-				"governance-rest-api-reference",
+				"rest-api-reference",
 				"cli-commands",
 				"dashboard-bulk-operations"
 			]
@@ -6472,20 +6472,21 @@
 			"id": "d-rest-api",
 			"area": "governance",
 			"name": "Read and change dashboards through a documented REST API.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "partial",
 			"microsoft-viva": "partial",
 			"nextcloud-dashboard": "yes",
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "openapi.json:1 (OpenAPI 3.1, every operation with x-launchpad-stability; public ones from :2205) is written by scripts/OpenApiGenerator.php:219 generate() from appinfo/routes.php and the controllers (composer.json:44 openapi:generate), with the response shapes of the public operations in lib/ResponseDefinitions.php:35; composer.json:43 lint:openapi, part of check:strict, fails on an undocumented route (scripts/OpenApiRouteCoverage.php) and on a file regenerating would change (scripts/lint-openapi.php:47). Tests: tests/Unit/Scripts/OpenApiGeneratorTest.php, tests/Unit/Scripts/OpenApiDriftTest.php:94, tests/Unit/Scripts/OpenApiRouteCoverageTest.php, tests/Unit/Middleware/Support/OpenApiStabilityTest.php; docs/features/rest-api.md",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "appinfo/routes.php:18",
-				"change": "openspec/changes/governance-rest-api-reference",
-				"requirement": "openspec/changes/governance-rest-api-reference/specs/rest-api-reference :: LaunchPad ships a generated OpenAPI reference (REQ-RAPI-001)"
+				"change": "openspec/changes/archive/2026-11-19-governance-rest-api-reference",
+				"spec": "openspec/specs/rest-api-reference",
+				"requirement": "openspec/specs/rest-api-reference :: LaunchPad ships a generated OpenAPI reference (REQ-RAPI-001)"
 			},
-			"reachedOn": "no documentation page; the JSON routes are what the LaunchPad pages themselves call",
+			"reachedOn": "docs/features/rest-api.md, and GET /index.php/apps/launchpad/api/v1/openapi.json on a running instance",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175551-api-documentation REST API covers users, groups, memberships, available user apps, announcements, events and activity feed; no endpoints for spaces, tiles or tile groups (read 2026-09-26)",
 				"microsoft-viva": "https://pnp.github.io/pnpcore/using-the-sdk/vivaconnections-intro.html PnP Core SDK 'GetVivaDashboard', 'AddACE', 'UpdateACE', 'RemoveACE' read and change the dashboard; that is a community .NET SDK, no Microsoft-documented dashboard REST endpoint found on learn.microsoft.com (read 2026-09-26)",
@@ -6499,7 +6500,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.50.0",
-			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0. Specified 2026-09-27 in openspec/changes/governance-rest-api-reference (openspec pass).",
+			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0. Specified 2026-09-27 in openspec/changes/archive/2026-11-19-governance-rest-api-reference (openspec pass). Built 2026-11-19 (#1351): a generated OpenAPI 3.1 reference with a drift check in check:strict.",
 			"screen": {
 				"board": null,
 				"reason": "Een REST-API voor andere systemen, zonder scherm."

@@ -41,6 +41,7 @@
         "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './build/*' -print0 | xargs -0 -n1 php -l",
         "lint:initial-state": "php scripts/lint-initial-state.php",
         "lint:openapi": "php scripts/lint-openapi.php",
+        "openapi:generate": "php scripts/generate-openapi.php",
         "lint:spec-annotations": "php tools/check-spec-annotations.php",
         "lint:licenses": "bash scripts/check-license-headers.sh",
         "cs:check": "php-cs-fixer fix --dry-run --diff",

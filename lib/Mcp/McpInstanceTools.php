@@ -194,8 +194,8 @@ class McpInstanceTools {
 	 */
 	public function updateTemplate(array $args): array {
 		$refusal = ($this->gate->requireAdmin()
-			?? $this->validator->id(args: $args, name: 'templateId')
-			?? $this->validator->string(args: $args, name: 'name', min: 1, max: 255, required: false)
+			?? $this->validator->positiveId(args: $args, name: 'templateId')
+			?? $this->validator->optional(args: $args, name: 'name', refusal: $this->validator->string(args: $args, name: 'name', min: 1, max: 255))
 			?? $this->templateFieldRefusal(args: $args));
 		if ($refusal !== null) {
 			return $refusal;
@@ -219,7 +219,7 @@ class McpInstanceTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-12
 	 */
 	public function deleteTemplate(array $args): array {
-		$refusal = ($this->gate->requireAdmin() ?? $this->validator->id(args: $args, name: 'templateId'));
+		$refusal = ($this->gate->requireAdmin() ?? $this->validator->positiveId(args: $args, name: 'templateId'));
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -244,7 +244,7 @@ class McpInstanceTools {
 	 */
 	public function resyncTemplate(array $args): array {
 		$refusal = ($this->gate->requireAdmin()
-			?? $this->validator->id(args: $args, name: 'templateId')
+			?? $this->validator->positiveId(args: $args, name: 'templateId')
 			?? $this->validator->oneOf(args: $args, name: 'strategy', allowed: ['overwrite', 'merge']));
 		if ($refusal === null && array_key_exists('dryRun', $args) === true && is_bool($args['dryRun']) === false) {
 			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'Argument dryRun must be true or false.');
@@ -294,11 +294,11 @@ class McpInstanceTools {
 	 * @return array<string, mixed>|null
 	 */
 	private function templateFieldRefusal(array $args): ?array {
-		$refusal = $this->validator->oneOf(
+		$levels  = [Dashboard::PERMISSION_VIEW_ONLY, Dashboard::PERMISSION_ADD_ONLY, Dashboard::PERMISSION_FULL];
+		$refusal = $this->validator->optional(
 			args: $args,
 			name: 'permissionLevel',
-			allowed: [Dashboard::PERMISSION_VIEW_ONLY, Dashboard::PERMISSION_ADD_ONLY, Dashboard::PERMISSION_FULL],
-			required: false
+			refusal: $this->validator->oneOf(args: $args, name: 'permissionLevel', allowed: $levels)
 		);
 		if ($refusal === null && array_key_exists('targetGroups', $args) === true && is_array($args['targetGroups']) === false) {
 			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'Argument targetGroups must be a list of group ids.');

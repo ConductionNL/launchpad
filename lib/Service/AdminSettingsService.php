@@ -177,8 +177,6 @@ class AdminSettingsService {
 			// Engagement-communities REQ-COMM-003: the Talk conversations the
 			// organisation pinned. A stored entry that is not a token is dropped.
 			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
-			// REQ-PSP-003: LaunchPad is the default app after sign-in; on unless
-			// an administrator switched it off.
 			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];
 	}//end getSettings()

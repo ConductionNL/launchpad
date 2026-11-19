@@ -114,6 +114,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
   - Spec written: `tests/e2e/link-button-widget.spec.ts`, `link-button-widget-list.spec.ts`, `link-button-widget-form.spec.ts`; 3 scenarios excluded with reasons, 48 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/people-widget.spec.ts`, `people-widget-config.spec.ts`, `people-widget-rendering.spec.ts`, `people-widget-search.spec.ts`, `people-widget-profile-fields.spec.ts`; 8 scenarios excluded with reasons, 50 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
   - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.

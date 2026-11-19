@@ -254,8 +254,6 @@ cannot see on screen, or cannot find tiles they can.
 
 ### Requirement: Administrators define search shortcuts (REQ-SPX-001)
 
-@e2e exclude Playwright is not wired for search shortcuts yet; covered by tests/Unit/Service/SearchShortcutServiceTest.php and src/components/__tests__/RuntimeShellSearch.shortcuts.spec.js
-
 An administrator MUST be able to define up to 30 search shortcuts, each with a prefix (`!` and 1 to 10 letters or digits, unique regardless of case), a name, and an https address containing `{query}`. The server MUST refuse an entry that breaks any of these rules.
 
 #### Scenario: Add the TOPdesk shortcut
@@ -271,8 +269,6 @@ An administrator MUST be able to define up to 30 search shortcuts, each with a p
 - **THEN** the save fails with "Use an https address that contains {query}"
 
 ### Requirement: A prefix sends the query to its site (REQ-SPX-002)
-
-@e2e exclude Playwright is not wired for search shortcuts yet; covered by tests/Unit/Service/SearchShortcutServiceTest.php and src/components/__tests__/RuntimeShellSearch.shortcuts.spec.js
 
 In the search widget and the Workspace quick search, a query whose first word is a known prefix MUST show a single result naming the site and the rest of the query, and Enter MUST open the site's address with the URL-encoded rest in a new tab. A query without a known prefix MUST behave as before: tile filtering, then the configured fallback.
 
@@ -290,8 +286,6 @@ In the search widget and the Workspace quick search, a query whose first word is
 - **THEN** the box filters tiles for `!x rapport` and applies the normal fallback
 
 ### Requirement: Users can see the shortcuts (REQ-SPX-003)
-
-@e2e exclude Playwright is not wired for search shortcuts yet; covered by tests/Unit/Service/SearchShortcutServiceTest.php and src/components/__tests__/RuntimeShellSearch.shortcuts.spec.js
 
 Typing `!` alone or `?` in a search box MUST list the available shortcuts with their prefix and name, announced to screen readers.
 

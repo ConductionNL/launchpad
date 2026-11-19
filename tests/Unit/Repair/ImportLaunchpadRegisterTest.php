@@ -182,4 +182,23 @@ class ImportLaunchpadRegisterTest extends TestCase {
 		unset($data['components']['schemas']['Dashboard']['configuration']);
 		$this->assertSame($base['components']['schemas']['Dashboard'], $data['components']['schemas']['Dashboard']);
 	}
+
+	/**
+	 * The shipped fragments add the status report schema to the launchpad register.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 */
+	public function testTheShippedRegisterCarriesTheStatusReportSchema(): void {
+		$this->root = dirname(__DIR__, 3);
+		$importer   = $this->importer(false);
+		$this->runStep($importer);
+		$this->root = sys_get_temp_dir() . '/lp-register-' . getmypid();
+
+		$data = $importer->imported[0];
+		$this->assertContains('status_report', $data['components']['registers']['launchpad']['schemas']);
+		$this->assertContains('dashboard', $data['components']['registers']['launchpad']['schemas']);
+		$schema = $data['components']['schemas']['status_report'];
+		$this->assertSame(['on-track', 'at-risk', 'off-track'], $schema['properties']['health']['enum']);
+		$this->assertSame(['computed', 'written'], $schema['properties']['provenance']['properties']['summary']['enum']);
+	}
 }

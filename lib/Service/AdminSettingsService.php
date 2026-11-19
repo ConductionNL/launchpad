@@ -37,14 +37,16 @@ class AdminSettingsService {
 	/**
 	 * Constructor
 	 *
-	 * @param AdminSettingMapper      $settingMapper The admin setting mapper.
-	 * @param TileLaunchSettings|null $tileLaunch    Checks the program schemes and SSO launch templates; built when not injected.
-	 * @param DefaultAppSetting|null  $defaultApp    Sets or gives back the instance default app (REQ-PSP-003); without it the toggle is only stored.
+	 * @param AdminSettingMapper        $settingMapper  The admin setting mapper.
+	 * @param TileLaunchSettings|null   $tileLaunch     Checks the program schemes and SSO launch templates; built when not injected.
+	 * @param DefaultAppSetting|null    $defaultApp     Sets or gives back the instance default app (REQ-PSP-003); without it the toggle is only stored.
+	 * @param OfficeNetworkService|null $officeNetworks Checks the office network ranges (REQ-TIA-001).
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
 		?TileLaunchSettings $tileLaunch = null,
 		private readonly ?DefaultAppSetting $defaultApp = null,
+		private readonly ?OfficeNetworkService $officeNetworks = null,
 	) {
 		$this->tileLaunch = ($tileLaunch ?? new TileLaunchSettings());
 	}//end __construct()
@@ -174,12 +176,31 @@ class AdminSettingsService {
 			// Engagement-announcements D6: the groups whose members may write
 			// announcements besides administrators; none until one is chosen.
 			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
-			// Engagement-communities REQ-COMM-003: the Talk conversations the
-			// organisation pinned. A stored entry that is not a token is dropped.
+			...$this->officeNetworkSettings(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
+			// REQ-COMM-003: the pinned Talk conversations; an entry that is not a token is dropped.
 			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
 			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];
 	}//end getSettings()
+
+	/**
+	 * The office networks as CIDR ranges, none by default so no tile changes
+	 * address, plus the administrator's own address and whether it falls inside
+	 * them, so a wrong proxy setup shows at once (REQ-TIA-001).
+	 *
+	 * @param mixed $stored The stored ranges.
+	 *
+	 * @return array{officeNetworks: list<string>, currentAddress: string, currentAddressInOfficeNetworks: bool}
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md
+	 */
+	private function officeNetworkSettings(mixed $stored): array {
+		return [
+			'officeNetworks' => $this->storedOfficeNetworks(stored: $stored),
+			'currentAddress' => ($this->officeNetworks?->currentAddress() ?? ''),
+			'currentAddressInOfficeNetworks' => ($this->officeNetworks?->isOfficeRequest() ?? false),
+		];
+	}//end officeNetworkSettings()
 
 	/**
 	 * Most Talk conversations an administrator may pin (engagement-communities D3).
@@ -480,6 +501,7 @@ class AdminSettingsService {
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 
+		$this->persistOfficeNetworks(ranges: $settings['officeNetworks'] ?? null);
 		$this->persistDefaultApp(enabled: $settings['defaultAppEnabled'] ?? null);
 
 		// Engagement-communities REQ-COMM-003: validated before it is stored.
@@ -578,6 +600,47 @@ class AdminSettingsService {
 			$this->settingMapper->setSetting(key: $key, value: $value);
 		}
 	}//end persistTileLaunchSettings()
+
+	/**
+	 * Store the office networks when given, refusing the whole list when one range is malformed.
+	 *
+	 * @param array<mixed>|null $ranges The entered ranges, or null to leave them as they are.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a range is not a valid CIDR range; nothing is stored then.
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 */
+	private function persistOfficeNetworks(?array $ranges): void {
+		if ($ranges === null) {
+			return;
+		}
+
+		if ($this->officeNetworks === null) {
+			throw new InvalidArgumentException(message: 'Office networks cannot be checked here');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_OFFICE_NETWORKS,
+			value: $this->officeNetworks->normaliseRanges(ranges: $ranges)
+		);
+	}//end persistOfficeNetworks()
+
+	/**
+	 * The stored office networks as a list of strings.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int,string>
+	 */
+	private function storedOfficeNetworks(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($stored, 'is_string'));
+	}//end storedOfficeNetworks()
 
 	/**
 	 * Write one setting when a value is given.

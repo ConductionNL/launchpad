@@ -55,6 +55,8 @@ import {
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
+import ActivityReportWidget from '../components/Widgets/Renderers/ActivityReportWidget.vue'
+import ActivityReportWidgetForm from '../components/Widgets/Renderers/ActivityReportWidgetForm.vue'
 import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
 import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
@@ -73,6 +75,8 @@ import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidget
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
+import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
+import ColleagueActivityWidgetForm from '../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'
 // `communities` — the open Talk conversations the viewer may join
 // (openspec/changes/engagement-communities). Same LaunchPad-only registration
 // pattern as `clock`/`weather`.
@@ -104,6 +108,8 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
+import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
 import TileHost from '../components/Widgets/Renderers/TileHost.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
@@ -197,6 +203,43 @@ registerDashboardWidget('attention', {
 	},
 	displayName: 'First today',
 	icon: 'AlertCircleOutline',
+})
+
+// `colleague-activity`: what colleagues did recently, filtered server-side to
+// what the reader may see (dashboards-and-who-may-see-them REQ-DWMS-007).
+registerDashboardWidget('colleague-activity', {
+	renderer: ColleagueActivityWidget,
+	form: ColleagueActivityWidgetForm,
+	defaultContent: {
+		limit: 10,
+		days: 7,
+	},
+	displayName: 'Colleague activity',
+	icon: 'AccountMultipleOutline',
+})
+
+// `activity-report`: a person's activity per type and per day, with the purpose
+// shown whenever it is about a named person; the server gates who may read whom
+// and logs every such read (dashboards-and-who-may-see-them REQ-DWMS-005/006).
+registerDashboardWidget('activity-report', {
+	renderer: ActivityReportWidget,
+	form: ActivityReportWidgetForm,
+	defaultContent: {
+		days: 30,
+	},
+	displayName: 'Activity report',
+	icon: 'CalendarMonthOutline',
+})
+
+// `status-report`: a dated status report on one body of work, prefilled by the
+// product and kept with the person's rating and summary; the kept report says
+// which values were computed and which were written (REQ-DWMS-004).
+registerDashboardWidget('status-report', {
+	renderer: StatusReportWidget,
+	form: StatusReportWidgetForm,
+	defaultContent: {},
+	displayName: 'Status report',
+	icon: 'ClipboardTextOutline',
 })
 
 registerDashboardWidget('clock', {

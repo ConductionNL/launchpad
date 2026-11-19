@@ -86,7 +86,7 @@ class CrossWidgetFilterSchemasTest extends TestCase {
 
 		$this->assertSame('1.0.4', $version, 'existing installs only take new schemas on a version change');
 		$this->assertSame(
-			['dashboard', 'scheduled_export', 'render_target', 'recipient', 'scheduled_export_run', 'saved_view', 'filter_event', 'embed_token', 'tenant_theme', 'embed_usage_event', 'signing_key'],
+			['dashboard', 'scheduled_export', 'render_target', 'recipient', 'scheduled_export_run', 'status_report', 'saved_view', 'filter_event', 'embed_token', 'tenant_theme', 'embed_usage_event', 'signing_key'],
 			$data['components']['registers']['launchpad']['schemas']
 		);
 		foreach (['saved_view', 'filter_event'] as $slug) {

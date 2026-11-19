@@ -89,8 +89,10 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 * `register.d/dashboard-talk-leaf.json` (openregister-leaf-integrations),
 	 * which existing installs only take on a version change. 1.0.3 adds the
 	 * `saved_view` and `filter_event` schemas of
-	 * `register.d/drill-down-cross-widget-filter.json` to the register; 1.0.4 lists the four embed schemas of
-	 * `register.d/embedded-analytics.json` on it (embedded-analytics). The import is also
+	 * `register.d/drill-down-cross-widget-filter.json` to the register; 1.0.4 adds
+	 * the `status_report` schema from `register.d/dashboards-and-who-may-see-them.json`;
+	 * 1.0.5 lists the four embed schemas of `register.d/embedded-analytics.json`
+	 * on it (embedded-analytics). The import is also
 	 * content-authoritative for schemas — OpenRegister's
 	 * `ImportHandler::schemaContentDiffers()` compares properties, required and
 	 * authorization — so a schema edit still applies even when this version has

@@ -286,6 +286,36 @@ export const api = {
 	},
 
 	/**
+	 * Announce or renew editing a dashboard; resolves to
+	 * `{editors: [{displayName, since}]}`, the colleagues editing it.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 */
+	joinPresence(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/presence`,
+		)
+	},
+
+	/**
+	 * Stop editing a dashboard. With `onPageHide` the request survives the
+	 * page closing (fetch adapter with `keepalive`).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {boolean} [onPageHide] Whether the page is closing.
+	 * @return {Promise} Axios response (204).
+	 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.1
+	 */
+	leavePresence(uuid, onPageHide = false) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/presence`,
+			onPageHide ? { adapter: 'fetch', fetchOptions: { keepalive: true } } : undefined,
+		)
+	},
+
+	/**
 	 * Force-release another person's lock; administrators only (REQ-LOCK-005).
 	 *
 	 * @param {string} uuid UUID of the dashboard.
@@ -989,6 +1019,27 @@ export const api = {
 	 */
 	updateAdminSettings(data) {
 		return axios.put(`${baseUrl}/api/admin/settings`, data)
+	},
+
+	/**
+	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
+	 *
+	 * @return {Promise} Axios response resolving to `{ customCss }`.
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	getCustomCss() {
+		return axios.get(`${baseUrl}/api/admin/custom-css`)
+	},
+
+	/**
+	 * Save the administrator CSS for all of LaunchPad; the server cleans and scopes it.
+	 *
+	 * @param {string} customCss The CSS; '' clears it.
+	 * @return {Promise} Axios response resolving to `{ customCss, removed }`.
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	updateCustomCss(customCss) {
+		return axios.put(`${baseUrl}/api/admin/custom-css`, { customCss })
 	},
 
 	// Admin group-priority order (REQ-ASET-012/013/014).

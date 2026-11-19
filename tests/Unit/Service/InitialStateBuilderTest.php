@@ -133,6 +133,8 @@ class InitialStateBuilderTest extends TestCase {
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
 			->setStartPageWithoutNavigation(true)
+			->setOnOfficeNetwork(true)
+			->setCustomCss(".launchpad-workspace p {\n  margin: 0;\n}")
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -147,6 +149,10 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertTrue($sink['allowUserDashboards']);
 		// runtime-shell REQ-SHELL-009, an optional key: pushed when set.
 		$this->assertTrue($sink['startPageWithoutNavigation']);
+		// launcher-tile-internal-address REQ-TIA-003, an optional key: pushed when set.
+		$this->assertTrue($sink['onOfficeNetwork']);
+		// REQ-THM-003, an optional key: the stored administrator CSS.
+		$this->assertSame(".launchpad-workspace p {\n  margin: 0;\n}", $sink['customCss']);
 	}
 
 	/**

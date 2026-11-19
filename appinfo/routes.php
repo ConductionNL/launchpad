@@ -179,6 +179,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardLockApi#get', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// Who edits a dashboard right now (building-edit-a-dashboard-together 1.1).
+		['name' => 'dashboardPresenceApi#join', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboardPresenceApi#leave', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Public-share management endpoints (REQ-PSHR-001..003). Owner-or-admin.
 		// Registered BEFORE the wildcard `{id}` personal-scope routes above so the
@@ -303,6 +308,13 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#unlike',
 		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+
+		// The shipped reports (dashboards-and-who-may-see-them REQ-DWMS-003).
+		['name' => 'reportApi#index', 'url' => '/api/reports', 'verb' => 'GET'],
+		['name' => 'reportApi#run', 'url' => '/api/reports/{reportId}', 'verb' => 'GET',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+		['name' => 'reportApi#save', 'url' => '/api/reports/{reportId}/dashboard', 'verb' => 'POST',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
 
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
@@ -480,6 +492,23 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
+		// Activity reporting on named people (dashboards-and-who-may-see-them REQ-DWMS-005/006):
+		// off until an administrator turns it on with a purpose; anybody reads their own.
+		['name' => 'activityReport#report', 'url' => '/api/activity-report', 'verb' => 'GET'],
+		['name' => 'activityReport#export', 'url' => '/api/activity-report/export', 'verb' => 'GET'],
+		['name' => 'activityReport#policy', 'url' => '/api/admin/activity-reporting', 'verb' => 'GET'],
+		['name' => 'activityReport#updatePolicy', 'url' => '/api/admin/activity-reporting', 'verb' => 'PUT'],
+		// Recent colleague activity (dashboards-and-who-may-see-them REQ-DWMS-007): the caller's
+		// own activity stream, minus their own actions and what they may no longer see.
+		['name' => 'colleagueActivity#index', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
+		// Storage use per workspace and service (dashboards-and-who-may-see-them REQ-DWMS-010):
+		// administrators only, with a twelve-month series and the removable total.
+		['name' => 'storageReport#report', 'url' => '/api/admin/storage-report', 'verb' => 'GET'],
+		['name' => 'storageReport#export', 'url' => '/api/admin/storage-report/export', 'verb' => 'GET'],
+		// Status reports (dashboards-and-who-may-see-them REQ-DWMS-004): the product prefills,
+		// a person may rewrite the rating and the summary, the kept report records which is which.
+		['name' => 'statusReport#draft', 'url' => '/api/status-reports/draft', 'verb' => 'POST'],
+		['name' => 'statusReport#keep', 'url' => '/api/status-reports', 'verb' => 'POST'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 
@@ -499,6 +528,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// only keys present in the body are mutated.
 		['name' => 'admin#getFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'GET'],
 		['name' => 'admin#updateFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'PUT'],
+
+		// Administrator CSS, cleaned and scoped on save (REQ-THM-003).
+		['name' => 'adminSettings#showCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'GET'],
+		['name' => 'adminSettings#updateCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'PUT'],
+		['name' => 'adminSettings#updateDashboardCustomCss', 'url' => '/api/admin/custom-css/dashboards/{uuid}', 'verb' => 'PUT'],
 
 		// Admin group-priority order endpoints (REQ-ASET-012,
 		// REQ-ASET-013, REQ-ASET-014). Both admin-only via runtime

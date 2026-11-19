@@ -168,14 +168,14 @@
 
 ## JS-SDK
 
-- [x] Task 19: Create `@launchpad/embed-sdk` package structure:
+- [x] Task 19: Create `@conduction/launchpad-embed` package structure:
   - `src/LaunchPadEmbed.js` — main entry point (render, on, off, resize methods)
   - `src/postMessage.js` — Origin verification + handshake helpers
   - `src/types.ts` — TypeScript definitions (EmbedConfig, EmbedInstance, event types)
   - `dist/embed-sdk.esm.js` (ESM build)
   - `dist/embed-sdk.umd.js` (UMD build)
   - `package.json` with exports, version matching app version
-  > Built under `src/embed-sdk/`: `package.json` (`@launchpad/embed-sdk`, version of the app), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. `npm run build:embed-sdk` (`src/embed-sdk/webpack.config.cjs`) builds `dist/embed-sdk.esm.js` and `dist/embed-sdk.umd.js` (global `LaunchPadEmbed`); `dist/` is not committed. Test: `src/embed-sdk/__tests__/dist.spec.js` (3) builds both and loads each.
+  > Built under `src/embed-sdk/`: `package.json` (`@conduction/launchpad-embed`, version of the app), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. `npm run build:embed-sdk` (`src/embed-sdk/webpack.config.cjs`) builds `dist/embed-sdk.esm.js` and `dist/embed-sdk.umd.js` (global `LaunchPadEmbed`); `dist/` is not committed. Test: `src/embed-sdk/__tests__/dist.spec.js` (3) builds both and loads each.
 
 - [x] Task 20: Implement `LaunchPadEmbed.render(container, config)` (REQ-EMB-006):
   - Accept: `{token, subjectType, subjectId, tenantThemeId (optional)}`
@@ -212,9 +212,10 @@
   > Built as `src/embed-entry.js` (webpack entry `embed`, the `launchpad-embed` script `templates/embed.php` loads) mounting `src/views/EmbedView.vue`, which renders the subject through the public share's `PublicDashboardGrid` (no fork) with loading and refusal states. The data request is same-origin, which the server's origin check lets through (`Sec-Fetch-Site: same-origin`).
 
 - [ ] Task 24: Build and publish SDK:
-  - Create `.github/workflows/publish-sdk.yml` to build + publish @launchpad/embed-sdk to npm on release
+  - Create `.github/workflows/publish-sdk.yml` to build + publish @conduction/launchpad-embed to npm on release
   - Package.json versions match app version (synchronized releases)
   - README with examples (vanilla JS, ESM, TypeScript)
+  > Partly built: the package is `@conduction/launchpad-embed` (Ruben, 19 Nov 2026), with `repository.directory` and `publishConfig` (public, provenance). `.github/workflows/publish-embed-sdk.yml` builds, versions and publishes it on every stable release (`release: published`, not prereleases), with the release's version, through npm Trusted Publisher (OIDC) as `@conduction/nextcloud-vue` publishes, so no token secret. The README has script-tag, ESM and TypeScript examples. Left: on npmjs.com, `@conduction/launchpad-embed` does not exist yet and has no trusted-publisher entry for `ConductionNL/launchpad` + `publish-embed-sdk.yml`; an @conduction npm owner has to create it (or allow the first publish) before the workflow can publish.
 
 ## Rate Limiting & Revocation
 

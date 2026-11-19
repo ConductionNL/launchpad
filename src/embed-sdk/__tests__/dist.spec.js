@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @launchpad/embed-sdk builds into an ES module and a UMD bundle, and both
+ * @conduction/launchpad-embed builds into an ES module and a UMD bundle, and both
  * expose render() (embedded-analytics task 19).
  *
  * @spec openspec/changes/embedded-analytics/tasks.md#task-19
@@ -52,6 +52,9 @@ describe('embed-sdk distribution', () => {
 		expect(configs.map((config) => config.output.filename)).toEqual(['embed-sdk.esm.js', 'embed-sdk.umd.js'])
 		expect(pkg.exports['.'].import).toBe('./dist/embed-sdk.esm.js')
 		expect(pkg.exports['.'].require).toBe('./dist/embed-sdk.umd.js')
+		expect(pkg.name).toBe('@conduction/launchpad-embed')
+		expect(pkg.repository.directory).toBe('src/embed-sdk')
+		expect(pkg.publishConfig).toEqual({ access: 'public', provenance: true })
 	})
 
 	it('the ES module exports render and LaunchPadEmbed', async () => {

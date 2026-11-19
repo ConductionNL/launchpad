@@ -19,7 +19,7 @@ Give the iframe a `title` that says what it shows: screen readers announce it.
 The SDK creates the iframe, completes a handshake with it, relays its events and resizes it.
 
 ```js
-import { LaunchPadEmbed } from '@launchpad/embed-sdk'
+import { LaunchPadEmbed } from '@conduction/launchpad-embed'
 
 const embed = await LaunchPadEmbed.render(document.getElementById('woo'), {
   baseUrl: 'https://cloud.example.nl/index.php/apps/launchpad',

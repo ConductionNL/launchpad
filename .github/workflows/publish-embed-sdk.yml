@@ -1,0 +1,68 @@
+name: Publish embed SDK
+
+# Publishes @conduction/launchpad-embed (src/embed-sdk) to npm when a stable
+# LaunchPad release is published, with the release's version.
+#
+# Authentication: npm Trusted Publisher (OIDC), as @conduction/nextcloud-vue
+# publishes: no NPM_TOKEN secret. The runner mints a short-lived ID token
+# (`id-token: write`); npm checks the {repository, workflow} claim against the
+# package's trusted-publisher settings on npmjs.com and signs a provenance
+# attestation. Those settings must name ConductionNL/launchpad and this file.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (for example 1.2.0). Leave empty to build and pack only.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish @conduction/launchpad-embed
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm ci
+
+      - run: npm run build:embed-sdk
+
+      - name: Set the package version
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          INPUT: ${{ inputs.version }}
+        run: |
+          VERSION="${INPUT:-${TAG#v}}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          if [ -n "${VERSION}" ]; then
+            npm version --prefix src/embed-sdk --no-git-tag-version --allow-same-version "${VERSION}"
+          fi
+
+      - name: Pack
+        working-directory: src/embed-sdk
+        run: npm pack --dry-run
+
+      - name: Publish
+        if: steps.version.outputs.version != ''
+        working-directory: src/embed-sdk
+        run: npx -y npm@latest publish --access public --provenance

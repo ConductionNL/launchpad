@@ -186,7 +186,7 @@ class ManifestControllerCoverageTest extends TestCase {
 		$body = $response->getData();
 		$this->assertSame([], $body['pages']);
 		$this->assertSame([], $body['menu']);
-		$this->assertSame(['openregister'], $body['dependencies']);
+		$this->assertSame([['id' => 'openregister', 'required' => false, 'name' => 'OpenRegister']], $body['dependencies']);
 		$this->assertSame('1.0.0', $body['version']);
 		$this->assertSame(['user' => ['id' => 'alice']], $body['runtime']);
 	}

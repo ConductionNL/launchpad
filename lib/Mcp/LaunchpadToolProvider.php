@@ -61,6 +61,15 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'required' => ['dashboardUuid', 'emoji'],
 	];
 
+	private const DASHBOARD_FIELDS = [
+		'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+		'description' => ['type' => 'string', 'maxLength' => 2000],
+		'icon' => ['type' => 'string'],
+		'parentUuid' => ['type' => 'string'],
+		'slug' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+		'sortOrder' => ['type' => 'integer'],
+	];
+
 	private const PLACEMENT_ID_ARGUMENT = [
 		'type' => 'object',
 		'properties' => ['placementId' => ['type' => 'integer', 'minimum' => 1]],
@@ -383,14 +392,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
 			'inputSchema' => [
 				'type' => 'object',
-				'properties' => [
-					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
-					'description' => ['type' => 'string', 'maxLength' => 2000],
-					'icon' => ['type' => 'string'],
-					'parentUuid' => ['type' => 'string'],
-					'slug' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
-					'sortOrder' => ['type' => 'integer'],
-				],
+				'properties' => self::DASHBOARD_FIELDS,
 				'required' => ['name'],
 			],
 		],
@@ -401,15 +403,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
 			'inputSchema' => [
 				'type' => 'object',
-				'properties' => [
-					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
-					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
-					'description' => ['type' => 'string', 'maxLength' => 2000],
-					'icon' => ['type' => 'string'],
-					'parentUuid' => ['type' => 'string'],
-					'slug' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
-					'sortOrder' => ['type' => 'integer'],
-				],
+				'properties' => ['dashboardId' => ['type' => 'integer', 'minimum' => 1]] + self::DASHBOARD_FIELDS,
 				'required' => ['dashboardId'],
 			],
 		],

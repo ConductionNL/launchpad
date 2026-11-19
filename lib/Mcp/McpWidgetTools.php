@@ -134,7 +134,7 @@ class McpWidgetTools {
 			?? $this->validator->id(args: $args, name: 'dashboardId')
 			?? $this->validator->grid(args: $args)
 			?? $this->gate->requireAction(action: 'widget.add-tile')
-			?? $this->gate->requireAddWidget(dashboardId: (int)$args['dashboardId']));
+			?? $this->gate->requireWidgetPermission(operation: 'add', id: (int)$args['dashboardId']));
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -254,7 +254,7 @@ class McpWidgetTools {
 
 		return ($refusal
 			?? $this->gate->requireAction(action: 'widget.add-widget')
-			?? $this->gate->requireAddWidget(dashboardId: (int)$args['dashboardId'])
+			?? $this->gate->requireWidgetPermission(operation: 'add', id: (int)$args['dashboardId'])
 			?? $this->depthRefusal(content: ($args['content'] ?? null)));
 	}//end addRefusal()
 
@@ -279,7 +279,7 @@ class McpWidgetTools {
 
 		return ($refusal
 			?? $this->gate->requireAction(action: 'widget.update-placement')
-			?? $this->gate->requireStyleWidget(placementId: (int)$args['placementId'])
+			?? $this->gate->requireWidgetPermission(operation: 'style', id: (int)$args['placementId'])
 			?? $this->depthRefusal(content: ($args['content'] ?? null)));
 	}//end changeRefusal()
 
@@ -294,7 +294,7 @@ class McpWidgetTools {
 	private function removeRefusal(array $args): ?array {
 		return ($this->validator->id(args: $args, name: 'placementId')
 			?? $this->gate->requireAction(action: 'widget.remove-placement')
-			?? $this->gate->requireRemoveWidget(placementId: (int)$args['placementId']));
+			?? $this->gate->requireWidgetPermission(operation: 'remove', id: (int)$args['placementId']));
 	}//end removeRefusal()
 
 	/**

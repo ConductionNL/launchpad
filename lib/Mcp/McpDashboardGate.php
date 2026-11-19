@@ -174,55 +174,27 @@ class McpDashboardGate {
 	}//end requireMetadataEdit()
 
 	/**
-	 * A refusal when the caller may not add widgets to the dashboard, or NULL to proceed. Any
-	 * failure of the permission check denies.
+	 * A refusal when the caller may not do this to a widget, or NULL to
+	 * proceed: `add` a widget to the dashboard, or `style` (change) or
+	 * `remove` the placement. Any failure of the permission check denies.
 	 *
-	 * @param int $dashboardId The dashboard.
-	 *
-	 * @return array<string, mixed>|null
-	 *
-	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
-	 */
-	public function requireAddWidget(int $dashboardId): ?array {
-		return $this->refuseUnless(
-			check: fn (string $userId): bool => $this->permissions->canAddWidget(userId: $userId, dashboardId: $dashboardId),
-			message: 'You may not add widgets to this dashboard.'
-		);
-	}//end requireAddWidget()
-
-	/**
-	 * A refusal when the caller may not change the widget placement, or NULL to proceed. Any
-	 * failure of the permission check denies.
-	 *
-	 * @param int $placementId The placement.
+	 * @param string $operation The operation: add, style or remove.
+	 * @param int    $id        The dashboard for `add`, the placement otherwise.
 	 *
 	 * @return array<string, mixed>|null
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
-	public function requireStyleWidget(int $placementId): ?array {
+	public function requireWidgetPermission(string $operation, int $id): ?array {
 		return $this->refuseUnless(
-			check: fn (string $userId): bool => $this->permissions->canStyleWidget(userId: $userId, placementId: $placementId),
-			message: 'You may not change this widget.'
+			check: fn (string $userId): bool => match ($operation) {
+				'add' => $this->permissions->canAddWidget(userId: $userId, dashboardId: $id),
+				'style' => $this->permissions->canStyleWidget(userId: $userId, placementId: $id),
+				'remove' => $this->permissions->canRemoveWidget(userId: $userId, placementId: $id),
+			},
+			message: 'You may not change the widgets here.'
 		);
-	}//end requireStyleWidget()
-
-	/**
-	 * A refusal when the caller may not remove the widget placement, or NULL to proceed. Any
-	 * failure of the permission check denies.
-	 *
-	 * @param int $placementId The placement.
-	 *
-	 * @return array<string, mixed>|null
-	 *
-	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
-	 */
-	public function requireRemoveWidget(int $placementId): ?array {
-		return $this->refuseUnless(
-			check: fn (string $userId): bool => $this->permissions->canRemoveWidget(userId: $userId, placementId: $placementId),
-			message: 'You may not remove this widget.'
-		);
-	}//end requireRemoveWidget()
+	}//end requireWidgetPermission()
 
 	/**
 	 * A refusal when the caller may not create a dashboard, or may not have one

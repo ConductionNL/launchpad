@@ -126,7 +126,7 @@ class McpWidgetToolsTest extends TestCase {
 	 * @return void
 	 */
 	public function testAddWidgetPlacesTheWidget(): void {
-		$this->gate->method('requireAddWidget')->willReturn(null);
+		$this->gate->method('requireWidgetPermission')->willReturn(null);
 		$placed = self::placement(type: 'calendar');
 		$this->widgets->expects($this->once())->method('addWidget')->willReturnCallback(
 			callback: static fn (int $dashboardId, string $widgetId, array $layout): WidgetPlacement => match (true) {
@@ -147,8 +147,8 @@ class McpWidgetToolsTest extends TestCase {
 	 */
 	public function testAddWidgetRefusals(): void {
 		$this->widgets->expects($this->never())->method('addWidget');
-		$this->gate->method('requireAddWidget')->willReturnCallback(
-			callback: static fn (int $dashboardId): ?array => match ($dashboardId) {
+		$this->gate->method('requireWidgetPermission')->willReturnCallback(
+			callback: static fn (string $operation, int $dashboardId): ?array => match ($dashboardId) {
 				3 => null,
 				default => McpArgumentValidator::error(code: 'forbidden', message: 'x'),
 			}
@@ -168,7 +168,7 @@ class McpWidgetToolsTest extends TestCase {
 	 * @return void
 	 */
 	public function testCreateTileAddsATileWidget(): void {
-		$this->gate->method('requireAddWidget')->willReturn(null);
+		$this->gate->method('requireWidgetPermission')->willReturn(null);
 		$seen = null;
 		$this->widgets->method('addWidget')->willReturnCallback(
 			callback: static function (int $dashboardId, string $widgetId, array $layout) use (&$seen): WidgetPlacement {
@@ -190,7 +190,7 @@ class McpWidgetToolsTest extends TestCase {
 	 * @return void
 	 */
 	public function testUpdateTileMergesContent(): void {
-		$this->gate->method('requireStyleWidget')->willReturn(null);
+		$this->gate->method('requireWidgetPermission')->willReturn(null);
 		$this->widgets->method('getPlacement')->willReturnOnConsecutiveCalls(
 			self::placement(type: 'tile', content: ['title' => 'Old', 'linkType' => 'app', 'linkValue' => 'files']),
 			self::placement(type: 'tile', content: ['title' => 'Old', 'linkType' => 'app', 'linkValue' => 'files']),
@@ -219,7 +219,7 @@ class McpWidgetToolsTest extends TestCase {
 	 * @return void
 	 */
 	public function testUpdateWidgetPlacementBoundaries(): void {
-		$this->gate->method('requireStyleWidget')->willReturn(null);
+		$this->gate->method('requireWidgetPermission')->willReturn(null);
 		$this->widgets->method('getPlacement')->willReturn(self::placement(type: 'chart'));
 		$this->calculated->method('hasServerFields')->willReturn(true);
 		$this->widgets->method('updatePlacement')->willThrowException(
@@ -238,7 +238,7 @@ class McpWidgetToolsTest extends TestCase {
 	 * @return void
 	 */
 	public function testRemoveWidgetAndDeleteTile(): void {
-		$this->gate->method('requireRemoveWidget')->willReturn(null);
+		$this->gate->method('requireWidgetPermission')->willReturn(null);
 		$this->widgets->method('getPlacement')->willReturnOnConsecutiveCalls(
 			self::placement(type: 'chart', content: ['dataSource' => ['register' => 'r', 'schema' => 's']]),
 			self::placement(type: 'chart')

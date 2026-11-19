@@ -31,6 +31,7 @@ use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Service\DashboardService;
 use Throwable;
 
 /**
@@ -240,6 +241,52 @@ class McpDashboardWriteTools {
 			)->jsonSerialize()]
 		);
 	}//end forkDashboard()
+
+	/**
+	 * Publish, unpublish or schedule a dashboard the caller owns or administers.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, state (published, draft, scheduled), publishAt, unpublishAt.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
+	 */
+	public function setPublicationState(array $args): array {
+		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->validator->oneOf(args: $args, name: 'state', allowed: ['published', 'draft', 'scheduled']));
+		if ($refusal === null && ($args['state'] ?? '') === 'scheduled' && empty($args['publishAt']) === true && empty($args['unpublishAt']) === true) {
+			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'A schedule needs publishAt, unpublishAt or both.');
+		}
+
+		$action = ['published' => 'dashboard.publish', 'draft' => 'dashboard.unpublish', 'scheduled' => 'dashboard.schedule'][$args['state'] ?? ''] ?? '';
+		$refusal ??= $this->gate->requireAction(action: $action);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$uuid   = (string)$args['dashboardUuid'];
+		$userId = $this->gate->currentUserId();
+		try {
+			$dashboard = match ($args['state']) {
+				'published' => $this->services->dashboardService->publishDashboard(uuid: $uuid, userId: $userId),
+				'draft' => $this->services->dashboardService->unpublish(uuid: $uuid, userId: $userId),
+				default => $this->services->dashboardService->schedule(
+					uuid: $uuid,
+					publishAt: ($args['publishAt'] ?? null),
+					userId: $userId,
+					unpublishAt: ($args['unpublishAt'] ?? null)
+				),
+			};
+		} catch (Throwable $e) {
+			if ($e->getMessage() === DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN) {
+				return $this->validator->refuse(code: 'forbidden', message: 'Only the owner or an administrator may publish this dashboard.');
+			}
+
+			return $this->validator->failure(exception: $e);
+		}
+
+		return ['dashboard' => $dashboard->jsonSerialize()];
+	}//end setPublicationState()
 
 	/**
 	 * A refusal for bad dashboard fields.

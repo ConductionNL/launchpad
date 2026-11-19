@@ -200,4 +200,76 @@ class LaunchpadToolProviderTest extends TestCase {
 		);
 		$this->assertSame(expected: 'forbidden', actual: $provider->invokeTool(toolId: 'launchpad.removeReaction', arguments: $args)['audit']['outcome']);
 	}//end testAWriteCarriesItsAuditRecord()
+
+	/**
+	 * The write catalogue is exactly the 35 tools of REQ-MCP-003, each at its
+	 * reach, and no tool exists for the deliberate exclusions of REQ-MCP-007.
+	 *
+	 * @return void
+	 */
+	public function testTheWriteCatalogueIsClosed(): void {
+		$expected = [
+			'self' => [
+				'launchpad.createDashboard',
+				'launchpad.updateDashboard',
+				'launchpad.deleteDashboard',
+				'launchpad.switchActiveDashboard',
+				'launchpad.setDefaultDashboard',
+				'launchpad.forkDashboard',
+				'launchpad.addWidget',
+				'launchpad.updateWidgetPlacement',
+				'launchpad.removeWidget',
+				'launchpad.addTileToDashboard',
+				'launchpad.createTile',
+				'launchpad.updateTile',
+				'launchpad.deleteTile',
+				'launchpad.createDashboardVersion',
+				'launchpad.restoreDashboardVersion',
+				'launchpad.setDashboardMetadata',
+				'launchpad.addReaction',
+				'launchpad.removeReaction',
+			],
+			'user' => [
+				'launchpad.shareDashboard',
+				'launchpad.replaceShares',
+				'launchpad.unshareDashboard',
+				'launchpad.setPublicationState',
+			],
+			'external' => [
+				'launchpad.createPublicShareLink',
+				'launchpad.revokePublicShareLink',
+				'launchpad.createKioskPlaylist',
+				'launchpad.updateKioskPlaylist',
+				'launchpad.deleteKioskPlaylist',
+			],
+			'instance' => [
+				'launchpad.createGroupDashboard',
+				'launchpad.updateGroupDashboard',
+				'launchpad.deleteGroupDashboard',
+				'launchpad.setGroupDefault',
+				'launchpad.createTemplate',
+				'launchpad.updateTemplate',
+				'launchpad.deleteTemplate',
+				'launchpad.resyncTemplate',
+			],
+		];
+		$actual = [];
+		foreach (LaunchpadToolProvider::TOOL_DESCRIPTORS as $tool) {
+			if ($tool['scope'] !== 'read') {
+				$actual[$tool['reach']][] = $tool['id'];
+			}
+		}
+
+		foreach ($expected as $reach => $ids) {
+			sort($ids);
+			sort($actual[$reach]);
+			$this->assertSame(expected: $ids, actual: $actual[$reach], message: $reach);
+		}
+
+		$this->assertSame(expected: array_keys($expected), actual: array_keys($actual));
+		$ids = implode(' ', array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id'));
+		foreach (['viewEvent', 'Click', 'acknowledge(?!ments)', 'upload', 'Lock', 'Wizard', 'Confluence', 'cleanup', 'Showcase', 'Bulk', 'export', 'import', 'Settings'] as $excluded) {
+			$this->assertDoesNotMatchRegularExpression(pattern: '/' . $excluded . '/i', string: $ids, message: $excluded);
+		}
+	}//end testTheWriteCatalogueIsClosed()
 }//end class

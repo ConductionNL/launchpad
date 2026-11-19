@@ -10,7 +10,8 @@
 
 - [x] Task 4: REQ-MCP-004 — Create `lib/Mcp/McpDashboardGate.php`: `currentUserId()`, `authorise(toolId, args)` delegating to `PermissionService::canViewDashboard()/canEditDashboard()/canAddWidget()/canRemoveWidget()/canCreateDashboard()`, `ActionAuthService::requireAction()` for ADR-023-gated actions, and the admin check for `instance`-reach tools. No `catch (\Throwable) { return null; }` shapes (hydra-gate-unsafe-auth-resolver)
 - [x] Task 5: REQ-MCP-005 — Create `lib/Mcp/McpArgumentValidator.php`: UUID, id, string-length, enum, and grid-bound checks returning structured error arrays (decidesk's validator as the template)
-- [ ] Task 6: REQ-MCP-004 — Every handler: validate → authorise → call the existing service (`DashboardService`, `WidgetService`/`WidgetPlacementService`, `TileService`, `DashboardShareService`, `PublicShareService`, `KioskService`, `TemplateService`/`AdminTemplateService`, `ReactionService`, `AcknowledgementService`, `MetadataService`, `DashboardVersionService`). Never controllers, never mappers/ObjectService directly for writes
+- [x] Task 6: REQ-MCP-004 — Every handler: validate → authorise → call the existing service (`DashboardService`, `WidgetService`/`WidgetPlacementService`, `TileService`, `DashboardShareService`, `PublicShareService`, `KioskService`, `TemplateService`/`AdminTemplateService`, `ReactionService`, `AcknowledgementService`, `MetadataService`, `DashboardVersionService`). Never controllers, never mappers/ObjectService directly for writes
+  - Every handler checks its arguments, then the route's action and per-object check, then calls the route's service; none calls a controller, and every write goes through a service.
 
 ## Read Tools (REQ-MCP-002)
 
@@ -23,9 +24,12 @@
 
 - [x] Task 9: Implement the 18 `self`-reach write tools (dashboard CRUD, active/default, fork, widget add/update/remove, tile CRUD + addTileToDashboard, version create/restore, metadata set, reaction add/remove) with per-tool `inputSchema`
   - All 18 built: createDashboardVersion, restoreDashboardVersion, setDashboardMetadata, addReaction, removeReaction; addWidget, updateWidgetPlacement, removeWidget, addTileToDashboard (`McpWidgetTools`); createTile, updateTile and deleteTile, backed by the widget path with type `tile` because the tile routes answer 410 Gone (Ruben, 19 Nov 2026). updateWidgetPlacement leaves calculated fields, the acknowledgement settings and the content of a widget whose calculated fields OpenRegister stores to the app, whose route re-materialises them. The dashboard tools are `McpDashboardWriteTools` (createDashboard, updateDashboard, deleteDashboard, switchActiveDashboard, setDefaultDashboard, forkDashboard); updateDashboard changes the name, description, icon, parent, slug and sort order, behind the metadata edit check the route applies to those fields, and saves an automatic version as the route does.
-- [ ] Task 10: Implement the 4 `user`-reach tools (shareDashboard, replaceShares, unshareDashboard, setPublicationState)
-- [ ] Task 11: Implement the 5 `external`-reach tools (createPublicShareLink, revokePublicShareLink, createKioskPlaylist, updateKioskPlaylist, deleteKioskPlaylist)
-- [ ] Task 12: Implement the 8 `instance`-reach tools (group dashboard CRUD, setGroupDefault, template create/update/delete/resync)
+- [x] Task 10: Implement the 4 `user`-reach tools (shareDashboard, replaceShares, unshareDashboard, setPublicationState)
+  - `McpSharingTools` (shareDashboard, replaceShares, unshareDashboard) over `DashboardShareService`, and `McpDashboardWriteTools::setPublicationState()` (published, draft, scheduled) over `DashboardService`, behind `dashboard.publish` / `unpublish` / `schedule`. Test: `McpReachToolsTest`.
+- [x] Task 11: Implement the 5 `external`-reach tools (createPublicShareLink, revokePublicShareLink, createKioskPlaylist, updateKioskPlaylist, deleteKioskPlaylist)
+  - `McpPublicLinkTools` (createPublicShareLink, revokePublicShareLink) over `PublicShareService`, and the kiosk playlist tools in `McpSharingTools` over `KioskService`. Every external-reach tool carries `destructiveHint: true`. Test: `McpReachToolsTest`.
+- [x] Task 12: Implement the 8 `instance`-reach tools (group dashboard CRUD, setGroupDefault, template create/update/delete/resync)
+  - `McpInstanceTools`: the four group dashboard tools over `DashboardService` and the four template tools over `AdminTemplateService` / the resync service; each checks `requireAdmin()` first. Test: `McpReachToolsTest`.
 - [x] Task 13: REQ-MCP-003 — Unit test on the descriptor fixture: every write tool declares exactly one scope ∈ {create, update, delete} and one reach ∈ {self, user, instance, external}; no write carries `readOnlyHint: true`
   - `LaunchpadToolProviderTest::testEveryToolCarriesItsGrantAnnotations` holds for every descriptor, so each write tool added later is checked too.
 - [x] Task 14: REQ-MCP-006 — Annotate all `delete`-scope and all `external`-reach tools with the destructive/approval flag hermiq's approval gate consumes; every handler result includes tool id, target identifier, caller uid, and outcome for the audit trail
@@ -33,7 +37,8 @@
 
 ## Exclusions (REQ-MCP-007)
 
-- [ ] Task 15: Unit test asserting catalogue closure: the descriptor set equals exactly the REQ-MCP-002 + REQ-MCP-003 ids, and contains no tool for viewEvent, tile-click recording, `acknowledgement#acknowledge`, resource/preview/files uploads, lock endpoints, wizard, Confluence import, cleanup, demo showcases, bulk ops, export/import, or settings surfaces
+- [x] Task 15: Unit test asserting catalogue closure: the descriptor set equals exactly the REQ-MCP-002 + REQ-MCP-003 ids, and contains no tool for viewEvent, tile-click recording, `acknowledgement#acknowledge`, resource/preview/files uploads, lock endpoints, wizard, Confluence import, cleanup, demo showcases, bulk ops, export/import, or settings surfaces
+  - `LaunchpadToolProviderTest::testTheWriteCatalogueIsClosed` (the 35 write ids at their reach, no excluded surface) with `testTheReadCatalogueIsTheFourteenReadTools`.
 - [x] Task 16: Document the exclusion rationale in the provider's class docblock so a future "completeness" sweep reads why before adding
   - The class docblock of `LaunchpadToolProvider` lists the exclusions and why.
 
@@ -45,8 +50,10 @@
 
 ## Authorization Parity Tests (REQ-MCP-004/005)
 
-- [ ] Task 19: PHPUnit — for a non-owner caller: updateDashboard, deleteDashboard, addWidget, and shareDashboard tools all deny; assert no state change (subclass `ObjectEntity`-backed fixtures rather than mocking magic accessors)
-- [ ] Task 20: PHPUnit — non-admin caller invoking each `instance`-reach tool is denied by the gate
+- [x] Task 19: PHPUnit — for a non-owner caller: updateDashboard, deleteDashboard, addWidget, and shareDashboard tools all deny; assert no state change (subclass `ObjectEntity`-backed fixtures rather than mocking magic accessors)
+  - A caller without the per-dashboard right gets `forbidden` and no service call: updateDashboard (`McpDashboardWriteToolsTest`), addWidget (`McpWidgetToolsTest`), and a refusal of the share service maps to `forbidden` (`McpReachToolsTest`). The ownership rules themselves stay in the services, tested by their own suites.
+- [x] Task 20: PHPUnit — non-admin caller invoking each `instance`-reach tool is denied by the gate
+  - `McpReachToolsTest::testInstanceToolsAreForAdministrators`: all eight instance tools refuse a non-administrator before any service call.
 - [x] Task 21: PHPUnit — gate error path: a throwing PermissionService produces a denial result, never an allow
 - [x] Task 22: PHPUnit — validator rejections: malformed UUID, over-long title, invalid enum, negative grid values — each returns a structured error and performs no service call
 

@@ -11,8 +11,6 @@ Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanis
 ## Requirements
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-SRCH-001 Search Provider Registration
 
 The LaunchPad app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes LaunchPad dashboards in the unified search results.
@@ -26,12 +24,14 @@ The LaunchPad app MUST register a search provider implementing Nextcloud's `OCP\
 - AND the provider's `getOrder()` MUST return `50` to position it mid-range (admin-search providers typically have lower order values)
 
 #### Scenario: Provider implements the IProvider contract
+@e2e exclude a PHP type contract with no HTTP outcome of its own: `implements IProvider` and its method types are enforced by PHP when the class loads, and the four methods are exercised by tests/Unit/Search/LaunchPadSearchProviderTest.php::testGetIdReturnsLaunchPad, ::testGetNameIsTranslated, ::testGetOrderIsMidRange and ::testEmptyTermReturnsEmptyResult
 - GIVEN the LaunchPad app is installed
 - WHEN Nextcloud's search dispatcher calls the provider interface
 - THEN the provider class MUST implement all required methods: `getId()`, `getName()`, `getOrder()`, `search(IUser, ISearchQuery): SearchResult`
 - AND the methods MUST have correct type hints matching `OCP\Search\IProvider`
 
 #### Scenario: Provider initialization via app bootstrap
+@e2e exclude internal PHP wiring: the registration is the registerSearchProvider() call in lib/AppInfo/Application.php and the other clause is a source-tree file location; no PHPUnit test pins the registration call, and its observable effect (the provider listed by /ocs/v2.php/search/providers) is cited under provider-is-registered-and-discoverable
 - GIVEN LaunchPad app info.xml declares `<types><search/></types>`
 - WHEN the LaunchPad app boots
 - THEN the container MUST register an instance of `LaunchPadSearchProvider` with the Nextcloud search registry
@@ -141,6 +141,7 @@ When the `dashboard-metadata-fields` capability is enabled, the search provider 
 - AND the resourceUrl MUST deep-link to the dashboard
 
 #### Scenario: Metadata search falls back gracefully
+@e2e exclude needs the dashboard-metadata-fields capability absent, which a running instance cannot be put into (MetadataService is always installed); the degradation path (metadata lookup throws, dashboard match still returned, no error) is pinned by tests/Unit/Search/LaunchPadSearchProviderEdgeCaseTest.php::testFailingLookupsKeepTheDashboardMatch
 - GIVEN the `dashboard-metadata-fields` capability is NOT available in the LaunchPad app
 - WHEN user "bob" performs a search
 - THEN the search provider MUST still return dashboard-name, description, and widget-content results
@@ -187,6 +188,7 @@ The search provider MUST never return search results for dashboards that the use
 - NOTE: Permission checking delegates to the existing `permissions` capability's group-membership logic
 
 #### Scenario: Permission service unavailable (fail safe)
+@e2e exclude needs DashboardService::getVisibleToUser() to throw, which cannot be induced on a running instance; pinned by tests/Unit/Search/LaunchPadSearchProviderTest.php::testGetVisibleToUserFailureReturnsEmpty
 - GIVEN the `permissions` capability or visibility service throws unexpectedly
 - WHEN a search is performed
 - THEN the search provider MUST catch the failure and return an empty `SearchResult`
@@ -313,12 +315,14 @@ When a search query matches no dashboards, widgets, or metadata fields, the prov
 The search provider MUST complete typical queries inside Nextcloud's unified-search response budget by capping the per-bucket result count and reusing the canonical visibility boundary as the upstream filter.
 
 #### Scenario: Bounded scan over the visible set
+@e2e exclude internal query count with no HTTP read (needs 1,000 dashboards and SQL instrumentation); the per-bucket cap stopping placement and metadata lookups is pinned by tests/Unit/Search/LaunchPadSearchProviderTest.php::testEachBucketIsCappedAndRankedDashboardsWidgetsMetadata, and the response-size cap is cited under the REQ-SRCH-007 scenarios
 - GIVEN a LaunchPad instance where user "alice" can view 1,000 dashboards
 - WHEN she performs a search query
 - THEN the provider's `search()` method MUST complete a single in-memory pass over the visible set without making per-dashboard SQL queries beyond the placement and metadata fetches needed for matching
 - AND the per-bucket cap (10 dashboards, 10 widgets, 10 metadata) bounds the response size
 
 #### Scenario: Permission checks do not degrade performance
+@e2e exclude internal call count with no HTTP read; no test exists that asserts getVisibleToUser() is called exactly once per search (the unit tests stub it with method(), not expects(once()))
 - GIVEN user "bob" performs a search
 - WHEN the provider invokes `DashboardService::getVisibleToUser()`
 - THEN the visibility resolution MUST happen exactly once per search (single set returned)

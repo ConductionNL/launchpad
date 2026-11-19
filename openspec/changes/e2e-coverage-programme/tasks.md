@@ -101,6 +101,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
 - [ ] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
+  - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
 - [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
 - [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.

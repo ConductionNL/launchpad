@@ -3620,6 +3620,90 @@
 					]
 				},
 				{
+					"name": "PUT /api/widgets/{placementId} (calculated field typed on save)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"calculatedFields\":[{\"name\":\"double\",\"label\":\"Double\",\"expression\":\"2 * 21\",\"evaluationMode\":\"client\",\"compiledExpression\":{\"type\":\"binary\",\"op\":\"*\",\"left\":{\"type\":\"literal\",\"valueType\":\"number\",\"value\":2},\"right\":{\"type\":\"literal\",\"valueType\":\"number\",\"value\":21}}}]}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/{{fixturePlacementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"widgets",
+								"{{fixturePlacementId}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('returnType set by the server', () => pm.expect(pm.response.json().calculatedFields[0].returnType).to.eql('number'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "PUT /api/widgets/{placementId} (calculated field with unknown function is 400)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"calculatedFields\":[{\"name\":\"bad\",\"expression\":\"eval(1)\",\"compiledExpression\":{\"type\":\"call\",\"name\":\"eval\",\"args\":[{\"type\":\"literal\",\"valueType\":\"number\",\"value\":1}]}}]}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/{{fixturePlacementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"widgets",
+								"{{fixturePlacementId}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+									"pm.test('unknownFunction envelope naming the field', () => { const b = pm.response.json(); pm.expect(b.error).to.eql('unknownFunction'); pm.expect(b.field).to.eql('bad'); });"
+								]
+							}
+						}
+					]
+				},
+				{
 					"name": "DELETE /api/widgets/{placementId} (removePlacement)",
 					"request": {
 						"method": "DELETE",

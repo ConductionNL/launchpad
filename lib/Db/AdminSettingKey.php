@@ -75,4 +75,6 @@ enum AdminSettingKey: string {
 	// Drill-down-cross-widget-filter REQ-CWF-010: org-level opt-in for filter telemetry, off by default.
 	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
 	case PINNED_COMMUNITIES = 'pinned_communities';
+	// REQ-PSP-003: LaunchPad is the default app after sign-in unless switched off; on by default.
+	case DEFAULT_APP_ENABLED = 'default_app_enabled';
 }//end enum

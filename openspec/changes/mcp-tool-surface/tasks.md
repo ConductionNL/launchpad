@@ -39,7 +39,8 @@
 
 ## Schema Overlay (REQ-MCP-009)
 
-- [ ] Task 17: Create `lib/Settings/register.d/dashboard-mcp.json` adding an `x-openregister-mcp` block to the `Dashboard` schema with read-only `search` and `get` tools (`readOnlyHint: true`, scope `read`, sensible `filters` such as title/slug/type/groupId — openconnector's endpoint block as the template). No derived writes
+- [x] Task 17: Create `lib/Settings/register.d/dashboard-mcp.json` adding an `x-openregister-mcp` block to the `Dashboard` schema with read-only `search` and `get` tools (`readOnlyHint: true`, scope `read`, sensible `filters` such as title/slug/type/groupId — openconnector's endpoint block as the template). No derived writes
+  - `lib/Settings/register.d/dashboard-mcp.json`: `search` (filters title, slug, type, groupId) and `get`, both scope `read` and `readOnlyHint: true`; the import version moves to 1.0.6 so existing installs take it. Test: `DashboardMcpOverlayTest`.
 - [ ] Task 18: Verify the imported schema carries the block (check the imported schema via OpenRegister, not the file — the importer can reject silently)
 
 ## Authorization Parity Tests (REQ-MCP-004/005)

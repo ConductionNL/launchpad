@@ -65,6 +65,8 @@ class McpDashboardTools {
 	 *
 	 * @return array<string, mixed> `{items: [...]}`, or a refusal.
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The provider passes every tool its arguments.
+	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */
 	public function listDashboards(array $args): array {
@@ -106,7 +108,7 @@ class McpDashboardTools {
 		$userId = $this->gate->currentUserId();
 		$result = $this->visibleDashboard(uuid: (string)$args['dashboardUuid'], userId: $userId);
 		if ($result === null) {
-			return McpArgumentValidator::error(code: 'not_found', message: 'No dashboard with that UUID is visible to you.');
+			return $this->validator->refuse(code: 'not_found', message: 'No dashboard with that UUID is visible to you.');
 		}
 
 		return $this->getEnvelope(result: $result, userId: $userId);
@@ -121,6 +123,8 @@ class McpDashboardTools {
 	 *
 	 * @return array<string, mixed>
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The provider passes every tool its arguments.
+	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */
 	public function getActiveDashboard(array $args): array {
@@ -132,7 +136,7 @@ class McpDashboardTools {
 		$userId = $this->gate->currentUserId();
 		$result = $this->dashboards->getEffectiveDashboard(userId: $userId);
 		if ($result === null) {
-			return McpArgumentValidator::error(code: 'not_found', message: 'You have no dashboard yet.');
+			return $this->validator->refuse(code: 'not_found', message: 'You have no dashboard yet.');
 		}
 
 		$owner = $result['dashboard']->getUserId();
@@ -188,7 +192,7 @@ class McpDashboardTools {
 
 		$groupId = (string)$args['groupId'];
 		if ($this->dashboards->userCanAccessGroup(userId: $this->gate->currentUserId(), groupId: $groupId) === false) {
-			return McpArgumentValidator::error(code: 'forbidden', message: 'You are not a member of that group.');
+			return $this->validator->refuse(code: 'forbidden', message: 'You are not a member of that group.');
 		}
 
 		$items = [];
@@ -205,6 +209,8 @@ class McpDashboardTools {
 	 * @param array<string, mixed> $args No arguments.
 	 *
 	 * @return array<string, mixed> `{items: [...]}`, or a refusal.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The provider passes every tool its arguments.
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */

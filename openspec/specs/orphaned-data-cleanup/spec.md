@@ -121,7 +121,7 @@ The purge CLI command MUST support a `--dry-run` flag that reports what WOULD be
 - AND display `DRY-RUN: Would purge N items across M categories in Xms.`
 - AND leave all data untouched
 
-@e2e exclude needs `occ launchpad:cleanup:purge --dry-run`, which the e2e suite cannot run. The rollback is pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testDryRunRollsBackAndDoesNotEmitEvent and the output by the `all categories dry run` case of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording; the HTTP dry run is cited by purge-with-dryrun-true.
+@e2e exclude needs `occ launchpad:cleanup:purge --dry-run`, which the e2e suite cannot run. The rollback is pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testDryRunRollsBackAndDoesNotEmitEvent and the output by the `all categories dry run` case of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording; the HTTP dry run is cited by purge-with-dryruntrue.
 
 #### Scenario: Dry-run with category filter
 

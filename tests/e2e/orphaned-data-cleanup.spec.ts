@@ -24,7 +24,7 @@
  * empties it, and a scan right after fills it.
  *
  * Gate-19 @e2e traceability:
- *   @e2e orphaned-data-cleanup::get-api-admin-cleanup-scan-returns-current-orphan-counts
+ *   @e2e orphaned-data-cleanup::get-apiadmincleanupscan-returns-current-orphan-counts
  *   @e2e orphaned-data-cleanup::subsequent-scan-api-call-returns-cached-results
  *   @e2e orphaned-data-cleanup::scan-results-are-cached-for-5-minutes
  *   @e2e orphaned-data-cleanup::cache-is-invalidated-after-purge
@@ -32,7 +32,7 @@
  *   @e2e orphaned-data-cleanup::dry-run-purge-does-not-invalidate-cache
  *   @e2e orphaned-data-cleanup::non-admin-user-is-denied-access
  *   @e2e orphaned-data-cleanup::purge-categories-via-api
- *   @e2e orphaned-data-cleanup::purge-with-dryrun-true
+ *   @e2e orphaned-data-cleanup::purge-with-dryruntrue
  *   @e2e orphaned-data-cleanup::empty-categories-array-purges-all-categories
  *   @e2e orphaned-data-cleanup::unknown-category-yields-http-400
  *   @e2e orphaned-data-cleanup::purge-api-returns-per-category-counts
@@ -156,7 +156,7 @@ test.describe('orphaned-data cleanup API', () => {
 	})
 
 	test('a scan without a cache entry is fresh, and the next one is served from the cache', async () => {
-		// @e2e orphaned-data-cleanup::get-api-admin-cleanup-scan-returns-current-orphan-counts
+		// @e2e orphaned-data-cleanup::get-apiadmincleanupscan-returns-current-orphan-counts
 		await forceEmptyCache()
 
 		const fresh = await scan()
@@ -293,7 +293,7 @@ test.describe('orphaned-data cleanup API', () => {
 	})
 
 	test('a dry-run purge reports what it would remove and removes nothing', async () => {
-		// @e2e orphaned-data-cleanup::purge-with-dryrun-true
+		// @e2e orphaned-data-cleanup::purge-with-dryruntrue
 		const seeded = await seedDashboardWithWidget(admin, `${STAMP} dry-run`)
 		try {
 			await shareWith(admin, seeded.id, member!.username, 'view_only')

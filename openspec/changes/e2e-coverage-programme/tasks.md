@@ -89,6 +89,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
 - [ ] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
+  - Spec written: tests/e2e/clock-weather-widgets.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with a reason
 - [ ] 4.15 `launchpad-spend-analytics-widget`: 21 scenarios, 0 cited, blanket.
 - [ ] 4.16 `launchpad-ai-dashboard-assistant`: 18 scenarios, 0 cited, blanket.
 - [ ] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.

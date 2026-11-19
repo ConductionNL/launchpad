@@ -226,6 +226,14 @@
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
 				:dashboardUuid="activeDashboard.uuid" />
+			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
+			     discussion of a shared or group dashboard; the access chain
+			     is documented in DashboardDiscussion. -->
+			<DashboardDiscussion
+				v-if="activeDashboard?.uuid && !isEditMode"
+				:dashboard="activeDashboard"
+				:sharedWithMe="sharedWithMeDashboards"
+				:currentUserId="currentUserId" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -501,6 +509,7 @@ import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
+import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
@@ -577,6 +586,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardMoreMenu,
 		SidebarBackdrop,
+		DashboardDiscussion,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,

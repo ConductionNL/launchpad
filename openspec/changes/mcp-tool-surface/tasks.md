@@ -69,8 +69,10 @@
 
 ## Quality & Integration
 
-- [ ] Task 26: `composer check:strict` clean (PHPCS, PHPMD, Psalm, PHPStan) including the new `lib/Mcp/` namespace; SPDX headers on every new PHP file (hydra-gate-spdx)
-- [ ] Task 27: Run the hydra gates; specifically confirm no orphan-auth finding (every gate method must be called) and no redundant-controller finding (no wrapper controllers were added)
+- [x] Task 26: `composer check:strict` clean (PHPCS, PHPMD, Psalm, PHPStan) including the new `lib/Mcp/` namespace; SPDX headers on every new PHP file (hydra-gate-spdx)
+  - `lib/Mcp/` has no PHPCS, PHPMD (both rule sets), Psalm or PHPStan finding, and every file there carries an SPDX header. The PHPMD findings it had are fixed, not suppressed: the validator's `id()` is `positiveId()`, the `required` flag on `string()` and `oneOf()` is gone in favour of `optional()`, and `McpDashboardTools` refuses through its injected validator. The no-argument read tools carry the suppression the other tool classes use. Repo-wide `check:strict` stays red on files outside `lib/Mcp/` (phpcs in the Analytics/Admin contexts, the 387 psalm `MissingOverrideAttribute`-led findings, phpmd on long controllers), the same as on development.
+- [x] Task 27: Run the hydra gates; specifically confirm no orphan-auth finding (every gate method must be called) and no redundant-controller finding (no wrapper controllers were added)
+  - hydra-gates v1.19.0 on 19 Nov 2026: gate-6 orphan-auth PASS, gate-17 redundant-controller PASS, gate-8 unsafe-auth-resolver PASS. No failing gate names a file in `lib/Mcp/`.
 - [x] Task 28: Boot test without OpenRegister installed: app registers and the launchpad UI loads (alias unresolved is acceptable; boot failure is not)
   - 19 Nov live pass (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): launchpad enabled on a fresh MySQL instance without OpenRegister: `occ app:enable` succeeds, `/apps/launchpad/` answers 200 and renders (with Nextcloud's "requires openregister" notice), `GET /api/dashboards` answers 200, no error in the log.
 

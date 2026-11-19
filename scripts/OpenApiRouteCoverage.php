@@ -23,7 +23,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+ * @spec openspec/specs/rest-api-reference/spec.md
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use OCA\LaunchPad\Middleware\Support\ApiPathAliases;
 /**
  * Compares the route table with the OpenAPI document.
  *
- * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+ * @spec openspec/specs/rest-api-reference/spec.md
  */
 final class OpenApiRouteCoverage {
 
@@ -61,7 +61,7 @@ final class OpenApiRouteCoverage {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 */
 	public static function problems(array $routes, array $document): array {
 		$operations = self::operations(document: $document);
@@ -100,7 +100,7 @@ final class OpenApiRouteCoverage {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 */
 	public static function operations(array $document): array {
 		$operations = [];
@@ -124,7 +124,7 @@ final class OpenApiRouteCoverage {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 */
 	public static function routeKey(array $route): ?string {
 		$url = '/'.ltrim((string) ($route['url'] ?? ''), '/');
@@ -148,7 +148,7 @@ final class OpenApiRouteCoverage {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 */
 	public static function normalise(string $path): string {
 		$trimmed = rtrim($path, '/');

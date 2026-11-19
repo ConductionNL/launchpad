@@ -108,7 +108,7 @@ class McpDashboardWriteTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function updateDashboard(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId')
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId')
 			?? $this->fieldRefusal(args: $args, nameRequired: false)
 			?? $this->gate->requireAction(action: 'dashboard.update'));
 		if ($refusal === null) {
@@ -147,7 +147,7 @@ class McpDashboardWriteTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function deleteDashboard(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId') ?? $this->gate->requireAction(action: 'dashboard.delete'));
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId') ?? $this->gate->requireAction(action: 'dashboard.delete'));
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -226,7 +226,7 @@ class McpDashboardWriteTools {
 	 */
 	public function forkDashboard(array $args): array {
 		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
-			?? $this->validator->string(args: $args, name: 'name', min: 1, max: 255, required: false)
+			?? $this->validator->optional(args: $args, name: 'name', refusal: $this->validator->string(args: $args, name: 'name', min: 1, max: 255))
 			?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
@@ -298,9 +298,18 @@ class McpDashboardWriteTools {
 	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) Creating and updating a dashboard differ only in whether the name is required.
 	 */
 	private function fieldRefusal(array $args, bool $nameRequired): ?array {
-		$refusal = ($this->validator->string(args: $args, name: 'name', min: 1, max: 255, required: $nameRequired)
-			?? $this->validator->string(args: $args, name: 'description', min: 0, max: 2000, required: false)
-			?? $this->validator->string(args: $args, name: 'slug', min: 1, max: 255, required: false));
+		$refusal = $this->validator->optional(args: $args, name: 'name', refusal: $this->validator->string(args: $args, name: 'name', min: 1, max: 255));
+		if ($nameRequired === true) {
+			$refusal = $this->validator->string(args: $args, name: 'name', min: 1, max: 255);
+		}
+
+		$refusal = ($refusal
+			?? $this->validator->optional(
+				args: $args,
+				name: 'description',
+				refusal: $this->validator->string(args: $args, name: 'description', min: 0, max: 2000)
+			)
+			?? $this->validator->optional(args: $args, name: 'slug', refusal: $this->validator->string(args: $args, name: 'slug', min: 1, max: 255)));
 		if ($refusal === null && array_key_exists('sortOrder', $args) === true && is_int($args['sortOrder']) === false) {
 			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'Argument sortOrder must be an integer.');
 		}

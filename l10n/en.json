@@ -1595,6 +1595,10 @@
         "This value could not be calculated ({reason}).": "This value could not be calculated ({reason}).",
         "Formula: {expression}": "Formula: {expression}",
         "Values read: {inputs}": "Values read: {inputs}",
-        "empty": "empty"
+        "empty": "empty",
+        "Active filters": "Active filters",
+        "Pinned filter": "Pinned filter",
+        "Remove filter: {label}": "Remove filter: {label}",
+        "Reset filters": "Reset filters"
     }
 }

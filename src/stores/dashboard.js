@@ -414,6 +414,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		// backend 7-step precedence (REQ-DASH-018).
 		primaryGroup: '',
 		loading: false,
+		// The first loadDashboards() has finished.
+		loadedOnce: false,
+		// A dashboard the address asked for before that load finished.
+		requestedDashboardId: null,
 		saving: false,
 		// REQ-RXN-003 — per-dashboard reactions summary cache.
 		// Map<uuid, {counts: {emoji: number, ...}, mine: [emoji, ...], enabled: boolean}>.
@@ -690,7 +694,31 @@ export const useDashboardStore = defineStore('dashboard', {
 				logger.error('Failed to load dashboards:', error)
 			} finally {
 				this.loading = false
+				this.loadedOnce = true
 			}
+
+			const requested = this.requestedDashboardId
+			this.requestedDashboardId = null
+			if (requested !== null && String(this.activeDashboardId) !== String(requested)) {
+				await this.switchDashboard(requested)
+			}
+		},
+
+		/**
+		 * Open the dashboard an address names (`/dashboards/:id`). Before the
+		 * first load has finished the request is kept and applied when it
+		 * does, so the stored active dashboard does not replace it.
+		 *
+		 * @param {string|number} dashboardId Id of the dashboard to open.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 */
+		async openDashboard(dashboardId) {
+			if (!this.loadedOnce) {
+				this.requestedDashboardId = dashboardId
+				return
+			}
+			await this.switchDashboard(dashboardId)
 		},
 
 		/**
@@ -1059,6 +1087,23 @@ export const useDashboardStore = defineStore('dashboard', {
 				this.handleWidgetQuotaError(error)
 				logger.error('Failed to add widget:', error)
 			}
+		},
+
+		/**
+		 * Import chosen browser bookmarks onto the active dashboard. The server
+		 * appends the containers and tiles at the bottom and answers with them
+		 * and the skipped bookmarks; the new placements join the store. A 409
+		 * (not enough room left) is rethrown for the dialog to explain.
+		 *
+		 * @param {{folders: Array<object>, bookmarks: Array<object>}} chosen The chosen folders and loose bookmarks.
+		 * @return {Promise<{placements: Array<object>, skipped: Array<object>}>}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		async importBookmarks(chosen) {
+			const response = await api.importBookmarks(this.activeDashboard.id, chosen)
+			const placements = Array.isArray(response.data?.placements) ? response.data.placements : []
+			this.widgetPlacements.push(...placements)
+			return { placements, skipped: Array.isArray(response.data?.skipped) ? response.data.skipped : [] }
 		},
 
 		/**

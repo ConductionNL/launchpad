@@ -2,51 +2,92 @@ publiccodeYmlVersion: "0.4"
 
 name: LaunchPad
 url: "https://github.com/ConductionNL/launchpad"
-softwareVersion: "1.0.5"
-releaseDate: "2026-05-26"
+landingURL: "https://launchpad.conduction.nl"
+logo: img/app-store.svg
+softwareVersion: "1.1.0"
+releaseDate: "2026-09-06"
 developmentStatus: beta
 softwareType: "standalone/other"
 
 platforms:
-  - nextcloud
+  - web
 
 categories:
   - data-visualization
   - business-intelligence
 
+dependsOn:
+  open:
+    - name: Nextcloud
+      versionMin: "32"
+      versionMax: "35"
+
+intendedAudience:
+  countries:
+    - nl
+  scope:
+    - government
+    - local-authorities
+
 description:
   en:
     shortDescription: >
-      Business intelligence dashboard and data visualisation for Nextcloud.
+      Drag-and-drop dashboards with templates, tiles and smart visibility for Nextcloud.
     longDescription: >
-      LaunchPad is a business intelligence and dashboard application for Nextcloud.
-      It enables organisations to create and manage customisable dashboards with
-      charts, graphs, and KPI widgets. Data is sourced via GraphQL from Open Register
-      and other connected data sources. LaunchPad is designed for operational reporting
-      and monitoring in both government and commercial organisations.
-      Conduction maintains this component within the Nextcloud ISV programme.
+      LaunchPad extends the Nextcloud dashboard. Users create personal workspaces
+      with drag-and-drop widgets, custom shortcut tiles and smart visibility rules,
+      and admins roll out dashboard templates to entire teams. LaunchPad works with
+      every existing Nextcloud dashboard widget, supporting both the v1 and v2
+      Dashboard APIs. It suits organisations that want consistent, curated
+      dashboards for their teams while still giving users the freedom to
+      personalise them. Conduction maintains this component within the Nextcloud
+      ISV programme. LaunchPad is available in the Nextcloud App Store at
+      https://apps.nextcloud.com/apps/launchpad.
+    screenshots:
+      - img/screenshot-dashboard.png
+      - img/screenshot-widgets.png
+      - img/screenshot-admin.png
     features:
-      - Customisable dashboards with charts and KPI widgets
-      - GraphQL data integration
-      - Operational reporting and monitoring
-      - Real-time data visualisation
+      - Drag-and-drop grid layout to position and resize widgets
+      - Multiple dashboards per user
+      - Custom shortcut tiles with icons, colours and links
+      - Admin templates distributed to user groups
+      - View-only, add-only or full customisation per template
+      - Conditional widget visibility by group, time of day or date
+      - Per-widget styling of colours, borders and titles
+      - Compulsory widgets that users cannot remove
+      - Dashboard sharing with users, groups or a read-only public link
+      - Group dashboards next to personal dashboards
 
   nl:
     shortDescription: >
-      Business intelligence-dashboard en datavisualisatie voor Nextcloud.
+      Drag-and-drop dashboards met templates, tegels en slimme zichtbaarheid voor Nextcloud.
     longDescription: >
-      LaunchPad is een business intelligence- en dashboardtoepassing voor Nextcloud.
-      Het stelt organisaties in staat aanpasbare dashboards te maken en te beheren
-      met grafieken, diagrammen en KPI-widgets. Gegevens worden via GraphQL
-      opgehaald uit Open Register en andere gekoppelde databronnen. LaunchPad is
-      ontworpen voor operationele rapportage en monitoring in zowel overheids- als
-      commerciële organisaties.
-      Conduction onderhoudt dit component binnen het Nextcloud ISV-programma.
+      LaunchPad breidt het Nextcloud-dashboard uit. Gebruikers maken persoonlijke
+      werkruimtes met drag-and-drop widgets, eigen snelkoppelingstegels en slimme
+      zichtbaarheidsregels, en beheerders rollen dashboardtemplates uit naar hele
+      teams. LaunchPad werkt met elke bestaande Nextcloud-dashboardwidget en
+      ondersteunt zowel de v1- als de v2-Dashboard-API. Het is bedoeld voor
+      organisaties die consistente, samengestelde dashboards voor hun teams willen,
+      terwijl gebruikers de vrijheid houden om ze te personaliseren. Conduction
+      onderhoudt dit component binnen het Nextcloud ISV-programma. LaunchPad is
+      beschikbaar in de Nextcloud App Store via
+      https://apps.nextcloud.com/apps/launchpad.
+    screenshots:
+      - img/screenshot-dashboard.png
+      - img/screenshot-widgets.png
+      - img/screenshot-admin.png
     features:
-      - Aanpasbare dashboards met grafieken en KPI-widgets
-      - GraphQL-data-integratie
-      - Operationele rapportage en monitoring
-      - Realtime datavisualisatie
+      - Drag-and-drop rasterindeling om widgets te plaatsen en te schalen
+      - Meerdere dashboards per gebruiker
+      - Eigen snelkoppelingstegels met iconen, kleuren en links
+      - Beheerdertemplates die naar gebruikersgroepen worden uitgerold
+      - Alleen bekijken, toevoegen of volledige aanpassing per template
+      - Conditionele zichtbaarheid van widgets op groep, tijdstip of datum
+      - Styling per widget voor kleuren, randen en titels
+      - Verplichte widgets die gebruikers niet kunnen verwijderen
+      - Dashboards delen met gebruikers, groepen of via een alleen-lezen publieke link
+      - Groepsdashboards naast persoonlijke dashboards
 
 legal:
   license: EUPL-1.2
@@ -68,8 +109,43 @@ maintenance:
 localisation:
   localisationReady: true
   availableLanguages:
-    - nl
+    - be
+    - bg
+    - bs
+    - ca
+    - cs
+    - da
+    - de
+    - el
     - en
+    - es
+    - et
+    - fi
+    - fr
+    - ga
+    - hr
+    - hu
+    - is
+    - it
+    - lb
+    - lt
+    - lv
+    - mk
+    - mt
+    - nb
+    - nl
+    - pl
+    - pt
+    - rm
+    - ro
+    - ru
+    - sk
+    - sl
+    - sq
+    - sr
+    - sv
+    - tr
+    - uk
 
 # Common Ground layer (nl.vng profile), as a standard supports entry.
 supports:

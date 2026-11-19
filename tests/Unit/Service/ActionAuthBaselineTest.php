@@ -95,6 +95,9 @@ class ActionAuthBaselineTest extends TestCase {
 		'tile.create',
 		'tile.update',
 		'tile.destroy',
+		// launcher-app-catalogue D4: keeping the catalogue and deciding on requests.
+		'catalogue.manage',
+		'catalogue.decide',
 	];
 
 	/**
@@ -128,6 +131,9 @@ class ActionAuthBaselineTest extends TestCase {
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',
+		// launcher-app-catalogue D4: every user sees the catalogue and may ask for an app.
+		'catalogue.list',
+		'catalogue.request',
 	];
 
 	/** @var IAppConfig&MockObject */

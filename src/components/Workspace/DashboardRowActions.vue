@@ -78,6 +78,16 @@
 			{{ t('launchpad', 'Add custom widget…') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canEdit"
+			:closeAfterClick="true"
+			data-testid="cog-import-bookmarks"
+			@click="$emit('importBookmarks')">
+			<template #icon>
+				<BookmarkPlusOutline :size="20" />
+			</template>
+			{{ t('launchpad', 'Import bookmarks') }}
+		</NcActionButton>
+		<NcActionButton
 			:closeAfterClick="true"
 			data-testid="cog-set-default"
 			@click="$emit('setDefault')">
@@ -158,6 +168,7 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
+import BookmarkPlusOutline from 'vue-material-design-icons/BookmarkPlusOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
@@ -177,6 +188,23 @@ import {
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
 
+/**
+ * Whether the caller owns a dashboard: a row under "My dashboards" (the
+ * `user` source) always, any other row only when the dashboard says
+ * `isOwner: true`. Owner-gated actions (configure, delete) use it.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @param {string} source The dashboard's section.
+ * @return {boolean}
+ * @spec openspec/specs/dashboard-switcher/spec.md
+ */
+export function isOwnedDashboard(dashboard, source) {
+	if (source === 'user') {
+		return true
+	}
+	return dashboard?.isOwner === true
+}
+
 export default {
 	name: 'DashboardRowActions',
 
@@ -188,6 +216,7 @@ export default {
 		ContentSave,
 		Tune,
 		ShapePolygonPlus,
+		BookmarkPlusOutline,
 		TrashCanOutline,
 		Star,
 		StarCheck,
@@ -282,6 +311,8 @@ export default {
 		'toggleEdit',
 		'openConfig',
 		'addCustomWidget',
+		// launcher-bookmark-import REQ-BMI-001: only where the user may add.
+		'importBookmarks',
 		'delete',
 		'setDefault',
 		'share',
@@ -305,10 +336,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		isOwner() {
-			if (this.source === 'user') {
-				return true
-			}
-			return this.dashboard?.isOwner === true
+			return isOwnedDashboard(this.dashboard, this.source)
 		},
 
 		/*

@@ -152,7 +152,7 @@ export function objectListWidget(page: Page): Locator {
 
 /**
  * What the widget shows instead of rows when its fetch failed: its quiet
- * error line, or a designed empty state (nc-vue's or Nextcloud's).
+ * error line, or an intended empty state (nc-vue's or Nextcloud's).
  *
  * @param widget the widget.
  * @return the label's locator.

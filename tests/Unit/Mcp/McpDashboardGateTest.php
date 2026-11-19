@@ -175,4 +175,28 @@ class McpDashboardGateTest extends TestCase {
 
 		$this->assertSame(expected: 'forbidden', actual: $gate->requireView(dashboardId: 7)['error']);
 	}//end testAThrowingViewCheckDenies()
+
+	/**
+	 * The metadata edit check asks PermissionService, and a throwing check denies.
+	 *
+	 * @return void
+	 */
+	public function testRequireMetadataEditAsksPermissionService(): void {
+		$permissions = $this->createMock(originalClassName: PermissionService::class);
+		$permissions->method('canEditDashboardMetadata')->willReturnCallback(
+			callback: static fn (string $userId, int $dashboardId): bool => match ($dashboardId) {
+				7 => $userId === 'alice',
+				default => throw new \RuntimeException('db down'),
+			}
+		);
+		$gate = $this->gate(
+			uid: 'alice',
+			auth: $this->createMock(originalClassName: ActionAuthService::class),
+			groups: $this->createMock(originalClassName: IGroupManager::class),
+			permissions: $permissions
+		);
+
+		$this->assertNull(actual: $gate->requireMetadataEdit(dashboardId: 7));
+		$this->assertSame(expected: 'forbidden', actual: $gate->requireMetadataEdit(dashboardId: 8)['error']);
+	}//end testRequireMetadataEditAsksPermissionService()
 }//end class

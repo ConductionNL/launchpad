@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use Closure;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\IGroupManager;
@@ -148,16 +149,50 @@ class McpDashboardGate {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-4
 	 */
 	public function requireView(int $dashboardId): ?array {
+		return $this->refuseUnless(
+			check: fn (string $userId): bool => $this->permissions->canViewDashboard(userId: $userId, dashboardId: $dashboardId),
+			message: 'You may not see this dashboard.'
+		);
+	}//end requireView()
+
+	/**
+	 * A refusal when the caller may not edit the dashboard's metadata (the
+	 * owner of a personal dashboard, an administrator for a template), or
+	 * NULL to proceed. Any failure of the permission check denies.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function requireMetadataEdit(int $dashboardId): ?array {
+		return $this->refuseUnless(
+			check: fn (string $userId): bool => $this->permissions->canEditDashboardMetadata(userId: $userId, dashboardId: $dashboardId),
+			message: 'You may not edit the metadata of this dashboard.'
+		);
+	}//end requireMetadataEdit()
+
+	/**
+	 * A forbidden refusal unless the check allows the caller. A check that
+	 * throws denies.
+	 *
+	 * @param Closure(string): bool $check   The permission check for a uid.
+	 * @param string                $message The refusal sentence.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function refuseUnless(Closure $check, string $message): ?array {
 		try {
-			$allowed = ($this->permissions->canViewDashboard(userId: $this->currentUserId(), dashboardId: $dashboardId) === true);
+			$allowed = ($check($this->currentUserId()) === true);
 		} catch (Throwable) {
 			$allowed = false;
 		}
 
 		if ($allowed === false) {
-			return (new McpArgumentValidator())->refuse(code: 'forbidden', message: 'You may not see this dashboard.');
+			return (new McpArgumentValidator())->refuse(code: 'forbidden', message: $message);
 		}
 
 		return null;
-	}//end requireView()
+	}//end refuseUnless()
 }//end class

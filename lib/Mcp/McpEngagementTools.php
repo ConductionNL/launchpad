@@ -26,8 +26,11 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use Closure;
 use OCA\LaunchPad\Service\AcknowledgementService;
+use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Service\ReactionService;
+use OCA\LaunchPad\Service\ReactionsDisabledException;
 use Throwable;
 
 /**
@@ -102,4 +105,84 @@ class McpEngagementTools {
 			return $this->validator->failure(exception: $e);
 		}
 	}//end listPendingAcknowledgements()
+
+	/**
+	 * Add the caller's reaction to a dashboard and answer the new summary.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, emoji.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function addReaction(array $args): array {
+		$refusal = ($this->reactionArgumentsRefusal(args: $args) ?? $this->gate->requireAction(action: 'dashboard-reaction.add-reaction'));
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->react(
+			operation: fn (string $userId): array => $this->reactions->addReaction(
+				dashboardUuid: (string)$args['dashboardUuid'],
+				userId: $userId,
+				emoji: (string)$args['emoji']
+			)
+		);
+	}//end addReaction()
+
+	/**
+	 * Remove the caller's reaction from a dashboard.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, emoji.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function removeReaction(array $args): array {
+		$refusal = ($this->reactionArgumentsRefusal(args: $args) ?? $this->gate->requireAction(action: 'dashboard-reaction.remove-reaction'));
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->react(
+			operation: fn (string $userId): array => [
+				'removed' => $this->reactions->removeReaction(
+					dashboardUuid: (string)$args['dashboardUuid'],
+					userId: $userId,
+					emoji: (string)$args['emoji']
+				),
+			]
+		);
+	}//end removeReaction()
+
+	/**
+	 * A refusal for a bad dashboard UUID or emoji, or NULL to proceed.
+	 *
+	 * @param array<string, mixed> $args The tool arguments.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function reactionArgumentsRefusal(array $args): ?array {
+		return ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->validator->string(args: $args, name: 'emoji', min: 1, max: 32));
+	}//end reactionArgumentsRefusal()
+
+	/**
+	 * Run a reaction change for the caller, mapping the reaction service's
+	 * refusals as the routes do.
+	 *
+	 * @param Closure(string): array<mixed> $operation The service call, given the caller.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function react(Closure $operation): array {
+		try {
+			return $operation($this->gate->currentUserId());
+		} catch (PermissionDeniedException | ReactionsDisabledException $e) {
+			return $this->validator->refuse(code: 'forbidden', message: $e->getMessage());
+		} catch (Throwable $e) {
+			return $this->validator->failure(exception: $e);
+		}
+	}//end react()
 }//end class

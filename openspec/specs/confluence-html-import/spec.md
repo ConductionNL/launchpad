@@ -42,9 +42,6 @@ service.
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-CFLI-001 Archive structure parsing
 
 The system MUST parse a Confluence HTML Export ZIP archive and extract
@@ -338,6 +335,8 @@ Confluence page ID).
 - THEN each result `assetFolder` MUST contain a unique ISO 8601 timestamp segment
 
 ### Requirement: REQ-CFLI-011 CLI command for headless import
+
+@e2e exclude console command (`occ launchpad:import:confluence`) with no HTTP or UI surface; tests/Unit/Command/ImportConfluenceCommandGoldenTest.php::testConfluenceImportOutput pins the summary line, exit codes, `File not found: …`, `Parent path not found: …`, the --parent-path → parent UUID hand-off and the --dry-run line (against a mocked import service), and tests/Unit/Command/ConfluenceImportRequestTest.php::testGivenOptionsAreRead pins the option parsing
 
 The system MUST expose a Nextcloud OCC command `php occ launchpad:import:confluence`
 for imports via CLI / cron, with options for the input file, an

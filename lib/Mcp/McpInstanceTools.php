@@ -70,7 +70,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => ['dashboard' => $this->services->dashboardService->createGroupShared(
 				actorUserId: $this->gate->currentUserId(),
 				groupId: (string)$args['groupId'],
@@ -94,7 +94,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => ['dashboard' => $this->services->dashboardService->updateGroupShared(
 				actorUserId: $this->gate->currentUserId(),
 				groupId: (string)$args['groupId'],
@@ -119,7 +119,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->deleteGroupShared(
 					actorUserId: $this->gate->currentUserId(),
@@ -146,7 +146,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setGroupDefault(
 					actorUserId: $this->gate->currentUserId(),
@@ -175,7 +175,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => $this->templates->templateService->createTemplate(
 				name: (string)$args['name'],
 				settings: array_intersect_key($args, array_flip(['description', 'targetGroups', 'permissionLevel', 'isDefault']))
@@ -201,7 +201,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => $this->templates->templateService->updateTemplate(
 				id: (int)$args['templateId'],
 				data: array_intersect_key($args, array_flip(['name', 'description', 'targetGroups', 'permissionLevel', 'isDefault', 'gridColumns']))
@@ -224,7 +224,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->templates->templateService->deleteTemplate(id: (int)$args['templateId']);
 				return ['deleted' => true];
@@ -254,7 +254,7 @@ class McpInstanceTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => $this->templates->resyncService->resync(
 				templateId: (int)$args['templateId'],
 				strategy: (string)$args['strategy'],
@@ -306,19 +306,4 @@ class McpInstanceTools {
 
 		return $refusal;
 	}//end templateFieldRefusal()
-
-	/**
-	 * Run a service call, mapping its failures to the tools' envelopes.
-	 *
-	 * @param \Closure(): array<string, mixed> $operation The service call.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function run(\Closure $operation): array {
-		try {
-			return $operation();
-		} catch (Throwable $e) {
-			return $this->validator->failure(exception: $e);
-		}
-	}//end run()
 }//end class

@@ -17,8 +17,9 @@ use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Mcp\McpEngagementTools;
+use OCP\IUser;
+use OCP\IUserSession;
 
 /**
  * The catalogue's ids and annotations, and dispatch.
@@ -71,9 +72,11 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return LaunchpadToolProvider
 	 */
 	private function provider(array $handlers = []): LaunchpadToolProvider {
-		$gate = $this->createMock(originalClassName: McpDashboardGate::class);
-		$gate->method('currentUserId')->willReturn('alice');
-		$handlers += [McpDashboardGate::class => $gate];
+		$user = $this->createMock(originalClassName: IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$session = $this->createMock(originalClassName: IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+		$handlers += [IUserSession::class => $session];
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(callback: static fn (string $id): object => $handlers[$id]);
 
@@ -268,7 +271,9 @@ class LaunchpadToolProviderTest extends TestCase {
 
 		$this->assertSame(expected: array_keys($expected), actual: array_keys($actual));
 		$ids = implode(' ', array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id'));
-		foreach (['viewEvent', 'Click', 'acknowledge(?!ments)', 'upload', 'Lock', 'Wizard', 'Confluence', 'cleanup', 'Showcase', 'Bulk', 'export', 'import', 'Settings'] as $excluded) {
+		$excludedSurfaces = ['viewEvent', 'Click', 'acknowledge(?!ments)', 'upload', 'Lock', 'Wizard', 'Confluence'];
+		$excludedSurfaces = [...$excludedSurfaces, 'cleanup', 'Showcase', 'Bulk', 'export', 'import', 'Settings'];
+		foreach ($excludedSurfaces as $excluded) {
 			$this->assertDoesNotMatchRegularExpression(pattern: '/' . $excluded . '/i', string: $ids, message: $excluded);
 		}
 	}//end testTheWriteCatalogueIsClosed()

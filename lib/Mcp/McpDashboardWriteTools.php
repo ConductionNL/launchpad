@@ -31,7 +31,6 @@ use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
-use OCA\LaunchPad\Service\DashboardService;
 use Throwable;
 
 /**
@@ -80,7 +79,7 @@ class McpDashboardWriteTools {
 		}
 
 		$userId = $this->gate->currentUserId();
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args, $userId): array {
 				$this->services->dashboardService->assertPersonalDashboardsAllowed();
 				$hasDashboards = ($this->services->dashboardService->getUserDashboards(userId: $userId) !== []);
@@ -125,7 +124,7 @@ class McpDashboardWriteTools {
 			$data['parentUuid'] = null;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args, $data): array {
 				$dashboard = $this->services->dashboardService->updateDashboard(
 					dashboardId: (int)$args['dashboardId'],
@@ -184,7 +183,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setActivePreference(userId: $this->gate->currentUserId(), uuid: (string)$args['dashboardUuid']);
 				return ['active' => (string)$args['dashboardUuid']];
@@ -207,7 +206,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setDefaultPreference(userId: $this->gate->currentUserId(), uuid: (string)$args['dashboardUuid']);
 				return ['default' => (string)$args['dashboardUuid']];
@@ -233,7 +232,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => ['dashboard' => $this->services->dashboardService->forkAsPersonal(
 				userId: $this->gate->currentUserId(),
 				sourceUuid: (string)$args['dashboardUuid'],
@@ -278,7 +277,7 @@ class McpDashboardWriteTools {
 				),
 			};
 		} catch (Throwable $e) {
-			if ($e->getMessage() === DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN) {
+			if ($e->getMessage() === $this->services->dashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN) {
 				return $this->validator->refuse(code: 'forbidden', message: 'Only the owner or an administrator may publish this dashboard.');
 			}
 
@@ -340,19 +339,4 @@ class McpDashboardWriteTools {
 			$this->history->logger->warning(message: 'launchpad: automatic version snapshot failed', context: ['exception' => $t]);
 		}
 	}//end snapshot()
-
-	/**
-	 * Run a service call, mapping its failures to the tools' envelopes.
-	 *
-	 * @param \Closure(): array<string, mixed> $operation The service call.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function run(\Closure $operation): array {
-		try {
-			return $operation();
-		} catch (Throwable $e) {
-			return $this->validator->failure(exception: $e);
-		}
-	}//end run()
 }//end class

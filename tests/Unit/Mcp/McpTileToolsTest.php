@@ -16,7 +16,16 @@ namespace Unit\Mcp;
 use OCA\LaunchPad\Db\Tile;
 use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\McpDashboardGate;
-use OCA\LaunchPad\Mcp\McpTileTools;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
+use OCA\LaunchPad\Mcp\McpCatalogueSources;
+use OCA\LaunchPad\Mcp\McpCatalogueTools;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\DashboardVersionService;
+use Psr\Log\NullLogger;
 use OCA\LaunchPad\Service\TileService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * listTiles is the caller's own tiles, behind the `tile.index` action.
  *
- * @covers \OCA\LaunchPad\Mcp\McpTileTools
+ * @covers \OCA\LaunchPad\Mcp\McpCatalogueTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
  * @uses   \OCA\LaunchPad\Db\Tile
  */
@@ -41,6 +50,25 @@ class McpTileToolsTest extends TestCase {
 	}//end setUp()
 
 	/**
+	 * The catalogue tools, whose listTiles reads the tile service.
+	 *
+	 * @return McpCatalogueTools
+	 */
+	private function tools(): McpCatalogueTools {
+		return new McpCatalogueTools(
+			gate: $this->gate,
+			services: new DashboardApiServices(dashboardService: $this->createMock(originalClassName: DashboardService::class)),
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(originalClassName: DashboardTreeService::class),
+				versionService: $this->createMock(originalClassName: DashboardVersionService::class),
+				analyticsService: $this->createMock(originalClassName: AnalyticsServiceInterface::class),
+				logger: new NullLogger()
+			),
+			sources: new McpCatalogueSources(templates: $this->createMock(originalClassName: AdminTemplateService::class), tiles: $this->tiles)
+		);
+	}//end tools()
+
+	/**
 	 * The tool lists exactly the tiles the service returns for the caller.
 	 *
 	 * @return void
@@ -52,7 +80,7 @@ class McpTileToolsTest extends TestCase {
 		$tile->setTitle('Intranet');
 		$this->tiles->expects($this->once())->method('getUserTiles')->with('alice')->willReturn([$tile]);
 
-		$result = (new McpTileTools($this->gate, $this->tiles))->listTiles([]);
+		$result = $this->tools()->listTiles([]);
 
 		$this->assertCount(1, $result['items']);
 		$this->assertSame($tile->jsonSerialize(), $result['items'][0]);
@@ -69,6 +97,6 @@ class McpTileToolsTest extends TestCase {
 		$this->gate->method('requireAction')->willReturn($refusal);
 		$this->tiles->expects($this->never())->method('getUserTiles');
 
-		$this->assertSame($refusal, (new McpTileTools($this->gate, $this->tiles))->listTiles([]));
+		$this->assertSame($refusal, $this->tools()->listTiles([]));
 	}//end testARefusedActionReadsNothing()
 }//end class

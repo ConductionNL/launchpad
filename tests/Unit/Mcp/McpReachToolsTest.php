@@ -26,7 +26,6 @@ use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Mcp\McpDashboardWriteTools;
 use OCA\LaunchPad\Mcp\McpInstanceTools;
-use OCA\LaunchPad\Mcp\McpPublicLinkTools;
 use OCA\LaunchPad\Mcp\McpSharingTools;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardService;
@@ -43,6 +42,8 @@ use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Mcp\McpExternalSources;
+use OCA\LaunchPad\Mcp\McpExternalTools;
 
 /**
  * The sharing, publication, public-link, kiosk, group-dashboard and template
@@ -50,7 +51,7 @@ use Psr\Log\NullLogger;
  * instance-wide ones only for an administrator.
  *
  * @covers \OCA\LaunchPad\Mcp\McpSharingTools
- * @covers \OCA\LaunchPad\Mcp\McpPublicLinkTools
+ * @covers \OCA\LaunchPad\Mcp\McpExternalTools
  * @covers \OCA\LaunchPad\Mcp\McpInstanceTools
  * @covers \OCA\LaunchPad\Mcp\McpDashboardWriteTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
@@ -95,8 +96,7 @@ class McpReachToolsTest extends TestCase {
 		$tools = new McpSharingTools(
 			gate: $this->gate,
 			validator: new McpArgumentValidator(),
-			shares: $shares,
-			kiosk: $this->createMock(originalClassName: KioskService::class)
+			shares: $shares
 		);
 
 		$grant = ['dashboardId' => 4, 'shareType' => 'group', 'shareWith' => 'sales', 'permissionLevel' => 'view_only'];
@@ -122,17 +122,22 @@ class McpReachToolsTest extends TestCase {
 		);
 		$kiosk->method('updatePlaylist')->willReturn($playlist);
 		$kiosk->expects($this->once())->method('revokePlaylist');
-		$tools = new McpSharingTools(
+		$kiosk->method('listPlaylists')->willReturnCallback(
+			callback: static fn (string $callerId): array => match ($callerId) {
+				'alice' => [$playlist],
+			}
+		);
+		$tools = new McpExternalTools(
 			gate: $this->gate,
 			validator: new McpArgumentValidator(),
-			shares: $this->createMock(originalClassName: DashboardShareService::class),
-			kiosk: $kiosk
+			external: new McpExternalSources(kiosk: $kiosk, links: $this->createMock(originalClassName: PublicShareService::class))
 		);
 
 		$draft = ['name' => 'Lobby', 'entries' => [], 'refreshSeconds' => 60];
 		$this->assertSame(expected: $playlist->jsonSerialize(), actual: $tools->createKioskPlaylist(args: $draft));
 		$this->assertSame(expected: $playlist->jsonSerialize(), actual: $tools->updateKioskPlaylist(args: ['playlistId' => 3] + $draft));
 		$this->assertSame(expected: ['revoked' => true], actual: $tools->deleteKioskPlaylist(args: ['playlistId' => 3]));
+		$this->assertSame(expected: ['items' => [$playlist->jsonSerialize()]], actual: $tools->listKioskPlaylists(args: []));
 		$this->assertSame(expected: 'invalid_arguments', actual: $tools->createKioskPlaylist(args: ['name' => 'Lobby'])['error']);
 	}//end testKioskPlaylists()
 
@@ -150,7 +155,11 @@ class McpReachToolsTest extends TestCase {
 			}
 		);
 		$links->expects($this->once())->method('revokeShare');
-		$tools = new McpPublicLinkTools(gate: $this->gate, validator: new McpArgumentValidator(), links: $links);
+		$tools = new McpExternalTools(
+			gate: $this->gate,
+			validator: new McpArgumentValidator(),
+			external: new McpExternalSources(kiosk: $this->createMock(originalClassName: KioskService::class), links: $links)
+		);
 
 		$minted = $tools->createPublicShareLink(args: ['dashboardUuid' => self::UUID, 'expiresAt' => '2027-01-01']);
 		$this->assertSame(expected: $link->jsonSerialize(), actual: $minted);
@@ -230,7 +239,9 @@ class McpReachToolsTest extends TestCase {
 		}
 		$memberTools = $build($member);
 		$args        = ['groupId' => 'sales', 'name' => 'Sales', 'dashboardUuid' => self::UUID, 'templateId' => 3, 'strategy' => 'merge'];
-		foreach (['createGroupDashboard', 'updateGroupDashboard', 'deleteGroupDashboard', 'setGroupDefault', 'createTemplate', 'updateTemplate', 'deleteTemplate', 'resyncTemplate'] as $tool) {
+		$instanceTools = ['createGroupDashboard', 'updateGroupDashboard', 'deleteGroupDashboard', 'setGroupDefault'];
+		$instanceTools = [...$instanceTools, 'createTemplate', 'updateTemplate', 'deleteTemplate', 'resyncTemplate'];
+		foreach ($instanceTools as $tool) {
 			$this->assertSame(expected: 'forbidden', actual: $memberTools->$tool($args)['error'], message: $tool);
 		}
 

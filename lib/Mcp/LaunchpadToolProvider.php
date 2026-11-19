@@ -39,6 +39,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Mcp;
 
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
+use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -67,6 +68,15 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	 * @var list<string>
 	 */
 	private const TARGET_KEYS = ['dashboardUuid', 'dashboardId', 'placementId', 'shareId', 'playlistId', 'templateId', 'groupId'];
+
+	private const GROUP_DASHBOARD_ARGUMENT = [
+		'type' => 'object',
+		'properties' => [
+			'groupId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+			'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+		],
+		'required' => ['groupId', 'dashboardUuid'],
+	];
 
 	private const DASHBOARD_FIELDS = [
 		'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
@@ -626,28 +636,14 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'name' => 'Delete group dashboard',
 			'description' => 'Delete a group dashboard. Administrators only.',
 			'scope' => 'delete', 'reach' => 'instance', 'readOnlyHint' => false, 'destructiveHint' => true,
-			'inputSchema' => [
-				'type' => 'object',
-				'properties' => [
-					'groupId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
-					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
-				],
-				'required' => ['groupId', 'dashboardUuid'],
-			],
+			'inputSchema' => self::GROUP_DASHBOARD_ARGUMENT,
 		],
 		[
 			'id' => 'launchpad.setGroupDefault',
 			'name' => 'Set group default',
 			'description' => 'Make a group dashboard the default of its group. Administrators only.',
 			'scope' => 'update', 'reach' => 'instance', 'readOnlyHint' => false,
-			'inputSchema' => [
-				'type' => 'object',
-				'properties' => [
-					'groupId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
-					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
-				],
-				'required' => ['groupId', 'dashboardUuid'],
-			],
+			'inputSchema' => self::GROUP_DASHBOARD_ARGUMENT,
 		],
 		[
 			'id' => 'launchpad.createTemplate',
@@ -727,7 +723,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.getActiveDashboard' => [McpDashboardTools::class, 'getActiveDashboard'],
 		'launchpad.listGroupDashboards' => [McpDashboardTools::class, 'listGroupDashboards'],
 		'launchpad.listWidgetTypes' => [McpDashboardTools::class, 'listWidgetTypes'],
-		'launchpad.listTiles' => [McpTileTools::class, 'listTiles'],
+		'launchpad.listTiles' => [McpCatalogueTools::class, 'listTiles'],
 		'launchpad.getDashboardTree' => [McpCatalogueTools::class, 'getDashboardTree'],
 		'launchpad.listShares' => [McpSharingTools::class, 'listShares'],
 		'launchpad.listVersions' => [McpHistoryTools::class, 'listVersions'],
@@ -735,7 +731,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.getDashboardMetadata' => [McpMetadataTools::class, 'getDashboardMetadata'],
 		'launchpad.getReactions' => [McpEngagementTools::class, 'getReactions'],
 		'launchpad.listPendingAcknowledgements' => [McpEngagementTools::class, 'listPendingAcknowledgements'],
-		'launchpad.listKioskPlaylists' => [McpSharingTools::class, 'listKioskPlaylists'],
+		'launchpad.listKioskPlaylists' => [McpExternalTools::class, 'listKioskPlaylists'],
 		'launchpad.createDashboardVersion' => [McpHistoryTools::class, 'createDashboardVersion'],
 		'launchpad.restoreDashboardVersion' => [McpHistoryTools::class, 'restoreDashboardVersion'],
 		'launchpad.setDashboardMetadata' => [McpMetadataTools::class, 'setDashboardMetadata'],
@@ -758,11 +754,11 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.replaceShares' => [McpSharingTools::class, 'replaceShares'],
 		'launchpad.unshareDashboard' => [McpSharingTools::class, 'unshareDashboard'],
 		'launchpad.setPublicationState' => [McpDashboardWriteTools::class, 'setPublicationState'],
-		'launchpad.createPublicShareLink' => [McpPublicLinkTools::class, 'createPublicShareLink'],
-		'launchpad.revokePublicShareLink' => [McpPublicLinkTools::class, 'revokePublicShareLink'],
-		'launchpad.createKioskPlaylist' => [McpSharingTools::class, 'createKioskPlaylist'],
-		'launchpad.updateKioskPlaylist' => [McpSharingTools::class, 'updateKioskPlaylist'],
-		'launchpad.deleteKioskPlaylist' => [McpSharingTools::class, 'deleteKioskPlaylist'],
+		'launchpad.createPublicShareLink' => [McpExternalTools::class, 'createPublicShareLink'],
+		'launchpad.revokePublicShareLink' => [McpExternalTools::class, 'revokePublicShareLink'],
+		'launchpad.createKioskPlaylist' => [McpExternalTools::class, 'createKioskPlaylist'],
+		'launchpad.updateKioskPlaylist' => [McpExternalTools::class, 'updateKioskPlaylist'],
+		'launchpad.deleteKioskPlaylist' => [McpExternalTools::class, 'deleteKioskPlaylist'],
 		'launchpad.createGroupDashboard' => [McpInstanceTools::class, 'createGroupDashboard'],
 		'launchpad.updateGroupDashboard' => [McpInstanceTools::class, 'updateGroupDashboard'],
 		'launchpad.deleteGroupDashboard' => [McpInstanceTools::class, 'deleteGroupDashboard'],
@@ -821,11 +817,12 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	public function invokeTool(string $toolId, array $arguments): array {
 		$handler = (self::TOOL_HANDLERS[$toolId] ?? null);
 		if ($handler === null) {
-			return (new McpArgumentValidator())->refuse(
-				code: 'unknown_tool',
-				message: "Unknown tool id '{$toolId}'. Available tools: "
-					. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.'
-			);
+			return [
+				'isError' => true,
+				'error' => 'unknown_tool',
+				'message' => "Unknown tool id '{$toolId}'. Available tools: "
+					. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.',
+			];
 		}
 
 		[$class, $method] = $handler;
@@ -852,7 +849,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		return [
 			'tool' => $toolId,
 			'target' => (array_values(array_intersect_key($arguments, array_flip(self::TARGET_KEYS)))[0] ?? null),
-			'caller' => $this->container->get(McpDashboardGate::class)->currentUserId(),
+			'caller' => (string)($this->container->get(IUserSession::class)->getUser()?->getUID() ?? ''),
 		];
 	}//end auditRecord()
 

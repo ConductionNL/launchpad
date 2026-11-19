@@ -12,7 +12,7 @@
 ## Frontend
 
 - [x] 6. Add the "From the app catalogue" section to `src/modals/WidgetPickerModal.vue`, creating a tile through the existing tile call. Verify: Vitest.
-  - Entry point: the picker had no menu entry left (the toolbar that opened it was removed), so "More" → "Add app" (`DashboardMoreMenu`, `canEdit` only) now opens it.
+  - Entry point: the picker had no menu entry left (the toolbar that opened it was removed), so "More" → "Add widget" (`DashboardMoreMenu`, `canEdit` only) now opens it; the separate "Add app" entry was dropped as a duplicate.
 - [ ] 7. Add the "Can't find your app?" request form. Verify: Vitest and an axe check.
   - Done in code: the form in `WidgetPickerModal` with Vitest (sent, limit, failure). Open: the axe check, which needs a browser.
 - [x] 8. Add the admin "App catalogue" section: entries with group picker (`NcSelect` with input label) and the request list with approve and decline. Verify: Vitest.

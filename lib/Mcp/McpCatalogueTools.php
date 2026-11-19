@@ -113,6 +113,8 @@ class McpCatalogueTools {
 	 *
 	 * @return array<string, mixed>
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The provider passes every tool its arguments.
+	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */
 	public function listTiles(array $args): array {

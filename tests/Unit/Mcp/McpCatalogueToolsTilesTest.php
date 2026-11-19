@@ -37,7 +37,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
  * @uses   \OCA\LaunchPad\Db\Tile
  */
-class McpTileToolsTest extends TestCase {
+class McpCatalogueToolsTilesTest extends TestCase {
 
 	private McpDashboardGate&MockObject $gate;
 
@@ -80,7 +80,7 @@ class McpTileToolsTest extends TestCase {
 		$tile->setTitle('Intranet');
 		$this->tiles->expects($this->once())->method('getUserTiles')->with('alice')->willReturn([$tile]);
 
-		$result = $this->tools()->listTiles([]);
+		$result = $this->tools()->listTiles(args: []);
 
 		$this->assertCount(1, $result['items']);
 		$this->assertSame($tile->jsonSerialize(), $result['items'][0]);
@@ -97,6 +97,6 @@ class McpTileToolsTest extends TestCase {
 		$this->gate->method('requireAction')->willReturn($refusal);
 		$this->tiles->expects($this->never())->method('getUserTiles');
 
-		$this->assertSame($refusal, $this->tools()->listTiles([]));
+		$this->assertSame(expected: $refusal, actual: $this->tools()->listTiles(args: []));
 	}//end testARefusedActionReadsNothing()
 }//end class

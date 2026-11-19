@@ -26,9 +26,6 @@ The storage step that sat at Step 2 was retired on 9 Oct 2026 (decision 131, cha
 
 ## Requirements
 
-
-@e2e exclude all scenarios test PHP wizard endpoint + flag persistence — wizard is a first-run flow that auto-completes on existing instances; cannot be reliably reproduced
-
 ### Requirement: REQ-WIZ-001 Detect First-Run State via Admin Setting Flag
 
 The system MUST detect whether a LaunchPad instance is being initialized for the first time by consulting the `launchpad.setup_wizard_complete` boolean flag. When the flag is `false`, the admin section MUST display a banner prompting the admin to run the wizard.
@@ -210,6 +207,7 @@ Step 4 MUST allow the admin to optionally assign the "Dashboard Admin" role to o
 - THEN Step 4 MUST be skipped automatically
 - AND the step counter jumps from Step 3 to Step 5
 - NOTE: Capability dependency is gracefully handled; missing capability does not break wizard
+@e2e exclude admin-roles ships inside LaunchPad, so the CI instance cannot be made to lack it; the auto-skip was never built (SetupWizardModal.vue always renders six steps with a Step 4 stub and has no capability check) and no unit test pins it
 
 #### Scenario: Only one group can have admin role per wizard run
 - GIVEN Step 4 is displayed
@@ -247,6 +245,7 @@ Step 5 MUST allow the admin to optionally open and configure the footer using th
 - THEN Step 5 MUST be skipped automatically
 - AND the step counter jumps from Step 4 to Step 6
 - NOTE: Capability dependency is gracefully handled; missing capability does not break wizard
+@e2e exclude footer-customization ships inside LaunchPad, so the CI instance cannot be made to lack it; the auto-skip was never built (SetupWizardModal.vue always renders six steps with a Step 5 stub and has no capability check) and no unit test pins it
 
 ### Requirement: REQ-WIZ-008 Get Wizard State via API Endpoint
 
@@ -302,6 +301,7 @@ The system MUST expose a `GET /api/admin/setup-wizard/state` endpoint that retur
 - WHEN an NC admin calls `GET /api/admin/setup-wizard/state`
 - THEN `stepStatuses` MUST hold exactly six entries
 - AND the stored row MUST NOT change any step status or `currentRecommendedStep`
+@e2e exclude no API can write the retired `content_storage` row (its endpoint is gone and AdminSettingKey has no such case), so the GIVEN cannot be seeded in e2e; pinned by tests/Unit/Service/SetupWizardServiceTest.php testAStoredContentStorageValueIsLeftUnread and testWizardHasSixStepsWithoutAStorageStep
 
 ### Requirement: REQ-WIZ-009 Mark Wizard Complete via API Endpoint
 
@@ -333,6 +333,7 @@ The system MUST expose a `POST /api/admin/setup-wizard/complete` endpoint that i
 - NOTE: Return format is identical to GET endpoint for consistency
 
 ### Requirement: REQ-WIZ-010 CLI Command for Non-Interactive Setup (IaC-Friendly)
+@e2e exclude an `occ` command reading a YAML file on the server cannot be driven from Playwright against the CI instance; pinned by tests/Unit/Command/SetupCommandTest.php (testTheFullOutputWithPendingStepsInTheConfig, testRefusedConfigs, testAnOldConfigWithStorageBackendStillRunsAndSaysTheFieldIsIgnored, testAConfigWithoutStorageBackendSucceeds, testAnEmptyMapStillCompletesTheWizard)
 
 The system MUST expose a CLI command `php occ launchpad:setup` that accepts a `--config=/path/setup.yaml` argument to perform wizard setup non-interactively, ideal for Infrastructure-as-Code deployments.
 

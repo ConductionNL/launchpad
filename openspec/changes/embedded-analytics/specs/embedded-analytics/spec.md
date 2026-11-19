@@ -644,14 +644,14 @@ THEN:
 
 ### Requirement: REQ-EMB-006 — JS-SDK exposes render, event, and resize APIs
 
-The system SHALL publish a JS-SDK (`@conduction/launchpad-embed`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
+The system SHALL serve a JS-SDK from the app itself (ESM and UMD builds at `/apps/launchpad/embed-sdk/embed-sdk.esm.js` and `.../embed-sdk.umd.js`, public, cacheable, loadable from any origin and versioned with the app; not published on npm) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
 
 #### Scenario: 6.1 — SDK initialization and iframe creation
 
 GIVEN a host page (e.g., a SaaS customer portal) that imports the SDK:
   ```html
-  <script src="https://cdn.example.com/@conduction/launchpad-embed@1.0.0/dist/embed-sdk.umd.js"></script>
-  <!-- OR ESM: import LaunchPadEmbed from '@conduction/launchpad-embed'; -->
+  <script src="https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.umd.js"></script>
+  <!-- OR ESM: import LaunchPadEmbed from 'https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.esm.js'; -->
   ```
 WHEN the host page calls:
   ```javascript
@@ -764,8 +764,8 @@ THEN the SDK SHALL:
 GIVEN a TypeScript host application
 WHEN it imports the SDK:
   ```typescript
-  import LaunchPadEmbed from '@conduction/launchpad-embed';
-  import type { EmbedConfig, EmbedInstance } from '@conduction/launchpad-embed';
+  import LaunchPadEmbed from 'https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.esm.js';
+  import type { EmbedConfig, EmbedInstance } from './launchpad-embed-types'; // a copy of src/embed-sdk/src/types.ts
   
   const config: EmbedConfig = {
     token: 'eyJ...',

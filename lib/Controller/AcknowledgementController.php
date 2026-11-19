@@ -59,7 +59,7 @@ class AcknowledgementController extends Controller {
 	 * @param IGroupManager        $groupManager NC admin check.
 	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -78,7 +78,7 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse The stored receipt.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function acknowledge(): JSONResponse {
@@ -123,7 +123,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @return JSONResponse|null The 403, or null when the body names no other user.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function refuseForeignUser(): JSONResponse|null {
 		$bodyUserId = $this->request->getParam(key: 'userId');
@@ -196,7 +196,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @return JSONResponse|null The 403, or null when the user may acknowledge.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyOutsideAudience(string $announcementKey, string $userId): ?JSONResponse {
 		if ($this->tools->acknowledgements->isAllowedToAcknowledge(announcementKey: $announcementKey, userId: $userId) === false) {
@@ -221,7 +221,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @return JSONResponse|null The 400, or null when the version is published.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function rejectUnpublishedVersion(string $announcementKey, int $contentVersion): ?JSONResponse {
 		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->context->userId);
@@ -241,7 +241,7 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse The `{count, items}` payload.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function pending(): JSONResponse {
@@ -268,7 +268,7 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse The report payload or 403 / 404.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function report(string $announcementKey): JSONResponse {
@@ -300,7 +300,7 @@ class AcknowledgementController extends Controller {
 	 * @return DataDownloadResponse|JSONResponse The CSV download or 403 / 404.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -375,7 +375,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @return bool True when authorized.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function isManager(string $announcementKey): bool {
 		if ($this->context->userId === null) {

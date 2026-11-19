@@ -78,7 +78,7 @@ class TileAnalyticsController extends Controller {
 	 *                                      authorization.
 	 * @param TileAnalyticsContext $context Holds the userSession and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -106,7 +106,7 @@ class TileAnalyticsController extends Controller {
 	 *                      does not exist.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function recordClick(string $placementId): JSONResponse {
@@ -149,7 +149,7 @@ class TileAnalyticsController extends Controller {
 	 *                      unauthenticated.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function config(): JSONResponse {
@@ -174,7 +174,7 @@ class TileAnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function topTiles(
@@ -208,7 +208,7 @@ class TileAnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function dashboardBreakdown(
@@ -272,7 +272,7 @@ class TileAnalyticsController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		$check = new SessionActionCheck(userSession: $this->context->userSession, actionAuth: $this->actionAuth);

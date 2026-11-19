@@ -58,7 +58,7 @@ class WidgetApiController extends Controller {
 	 * @param WidgetApiAccess $access Holds the permissionService and policy.
 	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -76,7 +76,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The list of available widgets.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function listAvailable(): JSONResponse {
@@ -98,7 +98,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyListAvailable(): ?JSONResponse {
 		$user = $this->context->actor->userSession->getUser();
@@ -125,7 +125,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
 	 * @spec openspec/changes/role-based-content/tasks.md#task-3
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -253,7 +253,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The placement, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createPlacement(callable $create): JSONResponse {
 		try {
@@ -289,7 +289,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse {
 		$user = $this->context->actor->userSession->getUser();
@@ -321,7 +321,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyWidgetChoice(int $dashboardId, ?string $widgetId): ?JSONResponse {
 		if (self::isBlankId(id: $widgetId) === true) {
@@ -365,7 +365,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return bool True when both permit it.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayAddWidget(int $dashboardId, string $widgetId): bool {
 		return $this->access->permissionService->canAddWidget(
@@ -395,7 +395,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyAcknowledgementChange(int $placementId): ?JSONResponse {
 		if ($this->touchesAcknowledgement() === false) {
@@ -451,7 +451,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyContainerDepth(mixed $content): ?JSONResponse {
 		if (is_array($content) === false) {
@@ -501,7 +501,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The created tile placement.
 	 *
 	 * @spec openspec/specs/widgets/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addTile(int $dashboardId): JSONResponse {
@@ -532,7 +532,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return bool True when allowed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayAddTo(int $dashboardId): bool {
 		return $this->access->permissionService->canAddWidget(
@@ -573,7 +573,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The updated widget placement.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function updatePlacement(int $placementId): JSONResponse {
@@ -624,7 +624,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyPlacementUpdate(int $placementId): ?JSONResponse {
 		if ($this->mayStyle(placementId: $placementId) === false) {
@@ -651,7 +651,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return bool True when allowed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayStyle(int $placementId): bool {
 		return $this->access->permissionService->canStyleWidget(
@@ -667,7 +667,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated placement.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function updatedPlacement(int $placementId): JSONResponse {
 		$data     = RequestDataExtractor::extractPlacementData(request: $this->request);
@@ -784,7 +784,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The removal confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function removePlacement(int $placementId): JSONResponse {
@@ -889,7 +889,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The items, or the refusal.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function newsFor(int $placementId, int $limit): JSONResponse {
 		if ($limit < 1 || $limit > 50) {
@@ -984,7 +984,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The events, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function calendarEventsOf(object $placement, array $range): JSONResponse {
 		$config = $this->extractCalendarConfig(placement: $placement);
@@ -1057,7 +1057,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The user's calendars, or 401 when unauthenticated.
 	 *
 	 * @spec openspec/specs/calendar-widget/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -1173,7 +1173,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		$user = $this->context->actor->userSession->getUser();
@@ -1201,7 +1201,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function placementViewRefusal(int $placementId): ?JSONResponse {
 		if ($this->access->permissionService->canViewPlacement(
@@ -1224,7 +1224,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return array<int, mixed> The denied widget IDs, in request order.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function deniedWidgetIds(array $widgets): array {
 		$deniedWidgets = [];

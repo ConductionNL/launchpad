@@ -26,7 +26,7 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Full unit suite green (baseline 1525 tests / 3877 assertions / 3 skipped).
+- [x] 3.1 Full unit suite green (baseline 1525 tests / 3877 assertions / 3 skipped). Green at 5227 tests, 13 skipped (#1328).
 - [x] 3.2 Re-measure PHPMD with the baseline deleted. Expect ~218 `StaticAccess`
       findings retired. **Measure the net** — constructor widening may add
       `ExcessiveParameterList` / `CouplingBetweenObjects` findings (Impact risk 1).

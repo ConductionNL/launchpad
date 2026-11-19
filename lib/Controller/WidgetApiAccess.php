@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ class WidgetApiAccess {
 	 * @param PermissionService $permissionService The permission service.
 	 * @param WidgetApiPolicy   $policy The role feature permission service and the logger.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		public readonly PermissionService $permissionService,

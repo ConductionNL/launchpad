@@ -15,7 +15,7 @@
  *
  * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
  * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-4
- * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ class ResponseHelper {
 	 *
 	 * @param LoggerInterface $logger Records the exceptions passed to error().
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
@@ -52,7 +52,7 @@ class ResponseHelper {
 	 * @return JSONResponse The unauthorized response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function unauthorized(): JSONResponse {
 		return new JSONResponse(
@@ -69,7 +69,7 @@ class ResponseHelper {
 	 * @return JSONResponse The forbidden response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function forbidden(
 		string $message = 'Access denied',
@@ -95,7 +95,7 @@ class ResponseHelper {
 	 * @return JSONResponse The error response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-4
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function error(
 		\Exception $exception,
@@ -129,7 +129,7 @@ class ResponseHelper {
 	 * @return JSONResponse The HTTP 409 Conflict response.
 	 *
 	 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-002-dashboard-count-enforcement
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function quotaExceeded(
 		QuotaExceededException $exception,
@@ -148,7 +148,7 @@ class ResponseHelper {
 	 * @return JSONResponse The 400 response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function invalidArgument(string $message): JSONResponse {
 		return new JSONResponse(
@@ -170,7 +170,7 @@ class ResponseHelper {
 	 * @return JSONResponse The success response.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function success(
 		array $data,
@@ -190,7 +190,7 @@ class ResponseHelper {
 	 * @return array The serialized entities.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function serializeList(array $entities): array {
 		$serialized = [];

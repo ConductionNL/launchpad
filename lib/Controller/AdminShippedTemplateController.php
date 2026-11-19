@@ -58,7 +58,7 @@ class AdminShippedTemplateController extends Controller {
 	 * @param RequestGuard $guard The administrator check.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -75,7 +75,7 @@ class AdminShippedTemplateController extends Controller {
 	 * @return JSONResponse The templates.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {

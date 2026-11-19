@@ -43,7 +43,7 @@ class AdminWidgetRulesController extends Controller {
 	 * @param ConditionalServiceInterface $conditionalService The conditional service.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -63,7 +63,7 @@ class AdminWidgetRulesController extends Controller {
 	 * @return JSONResponse The overview rows (placement + dashboard + counts).
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {

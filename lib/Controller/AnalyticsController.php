@@ -64,7 +64,7 @@ class AnalyticsController extends Controller {
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param AnalyticsContext $context Holds the userSession and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -84,7 +84,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function topDashboards(
@@ -118,7 +118,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function dashboardDetail(
@@ -152,7 +152,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function instanceSummary(string $period = '30d'): JSONResponse {
@@ -214,7 +214,7 @@ class AnalyticsController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		$check = new SessionActionCheck(userSession: $this->context->userSession, actionAuth: $this->actionAuth);

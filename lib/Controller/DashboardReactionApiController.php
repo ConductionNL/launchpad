@@ -66,7 +66,7 @@ class DashboardReactionApiController extends Controller {
 	 * @param ActionCaller  $caller The session and the action check.
 	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -86,7 +86,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse The summary.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getReactions(string $uuid): JSONResponse {
@@ -120,7 +120,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse The updated summary.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addReaction(string $uuid, string $emoji = ''): JSONResponse {
@@ -154,7 +154,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse Empty 204 response.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function removeReaction(string $uuid, string $emoji): JSONResponse {
@@ -195,7 +195,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse The reactors page.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getReactorsByEmoji(
@@ -251,7 +251,7 @@ class DashboardReactionApiController extends Controller {
 	 *
 	 * @return JSONResponse The error response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function reactionFailure(Throwable $exception, string $operation): JSONResponse {
 		if ($exception instanceof DoesNotExistException) {
@@ -278,7 +278,7 @@ class DashboardReactionApiController extends Controller {
 	 *
 	 * @return JSONResponse The error response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function addFailure(Throwable $exception): JSONResponse {
 		if ($exception instanceof DoesNotExistException || $exception instanceof PermissionDeniedException) {

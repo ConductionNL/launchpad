@@ -82,7 +82,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @param RequestGuard $guard The administrator check.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -104,7 +104,7 @@ class AdminOrgNavigationController extends Controller {
 	 *                      effective `language`.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
@@ -148,7 +148,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The persisted tree (unchanged) on success.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateOrgNavigation(
@@ -189,7 +189,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The current effective position.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getPosition(): JSONResponse {
@@ -213,7 +213,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The persisted position on success.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updatePosition(?string $position = null): JSONResponse {

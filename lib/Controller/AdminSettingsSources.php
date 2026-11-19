@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ class AdminSettingsSources {
 	 * @param AdminSettingsService           $settingsService Persisted-settings service.
 	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		public readonly AdminSettingsService $settingsService,

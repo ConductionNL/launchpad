@@ -89,7 +89,7 @@ class DashboardApiController extends Controller {
 	 * @param DashboardApiAccess $access Holds the permissionService and history.
 	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -110,7 +110,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The list of dashboards.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-17
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function list(): JSONResponse {
@@ -142,7 +142,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The visible dashboards.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
@@ -186,7 +186,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The active dashboard data.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
@@ -252,7 +252,7 @@ class DashboardApiController extends Controller {
 	 *                      `{'error': 'Not found'}` (404).
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-21
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function show(int $id): JSONResponse {
@@ -355,7 +355,7 @@ class DashboardApiController extends Controller {
 	 * @return array<int, array<string, mixed>> The crumbs.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function visibleBreadcrumbs(Dashboard $dashboard, string $userId): array {
 		$parent = $dashboard->getParentUuid();
@@ -458,7 +458,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyCreateRequest(): ?JSONResponse {
 		$denial = $this->denyCreate();
@@ -479,7 +479,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The created dashboard, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createFromParams(array $resolved): JSONResponse {
 		try {
@@ -505,7 +505,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return Dashboard The created dashboard.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createDashboardFrom(array $resolved): Dashboard {
 		return $this->services->dashboardService->createDashboard(
@@ -528,7 +528,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The 201 response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createdResponse(Dashboard $dashboard): JSONResponse {
 		$placements = $this->services->dashboardService->findPlacements(
@@ -675,7 +675,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
 	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyCustomCss(?string $customCss): ?JSONResponse {
 		if ($customCss === null || $this->services->dashboardService->isAdmin(userId: (string)$this->context->userId) === true) {
@@ -729,7 +729,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyUpdate(int $dashboardId, bool $metadataOnly): ?JSONResponse {
 		$refusal = $this->actionRefusal(action: 'dashboard.update');
@@ -756,7 +756,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return bool True when the update is allowed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayUpdate(int $dashboardId, bool $metadataOnly): bool {
 		if ($metadataOnly === true) {
@@ -784,7 +784,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated dashboard, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		try {
@@ -834,7 +834,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The deletion confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-20
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function delete(int $id): JSONResponse {
@@ -883,7 +883,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The nested tree.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function tree(): JSONResponse {
@@ -933,7 +933,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The dashboard payload, or a 404 envelope.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function byPath(string $path = ''): JSONResponse {
@@ -1008,7 +1008,7 @@ class DashboardApiController extends Controller {
 	 *                      client-side).
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function computePath(string $uuid = ''): JSONResponse {
@@ -1034,7 +1034,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The activated dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function activate(int $id): JSONResponse {
@@ -1067,7 +1067,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The list of group-shared dashboards.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function listGroup(string $groupId): JSONResponse {
@@ -1117,7 +1117,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The created dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createGroup(
@@ -1159,7 +1159,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The dashboard payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getGroup(
@@ -1233,7 +1233,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated dashboard, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function updateGroupDashboard(GroupDashboardTarget $target, array $patch): JSONResponse {
 		if ($this->context->userId === null) {
@@ -1260,7 +1260,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The mutation's answer, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function runGroupMutation(callable $mutation): JSONResponse {
 		try {
@@ -1280,7 +1280,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function dashboardResponse(Dashboard $dashboard): JSONResponse {
 		return $this->context->responseHelper->success(
@@ -1300,7 +1300,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The status payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteGroup(
@@ -1340,7 +1340,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The status payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function setGroupDefault(
@@ -1365,7 +1365,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function missingUuid(): JSONResponse {
 		return $this->context->responseHelper->error(
@@ -1383,7 +1383,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function markGroupDefault(GroupDashboardTarget $target): JSONResponse {
 		$this->services->dashboardService->setGroupDefault(
@@ -1415,7 +1415,7 @@ class DashboardApiController extends Controller {
 	 *                      when the session has no user.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setActiveDashboard(?string $uuid = null): JSONResponse {
@@ -1450,7 +1450,7 @@ class DashboardApiController extends Controller {
 	 *                      when the session has no user.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setDefaultDashboard(?string $uuid = null): JSONResponse {
@@ -1474,7 +1474,7 @@ class DashboardApiController extends Controller {
 	 *                      pin set; 401 when the session has no user.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getDefaultDashboard(): JSONResponse {
@@ -1521,7 +1521,7 @@ class DashboardApiController extends Controller {
 	 *                      appropriate error envelope.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function fork(
@@ -1544,7 +1544,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The fork, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function forkFor(string $uuid, ?string $name): JSONResponse {
 		try {
@@ -1592,7 +1592,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The error response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function forkFailure(\Throwable $throwable): JSONResponse {
 		return match (true) {
@@ -1611,7 +1611,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The 500 response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function internalForkError(\Throwable $throwable): JSONResponse {
 		$this->access->history->logger->error(
@@ -1640,7 +1640,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The updated dashboard payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
@@ -1665,7 +1665,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The updated dashboard payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function unpublish(string $uuid): JSONResponse {
@@ -1694,7 +1694,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The success response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function withQuota(array $serialized): JSONResponse {
 		if ($this->services->quotaService === null) {
@@ -1737,7 +1737,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The response.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function publicationResponse(\Closure $operation): JSONResponse {
 		try {
@@ -1762,7 +1762,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @see RequestActor::refusal()
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		return $this->context->actor->refusal(userId: $this->context->userId, action: $action);
@@ -1808,7 +1808,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated dashboard payload, or the refusal.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function scheduleDated(DashboardScheduleRequest $request): JSONResponse {
 		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
@@ -1827,7 +1827,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated dashboard payload, or the error.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function scheduled(DashboardScheduleRequest $request): JSONResponse {
 		try {
@@ -1848,7 +1848,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return Dashboard The scheduled dashboard.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function scheduleFor(DashboardScheduleRequest $request): Dashboard {
 		return $this->services->dashboardService->schedule(
@@ -1888,7 +1888,7 @@ class DashboardApiController extends Controller {
 	 *                      dashboard does not exist.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function viewEvent(string $uuid): JSONResponse {
@@ -1941,7 +1941,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The mapped error envelope.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mapPublicationError(\Exception $exception): JSONResponse {
 		if ($exception->getMessage() === DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
@@ -2063,7 +2063,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse|null Error response or null if allowed.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function checkCreatePermissions(string $userId): ?JSONResponse {
 		if ($this->access->permissionService->canCreateDashboard(
@@ -2164,7 +2164,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function captureAutomaticSnapshot(
 		\OCA\LaunchPad\Db\Dashboard $dashboard,

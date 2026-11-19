@@ -55,7 +55,7 @@ class DashboardMetadataController extends Controller {
 	 *                                             canWrite helpers — H5).
 	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -75,7 +75,7 @@ class DashboardMetadataController extends Controller {
 	 *                      403 when the caller cannot see the dashboard.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
@@ -115,7 +115,7 @@ class DashboardMetadataController extends Controller {
 	 * @return JSONResponse `{fields: [...]}`, or 401 without a login.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function fields(): JSONResponse {
@@ -141,7 +141,7 @@ class DashboardMetadataController extends Controller {
 	 *                      failure, 404 when missing, 403 otherwise.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
@@ -209,7 +209,7 @@ class DashboardMetadataController extends Controller {
 	 *
 	 * @see ActionCaller::refusal()
 	 *
-	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		return $this->caller->refusal(userId: $this->context->userId, action: $action);

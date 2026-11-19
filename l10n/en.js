@@ -1839,7 +1839,9 @@ OC.L10N.register(
     "Values read: {inputs}" : "Values read: {inputs}",
     "empty" : "empty",
     "Discussion" : "Discussion",
-    "No conversation linked to this dashboard yet" : "No conversation linked to this dashboard yet"
+    "No conversation linked to this dashboard yet" : "No conversation linked to this dashboard yet",
+    "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard." : "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.",
+    "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered." : "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1820,6 +1820,11 @@
         "Under Sharing you set who may share dashboards and with whom.": "Onder Delen stel je in wie dashboards mag delen en met wie.",
         "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports.",
         "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} bewerkt dit dashboard ook, sinds {time}. Je wijzigingen worden niet overschreven.",
-        "Who else is editing?": "Wie werkt er mee?"
+        "Who else is editing?": "Wie werkt er mee?",
+        "Opens in": "Opent in",
+        "As the dashboard decides": "Zoals het dashboard bepaalt",
+        "Panel beside the tiles": "Paneel naast de tegels",
+        "Web addresses in a new tab, apps in the same tab": "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+        "This address cannot open in the panel.": "Dit adres kan niet in het paneel openen."
     }
 }

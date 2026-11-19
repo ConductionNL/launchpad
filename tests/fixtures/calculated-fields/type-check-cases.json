@@ -1,0 +1,1460 @@
+{
+	"description": "Expressions parsed and type-checked by src/utils/calculatedFields (parser.js, typeChecker.js), generated from typeChecker.spec.js plus extra cases. The PHP type checker must give the same type or the same error envelope for every AST (REQ-CALC-002).",
+	"schema": {
+		"revenue": "number",
+		"cost": "integer",
+		"customerName": "string",
+		"active": "boolean",
+		"opened": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"closed": {
+			"type": "string",
+			"format": "date"
+		},
+		"lines": "array",
+		"notes": "object"
+	},
+	"calculatedTypes": {
+		"margin": "number"
+	},
+	"widgetSchemas": {
+		"w2": {
+			"total": "number"
+		}
+	},
+	"cases": [
+		{
+			"expression": "revenue - cost",
+			"ast": {
+				"type": "binary",
+				"op": "-",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "cost"
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "coalesce(null, revenue, 0)",
+			"ast": {
+				"type": "call",
+				"name": "coalesce",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 0
+					}
+				]
+			},
+			"type": "number"
+		},
+		{
+			"expression": "revenue > cost",
+			"ast": {
+				"type": "binary",
+				"op": ">",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "cost"
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "active and revenue > 0",
+			"ast": {
+				"type": "binary",
+				"op": "and",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				},
+				"right": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 0
+					}
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "not active",
+			"ast": {
+				"type": "unary",
+				"op": "not",
+				"operand": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "-revenue",
+			"ast": {
+				"type": "unary",
+				"op": "-",
+				"operand": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "if(revenue > 100, \"High\", \"Low\")",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 100
+					}
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "High"
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "Low"
+				}
+			},
+			"type": "string"
+		},
+		{
+			"expression": "if(active, null, 1)",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "null",
+					"value": null
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "concat(customerName, revenue)",
+			"ast": {
+				"type": "call",
+				"name": "concat",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "customerName"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "dateDiff(closed, opened, \"days\")",
+			"ast": {
+				"type": "call",
+				"name": "dateDiff",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "days"
+					}
+				]
+			},
+			"type": "number"
+		},
+		{
+			"expression": "dateAdd(opened, 1, \"days\")",
+			"ast": {
+				"type": "call",
+				"name": "dateAdd",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "days"
+					}
+				]
+			},
+			"type": "date"
+		},
+		{
+			"expression": "durationBetween(closed, opened)",
+			"ast": {
+				"type": "call",
+				"name": "durationBetween",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					}
+				]
+			},
+			"type": "duration"
+		},
+		{
+			"expression": "-durationBetween(closed, opened)",
+			"ast": {
+				"type": "unary",
+				"op": "-",
+				"operand": {
+					"type": "call",
+					"name": "durationBetween",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "closed"
+						},
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "opened"
+						}
+					]
+				}
+			},
+			"type": "duration"
+		},
+		{
+			"expression": "durationFormat(durationBetween(closed, opened))",
+			"ast": {
+				"type": "call",
+				"name": "durationFormat",
+				"args": [
+					{
+						"type": "call",
+						"name": "durationBetween",
+						"args": [
+							{
+								"type": "fieldRef",
+								"source": "self",
+								"path": "closed"
+							},
+							{
+								"type": "fieldRef",
+								"source": "self",
+								"path": "opened"
+							}
+						]
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "sum(lines)",
+			"ast": {
+				"type": "call",
+				"name": "sum",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines"
+					}
+				]
+			},
+			"type": "number"
+		},
+		{
+			"expression": "count(lines)",
+			"ast": {
+				"type": "call",
+				"name": "count",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines"
+					}
+				]
+			},
+			"type": "number"
+		},
+		{
+			"expression": "case(revenue > 10, \"a\", \"b\")",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "revenue"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 10
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "b"
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "ifNull(notes, 1)",
+			"ast": {
+				"type": "call",
+				"name": "ifNull",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "notes"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					}
+				]
+			},
+			"type": "any"
+		},
+		{
+			"expression": "null",
+			"ast": {
+				"type": "literal",
+				"valueType": "null",
+				"value": null
+			},
+			"type": "null"
+		},
+		{
+			"expression": "coalesce(null, null)",
+			"ast": {
+				"type": "call",
+				"name": "coalesce",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					},
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					}
+				]
+			},
+			"type": "null"
+		},
+		{
+			"expression": "toDate(customerName) > opened",
+			"ast": {
+				"type": "binary",
+				"op": ">",
+				"left": {
+					"type": "call",
+					"name": "toDate",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "customerName"
+						}
+					]
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "opened"
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "notes + 1",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "notes"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "unknownField * 2",
+			"ast": {
+				"type": "binary",
+				"op": "*",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "unknownField"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "revenue + customerName",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "customerName"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '+' to revenue (number) and customerName (string)",
+				"operands": [
+					"revenue",
+					"customerName"
+				]
+			}
+		},
+		{
+			"expression": "active and revenue",
+			"ast": {
+				"type": "binary",
+				"op": "and",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply 'and' to active (boolean) and revenue (number)",
+				"operands": [
+					"active",
+					"revenue"
+				]
+			}
+		},
+		{
+			"expression": "customerName == revenue",
+			"ast": {
+				"type": "binary",
+				"op": "==",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "customerName"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '==' to customerName (string) and revenue (number)",
+				"operands": [
+					"customerName",
+					"revenue"
+				]
+			}
+		},
+		{
+			"expression": "active < active",
+			"ast": {
+				"type": "binary",
+				"op": "<",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '<' to active (boolean) and active (boolean)",
+				"operands": [
+					"active",
+					"active"
+				]
+			}
+		},
+		{
+			"expression": "-customerName",
+			"ast": {
+				"type": "unary",
+				"op": "-",
+				"operand": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "customerName"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '-' to customerName (string)",
+				"operands": [
+					"customerName"
+				]
+			}
+		},
+		{
+			"expression": "not revenue",
+			"ast": {
+				"type": "unary",
+				"op": "not",
+				"operand": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply 'not' to revenue (number)",
+				"operands": [
+					"revenue"
+				]
+			}
+		},
+		{
+			"expression": "round(revenue, \"two\")",
+			"ast": {
+				"type": "call",
+				"name": "round",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "two"
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "round",
+				"argument": 2,
+				"message": "'round' argument 2 must be number, got \"two\" (string)"
+			}
+		},
+		{
+			"expression": "abs(\"hello\")",
+			"ast": {
+				"type": "call",
+				"name": "abs",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "hello"
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "abs",
+				"argument": 1,
+				"message": "'abs' argument 1 must be number, got \"hello\" (string)"
+			}
+		},
+		{
+			"expression": "upper(revenue)",
+			"ast": {
+				"type": "call",
+				"name": "upper",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "upper",
+				"argument": 1,
+				"message": "'upper' argument 1 must be string, got revenue (number)"
+			}
+		},
+		{
+			"expression": "count(revenue)",
+			"ast": {
+				"type": "call",
+				"name": "count",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "count",
+				"argument": 1,
+				"message": "'count' argument 1 must be list, got revenue (number)"
+			}
+		},
+		{
+			"expression": "case(revenue, 1, 2)",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "case",
+				"argument": 1,
+				"message": "'case' argument 1 must be boolean, got revenue (number)"
+			}
+		},
+		{
+			"expression": "sum(revenue, customerName)",
+			"ast": {
+				"type": "call",
+				"name": "sum",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "customerName"
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "sum",
+				"argument": 2,
+				"message": "'sum' argument 2 must be number or list, got customerName (string)"
+			}
+		},
+		{
+			"expression": "if(active, 1, \"one\")",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "one"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "The values 1 (number) and \"one\" (string) do not have the same type",
+				"operands": [
+					"1",
+					"\"one\""
+				]
+			}
+		},
+		{
+			"expression": "coalesce(revenue, customerName)",
+			"ast": {
+				"type": "call",
+				"name": "coalesce",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "customerName"
+					}
+				]
+			},
+			"error": {
+				"error": "typeError",
+				"message": "The values revenue (number) and customerName (string) do not have the same type",
+				"operands": [
+					"revenue",
+					"customerName"
+				]
+			}
+		},
+		{
+			"expression": "if(revenue, 1, 2)",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "The condition revenue must be boolean, got number",
+				"operands": [
+					"revenue"
+				]
+			}
+		},
+		{
+			"expression": "profit + 1",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "profit"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "widget:w2.total + \"x\"",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "fieldRef",
+					"source": "widget:w2",
+					"path": "total"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "x"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '+' to widget:w2.total (number) and \"x\" (string)",
+				"operands": [
+					"widget:w2.total",
+					"\"x\""
+				]
+			}
+		},
+		{
+			"expression": "ceil(revenue) % 2",
+			"ast": {
+				"type": "binary",
+				"op": "%",
+				"left": {
+					"type": "call",
+					"name": "ceil",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "revenue"
+						}
+					]
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "min(lines, revenue)",
+			"ast": {
+				"type": "call",
+				"name": "min",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					}
+				]
+			},
+			"type": "number"
+		},
+		{
+			"expression": "avgIf(lines, lines, 1)",
+			"ast": {
+				"type": "call",
+				"name": "avgIf",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					}
+				]
+			},
+			"type": "number"
+		},
+		{
+			"expression": "durationFormat(durationBetween(opened, closed), \"d\")",
+			"ast": {
+				"type": "call",
+				"name": "durationFormat",
+				"args": [
+					{
+						"type": "call",
+						"name": "durationBetween",
+						"args": [
+							{
+								"type": "fieldRef",
+								"source": "self",
+								"path": "opened"
+							},
+							{
+								"type": "fieldRef",
+								"source": "self",
+								"path": "closed"
+							}
+						]
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "d"
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "-durationBetween(opened, closed)",
+			"ast": {
+				"type": "unary",
+				"op": "-",
+				"operand": {
+					"type": "call",
+					"name": "durationBetween",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "opened"
+						},
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "closed"
+						}
+					]
+				}
+			},
+			"type": "duration"
+		},
+		{
+			"expression": "formatDate(today(), \"yyyy-MM-dd\")",
+			"ast": {
+				"type": "call",
+				"name": "formatDate",
+				"args": [
+					{
+						"type": "call",
+						"name": "today",
+						"args": []
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "yyyy-MM-dd"
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "parseDate(\"2026\", \"yyyy\") < now()",
+			"ast": {
+				"type": "binary",
+				"op": "<",
+				"left": {
+					"type": "call",
+					"name": "parseDate",
+					"args": [
+						{
+							"type": "literal",
+							"valueType": "string",
+							"value": "2026"
+						},
+						{
+							"type": "literal",
+							"valueType": "string",
+							"value": "yyyy"
+						}
+					]
+				},
+				"right": {
+					"type": "call",
+					"name": "now",
+					"args": []
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "closed >= opened",
+			"ast": {
+				"type": "binary",
+				"op": ">=",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "closed"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "opened"
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "toBool(notes) or active",
+			"ast": {
+				"type": "binary",
+				"op": "or",
+				"left": {
+					"type": "call",
+					"name": "toBool",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "notes"
+						}
+					]
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "case(active, \"a\", revenue > 1, \"b\", \"c\")",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "active"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					},
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "revenue"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 1
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "b"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "c"
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "case(active, \"a\", revenue > 1, 2)",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "active"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					},
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "revenue"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 1
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				]
+			},
+			"error": {
+				"error": "typeError",
+				"message": "The values \"a\" (string) and 2 (number) do not have the same type",
+				"operands": [
+					"\"a\"",
+					"2"
+				]
+			}
+		},
+		{
+			"expression": "ifNull(null, null)",
+			"ast": {
+				"type": "call",
+				"name": "ifNull",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					},
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					}
+				]
+			},
+			"type": "null"
+		},
+		{
+			"expression": "replace(customerName, \"a\", revenue)",
+			"ast": {
+				"type": "call",
+				"name": "replace",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "customerName"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					}
+				]
+			},
+			"error": {
+				"error": "functionSignature",
+				"name": "replace",
+				"argument": 3,
+				"message": "'replace' argument 3 must be string, got revenue (number)"
+			}
+		},
+		{
+			"expression": "format(\"{0}\", revenue, active)",
+			"ast": {
+				"type": "call",
+				"name": "format",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "{0}"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "active"
+					}
+				]
+			},
+			"type": "string"
+		},
+		{
+			"expression": "log(revenue, 10) / sqrt(cost)",
+			"ast": {
+				"type": "binary",
+				"op": "/",
+				"left": {
+					"type": "call",
+					"name": "log",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "revenue"
+						},
+						{
+							"type": "literal",
+							"valueType": "number",
+							"value": 10
+						}
+					]
+				},
+				"right": {
+					"type": "call",
+					"name": "sqrt",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "cost"
+						}
+					]
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "if(null, 1, null)",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "literal",
+					"valueType": "null",
+					"value": null
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "null",
+					"value": null
+				}
+			},
+			"type": "number"
+		},
+		{
+			"expression": "contains(customerName, \"x\") == active",
+			"ast": {
+				"type": "binary",
+				"op": "==",
+				"left": {
+					"type": "call",
+					"name": "contains",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "customerName"
+						},
+						{
+							"type": "literal",
+							"valueType": "string",
+							"value": "x"
+						}
+					]
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "active"
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "opened == customerName",
+			"ast": {
+				"type": "binary",
+				"op": "==",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "opened"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "customerName"
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '==' to opened (date) and customerName (string)",
+				"operands": [
+					"opened",
+					"customerName"
+				]
+			}
+		},
+		{
+			"expression": "revenue != null",
+			"ast": {
+				"type": "binary",
+				"op": "!=",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "null",
+					"value": null
+				}
+			},
+			"type": "boolean"
+		},
+		{
+			"expression": "toDate(customerName) < toNumber(active)",
+			"ast": {
+				"type": "binary",
+				"op": "<",
+				"left": {
+					"type": "call",
+					"name": "toDate",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "customerName"
+						}
+					]
+				},
+				"right": {
+					"type": "call",
+					"name": "toNumber",
+					"args": [
+						{
+							"type": "fieldRef",
+							"source": "self",
+							"path": "active"
+						}
+					]
+				}
+			},
+			"error": {
+				"error": "typeError",
+				"message": "Cannot apply '<' to toDate(…) (date) and toNumber(…) (number)",
+				"operands": [
+					"toDate(…)",
+					"toNumber(…)"
+				]
+			}
+		}
+	]
+}

@@ -322,3 +322,18 @@ The start page MUST show a "Sign in" button that opens the login form with `dire
 - **WHEN** he clicks "Sign in"
 - **THEN** the login form opens at `/login?direct=1`
 - **AND** after signing in he lands on his Workspace page
+
+#### Scenario: LaunchPad is the default app after install
+
+- **GIVEN** the administrator has not set a default app (`defaultapp` is empty)
+- **WHEN** LaunchPad is installed
+- **THEN** LaunchPad sets Nextcloud's `defaultapp` to `launchpad`, so signing in lands on the Workspace page
+- **AND** when a default app is already set, LaunchPad keeps it
+
+#### Scenario: The administrator switches it off
+
+- **GIVEN** LaunchPad set itself as the default app
+- **WHEN** the administrator switches off "Open LaunchPad after signing in" in the admin settings (`defaultAppEnabled`, on by default)
+- **THEN** LaunchPad unsets `defaultapp`, so Nextcloud's own default applies again
+- **AND** when the administrator chose another default app in the meantime, that choice is kept
+- **AND** switching it back on sets LaunchPad again only when no default app is set

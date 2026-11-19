@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.7-unstable.20261005190000",
+        "version": "1.1.7-unstable.20261114090000",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -9938,7 +9938,7 @@
                 "operationId": "widget-api-update-placement",
                 "x-launchpad-stability": "public",
                 "summary": "Update a widget placement",
-                "description": "Update a widget placement. Needs a signed-in Nextcloud user.",
+                "description": "Update a widget placement. Needs a signed-in Nextcloud user. A body with `calculatedFields` is checked first (structure, allowed functions, argument counts, types, cycles across the dashboard) and refused with 400 and a `CalculatedFieldError` when a field fails; the stored fields come back with `returnType` set. Server-mode fields are then written to the widget's OpenRegister source schema as read-only calculated properties.",
                 "tags": [
                     "widget-api"
                 ],
@@ -9963,12 +9963,59 @@
                         },
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "object",
+                                    "description": "The updated placement.",
+                                    "properties": {
+                                        "calculatedFields": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CalculatedField"
+                                            }
+                                        },
+                                        "warnings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CalculatedFieldWarning"
+                                            },
+                                            "description": "Present when a calculated field was saved differently from how it was sent."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "A calculated field was refused.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CalculatedFieldError"
+                                }
                             }
                         }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "description": "The placement fields to change.",
+                                "properties": {
+                                    "calculatedFields": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/CalculatedField"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -9976,7 +10023,7 @@
                 "operationId": "widget-api-remove-placement",
                 "x-launchpad-stability": "public",
                 "summary": "Remove a widget placement",
-                "description": "Remove a widget placement. Needs a signed-in Nextcloud user.",
+                "description": "Remove a widget placement. Needs a signed-in Nextcloud user. The calculated properties its server-mode fields own on the OpenRegister source schema are removed with it; when OpenRegister refuses, the placement is still removed and `warnings` says so.",
                 "tags": [
                     "widget-api"
                 ],
@@ -10001,7 +10048,21 @@
                         },
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "warnings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CalculatedFieldWarning"
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
@@ -10699,6 +10760,137 @@
                     "status"
                 ],
                 "additionalProperties": true
+            },
+            "CalculatedField": {
+                "type": "object",
+                "description": "A calculated field of a widget placement: a formula over the widget's data, other calculated fields and other widgets on the dashboard, stored as its source text and its compiled AST.",
+                "required": [
+                    "name",
+                    "compiledExpression"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The field's id."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The identifier other fields reference it by; unique on the widget."
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "The column or series label."
+                    },
+                    "expression": {
+                        "type": "string",
+                        "description": "The formula as written, e.g. `(revenue - refunds) / revenue * 100`."
+                    },
+                    "compiledExpression": {
+                        "type": "object",
+                        "description": "The AST the editor's parser produced: nodes `literal`, `fieldRef` (`source` is `self` or `widget:<id>`), `calculatedRef`, `binary`, `unary`, `if` and `call`. The server checks it rather than re-parsing the text."
+                    },
+                    "returnType": {
+                        "type": "string",
+                        "enum": [
+                            "number",
+                            "string",
+                            "boolean",
+                            "date",
+                            "duration",
+                            "null"
+                        ],
+                        "description": "Set by the server's type check on save.",
+                        "readOnly": true
+                    },
+                    "evaluationMode": {
+                        "type": "string",
+                        "enum": [
+                            "client",
+                            "server",
+                            "both"
+                        ],
+                        "default": "client",
+                        "description": "`client` evaluates in the browser; `server` and `both` also materialise the value on the widget's OpenRegister source schema."
+                    },
+                    "serverComputedFieldId": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "The key of the calculated property on the source schema (`launchpad_<placement>__<name>`), null when the field is not materialised."
+                    },
+                    "formatOptions": {
+                        "type": "object",
+                        "description": "Display formatting (number, date or duration), applied when the value is rendered only."
+                    }
+                }
+            },
+            "CalculatedFieldError": {
+                "type": "object",
+                "description": "Why a placement's calculated fields were refused; nothing is saved.",
+                "required": [
+                    "error",
+                    "message"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "enum": [
+                            "invalidField",
+                            "invalidExpression",
+                            "duplicateField",
+                            "unknownFunction",
+                            "functionNotAllowed",
+                            "arityMismatch",
+                            "functionSignature",
+                            "typeError",
+                            "cycleDetected"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "field": {
+                        "type": "string",
+                        "description": "The field the error is about."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The function, for function errors."
+                    },
+                    "cycle": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "For `cycleDetected`: the cycle as `<widget>.<field>`, first node repeated at the end."
+                    },
+                    "widgets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "For `cycleDetected`: the widgets in the cycle."
+                    }
+                }
+            },
+            "CalculatedFieldWarning": {
+                "type": "object",
+                "description": "A save that went through with a change: a server-mode field stored as a client field (`downgraded_evaluation_mode`: it reads another register or schema, OpenRegister cannot evaluate it alike, or the source schema could not be updated), or calculated properties left on the schema of a removed widget (`server_fields_not_removed`).",
+                "properties": {
+                    "warning": {
+                        "type": "string",
+                        "enum": [
+                            "downgraded_evaluation_mode",
+                            "server_fields_not_removed"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                }
             }
         },
         "responses": {

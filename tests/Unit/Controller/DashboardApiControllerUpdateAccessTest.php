@@ -80,10 +80,11 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 * @param string|null $userId     The injected session user id.
 	 * @param string      $allowed    The only user the permission doubles allow.
 	 * @param bool        $denyAction Whether the action check refuses.
+	 * @param array       $body       Extra request parameters by name.
 	 *
 	 * @return DashboardApiController
 	 */
-	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false): DashboardApiController {
+	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false, array $body=[]): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
 			$user = $this->createMock(IUser::class);
@@ -122,7 +123,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		);
 
 		$request = $this->createMock(IRequest::class);
-		$request->method('getParam')->willReturnCallback(static fn (string $key) => $key === 'userId' ? 'alice' : null);
+		$request->method('getParam')->willReturnCallback(static fn (string $key) => $key === 'userId' ? 'alice' : ($body[$key] ?? null));
 
 		return new DashboardApiController(
 			request: $request,
@@ -192,6 +193,45 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		$this->assertSame([['canEditDashboardMetadata', 'alice', 7]], $this->asked);
 		$this->assertSame([[7, 'alice']], $this->saved);
 	}//end testMetadataUpdateAsksTheMetadataPermission()
+
+	/**
+	 * Changing how tiles open is a dashboard edit: it asks the full edit
+	 * permission, and a user who only may edit metadata is refused.
+	 *
+	 * @return void
+	 */
+	public function testLinkTargetUpdateAsksTheFullEditPermission(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['defaultLinkTarget' => 'side-panel'])->update(id: 7);
+
+		$this->assertSame(200, $response->getStatus());
+		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked);
+		$this->assertSame([[7, 'alice']], $this->saved);
+	}//end testLinkTargetUpdateAsksTheFullEditPermission()
+
+	/**
+	 * A link target change by a user without edit permission answers 403 and saves nothing.
+	 *
+	 * @return void
+	 */
+	public function testLinkTargetUpdateWithoutEditPermissionIsForbidden(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', allowed: 'bob', body: ['defaultLinkTarget' => ''])->update(id: 7, name: 'x');
+
+		$this->assertSame(403, $response->getStatus());
+		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked);
+		$this->assertSame([], $this->saved);
+	}//end testLinkTargetUpdateWithoutEditPermissionIsForbidden()
+
+	/**
+	 * A non-string link target is ignored, so the update stays metadata-only.
+	 *
+	 * @return void
+	 */
+	public function testNonStringLinkTargetKeepsTheUpdateMetadataOnly(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['defaultLinkTarget' => ['side-panel']])->update(id: 7, name: 'x');
+
+		$this->assertSame(200, $response->getStatus());
+		$this->assertSame([['canEditDashboardMetadata', 'alice', 7]], $this->asked);
+	}//end testNonStringLinkTargetKeepsTheUpdateMetadataOnly()
 
 	/**
 	 * A placement update asks the full edit permission for the acting user.

@@ -89,6 +89,8 @@ class AdminSettingsServiceTest extends TestCase {
 				// engagement-announcements D6: no editor groups until one is chosen.
 				'announcementEditorGroups' => [],
 				'pinnedCommunities' => [],
+				// REQ-PSP-003: LaunchPad is the default app until switched off.
+				'defaultAppEnabled' => true,
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -184,7 +186,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('filterTelemetryEnabled', $settings);
 				// engagement-communities REQ-COMM-003.
 		$this->assertArrayHasKey('pinnedCommunities', $settings);
-		$this->assertCount(19, $settings);
+		// REQ-PSP-003.
+		$this->assertArrayHasKey('defaultAppEnabled', $settings);
+		$this->assertCount(20, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

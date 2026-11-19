@@ -1889,7 +1889,12 @@ OC.L10N.register(
     "Active filters" : "Actieve filters",
     "Pinned filter" : "Vastgezet filter",
     "Remove filter: {label}" : "Filter verwijderen: {label}",
-    "Reset filters" : "Filters wissen"
+    "Reset filters" : "Filters wissen",
+    "Opens in" : "Opent in",
+    "As the dashboard decides" : "Zoals het dashboard bepaalt",
+    "Panel beside the tiles" : "Paneel naast de tegels",
+    "Web addresses in a new tab, apps in the same tab" : "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+    "This address cannot open in the panel." : "Dit adres kan niet in het paneel openen."
 },
 "nplurals=2; plural=(n != 1);"
 );

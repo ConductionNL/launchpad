@@ -443,6 +443,7 @@ class AdminController extends Controller {
 	 * @param bool|null  $filterTelemetryEnabled   Org-level filter telemetry opt-in (drill-down-cross-widget-filter REQ-CWF-010).
 	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
 	 *                                      communities, at most 20 (REQ-COMM-003).
+	 * @param bool|null  $defaultAppEnabled LaunchPad is the default app after sign-in (REQ-PSP-003).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -473,6 +474,7 @@ class AdminController extends Controller {
 		array|null $announcementEditorGroups = null,
 		bool|null $filterTelemetryEnabled = null,
 		array|null $pinnedCommunities = null,
+		bool|null $defaultAppEnabled = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -503,6 +505,7 @@ class AdminController extends Controller {
 					'announcementEditorGroups'    => $announcementEditorGroups,
 					'filterTelemetryEnabled'      => $filterTelemetryEnabled,
 					'pinnedCommunities'           => $pinnedCommunities,
+					'defaultAppEnabled'           => $defaultAppEnabled,
 				]
 			);
 

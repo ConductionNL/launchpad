@@ -81,7 +81,10 @@ class McpSharingToolsTest extends TestCase {
 		$share->setShareType('group');
 		$share->setShareWith('sales');
 		$this->shares->expects($this->once())->method('listShares')->willReturnCallback(
-			callback: static fn (int $dashboardId, string $userId): array => ($dashboardId === 4 && $userId === 'alice') ? [$share] : []
+			callback: static fn (int $dashboardId, string $userId): array => match (true) {
+				$dashboardId === 4 && $userId === 'alice' => [$share],
+				default => [],
+			}
 		);
 
 		$this->assertSame(expected: ['items' => [$share->jsonSerialize()]], actual: $this->tools()->listShares(args: ['dashboardId' => 4]));
@@ -122,7 +125,10 @@ class McpSharingToolsTest extends TestCase {
 		$playlist = new KioskPlaylist();
 		$playlist->setName('Lobby');
 		$this->kiosk->expects($this->once())->method('listPlaylists')->willReturnCallback(
-			callback: static fn (string $callerId): array => ($callerId === 'alice') ? [$playlist] : []
+			callback: static fn (string $callerId): array => match ($callerId) {
+				'alice' => [$playlist],
+				default => [],
+			}
 		);
 
 		$this->assertSame(expected: ['items' => [$playlist->jsonSerialize()]], actual: $this->tools()->listKioskPlaylists(args: []));

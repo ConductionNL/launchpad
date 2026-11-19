@@ -73,7 +73,10 @@ class McpDashboardDetailToolsTest extends TestCase {
 	 */
 	private function allow(string $allowed): void {
 		$this->gate->method('requireAction')->willReturnCallback(
-			callback: static fn (string $action): ?array => ($action === $allowed) ? null : McpArgumentValidator::error(code: 'forbidden', message: $action)
+			callback: static fn (string $action): ?array => match ($action) {
+				$allowed => null,
+				default => McpArgumentValidator::error(code: 'forbidden', message: $action),
+			}
 		);
 	}//end allow()
 
@@ -87,7 +90,10 @@ class McpDashboardDetailToolsTest extends TestCase {
 		$dashboard->setId(9);
 		$dashboard->setUuid(self::UUID);
 		$this->dashboards->method('findByUuid')->willReturnCallback(
-			callback: static fn (string $uuid): Dashboard => ($uuid === self::UUID) ? $dashboard : throw new DoesNotExistException('none')
+			callback: static fn (string $uuid): Dashboard => match ($uuid) {
+				self::UUID => $dashboard,
+				default => throw new DoesNotExistException('none'),
+			}
 		);
 		return $dashboard;
 	}//end found()
@@ -102,7 +108,10 @@ class McpDashboardDetailToolsTest extends TestCase {
 		$dashboard = $this->found();
 		$versions  = $this->createMock(originalClassName: DashboardVersionService::class);
 		$versions->method('listVersions')->willReturnCallback(
-			callback: static fn (Dashboard $asked, string $requestingUser): array => ($asked === $dashboard && $requestingUser === 'alice') ? ['versions' => [1]] : []
+			callback: static fn (Dashboard $asked, string $requestingUser): array => match (true) {
+				$asked === $dashboard && $requestingUser === 'alice' => ['versions' => [1]],
+				default => [],
+			}
 		);
 		$tools = new McpHistoryTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, versions: $versions);
 
@@ -134,7 +143,12 @@ class McpDashboardDetailToolsTest extends TestCase {
 	public function testGetDashboardMetadataForAVisibleDashboard(): void {
 		$this->allow(allowed: 'dashboard-metadata.get-metadata');
 		$this->found();
-		$this->gate->method('requireView')->willReturnCallback(callback: static fn (int $dashboardId): ?array => ($dashboardId === 9) ? null : ['isError' => true]);
+		$this->gate->method('requireView')->willReturnCallback(
+			callback: static fn (int $dashboardId): ?array => match ($dashboardId) {
+				9 => null,
+				default => ['isError' => true],
+			}
+		);
 		$metadata = $this->createMock(originalClassName: MetadataService::class);
 		$metadata->method('getMetadataForDashboard')->willReturn(['owner' => 'Team A']);
 		$tools = new McpMetadataTools(gate: $this->gate, validator: new McpArgumentValidator(), dashboards: $this->dashboards, metadata: $metadata);
@@ -172,7 +186,12 @@ class McpDashboardDetailToolsTest extends TestCase {
 		);
 		$acknowledgements = $this->createMock(originalClassName: AcknowledgementService::class);
 		$acknowledgements->method('getPending')->willReturnCallback(callback: static fn (string $userId): array => ['items' => [$userId]]);
-		$tools = new McpEngagementTools(gate: $this->gate, validator: new McpArgumentValidator(), reactions: $reactions, acknowledgements: $acknowledgements);
+		$tools = new McpEngagementTools(
+			gate: $this->gate,
+			validator: new McpArgumentValidator(),
+			reactions: $reactions,
+			acknowledgements: $acknowledgements
+		);
 
 		$this->assertSame(
 			expected: ['counts' => ['👍' => 2], 'mine' => ['alice'], 'for' => self::UUID],

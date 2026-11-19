@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Mcp;
 
 use InvalidArgumentException;
-use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Exception\ResourceException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Throwable;
 
@@ -191,8 +191,9 @@ class McpArgumentValidator {
 	}//end refuse()
 
 	/**
-	 * The error envelope for an exception a service threw. A missing or
-	 * forbidden target is named; any other failure stays generic, so no raw
+	 * The error envelope for an exception a service threw. A missing target,
+	 * a refused argument and the app's own resource exceptions (forbidden,
+	 * not found, ...) are named; any other failure stays generic, so no raw
 	 * exception message reaches the agent.
 	 *
 	 * @param Throwable $exception The failure.
@@ -204,7 +205,7 @@ class McpArgumentValidator {
 	public function failure(Throwable $exception): array {
 		return match (true) {
 			$exception instanceof DoesNotExistException => self::error(code: 'not_found', message: 'The target does not exist.'),
-			$exception instanceof ForbiddenException => self::error(code: 'forbidden', message: 'You may not do this.'),
+			$exception instanceof ResourceException => self::error(code: $exception->getErrorCode(), message: $exception->getDisplayMessage()),
 			$exception instanceof InvalidArgumentException => self::error(code: 'invalid_arguments', message: $exception->getMessage()),
 			default => self::error(code: 'failed', message: 'The operation failed.'),
 		};

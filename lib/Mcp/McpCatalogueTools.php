@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\DashboardTreeService;
 
 /**
  * The dashboard tree and template gallery read tools.
@@ -41,14 +41,14 @@ class McpCatalogueTools {
 	 * Constructor.
 	 *
 	 * @param McpDashboardGate     $gate       The caller and the ADR-023 action check.
-	 * @param DashboardService     $dashboards The visible set `GET /api/dashboards/tree` filters by.
-	 * @param DashboardTreeService $tree       The tree `GET /api/dashboards/tree` builds.
-	 * @param AdminTemplateService $templates  The gallery `GET /api/templates/gallery` lists.
+	 * @param DashboardApiServices $services  The dashboard service, whose visible set `GET /api/dashboards/tree` filters by.
+	 * @param DashboardApiHistory  $history   The tree service `GET /api/dashboards/tree` builds with.
+	 * @param AdminTemplateService $templates The gallery `GET /api/templates/gallery` lists.
 	 */
 	public function __construct(
 		private readonly McpDashboardGate $gate,
-		private readonly DashboardService $dashboards,
-		private readonly DashboardTreeService $tree,
+		private readonly DashboardApiServices $services,
+		private readonly DashboardApiHistory $history,
 		private readonly AdminTemplateService $templates,
 	) {
 	}//end __construct()
@@ -60,6 +60,8 @@ class McpCatalogueTools {
 	 *
 	 * @return array<string, mixed>
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The provider passes every tool its arguments.
+	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function getDashboardTree(array $args): array {
@@ -69,14 +71,14 @@ class McpCatalogueTools {
 		}
 
 		$visibleUuids = [];
-		foreach ($this->dashboards->getVisibleToUser(userId: $this->gate->currentUserId()) as $entry) {
+		foreach ($this->services->dashboardService->getVisibleToUser(userId: $this->gate->currentUserId()) as $entry) {
 			$uuid = $entry['dashboard']->getUuid();
 			if ($uuid !== null && $uuid !== '') {
 				$visibleUuids[$uuid] = true;
 			}
 		}
 
-		return ['tree' => $this->tree->getFilteredTree(visibleUuids: $visibleUuids)];
+		return ['tree' => $this->history->treeService->getFilteredTree(visibleUuids: $visibleUuids)];
 	}//end getDashboardTree()
 
 	/**

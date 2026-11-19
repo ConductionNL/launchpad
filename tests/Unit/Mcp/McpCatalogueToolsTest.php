@@ -13,13 +13,18 @@ declare(strict_types=1);
 
 namespace Unit\Mcp;
 
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\McpCatalogueTools;
 use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\DashboardVersionService;
+use Psr\Log\NullLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -71,7 +76,17 @@ class McpCatalogueToolsTest extends TestCase {
 	 * @return McpCatalogueTools
 	 */
 	private function tools(): McpCatalogueTools {
-		return new McpCatalogueTools(gate: $this->gate, dashboards: $this->dashboards, tree: $this->tree, templates: $this->templates);
+		return new McpCatalogueTools(
+			gate: $this->gate,
+			services: new DashboardApiServices(dashboardService: $this->dashboards),
+			history: new DashboardApiHistory(
+				treeService: $this->tree,
+				versionService: $this->createMock(originalClassName: DashboardVersionService::class),
+				analyticsService: $this->createMock(originalClassName: AnalyticsServiceInterface::class),
+				logger: new NullLogger()
+			),
+			templates: $this->templates
+		);
 	}//end tools()
 
 	/**
@@ -94,13 +109,19 @@ class McpCatalogueToolsTest extends TestCase {
 	 */
 	public function testTheTreeIsFilteredToTheVisibleSet(): void {
 		$this->gate->expects($this->once())->method('requireAction')->willReturnCallback(
-			callback: static fn (string $action): ?array => ($action === 'dashboard.tree') ? null : ['isError' => true]
+			callback: static fn (string $action): ?array => match ($action) {
+				'dashboard.tree' => null,
+				default => ['isError' => true],
+			}
 		);
 		$this->dashboards->method('getVisibleToUser')->willReturnCallback(
-			callback: static fn (string $userId): array => ($userId === 'alice') ? [
-				['dashboard' => self::dashboard(uuid: 'a'), 'source' => 'own'],
-				['dashboard' => self::dashboard(uuid: 'b'), 'source' => 'group'],
-			] : []
+			callback: static fn (string $userId): array => match ($userId) {
+				'alice' => [
+					['dashboard' => self::dashboard(uuid: 'a'), 'source' => 'own'],
+					['dashboard' => self::dashboard(uuid: 'b'), 'source' => 'group'],
+			],
+				default => [],
+			}
 		);
 		$seen = null;
 		$this->tree->method('getFilteredTree')->willReturnCallback(

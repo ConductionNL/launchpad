@@ -20,6 +20,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 1.5 `dashboard-public-share`: 38 scenarios, 25 cited. In progress 2026-09-11.
 - [ ] 1.6 `dashboard-sharing`: 34 scenarios, 10 cited. In progress 2026-09-11. Supersedes `add-dashboard-sharing-e2e-coverage`.
 - [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
+  - Spec written: `tests/e2e/role-feature-permissions.spec.ts` (helpers in `tests/e2e/fixtures/role-feature-permissions.ts`), 27 scenarios cited, not yet run (cloud, 2026-11-19)
 - [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
 
 ## 2. Tier 1, data integrity
@@ -43,7 +44,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-quota-limits.spec.ts, 20 scenarios cited, not yet run (cloud, 2026-11-19). 4 excluded with a reason.
 - [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/legacy-widget-bridge.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.
+  - Spec written: openspec/specs/launchpad-compliance-audit-panel/spec.md (no e2e file; never built), 0 scenarios cited, not yet run (cloud, 2026-11-19). 18 excluded as never built.
 - [ ] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
 
 ## 3. Tier 2, core surfaces
@@ -100,7 +103,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/files-widget.spec.ts`, `files-widget-listing.spec.ts`, `files-widget-navigation.spec.ts`, `files-widget-actions.spec.ts`, `files-widget-access.spec.ts`; 6 scenarios excluded with reasons, 51 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
+  - Spec written: `tests/e2e/header-widget.spec.ts`, `header-widget-content.spec.ts`, `header-widget-a11y.spec.ts`, `header-widget-form.spec.ts`; 7 scenarios excluded with reasons, 49 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/calendar-widget.spec.ts`, `calendar-widget-sources.spec.ts`, `calendar-widget-rendering.spec.ts`, `calendar-widget-config.spec.ts`; 13 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.6 `links-widget`: 52 scenarios, 0 cited.
 - [ ] 4.7 `video-widget`: 51 scenarios, 0 cited.
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
@@ -117,6 +122,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
 - [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
+  - Spec written: tests/e2e/live-data-tile-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with a reason
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
 - [ ] 4.21 `label-widget`: 12 scenarios, 11 cited.
   - Spec written: tests/e2e/label-widget-content-edit.spec.ts, 1 scenarios cited, not yet run (cloud, 2026-11-19)

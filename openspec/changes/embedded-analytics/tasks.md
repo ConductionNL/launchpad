@@ -168,14 +168,14 @@
 
 ## JS-SDK
 
-- [ ] Task 19: Create `@launchpad/embed-sdk` package structure:
+- [x] Task 19: Create `@launchpad/embed-sdk` package structure:
   - `src/LaunchPadEmbed.js` — main entry point (render, on, off, resize methods)
   - `src/postMessage.js` — Origin verification + handshake helpers
   - `src/types.ts` — TypeScript definitions (EmbedConfig, EmbedInstance, event types)
   - `dist/embed-sdk.esm.js` (ESM build)
   - `dist/embed-sdk.umd.js` (UMD build)
   - `package.json` with exports, version matching app version
-  > Built under `src/embed-sdk/`: `package.json` (`@launchpad/embed-sdk`, version of the app), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. Left: the `dist/` ESM and UMD builds, which belong to the publish workflow of Task 24.
+  > Built under `src/embed-sdk/`: `package.json` (`@launchpad/embed-sdk`, version of the app), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. `npm run build:embed-sdk` (`src/embed-sdk/webpack.config.cjs`) builds `dist/embed-sdk.esm.js` and `dist/embed-sdk.umd.js` (global `LaunchPadEmbed`); `dist/` is not committed. Test: `src/embed-sdk/__tests__/dist.spec.js` (3) builds both and loads each.
 
 - [x] Task 20: Implement `LaunchPadEmbed.render(container, config)` (REQ-EMB-006):
   - Accept: `{token, subjectType, subjectId, tenantThemeId (optional)}`

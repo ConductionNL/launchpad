@@ -10,6 +10,7 @@
 	},
 	"scripts": {
 		"build": "webpack --config webpack.config.js --progress --mode production",
+		"build:embed-sdk": "webpack --config src/embed-sdk/webpack.config.cjs",
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
 		"check:schema-l10n": "node scripts/check-schema-l10n.js",

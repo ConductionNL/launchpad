@@ -112,6 +112,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.7 `video-widget`: 51 scenarios, 0 cited.
   - Spec written: `tests/e2e/video-widget.spec.ts`, `video-widget-files.spec.ts` (with `fixtures/tiny.webm`); 18 scenarios excluded with reasons, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
+  - Spec written: `tests/e2e/link-button-widget.spec.ts`, `link-button-widget-list.spec.ts`, `link-button-widget-form.spec.ts`; 3 scenarios excluded with reasons, 48 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
   - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)

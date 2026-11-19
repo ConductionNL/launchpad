@@ -1362,6 +1362,25 @@
         "Statistics": "Statistika",
         "Count my visits": "Skaičiuoti mano apsilankymus",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kai tai išjungta, jūsų apsilankymai skydeliuose ir paspaudimai ant plytelių neįskaičiuojami į peržiūrų skaičių.",
-        "Your choice could not be saved.": "Nepavyko išsaugoti jūsų pasirinkimo."
+        "Your choice could not be saved.": "Nepavyko išsaugoti jūsų pasirinkimo.",
+        "%1$s asked for the app **%2$s**": "%1$s paprašė programos **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s paprašė programos %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Patvirtinkite arba atmeskite ją LaunchPad administravimo nustatymų skiltyje „Programų katalogas“",
+        "**%1$s** is now in the app catalogue": "**%1$s** dabar yra programų kataloge",
+        "%1$s is now in the app catalogue": "%1$s dabar yra programų kataloge",
+        "Add it as a tile from Add on your dashboard": "Pridėkite ją kaip plytelę savo valdymo skyde per „Pridėti“",
+        "Your request for **%1$s** was declined: %2$s": "Jūsų užklausa dėl **%1$s** atmesta: %2$s",
+        "Your request for %1$s was declined: %2$s": "Jūsų užklausa dėl %1$s atmesta: %2$s",
+        "An administrator decided on your request in the app catalogue": "Administratorius priėmė sprendimą dėl jūsų užklausos programų kataloge",
+        "Import bookmarks": "Importuoti žymes",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Pasirinkite naršyklės eksportuotą žymių failą ir pažymėkite, ką pridėti.",
+        "Loose bookmarks": "Atskiros žymės",
+        "This file is larger than 5 MB. Export one folder at a time.": "Failas didesnis nei 5 MB. Eksportuokite po vieną aplanką.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Faile yra daugiau nei 2 000 žymių. Eksportuokite po vieną aplanką.",
+        "{count} skipped: only web addresses can become tiles": "Praleista: {count} – plytelėmis gali tapti tik žiniatinklio adresai",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Šis skydelis dar gali priimti {count}. Pasirinkite mažiau aplankų ar žymių.",
+        "The bookmarks could not be imported.": "Žymių importuoti nepavyko.",
+        "This file holds no bookmarks.": "Faile nėra žymių.",
+        "Folders": "Aplankai"
     }
 }

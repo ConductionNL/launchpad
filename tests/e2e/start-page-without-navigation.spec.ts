@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The start page without the navigation panel (runtime-shell REQ-SHELL-009).
- * Off, a member's dashboard view has the panel and no "Menu" button; on, it
- * has no panel and the button offers the panel's destinations beside the
- * dashboard switcher. The option is put back to what it was.
+ * Off, a member's dashboard view has the panel and the "More" menu offers no
+ * Settings or Launchpad group; on, it has no panel and the "More" menu offers
+ * the panel's destinations (lpvandaag-start-page: one Meer menu holds the
+ * start page's actions). The option is put back to what it was.
  *
  * @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
  */
-import type { APIRequestContext } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
 
 import { expect, request as pwRequest, test } from '@playwright/test'
 import {
@@ -68,8 +69,25 @@ async function setOption(on: boolean): Promise<void> {
 
 const railIds: string[] = []
 
+/*
+ * Panel entries the More menu offers under another name: the dashboards
+ * are its Dashboards group, and the in-app admin settings route is the
+ * admin settings link of its Settings group.
+ */
+const OFFERED_ELSEWHERE = ['dashboards', 'admin-settings']
+
+async function moreMenuIds(page: Page): Promise<string[]> {
+	const more = page.locator('[data-testid="launchpad-more-menu"]')
+	await expect(more).toBeVisible({ timeout: 30_000 })
+	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
+	await expect(page.locator('[data-testid="cn-grouped-menu-panel"]')).toBeVisible()
+	return page
+		.locator('[data-testid^="cn-grouped-menu-item-"], [data-testid^="cn-grouped-menu-group-"]')
+		.evaluateAll((els) => els.map((el) => el.getAttribute('data-testid') ?? ''))
+}
+
 // @e2e runtime-shell::the-option-is-off
-test('off: the panel is there and there is no menu button', async ({ browser }) => {
+test('off: the panel is there and More offers no Settings or Launchpad group', async ({ browser }) => {
 	await setOption(false)
 	const { context, page } = await loginAs(
 		browser,
@@ -81,9 +99,9 @@ test('off: the panel is there and there is no menu button', async ({ browser }) 
 		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
 			timeout: 30_000,
 		})
-		await expect(
-			page.locator('[data-testid="launchpad-start-page-menu"]'),
-		).toHaveCount(0)
+		const ids = await moreMenuIds(page)
+		expect(ids).not.toContain('cn-grouped-menu-group-settings')
+		expect(ids).not.toContain('cn-grouped-menu-group-launchpad')
 		railIds.push(
 			...(await page
 				.locator('[data-testid^="cn-nav-entry-"]')
@@ -104,7 +122,7 @@ test('off: the panel is there and there is no menu button', async ({ browser }) 
 
 // @e2e runtime-shell::the-option-is-on
 // @e2e runtime-shell::no-destination-is-lost
-test('on: no panel, the content at the left edge, every panel entry in the menu', async ({
+test('on: no panel, the content at the left edge, every panel entry in More', async ({
 	browser,
 }) => {
 	await setOption(true)
@@ -115,31 +133,18 @@ test('on: no panel, the content at the left edge, every panel entry in the menu'
 	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
-		const menu = page.locator('[data-testid="launchpad-start-page-menu"]')
-		await expect(menu).toBeVisible({ timeout: 30_000 })
+		const ids = await moreMenuIds(page)
 		await expect(page.locator('[data-testid="cn-nav"]')).toHaveCount(0)
 		await expect(page.locator('#app-navigation-vue')).toHaveCount(0)
 		// The content starts where the panel used to.
 		const contentBox = await page.locator('#app-content-vue').boundingBox()
 		expect(contentBox?.x ?? 999).toBeLessThan(40)
-		// The switcher is beside the menu.
-		await expect(page.getByRole('button', { name: 'Dashboards' })).toBeVisible()
-		await menu.getByRole('button').first().click()
-		const menuIds = await page
-			.locator('[data-testid^="launchpad-start-page-menu-"]')
-			.evaluateAll((els) =>
-				els.map((el) =>
-					(el.getAttribute('data-testid') ?? '').replace(
-						'launchpad-start-page-menu-',
-						'',
-					),
-				),
-			)
 		// Every entry the panel showed with the option off is in the menu.
-		for (const id of railIds) {
-			expect(menuIds, `panel entry ${id} is not in the menu`).toContain(id)
+		for (const id of railIds.filter((rail) => !OFFERED_ELSEWHERE.includes(rail))) {
+			expect(ids, `panel entry ${id} is not in More`).toContain(`cn-grouped-menu-item-${id}`)
 		}
-		expect(menuIds).toContain('personal-settings')
+		expect(ids).toContain('cn-grouped-menu-item-all-dashboards')
+		expect(ids).toContain('cn-grouped-menu-item-personal-settings')
 	} finally {
 		await context.close()
 	}
@@ -158,9 +163,7 @@ test('on: the Store page keeps the panel', async ({ browser }) => {
 		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
 			timeout: 30_000,
 		})
-		await expect(
-			page.locator('[data-testid="launchpad-start-page-menu"]'),
-		).toHaveCount(0)
+		await expect(page.locator('[data-testid="launchpad-more-menu"]')).toHaveCount(0)
 	} finally {
 		await context.close()
 	}

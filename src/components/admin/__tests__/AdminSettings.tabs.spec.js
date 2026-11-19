@@ -68,6 +68,7 @@ describe('AdminSettings tabs', () => {
 			'detail-fields',
 			'profile-fields',
 			'search-shortcuts',
+			'app-catalogue',
 		])
 		expect(source).toContain(':tabs="beheerTabs"')
 		expect(render).toContain('tabsVariant: "underline"')

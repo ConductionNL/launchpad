@@ -35,6 +35,8 @@ use OCP\IRequest;
 
 /**
  * Controller for tile API endpoints.
+ *
+ * @psalm-import-type LaunchPadTile from \OCA\LaunchPad\ResponseDefinitions
  */
 class TileApiController extends Controller {
 	/**
@@ -74,6 +76,8 @@ class TileApiController extends Controller {
 	 * window. The write endpoints return HTTP 410 Gone instead.
 	 *
 	 * @return JSONResponse The list of tiles.
+	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, list<LaunchPadTile>, array<string, mixed>>
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2

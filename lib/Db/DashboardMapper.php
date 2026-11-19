@@ -225,6 +225,17 @@ class DashboardMapper extends QBMapper {
 	}//end findByGroup()
 
 	/**
+	 * Every group dashboard, whatever its group.
+	 *
+	 * @return Dashboard[] The group dashboards.
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-4
+	 */
+	public function findAllGroupShared(): array {
+		return $this->findEntities(query: $this->selectWhere(match: ['type' => Dashboard::TYPE_GROUP_SHARED]));
+	}//end findAllGroupShared()
+
+	/**
 	 * Find all dashboards visible to a user.
 	 *
 	 * Issues three indexed queries — personal `user`-type rows owned by

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use OCA\LaunchPad\Service\SharingLimits;
@@ -41,12 +42,14 @@ class ShareApiTools {
 	 * @param IGroupManager   $groupManager Nextcloud group manager (sharee lookup).
 	 * @param LoggerInterface $logger       PSR logger.
 	 * @param SharingLimits|null $limits   Who may share and with whom; the sharee search offers only allowed recipients.
+	 * @param IEventDispatcher|null $events Announces a changed dashboard audience (openregister-leaf-integrations).
 	 */
 	public function __construct(
 		public readonly IUserManager $userManager,
 		public readonly IGroupManager $groupManager,
 		public readonly LoggerInterface $logger,
 		public readonly ?SharingLimits $limits = null,
+		public readonly ?IEventDispatcher $events = null,
 	) {
 	}//end __construct()
 }//end class

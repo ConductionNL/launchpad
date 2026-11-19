@@ -2035,6 +2035,8 @@
         "Active filters": "Actieve filters",
         "Pinned filter": "Vastgezet filter",
         "Remove filter: {label}": "Filter verwijderen: {label}",
-        "Reset filters": "Filters wissen"
+        "Reset filters": "Filters wissen",
+        "Discussion": "Gesprek",
+        "No conversation linked to this dashboard yet": "Nog geen gesprek gekoppeld aan dit dashboard"
     }
 }

@@ -2274,7 +2274,9 @@ OC.L10N.register(
     "This value could not be calculated ({reason})." : "Deze waarde kon niet worden berekend ({reason}).",
     "Formula: {expression}" : "Formule: {expression}",
     "Values read: {inputs}" : "Gelezen waarden: {inputs}",
-    "empty" : "leeg"
+    "empty" : "leeg",
+    "Discussion" : "Gesprek",
+    "No conversation linked to this dashboard yet" : "Nog geen gesprek gekoppeld aan dit dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

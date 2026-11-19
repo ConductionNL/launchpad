@@ -94,7 +94,10 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 * 1.0.5 lists the four embed schemas of `register.d/embedded-analytics.json`
 	 * on it (embedded-analytics); 1.0.6 brings the Dashboard schema's read-only
 	 * `configuration.x-openregister-mcp` from `register.d/dashboard-mcp.json`
-	 * (mcp-tool-surface). The import is also
+	 * (mcp-tool-surface); 1.0.7 brings the Dashboard schema's derived
+	 * audience fields and its read rule from `register.d/dashboard-talk-leaf.json`
+	 * (openregister-leaf-integrations, the discussion follows the dashboard's
+	 * viewers). The import is also
 	 * content-authoritative for schemas — OpenRegister's
 	 * `ImportHandler::schemaContentDiffers()` compares properties, required and
 	 * authorization — so a schema edit still applies even when this version has
@@ -102,7 +105,7 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_VERSION = '1.0.6';
+	private const REGISTER_VERSION = '1.0.7';
 
 	/**
 	 * Constructor.

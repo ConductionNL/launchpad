@@ -127,7 +127,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 			['get OCA\OpenRegister\Service\ConfigurationService', 'info LaunchPad register imported (launchpad register + dashboard schema)'],
 			$this->runStep($importer)
 		);
-		$this->assertSame(expected: ['launchpad {"a":1} 1.0.6 false'], actual: $importer->calls);
+		$this->assertSame(expected: ['launchpad {"a":1} 1.0.7 false'], actual: $importer->calls);
 
 		$this->assertSame(
 			['get OCA\OpenRegister\Service\ConfigurationService', 'log [ImportLaunchpadRegister] import failed: bad schema', 'warning LaunchPad register import skipped: bad schema'],
@@ -158,7 +158,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 		$this->assertSame(
 			[
 				'launchpad {"components":{"schemas":{"Dashboard":{"slug":"dashboard","required":["name","owner"],'
-				. '"configuration":{"linkedTypes":["talk"]}}}}} 1.0.6 false',
+				. '"configuration":{"linkedTypes":["talk"]}}}}} 1.0.7 false',
 			],
 			$importer->calls
 		);
@@ -183,7 +183,39 @@ class ImportLaunchpadRegisterTest extends TestCase {
 		$this->assertSame(['talk'], $data['components']['schemas']['Dashboard']['configuration']['linkedTypes']);
 		$this->assertArrayNotHasKey('configuration', $base['components']['schemas']['Dashboard'], 'the base file stays a domain statement');
 		unset($data['components']['schemas']['Dashboard']['configuration']);
+		foreach (['audienceUsers', 'audienceGroups', 'audienceEveryone'] as $derived) {
+			unset($data['components']['schemas']['Dashboard']['properties'][$derived]);
+		}
+
+		unset($data['components']['schemas']['Dashboard']['authorization']);
 		$this->assertSame($base['components']['schemas']['Dashboard'], $data['components']['schemas']['Dashboard']);
+	}
+
+	/**
+	 * The shipped Dashboard schema admits a reader through the audience
+	 * LaunchPad derives from the dashboard's viewers, and through nothing else.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-7
+	 */
+	public function testTheShippedDashboardSchemaReadsFollowTheAudience(): void {
+		$this->root = dirname(__DIR__, 3);
+		$importer   = $this->importer(false);
+		$this->runStep($importer);
+		$this->root = sys_get_temp_dir() . '/lp-register-' . getmypid();
+
+		$schema = $importer->imported[0]['components']['schemas']['Dashboard'];
+		$this->assertSame(
+			[
+				['group' => 'authenticated', 'match' => ['audienceUsers' => ['$contains' => '$userId']]],
+				['group' => 'authenticated', 'match' => ['audienceGroups' => ['$contains' => '$user.groups']]],
+				['group' => 'authenticated', 'match' => ['audienceEveryone' => true]],
+			],
+			$schema['authorization']['read']
+		);
+		$this->assertSame(['read'], array_keys($schema['authorization']));
+		$this->assertSame('array', $schema['properties']['audienceUsers']['type']);
 	}
 
 	/**

@@ -1837,7 +1837,9 @@ OC.L10N.register(
     "This value could not be calculated ({reason})." : "This value could not be calculated ({reason}).",
     "Formula: {expression}" : "Formula: {expression}",
     "Values read: {inputs}" : "Values read: {inputs}",
-    "empty" : "empty"
+    "empty" : "empty",
+    "Discussion" : "Discussion",
+    "No conversation linked to this dashboard yet" : "No conversation linked to this dashboard yet"
 },
 "nplurals=2; plural=(n != 1);"
 );

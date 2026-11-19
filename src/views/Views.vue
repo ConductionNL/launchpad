@@ -852,7 +852,8 @@ export default {
 		 */
 		customWidgetNotices() {
 			const content = this.customWidgetEditing?.content ?? null
-			return busNotices(content, this.filterSession?.bus?.hierarchies ?? [])
+			const bus = this.filterSession ? this.filterSession.bus : null
+			return busNotices(content, bus ? bus.hierarchies : [])
 		},
 
 		filterClauses() {

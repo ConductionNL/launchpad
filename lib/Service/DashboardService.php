@@ -3616,6 +3616,7 @@ class DashboardService {
 		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
 		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
 		$this->applyLookUpdates(dashboard: $dashboard, data: $data);
+		$this->applyLinkTargetUpdate(dashboard: $dashboard, data: $data);
 
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
@@ -3755,6 +3756,30 @@ class DashboardService {
 
 		$dashboard->setCustomCss($stored);
 	}//end applyCustomCssUpdate()
+
+	/**
+	 * Apply the patched default link target, when the payload names one.
+	 *
+	 * An empty value clears it, so tiles follow the link-type rule again.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the value is not a link target.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	private function applyLinkTargetUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists(key: 'defaultLinkTarget', array: $data) === false) {
+			return;
+		}
+
+		$dashboard->setDefaultLinkTarget(
+			TileLinkTarget::validated(value: $data['defaultLinkTarget'], field: 'defaultLinkTarget')
+		);
+	}//end applyLinkTargetUpdate()
 
 	/**
 	 * Apply a patched placement position list, when the payload has one.

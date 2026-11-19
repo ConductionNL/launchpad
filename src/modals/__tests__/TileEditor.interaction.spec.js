@@ -102,7 +102,8 @@ describe('TileEditor health-ping fields', () => {
 		const wrapper = mountEditor()
 		expect(field(wrapper, 'Health check URL').exists()).toBe(false)
 
-		wrapper.findComponent({ name: 'NcCheckboxRadioSwitch' }).vm.$emit('update:modelValue', true)
+		// The health switch, not one of the "Opens in" radios before it.
+		wrapper.find('.tile-editor__health-ping').findComponent({ name: 'NcCheckboxRadioSwitch' }).vm.$emit('update:modelValue', true)
 		await flushPromises()
 
 		await field(wrapper, 'Health check URL').setValue('https://status.example.org')

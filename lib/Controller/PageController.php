@@ -170,15 +170,6 @@ class PageController extends Controller {
 			->setUserDashboards($descriptors['user'])
 			->setAllowUserDashboards($allowUserDashboards);
 
-		// PR #95 (role-based-content): per-user widget allow-list.
-		// `null` = no admin policy for this user (unlimited).
-		$allowedWidgets = null;
-		if ($userId !== '') {
-			$allowedWidgets = $this->settings->roleFeaturePerm->getAllowedWidgetIds(
-				userId: $userId
-			);
-		}
-
 		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
 		// no-match fallback target. `getSettings()` already resolves the
 		// safe 'none' default when unset/invalid, so this never throws.
@@ -187,11 +178,12 @@ class PageController extends Controller {
 		);
 
 		$builder
-			->setAllowedWidgets($allowedWidgets)
+			->setAllowedWidgets($this->allowedWidgets(userId: $userId))
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
 			->setTileLaunchOptions(
 				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
@@ -225,6 +217,24 @@ class PageController extends Controller {
 
 		return $response;
 	}//end index()
+
+	/**
+	 * The per-user widget allow-list (PR #95, role-based-content).
+	 *
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return array|null The allowed widget ids, or null when no admin policy
+	 *                    applies to this user (unlimited).
+	 */
+	private function allowedWidgets(string $userId): ?array {
+		if ($userId === '') {
+			return null;
+		}
+
+		return $this->settings->roleFeaturePerm->getAllowedWidgetIds(
+			userId: $userId
+		);
+	}//end allowedWidgets()
 
 	/**
 	 * Resolve the widgets to bridge into the workspace, if any.

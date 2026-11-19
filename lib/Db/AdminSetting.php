@@ -257,6 +257,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_OFFICE_NETWORKS = AdminSettingKey::OFFICE_NETWORKS->value;
 
 	/**
+	 * BC alias for AdminSettingKey::CUSTOM_CSS (REQ-THM-003).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::CUSTOM_CSS
+	 */
+	public const KEY_CUSTOM_CSS = AdminSettingKey::CUSTOM_CSS->value;
+
+	/**
 	 * BC alias for AdminSettingKey::PINNED_COMMUNITIES (engagement-communities).
 	 *
 	 * @var string

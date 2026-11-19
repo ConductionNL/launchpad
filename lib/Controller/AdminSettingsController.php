@@ -14,6 +14,11 @@
  *    persisted setting wholesale (no merge — UI sends the full ordered
  *    list after every drag).
  *
+ * It also carries the administrator CSS endpoints (REQ-THM-003):
+ * `GET`/`PUT /api/admin/custom-css` for all of LaunchPad and
+ * `PUT /api/admin/custom-css/dashboards/{uuid}` for one dashboard; a save
+ * answers with what was stored and what the sanitiser dropped.
+ *
  * Both endpoints are admin-only via `#[AuthorizedAdminSetting]` (with
  * `assertAdmin()`'s `IGroupManager::isAdmin` check kept as defense in
  * depth) because even the GET reveals every group on the system
@@ -43,9 +48,11 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
@@ -53,7 +60,8 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 
 /**
- * Admin-only controller for the group-priority order and search shortcut settings.
+ * Admin-only controller for the group-priority order, search shortcut and
+ * administrator CSS settings.
  */
 class AdminSettingsController extends Controller {
 	use RespondsWithErrors;
@@ -66,6 +74,7 @@ class AdminSettingsController extends Controller {
 	 * @param IGroupManager $groupManager Group manager (admin check + listing).
 	 * @param RequestGuard $guard The session and administrator check.
 	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
+	 * @param CustomCssService $css Stores the cleaned administrator CSS.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -73,6 +82,7 @@ class AdminSettingsController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly RequestGuard $guard,
 		private readonly SearchShortcutServiceInterface $shortcuts,
+		private readonly CustomCssService $css,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -251,6 +261,83 @@ class AdminSettingsController extends Controller {
 
 		return new JSONResponse(data: ['shortcuts' => $saved]);
 	}//end saveSearchShortcuts()
+
+	/**
+	 * Read the stored CSS for all of LaunchPad.
+	 *
+	 * @return JSONResponse `{customCss}`, or 401/403 for a non-administrator.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function showCustomCss(): JSONResponse {
+		$refusal = $this->guard->refusal();
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return ResponseHelper::success(data: ['customCss' => $this->css->getGlobalCss()]);
+	}//end showCustomCss()
+
+	/**
+	 * Clean, scope and store the CSS for all of LaunchPad.
+	 *
+	 * @param mixed $customCss The CSS; '' clears it.
+	 *
+	 * @return JSONResponse `{customCss, removed}`, 400 for a value that is no
+	 *                      string or is over 20 KB, 401/403 for a non-administrator.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateCustomCss(mixed $customCss = null): JSONResponse {
+		$refusal = $this->guard->refusal();
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		if (is_string($customCss) === false) {
+			return $this->failure(message: 'customCss must be a string', statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		try {
+			return ResponseHelper::success(data: $this->css->setGlobalCss(css: $customCss));
+		} catch (InvalidArgumentException $e) {
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+		}
+	}//end updateCustomCss()
+
+	/**
+	 * Clean, scope and store the CSS for one dashboard.
+	 *
+	 * @param string $uuid      The dashboard's UUID.
+	 * @param mixed  $customCss The CSS; '' clears it.
+	 *
+	 * @return JSONResponse `{customCss, removed}`, 400 for a value that is no
+	 *                      string or is over 20 KB, 404 for an unknown
+	 *                      dashboard, 401/403 for a non-administrator.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateDashboardCustomCss(string $uuid, mixed $customCss = null): JSONResponse {
+		$refusal = $this->guard->refusal();
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		if (is_string($customCss) === false) {
+			return $this->failure(message: 'customCss must be a string', statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		try {
+			return ResponseHelper::success(data: $this->css->setDashboardCss(uuid: $uuid, css: $customCss));
+		} catch (DoesNotExistException) {
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+		} catch (InvalidArgumentException $e) {
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+		}
+	}//end updateDashboardCustomCss()
 
 	/**
 	 * Assert that the active session belongs to an administrator.

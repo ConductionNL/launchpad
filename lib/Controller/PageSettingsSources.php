@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\Kernel\Contracts\PublicStartPageInterface;
 use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\IURLGenerator;
@@ -51,6 +52,7 @@ class PageSettingsSources {
 	 * @param PublicStartPageInterface              $publicStartPage The public start page's link (sharing-public-start-page D3).
 	 * @param IURLGenerator                $urlGenerator The login form address the start page falls back to.
 	 * @param SearchShortcutServiceInterface        $searchShortcuts The search shortcuts every search box honours (REQ-SPX-002).
+	 * @param CustomCssService|null        $customCss The administrator CSS for all of LaunchPad (REQ-THM-003).
 	 * @param IAppManager|null             $appManager Whether Talk is enabled for the viewer
 	 *                                                 (engagement-communities REQ-COMM-004).
 	 */
@@ -62,6 +64,7 @@ class PageSettingsSources {
 		public readonly PublicStartPageInterface $publicStartPage,
 		public readonly IURLGenerator $urlGenerator,
 		public readonly SearchShortcutServiceInterface $searchShortcuts,
+		public readonly ?CustomCssService $customCss=null,
 		public readonly ?IAppManager $appManager = null,
 	) {
 	}//end __construct()

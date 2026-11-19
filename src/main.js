@@ -49,6 +49,7 @@ import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import registry from './registry.js'
+import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
@@ -133,6 +134,10 @@ const pinia = createPinia()
 // declared in REQ-INIT-002 is filled (defaults applied for missing keys
 // by the reader); descendants `inject(key, default)` to read.
 const initialState = loadInitialState('workspace')
+
+// platform-dashboard-theme-and-css REQ-THM-003 / D4: the administrator CSS for
+// all of LaunchPad, already cleaned and scoped by the server, inserted as text.
+applyCustomCss(GLOBAL_STYLE_ID, initialState.customCss)
 
 // --- Runtime manifest loader (ADR-036 Decision 8) ---
 //

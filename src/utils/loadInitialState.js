@@ -71,6 +71,9 @@ const PAGE_KEYS = {
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// platform-dashboard-theme-and-css REQ-THM-003: the administrator CSS
+		// for all of LaunchPad, cleaned and scoped by the server. Optional key.
+		customCss: '',
 		// drill-down-cross-widget-filter REQ-CWF-010: whether the dashboard's
 		// filter bus records filter_event rows. Optional key; off by default.
 		filterTelemetryEnabled: false,

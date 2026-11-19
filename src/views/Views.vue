@@ -215,12 +215,18 @@
 			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
+		<!-- platform-dashboard-theme-and-css REQ-THM-001: the dashboard's own
+		     look is drawn on this region only, as scoped CSS variables; the
+		     header, the navigation and other dashboards keep the theme. -->
 		<div
-			class="launchpad-container"
+			class="launchpad-container launchpad-dashboard"
 			:class="{
 				'launchpad-edit-mode': isEditMode,
 				'launchpad-container--fill': fillsHeight,
-			}">
+			}"
+			:data-dashboard-uuid="activeDashboard?.uuid || null"
+			:style="dashboardLookStyle"
+			data-testid="launchpad-dashboard-region">
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
@@ -538,6 +544,8 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
+import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -807,6 +815,17 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The active dashboard's own look as scoped CSS variables, or no style
+		 * for a dashboard that follows the theme (REQ-THM-001).
+		 *
+		 * @return {object} the inline style for the dashboard region.
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		dashboardLookStyle() {
+			return lookStyle(this.activeDashboard)
+		},
+
 		/**
 		 * The open dashboard's filter clauses, for the active-filters panel.
 		 *
@@ -1202,6 +1221,23 @@ export default {
 
 	watch: {
 		/**
+		 * The administrator CSS of the dashboard on screen, already scoped to
+		 * its region by the server, inserted as text (REQ-THM-003, D4).
+		 *
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 */
+		'activeDashboard.customCss': {
+			immediate: true,
+			/**
+			 * @param {string|null} css The scoped CSS of the dashboard on screen.
+			 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+			 */
+			handler(css) {
+				applyCustomCss(DASHBOARD_STYLE_ID, css)
+			},
+		},
+
+		/**
 		 * Editing makes the greeting row a draggable grid item: the controls
 		 * float while editing and dock again after.
 		 *
@@ -1390,6 +1426,7 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		applyCustomCss(DASHBOARD_STYLE_ID, '')
 		this.filterSession?.stop()
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
@@ -2700,6 +2737,7 @@ export default {
 		 * @param {string} config.icon Icon key or URL.
 		 * @param {string} [config.parentUuid] Parent uuid, '' for none (edit only).
 		 * @param {string} [config.slug] Web address name (edit only).
+		 * @param {object} [config.look] The changed look fields (REQ-THM-001), edit only.
 		 * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
@@ -2710,6 +2748,7 @@ export default {
 			icon,
 			parentUuid,
 			slug,
+			look,
 			defaultLinkTarget,
 		}) {
 			this.configSaveError = ''
@@ -2725,6 +2764,11 @@ export default {
 					}
 					if (slug) {
 						data.slug = slug
+					}
+					// REQ-THM-001: only a changed look is sent, so a rename
+					// stays a metadata edit.
+					if (look) {
+						Object.assign(data, look)
 					}
 					// launcher-tile-open-behaviour D2: '' clears the default.
 					if (defaultLinkTarget !== undefined) {
@@ -2751,6 +2795,14 @@ export default {
 		 */
 		treeSaveMessage(error) {
 			const message = error?.response?.data?.message ?? ''
+			// REQ-THM-002: the server's measured ratio, in the user's language.
+			if (error?.response?.data?.error === 'contrast_too_low') {
+				return t(
+					'launchpad',
+					'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)',
+					{ ratio: Number(error.response.data.ratio).toFixed(1) },
+				)
+			}
 			if (message === 'Setting this parent would create a cycle') {
 				return t(
 					'launchpad',

@@ -133,7 +133,9 @@ function compareCommunities(a, b, pinnedOrder) {
 }
 
 /**
- * Join a conversation as the viewer.
+ * Join a conversation as the viewer. Talk adds a user who joins a listable
+ * conversation as a member; the session that join opens is closed again, so
+ * the viewer does not show as present in the conversation.
  *
  * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-one-click-joins-a-community-req-comm-002
  * @param {string} token The conversation token.
@@ -143,11 +145,9 @@ function compareCommunities(a, b, pinnedOrder) {
  */
 export async function joinCommunity(token, opts = {}) {
 	const client = opts.client || axios
-	await client.post(
-		talkUrl(`room/${encodeURIComponent(token)}/participants/self`),
-		{},
-		OCS_CONFIG,
-	)
+	const session = talkUrl(`room/${encodeURIComponent(token)}/participants/active`)
+	await client.post(session, {}, OCS_CONFIG)
+	await client.delete(session, OCS_CONFIG).catch(() => {})
 }
 
 /**

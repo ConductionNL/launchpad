@@ -11,8 +11,6 @@ Dashboard reactions enable lightweight social feedback via emoji on LaunchPad da
 ## Data Model
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### oc_launchpad_dash_reactions table
 
 Each reaction is stored with the following fields:
@@ -143,6 +141,7 @@ Users viewing a dashboard MUST be able to see the aggregate reaction counts and 
   }
   ```
 - NOTE: Existing reactions are hidden (not deleted), but new reactions cannot be added (REQ-RXN-005)
+@e2e exclude cannot be seeded: nothing writes a dashboard's `reactionsEnabled` (no endpoint, form, command or listener calls setReactionsEnabled; `git log --all -G 'setReactionsEnabled\(\$'` finds it only in tests/Unit/Service/ReactionServiceTest.php), so the per-dashboard override was never built; the tri-state resolution is pinned in tests/Unit/Service/ReactionServiceTest.php (testIsReactionsEnabledTriState, testGetReactionsSummaryDisabledShape)
 
 ### Requirement: REQ-RXN-004 List Reactors by Emoji
 
@@ -213,6 +212,7 @@ Administrators MUST be able to enable or disable reactions on individual dashboa
 - WHEN user "alice" sends `GET /api/dashboards/dash-123/reactions`
 - THEN the response MUST include `"enabled": true`
 - AND user "alice" can POST reactions to this dashboard
+@e2e exclude cannot be seeded: nothing writes a dashboard's `reactionsEnabled` (no endpoint, form, command or listener calls setReactionsEnabled; `git log --all -G 'setReactionsEnabled\(\$'` finds it only in tests/Unit/Service/ReactionServiceTest.php), so the per-dashboard override was never built; the tri-state resolution is pinned in tests/Unit/Service/ReactionServiceTest.php (testIsReactionsEnabledTriState, testGetReactionsSummaryDisabledShape)
 
 #### Scenario: Admin disables reactions on a dashboard that has global reactions enabled
 - GIVEN global setting `launchpad.reactions_enabled_default` is true
@@ -220,6 +220,7 @@ Administrators MUST be able to enable or disable reactions on individual dashboa
 - WHEN user "bob" sends `GET /api/dashboards/dash-456/reactions`
 - THEN the response MUST include `"enabled": false`
 - AND user "bob" cannot POST reactions (returns 403)
+@e2e exclude cannot be seeded: nothing writes a dashboard's `reactionsEnabled` (no endpoint, form, command or listener calls setReactionsEnabled; `git log --all -G 'setReactionsEnabled\(\$'` finds it only in tests/Unit/Service/ReactionServiceTest.php), so the per-dashboard override was never built; the tri-state resolution is pinned in tests/Unit/Service/ReactionServiceTest.php (testIsReactionsEnabledTriState, testGetReactionsSummaryDisabledShape)
 
 #### Scenario: Null reactionsEnabled field follows global setting
 - GIVEN global setting `launchpad.reactions_enabled_default` is true
@@ -232,6 +233,7 @@ Administrators MUST be able to enable or disable reactions on individual dashboa
 - WHEN an admin updates it to `reactionsEnabled = 0`
 - THEN user "alice" immediately sees `"enabled": false` on next GET request
 - NOTE: Existing reactions remain in the database, hidden but not deleted
+@e2e exclude cannot be seeded: nothing writes a dashboard's `reactionsEnabled` (no endpoint, form, command or listener calls setReactionsEnabled; `git log --all -G 'setReactionsEnabled\(\$'` finds it only in tests/Unit/Service/ReactionServiceTest.php), so the per-dashboard override was never built; the tri-state resolution is pinned in tests/Unit/Service/ReactionServiceTest.php (testIsReactionsEnabledTriState, testGetReactionsSummaryDisabledShape)
 
 ### Requirement: REQ-RXN-007 Allowed Emoji Whitelist
 
@@ -284,16 +286,16 @@ When a dashboard is deleted, ALL reactions on that dashboard MUST be removed.
 - THEN `ReactionsListener` MUST invoke `ReactionService::deleteReactionsByDashboard('dash-123')`
 - AND all 10 reaction rows in `oc_launchpad_dash_reactions` where `dashboardUuid = 'dash-123'` MUST be removed
 - AND subsequent GET requests for that dashboard MUST return 404
+@e2e exclude the rows of a deleted dashboard cannot be observed (every reaction route answers 404 once it is gone) and the listener call is internal; pinned in tests/Unit/Listener/ReactionsListenerTest.php (testHandleInvokesServiceWithEventUuid), tests/Unit/Db/DashboardReactionMapperTest.php (testDeleteByDashboardAndCountReactors) and tests/Unit/Service/DashboardCascadeEventDispatchTest.php
 
 #### Scenario: Cascade delete does not affect other dashboards' reactions
 - GIVEN dashboard `dash-A` has 3 reactions and dashboard `dash-B` has 5 reactions
 - WHEN the user deletes dashboard `dash-A`
 - THEN the 3 reactions on `dash-A` MUST be deleted
 - AND the 5 reactions on `dash-B` MUST remain unchanged
+@e2e exclude the deleted dashboard's three rows cannot be observed (every reaction route answers 404 once it is gone), so only the surviving half could be asserted; the uuid-scoped delete is pinned in tests/Unit/Db/DashboardReactionMapperTest.php (testDeleteByDashboardAndCountReactors) and tests/Unit/Listener/ReactionsListenerTest.php (testHandleInvokesServiceWithEventUuid)
 
 ### Requirement: REQ-RXN-010 A viewer can react from the dashboard
-
-@e2e exclude reacting needs a live dashboard with reactions on; asserted in src/components/Workspace/__tests__/DashboardReactions.spec.js and tests/Unit/Service/ReactionServiceTest.php
 
 In view mode a reactions bar MUST show under the dashboard title with each emoji and its count, mark the viewer's own reactions, and toggle the viewer's reaction on click. It MUST offer only the allowed emoji, and MUST be absent when reactions are disabled globally or for the dashboard.
 

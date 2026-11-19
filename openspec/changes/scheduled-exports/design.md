@@ -191,3 +191,33 @@ No duplication detected. All core abstractions (CRUD, permissions, retention, au
 1. **Should the render pipeline support concurrent rendering across multiple Chromium instances?** Current decision: no (single queue). Revisit if rendering becomes a bottleneck (scale via container orchestration, not in-app concurrency).
 2. **Should preview output be streamed (for large PDFs) or buffered?** Current decision: buffer in memory (simpler API, fine for typical dashboard sizes). If preview frequently times out, switch to streaming.
 3. **Should failed deliveries notify the export owner or an admin group?** Current decision: both (owner is responsible for their export, admins troubleshoot systemic issues). Configurable per recipient.
+
+## Implementation notes
+
+### Stale recurrence is recomputed per request, not by a background job
+
+`nextRunAt` is recomputed on every save that changes the recurrence or time
+zone, and after every scheduled fire, from the stored rule and `runTimezone`
+(`ScheduledExportService::nextRunAfter()`). There is no job that walks every
+export to refresh `nextRunAt`: the DST and leap-day edge cases are transient
+properties of one particular window, and recomputing from the rule at the
+moment it is needed gives the same answer for every reader. A refresh job
+would only add a second writer whose result could disagree with the one the
+runner computes.
+
+### What the runner treats as an overlap
+
+A previous run blocks the next fire only while it is still rendering or
+dispatching. A run whose remaining deliveries only wait for a retry rolls up
+as `running` too, but it does not block: its retries are attempted by the
+same runner, and blocking on them would skip whole schedule windows for one
+flaky recipient (D4).
+
+### Hosts and the headless browser are operator settings
+
+PDF and PNG need a headless browser on the server; its path is the app value
+`export_chromium_binary`. Without it those targets fail with a clear reason
+while CSV and XLSX still render. Webhook and SFTP deliveries only reach hosts
+listed in the app value `export_allowed_hosts` (fail-closed), the same
+allow-list pattern the app uses for other outbound fetches.
+

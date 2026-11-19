@@ -26,6 +26,7 @@ import { markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
@@ -216,6 +217,15 @@ export default {
 			default: false,
 		},
 
+		/**
+		 * Whether "Scheduled exports…" is offered; it emits `scheduledExports`
+		 * so the host opens the export list (scheduled-exports task 19).
+		 */
+		canScheduleExports: {
+			type: Boolean,
+			default: false,
+		},
+
 		/** Whether the dashboard is being edited. */
 		isEditMode: {
 			type: Boolean,
@@ -237,6 +247,7 @@ export default {
 		'schedule',
 		'versionHistory',
 		'readReceipts',
+		'scheduledExports',
 		'delete',
 		'menuOpen',
 	],
@@ -451,6 +462,12 @@ export default {
 					label: t('launchpad', 'Read receipts'),
 					icon: markRaw(CheckDecagramOutline),
 					event: 'readReceipts',
+				},
+				this.canScheduleExports && {
+					id: 'scheduled-exports',
+					label: t('launchpad', 'Scheduled exports…'),
+					icon: markRaw(CalendarExport),
+					event: 'scheduledExports',
 				},
 			]
 				.filter(Boolean)

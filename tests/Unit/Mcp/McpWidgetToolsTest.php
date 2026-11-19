@@ -213,6 +213,20 @@ class McpWidgetToolsTest extends TestCase {
 	}//end testUpdateTileMergesContent()
 
 	/**
+	 * updateTile leaves out what it is not given but checks what it is given.
+	 *
+	 * @return void
+	 */
+	public function testUpdateTileChecksTheFieldsItIsGiven(): void {
+		$this->widgets->expects($this->never())->method('updatePlacement');
+
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->updateTile(args: ['placementId' => 5, 'linkType' => 'ftp'])['error']);
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->updateTile(args: ['placementId' => 5, 'title' => ''])['error']);
+		$untitled = ['dashboardId' => 3, 'linkType' => 'url', 'linkValue' => 'x'];
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->createTile(args: $untitled)['error']);
+	}//end testUpdateTileChecksTheFieldsItIsGiven()
+
+	/**
 	 * updateWidgetPlacement leaves calculated fields, acknowledgement settings
 	 * and the content of materialised widgets to the app, and maps a stale version.
 	 *

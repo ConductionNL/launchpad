@@ -26,8 +26,6 @@ Each upload produces:
 ## Requirements
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: Admin-only base64 upload endpoint (REQ-RES-001)
 
 The system MUST expose `POST /api/resources` accepting a raw JSON body of the shape `{base64: 'data:image/<type>;base64,...'}`. The endpoint MUST be admin-only — non-admin requests MUST receive HTTP 403 with `{status: 'error', error: 'forbidden'}`. The endpoint MUST NOT accept multipart form data — only a base64-encoded data URL.
@@ -115,6 +113,8 @@ Validated bytes MUST be stored via `IAppData::getFolder('resources')` (auto-crea
 - THEN the folder MUST be created automatically
 - AND the upload MUST succeed normally
 
+@e2e exclude needs an app-data root with no `resources/` folder, which a shared instance that has served any upload never has again and HTTP cannot delete (there is no delete route); pinned by tests/Unit/Service/ResourceServiceTest.php::testFolderAutoCreatedWhenMissing
+
 ### Requirement: Standardised response envelope (REQ-RES-005)
 
 Every successful response MUST conform to `{status: 'success', url: <string>, name: <string>, size: <int>}` (additional fields are allowed). Every error response MUST conform to `{status: 'error', error: <stable_string>, message: <translated string>}`. The `error` field is a stable enum suitable for client-side branching; `message` is for display. Raw exception messages MUST NEVER be returned to the client.
@@ -166,6 +166,8 @@ The response MUST include `Cache-Control: public, max-age=31536000` (one year, i
 - WHEN GETting it
 - THEN `Content-Type` MUST be `application/octet-stream`
 
+@e2e exclude needs a `.bin` file planted in the resources folder by hand; both upload endpoints only ever write allow-listed extensions, so HTTP cannot create one; pinned by tests/Unit/Controller/ResourceServeControllerTest.php::testUnknownExtensionFallsBackToOctetStream and tests/Unit/Service/ResourceServeServiceTest.php::testContentTypeForFilename
+
 #### Scenario: Missing file returns 404
 
 - WHEN GET `/apps/launchpad/resource/does-not-exist.png`
@@ -202,6 +204,8 @@ When the resources folder does not yet exist, the response MUST be `{status: 'su
 - WHEN GET `/api/resources`
 - THEN HTTP 200 with `{status: 'success', resources: []}`
 
+@e2e exclude needs an app-data root with no `resources/` folder, which HTTP cannot restore once any upload ran (no delete route); pinned by tests/Unit/Controller/ResourceServeControllerTest.php::testListWithNoFolderReturnsEmptyArray and tests/Unit/Service/ResourceServeServiceTest.php::testListFilesReturnsEmptyArrayWhenFolderMissing
+
 ### Requirement: Stream-via-memory buffer, size-bounded (REQ-RES-008)
 
 The implementation MUST stream resource bytes via an in-memory buffer bounded by the upload cap (5 MB per REQ-RES-003). For larger files (which currently CANNOT be uploaded but might exist if installed manually), the implementation MUST refuse to load (return 413 with the standardised error envelope) rather than exhaust memory.
@@ -212,6 +216,8 @@ The implementation MUST stream resource bytes via an in-memory buffer bounded by
 - WHEN GETting it
 - THEN the implementation MUST read it into a `php://memory` stream, write the StreamResponse, and the client MUST receive the full bytes
 
+@e2e exclude the `php://memory` buffer is internal to ResourceServeController::buildStreamResponse and invisible over HTTP (full-byte delivery itself is asserted by resource-uploads::serve-a-png); pinned by tests/Unit/Controller/ResourceServeControllerTest.php::testServePngReturnsBytesAndHeaders
+
 #### Scenario: Refuse to serve oversize external file
 
 - GIVEN a manually-installed 50 MB file `<appdata>/resources/huge.bin`
@@ -219,6 +225,8 @@ The implementation MUST stream resource bytes via an in-memory buffer bounded by
 - THEN the system MUST return HTTP 413 with `{status: 'error', error: 'file_too_large'}` (or equivalent)
 - AND MUST NOT load the file into memory
 - NOTE: Normal uploads cannot exceed 5 MB (REQ-RES-003) so this only protects against manual filesystem tampering.
+
+@e2e exclude needs a 50 MB file planted in app data by hand (uploads are capped at 5 MB); pinned by tests/Unit/Controller/ResourceServeControllerTest.php::testOversizeFileRefusedWithoutReadingBytes and ::testFileExactlyAtCapIsServed
 
 ### Requirement: SVG sanitiser is mandatory before persistence (REQ-RES-009)
 
@@ -358,6 +366,8 @@ The sanitiser MUST parse SVG via `DOMDocument::loadXML($bytes, LIBXML_NONET | LI
 - THEN no network request MUST be issued for `http://attacker/evil.dtd`
 - AND parsing MUST proceed without fetching the DTD
 
+@e2e exclude whether the server issued an outbound request cannot be observed from the browser or the test runner, and a timing proxy cannot fail on a network that refuses fast; pinned by tests/Unit/Service/SvgSanitiserTest.php::testExternalDtdDoesNotFetchNetwork
+
 #### Scenario: Billion-laughs entity expansion bounded
 
 - GIVEN input declares nested entities expanding exponentially (XML billion-laughs payload)
@@ -373,6 +383,8 @@ The sanitiser MUST parse SVG via `DOMDocument::loadXML($bytes, LIBXML_NONET | LI
 - THEN `libxml_use_internal_errors(true)` MUST have been called before parse
 - AND `libxml_clear_errors()` MUST have been called after parse
 - AND no libxml warning text MUST appear in the HTTP response body
+
+@e2e exclude Nextcloud's own PHP error handler keeps warnings out of the response body whether or not the sanitiser calls libxml_use_internal_errors/libxml_clear_errors, so no e2e can fail on their removal; no unit test pins the two calls either (tests/Unit/Service/SvgSanitiserTest.php::testUnparseableBytesReturnNull pins only the null return)
 
 ### Requirement: Raw multipart upload endpoint (REQ-RES-014)
 

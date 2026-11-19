@@ -1083,6 +1083,7 @@ export default {
 	display: flex;
 	justify-content: flex-end;
 }
+
 .launchpad-admin__label {
 	display: block;
 	margin-top: 8px;

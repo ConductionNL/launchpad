@@ -76,4 +76,6 @@ enum AdminSettingKey: string {
 	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
 	case OFFICE_NETWORKS = 'office_networks';
 	case PINNED_COMMUNITIES = 'pinned_communities';
+	// REQ-PSP-003: LaunchPad is the default app after sign-in unless switched off; on by default.
+	case DEFAULT_APP_ENABLED = 'default_app_enabled';
 }//end enum

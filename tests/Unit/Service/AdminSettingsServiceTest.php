@@ -92,6 +92,8 @@ class AdminSettingsServiceTest extends TestCase {
 				'currentAddress' => '',
 				'currentAddressInOfficeNetworks' => false,
 				'pinnedCommunities' => [],
+				// REQ-PSP-003: LaunchPad is the default app until switched off.
+				'defaultAppEnabled' => true,
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -191,7 +193,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('currentAddressInOfficeNetworks', $settings);
 		// engagement-communities REQ-COMM-003.
 		$this->assertArrayHasKey('pinnedCommunities', $settings);
-		$this->assertCount(22, $settings);
+		// REQ-PSP-003.
+		$this->assertArrayHasKey('defaultAppEnabled', $settings);
+		$this->assertCount(23, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

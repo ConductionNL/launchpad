@@ -282,6 +282,19 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end testOfficeNetworksArePassedThrough()
 
 	/**
+	 * REQ-PSP-003: the default app switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testDefaultAppSwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['filterTelemetryEnabled' => null, 'defaultAppEnabled' => false]));
+
+		$this->controller->updateSettings(defaultAppEnabled: false);
+	}//end testDefaultAppSwitchIsPassedThrough()
+
+	/**
 	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the
 	 * service, and a refused list answers 400 with the service's reason.
 	 *

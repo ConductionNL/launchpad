@@ -53,6 +53,7 @@ function mountShell({ provide = {}, route = { params: {} } } = {}) {
 				OrgNavigationPanel: { name: 'OrgNavigationPanel', render: () => h('nav', { class: 'org-nav-stub' }) },
 				SidebarBackdrop: { name: 'SidebarBackdrop', emits: ['close'], render: () => h('div', { class: 'backdrop-stub' }) },
 				StartPageMenu: true,
+				TileSidePanel: true,
 				NcButton: {
 					name: 'NcButton',
 					emits: ['click'],

@@ -24,7 +24,8 @@
 			:placementId="placement.id"
 			:content="normalizedContent"
 			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
-			:pingInterval="normalizedContent.pingInterval" />
+			:pingInterval="normalizedContent.pingInterval"
+			:linkTarget="normalizedContent.linkTarget || null" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">

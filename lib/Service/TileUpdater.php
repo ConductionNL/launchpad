@@ -43,10 +43,11 @@ class TileUpdater {
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When the office-network address or the launch link is not allowed (HTTP 400).
+	 * @throws InvalidArgumentException When the office-network address, the link target or the launch link is not allowed (HTTP 400).
 	 *
 	 * @spec openspec/specs/tiles/spec.md
 	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function applyTileConfig(
 		WidgetPlacement $placement,
@@ -82,6 +83,13 @@ class TileUpdater {
 			$placement->setContentArray($tileData['content']);
 		}
 
+		$linkTarget = $this->validatedLinkTarget(value: ($tileData['linkTarget'] ?? null), field: 'linkTarget');
+		if ($linkTarget !== null) {
+			$placement->setContentArray(
+				array_merge($placement->getContentArray(), ['linkTarget' => $linkTarget])
+			);
+		}
+
 		$this->checkLaunchLink(placement: $placement);
 	}//end applyTileConfig()
 
@@ -93,12 +101,19 @@ class TileUpdater {
 	 *
 	 * @return void
 	 *
+	 * @throws \InvalidArgumentException When `content.linkTarget` is not a link target.
+	 *
 	 * @spec openspec/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function applyTileUpdates(
 		WidgetPlacement $placement,
 		array $data,
 	): void {
+		// Launcher-tile-open-behaviour D1: the tile's link target rides in
+		// content; anything but the three values is refused before saving.
+		$this->validatedLinkTarget(value: ($data['content']['linkTarget'] ?? null), field: 'content.linkTarget');
+
 		if (isset($data['tileTitle']) === true) {
 			$placement->setTileTitle($data['tileTitle']);
 		}
@@ -146,6 +161,24 @@ class TileUpdater {
 
 		$this->checkLaunchLink(placement: $placement);
 	}//end applyTileUpdates()
+
+	/**
+	 * A link target as given, or null when none is given.
+	 *
+	 * @param mixed  $value The value.
+	 * @param string $field The field name, for the refusal message.
+	 *
+	 * @return string|null
+	 *
+	 * @throws \InvalidArgumentException When the value is not a link target.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) TileLinkTarget holds the rule as a pure function.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	private function validatedLinkTarget(mixed $value, string $field): ?string {
+		return TileLinkTarget::validated(value: $value, field: $field);
+	}//end validatedLinkTarget()
 
 	/**
 	 * Check a program, remote-desktop or sso tile as it will be saved, and

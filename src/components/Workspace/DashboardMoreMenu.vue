@@ -228,6 +228,7 @@ export default {
 		'toggleEdit',
 		'openConfig',
 		'addCustomWidget',
+		'addApp',
 		'setDefault',
 		'share',
 		'publish',
@@ -397,6 +398,15 @@ export default {
 					label: t('launchpad', 'Add widget'),
 					icon: markRaw(Plus),
 					event: 'addCustomWidget',
+				},
+				// launcher-app-catalogue REQ-ACAT-002: the add flow with the app
+				// catalogue, the apps this server runs and the "Can't find your
+				// app?" request form.
+				this.canEdit && {
+					id: 'add-app',
+					label: t('launchpad', 'Add app'),
+					icon: markRaw(StoreOutline),
+					event: 'addApp',
 				},
 				this.canShare && {
 					id: 'share',

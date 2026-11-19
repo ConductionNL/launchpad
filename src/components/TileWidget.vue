@@ -38,7 +38,7 @@
 		<a
 			:href="tileUrl"
 			class="tile-widget__link"
-			:target="tileTarget"
+			:target="anchorTarget"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -114,9 +114,11 @@ import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
+import { useTilePanelStore } from '../stores/tilePanel.js'
 import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
+import { isSameOrigin, NEW_TAB, resolveLinkTarget, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 const { recordTileClick } = useTileClickTracking()
 
@@ -175,6 +177,27 @@ export default {
 			type: Number,
 			default: 60,
 		},
+
+		/**
+		 * The tile's own link target (`content.linkTarget`): `same-tab`,
+		 * `new-tab` or `side-panel`, or null to follow the dashboard.
+		 *
+		 * @type {string|null}
+		 */
+		linkTarget: {
+			type: String,
+			default: null,
+		},
+
+		/**
+		 * The dashboard's default link target, or null for the link-type rule.
+		 *
+		 * @type {string|null}
+		 */
+		defaultLinkTarget: {
+			type: String,
+			default: null,
+		},
 	},
 
 	emits: ['edit', 'remove'],
@@ -188,6 +211,31 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * How this tile opens: its own target, the dashboard default, or the
+		 * link-type rule (launcher-tile-open-behaviour D2).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		resolvedTarget() {
+			return resolveLinkTarget(this.linkTarget, this.defaultLinkTarget, this.tile.linkType)
+		},
+
+		/**
+		 * The anchor's `target`: a launch type's own target first
+		 * (launcher-tile-launch-types D2), else the resolved open-in target. A
+		 * `side-panel` tile keeps `_self` so that, if
+		 * the panel cannot take it, a plain click still navigates somewhere;
+		 * handleActivate() opens the panel instead.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		anchorTarget() {
+			return launchTarget(this.tile, this.content) ?? (this.resolvedTarget === NEW_TAB ? '_blank' : '_self')
+		},
+
 		/**
 		 * Whether the tile creates a file instead of opening a link (REQ-OFT-002).
 		 *
@@ -240,17 +288,6 @@ export default {
 				return generateUrl(value)
 			}
 			return value
-		},
-
-		/**
-		 * Where the link opens: a web address in a new tab, a Nextcloud page
-		 * in place, and per launch type as design D2 says.
-		 *
-		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
-		 */
-		tileTarget() {
-			return launchTarget(this.tile, this.content) ?? (this.tile.linkType === 'url' ? '_blank' : '_self')
 		},
 	},
 
@@ -305,6 +342,7 @@ export default {
 		 * @return {void}
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		handleActivate(event) {
 			recordTileClick(this.tile?.id)
@@ -316,7 +354,22 @@ export default {
 				if (!this.editMode) {
 					this.createDialogOpen = true
 				}
+				return
 			}
+
+			// Launcher-tile-open-behaviour D3: a side-panel tile opens beside
+			// the grid instead of navigating. In edit mode the tile is being
+			// arranged, so it never opens anything new.
+			if (this.resolvedTarget !== SIDE_PANEL || this.editMode || !this.tileUrl) {
+				return
+			}
+			event?.preventDefault?.()
+			useTilePanelStore().open({
+				url: this.tileUrl,
+				title: this.tile?.title || '',
+				sameOrigin: isSameOrigin(this.tileUrl),
+				opener: event?.currentTarget || null,
+			})
 		},
 
 		/**

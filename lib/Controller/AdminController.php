@@ -444,6 +444,7 @@ class AdminController extends Controller {
 	 * @param array|null $officeNetworks The office networks as CIDR ranges; a malformed one answers 400 (REQ-TIA-001).
 	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
 	 *                                      communities, at most 20 (REQ-COMM-003).
+	 * @param bool|null  $defaultAppEnabled LaunchPad is the default app after sign-in (REQ-PSP-003).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -475,6 +476,7 @@ class AdminController extends Controller {
 		bool|null $filterTelemetryEnabled = null,
 		array|null $officeNetworks = null,
 		array|null $pinnedCommunities = null,
+		bool|null $defaultAppEnabled = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -506,6 +508,7 @@ class AdminController extends Controller {
 					'filterTelemetryEnabled'      => $filterTelemetryEnabled,
 					'officeNetworks'              => $officeNetworks,
 					'pinnedCommunities'           => $pinnedCommunities,
+					'defaultAppEnabled'           => $defaultAppEnabled,
 				]
 			);
 

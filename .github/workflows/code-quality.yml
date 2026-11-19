@@ -194,6 +194,10 @@ jobs:
       #     Its `testIgnore` names every excluded spec with the run that
       #     measured it (31367057618: 65 of 80 passed).
       enable-phpunit: true
+      # PHPUnit on every database Nextcloud supports that we can run in CI,
+      # so a query that only works on PostgreSQL shows up before a customer
+      # on MySQL or SQLite finds it.
+      database-test-matrix: '["pgsql", "mysql", "sqlite"]'
       enable-newman: true
       newman-environment-path: "tests/integration/local.env.json"
       # Creates the non-admin account the collection's authorization assertions

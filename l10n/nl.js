@@ -2259,7 +2259,9 @@ OC.L10N.register(
     "As the dashboard decides" : "Zoals het dashboard bepaalt",
     "Panel beside the tiles" : "Paneel naast de tegels",
     "Web addresses in a new tab, apps in the same tab" : "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
-    "This address cannot open in the panel." : "Dit adres kan niet in het paneel openen."
+    "This address cannot open in the panel." : "Dit adres kan niet in het paneel openen.",
+    "You have no access to this scope: {name}" : "Je hebt geen toegang tot dit bereik: {name}",
+    "{name} filter changed: {from} → {to}" : "Filter {name} gewijzigd: {from} → {to}"
 },
 "nplurals=2; plural=(n != 1);"
 );

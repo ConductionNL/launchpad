@@ -12,7 +12,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { busNotices } from '../widgetBusNotices.js'
 
 vi.mock('@nextcloud/l10n', () => ({
-	translate: (_app, text, vars = {}) => text.replace(/\{(\w+)\}/g, (_m, key) => vars[key]),
+	translate: (...args) => args[1].replace(/\{(\w+)\}/g, (_m, key) => (args[2] || {})[key]),
 }))
 
 const HIERARCHIES = [{ id: 'nl', levels: [{ dimension: 'gemeenteCode' }, { dimension: 'wijkCode' }] }]

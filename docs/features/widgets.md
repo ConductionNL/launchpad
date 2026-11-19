@@ -637,3 +637,9 @@ the widget: the client shows an inline error for that cell, and OpenRegister
 logs the failing calculation and saves the object without it. Format options
 (currency, decimals, date pattern, duration pattern) only change the displayed
 text; alerting, exports and drill-down see the native value.
+
+A scheduled export evaluates every field on the server when it fires, with
+the same rules as the browser, over the rows the recipient's filter leaves.
+Each widget's table is followed by one row of its field values, headed by the
+field labels; a field that fails is an empty cell. Every mode is exported this
+way, so the export carries what the widget shows.

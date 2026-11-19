@@ -7,7 +7,9 @@
  * one table per widget of the dashboard, or the one widget, taken from the
  * rows the widget carries (`props.rows`, `props.data` or
  * `dataSource.rows`), with the recipient's filter context applied. A
- * filter on a field no table has is refused.
+ * filter on a field no table has is refused. A widget with calculated
+ * fields gets a second table of their values, evaluated on the server over
+ * the filtered rows, so the export carries what the widget shows.
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service\ScheduledExport
@@ -37,10 +39,12 @@ class SubjectTables {
 	/**
 	 * Constructor.
 	 *
-	 * @param ExportObjectStore $store Reads the subject dashboard.
+	 * @param ExportObjectStore      $store      Reads the subject dashboard.
+	 * @param ExportCalculatedValues $calculated Evaluates the widgets' calculated fields.
 	 */
 	public function __construct(
 		private readonly ExportObjectStore $store,
+		private readonly ExportCalculatedValues $calculated = new ExportCalculatedValues(),
 	) {
 	}//end __construct()
 
@@ -58,7 +62,8 @@ class SubjectTables {
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-004-per-recipient-filter-context
 	 */
 	public function tables(array $export, array $filterContext): array {
-		$tables = array_map(fn (array $widget): array => $this->table(widget: $widget), $this->widgets(export: $export));
+		$widgets = $this->widgets(export: $export);
+		$tables  = array_map(fn (array $widget): array => $this->table(widget: $widget), $widgets);
 
 		foreach ($filterContext as $field => $value) {
 			$field  = (string)$field;
@@ -78,8 +83,55 @@ class SubjectTables {
 			}
 		}
 
-		return $tables;
+		return $this->withCalculatedTables(widgets: $widgets, tables: $tables);
 	}//end tables()
+
+	/**
+	 * The tables, each widget's followed by the values of its calculated
+	 * fields: one row, a column per field, headed by the field's label.
+	 *
+	 * A widget's data is its filtered rows, as `rows` (each row by header)
+	 * and `total` (their number), which is what a field can read here.
+	 *
+	 * @param list<array<string, mixed>>                                          $widgets The widgets, in table order.
+	 * @param list<array{title: string, headers: list<string>, rows: list<list<mixed>>}> $tables  Their filtered tables.
+	 *
+	 * @return list<array{title: string, headers: list<string>, rows: list<list<mixed>>}>
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-20
+	 */
+	private function withCalculatedTables(array $widgets, array $tables): array {
+		$dataById = [];
+		foreach ($widgets as $i => $widget) {
+			$rows = array_map(static fn (array $row): array => array_combine($tables[$i]['headers'], $row), $tables[$i]['rows']);
+			$dataById[(string) ($widget['id'] ?? $i)] = ['rows' => $rows, 'total' => count($rows)];
+		}
+
+		$values = $this->calculated->values(widgets: $widgets, dataById: $dataById);
+		$out    = [];
+		foreach ($widgets as $i => $widget) {
+			$out[] = $tables[$i];
+			$id    = (string) ($widget['id'] ?? $i);
+			$known  = ($values[$id] ?? []);
+			$fields = array_values(
+				array_filter(
+					(array) ($widget['calculatedFields'] ?? []),
+					static fn (mixed $field): bool => is_array($field) === true && array_key_exists((string) ($field['name'] ?? ''), $known) === true
+				)
+			);
+			if ($fields === []) {
+				continue;
+			}
+
+			$out[] = [
+				'title'   => $tables[$i]['title'] . ': calculated fields',
+				'headers' => array_map(static fn (array $field): string => (string) ($field['label'] ?? $field['name']), $fields),
+				'rows'    => [array_map(static fn (array $field): mixed => $values[$id][(string) $field['name']], $fields)],
+			];
+		}
+
+		return $out;
+	}//end withCalculatedTables()
 
 	/**
 	 * The widgets the subject covers.

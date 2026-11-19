@@ -1822,7 +1822,9 @@ OC.L10N.register(
     "Failed for good" : "Failed for good",
     "Not run yet" : "Not run yet",
     "Recipient {number}" : "Recipient {number}",
-    "Scheduled exports…" : "Scheduled exports…"
+    "Scheduled exports…" : "Scheduled exports…",
+    "You have no access to this scope: {name}" : "You have no access to this scope: {name}",
+    "{name} filter changed: {from} → {to}" : "{name} filter changed: {from} → {to}"
 },
 "nplurals=2; plural=(n != 1);"
 );

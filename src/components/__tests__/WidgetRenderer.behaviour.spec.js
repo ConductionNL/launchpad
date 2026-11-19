@@ -14,6 +14,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import WidgetRenderer from '../WidgetRenderer.vue'
+import { useCalculatedFieldsStore } from '../../stores/calculatedFields.js'
 import { useTileStore } from '../../stores/tiles.js'
 import { useWidgetStore } from '../../stores/widgets.js'
 
@@ -285,5 +286,21 @@ describe('WidgetRenderer.setupAutoRefresh', () => {
 		expect(ctx.refreshWidgetItems).toHaveBeenCalledTimes(1)
 
 		clearInterval(ctx.refreshInterval)
+	})
+})
+
+describe('WidgetRenderer.onWidgetData (widget-calculated-fields task 19)', () => {
+	it('hands what the widget shows to the calculated fields of its placement', () => {
+		const store = useCalculatedFieldsStore()
+		const spy = vi.spyOn(store, 'setWidgetData')
+		instance({ placement: { id: 12 } }).onWidgetData({ total: 7 })
+		expect(spy).toHaveBeenCalledWith('12', { total: 7 })
+	})
+
+	it('does nothing for a placement without an id', () => {
+		const store = useCalculatedFieldsStore()
+		const spy = vi.spyOn(store, 'setWidgetData')
+		instance({ placement: {} }).onWidgetData({ total: 7 })
+		expect(spy).not.toHaveBeenCalled()
 	})
 })

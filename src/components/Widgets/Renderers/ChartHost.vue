@@ -10,7 +10,8 @@
 		:widgetId="widgetId"
 		:selectable="publishing"
 		v-bind="passthroughProps"
-		@select="onSelect" />
+		@select="onSelect"
+		@data="$emit('data', $event)" />
 </template>
 
 <script>
@@ -78,6 +79,8 @@ export default {
 		/** The placement record (used for a stable widget id). */
 		placement: OBJECT_PROP,
 	},
+
+	emits: ['data'],
 
 	computed: {
 		/** apexcharts chart type, from `chartKind` (content or nested props). */

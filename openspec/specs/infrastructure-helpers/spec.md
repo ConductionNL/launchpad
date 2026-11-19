@@ -20,9 +20,6 @@ This capability MUST contain only helpers that:
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### REQ-INFRA-001: Slug generation and validation
 
 The system MUST provide a static `SlugGenerator` helper that converts arbitrary user-supplied names into URL-safe slugs and validates caller-supplied slugs against the pinned grammar. The slug grammar is `^[a-z0-9_-]+$` (lowercase ASCII alphanumerics, dash, underscore), maximum 128 characters (matching the `slug VARCHAR(128)` database column).
@@ -61,6 +58,7 @@ The system MUST provide a static `SlugGenerator` helper that converts arbitrary 
 - THEN the result is at most 128 characters AND does not end with `-`
 
 #### Scenario: Validate rejects empty string
+@e2e exclude not reachable over HTTP: both slug write paths treat an empty slug as "none supplied" before validating (DashboardFactory::resolveSlug derives one from the name, DashboardService::applySlugUpdate stores NULL), so isValid('') is never called from a request; pinned by tests/Unit/Service/SlugGeneratorTest.php::testIsValidRejectsIllegalSlugs
 
 - WHEN `SlugGenerator::isValid('')` is called
 - THEN the result is `false`
@@ -94,6 +92,7 @@ The system MUST provide `UserAttributeResolver` to back attribute-based features
 - THEN the result is `null`
 
 #### Scenario: Non-existent user returns null
+@e2e exclude not reachable over HTTP: attribute rules are only ever evaluated for the logged-in caller (render time and POST /api/visibility/preview), who always exists; pinned by tests/Unit/Service/UserAttributeResolverTest.php::testUnknownUserResolvesToNullWithoutReadingConfig (the null is returned before the attribute is looked at, so it holds for 'email' as for 'locale')
 
 - WHEN `getUserAttributeValue('does-not-exist', 'email')` is called
 - THEN the result is `null`
@@ -141,6 +140,7 @@ Neither method validates field shapes or values — downstream callers are respo
 - THEN the result is `{gridX: 2}` (single key)
 
 #### Scenario: extractPlacementData preserves all 16 fields when all are set
+@e2e exclude the clause under test is the extractor's in-memory array (entry count, values not cast); a request can only observe the placement after the typed entity and columns have cast every value, so no HTTP read can tell. Partly pinned by tests/Unit/Controller/RequestDataExtractorTest.php::testPlacementDataKeepsOnlyGivenFields (every field name is read, given values are kept uncast); no unit test sets every field at once
 
 - GIVEN a request with all 16 placement fields set to non-null values
 - WHEN `extractPlacementData($request)` is called

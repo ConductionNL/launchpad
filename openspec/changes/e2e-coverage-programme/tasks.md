@@ -55,6 +55,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
 - [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
 - [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
+  - Spec written: tests/e2e/conditional-visibility-editor.spec.ts, 23 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
 - [ ] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.

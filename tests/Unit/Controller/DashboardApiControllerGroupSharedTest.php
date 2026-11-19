@@ -41,6 +41,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * Tests for the group-scoped controller actions (REQ-DASH-011, REQ-DASH-013, REQ-DASH-014).
@@ -141,7 +142,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 				actionAuth: $this->actionAuth
 			),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end makeController()
 

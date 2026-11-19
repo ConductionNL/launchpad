@@ -36,7 +36,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class TileApiControllerTest extends TestCase {
 	/** @var TileService&MockObject */
@@ -83,7 +83,7 @@ class TileApiControllerTest extends TestCase {
 				userSession: $this->userSession
 			),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

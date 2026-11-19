@@ -45,6 +45,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * Unit tests for the fork controller action (REQ-DASH-020..022).
@@ -126,7 +127,7 @@ class DashboardApiControllerForkTest extends TestCase {
 				actionAuth: $this->actionAuth
 			),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end makeController()
 

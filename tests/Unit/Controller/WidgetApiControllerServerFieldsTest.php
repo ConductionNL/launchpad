@@ -61,6 +61,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Psr\Log\NullLogger;
 
 /**
  * Materialisation on placement update and removal.
@@ -293,10 +294,10 @@ class WidgetApiControllerServerFieldsTest extends TestCase {
 				)
 			),
 			$permissions,
-			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(originalClassName: LoggerInterface::class)),
+			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class)),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			'alice',
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end controller()
 

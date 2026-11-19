@@ -51,7 +51,7 @@ class CrossWidgetFilterSchemasTest extends TestCase {
 		$apps = $this->createMock(IAppManager::class);
 		$apps->method('getAppPath')->willReturn(dirname(__DIR__, 3));
 
-		(new ImportLaunchpadRegister(container: $container, appManager: $apps, logger: $this->createMock(originalClassName: LoggerInterface::class)))
+		(new ImportLaunchpadRegister(container: $container, appManager: $apps, logger: $this->createMock(LoggerInterface::class)))
 			->run($this->createMock(IOutput::class));
 
 		$this->assertCount(1, $importer->runs);

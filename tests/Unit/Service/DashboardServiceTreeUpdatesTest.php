@@ -173,7 +173,7 @@ class DashboardServiceTreeUpdatesTest extends TestCase {
 				config: $this->createMock(IConfig::class),
 				l10nFactory: $this->createMock(IFactory::class)
 			),
-			outlets: new DashboardOutlets(logger: $this->createMock(originalClassName: LoggerInterface::class))
+			outlets: new DashboardOutlets(logger: $this->createMock(LoggerInterface::class))
 		);
 
 		$dashboard = new Dashboard();

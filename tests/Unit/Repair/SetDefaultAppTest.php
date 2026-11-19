@@ -41,7 +41,7 @@ class SetDefaultAppTest extends TestCase {
 	 * @return void
 	 */
 	public function testName(): void {
-		$step = new SetDefaultApp($this->createMock(DefaultAppSetting::class), $this->createMock(originalClassName: LoggerInterface::class));
+		$step = new SetDefaultApp($this->createMock(DefaultAppSetting::class), $this->createMock(LoggerInterface::class));
 
 		$this->assertSame('Make LaunchPad the default app', $step->getName());
 	}//end testName()
@@ -77,7 +77,7 @@ class SetDefaultAppTest extends TestCase {
 		$output->expects($this->once())->method('info')->with($message);
 		$output->expects($this->never())->method('warning');
 
-		(new SetDefaultApp($defaultApp, $this->createMock(originalClassName: LoggerInterface::class)))->run($output);
+		(new SetDefaultApp($defaultApp, $this->createMock(LoggerInterface::class)))->run($output);
 	}//end testRunClaimsAndReports()
 
 	/**

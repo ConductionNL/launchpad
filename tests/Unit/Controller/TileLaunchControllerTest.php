@@ -93,7 +93,7 @@ class TileLaunchControllerTest extends TestCase {
 		return new TileLaunchController(
 			request: $this->createMock(IRequest::class),
 			permissions: $this->permissions,
-			session: new SessionLog(userSession: $this->userSession, logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			session: new SessionLog(userSession: $this->userSession, logger: $this->createMock(LoggerInterface::class)),
 			placements: $this->placements,
 			links: new TileLinkValidator(settings: $this->createMock(AdminSettingsService::class)),
 			rdpFiles: new RdpFileWriter()

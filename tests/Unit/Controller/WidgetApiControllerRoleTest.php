@@ -47,6 +47,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * Tests for role-permission filtering in WidgetApiController.
@@ -141,7 +142,7 @@ class WidgetApiControllerRoleTest extends TestCase {
 				actionAuth: $this->actionAuth
 			),
 			userId: 'jan',
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end makeController()
 

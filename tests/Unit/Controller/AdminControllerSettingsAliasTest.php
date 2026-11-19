@@ -45,7 +45,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class AdminControllerSettingsAliasTest extends TestCase {
 	private AdminController $controller;
@@ -76,7 +76,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 				userSession: $this->createMock(IUserSession::class),
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end setUp()
 

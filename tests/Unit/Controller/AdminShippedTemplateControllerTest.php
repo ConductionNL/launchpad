@@ -27,7 +27,6 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
 
 /**
  * The shipped template endpoints (REQ-TMPL-018): who may call them and what
@@ -62,7 +61,7 @@ class AdminShippedTemplateControllerTest extends TestCase {
 				logger: new NullLogger()
 			),
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

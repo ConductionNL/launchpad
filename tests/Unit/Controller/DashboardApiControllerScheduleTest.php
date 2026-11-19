@@ -36,6 +36,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 class DashboardApiControllerScheduleTest extends TestCase {
 	private $dashboardService;
@@ -64,7 +65,7 @@ class DashboardApiControllerScheduleTest extends TestCase {
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
 			userId: 'sanne',
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

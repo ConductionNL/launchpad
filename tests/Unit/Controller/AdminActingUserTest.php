@@ -38,7 +38,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * The endpoints that act on the session user's behalf hand the services that
@@ -188,7 +188,7 @@ class AdminActingUserTest extends TestCase {
 			request: $this->forgedRequest(),
 			sources: new OrgNavigationSources(service: $service, settings: $this->createMock(AdminSettingMapper::class)),
 			guard: $this->guard(uid: $uid),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 }

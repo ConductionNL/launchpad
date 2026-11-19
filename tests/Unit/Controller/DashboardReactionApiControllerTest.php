@@ -33,6 +33,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * Unit tests for DashboardReactionApiController (M4 ADR-023 wiring).
@@ -75,7 +76,7 @@ class DashboardReactionApiControllerTest extends TestCase {
 				userSession: $this->userSession
 			),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end makeController()
 
@@ -227,7 +228,7 @@ class DashboardReactionApiControllerTest extends TestCase {
 				userSession: $anonSession
 			),
 			userId: null,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 		$response = $controller->getReactions('some-uuid');
 

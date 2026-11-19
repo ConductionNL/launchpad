@@ -50,6 +50,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -85,10 +86,10 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 			$this->request,
 			new WidgetApiSources($this->widgetService, $this->newsService, $this->calendarService, $this->placementService),
 			$this->permissionService,
-			new WidgetApiPolicy($this->roleFeaturePerm, $this->createMock(originalClassName: LoggerInterface::class)),
+			new WidgetApiPolicy($this->roleFeaturePerm, $this->createMock(LoggerInterface::class)),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			$userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

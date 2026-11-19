@@ -41,6 +41,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * Directory pages, viewer by viewer.
@@ -245,7 +246,7 @@ class PeopleDirectoryGoldenTest extends TestCase {
 			actionAuth: $auth,
 			userSession: $session,
 			userId: $viewer,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 
 		[$filters, $excludeDisabled, $showBirthdays, $sortBy, $limit, $offset, $q] = $params;

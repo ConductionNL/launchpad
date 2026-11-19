@@ -66,7 +66,7 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 				logger: new NullLogger()
 			),
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 
@@ -199,7 +199,7 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 			request: $this->request,
 			showcases: new ShowcaseTools(showcasesSvc: $this->service, logger: $logger),
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 
 		$missing = $controller->install(id: 'de-bron');

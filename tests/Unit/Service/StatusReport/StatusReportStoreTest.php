@@ -61,14 +61,14 @@ class StatusReportStoreTest extends TestCase {
 			}
 		};
 
-		$stored = (new StatusReportStore($this->container($service), $this->createMock(originalClassName: LoggerInterface::class)))->save(['health' => 'at-risk']);
+		$stored = (new StatusReportStore($this->container($service), $this->createMock(LoggerInterface::class)))->save(['health' => 'at-risk']);
 
 		$this->assertSame(['health' => 'at-risk', 'id' => 'uuid-1'], $stored);
 		$this->assertSame([[['health' => 'at-risk'], 'launchpad', 'status_report']], $service->calls);
 	}
 
 	public function testWithoutOpenRegisterNothingIsStored(): void {
-		$this->assertNull((new StatusReportStore($this->container(null), $this->createMock(originalClassName: LoggerInterface::class)))->save(['health' => 'on-track']));
+		$this->assertNull((new StatusReportStore($this->container(null), $this->createMock(LoggerInterface::class)))->save(['health' => 'on-track']));
 	}
 
 	public function testAFailedSaveIsLoggedAndAnswersNull(): void {
@@ -90,6 +90,6 @@ class StatusReportStoreTest extends TestCase {
 			}
 		};
 
-		$this->assertNull((new StatusReportStore($this->container($service), $this->createMock(originalClassName: LoggerInterface::class)))->save([]));
+		$this->assertNull((new StatusReportStore($this->container($service), $this->createMock(LoggerInterface::class)))->save([]));
 	}
 }

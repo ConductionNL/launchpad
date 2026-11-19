@@ -57,7 +57,7 @@ class ObjectRowsTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('has')->with(ObjectRows::OBJECT_SERVICE)->willReturn(false);
 		$container->expects($this->never())->method('get');
-		$reader = new ObjectRows($container, $this->createMock(originalClassName: LoggerInterface::class));
+		$reader = new ObjectRows($container, $this->createMock(LoggerInterface::class));
 
 		$this->assertNull($reader->rows(register: 'cases', schema: 'case'));
 		$this->assertFalse($reader->isInstalled());
@@ -108,7 +108,7 @@ class ObjectRowsTest extends TestCase {
 		$container->method('has')->willReturn(true);
 		$container->method('get')->with(ObjectRows::OBJECT_SERVICE)->willReturn($service);
 
-		return new ObjectRows($container, $logger ?? $this->createMock(originalClassName: LoggerInterface::class));
+		return new ObjectRows($container, $logger ?? $this->createMock(LoggerInterface::class));
 	}//end reader()
 
 	/**

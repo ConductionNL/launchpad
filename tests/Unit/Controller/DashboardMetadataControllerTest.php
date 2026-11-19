@@ -39,7 +39,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class DashboardMetadataControllerTest extends TestCase {
 	/** @var MetadataService&MockObject */
@@ -87,7 +87,7 @@ class DashboardMetadataControllerTest extends TestCase {
 			),
 			permissionService: $this->permissionService,
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

@@ -36,7 +36,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * The template patch of updateTemplate(), case by case.
@@ -83,7 +83,7 @@ class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 				userSession: $this->createMock(IUserSession::class),
 				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end controller()
 

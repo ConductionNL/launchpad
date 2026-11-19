@@ -39,6 +39,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * The update() guards, case by case.
@@ -138,7 +139,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 			),
 			actor: new RequestActor(userSession: $session, actionAuth: $actionAuth),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end controller()
 

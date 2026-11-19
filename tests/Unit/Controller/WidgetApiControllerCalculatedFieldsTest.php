@@ -55,6 +55,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Save-time validation of calculated fields on the placement update endpoint.
@@ -157,10 +158,10 @@ class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 				$this->createMock(WidgetPlacementService::class)
 			),
 			$permissions,
-			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(originalClassName: LoggerInterface::class)),
+			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class)),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			'alice',
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end controller()
 

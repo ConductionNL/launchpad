@@ -66,7 +66,7 @@ class UsageTelemetryServiceTest extends TestCase {
 			$this->dispatched[] = $event;
 		});
 
-		return new UsageTelemetryService(new EmbedObjectStore($container), $config, $time, $dispatcher, $this->createMock(originalClassName: LoggerInterface::class));
+		return new UsageTelemetryService(new EmbedObjectStore($container), $config, $time, $dispatcher, $this->createMock(LoggerInterface::class));
 	}//end service()
 
 	/**

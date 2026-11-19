@@ -34,7 +34,7 @@ use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class AdminControllerGroupOrderTest extends TestCase {
 	private AdminSettingsController $controller;
@@ -59,7 +59,7 @@ class AdminControllerGroupOrderTest extends TestCase {
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 			shortcuts: $this->createMock(SearchShortcutService::class),
 			css: $this->createMock(CustomCssService::class),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

@@ -36,6 +36,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * @covers \OCA\LaunchPad\Controller\AdminDemoShowcasesController
@@ -74,7 +75,7 @@ class AdminDemoShowcasesControllerDestroyTest extends TestCase {
 				groupManager: $this->groups,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end setUp()
 

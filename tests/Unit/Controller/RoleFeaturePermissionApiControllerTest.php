@@ -37,7 +37,7 @@ use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Unit tests for RoleFeaturePermissionApiController.
@@ -81,7 +81,7 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 		$this->controller = new RoleFeaturePermissionApiController(
 			request: $this->request,
 			service: $this->service,
-			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end setUp()
 

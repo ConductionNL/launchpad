@@ -71,7 +71,7 @@ class LiveTileListsTest extends TestCase {
 
 		return new LiveTileService(
 			sources: new ReadingSources(appManager: $this->appManager, container: $this->container, clientService: $this->clientService, cacheFactory: $cacheFactory),
-			settings: new LiveTileSettings(appConfig: $appConfig, logger: $this->createMock(originalClassName: LoggerInterface::class)),
+			settings: new LiveTileSettings(appConfig: $appConfig, logger: $this->createMock(LoggerInterface::class)),
 			placementMapper: $this->placementMapper
 		);
 	}//end service()

@@ -211,15 +211,15 @@ class CallerGuardGoldenTest extends TestCase {
 			$args = [];
 			foreach ((new ReflectionClass($target))->getConstructor()->getParameters() as $param) {
 				$type = $param->getType();
-				$name = ($type instanceof ReflectionNamedType) ? $type->getName() : 'mixed';
+				$name = match (true) {$type instanceof ReflectionNamedType => $type->getName(), default => 'mixed'};
 				$args[] = match (true) {
-					$param->getName() === 'userId' => ($scenario === 'anonymous') ? null : 'alice',
+					$param->getName() === 'userId' => match ($scenario) {'anonymous' => null, default => 'alice'},
 					$name === ActionAuthService::class => $auth,
 					$name === IUserSession::class => $session,
 					$name === ActionCaller::class => new ActionCaller(actionAuth: $auth, userSession: $session),
 					$name === RequestActor::class && $target === ActorResponses::class => new RequestActor(userSession: $session, actionAuth: $auth),
 					$name === MetadataApiCaller::class => new MetadataApiCaller(
-						sources: $this->createMock(\OCA\LaunchPad\Controller\MetadataSources::class),
+						sources: $this->createMock(originalClassName: \OCA\LaunchPad\Controller\MetadataSources::class),
 						actionAuth: $auth,
 						userSession: $session
 					),

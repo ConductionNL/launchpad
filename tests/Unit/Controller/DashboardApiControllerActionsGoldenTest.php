@@ -85,7 +85,12 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 				$this->createMock(AnalyticsService::class),
 				$this->logger,
 			)),
-			context: new ActorResponses(actor: new RequestActor($session, $this->createMock(ActionAuthService::class)), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(ActionAuthService::class)
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 

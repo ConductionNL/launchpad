@@ -139,7 +139,12 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
 			)),
-			context: new ActorResponses(actor: new RequestActor(userSession: $session, actionAuth: $actionAuth), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}//end controller()
 

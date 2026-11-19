@@ -59,7 +59,10 @@ class AdminControllerGroupOrderTest extends TestCase {
 			request: $this->request,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 			sources: new AdminSettingsSources(settingsService: $this->settingsService, shortcuts: $this->createMock(SearchShortcutService::class)),
-			context: new AdminSettingsContext(css: $this->createMock(CustomCssService::class), responseHelper: new ResponseHelper(logger: new NullLogger()))
+			context: new AdminSettingsContext(
+				css: $this->createMock(CustomCssService::class),
+				responseHelper: new ResponseHelper(logger: new NullLogger())
+			)
 		);
 	}
 

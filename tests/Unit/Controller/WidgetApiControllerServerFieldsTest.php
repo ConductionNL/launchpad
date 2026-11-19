@@ -296,8 +296,16 @@ class WidgetApiControllerServerFieldsTest extends TestCase {
 					materialiser: new CalculatedFieldMaterialiser(translator: new CalculatedFieldCalculationTranslator(), container: $container)
 				)
 			),
-			access: new WidgetApiAccess(permissionService: $permissions, policy: new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class))),
-			context: new ActorResponses(actor: new RequestActor($session, $this->createMock(ActionAuthService::class)), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger())))
+			access: new WidgetApiAccess(permissionService: $permissions, policy: new WidgetApiPolicy(
+				$this->createMock(RoleFeaturePermissionService::class),
+				$this->createMock(LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(ActionAuthService::class)
+			), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}//end controller()
 

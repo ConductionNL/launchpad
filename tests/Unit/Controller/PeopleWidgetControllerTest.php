@@ -222,7 +222,12 @@ class PeopleWidgetControllerTest extends TestCase {
 		return new PeopleWidgetController(
 			request: $this->request,
 			service: $this->service,
-			context: new ActorResponses(actor: new RequestActor(userSession: $this->userSession, actionAuth: $this->actionAuth), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}//end buildController()
 }//end class

@@ -128,7 +128,12 @@ class RuleApiControllerGetRulesTest extends TestCase {
 			request: $this->request,
 			conditionalService: $this->conditionalService,
 			permissionService: $this->permissionService,
-			context: new CallerResponses(caller: new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new CallerResponses(caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 
 	}//end makeController()

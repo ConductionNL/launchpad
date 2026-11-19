@@ -67,7 +67,12 @@ class RuleApiControllerAddRuleTest extends TestCase {
 			request: $this->createMock(IRequest::class),
 			conditionalService: $this->rules,
 			permissionService: $this->permissions,
-			context: new CallerResponses(caller: new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->session), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new CallerResponses(caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->session
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 

@@ -69,7 +69,10 @@ class AdminSettingsCustomCssTest extends TestCase {
 				groupManager: $this->groupManager,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			sources: new AdminSettingsSources(settingsService: $this->createMock(AdminSettingsService::class), shortcuts: $this->createMock(SearchShortcutServiceInterface::class)),
+			sources: new AdminSettingsSources(
+				settingsService: $this->createMock(AdminSettingsService::class),
+				shortcuts: $this->createMock(SearchShortcutServiceInterface::class)
+			),
 			context: new AdminSettingsContext(css: $this->css, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}

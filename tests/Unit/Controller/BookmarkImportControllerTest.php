@@ -89,7 +89,12 @@ class BookmarkImportControllerTest extends TestCase {
 			request: $this->request,
 			widgetService: $this->widgetService,
 			permissionService: $this->permissions,
-			context: new ActorResponses(actor: new RequestActor($this->session, $this->actionAuth), responses: new UserResponses(userId: 'pieter', responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new ActorResponses(actor: new RequestActor(
+				$this->session,
+				$this->actionAuth
+			), responses: new UserResponses(userId: 'pieter', responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}//end controller()
 
@@ -117,7 +122,12 @@ class BookmarkImportControllerTest extends TestCase {
 			request: $this->request,
 			widgetService: $this->widgetService,
 			permissionService: $this->permissions,
-			context: new ActorResponses(actor: new RequestActor($this->session, $this->actionAuth), responses: new UserResponses(userId: null, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new ActorResponses(actor: new RequestActor(
+				$this->session,
+				$this->actionAuth
+			), responses: new UserResponses(userId: null, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 
 		self::assertSame(401, $controller->import(dashboardId: 3)->getStatus());

@@ -246,7 +246,12 @@ class PeopleDirectoryGoldenTest extends TestCase {
 		$controller = new PeopleWidgetController(
 			request: $this->getMockBuilder(className: IRequest::class)->getMock(),
 			service: $service,
-			context: new ActorResponses(actor: new RequestActor(userSession: $session, actionAuth: $auth), responses: new UserResponses(userId: $viewer, responseHelper: new ResponseHelper(logger: new NullLogger())))
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $auth
+			), responses: new UserResponses(userId: $viewer, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 
 		[$filters, $excludeDisabled, $showBirthdays, $sortBy, $limit, $offset, $q] = $params;

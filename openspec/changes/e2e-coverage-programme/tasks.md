@@ -103,6 +103,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
 - [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
 - [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/nc-unified-search-integration.spec.ts, 42 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with reasons
 - [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
 - [ ] 5.7 `prometheus-metrics`: 23 scenarios, 0 cited, blanket.
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.

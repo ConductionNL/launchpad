@@ -14,27 +14,33 @@
 
 ## Read Tools (REQ-MCP-002)
 
-- [ ] Task 7: Implement the 14 read tools in `lib/Mcp/McpDashboardTools.php` (dashboard reads) and sibling handler classes: listDashboards, getDashboard, getActiveDashboard, getDashboardTree, listGroupDashboards, listWidgetTypes, listTiles, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists — all `readOnlyHint: true`, scope `read`, reach `self`
-  - progress: 6 of 14 built (listDashboards, getDashboard, getActiveDashboard, listGroupDashboards, listWidgetTypes, listTiles; tiles in `lib/Mcp/McpTileTools.php`). Left: getDashboardTree, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists.
-- [ ] Task 8: REQ-MCP-002 — Unit test: each read tool's result for a fixture caller equals the visibility the corresponding service call grants that caller (visible-set parity, not superset)
+- [x] Task 7: Implement the 14 read tools in `lib/Mcp/McpDashboardTools.php` (dashboard reads) and sibling handler classes: listDashboards, getDashboard, getActiveDashboard, getDashboardTree, listGroupDashboards, listWidgetTypes, listTiles, listShares, listVersions, listTemplates, getDashboardMetadata, getReactions, listPendingAcknowledgements, listKioskPlaylists — all `readOnlyHint: true`, scope `read`, reach `self`
+  - All 14 built. The eight added: `McpCatalogueTools` (getDashboardTree, listTemplates), `McpSharingTools` (listShares, listKioskPlaylists), `McpHistoryTools` (listVersions), `McpMetadataTools` (getDashboardMetadata, with the gate's new `requireView()` over `PermissionService::canViewDashboard()`), `McpEngagementTools` (getReactions, listPendingAcknowledgements). Each applies its route's check (the ADR-023 action, or only a session where the route asks none) and calls its route's service. The provider resolves each tool's handler from the container through `TOOL_HANDLERS` when the tool runs.
+- [x] Task 8: REQ-MCP-002 — Unit test: each read tool's result for a fixture caller equals the visibility the corresponding service call grants that caller (visible-set parity, not superset)
+  - `McpCatalogueToolsTest`, `McpSharingToolsTest`, `McpDashboardDetailToolsTest`, with the existing `McpDashboardToolsTest` and `McpTileToolsTest`: each tool answers exactly what its service gives the fixture caller, and a refused caller reaches no service.
 
 ## Write Tools (REQ-MCP-003)
 
 - [ ] Task 9: Implement the 18 `self`-reach write tools (dashboard CRUD, active/default, fork, widget add/update/remove, tile CRUD + addTileToDashboard, version create/restore, metadata set, reaction add/remove) with per-tool `inputSchema`
+  - progress: 5 of 18 built (createDashboardVersion, restoreDashboardVersion, setDashboardMetadata, addReaction, removeReaction). Left: dashboard CRUD, switchActive/setDefault, fork, widget add/update/remove, addTileToDashboard, and createTile/updateTile/deleteTile, whose routes now answer 410 Gone (see the open question in the hand-back).
 - [ ] Task 10: Implement the 4 `user`-reach tools (shareDashboard, replaceShares, unshareDashboard, setPublicationState)
 - [ ] Task 11: Implement the 5 `external`-reach tools (createPublicShareLink, revokePublicShareLink, createKioskPlaylist, updateKioskPlaylist, deleteKioskPlaylist)
 - [ ] Task 12: Implement the 8 `instance`-reach tools (group dashboard CRUD, setGroupDefault, template create/update/delete/resync)
-- [ ] Task 13: REQ-MCP-003 — Unit test on the descriptor fixture: every write tool declares exactly one scope ∈ {create, update, delete} and one reach ∈ {self, user, instance, external}; no write carries `readOnlyHint: true`
-- [ ] Task 14: REQ-MCP-006 — Annotate all `delete`-scope and all `external`-reach tools with the destructive/approval flag hermiq's approval gate consumes; every handler result includes tool id, target identifier, caller uid, and outcome for the audit trail
+- [x] Task 13: REQ-MCP-003 — Unit test on the descriptor fixture: every write tool declares exactly one scope ∈ {create, update, delete} and one reach ∈ {self, user, instance, external}; no write carries `readOnlyHint: true`
+  - `LaunchpadToolProviderTest::testEveryToolCarriesItsGrantAnnotations` holds for every descriptor, so each write tool added later is checked too.
+- [x] Task 14: REQ-MCP-006 — Annotate all `delete`-scope and all `external`-reach tools with the destructive/approval flag hermiq's approval gate consumes; every handler result includes tool id, target identifier, caller uid, and outcome for the audit trail
+  - Hints are top-level keys, as OpenRegister's `IMcpToolProvider::getTools()` reads them (`readOnlyHint`, `destructiveHint`); they were nested under `annotations`, where OpenRegister never saw them. The provider adds `audit: {tool, target, caller, outcome}` to every write tool's answer, refusals included. The test holds for every descriptor.
 
 ## Exclusions (REQ-MCP-007)
 
 - [ ] Task 15: Unit test asserting catalogue closure: the descriptor set equals exactly the REQ-MCP-002 + REQ-MCP-003 ids, and contains no tool for viewEvent, tile-click recording, `acknowledgement#acknowledge`, resource/preview/files uploads, lock endpoints, wizard, Confluence import, cleanup, demo showcases, bulk ops, export/import, or settings surfaces
-- [ ] Task 16: Document the exclusion rationale in the provider's class docblock so a future "completeness" sweep reads why before adding
+- [x] Task 16: Document the exclusion rationale in the provider's class docblock so a future "completeness" sweep reads why before adding
+  - The class docblock of `LaunchpadToolProvider` lists the exclusions and why.
 
 ## Schema Overlay (REQ-MCP-009)
 
-- [ ] Task 17: Create `lib/Settings/register.d/dashboard-mcp.json` adding an `x-openregister-mcp` block to the `Dashboard` schema with read-only `search` and `get` tools (`readOnlyHint: true`, scope `read`, sensible `filters` such as title/slug/type/groupId — openconnector's endpoint block as the template). No derived writes
+- [x] Task 17: Create `lib/Settings/register.d/dashboard-mcp.json` adding an `x-openregister-mcp` block to the `Dashboard` schema with read-only `search` and `get` tools (`readOnlyHint: true`, scope `read`, sensible `filters` such as title/slug/type/groupId — openconnector's endpoint block as the template). No derived writes
+  - `lib/Settings/register.d/dashboard-mcp.json`: `search` (filters title, slug, type, groupId) and `get`, both scope `read` and `readOnlyHint: true`; the import version moves to 1.0.6 so existing installs take it. Test: `DashboardMcpOverlayTest`.
 - [ ] Task 18: Verify the imported schema carries the block (check the imported schema via OpenRegister, not the file — the importer can reject silently)
 
 ## Authorization Parity Tests (REQ-MCP-004/005)

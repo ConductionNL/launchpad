@@ -28,7 +28,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use Closure;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -47,11 +49,15 @@ class McpDashboardGate {
 	 * @param IUserSession      $userSession  The session the tool call runs in.
 	 * @param ActionAuthService $actionAuth   ADR-023 action authorisation.
 	 * @param IGroupManager     $groupManager The admin check.
+	 * @param PermissionService $permissions  The per-dashboard access the HTTP routes apply.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-4
 	 */
 	public function __construct(
 		private readonly IUserSession $userSession,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IGroupManager $groupManager,
+		private readonly PermissionService $permissions,
 	) {
 	}//end __construct()
 
@@ -115,4 +121,78 @@ class McpDashboardGate {
 
 		return null;
 	}//end requireAdmin()
+
+	/**
+	 * A refusal when no user is signed in, or NULL to proceed. For the tools
+	 * whose route asks no ADR-023 action, only a session.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-4
+	 */
+	public function requireUser(): ?array {
+		if ($this->currentUserId() === '') {
+			return (new McpArgumentValidator())->refuse(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
+		}
+
+		return null;
+	}//end requireUser()
+
+	/**
+	 * A refusal when the caller may not see the dashboard, or NULL to proceed.
+	 * Any failure of the permission check denies.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-4
+	 */
+	public function requireView(int $dashboardId): ?array {
+		return $this->refuseUnless(
+			check: fn (string $userId): bool => $this->permissions->canViewDashboard(userId: $userId, dashboardId: $dashboardId),
+			message: 'You may not see this dashboard.'
+		);
+	}//end requireView()
+
+	/**
+	 * A refusal when the caller may not edit the dashboard's metadata (the
+	 * owner of a personal dashboard, an administrator for a template), or
+	 * NULL to proceed. Any failure of the permission check denies.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
+	 */
+	public function requireMetadataEdit(int $dashboardId): ?array {
+		return $this->refuseUnless(
+			check: fn (string $userId): bool => $this->permissions->canEditDashboardMetadata(userId: $userId, dashboardId: $dashboardId),
+			message: 'You may not edit the metadata of this dashboard.'
+		);
+	}//end requireMetadataEdit()
+
+	/**
+	 * A forbidden refusal unless the check allows the caller. A check that
+	 * throws denies.
+	 *
+	 * @param Closure(string): bool $check   The permission check for a uid.
+	 * @param string                $message The refusal sentence.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function refuseUnless(Closure $check, string $message): ?array {
+		try {
+			$allowed = ($check($this->currentUserId()) === true);
+		} catch (Throwable) {
+			$allowed = false;
+		}
+
+		if ($allowed === false) {
+			return (new McpArgumentValidator())->refuse(code: 'forbidden', message: $message);
+		}
+
+		return null;
+	}//end refuseUnless()
 }//end class

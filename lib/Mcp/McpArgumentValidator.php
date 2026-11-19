@@ -26,6 +26,11 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use InvalidArgumentException;
+use OCA\LaunchPad\Exception\ResourceException;
+use OCP\AppFramework\Db\DoesNotExistException;
+use Throwable;
+
 /**
  * Argument checks returning structured MCP errors.
  *
@@ -170,4 +175,39 @@ class McpArgumentValidator {
 
 		return null;
 	}//end grid()
+
+	/**
+	 * The error envelope, for callers that hold a validator instance.
+	 *
+	 * @param string $code    The machine code.
+	 * @param string $message A sentence for the agent.
+	 *
+	 * @return array{isError: true, error: string, message: string}
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-6
+	 */
+	public function refuse(string $code, string $message): array {
+		return self::error(code: $code, message: $message);
+	}//end refuse()
+
+	/**
+	 * The error envelope for an exception a service threw. A missing target,
+	 * a refused argument and the app's own resource exceptions (forbidden,
+	 * not found, ...) are named; any other failure stays generic, so no raw
+	 * exception message reaches the agent.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return array{isError: true, error: string, message: string}
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-6
+	 */
+	public function failure(Throwable $exception): array {
+		return match (true) {
+			$exception instanceof DoesNotExistException => self::error(code: 'not_found', message: 'The target does not exist.'),
+			$exception instanceof ResourceException => self::error(code: $exception->getErrorCode(), message: $exception->getDisplayMessage()),
+			$exception instanceof InvalidArgumentException => self::error(code: 'invalid_arguments', message: $exception->getMessage()),
+			default => self::error(code: 'failed', message: 'The operation failed.'),
+		};
+	}//end failure()
 }//end class

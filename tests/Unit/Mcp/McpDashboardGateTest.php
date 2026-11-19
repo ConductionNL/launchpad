@@ -21,6 +21,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Service\PermissionService;
 
 /**
  * The gate allows only what the guards allow, and denies on any failure.
@@ -36,10 +37,11 @@ class McpDashboardGateTest extends TestCase {
 	 * @param string|null       $uid    The signed-in uid.
 	 * @param ActionAuthService $auth   The action guard.
 	 * @param IGroupManager     $groups The admin check.
+	 * @param PermissionService|null $permissions The per-dashboard access.
 	 *
 	 * @return McpDashboardGate
 	 */
-	private function gate(?string $uid, ActionAuthService $auth, IGroupManager $groups): McpDashboardGate {
+	private function gate(?string $uid, ActionAuthService $auth, IGroupManager $groups, ?PermissionService $permissions = null): McpDashboardGate {
 		$session = $this->createMock(IUserSession::class);
 		$user = null;
 		if ($uid !== null) {
@@ -49,7 +51,12 @@ class McpDashboardGateTest extends TestCase {
 
 		$session->method('getUser')->willReturn($user);
 
-		return new McpDashboardGate($session, $auth, $groups);
+		return new McpDashboardGate(
+			userSession: $session,
+			actionAuth: $auth,
+			groupManager: $groups,
+			permissions: ($permissions ?? $this->createMock(originalClassName: PermissionService::class))
+		);
 	}//end gate()
 
 	/**
@@ -116,4 +123,80 @@ class McpDashboardGateTest extends TestCase {
 		$this->assertSame('forbidden', $this->gate('alice', $auth, $groups)->requireAdmin()['error']);
 		$this->assertSame('forbidden', $this->gate('broken', $auth, $groups)->requireAdmin()['error']);
 	}//end testOnlyAnAdministratorPassesTheAdminCheck()
+
+	/**
+	 * Without a session the user check refuses; with one it passes.
+	 *
+	 * @return void
+	 */
+	public function testRequireUserNeedsASession(): void {
+		$auth   = $this->createMock(originalClassName: ActionAuthService::class);
+		$groups = $this->createMock(originalClassName: IGroupManager::class);
+
+		$this->assertSame(expected: 'unauthenticated', actual: $this->gate(uid: null, auth: $auth, groups: $groups)->requireUser()['error']);
+		$this->assertNull(actual: $this->gate(uid: 'alice', auth: $auth, groups: $groups)->requireUser());
+	}//end testRequireUserNeedsASession()
+
+	/**
+	 * The view check asks PermissionService for the caller and the dashboard.
+	 *
+	 * @return void
+	 */
+	public function testRequireViewAsksPermissionService(): void {
+		$permissions = $this->createMock(originalClassName: PermissionService::class);
+		$permissions->method('canViewDashboard')->willReturnCallback(
+			callback: static fn (string $userId, int $dashboardId): bool => ($userId === 'alice' && $dashboardId === 7)
+		);
+		$gate = $this->gate(
+			uid: 'alice',
+			auth: $this->createMock(originalClassName: ActionAuthService::class),
+			groups: $this->createMock(originalClassName: IGroupManager::class),
+			permissions: $permissions
+		);
+
+		$this->assertNull(actual: $gate->requireView(dashboardId: 7));
+		$this->assertSame(expected: 'forbidden', actual: $gate->requireView(dashboardId: 8)['error']);
+	}//end testRequireViewAsksPermissionService()
+
+	/**
+	 * A throwing permission check denies, never allows.
+	 *
+	 * @return void
+	 */
+	public function testAThrowingViewCheckDenies(): void {
+		$permissions = $this->createMock(originalClassName: PermissionService::class);
+		$permissions->method('canViewDashboard')->willThrowException(exception: new \RuntimeException('db down'));
+		$gate = $this->gate(
+			uid: 'alice',
+			auth: $this->createMock(originalClassName: ActionAuthService::class),
+			groups: $this->createMock(originalClassName: IGroupManager::class),
+			permissions: $permissions
+		);
+
+		$this->assertSame(expected: 'forbidden', actual: $gate->requireView(dashboardId: 7)['error']);
+	}//end testAThrowingViewCheckDenies()
+
+	/**
+	 * The metadata edit check asks PermissionService, and a throwing check denies.
+	 *
+	 * @return void
+	 */
+	public function testRequireMetadataEditAsksPermissionService(): void {
+		$permissions = $this->createMock(originalClassName: PermissionService::class);
+		$permissions->method('canEditDashboardMetadata')->willReturnCallback(
+			callback: static fn (string $userId, int $dashboardId): bool => match ($dashboardId) {
+				7 => $userId === 'alice',
+				default => throw new \RuntimeException('db down'),
+			}
+		);
+		$gate = $this->gate(
+			uid: 'alice',
+			auth: $this->createMock(originalClassName: ActionAuthService::class),
+			groups: $this->createMock(originalClassName: IGroupManager::class),
+			permissions: $permissions
+		);
+
+		$this->assertNull(actual: $gate->requireMetadataEdit(dashboardId: 7));
+		$this->assertSame(expected: 'forbidden', actual: $gate->requireMetadataEdit(dashboardId: 8)['error']);
+	}//end testRequireMetadataEditAsksPermissionService()
 }//end class

@@ -14,10 +14,11 @@ declare(strict_types=1);
 namespace Unit\Mcp;
 
 use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
-use OCA\LaunchPad\Mcp\McpDashboardTools;
-use OCA\LaunchPad\Mcp\McpTileTools;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use OCA\LaunchPad\Mcp\McpDashboardGate;
+use OCA\LaunchPad\Mcp\McpEngagementTools;
 
 /**
  * The catalogue's ids and annotations, and dispatch.
@@ -52,10 +53,32 @@ class LaunchpadToolProviderTest extends TestCase {
 		foreach (LaunchpadToolProvider::TOOL_DESCRIPTORS as $tool) {
 			$this->assertContains($tool['scope'], ['read', 'create', 'update', 'delete'], $tool['id']);
 			$this->assertContains($tool['reach'], ['self', 'user', 'instance', 'external'], $tool['id']);
-			$this->assertSame($tool['scope'] === 'read', ($tool['annotations']['readOnlyHint'] ?? false), $tool['id']);
+			$this->assertSame(expected: $tool['scope'] === 'read', actual: $tool['readOnlyHint'], message: $tool['id']);
+			$this->assertSame(
+				expected: ($tool['scope'] === 'delete' || $tool['reach'] === 'external'),
+				actual: ($tool['destructiveHint'] ?? false),
+				message: $tool['id']
+			);
 			$this->assertSame('object', $tool['inputSchema']['type'], $tool['id']);
 		}
 	}//end testEveryToolCarriesItsGrantAnnotations()
+
+	/**
+	 * A provider over a container that hands out the given handlers.
+	 *
+	 * @param array<class-string, object> $handlers The handlers by class.
+	 *
+	 * @return LaunchpadToolProvider
+	 */
+	private function provider(array $handlers = []): LaunchpadToolProvider {
+		$gate = $this->createMock(originalClassName: McpDashboardGate::class);
+		$gate->method('currentUserId')->willReturn('alice');
+		$handlers += [McpDashboardGate::class => $gate];
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
+		$container->method('get')->willReturnCallback(callback: static fn (string $id): object => $handlers[$id]);
+
+		return new LaunchpadToolProvider(container: $container);
+	}//end provider()
 
 	/**
 	 * The provider answers for launchpad and implements OpenRegister's interface.
@@ -63,35 +86,86 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheProviderIsLaunchpads(): void {
-		$provider = new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class));
+		$provider = $this->provider();
 
-		$this->assertInstanceOf(IMcpToolProvider::class, $provider);
-		$this->assertSame('launchpad', $provider->getAppId());
-		$this->assertSame(LaunchpadToolProvider::TOOL_DESCRIPTORS, $provider->getTools());
+		$this->assertInstanceOf(expected: IMcpToolProvider::class, actual: $provider);
+		$this->assertSame(expected: 'launchpad', actual: $provider->getAppId());
+		$this->assertSame(expected: LaunchpadToolProvider::TOOL_DESCRIPTORS, actual: $provider->getTools());
 	}//end testTheProviderIsLaunchpads()
 
 	/**
-	 * Each tool id dispatches to its handler with the arguments.
+	 * Every declared tool has a handler, every handler a declared tool, and
+	 * each handler method exists.
+	 *
+	 * @return void
+	 */
+	public function testEveryToolHasExactlyOneHandler(): void {
+		$ids = array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id');
+
+		$this->assertSame(expected: $ids, actual: array_keys(LaunchpadToolProvider::TOOL_HANDLERS));
+		foreach (LaunchpadToolProvider::TOOL_HANDLERS as $id => [$class, $method]) {
+			$this->assertTrue(condition: method_exists($class, $method), message: $id);
+		}
+	}//end testEveryToolHasExactlyOneHandler()
+
+	/**
+	 * The read catalogue is the fourteen tools of REQ-MCP-002.
+	 *
+	 * @return void
+	 */
+	public function testTheReadCatalogueIsTheFourteenReadTools(): void {
+		$reads = array_column(
+			array: array_filter(
+				array: LaunchpadToolProvider::TOOL_DESCRIPTORS,
+				callback: static fn (array $tool): bool => $tool['scope'] === 'read'
+			),
+			column_key: 'id'
+		);
+		sort($reads);
+
+		$this->assertSame(
+			expected: [
+				'launchpad.getActiveDashboard',
+				'launchpad.getDashboard',
+				'launchpad.getDashboardMetadata',
+				'launchpad.getDashboardTree',
+				'launchpad.getReactions',
+				'launchpad.listDashboards',
+				'launchpad.listGroupDashboards',
+				'launchpad.listKioskPlaylists',
+				'launchpad.listPendingAcknowledgements',
+				'launchpad.listShares',
+				'launchpad.listTemplates',
+				'launchpad.listTiles',
+				'launchpad.listVersions',
+				'launchpad.listWidgetTypes',
+			],
+			actual: $reads
+		);
+	}//end testTheReadCatalogueIsTheFourteenReadTools()
+
+	/**
+	 * Each tool id runs its handler method with the arguments, and answers what it answers.
 	 *
 	 * @return void
 	 */
 	public function testEachToolDispatchesToItsHandler(): void {
-		$tools = $this->createMock(McpDashboardTools::class);
-		$tools->expects($this->once())->method('getDashboard')->with(['dashboardUuid' => 'u'])->willReturn(['dashboard' => []]);
-		$tools->expects($this->once())->method('listDashboards')->willReturn(['items' => []]);
-		$tools->expects($this->once())->method('listGroupDashboards')->willReturn(['items' => ['g']]);
-		$tools->expects($this->once())->method('listWidgetTypes')->willReturn(['items' => ['w']]);
-		$tools->expects($this->once())->method('getActiveDashboard')->with([])->willReturn(['dashboard' => ['id' => 1]]);
-		$tiles = $this->createMock(McpTileTools::class);
-		$tiles->expects($this->once())->method('listTiles')->with([])->willReturn(['items' => ['t']]);
-		$provider = new LaunchpadToolProvider($tools, $tiles);
+		$handlers = [];
+		foreach (LaunchpadToolProvider::TOOL_HANDLERS as $id => [$class, $method]) {
+			$handlers[$class] ??= $this->createMock(originalClassName: $class);
+			$handlers[$class]->method($method)->willReturnCallback(
+				callback: static fn (array $args): array => ['tool' => $id, 'args' => $args]
+			);
+		}
 
-		$this->assertSame(['dashboard' => []], $provider->invokeTool('launchpad.getDashboard', ['dashboardUuid' => 'u']));
-		$this->assertSame(['items' => []], $provider->invokeTool('launchpad.listDashboards', []));
-		$this->assertSame(['items' => ['g']], $provider->invokeTool('launchpad.listGroupDashboards', ['groupId' => 'x']));
-		$this->assertSame(['items' => ['w']], $provider->invokeTool('launchpad.listWidgetTypes', []));
-		$this->assertSame(['dashboard' => ['id' => 1]], $provider->invokeTool('launchpad.getActiveDashboard', []));
-		$this->assertSame(['items' => ['t']], $provider->invokeTool('launchpad.listTiles', []));
+		$provider = $this->provider(handlers: $handlers);
+		$scopes   = array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'scope', 'id');
+		foreach (array_keys(LaunchpadToolProvider::TOOL_HANDLERS) as $id) {
+			$result = $provider->invokeTool(toolId: $id, arguments: ['x' => 1]);
+			unset($result['audit']);
+			$this->assertSame(expected: ['tool' => $id, 'args' => ['x' => 1]], actual: $result);
+			$this->assertSame(expected: $scopes[$id] !== 'read', actual: array_key_exists('audit', $provider->invokeTool(toolId: $id, arguments: [])));
+		}
 	}//end testEachToolDispatchesToItsHandler()
 
 	/**
@@ -100,10 +174,30 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnknownToolIsAStructuredError(): void {
-		$result = (new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class)))->invokeTool('launchpad.dropTables', []);
+		$result = $this->provider()->invokeTool(toolId: 'launchpad.dropTables', arguments: []);
 
-		$this->assertTrue($result['isError']);
-		$this->assertSame('unknown_tool', $result['error']);
-		$this->assertStringContainsString('launchpad.listDashboards', $result['message']);
+		$this->assertTrue(condition: $result['isError']);
+		$this->assertSame(expected: 'unknown_tool', actual: $result['error']);
+		$this->assertStringContainsString(needle: 'launchpad.listDashboards', haystack: $result['message']);
 	}//end testAnUnknownToolIsAStructuredError()
+
+	/**
+	 * A write tool's answer carries the tool, target, caller and outcome for
+	 * the audit trail, for a refusal as for a success.
+	 *
+	 * @return void
+	 */
+	public function testAWriteCarriesItsAuditRecord(): void {
+		$engagement = $this->createMock(originalClassName: McpEngagementTools::class);
+		$engagement->method('addReaction')->willReturn(['counts' => []]);
+		$engagement->method('removeReaction')->willReturn(['isError' => true, 'error' => 'forbidden', 'message' => 'No.']);
+		$provider = $this->provider(handlers: [McpEngagementTools::class => $engagement]);
+		$args     = ['dashboardUuid' => 'u-1', 'emoji' => 'x'];
+
+		$this->assertSame(
+			expected: ['tool' => 'launchpad.addReaction', 'target' => 'u-1', 'caller' => 'alice', 'outcome' => 'done'],
+			actual: $provider->invokeTool(toolId: 'launchpad.addReaction', arguments: $args)['audit']
+		);
+		$this->assertSame(expected: 'forbidden', actual: $provider->invokeTool(toolId: 'launchpad.removeReaction', arguments: $args)['audit']['outcome']);
+	}//end testAWriteCarriesItsAuditRecord()
 }//end class

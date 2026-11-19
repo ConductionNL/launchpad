@@ -144,7 +144,7 @@ export function loadInitialState(page) {
  * Whether the server saw this request come from inside the office networks.
  *
  * @return {boolean} True only when the server said so.
- * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
  */
 export function isOnOfficeNetwork() {
 	return readKey('onOfficeNetwork', false) === true

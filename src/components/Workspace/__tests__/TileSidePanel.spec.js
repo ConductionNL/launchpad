@@ -5,7 +5,7 @@
  * The panel beside the tiles: open, replace, close, focus return and the
  * refused-framing fallback (launcher-tile-open-behaviour D3, D4).
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

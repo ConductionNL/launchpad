@@ -17,12 +17,14 @@
   - "Opens in" select; sent only when changed, so a metadata-only editor's save is unaffected. `DashboardConfigModal.linkTarget.spec.js`.
 - [x] 6. Resolve the target in `src/components/TileWidget.vue` (tile, dashboard default, today's rule) and emit `open-in-panel` for `side-panel`. Verify: Vitest per value.
   - `resolveLinkTarget` in `src/utils/tileLinkTarget.js`; a side-panel tile opens the panel through the `tilePanel` store (instead of an `open-in-panel` event chain through `Views`). `TileWidget.linkTarget.spec.js`, `tileLinkTarget.spec.js`.
-- [ ] 7. Build `TileSidePanel` in `src/views/WorkspaceApp.vue`: one panel, close button, Escape, focus return, refused-framing fallback card with "Open in new tab", overlay below 768px. Verify: Vitest and a Playwright run.
+- [x] 7. Build `TileSidePanel` in `src/views/WorkspaceApp.vue`: one panel, close button, Escape, focus return, refused-framing fallback card with "Open in new tab", overlay below 768px. Verify: Vitest and a Playwright run.
   - Built: `components/Workspace/TileSidePanel.vue` in `WorkspaceApp` (close button, Escape, focus return, framing check with the "Open in new tab" fallback, overlay below 768px); Vitest `TileSidePanel.spec.js`, `tilePanel.spec.js`. Left open for the Playwright run, which needs a live instance.
+  - 19 Nov live pass (Nextcloud 34.0.6): `tests/e2e/tile-side-panel.spec.ts` passed (3 of 3) as a non-admin account: Files opens in the panel with the tiles still visible, Escape closes it and focus is back on the tile; a second panel tile replaces the panel; an outside host not on the allow-list gets the fallback card with "Open in new tab" and no frame. The two scenario texts now quote the shipped strings ("This page could not be loaded.", "This address cannot open in the panel.").
 - [x] 8. Confirm quick search (`src/composables/useTileSearchHost.js`) opens a `side-panel` tile in the panel. Verify: Vitest on `activateResult`.
   - Quick search clicks the rendered tile link, so it follows the same handler. `useTileSearchHost.sidePanel.spec.js`.
 
 ## Close
 
-- [ ] 9. Add `nl` and `en` strings, update `openspec/specs/tiles/spec.md` on archive, and set d-link-target and d-open-inside to `built` in `openspec/parity/capabilities.json` with evidence lines.
+- [x] 9. Add `nl` and `en` strings, update `openspec/specs/tiles/spec.md` on archive, and set d-link-target and d-open-inside to `built` in `openspec/parity/capabilities.json` with evidence lines.
   - nl strings added (`l10n/nl.js`, `l10n/nl.json`); English uses the source strings. The spec update and the parity rows are for the archive step.
+  - d-link-target and d-open-inside are `built` with evidence lines; the delta is folded into `openspec/specs/tiles/spec.md` on archive (19 Nov).

@@ -9,7 +9,7 @@
   - server's framing check passes (embed allow-list, X-Frame-Options);
   - otherwise the panel shows a card with "Open in new tab".
   -
-  - @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+  - @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 -->
 
 <template>
@@ -88,7 +88,7 @@ export default {
 	 * Bind the one tile panel store the tiles write to.
 	 *
 	 * @return {{panel: object}} The store, as `panel`.
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
 	 */
 	setup() {
 		return { panel: useTilePanelStore() }
@@ -107,7 +107,7 @@ export default {
 		 * is on this Nextcloud.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		'panel.url': {
 			immediate: true,
@@ -116,7 +116,7 @@ export default {
 			 *
 			 * @param {string|null} url The address, or null when closed.
 			 * @return {void}
-			 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-the-panel-only-frames-allowed-pages-req-tob-004
+			 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-the-panel-only-frames-allowed-pages-req-tob-004
 			 */
 			handler(url) {
 				this.check(url)
@@ -132,7 +132,7 @@ export default {
 		 *
 		 * @param {string|null} url The address, or null when closed.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		async check(url) {
 			if (!url) {

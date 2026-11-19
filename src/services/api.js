@@ -706,7 +706,7 @@ export const api = {
 	 * The apps this server runs for the current user, to place as tiles.
 	 *
 	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 	 */
 	discoverApps() {
 		return axios.get(`${baseUrl}/api/tiles/discover`)
@@ -716,7 +716,7 @@ export const api = {
 	 * The app catalogue entries the current user's groups may see.
 	 *
 	 * @return {Promise} Axios response resolving to `{ apps: [{ uuid, name, description, icon, iconType, linkType, linkValue }] }`.
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
 	 */
 	catalogueApps() {
 		return axios.get(`${baseUrl}/api/catalogue`)
@@ -727,7 +727,7 @@ export const api = {
 	 *
 	 * @param {{appName: string, purpose: string}} request The app and what it is needed for.
 	 * @return {Promise} Axios response resolving to `{ request }`; a 429 carries `code: 'request_limit'`.
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 	 */
 	requestCatalogueApp(request) {
 		return axios.post(`${baseUrl}/api/catalogue/requests`, request)
@@ -1025,7 +1025,7 @@ export const api = {
 	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
 	 *
 	 * @return {Promise} Axios response resolving to `{ customCss }`.
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	getCustomCss() {
 		return axios.get(`${baseUrl}/api/admin/custom-css`)
@@ -1036,7 +1036,7 @@ export const api = {
 	 *
 	 * @param {string} customCss The CSS; '' clears it.
 	 * @return {Promise} Axios response resolving to `{ customCss, removed }`.
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	updateCustomCss(customCss) {
 		return axios.put(`${baseUrl}/api/admin/custom-css`, { customCss })

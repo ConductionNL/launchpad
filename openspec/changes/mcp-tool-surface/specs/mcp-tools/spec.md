@@ -19,13 +19,13 @@ Write tools are annotated on hermiq's two grant axes:
 
 ### Requirement: REQ-MCP-001 Provider class, DI alias, and tool id namespace
 
-LaunchPad MUST implement `OCA\OpenRegister\Mcp\IMcpToolProvider` in a new class `OCA\LaunchPad\Mcp\LaunchpadToolProvider` (dispatcher + catalogue constant, handlers in domain-grouped classes, per the decidesk layout). It MUST be registered in `lib/AppInfo/Application.php` under the string DI alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad` (string alias so registration triggers no autoload and the app boots without OpenRegister, matching decidesk's `IMcpToolProvider::decidesk` registration). Every tool id MUST use the `launchpad.{toolName}` namespace.
+LaunchPad MUST implement `OCA\OpenRegister\Mcp\IMcpToolProvider` in a new class `OCA\LaunchPad\Mcp\LaunchPadToolProvider` (dispatcher + catalogue constant, handlers in domain-grouped classes, per the decidesk layout). It MUST be registered in `lib/AppInfo/Application.php` under the string DI alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad` (string alias so registration triggers no autoload and the app boots without OpenRegister, matching decidesk's `IMcpToolProvider::decidesk` registration). Every tool id MUST use the `launchpad.{toolName}` namespace.
 
 #### Scenario: Provider resolves through the alias
 
 - **GIVEN** an instance with OpenRegister and launchpad enabled
 - **WHEN** the container resolves `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`
-- **THEN** it MUST return a `LaunchpadToolProvider` instance
+- **THEN** it MUST return a `LaunchPadToolProvider` instance
 - **AND** every id in its catalogue MUST start with `launchpad.`
 
 #### Scenario: Boot without OpenRegister

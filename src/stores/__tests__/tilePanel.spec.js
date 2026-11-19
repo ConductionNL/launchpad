@@ -4,7 +4,7 @@
  *
  * The one panel beside the tiles (launcher-tile-open-behaviour D3).
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { createPinia, setActivePinia } from 'pinia'

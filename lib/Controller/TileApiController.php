@@ -110,7 +110,7 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse `{apps: [{appId, name, href, icon}]}`.
 	 *
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

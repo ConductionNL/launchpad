@@ -634,7 +634,7 @@ class DashboardApiController extends Controller {
 	 * @openapi-stability public
 	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	#[NoAdminRequired]
 	public function update(
@@ -681,7 +681,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return array{themeAccent: ?string, themeBackgroundColor: ?string, themeBackgroundResource: ?string, customCss: ?string}
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	private function lookParams(): array {
 		$look = [];
@@ -706,7 +706,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyCustomCss(?string $customCss): ?JSONResponse {
@@ -722,7 +722,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return string|null The value, or null when absent or not a string.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
 	 */
 	private function requestedLinkTarget(): ?string {
 		$raw = $this->request->getParam(key: 'defaultLinkTarget');
@@ -744,7 +744,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return bool True for a metadata-only update.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
 	 */
 	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget): bool {
 		return $placements === null && $defaultLinkTarget === null;

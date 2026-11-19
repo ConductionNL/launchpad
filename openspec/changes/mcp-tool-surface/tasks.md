@@ -22,7 +22,7 @@
 ## Write Tools (REQ-MCP-003)
 
 - [ ] Task 9: Implement the 18 `self`-reach write tools (dashboard CRUD, active/default, fork, widget add/update/remove, tile CRUD + addTileToDashboard, version create/restore, metadata set, reaction add/remove) with per-tool `inputSchema`
-  - progress: 5 of 18 built (createDashboardVersion, restoreDashboardVersion, setDashboardMetadata, addReaction, removeReaction). Left: dashboard CRUD, switchActive/setDefault, fork, widget add/update/remove, addTileToDashboard, and createTile/updateTile/deleteTile, whose routes now answer 410 Gone (see the open question in the hand-back).
+  - progress: 12 of 18 built: createDashboardVersion, restoreDashboardVersion, setDashboardMetadata, addReaction, removeReaction; addWidget, updateWidgetPlacement, removeWidget, addTileToDashboard (`McpWidgetTools`); createTile, updateTile and deleteTile, backed by the widget path with type `tile` because the tile routes answer 410 Gone (Ruben, 19 Nov 2026). updateWidgetPlacement leaves calculated fields, the acknowledgement settings and the content of a widget whose calculated fields OpenRegister stores to the app, whose route re-materialises them. Left: createDashboard, updateDashboard, deleteDashboard, switchActiveDashboard, setDefaultDashboard, forkDashboard.
 - [ ] Task 10: Implement the 4 `user`-reach tools (shareDashboard, replaceShares, unshareDashboard, setPublicationState)
 - [ ] Task 11: Implement the 5 `external`-reach tools (createPublicShareLink, revokePublicShareLink, createKioskPlaylist, updateKioskPlaylist, deleteKioskPlaylist)
 - [ ] Task 12: Implement the 8 `instance`-reach tools (group dashboard CRUD, setGroupDefault, template create/update/delete/resync)

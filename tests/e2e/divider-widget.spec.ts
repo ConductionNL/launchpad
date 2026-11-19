@@ -1103,8 +1103,10 @@ test.describe('REQ-DIV-009 client-side only', () => {
 		await expect(
 			divider(page, 'lineRed').locator('.cn-divider-widget__line'),
 		).toBeVisible()
-		// Settle: anything a widget fetched on mount has been sent by now.
-		await page.waitForLoadState('networkidle').catch(() => undefined)
+		// Settle: give anything a widget fetches on mount time to be sent.
+		// (A load-state wait for an idle network never settles on Nextcloud,
+		// which keeps polling; a short fixed pause is the honest bound.)
+		await page.waitForTimeout(3_000)
 
 		const dividerIds = Object.values(ids).map(String)
 		const custom = urls.filter((u) => {

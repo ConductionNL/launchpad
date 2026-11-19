@@ -58,7 +58,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/navigation-editor-org-api.spec.ts`, `tests/e2e/navigation-editor-org-editor.spec.ts`, `tests/e2e/navigation-editor-org-panel.spec.ts` (helper `tests/e2e/support/orgNavigation.ts`), 45 scenarios cited (22 tests are `test.fixme` for suspected defects, see the PR), 0 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.8 `tiles`: 38 scenarios, 0 cited.
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/dashboard-reactions.spec.ts`, `tests/e2e/dashboard-reactions-ui.spec.ts`, 27 scenarios cited, 6 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
   - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.

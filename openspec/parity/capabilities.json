@@ -6658,19 +6658,20 @@
 			"id": "d-internal-url",
 			"area": "launcher",
 			"name": "A tile opens the internal address on the office network and the public one elsewhere.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "partial",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/OfficeNetworkService.php:69 isOfficeRequest() matches IRequest::getRemoteAddress() against the stored office networks through OCP\\Security\\Ip\\IFactory; lib/Service/AdminSettingsService.php:179-183 answers officeNetworks, currentAddress and currentAddressInOfficeNetworks and lib/Controller/AdminController.php:476 refuses a malformed range with 400; lib/Controller/PageController.php:200 provides onOfficeNetwork through lib/Service/InitialStateBuilder.php:445; lib/Service/TileUpdater.php:192 validates content.internalUrl; src/components/TileWidget.vue:209-224 opens the internal address only on the office network; src/modals/TileEditor.vue:223 'Address on the office network' and :494 the address-in-effect line; src/components/admin/AdminSettings.vue:261 the 'Office networks' section. Tests: tests/Unit/Service/OfficeNetworkServiceTest.php, tests/Unit/Service/TileUpdaterTest.php, src/components/__tests__/TileWidget.officeNetwork.spec.js, src/modals/__tests__/TileEditor.officeNetwork.spec.js, src/components/admin/__tests__/AdminSettings.officeNetworks.spec.js, tests/e2e/launcher-tile-internal-address.spec.ts",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/launcher-tile-internal-address",
 				"requirement": "openspec/changes/launcher-tile-internal-address/specs/tiles :: The tile opens the address that fits the network (REQ-TIA-003)"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Workspace page, Edit tile, Address on the office network; office networks on the LaunchPad admin page, General tab",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175495-conditional-access 'With IP ranges you can choose on which IP range(s) the app is available ... e.g. the company network' and the same app can be offered locally or as a remote app; one tile with an internal and a public address is not documented (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Web link and Quick links cards take one URL per link; no network-dependent address found (read 2026-09-26)",

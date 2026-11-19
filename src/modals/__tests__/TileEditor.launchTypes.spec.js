@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const initialState = { tileAllowedSchemes: [], ssoLaunchTemplates: [] }
 
 vi.mock('../../services/healthPingClient.js', () => ({ validateHealthPingConfig: vi.fn() }))
-vi.mock('../../utils/loadInitialState.js', () => ({ loadInitialState: () => ({ ...initialState }) }))
+vi.mock('../../utils/loadInitialState.js', () => ({ loadInitialState: () => ({ ...initialState }), isOnOfficeNetwork: () => false }))
 
 const { default: TileEditor } = await import('../TileEditor.vue')
 

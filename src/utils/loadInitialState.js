@@ -81,6 +81,10 @@ const PAGE_KEYS = {
 		// and single sign-on tiles. Optional keys; empty lists offer nothing.
 		tileAllowedSchemes: [],
 		ssoLaunchTemplates: [],
+		// launcher-tile-internal-address REQ-TIA-003: whether the server saw
+		// this request come from an office network. Optional key: a server
+		// without the setter leaves every tile on its main address.
+		onOfficeNetwork: false,
 		// engagement-communities REQ-COMM-004: whether Talk is enabled for the
 		// viewer. Optional key; `false` makes the Communities widget explain
 		// that Talk is needed instead of calling it.
@@ -134,6 +138,16 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * Whether the server saw this request come from inside the office networks.
+ *
+ * @return {boolean} True only when the server said so.
+ * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ */
+export function isOnOfficeNetwork() {
+	return readKey('onOfficeNetwork', false) === true
 }
 
 /**

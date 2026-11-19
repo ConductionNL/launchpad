@@ -53,7 +53,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 	/**
 	 * REQ-ASET-001 "Settings response format consistency": the response holds
-	 * exactly the fourteen documented keys, each at its documented default.
+	 * exactly the documented keys, each at its documented default.
 	 *
 	 * The spec said "exactly four keys" long after the response had grown to
 	 * twelve, because nothing compared the two. This pins the whole response,
@@ -88,6 +88,9 @@ class AdminSettingsServiceTest extends TestCase {
 				'ssoLaunchTemplates' => [],
 				// engagement-announcements D6: no editor groups until one is chosen.
 				'announcementEditorGroups' => [],
+				'officeNetworks' => [],
+				'currentAddress' => '',
+				'currentAddressInOfficeNetworks' => false,
 				'pinnedCommunities' => [],
 				// REQ-PSP-003: LaunchPad is the default app until switched off.
 				'defaultAppEnabled' => true,
@@ -184,11 +187,15 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('announcementEditorGroups', $settings);
 		// drill-down-cross-widget-filter REQ-CWF-010.
 		$this->assertArrayHasKey('filterTelemetryEnabled', $settings);
-				// engagement-communities REQ-COMM-003.
+		// launcher-tile-internal-address REQ-TIA-001: the ranges, and the caller's address against them.
+		$this->assertArrayHasKey('officeNetworks', $settings);
+		$this->assertArrayHasKey('currentAddress', $settings);
+		$this->assertArrayHasKey('currentAddressInOfficeNetworks', $settings);
+		// engagement-communities REQ-COMM-003.
 		$this->assertArrayHasKey('pinnedCommunities', $settings);
 		// REQ-PSP-003.
 		$this->assertArrayHasKey('defaultAppEnabled', $settings);
-		$this->assertCount(20, $settings);
+		$this->assertCount(23, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

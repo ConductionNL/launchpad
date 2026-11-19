@@ -121,7 +121,7 @@ class DashboardApiControllerDefaultPreferenceTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->dashboardService
 			),
-			access: new DashboardApiAccess(permissionService: $this->createMock(PermissionService::class), history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),

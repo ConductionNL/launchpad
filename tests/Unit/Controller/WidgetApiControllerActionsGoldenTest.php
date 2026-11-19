@@ -90,11 +90,11 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 			sources: new WidgetApiSources($this->widgetService, $this->newsService, $this->calendarService, $this->placementService),
 			access: new WidgetApiAccess(permissionService: $this->permissionService, policy: new WidgetApiPolicy(
 				$this->roleFeaturePerm,
-				$this->createMock(LoggerInterface::class)
+				$this->createMock(originalClassName: LoggerInterface::class)
 			)),
 			context: new ActorResponses(actor: new RequestActor(
 				$session,
-				$this->createMock(ActionAuthService::class)
+				$this->createMock(originalClassName: ActionAuthService::class)
 			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
 				logger: new NullLogger()
 			)))

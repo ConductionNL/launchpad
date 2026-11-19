@@ -63,7 +63,7 @@ class DashboardApiControllerBreadcrumbsTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->dashboardService
 			),
-			access: new DashboardApiAccess(permissionService: $this->createMock(PermissionService::class), history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->treeService,
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),

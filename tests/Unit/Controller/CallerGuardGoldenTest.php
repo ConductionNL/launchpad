@@ -224,8 +224,23 @@ class CallerGuardGoldenTest extends TestCase {
 						userSession: $session
 					),
 					$name === ResponseHelper::class => new ResponseHelper(logger: new NullLogger()),
-					in_array($name, [UserResponses::class, ActorResponses::class, CallerResponses::class, AdminContext::class, AdminSettingsSources::class, AdminSettingsContext::class, AnalyticsContext::class, TileAnalyticsContext::class, DashboardApiAccess::class, WidgetApiAccess::class], true) => $build($name),
-					default => $this->createMock($name),
+					in_array(
+						$name,
+						[
+							UserResponses::class,
+							ActorResponses::class,
+							CallerResponses::class,
+							AdminContext::class,
+							AdminSettingsSources::class,
+							AdminSettingsContext::class,
+							AnalyticsContext::class,
+							TileAnalyticsContext::class,
+							DashboardApiAccess::class,
+							WidgetApiAccess::class,
+						],
+						true
+					) => $build($name),
+					default => $this->createMock(originalClassName: $name),
 				};
 			}
 

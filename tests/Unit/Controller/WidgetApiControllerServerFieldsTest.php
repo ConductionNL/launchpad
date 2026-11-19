@@ -297,12 +297,12 @@ class WidgetApiControllerServerFieldsTest extends TestCase {
 				)
 			),
 			access: new WidgetApiAccess(permissionService: $permissions, policy: new WidgetApiPolicy(
-				$this->createMock(RoleFeaturePermissionService::class),
-				$this->createMock(LoggerInterface::class)
+				$this->createMock(originalClassName: RoleFeaturePermissionService::class),
+				$this->createMock(originalClassName: LoggerInterface::class)
 			)),
 			context: new ActorResponses(actor: new RequestActor(
 				$session,
-				$this->createMock(ActionAuthService::class)
+				$this->createMock(originalClassName: ActionAuthService::class)
 			), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(
 				logger: new NullLogger()
 			)))

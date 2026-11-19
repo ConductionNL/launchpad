@@ -179,8 +179,23 @@ class WidgetApiControllerGuardGoldenTest extends TestCase {
 					$param->getName() === 'userId' => match ($scenario) {'no user id' => null, default => 'alice'},
 					$name === RequestActor::class => new RequestActor(userSession: $session, actionAuth: $auth),
 					$name === ResponseHelper::class => new ResponseHelper(logger: new NullLogger()),
-					in_array($name, [UserResponses::class, ActorResponses::class, CallerResponses::class, AdminContext::class, AdminSettingsSources::class, AdminSettingsContext::class, AnalyticsContext::class, TileAnalyticsContext::class, DashboardApiAccess::class, WidgetApiAccess::class], true) => $build($name),
-					default => $this->createMock($name),
+					in_array(
+						$name,
+						[
+							UserResponses::class,
+							ActorResponses::class,
+							CallerResponses::class,
+							AdminContext::class,
+							AdminSettingsSources::class,
+							AdminSettingsContext::class,
+							AnalyticsContext::class,
+							TileAnalyticsContext::class,
+							DashboardApiAccess::class,
+							WidgetApiAccess::class,
+						],
+						true
+					) => $build($name),
+					default => $this->createMock(originalClassName: $name),
 				};
 			}
 

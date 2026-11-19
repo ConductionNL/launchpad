@@ -75,7 +75,7 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 				translationService: $this->translations,
 				metadataService: $this->metadata
 			),
-			access: new DashboardApiAccess(permissionService: $this->createMock(PermissionService::class), history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),

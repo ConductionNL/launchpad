@@ -102,7 +102,7 @@ class DashboardApiControllerQuotaTest extends TestCase {
 				dashboardService: $this->dashboardService,
 				quotaService: $this->quotaService
 			),
-			access: new DashboardApiAccess(permissionService: $this->createMock(PermissionService::class), history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),

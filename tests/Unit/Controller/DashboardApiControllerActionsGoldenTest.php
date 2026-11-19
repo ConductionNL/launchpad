@@ -77,7 +77,7 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$session->method('getUser')->willReturn($this->sessionUser ? $user : null);
 
 		return new DashboardApiController(
-			request: $this->createMock(IRequest::class),
+			request: $this->createMock(originalClassName: IRequest::class),
 			services: new DashboardApiServices($this->dashboardService),
 			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				$this->treeService,
@@ -87,7 +87,7 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 			)),
 			context: new ActorResponses(actor: new RequestActor(
 				$session,
-				$this->createMock(ActionAuthService::class)
+				$this->createMock(originalClassName: ActionAuthService::class)
 			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
 				logger: new NullLogger()
 			)))

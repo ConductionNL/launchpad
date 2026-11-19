@@ -149,11 +149,9 @@ function nestedChain(levels: number): Placement {
  * @return its locator.
  */
 function containerTitled(page: Page, title: string) {
-	return page
-		.locator('.container-widget')
-		.filter({
-			has: page.locator('.container-widget__title', { hasText: title }),
-		})
+	return page.locator('.container-widget').filter({
+		has: page.locator('.container-widget__title', { hasText: title }),
+	})
 }
 
 test.describe.configure({ mode: 'serial', timeout: 90_000 })

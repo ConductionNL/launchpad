@@ -39,6 +39,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-locking.spec.ts, 17 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
 - [ ] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-metadata-fields.spec.ts, 30 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
 - [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.

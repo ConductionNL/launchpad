@@ -16,6 +16,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 1.1 `admin-settings`: 83 scenarios, 2 cited, blanket. Access requirements in progress 2026-09-11. Its settings-behaviour scenarios stay open under this task.
 - [ ] 1.2 `admin-roles`: 55 scenarios, 0 cited, blanket. In progress 2026-09-11.
 - [ ] 1.3 `conditional-visibility`: 49 scenarios, 0 cited, blanket. In progress 2026-09-11.
+  - Spec written: `tests/e2e/conditional-visibility.spec.ts`, `tests/e2e/conditional-visibility-evaluation.spec.ts` (helper `tests/e2e/support/visibilityRules.ts`), 52 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
 - [ ] 1.4 `permissions`: 42 scenarios, 0 cited, blanket. In progress 2026-09-11, with `admin-roles` and the access requirements of `admin-settings`.
 - [ ] 1.5 `dashboard-public-share`: 38 scenarios, 25 cited. In progress 2026-09-11.
 - [ ] 1.6 `dashboard-sharing`: 34 scenarios, 10 cited. In progress 2026-09-11. Supersedes `add-dashboard-sharing-e2e-coverage`.

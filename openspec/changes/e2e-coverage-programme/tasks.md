@@ -95,8 +95,10 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
+  - Spec written: none, 0 scenarios cited, 14 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 14 per-scenario verdicts. `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); the existing `calendar` widget reads LaunchPad's own events endpoint, not CalDAV or decidesk.
 - [ ] 4.21 `label-widget`: 12 scenarios, 11 cited.
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.
+  - Spec written: none, 0 scenarios cited, 12 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 12 per-scenario verdicts. `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); opening a file from the existing `files` widget belongs to the files-widget spec.
 - [ ] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
 - [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
 

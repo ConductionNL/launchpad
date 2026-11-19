@@ -60,6 +60,7 @@ describe('AdminSettings tabs', () => {
 			'roles-permissions',
 			'versioning-audit',
 			'sharing',
+			'embeds',
 			'kiosk',
 			'communities',
 			'org-navigation',

@@ -65,6 +65,7 @@ const TABS = [
 	'OrgNavigationTab',
 	'DemoDataTab',
 	'GroupDashboardsTab',
+	'EmbedsTab',
 	'MetadataFieldsSettings',
 	'ProfileFieldsTab',
 	'SetupWizardModal',
@@ -117,6 +118,7 @@ describe('AdminSettings tab slots', () => {
 			'tab-org-navigation': 'OrgNavigationTab',
 			'tab-demo-data': 'DemoDataTab',
 			'tab-group-dashboards': 'GroupDashboardsTab',
+			'tab-embeds': 'EmbedsTab',
 			'tab-detail-fields': 'MetadataFieldsSettings',
 			'tab-profile-fields': 'ProfileFieldsTab',
 		}

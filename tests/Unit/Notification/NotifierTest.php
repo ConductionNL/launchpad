@@ -55,7 +55,11 @@ class NotifierTest extends TestCase {
 		$factory = $this->createMock(IFactory::class);
 		$factory->method('get')->willReturn($l);
 		$urls = $this->createMock(IURLGenerator::class);
-		$urls->method('linkToRouteAbsolute')->willReturn('https://host/apps/launchpad/');
+		$urls->method('linkToRouteAbsolute')->willReturnCallback(
+			static fn (string $routeName, array $arguments = []): string => $routeName === 'settings.AdminSettings.index'
+				? 'https://host/settings/admin/' . ($arguments['section'] ?? '')
+				: 'https://host/apps/launchpad/'
+		);
 		$mapper = $this->createMock(DashboardMapper::class);
 		$mapper->method('find')->willReturnCallback(
 			static function (int $id): Dashboard {
@@ -107,6 +111,13 @@ class NotifierTest extends TestCase {
 	 */
 	public function testEverySubjectRendersItsTextAndLink(): void {
 		$cases = [
+			['embed_token_revoked', 't-1', ['Zeist WOO', 'admin', 'no_longer_needed', 'In-house now', '2026-05-22T14:35:00Z'], [
+				'setRichSubject ["[Token **Zeist WOO** has been revoked by admin]",[]]',
+				'setParsedSubject ["[Token Zeist WOO has been revoked by admin]"]',
+				'setRichMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]",[]]',
+				'setParsedMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]"]',
+				'setLink ["https:\\/\\/host\\/settings\\/admin\\/launchpad"]',
+			]],
 			['mentioned_in_comment', 'abc/1', ['alice'], [
 				'setRichSubject ["[alice mentioned you in a dashboard comment]",[]]',
 				'setParsedSubject ["[alice mentioned you in a dashboard comment]"]',
@@ -186,7 +197,7 @@ class NotifierTest extends TestCase {
 				'setParsedSubject ["[Pieter asked for the app Kaartviewer]"]',
 				'setRichMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]",[]]',
 				'setParsedMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]"]',
-				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+				'setLink ["https:\/\/host\/settings\/admin\/launchpad"]',
 			]],
 			['app_request_decided', ['Kaartviewer', 'approved', ''], [
 				'setRichSubject ["[**Kaartviewer** is now in the app catalogue]",[]]',

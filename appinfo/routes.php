@@ -661,6 +661,27 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// `/api/admin/...` admin surface.
 		['name' => 'adminCleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
 		['name' => 'adminCleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
+		// Public embed render route (embedded-analytics, REQ-EMB-002/003/007/008):
+		// the token is checked by EmbedTokenMiddleware, the subject by EmbedController.
+		['name' => 'embed#render', 'url' => '/embed/{subjectType}/{subjectId}', 'verb' => 'GET'],
+		['name' => 'embed#data', 'url' => '/embed/{subjectType}/{subjectId}/data', 'verb' => 'GET'],
+		// Embed tokens (embedded-analytics, REQ-EMB-001/008/009): admin-only.
+		['name' => 'embedTokenApi#index', 'url' => '/api/embed-tokens', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#create', 'url' => '/api/embed-tokens', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#telemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#setTelemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#show', 'url' => '/api/embed-tokens/{id}', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#update', 'url' => '/api/embed-tokens/{id}', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#revoke', 'url' => '/api/embed-tokens/{id}/revoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#unrevoke', 'url' => '/api/embed-tokens/{id}/unrevoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#reissue', 'url' => '/api/embed-tokens/{id}/re-issue', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#purgeCache', 'url' => '/api/embed-tokens/{id}/purge-cache', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#usage', 'url' => '/api/embed-tokens/{id}/usage', 'verb' => 'GET'],
+		// Tenant themes (embedded-analytics, REQ-EMB-005): admin-only.
+		['name' => 'tenantThemeApi#index', 'url' => '/api/tenant-themes', 'verb' => 'GET'],
+		['name' => 'tenantThemeApi#create', 'url' => '/api/tenant-themes', 'verb' => 'POST'],
+		['name' => 'tenantThemeApi#update', 'url' => '/api/tenant-themes/{id}', 'verb' => 'PUT'],
+		['name' => 'tenantThemeApi#destroy', 'url' => '/api/tenant-themes/{id}', 'verb' => 'DELETE'],
 
 		// Org-wide navigation editor (REQ-ONAV-001..012). The /position
 		// routes MUST precede the bare /org-navigation routes so the

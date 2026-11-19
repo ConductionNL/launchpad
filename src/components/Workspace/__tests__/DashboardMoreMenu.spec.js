@@ -17,7 +17,7 @@ vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 }))
 vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
-	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars.appId),
+	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
 }))
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnGroupedMenu: {
@@ -269,6 +269,17 @@ describe('DashboardMoreMenu', () => {
 		expect(item(wrapper, 'scheduled-exports').label).toBe('Scheduled exports…')
 		item(wrapper, 'scheduled-exports').onClick()
 		expect(wrapper.emitted('scheduledExports')).toHaveLength(1)
+	})
+
+	it('offers "Create embed token" to an administrator, linking to Beheer ▸ Embeds with the dashboard', () => {
+		const { wrapper: without } = mountMenu({})
+		expect(item(without, 'embed')).toBeUndefined()
+
+		const { wrapper } = mountMenu({ canEmbed: true })
+		const embed = item(wrapper, 'embed')
+		expect(embed.label).toBe('Create embed token')
+		expect(embed.href).toContain('tab=embeds')
+		expect(embed.href).toContain('embedType=dashboard')
 	})
 
 	it('leaves the admin settings out for a member', () => {

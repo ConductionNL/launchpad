@@ -153,6 +153,16 @@
 			{{ t('launchpad', 'Share') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canEmbed && dashboard.uuid"
+			:closeAfterClick="true"
+			data-testid="cog-embed"
+			@click="openEmbed">
+			<template #icon>
+				<CodeTags :size="20" />
+			</template>
+			{{ t('launchpad', 'Create embed token') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="canScheduleExports"
 			:closeAfterClick="true"
 			data-testid="cog-scheduled-exports"
@@ -177,10 +187,12 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
 import BookmarkPlusOutline from 'vue-material-design-icons/BookmarkPlusOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import History from 'vue-material-design-icons/History.vue'
@@ -198,6 +210,23 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
+
+/**
+ * The address of Beheer ▸ Embeds with a dashboard pre-selected.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @return {string}
+ * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+ */
+export function embedAdminHref(dashboard) {
+	const query = new URLSearchParams({
+		tab: 'embeds',
+		embedType: 'dashboard',
+		embedId: String(dashboard?.uuid ?? ''),
+		embedDashboard: String(dashboard?.id ?? ''),
+	})
+	return `${generateUrl('/settings/admin/launchpad')}?${query.toString()}`
+}
 
 /**
  * Whether the caller owns a dashboard: a row under "My dashboards" (the
@@ -222,6 +251,7 @@ export default {
 	components: {
 		NcActions,
 		NcActionButton,
+		CodeTags,
 		Cog,
 		Pencil,
 		ContentSave,
@@ -284,6 +314,13 @@ export default {
 		canShare: FLAG_PROP,
 
 		/*
+		 * embedded-analytics task 40: the viewer is an administrator, so the
+		 * menu offers "Create embed token", a link to Beheer ▸ Embeds with
+		 * this dashboard pre-selected. Off by default.
+		 */
+		canEmbed: FLAG_PROP,
+
+		/*
 		 * sharing-dashboard-schedule-screen REQ-SCHEDUI-001: the host allows
 		 * Publish / Unpublish / Schedule… (owner or administrator). Off by
 		 * default, so sidebar rows do not show them.
@@ -344,6 +381,16 @@ export default {
 	],
 
 	computed: {
+		/**
+		 * Beheer ▸ Embeds with this dashboard pre-selected for a new token.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		embedHref() {
+			return embedAdminHref(this.dashboard)
+		},
+
 		/*
 		 * Owner-gated actions (Configure, Delete) require the user to
 		 * own this dashboard. The visibility API doesn't always set
@@ -392,6 +439,15 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Open Beheer ▸ Embeds with this dashboard pre-selected.
+		 *
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		openEmbed() {
+			window.location.assign(this.embedHref)
+		},
 	},
 }
 </script>

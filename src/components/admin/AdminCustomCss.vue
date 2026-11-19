@@ -87,7 +87,7 @@ export default {
 		}
 	},
 
-	/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003 */
+	/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003 */
 	created() {
 		this.load()
 	},
@@ -95,7 +95,7 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003 */
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003 */
 		async load() {
 			this.loading = true
 			try {
@@ -112,7 +112,7 @@ export default {
 		/**
 		 * Save the CSS, then show what the server stored and what it removed.
 		 *
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 		 */
 		async save() {
 			this.saving = true
@@ -135,7 +135,7 @@ export default {
 		 *
 		 * @param {object|undefined} data The save response.
 		 * @return {void}
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 		 */
 		showSaved(data) {
 			this.css = typeof data?.customCss === 'string' ? data.customCss : ''
@@ -150,7 +150,7 @@ export default {
  *
  * @param {Error} error The failed request.
  * @return {string}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 function saveErrorMessage(error) {
 	const message = error?.response?.data?.error

@@ -25,7 +25,7 @@ The fleet reference is `decidesk/lib/Mcp/` — `DecideskToolProvider` (dispatche
 
 ### D1: Imperative provider for all writes; schema-derived tools for read discovery only
 
-**Decision**: All writes go through `LaunchpadToolProvider` handlers calling the existing service layer. The `Dashboard` schema additionally gets an `x-openregister-mcp` block (openconnector pattern) deriving only read-only `search`/`get`.
+**Decision**: All writes go through `LaunchPadToolProvider` handlers calling the existing service layer. The `Dashboard` schema additionally gets an `x-openregister-mcp` block (openconnector pattern) deriving only read-only `search`/`get`.
 
 **Alternatives considered:**
 

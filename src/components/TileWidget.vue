@@ -216,7 +216,7 @@ export default {
 		 * link-type rule (launcher-tile-open-behaviour D2).
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		resolvedTarget() {
 			return resolveLinkTarget(this.linkTarget, this.defaultLinkTarget, this.tile.linkType)
@@ -230,7 +230,7 @@ export default {
 		 * handleActivate() opens the panel instead.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		anchorTarget() {
 			return launchTarget(this.tile, this.content) ?? (this.resolvedTarget === NEW_TAB ? '_blank' : '_self')
@@ -251,7 +251,7 @@ export default {
 		 * server saw the request come from an office network and the tile has one.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 		 */
 		opensInternalUrl() {
 			return typeof this.tile.internalUrl === 'string'
@@ -261,8 +261,8 @@ export default {
 
 		/**
 		 * @spec openspec/specs/tiles/spec.md
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
-		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 		 */
 		tileUrl() {
 			const launch = launchHref(this.tile, this.content, this.placementId, generateUrl)
@@ -342,7 +342,7 @@ export default {
 		 * @return {void}
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		handleActivate(event) {
 			recordTileClick(this.tile?.id)

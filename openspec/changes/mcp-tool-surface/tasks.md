@@ -2,7 +2,7 @@
 
 ## Provider Skeleton
 
-- [x] Task 1: REQ-MCP-001 — Create `lib/Mcp/LaunchpadToolProvider.php` implementing `OCA\OpenRegister\Mcp\IMcpToolProvider`: dispatcher only, tool catalogue as a `TOOL_DESCRIPTORS` class constant (unit-testable fixture), routing to domain handler classes — mirror `decidesk/lib/Mcp/DecideskToolProvider.php`
+- [x] Task 1: REQ-MCP-001 — Create `lib/Mcp/LaunchPadToolProvider.php` implementing `OCA\OpenRegister\Mcp\IMcpToolProvider`: dispatcher only, tool catalogue as a `TOOL_DESCRIPTORS` class constant (unit-testable fixture), routing to domain handler classes — mirror `decidesk/lib/Mcp/DecideskToolProvider.php`
 - [x] Task 2: REQ-MCP-001 — Register the string DI alias `'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad'` in `lib/AppInfo/Application::register()` (string alias, no autoload at registration — decidesk's `DomainServiceRegistrar` pattern, ADR-083 boot safety)
 - [x] Task 3: REQ-MCP-001 — All tool ids namespaced `launchpad.{toolName}`; add a unit test asserting the namespace and id uniqueness across the catalogue
 
@@ -31,22 +31,23 @@
 - [x] Task 12: Implement the 8 `instance`-reach tools (group dashboard CRUD, setGroupDefault, template create/update/delete/resync)
   - `McpInstanceTools`: the four group dashboard tools over `DashboardService` and the four template tools over `AdminTemplateService` / the resync service; each checks `requireAdmin()` first. Test: `McpReachToolsTest`.
 - [x] Task 13: REQ-MCP-003 — Unit test on the descriptor fixture: every write tool declares exactly one scope ∈ {create, update, delete} and one reach ∈ {self, user, instance, external}; no write carries `readOnlyHint: true`
-  - `LaunchpadToolProviderTest::testEveryToolCarriesItsGrantAnnotations` holds for every descriptor, so each write tool added later is checked too.
+  - `LaunchPadToolProviderTest::testEveryToolCarriesItsGrantAnnotations` holds for every descriptor, so each write tool added later is checked too.
 - [x] Task 14: REQ-MCP-006 — Annotate all `delete`-scope and all `external`-reach tools with the destructive/approval flag hermiq's approval gate consumes; every handler result includes tool id, target identifier, caller uid, and outcome for the audit trail
   - Hints are top-level keys, as OpenRegister's `IMcpToolProvider::getTools()` reads them (`readOnlyHint`, `destructiveHint`); they were nested under `annotations`, where OpenRegister never saw them. The provider adds `audit: {tool, target, caller, outcome}` to every write tool's answer, refusals included. The test holds for every descriptor.
 
 ## Exclusions (REQ-MCP-007)
 
 - [x] Task 15: Unit test asserting catalogue closure: the descriptor set equals exactly the REQ-MCP-002 + REQ-MCP-003 ids, and contains no tool for viewEvent, tile-click recording, `acknowledgement#acknowledge`, resource/preview/files uploads, lock endpoints, wizard, Confluence import, cleanup, demo showcases, bulk ops, export/import, or settings surfaces
-  - `LaunchpadToolProviderTest::testTheWriteCatalogueIsClosed` (the 35 write ids at their reach, no excluded surface) with `testTheReadCatalogueIsTheFourteenReadTools`.
+  - `LaunchPadToolProviderTest::testTheWriteCatalogueIsClosed` (the 35 write ids at their reach, no excluded surface) with `testTheReadCatalogueIsTheFourteenReadTools`.
 - [x] Task 16: Document the exclusion rationale in the provider's class docblock so a future "completeness" sweep reads why before adding
-  - The class docblock of `LaunchpadToolProvider` lists the exclusions and why.
+  - The class docblock of `LaunchPadToolProvider` lists the exclusions and why.
 
 ## Schema Overlay (REQ-MCP-009)
 
 - [x] Task 17: Create `lib/Settings/register.d/dashboard-mcp.json` adding an `x-openregister-mcp` block to the `Dashboard` schema with read-only `search` and `get` tools (`readOnlyHint: true`, scope `read`, sensible `filters` such as title/slug/type/groupId — openconnector's endpoint block as the template). No derived writes
   - `lib/Settings/register.d/dashboard-mcp.json`: `search` (filters title, slug, type, groupId) and `get`, both scope `read` and `readOnlyHint: true`; the import version moves to 1.0.6 so existing installs take it. Test: `DashboardMcpOverlayTest`.
-- [ ] Task 18: Verify the imported schema carries the block (check the imported schema via OpenRegister, not the file — the importer can reject silently)
+- [x] Task 18: Verify the imported schema carries the block (check the imported schema via OpenRegister, not the file — the importer can reject silently)
+  - 19 Nov live pass (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): the imported Dashboard schema carries the `x-openregister-mcp` block in its configuration, and OpenRegister's `tools/list` lists `launchpad.dashboard.search` and `launchpad.dashboard.get`.
 
 ## Authorization Parity Tests (REQ-MCP-004/005)
 
@@ -59,19 +60,23 @@
 
 ## Integration / Chat Flows (REQ-MCP-008)
 
-- [ ] Task 23: Integration test — "add the calendar widget": getActiveDashboard → listWidgetTypes → addWidget, assert the placement exists via `GET /api/widgets/items` equivalence
-- [ ] Task 24: Integration test — "share with the sales group": listDashboards → shareDashboard(group: sales), assert parity with `POST /api/dashboard/{id}/shares` output
+- [x] Task 23: Integration test — "add the calendar widget": getActiveDashboard → listWidgetTypes → addWidget, assert the placement exists via `GET /api/widgets/items` equivalence
+  - 19 Nov live pass (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): `tests/e2e/api-direct/mcp-chat-flows.api.spec.ts` drives getActiveDashboard, listWidgetTypes and addWidget over `POST /apps/openregister/api/mcp` as a non-admin user; the placement is in `GET /api/dashboard/{id}`. The run found that OpenRegister listed none of the provider tools: it finds a provider as `OCA\<namespace>\Mcp\<namespace>ToolProvider` and the class was `LaunchpadToolProvider`; renamed to `LaunchPadToolProvider`, pinned by `LaunchPadToolProviderTest::testTheProviderLivesWhereOpenRegisterLooksForIt`.
+- [x] Task 24: Integration test — "share with the sales group": listDashboards → shareDashboard(group: sales), assert parity with `POST /api/dashboard/{id}/shares` output
+  - 19 Nov live pass (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): same spec: listDashboards, shareDashboard(group) as a non-admin user; the share is in `GET /api/dashboard/{id}/shares` with the same id and permission level.
 - [ ] Task 25: Integration test — "template to default": listTemplates → forkDashboard → setDefaultDashboard, assert `GET /api/dashboards/default` returns the fork
+  - Open, 19 Nov live pass: listTemplates lists the admin template gallery, but forkDashboard only copies a dashboard the caller can see (`DashboardService::findVisibleDashboardForFork`), so it answers `not_found` for every template it was offered. The flow needs a decision on which templates a user may copy (the gallery is not filtered by target group). The test is written and parked as `test.fixme` in `tests/e2e/api-direct/mcp-chat-flows.api.spec.ts`.
 
 ## Quality & Integration
 
 - [ ] Task 26: `composer check:strict` clean (PHPCS, PHPMD, Psalm, PHPStan) including the new `lib/Mcp/` namespace; SPDX headers on every new PHP file (hydra-gate-spdx)
 - [ ] Task 27: Run the hydra gates; specifically confirm no orphan-auth finding (every gate method must be called) and no redundant-controller finding (no wrapper controllers were added)
-- [ ] Task 28: Boot test without OpenRegister installed: app registers and the launchpad UI loads (alias unresolved is acceptable; boot failure is not)
+- [x] Task 28: Boot test without OpenRegister installed: app registers and the launchpad UI loads (alias unresolved is acceptable; boot failure is not)
+  - 19 Nov live pass (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): launchpad enabled on a fresh MySQL instance without OpenRegister: `occ app:enable` succeeds, `/apps/launchpad/` answers 200 and renders (with Nextcloud's "requires openregister" notice), `GET /api/dashboards` answers 200, no error in the log.
 
 ## Build notes
 
-Built so far: tasks 1 to 5, 21 and 22. `LaunchpadToolProvider` has its catalogue as `TOOL_DESCRIPTORS`. It is registered under the string alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`, which is a literal, so nothing autoloads at boot. The gate (`McpDashboardGate`) applies the same ADR-023 action each HTTP route checks, plus the admin check, and denies on any exception. The validator (`McpArgumentValidator`) handles UUID, id, string length, enum and grid bounds. Four of the 14 read tools from task 7 exist: listDashboards, getDashboard, listGroupDashboards and listWidgetTypes, each calling the service its route calls. The other read tools, all write tools (tasks 9 to 14), the closure test (15), the schema overlay (17, 18), the remaining parity tests and the integration flows are open. Task 4's `PermissionService::can*()` delegation comes with the write tools that need it.
+Built so far: tasks 1 to 5, 21 and 22. `LaunchPadToolProvider` has its catalogue as `TOOL_DESCRIPTORS`. It is registered under the string alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`, which is a literal, so nothing autoloads at boot. The gate (`McpDashboardGate`) applies the same ADR-023 action each HTTP route checks, plus the admin check, and denies on any exception. The validator (`McpArgumentValidator`) handles UUID, id, string length, enum and grid bounds. Four of the 14 read tools from task 7 exist: listDashboards, getDashboard, listGroupDashboards and listWidgetTypes, each calling the service its route calls. The other read tools, all write tools (tasks 9 to 14), the closure test (15), the schema overlay (17, 18), the remaining parity tests and the integration flows are open. Task 4's `PermissionService::can*()` delegation comes with the write tools that need it.
 
 ## Verification
 

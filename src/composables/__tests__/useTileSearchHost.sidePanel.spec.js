@@ -6,7 +6,7 @@
  * (launcher-tile-open-behaviour task 8): activation clicks the rendered tile
  * link, and TileWidget's click handler decides where it opens.
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { mount } from '@vue/test-utils'

@@ -391,6 +391,225 @@ The browser MUST refuse bookmark files over 5 MB or with more than 2,000 bookmar
 - **WHEN** Pieter selects it
 - **THEN** the dialog says "This file has more than 2,000 bookmarks. Export one folder at a time." and nothing is sent to the server
 
+### Requirement: Administrators declare the office networks (REQ-TIA-001)
+
+An administrator MUST be able to list the office networks as IPv4 and IPv6 CIDR ranges on the LaunchPad admin page. The server MUST reject a malformed range with HTTP 400. The page MUST show the administrator's own current address and whether it falls inside the listed ranges.
+
+#### Scenario: Administrator adds the office range
+
+- **GIVEN** Noor is a Nextcloud administrator on the LaunchPad admin page
+- **WHEN** she adds `10.20.0.0/16` under "Office networks" and saves
+- **THEN** the list shows `10.20.0.0/16`
+- **AND** the page says whether her current address is inside the office networks
+
+#### Scenario: Malformed range is refused
+
+- **GIVEN** Noor edits the office networks
+- **WHEN** she enters `10.20.0.0/40` and saves
+- **THEN** the save fails with the message "This is not a valid network range" and the stored list is unchanged
+
+### Requirement: A tile can hold an office-network address (REQ-TIA-002)
+
+A tile MUST accept an optional second address for use on the office network. The server MUST validate it with the same rules as the tile's main address.
+
+#### Scenario: Author adds the internal address
+
+- **GIVEN** Ella may edit the dashboard "Team Vergunningen" with a tile "Zaaksysteem" at `https://zaken.gemeente.nl`
+- **WHEN** she sets "Address on the office network" to `http://zaken.intern` and saves
+- **THEN** the tile keeps both addresses
+
+### Requirement: The tile opens the address that fits the network (REQ-TIA-003)
+
+When a request comes from an address inside the office networks, a tile with an office-network address MUST open that address. Everywhere else, and whenever no office networks are set, it MUST open its main address. The decision MUST be made by the server from the request address, not by probing hosts from the browser.
+
+#### Scenario: At the office
+
+- **GIVEN** the office networks include `10.20.0.0/16` and Pieter's request comes from `10.20.4.7`
+- **WHEN** he clicks "Zaaksysteem"
+- **THEN** his browser opens `http://zaken.intern`
+
+#### Scenario: At home
+
+- **GIVEN** Pieter's request comes from `84.1.2.3`, outside the office networks
+- **WHEN** he clicks "Zaaksysteem"
+- **THEN** his browser opens `https://zaken.gemeente.nl`
+
+#### Scenario: Editor shows the address in effect
+
+- **GIVEN** Ella is on the office network and edits "Zaaksysteem"
+- **WHEN** she looks below "Address on the office network"
+- **THEN** she reads "You are on the office network: this tile opens the internal address"
+
+### Requirement: The add flow lists the apps this server runs for the user (REQ-DISC-001)
+
+The add flow MUST show a "Discovered on this server" section with every app in the user's Nextcloud app menu except LaunchPad, including AppAPI external apps that have a page, with each app's name and icon. The server MUST build the list from the user's own app menu, so apps restricted to groups the user is not in MUST NOT appear.
+
+#### Scenario: Deck is discovered
+
+- **GIVEN** the server has Deck enabled for everyone and Pieter edits "Mijn werkplek"
+- **WHEN** he opens "Add"
+- **THEN** "Deck" appears under "Discovered on this server" with the Deck icon
+
+#### Scenario: Restricted app stays hidden
+
+- **GIVEN** the app "Forms" is enabled only for group "Communicatie" and Pieter is not a member
+- **WHEN** he opens "Add"
+- **THEN** "Forms" is not under "Discovered on this server"
+
+### Requirement: One click turns a discovered app into a tile (REQ-DISC-002)
+
+Choosing a discovered app MUST place a tile with the app's name, icon and address in one action, through the normal tile creation path. Apps already on the dashboard MUST be marked "On this dashboard".
+
+#### Scenario: Place Deck
+
+- **GIVEN** "Deck" is listed under "Discovered on this server"
+- **WHEN** Pieter clicks it
+- **THEN** a tile "Deck" appears at the bottom of "Mijn werkplek" and opens `/apps/deck/`
+- **AND** the next time he opens "Add", "Deck" shows "On this dashboard"
+
+### Requirement: Discovery never touches the container host (REQ-DISC-003)
+
+Discovery MUST read only the Nextcloud app menu. It MUST NOT read a Docker socket, container labels or AppAPI deployment data.
+
+#### Scenario: No socket access
+
+- **GIVEN** an instance where AppAPI runs the external app "Context Chat" with a page
+- **WHEN** Pieter opens "Add"
+- **THEN** "Context Chat" is discovered from the app menu
+- **AND** LaunchPad makes no call to a Docker or AppAPI daemon endpoint
+
+### Requirement: A tile can start a program on the user's computer (REQ-TLT-001)
+
+A tile MUST accept link type `program` with an address whose scheme is on the administrator's allowed-scheme list. The server MUST refuse `javascript`, `data`, `file`, `vbscript`, `about` and `blob` schemes even when an administrator lists them. The allowed list MUST be empty until an administrator fills it.
+
+#### Scenario: Word tile
+
+- **GIVEN** Noor allowed the scheme `ms-word` on the LaunchPad admin page
+- **WHEN** Ella adds a tile "Word" of type "Program on this computer" with address `ms-word:ofe|u|https://docs.example.nl/sjabloon.docx` and Pieter clicks it
+- **THEN** Pieter's browser hands the address to the installed Word program
+- **AND** the tile shows "Nothing happened? The program may not be installed on this computer."
+
+#### Scenario: Script scheme is refused
+
+- **GIVEN** any administrator setting
+- **WHEN** a client saves a tile of type `program` with address `javascript:alert(1)`
+- **THEN** the response is 400 and no tile is saved
+
+### Requirement: A tile can start a remote desktop or a published program (REQ-TLT-002)
+
+A tile MUST accept link type `remote-desktop` in one of two modes: a web gateway address (https only), or an RDP connection with host, port, an optional published program and an optional gateway. For the RDP mode the server MUST generate a `.rdp` file from the validated fields only, MUST check that the caller may view the tile's dashboard, and MUST NOT write any credential into the file.
+
+#### Scenario: Published Windows program through a gateway
+
+- **GIVEN** a tile "Belastingen (oud)" of type "Remote desktop" in RDP mode with host `rds01.gemeente.local`, program `||Belastingen` and gateway `rdgw.gemeente.nl`
+- **WHEN** Pieter clicks it
+- **THEN** his browser downloads `Belastingen (oud).rdp` containing `full address:s:rds01.gemeente.local`, `remoteapplicationprogram:s:||Belastingen` and `gatewayhostname:s:rdgw.gemeente.nl`
+- **AND** the file contains no user name or password
+
+#### Scenario: Someone without access asks for the file
+
+- **GIVEN** the tile sits on a dashboard Sanne may not view
+- **WHEN** Sanne requests `GET /api/tiles/{placementId}/rdp`
+- **THEN** the response is 403
+
+#### Scenario: Web gateway
+
+- **GIVEN** a tile "Werkplek" of type "Remote desktop" in gateway mode with address `https://desktop.gemeente.nl/guacamole/#/client/werkplek`
+- **WHEN** Pieter clicks it
+- **THEN** the gateway opens, and the gateway signs him in through the organisation's identity provider
+
+### Requirement: A tile can start single sign-on into a company app (REQ-TLT-003)
+
+An administrator MUST be able to define identity-provider launch templates, each an https address containing `{appId}`. A tile of link type `sso` MUST name a template and an app identifier, and MUST open the template with the URL-encoded identifier. LaunchPad MUST NOT pass any token or password.
+
+#### Scenario: Entra ID app
+
+- **GIVEN** Noor defined the template "Microsoft Entra ID" as `https://launcher.myapps.microsoft.com/api/signin/{appId}?tenantId=contoso`
+- **WHEN** Ella adds a tile "Salarisstrook" of type "Single sign-on app" with template "Microsoft Entra ID" and app id `a1b2c3` and Pieter clicks it
+- **THEN** his browser opens `https://launcher.myapps.microsoft.com/api/signin/a1b2c3?tenantId=contoso`
+- **AND** Entra ID signs him in with the session from his Nextcloud sign-in
+
+#### Scenario: Author cannot type an identity-provider address
+
+- **GIVEN** Ella edits a single sign-on tile
+- **WHEN** she looks at the fields
+- **THEN** she can pick a template and enter an app id, and there is no free address field
+
+### Requirement: A tile carries its own link target (REQ-TOB-001)
+
+Every tile placement MUST accept a link target of `same-tab`, `new-tab` or `side-panel` in its content, set in the tile editor by anyone who may edit the tile. The server MUST reject any other value with HTTP 400 and leave the placement unchanged.
+
+#### Scenario: Author makes a web tile open in the same tab
+
+- **GIVEN** Ella has full permission on her dashboard "Mijn werkplek" with a tile "Intranet" pointing at `https://intranet.example.nl`
+- **WHEN** she opens the tile editor, sets "Opens in" to "Same tab" and saves
+- **THEN** clicking "Intranet" on the Workspace page opens the intranet in the current tab
+
+#### Scenario: Unknown target is refused
+
+- **GIVEN** a tile placement on a dashboard Ella may edit
+- **WHEN** a client sends `PUT /api/widgets/{placementId}` with `content.linkTarget = "popup"`
+- **THEN** the response is 400 and the stored target is unchanged
+
+### Requirement: A dashboard sets the default target for its tiles (REQ-TOB-002)
+
+A dashboard MUST accept a default link target. A tile without its own target MUST use the dashboard default, and a dashboard without a default MUST keep the current rule: a web address opens in a new tab and an app opens in the same tab.
+
+#### Scenario: Dashboard default applies to tiles without their own choice
+
+- **GIVEN** the group dashboard "Team Burgerzaken" has default target "Same tab" and a tile "Zaaksysteem" with no target of its own
+- **WHEN** Pieter clicks "Zaaksysteem" on the Workspace page
+- **THEN** it opens in the current tab
+
+#### Scenario: Upgrade keeps today's behaviour
+
+- **GIVEN** a dashboard created before this change, with no default and tiles with no target
+- **WHEN** a user clicks a tile pointing at `https://example.org`
+- **THEN** it opens in a new tab, and an app tile opens in the same tab
+
+### Requirement: A tile can open its app in a panel beside the tiles (REQ-TOB-003)
+
+A tile with target `side-panel` MUST open its address in a panel on the Workspace page next to the grid, keep the grid usable, show a close button and an "Open in new tab" link, close on Escape and return focus to the tile. Only one panel MUST be open at a time.
+
+#### Scenario: Files opens beside the tiles
+
+- **GIVEN** Ella's dashboard has a tile "Bestanden" linking to the Files app with target "Panel beside the tiles"
+- **WHEN** she clicks "Bestanden"
+- **THEN** the Files app shows in a panel next to her tiles, and the tiles stay visible and clickable
+- **AND WHEN** she presses Escape, the panel closes and focus is back on "Bestanden"
+
+#### Scenario: Opening a second tile replaces the panel
+
+- **GIVEN** the panel shows "Bestanden"
+- **WHEN** Ella clicks a second panel tile "Agenda"
+- **THEN** the panel shows the Calendar app and no second panel appears
+
+### Requirement: The panel only frames allowed pages (REQ-TOB-004)
+
+The panel MUST frame a Nextcloud address on the same instance, and MUST frame an outside address only when its host is on the embed allow-list (`iframe_allowed_hosts`). Otherwise, or when the page refuses to be framed, the panel MUST show a fallback card with the page title and an "Open in new tab" link, never an empty frame.
+
+#### Scenario: Outside host not on the allow-list
+
+- **GIVEN** the allow-list holds only `kaart.example.nl` and a tile points at `https://portal.example.com` with target "Panel beside the tiles"
+- **WHEN** Pieter clicks the tile
+- **THEN** the panel shows the fallback card "This page could not be loaded." with "Open in new tab"
+
+#### Scenario: Editor explains why the panel is unavailable
+
+- **GIVEN** Ella edits a tile pointing at `https://portal.example.com`, whose host is not on the allow-list
+- **WHEN** she opens "Opens in"
+- **THEN** "Panel beside the tiles" is disabled with the text "This address cannot open in the panel."
+
+### Requirement: Quick search opens a tile the way a click does (REQ-TOB-005)
+
+Activating a tile from quick search MUST use the same resolved target as clicking the tile, including the side panel.
+
+#### Scenario: Search result opens in the panel
+
+- **GIVEN** a tile "Bestanden" with target "Panel beside the tiles"
+- **WHEN** Pieter types "best" in the quick-search box and presses Enter on "Bestanden"
+- **THEN** the Files app opens in the panel beside the tiles
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/tiles MUST return within 300ms for users with up to 100 tiles.

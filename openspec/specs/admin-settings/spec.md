@@ -40,7 +40,9 @@ Settings are stored as key-value pairs:
 | `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
 NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts each setting under the key the GET response uses (`defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`) and under its short parameter name (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`). When both arrive in one body the short name wins. See REQ-ASET-002.
+
 ## Requirements
+
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
 Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the fourteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
@@ -614,6 +616,22 @@ The current value of `allow_user_dashboards` MUST be pushed as initial state `al
 - AND the backend returns HTTP 403 with `error: 'personal_dashboards_disabled'`
 - THEN the store MUST surface a localised toast via `@nextcloud/dialogs::showError` reading the `Personal dashboards are not enabled by your administrator` translation
 - AND the original error MUST be re-thrown so callers can short-circuit
+
+### Requirement: Program schemes and single sign-on launch templates are admin settings (REQ-ASET-020)
+
+The admin settings MUST hold `tileAllowedSchemes` (stored as `tile_allowed_schemes`), a list of lower-case URL schemes a program tile may use, and `ssoLaunchTemplates` (stored as `sso_launch_templates`), a list of `{key, name, urlTemplate}` where `urlTemplate` is an https address containing `{appId}` exactly once. Both MUST be empty by default. A write MUST be refused with HTTP 400, naming the entry, when a scheme is not lower-case or is one of `javascript`, `data`, `file`, `vbscript`, `about` or `blob`, or when a template is not https, lacks or repeats `{appId}`, carries another placeholder or credentials, or reuses a key; a refused write MUST leave both lists as they were. A stored value that no longer validates MUST read as empty. With these two, `GET /api/admin/settings` (REQ-ASET-001) returns fourteen keys; the REQ-ASET-001 list is updated when this change is archived.
+
+#### Scenario: A script scheme cannot be allowed
+
+- **GIVEN** an administrator on the LaunchPad admin page
+- **WHEN** they save `javascript` as an allowed scheme
+- **THEN** the response is 400 naming `javascript` and the allowed list is unchanged
+
+#### Scenario: A launch template must be https with the app id
+
+- **GIVEN** an administrator defining a launch template
+- **WHEN** they save `http://idp.example.nl/{appId}`
+- **THEN** the response is 400 and no template is stored
 
 ## Non-Functional Requirements
 

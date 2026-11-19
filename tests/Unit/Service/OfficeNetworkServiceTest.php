@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  *
- * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Service\OfficeNetworkService
  * @covers \OCA\LaunchPad\Service\AdminSettingsService
  *
- * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
  */
 class OfficeNetworkServiceTest extends TestCase {
 
@@ -205,7 +205,7 @@ class OfficeNetworkServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 	 */
 	public function testEnteredRangesAreCheckedAndNormalised(): void {
 		$service = $this->service(address: '10.20.4.7');
@@ -228,7 +228,7 @@ class OfficeNetworkServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 	 */
 	public function testTheAdminSettingsStoreAndShowTheOfficeNetworks(): void {
 		$mapper = $this->createMock(AdminSettingMapper::class);

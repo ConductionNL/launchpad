@@ -59,13 +59,13 @@ The panel MUST frame a Nextcloud address on the same instance, and MUST frame an
 
 - **GIVEN** the allow-list holds only `kaart.example.nl` and a tile points at `https://portal.example.com` with target "Panel beside the tiles"
 - **WHEN** Pieter clicks the tile
-- **THEN** the panel shows the fallback card "This page cannot be shown here" with "Open in new tab"
+- **THEN** the panel shows the fallback card "This page could not be loaded." with "Open in new tab"
 
 #### Scenario: Editor explains why the panel is unavailable
 
 - **GIVEN** Ella edits a tile pointing at `https://portal.example.com`, whose host is not on the allow-list
 - **WHEN** she opens "Opens in"
-- **THEN** "Panel beside the tiles" is disabled with the text "Ask an administrator to allow this site for embedding"
+- **THEN** "Panel beside the tiles" is disabled with the text "This address cannot open in the panel."
 
 ### Requirement: Quick search opens a tile the way a click does (REQ-TOB-005)
 

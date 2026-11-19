@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Unit\Mcp;
 
-use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
+use OCA\LaunchPad\Mcp\LaunchPadToolProvider;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -24,10 +24,27 @@ use OCP\IUserSession;
 /**
  * The catalogue's ids and annotations, and dispatch.
  *
- * @covers \OCA\LaunchPad\Mcp\LaunchpadToolProvider
+ * @covers \OCA\LaunchPad\Mcp\LaunchPadToolProvider
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
  */
-class LaunchpadToolProviderTest extends TestCase {
+class LaunchPadToolProviderTest extends TestCase {
+
+	/**
+	 * OpenRegister finds the provider as `OCA\<namespace>\Mcp\<namespace>ToolProvider`,
+	 * with the namespace from info.xml; the class must live at exactly that name.
+	 *
+	 * @return void
+	 */
+	public function testTheProviderLivesWhereOpenRegisterLooksForIt(): void {
+		$info = (string)file_get_contents(filename: __DIR__ . '/../../../appinfo/info.xml');
+		$this->assertSame(expected: 1, actual: preg_match(pattern: '#<namespace>([^<]+)</namespace>#', subject: $info, matches: $match));
+		$namespace = $match[1];
+
+		$expected   = 'OCA\\' . $namespace . '\\Mcp\\' . $namespace . 'ToolProvider';
+		$reflection = new \ReflectionClass(objectOrClass: $expected);
+		$this->assertSame(expected: $expected, actual: $reflection->getName());
+		$this->assertTrue(condition: $reflection->implementsInterface(IMcpToolProvider::class));
+	}//end testTheProviderLivesWhereOpenRegisterLooksForIt()
 
 	/**
 	 * Every tool id is `launchpad.{toolName}` and unique.
@@ -35,7 +52,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testToolIdsAreNamespacedAndUnique(): void {
-		$ids = array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id');
+		$ids = array_column(LaunchPadToolProvider::TOOL_DESCRIPTORS, 'id');
 
 		$this->assertNotEmpty($ids);
 		foreach ($ids as $id) {
@@ -51,7 +68,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testEveryToolCarriesItsGrantAnnotations(): void {
-		foreach (LaunchpadToolProvider::TOOL_DESCRIPTORS as $tool) {
+		foreach (LaunchPadToolProvider::TOOL_DESCRIPTORS as $tool) {
 			$this->assertContains($tool['scope'], ['read', 'create', 'update', 'delete'], $tool['id']);
 			$this->assertContains($tool['reach'], ['self', 'user', 'instance', 'external'], $tool['id']);
 			$this->assertSame(expected: $tool['scope'] === 'read', actual: $tool['readOnlyHint'], message: $tool['id']);
@@ -69,9 +86,9 @@ class LaunchpadToolProviderTest extends TestCase {
 	 *
 	 * @param array<class-string, object> $handlers The handlers by class.
 	 *
-	 * @return LaunchpadToolProvider
+	 * @return LaunchPadToolProvider
 	 */
-	private function provider(array $handlers = []): LaunchpadToolProvider {
+	private function provider(array $handlers = []): LaunchPadToolProvider {
 		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('alice');
 		$session = $this->createMock(originalClassName: IUserSession::class);
@@ -80,7 +97,7 @@ class LaunchpadToolProviderTest extends TestCase {
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(callback: static fn (string $id): object => $handlers[$id]);
 
-		return new LaunchpadToolProvider(container: $container);
+		return new LaunchPadToolProvider(container: $container);
 	}//end provider()
 
 	/**
@@ -93,7 +110,7 @@ class LaunchpadToolProviderTest extends TestCase {
 
 		$this->assertInstanceOf(expected: IMcpToolProvider::class, actual: $provider);
 		$this->assertSame(expected: 'launchpad', actual: $provider->getAppId());
-		$this->assertSame(expected: LaunchpadToolProvider::TOOL_DESCRIPTORS, actual: $provider->getTools());
+		$this->assertSame(expected: LaunchPadToolProvider::TOOL_DESCRIPTORS, actual: $provider->getTools());
 	}//end testTheProviderIsLaunchpads()
 
 	/**
@@ -103,10 +120,10 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testEveryToolHasExactlyOneHandler(): void {
-		$ids = array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id');
+		$ids = array_column(LaunchPadToolProvider::TOOL_DESCRIPTORS, 'id');
 
-		$this->assertSame(expected: $ids, actual: array_keys(LaunchpadToolProvider::TOOL_HANDLERS));
-		foreach (LaunchpadToolProvider::TOOL_HANDLERS as $id => [$class, $method]) {
+		$this->assertSame(expected: $ids, actual: array_keys(LaunchPadToolProvider::TOOL_HANDLERS));
+		foreach (LaunchPadToolProvider::TOOL_HANDLERS as $id => [$class, $method]) {
 			$this->assertTrue(condition: method_exists($class, $method), message: $id);
 		}
 	}//end testEveryToolHasExactlyOneHandler()
@@ -119,7 +136,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	public function testTheReadCatalogueIsTheFourteenReadTools(): void {
 		$reads = array_column(
 			array: array_filter(
-				array: LaunchpadToolProvider::TOOL_DESCRIPTORS,
+				array: LaunchPadToolProvider::TOOL_DESCRIPTORS,
 				callback: static fn (array $tool): bool => $tool['scope'] === 'read'
 			),
 			column_key: 'id'
@@ -154,7 +171,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 */
 	public function testEachToolDispatchesToItsHandler(): void {
 		$handlers = [];
-		foreach (LaunchpadToolProvider::TOOL_HANDLERS as $id => [$class, $method]) {
+		foreach (LaunchPadToolProvider::TOOL_HANDLERS as $id => [$class, $method]) {
 			$handlers[$class] ??= $this->createMock(originalClassName: $class);
 			$handlers[$class]->method($method)->willReturnCallback(
 				callback: static fn (array $args): array => ['tool' => $id, 'args' => $args]
@@ -162,8 +179,8 @@ class LaunchpadToolProviderTest extends TestCase {
 		}
 
 		$provider = $this->provider(handlers: $handlers);
-		$scopes   = array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'scope', 'id');
-		foreach (array_keys(LaunchpadToolProvider::TOOL_HANDLERS) as $id) {
+		$scopes   = array_column(LaunchPadToolProvider::TOOL_DESCRIPTORS, 'scope', 'id');
+		foreach (array_keys(LaunchPadToolProvider::TOOL_HANDLERS) as $id) {
 			$result = $provider->invokeTool(toolId: $id, arguments: ['x' => 1]);
 			unset($result['audit']);
 			$this->assertSame(expected: ['tool' => $id, 'args' => ['x' => 1]], actual: $result);
@@ -257,7 +274,7 @@ class LaunchpadToolProviderTest extends TestCase {
 			],
 		];
 		$actual = [];
-		foreach (LaunchpadToolProvider::TOOL_DESCRIPTORS as $tool) {
+		foreach (LaunchPadToolProvider::TOOL_DESCRIPTORS as $tool) {
 			if ($tool['scope'] !== 'read') {
 				$actual[$tool['reach']][] = $tool['id'];
 			}
@@ -270,7 +287,7 @@ class LaunchpadToolProviderTest extends TestCase {
 		}
 
 		$this->assertSame(expected: array_keys($expected), actual: array_keys($actual));
-		$ids = implode(' ', array_column(LaunchpadToolProvider::TOOL_DESCRIPTORS, 'id'));
+		$ids = implode(' ', array_column(LaunchPadToolProvider::TOOL_DESCRIPTORS, 'id'));
 		$excludedSurfaces = ['viewEvent', 'Click', 'acknowledge(?!ments)', 'upload', 'Lock', 'Wizard', 'Confluence'];
 		$excludedSurfaces = [...$excludedSurfaces, 'cleanup', 'Showcase', 'Bulk', 'export', 'import', 'Settings'];
 		foreach ($excludedSurfaces as $excluded) {

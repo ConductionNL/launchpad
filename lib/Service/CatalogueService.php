@@ -45,7 +45,7 @@ use Throwable;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One service for the catalogue and its requests, as the design keeps them together.
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-3
  */
 class CatalogueService {
 
@@ -125,7 +125,7 @@ class CatalogueService {
 	 * @param INotificationManager $notificationManager Sends the notifications.
 	 * @param LoggerInterface      $logger              Logs a notification that could not be sent.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-3
 	 */
 	public function __construct(
 		private readonly CatalogueAppMapper $appMapper,
@@ -147,7 +147,7 @@ class CatalogueService {
 	 *
 	 * @return array<int, CatalogueApp>
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
 	 */
 	public function listFor(string $userId): array {
 		$userGroups = $this->groups->getUserGroupIdsFor(userId: $userId);
@@ -168,7 +168,7 @@ class CatalogueService {
 	 *
 	 * @return array<int, CatalogueApp>
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	public function listAll(): array {
 		return $this->appMapper->findAllOrdered();
@@ -183,7 +183,7 @@ class CatalogueService {
 	 *
 	 * @throws InvalidArgumentException When a field is missing or invalid.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	public function create(array $input): CatalogueApp {
 		$now = self::now();
@@ -210,7 +210,7 @@ class CatalogueService {
 	 * @throws InvalidArgumentException When a field is missing or invalid.
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException When there is no such entry.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	public function update(string $uuid, array $input): CatalogueApp {
 		$app = $this->appMapper->findByUuid(uuid: $uuid);
@@ -230,7 +230,7 @@ class CatalogueService {
 	 *
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException When there is no such entry.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	public function delete(string $uuid): void {
 		$this->appMapper->delete(entity: $this->appMapper->findByUuid(uuid: $uuid));
@@ -249,7 +249,7 @@ class CatalogueService {
 	 * @throws InvalidArgumentException When the name is empty or too long.
 	 * @throws DomainException          When the user already has the most open requests allowed (code `request_limit`).
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 	 */
 	public function request(string $userId, string $appName, string $purpose): AppRequest {
 		$appName = trim(string: $appName);
@@ -290,7 +290,7 @@ class CatalogueService {
 	 *
 	 * @return array<int, AppRequest>
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	public function openRequests(): array {
 		return $this->requestMapper->findOpen();
@@ -311,7 +311,7 @@ class CatalogueService {
 	 * @throws DomainException          When the request is no longer open (code `request_not_open`).
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException When there is no such request.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	public function approve(string $requestUuid, string $adminId, array $entry): array {
 		$request = $this->openRequest(uuid: $requestUuid);
@@ -340,7 +340,7 @@ class CatalogueService {
 	 * @throws DomainException          When the request is no longer open (code `request_not_open`).
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException When there is no such request.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	public function decline(string $requestUuid, string $adminId, string $note): AppRequest {
 		$note = trim(string: $note);
@@ -366,7 +366,7 @@ class CatalogueService {
 	 *
 	 * @return AppRequest The stored request.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	private function recordDecision(AppRequest $request, string $status, string $adminId, string $appName): AppRequest {
 		$note = (string) ($request->getDecisionNote() ?? '');
@@ -392,7 +392,7 @@ class CatalogueService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-5
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-5
 	 */
 	public function getManagerGroup(): string {
 		return (string)($this->settingMapper->getValue(key: self::MANAGER_GROUP_SETTING, default: '') ?? '');
@@ -407,7 +407,7 @@ class CatalogueService {
 	 *
 	 * @throws InvalidArgumentException When the group does not exist.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-5
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-5
 	 */
 	public function setManagerGroup(string $groupId): string {
 		$groupId = trim(string: $groupId);
@@ -426,7 +426,7 @@ class CatalogueService {
 	 *
 	 * @return int How many entries were added.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-9
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-9
 	 */
 	public function seedDemoEntries(): int {
 		if ($this->appMapper->findAllOrdered() !== []) {

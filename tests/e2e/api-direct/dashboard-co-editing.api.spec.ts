@@ -24,9 +24,9 @@
 
 import type { APIRequestContext } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { deprovisionUser, provisionThrowawayUser } from '../fixtures/secondary-user.ts'
-import { BASE_URL } from '../support/baseUrl.ts'
+import { assertActingAs, contextFor } from '../support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -42,21 +42,6 @@ let colleague: Account | null = null
 let owner: APIRequestContext
 let other: APIRequestContext
 let dashboard: { id: number, uuid: string }
-
-/**
- * An API context for an account.
- *
- * @param username The user name.
- * @param password The password.
- * @return The context; the caller disposes it.
- */
-async function apiAs(username: string, password: string): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: { username, password },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
-}
 
 /**
  * The object a LaunchPad answer carries, wrapped or not.
@@ -77,7 +62,9 @@ function unwrap(body: Record<string, unknown>): Record<string, unknown> {
  */
 async function addWidget(api: APIRequestContext, spot: Omit<Placement, 'id' | 'version'>): Promise<Placement> {
 	const res = await api.post(`${API}/dashboard/${dashboard.id}/widgets`, {
-		data: { widgetId: 'launchpad_text', ...spot },
+		// `activity` is in the shipped default widget rights, which hold for a
+		// colleague who is not an administrator.
+		data: { widgetId: 'activity', ...spot },
 	})
 	expect(res.ok(), `adding a widget answers ${res.status()}`).toBeTruthy()
 	return unwrap(await res.json()) as unknown as Placement
@@ -111,8 +98,10 @@ function overlaps(a: Placement, b: Placement): boolean {
 test.describe('dashboard-co-editing (API)', () => {
 	test.beforeAll(async () => {
 		colleague = await provisionThrowawayUser('e2e-coedit')
-		owner = await apiAs(ADMIN.user, ADMIN.pass)
-		other = await apiAs(colleague.username, colleague.password)
+		owner = await contextFor(ADMIN.user, ADMIN.pass)
+		other = await contextFor(colleague.username, colleague.password)
+		await assertActingAs(owner, ADMIN.user)
+		await assertActingAs(other, colleague.username)
 
 		const created = await owner.post(`${API}/dashboard`, { data: { name: `E2E co-editing ${Date.now()}` } })
 		expect(created.ok(), 'the owner creates the dashboard').toBeTruthy()

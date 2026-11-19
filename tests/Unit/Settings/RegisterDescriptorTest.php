@@ -166,4 +166,80 @@ class RegisterDescriptorTest extends TestCase {
 			. "misleading \"Schema not found\":\n" . implode("\n", $offenders),
 		);
 	}
+
+	/**
+	 * No property, at any depth, in the descriptor or a register.d overlay may
+	 * carry a union type: OpenRegister refuses the whole schema over one.
+	 *
+	 * @return void
+	 */
+	public function testNoNestedOrOverlayPropertyUsesAUnionType(): void {
+		$root  = dirname(__DIR__, 3) . '/lib/Settings';
+		$overlays = glob(pattern: $root . '/register.d/*.json');
+		if ($overlays === false) {
+			$overlays = [];
+		}
+
+		$files = array_merge([$root . '/launchpad_register.json'], $overlays);
+		$offenders = [];
+		$checked   = 0;
+
+		foreach ($files as $file) {
+			$data = json_decode(json: (string)file_get_contents(filename: $file), associative: true);
+			$this->assertIsArray(actual: $data, message: basename(path: $file) . ' must be valid JSON');
+			foreach (($data['components']['schemas'] ?? []) as $schemaKey => $schema) {
+				$this->collectUnionTypes(
+					properties: ($schema['properties'] ?? []),
+					path: basename(path: $file) . ':' . $schemaKey,
+					offenders: $offenders,
+					checked: $checked
+				);
+			}
+		}
+
+		$this->assertGreaterThan(expected: 5, actual: $checked, message: 'the property walk found almost nothing');
+		$this->assertSame(expected: [], actual: $offenders, message: "union types OpenRegister refuses:\n" . implode(separator: "\n", array: $offenders));
+	}
+
+	/**
+	 * Walk properties, nested objects and array items, noting each union type.
+	 *
+	 * @param mixed        $properties The properties to walk.
+	 * @param string       $path       Where they sit, for the message.
+	 * @param list<string> $offenders  The union types found so far.
+	 * @param int          $checked    How many typed properties were read.
+	 *
+	 * @return void
+	 */
+	private function collectUnionTypes(mixed $properties, string $path, array &$offenders, int &$checked): void {
+		if (is_array($properties) === false) {
+			return;
+		}
+
+		foreach ($properties as $name => $property) {
+			if (is_array($property) === false) {
+				continue;
+			}
+
+			if (array_key_exists('type', $property) === true) {
+				$checked++;
+				if (is_array($property['type']) === true) {
+					$offenders[] = $path . '.' . $name . ': ' . json_encode(value: $property['type']);
+				}
+			}
+
+			$this->collectUnionTypes(
+				properties: ($property['properties'] ?? null),
+				path: $path . '.' . $name,
+				offenders: $offenders,
+				checked: $checked
+			);
+			$this->collectUnionTypes(
+				properties: ($property['items']['properties'] ?? null),
+				path: $path . '.' . $name . '[]',
+				offenders: $offenders,
+				checked: $checked
+			);
+		}
+	}
 }//end class

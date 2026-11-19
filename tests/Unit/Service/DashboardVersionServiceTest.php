@@ -392,6 +392,7 @@ class DashboardVersionServiceTest extends TestCase {
 						'isVisible' => 0,
 						'customTitle' => 'restored title',
 						'styleConfig' => ['bg' => 'red'],
+						'calculatedFields' => [['key' => 'total', 'expression' => 'a + b']],
 					],
 				],
 			]
@@ -445,6 +446,8 @@ class DashboardVersionServiceTest extends TestCase {
 		// styleConfig is TEXT in the DB and an object in the snapshot; the array
 		// setter has to do the encoding or the column stores the string "Array".
 		$this->assertSame(['bg' => 'red'], $inserted->getStyleConfigArray());
+		// The calculated fields are TEXT too, and a snapshot carries them as a list.
+		$this->assertSame(expected: [['key' => 'total', 'expression' => 'a + b']], actual: $inserted->getCalculatedFieldsArray());
 
 		// The snapshot's dashboardId must be IGNORED — honouring it would let a
 		// snapshot captured elsewhere move placements onto another dashboard.

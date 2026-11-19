@@ -44,7 +44,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-quota-limits.spec.ts, 20 scenarios cited, not yet run (cloud, 2026-11-19). 4 excluded with a reason.
 - [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/legacy-widget-bridge.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.
+  - Spec written: openspec/specs/launchpad-compliance-audit-panel/spec.md (no e2e file; never built), 0 scenarios cited, not yet run (cloud, 2026-11-19). 18 excluded as never built.
 - [ ] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
 
 ## 3. Tier 2, core surfaces

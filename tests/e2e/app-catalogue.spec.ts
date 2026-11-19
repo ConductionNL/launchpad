@@ -95,7 +95,7 @@ async function seedOwnDashboard(account: Account): Promise<void> {
 }
 
 /**
- * Open LaunchPad and the add flow ("More" → "Add app").
+ * Open LaunchPad and the add flow ("More" → "Add widget").
  *
  * @param page a page logged in as the account under test.
  * @return the picker dialog.
@@ -105,7 +105,7 @@ async function openAddFlow(page: Page) {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-app"]').click()
+	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

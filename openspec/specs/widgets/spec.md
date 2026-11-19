@@ -14,8 +14,6 @@ Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad integr
 
 ## Data Model
 
-@e2e exclude all 89 scenarios test REST widget-discovery/placement/update/batch API — widget add/edit UI flows are covered by the widget-specific specs (label-widget, text-display-widget, image-widget etc.)
-
 ### Widget Discovery
 Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Each widget provides:
 - **id**: Widget identifier (e.g., `weather_status`, `recommendations`)
@@ -265,6 +263,7 @@ Widget placements MUST maintain a sort order for consistent rendering and tab na
 - GIVEN a dashboard with multiple placements ordered by sortOrder
 - WHEN the user presses Tab in view mode
 - THEN focus MUST move through widgets in sortOrder sequence
+@e2e exclude no write path sets a placement's sortOrder (not a PUT field in lib/Controller/RequestDataExtractor.php, not written by WidgetPlacementMapper::updatePositions), so a dashboard ordered by sortOrder cannot be arranged; never built (see widgets::reorder-widgets, test.fixme), and no unit test pins tab order
 
 ### Requirement: Batch Update Placements (REQ-WDG-008)
 
@@ -328,6 +327,7 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - AND `stat`, `gauge`, `delta` and `table` MUST use the nextcloud-vue registry renderer unchanged
 - AND the figures MUST come from the OpenRegister data source through nextcloud-vue (specs `nextcloud-vue/widget-renderer` and `openregister/aggregation-api`), not from a LaunchPad endpoint
 - AND each of these types MUST be listed in `lib/widget-types.json` so it appears in the widget picker
+@e2e exclude needs an OpenRegister register, schema and objects seeded as a data source, and the clauses name internal component wiring (ChartHost/StatsBlockHost onto CnChartWidget/CnStatsBlockWidget, RENDERER_OVERRIDES) and a source file; pinned by src/components/Widgets/Renderers/__tests__/chartAndStatsHosts.spec.js and src/constants/__tests__/widgetRegistry.completeness.spec.js
 
 ### Requirement: Widget Picker (REQ-WDG-010)
 
@@ -348,6 +348,7 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - THEN the type `<select>` MUST NOT be visible
 - AND the form area MUST render the text sub-form
 - AND the action button MUST read `t('Add')`
+@e2e exclude no LaunchPad control opens the modal with a preselected type: the toolbar dropdown is gone and Views.vue openCustomWidgetModal() is only ever called without one (Views.vue:3109); pinned by src/views/__tests__/ViewsEditorsAndRowActions.spec.js ("opens in create mode with the preselected type")
 
 #### Scenario: Open in edit mode
 
@@ -479,6 +480,7 @@ The set of supported widget types MUST come from a single in-frontend registry t
 - AND the modal type selector MUST list it
 - AND the grid renderer MUST render placements of the new type
 - AND no other UI code MUST need to be changed to support the new type
+@e2e exclude a developer adding a registry entry is a source change, not a runtime action; pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js and src/constants/__tests__/widgetRegistry.spec.js
 
 #### Scenario: Registry is the single source of truth
 
@@ -486,6 +488,7 @@ The set of supported widget types MUST come from a single in-frontend registry t
 - WHEN any consumer (toolbar, modal, renderer) enumerates widget types
 - THEN it MUST list those 5 types
 - AND MUST NOT hard-code any type name elsewhere in the codebase
+@e2e exclude a claim about the source (no hard-coded type names) checked by grep, not by a browser; the registry no longer has 5 entries (lib/widget-types.json lists 38); pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js
 
 ### Requirement: Right-click context menu in edit mode (REQ-WDG-015)
 

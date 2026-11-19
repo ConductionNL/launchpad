@@ -35,6 +35,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminDemoShowcasesControllerTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -64,6 +66,7 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 				logger: new NullLogger()
 			),
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 
@@ -196,6 +199,7 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 			request: $this->request,
 			showcases: new ShowcaseTools(showcasesSvc: $this->service, logger: $logger),
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 
 		$missing = $controller->install(id: 'de-bron');

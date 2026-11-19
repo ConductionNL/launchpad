@@ -30,6 +30,8 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers \OCA\LaunchPad\Controller\RuleApiController
@@ -64,7 +66,8 @@ class RuleApiControllerAddRuleTest extends TestCase {
 			permissionService: $this->permissions,
 			actionAuth: $this->actionAuth,
 			userSession: $this->session,
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

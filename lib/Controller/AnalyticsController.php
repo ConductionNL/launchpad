@@ -64,12 +64,16 @@ class AnalyticsController extends Controller {
 	 * @param AnalyticsServiceInterface $analyticsService The analytics reporting service.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param IUserSession $userSession Current user session.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AnalyticsServiceInterface $analyticsService,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -83,6 +87,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function topDashboards(
@@ -103,7 +108,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $rows);
+		return $this->responseHelper->success(data: $rows);
 	}//end topDashboards()
 
 	/**
@@ -116,6 +121,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function dashboardDetail(
@@ -138,7 +144,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}//end try
 
-		return ResponseHelper::success(data: $rows);
+		return $this->responseHelper->success(data: $rows);
 	}//end dashboardDetail()
 
 	/**
@@ -149,6 +155,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function instanceSummary(string $period = '30d'): JSONResponse {
@@ -165,7 +172,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $summary);
+		return $this->responseHelper->success(data: $summary);
 	}//end instanceSummary()
 
 	/**

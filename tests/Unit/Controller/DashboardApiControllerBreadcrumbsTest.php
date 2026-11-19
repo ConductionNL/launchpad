@@ -35,6 +35,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 class DashboardApiControllerBreadcrumbsTest extends TestCase {
 	private $dashboardService;
@@ -69,7 +70,8 @@ class DashboardApiControllerBreadcrumbsTest extends TestCase {
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			userId: 'sanne'
+			userId: 'sanne',
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

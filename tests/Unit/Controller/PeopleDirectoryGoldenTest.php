@@ -40,6 +40,7 @@ use OCP\IUserManager;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * Directory pages, viewer by viewer.
@@ -243,8 +244,8 @@ class PeopleDirectoryGoldenTest extends TestCase {
 			service: $service,
 			actionAuth: $auth,
 			userSession: $session,
-			logger: $this->getMockBuilder(className: LoggerInterface::class)->getMock(),
-			userId: $viewer
+			userId: $viewer,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 
 		[$filters, $excludeDisabled, $showBirthdays, $sortBy, $limit, $offset, $q] = $params;

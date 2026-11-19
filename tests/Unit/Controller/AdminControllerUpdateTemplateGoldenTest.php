@@ -35,6 +35,8 @@ use OCP\IRequest;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * The template patch of updateTemplate(), case by case.
@@ -80,7 +82,8 @@ class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->createMock(IUserSession::class),
 				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
-			)
+			),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

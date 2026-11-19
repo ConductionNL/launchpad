@@ -54,11 +54,15 @@ class AdminDemoShowcasesController extends Controller {
 	 * @param IRequest      $request The HTTP request.
 	 * @param ShowcaseTools $showcases The showcase service and logger.
 	 * @param RequestGuard $guard The administrator check.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ShowcaseTools $showcases,
 		private readonly RequestGuard $guard,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -69,6 +73,7 @@ class AdminDemoShowcasesController extends Controller {
 	 * @return JSONResponse Showcase descriptors, or 401/403.
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
@@ -77,7 +82,7 @@ class AdminDemoShowcasesController extends Controller {
 			return $guard;
 		}
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: $this->showcases->showcasesSvc->getAvailableShowcases()
 		);
 	}//end index()

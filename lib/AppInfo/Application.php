@@ -22,6 +22,7 @@ use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
+use OCA\LaunchPad\Controller\ResponseHelper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
 use OCA\LaunchPad\Listener\DashboardSharesListener;
@@ -190,6 +191,8 @@ class Application extends App implements IBootstrap {
 	 * @param IRegistrationContext $context The registration context.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function registerSharedServices(IRegistrationContext $context): void {
 		// REQ-ACT-007/REQ-ACT-008: register DebounceHelper as a shared
@@ -216,6 +219,14 @@ class Application extends App implements IBootstrap {
 		$context->registerService(
 			name: PublicShareContext::class,
 			factory: static fn (): PublicShareContext => new PublicShareContext(),
+			shared: true
+		);
+
+		$context->registerService(
+			name: ResponseHelper::class,
+			factory: static fn (\Psr\Container\ContainerInterface $c): ResponseHelper => new ResponseHelper(
+				logger: $c->get(\Psr\Log\LoggerInterface::class)
+			),
 			shared: true
 		);
 	}//end registerSharedServices()

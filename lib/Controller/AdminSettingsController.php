@@ -75,6 +75,9 @@ class AdminSettingsController extends Controller {
 	 * @param RequestGuard $guard The session and administrator check.
 	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
 	 * @param CustomCssService $css Stores the cleaned administrator CSS.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -83,6 +86,7 @@ class AdminSettingsController extends Controller {
 		private readonly RequestGuard $guard,
 		private readonly SearchShortcutServiceInterface $shortcuts,
 		private readonly CustomCssService $css,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -104,6 +108,7 @@ class AdminSettingsController extends Controller {
 	 *                      the caller is not an administrator.
 	 *
 	 * @spec openspec/specs/admin-settings/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listGroups(): JSONResponse {
@@ -115,7 +120,7 @@ class AdminSettingsController extends Controller {
 		$allKnown = $this->knownGroups();
 		$active = $this->settingsService->getGroupOrder();
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: [
 				'active' => $active,
 				'inactive' => self::inactiveGroups(allKnown: $allKnown, active: $active),
@@ -193,6 +198,7 @@ class AdminSettingsController extends Controller {
 	 *                      400 on validation failure, 403 for non-admins.
 	 *
 	 * @spec openspec/specs/admin-settings/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateGroupOrder(mixed $groups = null): JSONResponse {
@@ -211,7 +217,7 @@ class AdminSettingsController extends Controller {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: [
 				'status' => 'ok',
 				'groupOrder' => $this->settingsService->getGroupOrder(),
@@ -268,6 +274,7 @@ class AdminSettingsController extends Controller {
 	 * @return JSONResponse `{customCss}`, or 401/403 for a non-administrator.
 	 *
 	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function showCustomCss(): JSONResponse {
@@ -276,7 +283,7 @@ class AdminSettingsController extends Controller {
 			return $refusal;
 		}
 
-		return ResponseHelper::success(data: ['customCss' => $this->css->getGlobalCss()]);
+		return $this->responseHelper->success(data: ['customCss' => $this->css->getGlobalCss()]);
 	}//end showCustomCss()
 
 	/**
@@ -288,6 +295,7 @@ class AdminSettingsController extends Controller {
 	 *                      string or is over 20 KB, 401/403 for a non-administrator.
 	 *
 	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateCustomCss(mixed $customCss = null): JSONResponse {
@@ -301,7 +309,7 @@ class AdminSettingsController extends Controller {
 		}
 
 		try {
-			return ResponseHelper::success(data: $this->css->setGlobalCss(css: $customCss));
+			return $this->responseHelper->success(data: $this->css->setGlobalCss(css: $customCss));
 		} catch (InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
@@ -318,6 +326,7 @@ class AdminSettingsController extends Controller {
 	 *                      dashboard, 401/403 for a non-administrator.
 	 *
 	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateDashboardCustomCss(string $uuid, mixed $customCss = null): JSONResponse {
@@ -331,7 +340,7 @@ class AdminSettingsController extends Controller {
 		}
 
 		try {
-			return ResponseHelper::success(data: $this->css->setDashboardCss(uuid: $uuid, css: $customCss));
+			return $this->responseHelper->success(data: $this->css->setDashboardCss(uuid: $uuid, css: $customCss));
 		} catch (DoesNotExistException) {
 			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
@@ -350,6 +359,8 @@ class AdminSettingsController extends Controller {
 	 * @return JSONResponse|null `null` when the caller is an admin, or
 	 *                           a 403 response that the calling action
 	 *                           should return verbatim.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function assertAdmin(): ?JSONResponse {
 		$refusal = $this->guard->refusal();
@@ -357,6 +368,6 @@ class AdminSettingsController extends Controller {
 			return $refusal;
 		}
 
-		return ResponseHelper::forbidden();
+		return $this->responseHelper->forbidden();
 	}//end assertAdmin()
 }//end class

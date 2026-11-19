@@ -54,12 +54,16 @@ class DashboardMetadataController extends Controller {
 	 * @param PermissionService $permissionService Authoritative ACL service (replaces inline canRead /
 	 *                                             canWrite helpers — H5).
 	 * @param string|null       $userId The active user id.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly MetadataApiCaller $caller,
 		private readonly PermissionService $permissionService,
 		private readonly ?string $userId,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -73,6 +77,7 @@ class DashboardMetadataController extends Controller {
 	 *                      403 when the caller cannot see the dashboard.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
@@ -92,14 +97,14 @@ class DashboardMetadataController extends Controller {
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		$metadata = $this->caller->sources->metadataService->getMetadataForDashboard(
 			dashboardUuid: $uuid
 		);
 
-		return ResponseHelper::success(data: $metadata);
+		return $this->responseHelper->success(data: $metadata);
 	}//end getMetadata()
 
 	/**
@@ -112,6 +117,7 @@ class DashboardMetadataController extends Controller {
 	 * @return JSONResponse `{fields: [...]}`, or 401 without a login.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function fields(): JSONResponse {
@@ -119,8 +125,8 @@ class DashboardMetadataController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		return ResponseHelper::success(
-			data: ['fields' => ResponseHelper::serializeList(entities: $this->caller->sources->metadataService->listFields())]
+		return $this->responseHelper->success(
+			data: ['fields' => $this->responseHelper->serializeList(entities: $this->caller->sources->metadataService->listFields())]
 		);
 	}//end fields()
 
@@ -137,6 +143,7 @@ class DashboardMetadataController extends Controller {
 	 *                      failure, 404 when missing, 403 otherwise.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
@@ -159,7 +166,7 @@ class DashboardMetadataController extends Controller {
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		try {
@@ -177,7 +184,7 @@ class DashboardMetadataController extends Controller {
 			);
 		}
 
-		return ResponseHelper::success(data: $updated);
+		return $this->responseHelper->success(data: $updated);
 	}//end setMetadata()
 
 	/**

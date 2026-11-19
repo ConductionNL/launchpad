@@ -34,6 +34,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminOrgNavigationControllerTest extends TestCase {
 
@@ -72,6 +74,7 @@ class AdminOrgNavigationControllerTest extends TestCase {
 				settings: $this->settings
 			),
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->actionAuth),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 
 	}//end setUp()

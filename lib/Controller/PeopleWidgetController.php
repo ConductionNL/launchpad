@@ -37,7 +37,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * REST controller exposing the paginated People widget directory.
@@ -52,16 +51,18 @@ class PeopleWidgetController extends Controller {
 	 * @param PeopleWidgetService $service People widget service.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param LoggerInterface $logger Logger for ResponseHelper::error.
 	 * @param string|null $userId Active user (null when anonymous).
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly PeopleWidgetService $service,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -95,6 +96,7 @@ class PeopleWidgetController extends Controller {
 	 * @SuppressWarnings(PHPMD.ShortVariable) `q` is the query parameter's public name.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -148,7 +150,7 @@ class PeopleWidgetController extends Controller {
 			return $this->badRequest(exception: $e, message: 'Invalid request parameters');
 		}
 
-		return ResponseHelper::success(data: $payload);
+		return $this->responseHelper->success(data: $payload);
 	}//end getUsers()
 
 	/**
@@ -158,12 +160,13 @@ class PeopleWidgetController extends Controller {
 	 * @param string                   $message   The log message.
 	 *
 	 * @return JSONResponse The error envelope.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function badRequest(InvalidArgumentException $exception, string $message): JSONResponse {
-		return ResponseHelper::error(
+		return $this->responseHelper->error(
 			exception: $exception,
 			statusCode: Http::STATUS_BAD_REQUEST,
-			logger: $this->logger,
 			message: $message
 		);
 	}//end badRequest()

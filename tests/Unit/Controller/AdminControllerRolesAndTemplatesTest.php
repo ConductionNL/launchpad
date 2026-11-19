@@ -50,6 +50,8 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminControllerRolesAndTemplatesTest extends TestCase {
 	/**
@@ -133,7 +135,8 @@ class AdminControllerRolesAndTemplatesTest extends TestCase {
 				feedRefresh: $this->feedRefresh,
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			)
+			),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end setUp()
 

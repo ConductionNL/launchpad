@@ -65,12 +65,16 @@ class DashboardReactionApiController extends Controller {
 	 * @param ReactionTools $reactions The reaction service and logger.
 	 * @param ActionCaller  $caller The session and the action check.
 	 * @param string|null   $userId The acting user ID.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ReactionTools $reactions,
 		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -84,6 +88,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse The summary.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getReactions(string $uuid): JSONResponse {
@@ -103,7 +108,7 @@ class DashboardReactionApiController extends Controller {
 			return $this->reactionFailure(exception: $e, operation: 'getReactions');
 		}
 
-		return ResponseHelper::success(data: $summary);
+		return $this->responseHelper->success(data: $summary);
 	}//end getReactions()
 
 	/**
@@ -117,6 +122,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse The updated summary.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addReaction(string $uuid, string $emoji = ''): JSONResponse {
@@ -137,7 +143,7 @@ class DashboardReactionApiController extends Controller {
 			return $this->addFailure(exception: $e);
 		}
 
-		return ResponseHelper::success(data: $summary);
+		return $this->responseHelper->success(data: $summary);
 	}//end addReaction()
 
 	/**
@@ -190,6 +196,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse The reactors page.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getReactorsByEmoji(
@@ -215,7 +222,7 @@ class DashboardReactionApiController extends Controller {
 			return $this->reactionFailure(exception: $e, operation: 'getReactorsByEmoji');
 		}
 
-		return ResponseHelper::success(data: $page);
+		return $this->responseHelper->success(data: $page);
 	}//end getReactorsByEmoji()
 
 	/**
@@ -244,6 +251,8 @@ class DashboardReactionApiController extends Controller {
 	 * @param string    $operation The operation name for the log line.
 	 *
 	 * @return JSONResponse The error response.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function reactionFailure(Throwable $exception, string $operation): JSONResponse {
 		if ($exception instanceof DoesNotExistException) {
@@ -251,7 +260,7 @@ class DashboardReactionApiController extends Controller {
 		}
 
 		if ($exception instanceof PermissionDeniedException) {
-			return ResponseHelper::forbidden(message: $exception->getMessage());
+			return $this->responseHelper->forbidden(message: $exception->getMessage());
 		}
 
 		$this->reactions->logger->error(
@@ -269,6 +278,8 @@ class DashboardReactionApiController extends Controller {
 	 * @param Throwable $exception The failure.
 	 *
 	 * @return JSONResponse The error response.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function addFailure(Throwable $exception): JSONResponse {
 		if ($exception instanceof DoesNotExistException || $exception instanceof PermissionDeniedException) {
@@ -276,7 +287,7 @@ class DashboardReactionApiController extends Controller {
 		}
 
 		if ($exception instanceof ReactionsDisabledException) {
-			return ResponseHelper::forbidden(message: $exception->getMessage());
+			return $this->responseHelper->forbidden(message: $exception->getMessage());
 		}
 
 		if ($exception instanceof InvalidArgumentException) {

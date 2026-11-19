@@ -23,6 +23,8 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers \OCA\LaunchPad\Controller\AdminWidgetRulesController
@@ -33,7 +35,7 @@ class AdminWidgetRulesControllerTest extends TestCase {
 		$service = $this->createMock(ConditionalService::class);
 		$service->expects($this->once())->method('listAllRules')->willReturn([['id' => 1, 'ruleType' => 'group']]);
 
-		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service))->index();
+		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service, responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class))))->index();
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame([['id' => 1, 'ruleType' => 'group']], $response->getData());
@@ -43,7 +45,7 @@ class AdminWidgetRulesControllerTest extends TestCase {
 		$service = $this->createMock(ConditionalService::class);
 		$service->method('listAllRules')->willThrowException(new RuntimeException('db down'));
 
-		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service))->index();
+		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service, responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class))))->index();
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 		$this->assertSame(['error' => 'Operation failed'], $response->getData());

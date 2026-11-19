@@ -44,6 +44,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * Unit tests for the fork controller action (REQ-DASH-020..022).
@@ -124,7 +125,8 @@ class DashboardApiControllerForkTest extends TestCase {
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
 			),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end makeController()
 

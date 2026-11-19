@@ -26,6 +26,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Which language variant a dashboard is shown in, and what the response tells the client.
@@ -102,6 +104,7 @@ class DashboardTranslationApiControllerResolvedTest extends TestCase {
 			translations: new TranslationSources(dashboardMapper: $this->dashboards, translationService: $this->translations),
 			caller: new ActionCaller(actionAuth: $this->createMock(ActionAuthService::class), userSession: $session),
 			userId: 'alice',
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

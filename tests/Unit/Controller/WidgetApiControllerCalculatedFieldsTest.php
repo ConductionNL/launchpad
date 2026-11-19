@@ -160,6 +160,7 @@ class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class)),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			'alice',
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

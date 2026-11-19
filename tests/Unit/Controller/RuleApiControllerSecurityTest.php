@@ -33,6 +33,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Security tests for RuleApiController::updateRule and ::deleteRule (C4).
@@ -90,6 +92,7 @@ class RuleApiControllerSecurityTest extends TestCase {
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
 			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end makeController()
 

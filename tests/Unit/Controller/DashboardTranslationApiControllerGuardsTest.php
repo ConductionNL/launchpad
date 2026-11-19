@@ -36,6 +36,8 @@ use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Allowed and refused outcomes of every translation endpoint.
@@ -205,7 +207,8 @@ class DashboardTranslationApiControllerGuardsTest extends TestCase {
 			request: $request,
 			translations: new TranslationSources(dashboardMapper: $mapper, translationService: $service),
 			caller: new ActionCaller(actionAuth: $auth, userSession: $session),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 }//end class

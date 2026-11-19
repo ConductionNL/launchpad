@@ -40,6 +40,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminControllerFooterSettingsTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -81,7 +83,8 @@ class AdminControllerFooterSettingsTest extends TestCase {
 				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			)
+			),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

@@ -35,6 +35,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 class PeopleWidgetControllerTest extends TestCase {
 
@@ -219,8 +220,8 @@ class PeopleWidgetControllerTest extends TestCase {
 			service: $this->service,
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
-			logger: $this->logger,
 			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end buildController()
 }//end class

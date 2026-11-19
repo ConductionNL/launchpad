@@ -37,6 +37,8 @@ use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tests for the search shortcut endpoints of AdminSettingsController.
@@ -89,6 +91,7 @@ class AdminSettingsSearchShortcutsTest extends TestCase {
 			guard: new RequestGuard(userSession: $session, groupManager: $groups, actionAuth: $auth),
 			shortcuts: $service,
 			css: $this->createMock(CustomCssService::class),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

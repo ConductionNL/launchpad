@@ -45,6 +45,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminControllerResyncTemplateTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -86,7 +88,8 @@ class AdminControllerResyncTemplateTest extends TestCase {
 				feedRefresh: $this->createMock(FeedRefreshService::class),
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			)
+			),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

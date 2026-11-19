@@ -37,6 +37,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * Unit tests for the setActiveDashboard controller action (REQ-DASH-019).
@@ -101,7 +102,8 @@ class DashboardApiControllerActiveTest extends TestCase {
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
 			),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end makeController()
 

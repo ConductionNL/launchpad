@@ -36,6 +36,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * The metadata field rows of the admin endpoints, case by case.
@@ -119,6 +120,7 @@ class MetadataFieldWriteGoldenTest extends TestCase {
 				logger: $this->createMock(LoggerInterface::class),
 			),
 			guard: new RequestGuard(userSession: $session, groupManager: $groups, actionAuth: $this->createMock(ActionAuthService::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

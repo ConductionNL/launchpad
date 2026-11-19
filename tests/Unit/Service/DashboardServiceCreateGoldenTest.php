@@ -58,6 +58,7 @@ use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * The create paths' rows, case by case.
@@ -238,7 +239,8 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			userId: 'alice'
+			userId: 'alice',
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

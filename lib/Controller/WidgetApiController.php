@@ -60,6 +60,9 @@ class WidgetApiController extends Controller {
 	 * @param WidgetApiPolicy   $policy The role feature permission service and the logger.
 	 * @param RequestActor      $actor The user session and the action authorisation service.
 	 * @param string|null       $userId The user ID.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -68,6 +71,7 @@ class WidgetApiController extends Controller {
 		private readonly WidgetApiPolicy $policy,
 		private readonly RequestActor $actor,
 		private readonly ?string $userId,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -79,6 +83,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The list of available widgets.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function listAvailable(): JSONResponse {
@@ -91,7 +96,7 @@ class WidgetApiController extends Controller {
 
 		$filter = new AllowedWidgetFilter(roleFeaturePerm: $this->policy->roleFeaturePerm, userId: $this->userId);
 
-		return ResponseHelper::success(data: $filter->filter(widgets: $widgets));
+		return $this->responseHelper->success(data: $filter->filter(widgets: $widgets));
 	}//end listAvailable()
 
 	/**
@@ -125,6 +130,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
 	 * @spec openspec/changes/role-based-content/tasks.md#task-3
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -157,7 +163,7 @@ class WidgetApiController extends Controller {
 			)
 		);
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: $this->sources->widgetService->getWidgetItems(
 				userId: $this->userId,
 				widgetIds: $allowedWidgets,
@@ -251,10 +257,12 @@ class WidgetApiController extends Controller {
 	 * @param callable(): object $create Creates the placement.
 	 *
 	 * @return JSONResponse The placement, or the error.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createPlacement(callable $create): JSONResponse {
 		try {
-			return ResponseHelper::success(
+			return $this->responseHelper->success(
 				data: $create()->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
@@ -262,9 +270,9 @@ class WidgetApiController extends Controller {
 			// Dashboard-quota-limits REQ-QUOTA-003: the dashboard is at the
 			// widget limit (tiles are placements too) — HTTP 409 with the
 			// structured body.
-			return ResponseHelper::quotaExceeded(exception: $e);
+			return $this->responseHelper->quotaExceeded(exception: $e);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}//end try
 	}//end createPlacement()
 
@@ -286,6 +294,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse {
 		$user = $this->actor->userSession->getUser();
@@ -296,7 +305,7 @@ class WidgetApiController extends Controller {
 		$this->actor->actionAuth->requireAction($user, 'widget.add-widget');
 
 		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+			return $this->responseHelper->unauthorized();
 		}
 
 		return $this->denyWidgetChoice(dashboardId: $dashboardId, widgetId: $widgetId);
@@ -316,10 +325,12 @@ class WidgetApiController extends Controller {
 	 * @param string|null $widgetId    The widget type ID.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyWidgetChoice(int $dashboardId, ?string $widgetId): ?JSONResponse {
 		if (self::isBlankId(id: $widgetId) === true) {
-			return ResponseHelper::error(
+			return $this->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: widgetId'
 				),
@@ -328,7 +339,7 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($this->mayAddWidget(dashboardId: $dashboardId, widgetId: (string)$widgetId) === false) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		return null;
@@ -387,6 +398,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyAcknowledgementChange(int $placementId): ?JSONResponse {
 		if ($this->touchesAcknowledgement() === false) {
@@ -398,7 +410,7 @@ class WidgetApiController extends Controller {
 			placementId: $placementId
 		) === false
 		) {
-			return ResponseHelper::forbidden(
+			return $this->responseHelper->forbidden(
 				message: 'Only an admin or the template owner may set an acknowledgement requirement'
 			);
 		}
@@ -442,6 +454,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyContainerDepth(mixed $content): ?JSONResponse {
 		if (is_array($content) === false) {
@@ -457,7 +470,7 @@ class WidgetApiController extends Controller {
 				return $this->containerDepthExceededResponse();
 			}
 
-			return ResponseHelper::error(exception: $depthError);
+			return $this->responseHelper->error(exception: $depthError);
 		}
 
 		return null;
@@ -491,6 +504,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The created tile placement.
 	 *
 	 * @spec openspec/specs/widgets/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addTile(int $dashboardId): JSONResponse {
@@ -502,11 +516,11 @@ class WidgetApiController extends Controller {
 		$this->actor->actionAuth->requireAction($user, 'widget.add-tile');
 
 		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+			return $this->responseHelper->unauthorized();
 		}
 
 		if ($this->mayAddTo(dashboardId: $dashboardId) === false) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		return $this->createPlacement(
@@ -560,6 +574,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The updated widget placement.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function updatePlacement(int $placementId): JSONResponse {
@@ -571,7 +586,7 @@ class WidgetApiController extends Controller {
 		$this->actor->actionAuth->requireAction($user, 'widget.update-placement');
 
 		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+			return $this->responseHelper->unauthorized();
 		}
 
 		$denial = $this->denyPlacementUpdate(placementId: $placementId);
@@ -597,7 +612,7 @@ class WidgetApiController extends Controller {
 				\OCP\AppFramework\Http::STATUS_CONFLICT
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}
 	}//end updatePlacement()
 
@@ -609,10 +624,12 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyPlacementUpdate(int $placementId): ?JSONResponse {
 		if ($this->mayStyle(placementId: $placementId) === false) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		$ackDenial = $this->denyAcknowledgementChange(placementId: $placementId);
@@ -648,6 +665,8 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return JSONResponse The updated placement.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function updatedPlacement(int $placementId): JSONResponse {
 		$data     = RequestDataExtractor::extractPlacementData(request: $this->request);
@@ -701,7 +720,7 @@ class WidgetApiController extends Controller {
 			$body['warnings'] = $warnings;
 		}
 
-		return ResponseHelper::success(data: $body);
+		return $this->responseHelper->success(data: $body);
 	}//end updatedPlacement()
 
 	/**
@@ -764,6 +783,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The removal confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function removePlacement(int $placementId): JSONResponse {
@@ -775,7 +795,7 @@ class WidgetApiController extends Controller {
 		$this->actor->actionAuth->requireAction($user, 'widget.remove-placement');
 
 		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+			return $this->responseHelper->unauthorized();
 		}
 
 		if ($this->permissionService->canRemoveWidget(
@@ -783,7 +803,7 @@ class WidgetApiController extends Controller {
 			placementId: $placementId
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		try {
@@ -809,9 +829,9 @@ class WidgetApiController extends Controller {
 				$body['warnings'] = $warnings;
 			}
 
-			return ResponseHelper::success(data: $body);
+			return $this->responseHelper->success(data: $body);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}
 	}//end removePlacement()
 
@@ -867,6 +887,8 @@ class WidgetApiController extends Controller {
 	 * @param int $limit       The effective limit.
 	 *
 	 * @return JSONResponse The items, or the refusal.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function newsFor(int $placementId, int $limit): JSONResponse {
 		if ($limit < 1 || $limit > 50) {
@@ -885,7 +907,7 @@ class WidgetApiController extends Controller {
 			limit: $limit
 		);
 
-		return ResponseHelper::success(data: $payload);
+		return $this->responseHelper->success(data: $payload);
 	}//end newsFor()
 
 	/**
@@ -960,6 +982,8 @@ class WidgetApiController extends Controller {
 	 * @param array{start: DateTimeImmutable, end: DateTimeImmutable} $range     The resolved range.
 	 *
 	 * @return JSONResponse The events, or the error.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function calendarEventsOf(object $placement, array $range): JSONResponse {
 		$config = $this->extractCalendarConfig(placement: $placement);
@@ -971,10 +995,10 @@ class WidgetApiController extends Controller {
 				to: $range['end']->format(format: \DATE_ATOM)
 			);
 		} catch (\Exception $exception) {
-			return ResponseHelper::error(exception: $exception);
+			return $this->responseHelper->error(exception: $exception);
 		}
 
-		return ResponseHelper::success(data: $result);
+		return $this->responseHelper->success(data: $result);
 	}//end calendarEventsOf()
 
 	/**
@@ -1032,13 +1056,14 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The user's calendars, or 401 when unauthenticated.
 	 *
 	 * @spec openspec/specs/calendar-widget/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function calendars(): JSONResponse {
 		$user = $this->actor->userSession->getUser();
 		if ($user === null || $this->userId === null) {
-			return ResponseHelper::unauthorized();
+			return $this->responseHelper->unauthorized();
 		}
 
 		try {
@@ -1050,10 +1075,10 @@ class WidgetApiController extends Controller {
 		try {
 			$calendars = $this->sources->calendarService->listCalendars(userId: $this->userId);
 		} catch (\Exception $exception) {
-			return ResponseHelper::error(exception: $exception);
+			return $this->responseHelper->error(exception: $exception);
 		}
 
-		return ResponseHelper::success(data: ['calendars' => $calendars]);
+		return $this->responseHelper->success(data: ['calendars' => $calendars]);
 	}//end calendars()
 
 	/**
@@ -1146,6 +1171,8 @@ class WidgetApiController extends Controller {
 	 * @param string $action The action identifier to require.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		$user = $this->actor->userSession->getUser();
@@ -1154,7 +1181,7 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+			return $this->responseHelper->unauthorized();
 		}
 
 		try {
@@ -1172,6 +1199,8 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function placementViewRefusal(int $placementId): ?JSONResponse {
 		if ($this->permissionService->canViewPlacement(
@@ -1179,7 +1208,7 @@ class WidgetApiController extends Controller {
 			placementId: $placementId
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->responseHelper->forbidden();
 		}
 
 		return null;

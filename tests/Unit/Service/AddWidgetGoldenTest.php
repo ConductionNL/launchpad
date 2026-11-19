@@ -50,6 +50,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * The placement rows of addWidget, case by case.
@@ -231,7 +232,8 @@ class AddWidgetGoldenTest extends TestCase {
 					userSession: $session,
 					actionAuth: $this->createMock(ActionAuthService::class)
 				),
-				userId: 'alice'
+				userId: 'alice',
+				responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 			);
 
 			$response = $controller->addWidget(...$args);

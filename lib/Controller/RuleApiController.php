@@ -43,6 +43,9 @@ class RuleApiController extends Controller {
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param IUserSession $userSession User session (IUser resolution).
 	 * @param string|null $userId The user ID.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -51,6 +54,7 @@ class RuleApiController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 		private readonly ?string $userId,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -63,6 +67,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The conditional rules.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-9
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getRules(int $placementId): JSONResponse {
@@ -84,14 +89,14 @@ class RuleApiController extends Controller {
 				userId: $this->userId
 			);
 
-			return ResponseHelper::success(
+			return $this->responseHelper->success(
 				data: [
-					'rules' => ResponseHelper::serializeList(entities: $rules),
+					'rules' => $this->responseHelper->serializeList(entities: $rules),
 					'isVisible' => $isVisible,
 				]
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}//end try
 	}//end getRules()
 
@@ -106,6 +111,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The created rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addRule(
@@ -123,7 +129,7 @@ class RuleApiController extends Controller {
 		// 400 instead of a TypeError 500 from the dispatcher. Mirrors the
 		// hardening on WidgetApiController::addWidget.
 		if ($ruleType === null || $ruleType === '') {
-			return ResponseHelper::error(
+			return $this->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: ruleType'
 				),
@@ -132,7 +138,7 @@ class RuleApiController extends Controller {
 		}
 
 		if ($ruleConfig === null) {
-			return ResponseHelper::error(
+			return $this->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: ruleConfig'
 				),
@@ -152,12 +158,12 @@ class RuleApiController extends Controller {
 				isInclude: $isInclude
 			);
 
-			return ResponseHelper::success(
+			return $this->responseHelper->success(
 				data: $rule->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}//end try
 	}//end addRule()
 
@@ -178,6 +184,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The updated rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-10
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function updateRule(
@@ -211,11 +218,11 @@ class RuleApiController extends Controller {
 				data: $data
 			);
 
-			return ResponseHelper::success(
+			return $this->responseHelper->success(
 				data: $rule->jsonSerialize()
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}//end try
 	}//end updateRule()
 
@@ -233,6 +240,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The deletion confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-11
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function deleteRule(int $ruleId): JSONResponse {
@@ -252,9 +260,9 @@ class RuleApiController extends Controller {
 
 			$this->conditionalService->deleteRule(ruleId: $ruleId);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->responseHelper->success(data: ['status' => 'ok']);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}
 	}//end deleteRule()
 

@@ -37,6 +37,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminControllerSetupWizardTest extends TestCase {
 	private AdminController $controller;
@@ -75,7 +77,8 @@ class AdminControllerSetupWizardTest extends TestCase {
 				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
-			)
+			),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

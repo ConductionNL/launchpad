@@ -36,6 +36,8 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
 use Throwable;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Refused and allowed outcomes of the caller guard, endpoint by endpoint.
@@ -199,6 +201,7 @@ class AnalyticsCallerGuardGoldenTest extends TestCase {
 					actionAuth: $auth,
 					userSession: $session
 				),
+				$name === ResponseHelper::class => new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 				default => $this->createMock($name),
 			};
 		}

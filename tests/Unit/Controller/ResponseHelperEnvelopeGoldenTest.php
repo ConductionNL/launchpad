@@ -25,6 +25,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Pins the error envelopes of RespondsWithErrors and of
@@ -94,7 +95,7 @@ class ResponseHelperEnvelopeGoldenTest extends TestCase {
 	 */
 	private function inline(string $kind, string $value, int $statusCode): JSONResponse {
 		if ($kind === 'invalidArgument') {
-			return ResponseHelper::invalidArgument(message: $value);
+			return (new ResponseHelper(logger: new NullLogger()))->invalidArgument(message: $value);
 		}
 
 		if ($kind === 'failure') {
@@ -120,7 +121,7 @@ class ResponseHelperEnvelopeGoldenTest extends TestCase {
 	 */
 	private function helper(string $kind, string $value, int $statusCode): JSONResponse {
 		if ($kind === 'invalidArgument') {
-			return ResponseHelper::invalidArgument(message: $value);
+			return (new ResponseHelper(logger: new NullLogger()))->invalidArgument(message: $value);
 		}
 
 		if ($kind === 'failure') {

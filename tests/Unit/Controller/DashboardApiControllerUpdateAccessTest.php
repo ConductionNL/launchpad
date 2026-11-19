@@ -38,6 +38,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * The update() guards, case by case.
@@ -136,7 +137,8 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 				logger: $this->createMock(LoggerInterface::class)
 			),
 			actor: new RequestActor(userSession: $session, actionAuth: $actionAuth),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

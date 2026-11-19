@@ -33,6 +33,8 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
 use Throwable;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Refused and allowed outcomes of the widget API caller guard.
@@ -165,6 +167,7 @@ class WidgetApiControllerGuardGoldenTest extends TestCase {
 			$args[] = match (true) {
 				$param->getName() === 'userId' => ($scenario === 'no user id') ? null : 'alice',
 				$name === RequestActor::class => new RequestActor(userSession: $session, actionAuth: $auth),
+				$name === ResponseHelper::class => new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 				default => $this->createMock($name),
 			};
 		}

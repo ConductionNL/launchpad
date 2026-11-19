@@ -39,6 +39,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 	private $dashboardService;
@@ -81,7 +82,8 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			userId: 'jan'
+			userId: 'jan',
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

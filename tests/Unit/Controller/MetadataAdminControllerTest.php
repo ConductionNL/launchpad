@@ -35,6 +35,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class MetadataAdminControllerTest extends TestCase {
 	private MetadataAdminController $controller;
@@ -60,6 +62,7 @@ class MetadataAdminControllerTest extends TestCase {
 			request: $this->request,
 			metadataService: $this->metadataService,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->actionAuth),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

@@ -47,6 +47,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -83,6 +84,7 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 			),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			$userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

@@ -37,6 +37,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 #[CoversClass(AdminSettingsController::class)]
 #[UsesClass(RequestGuard::class)]
@@ -70,6 +71,7 @@ class AdminSettingsCustomCssTest extends TestCase {
 			),
 			shortcuts: $this->createMock(SearchShortcutServiceInterface::class),
 			css: $this->css,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

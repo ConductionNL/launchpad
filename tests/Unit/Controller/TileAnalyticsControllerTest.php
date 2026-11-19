@@ -35,6 +35,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class TileAnalyticsControllerTest extends TestCase {
 	/**
@@ -70,6 +72,7 @@ class TileAnalyticsControllerTest extends TestCase {
 			tileAnalyticsService: $this->tileAnalyticsService,
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end setUp()
 

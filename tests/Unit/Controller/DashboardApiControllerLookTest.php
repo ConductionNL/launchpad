@@ -38,6 +38,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * The look on the update route: it needs the layout permission, and a pale accent answers 400 with the ratio.
@@ -146,7 +147,8 @@ class DashboardApiControllerLookTest extends TestCase {
 				logger: $this->createMock(LoggerInterface::class)
 			),
 			actor: new RequestActor(userSession: $session, actionAuth: $actionAuth),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

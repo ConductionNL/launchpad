@@ -37,6 +37,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * The update action's patch payload, case by case.
@@ -152,7 +153,8 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			userId: 'alice'
+			userId: 'alice',
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end controller()
 

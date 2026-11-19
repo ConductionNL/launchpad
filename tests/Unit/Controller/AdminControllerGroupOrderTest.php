@@ -33,6 +33,8 @@ use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 class AdminControllerGroupOrderTest extends TestCase {
 	private AdminSettingsController $controller;
@@ -58,6 +60,7 @@ class AdminControllerGroupOrderTest extends TestCase {
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 			shortcuts: $this->createMock(SearchShortcutService::class),
 			css: $this->createMock(CustomCssService::class),
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

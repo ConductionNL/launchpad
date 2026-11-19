@@ -49,6 +49,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -87,6 +88,7 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 			new WidgetApiPolicy($this->roleFeaturePerm, $this->createMock(LoggerInterface::class)),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			$userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}
 

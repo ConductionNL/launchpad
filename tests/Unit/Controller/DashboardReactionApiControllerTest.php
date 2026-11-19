@@ -32,6 +32,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * Unit tests for DashboardReactionApiController (M4 ADR-023 wiring).
@@ -73,7 +74,8 @@ class DashboardReactionApiControllerTest extends TestCase {
 				actionAuth: $this->actionAuth,
 				userSession: $this->userSession
 			),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end makeController()
 
@@ -224,7 +226,8 @@ class DashboardReactionApiControllerTest extends TestCase {
 				actionAuth: $this->actionAuth,
 				userSession: $anonSession
 			),
-			userId: null
+			userId: null,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 		$response = $controller->getReactions('some-uuid');
 

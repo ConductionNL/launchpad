@@ -38,6 +38,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
 
 /**
  * Unit tests for the canonical-path lookup endpoint.
@@ -91,7 +92,8 @@ class DashboardApiControllerComputePathTest extends TestCase {
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
 			),
-			userId: $userId
+			userId: $userId,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end makeController()
 

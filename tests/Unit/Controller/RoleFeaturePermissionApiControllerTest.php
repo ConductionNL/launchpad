@@ -36,6 +36,8 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\LoggerInterface;
 
 /**
  * Unit tests for RoleFeaturePermissionApiController.
@@ -79,6 +81,7 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 		$this->controller = new RoleFeaturePermissionApiController(
 			request: $this->request,
 			service: $this->service,
+			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
 		);
 	}//end setUp()
 
@@ -370,10 +373,10 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 			json_encode([
 				[201, $permission->jsonSerialize()],
 				[400, ResponseHelperProbe::error(new \InvalidArgumentException('bad'), 400)],
-				[\OCA\LaunchPad\Controller\ResponseHelper::error(exception: new \RuntimeException('boom'))->getStatus(), ResponseHelperProbe::error(new \RuntimeException('boom'), 500)],
+				[ResponseHelperProbe::status(new \RuntimeException('boom')), ResponseHelperProbe::error(new \RuntimeException('boom'), 500)],
 				[201, $layout->jsonSerialize()],
 				[400, ResponseHelperProbe::error(new \InvalidArgumentException('bad'), 400)],
-				[\OCA\LaunchPad\Controller\ResponseHelper::error(exception: new \RuntimeException('boom'))->getStatus(), ResponseHelperProbe::error(new \RuntimeException('boom'), 500)],
+				[ResponseHelperProbe::status(new \RuntimeException('boom')), ResponseHelperProbe::error(new \RuntimeException('boom'), 500)],
 				[204, []],
 				[404, ResponseHelperProbe::error(new \OCP\AppFramework\Db\DoesNotExistException('gone'), 404)],
 				[204, []],
@@ -385,9 +388,25 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 }//end class
 
 /**
- * The body ResponseHelper::error answers with, for comparison.
+ * The answer ResponseHelper::error() gives, for comparison.
  */
 final class ResponseHelperProbe {
+	/**
+	 * @param \Throwable $e The failure.
+	 *
+	 * @return int The default status.
+	 */
+	public static function status(\Throwable $e): int {
+		return self::helper()->error(exception: $e)->getStatus();
+	}
+
+	/**
+	 * @return \OCA\LaunchPad\Controller\ResponseHelper A helper with a silent logger.
+	 */
+	private static function helper(): \OCA\LaunchPad\Controller\ResponseHelper {
+		return new \OCA\LaunchPad\Controller\ResponseHelper(logger: new \Psr\Log\NullLogger());
+	}
+
 	/**
 	 * @param \Throwable $e      The failure.
 	 * @param int        $status The status.
@@ -395,6 +414,6 @@ final class ResponseHelperProbe {
 	 * @return mixed
 	 */
 	public static function error(\Throwable $e, int $status): mixed {
-		return \OCA\LaunchPad\Controller\ResponseHelper::error(exception: $e, statusCode: $status)->getData();
+		return self::helper()->error(exception: $e, statusCode: $status)->getData();
 	}
 }

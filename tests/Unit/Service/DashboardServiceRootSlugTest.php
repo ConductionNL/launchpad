@@ -48,51 +48,73 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 /**
- * Unit tests for the user-initiated default-widget seeding path.
+ * The slug a new root dashboard gets when another user's dashboard holds it.
  */
 class DashboardServiceRootSlugTest extends TestCase {
 
+	/**
+	 * The dashboard mapper.
+	 *
+	 * @var DashboardMapper&MockObject
+	 */
 	private $dashboardMapper;
 
-	private $placementMapper;
-
+	/**
+	 * The dashboard factory.
+	 *
+	 * @var DashboardFactory&MockObject
+	 */
 	private $dashboardFactory;
 
+	/**
+	 * The tree service that runs the sibling check.
+	 *
+	 * @var DashboardTreeService&MockObject
+	 */
 	private $treeService;
 
+	/**
+	 * The service under test.
+	 *
+	 * @var DashboardService
+	 */
 	private DashboardService $service;
 
+	/**
+	 * Build the service over mocks.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
-		$this->dashboardMapper = $this->createMock(DashboardMapper::class);
-		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
-		$this->dashboardFactory = $this->createMock(DashboardFactory::class);
-		$this->treeService = $this->createMock(DashboardTreeService::class);
+		$this->dashboardMapper = $this->createMock(originalClassName: DashboardMapper::class);
+		$this->dashboardFactory = $this->createMock(originalClassName: DashboardFactory::class);
+		$this->treeService = $this->createMock(originalClassName: DashboardTreeService::class);
 
 		$this->service = new DashboardService(
 			stores: new DashboardStores(
 				dashboardMapper: $this->dashboardMapper,
-				placementMapper: $this->placementMapper,
-				settingMapper: $this->createMock(AdminSettingMapper::class)
+				placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+				settingMapper: $this->createMock(originalClassName: AdminSettingMapper::class)
 			),
 			builders: new DashboardBuilders(
-				templateService: $this->createMock(TemplateService::class),
+				templateService: $this->createMock(originalClassName: TemplateService::class),
 				dashboardFactory: $this->dashboardFactory,
-				dashResolver: $this->createMock(DashboardResolver::class),
-				adminTemplateService: $this->createMock(AdminTemplateService::class)
+				dashResolver: $this->createMock(originalClassName: DashboardResolver::class),
+				adminTemplateService: $this->createMock(originalClassName: AdminTemplateService::class)
 			),
 			structure: new DashboardStructure(
 				treeService: $this->treeService,
-				personalLayers: $this->createMock(PersonalLayerService::class),
-				footerService: $this->createMock(FooterService::class)
+				personalLayers: $this->createMock(originalClassName: PersonalLayerService::class),
+				footerService: $this->createMock(originalClassName: FooterService::class)
 			),
 			platform: new DashboardPlatform(
-				groupManager: $this->createMock(IGroupManager::class),
-				db: $this->createMock(IDBConnection::class),
-				config: $this->createMock(IConfig::class),
-				l10nFactory: $this->createMock(IFactory::class)
+				groupManager: $this->createMock(originalClassName: IGroupManager::class),
+				db: $this->createMock(originalClassName: IDBConnection::class),
+				config: $this->createMock(originalClassName: IConfig::class),
+				l10nFactory: $this->createMock(originalClassName: IFactory::class)
 			),
 			outlets: new DashboardOutlets(
-				logger: $this->createMock(LoggerInterface::class)
+				logger: $this->createMock(originalClassName: LoggerInterface::class)
 			)
 		);
 	}//end setUp()
@@ -124,7 +146,13 @@ class DashboardServiceRootSlugTest extends TestCase {
 		$dashboard->setSlug('mijn-werkplek');
 		$this->dashboardFactory->method('create')->willReturn($dashboard);
 		$this->dashboardMapper->method('findChildBySlug')->willReturnCallback(
-			static fn (?string $parentUuid, string $slug): ?Dashboard => (isset($held[$slug]) === true) ? self::rootOf(userId: $held[$slug]) : null
+			static function (?string $parentUuid, string $slug) use ($held): ?Dashboard {
+				if (isset($held[$slug]) === false) {
+					return null;
+				}
+
+				return self::rootOf(userId: $held[$slug]);
+			}
 		);
 		$this->dashboardMapper->method('insert')->willReturnArgument(0);
 
@@ -156,7 +184,7 @@ class DashboardServiceRootSlugTest extends TestCase {
 			->method('validateSlugUnique')
 			->with(null, 'mijn-werkplek')
 			->willThrowException(new \InvalidArgumentException(DashboardTreeService::ERR_SLUG_TAKEN));
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(exception: \InvalidArgumentException::class);
 
 		$this->createWhileHeld(held: ['mijn-werkplek' => 'bob']);
 	}//end testADerivedRootSlugTheOwnerHoldsGoesToTheSiblingCheckUnchanged()

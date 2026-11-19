@@ -53,6 +53,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/widgets-placements-api.spec.ts`, `widgets-rendering.spec.ts`, `widgets-picker.spec.ts`, `widgets-context-menu-contract.spec.ts`, `widgets-nc-widget.spec.ts`, `widgets-tile-type.spec.ts`, `widgets-canvas-search.spec.ts`, `widgets-reload-interval.spec.ts` (helpers `support/widgets.ts`, `support/widgetPlacements.ts`), 99 scenarios cited (12 tests `test.fixme` for suspected defects, see the PR), 21 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.3 `admin-templates`: 86 scenarios, 0 cited, blanket.
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
+  - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
@@ -60,6 +61,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.7 `navigation-editor-org`: 45 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/navigation-editor-org-api.spec.ts`, `tests/e2e/navigation-editor-org-editor.spec.ts`, `tests/e2e/navigation-editor-org-panel.spec.ts` (helper `tests/e2e/support/orgNavigation.ts`), 45 scenarios cited (22 tests are `test.fixme` for suspected defects, see the PR), 0 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.8 `tiles`: 38 scenarios, 0 cited.
+  - Spec written: `tests/e2e/tiles-api.spec.ts`, `tiles-rendering.spec.ts`, `tiles-launch-target.spec.ts`, `tiles-import-discovery.spec.ts`, 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 13 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.

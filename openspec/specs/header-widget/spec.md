@@ -35,13 +35,12 @@ Header placements reuse `oc_launchpad_widget_placements.content` (JSON). The `co
 ### Requirement: REQ-HDR-001 Widget registration
 
 The system MUST register a LaunchPad dashboard widget with id `launchpad_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
-@e2e exclude widget registration tests OCP\Dashboard\IManager registration — observed by widget appearing in picker; covered by generic widgets-in-picker test
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the header-widget app is installed and enabled
 - WHEN a user opens the LaunchPad widget picker dialog
-- THEN the `launchpad_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
+- THEN the `header` widget type MUST appear in the list under its title (e.g., "Header Banner")
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -55,9 +54,10 @@ The system MUST register a LaunchPad dashboard widget with id `launchpad_header`
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `launchpad_header` widget MUST still be discoverable in the picker
+- THEN the `header` widget type MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
+@e2e exclude no metadata fetch exists to observe: the type is a client-side registry entry (nc-vue `registerDashboardWidget('header', { displayName, icon })`), not an `OCP\Dashboard\IManager` widget, so the picker reads it in memory and no widget object with id/title/icon_url is ever fetched; src/constants/__tests__/widgetRegistry.spec.js pins that the `header` entry exists with a renderer, a form and defaultContent; no test pins its displayName or icon
 
 - GIVEN the widget is registered
 - WHEN the widget picker fetches widget metadata
@@ -66,7 +66,6 @@ The system MUST register a LaunchPad dashboard widget with id `launchpad_header`
 ### Requirement: REQ-HDR-002 Placement configuration structure
 
 The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
-@e2e exclude placement configuration tests JSON blob shape — Vitest/Newman scope
 
 #### Scenario: Config for title and subtitle
 
@@ -84,6 +83,7 @@ The system MUST store per-placement widget configuration in the `oc_launchpad_wi
 - AND the URL is subject to allow-list validation (see REQ-HDR-005)
 
 #### Scenario: Config for background image file ID
+@e2e exclude never built: CnHeaderWidgetForm (@conduction/nextcloud-vue 2.180.0) has no Nextcloud Files picker, only an upload and a URL field, so a user cannot select a file id; a seeded backgroundImageFileId and its read-ACL are covered by header-widget::user-can-read-file, user-cannot-read-file and file-id-converted-to-preview-url; no unit test exists
 
 - GIVEN a user is configuring a header widget placement
 - WHEN they select an image from Nextcloud Files
@@ -148,13 +148,12 @@ The system MUST store per-placement widget configuration in the `oc_launchpad_wi
 
 - GIVEN a placement with header widget config
 - WHEN the placement is fetched from the database
-- THEN the `widgetContent` MUST deserialize cleanly to a JavaScript object
+- THEN the placement's `content` MUST deserialize cleanly to a JavaScript object
 - AND all required fields MUST be present with no spurious whitespace or encoding issues
 
 ### Requirement: REQ-HDR-003 Image source precedence
 
 When both `backgroundImageFileId` and `backgroundImageUrl` are present in the configuration, the system MUST apply the following precedence: file ID takes priority over URL.
-@e2e exclude image source precedence tests Vue computed property logic — Vitest component scope
 
 #### Scenario: File ID overrides URL when both set
 
@@ -178,7 +177,6 @@ When both `backgroundImageFileId` and `backgroundImageUrl` are present in the co
 ### Requirement: REQ-HDR-004 Overlay rendering modes
 
 The system MUST support three overlay modes for controlling how background images are layered with colors.
-@e2e exclude overlay rendering modes tests CSS gradient/tint overlay — visual regression / Vitest snapshot scope
 
 #### Scenario: Overlay mode none (no overlay)
 
@@ -212,15 +210,16 @@ The system MUST support three overlay modes for controlling how background image
 ### Requirement: REQ-HDR-005 External image allow-list
 
 The system MUST enforce an allow-list of external image hostnames via admin setting `launchpad.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
-@e2e exclude external image allow-list tests PHP config + IAppConfig — Newman scope
 
 #### Scenario: Allow-list enabled with allowed domain
+@e2e exclude never built: no `header_widget_allowed_image_domains` setting and no hostname check exist in lib/, src/, appinfo/ or the nc-vue CnHeaderWidget renderer (`git log --all -S header_widget_allowed_image_domains -- lib src appinfo` is empty; the key appears only under openspec/), so there is no allow-list to configure or observe; no unit test exists
 
 - GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed and loaded
 
 #### Scenario: Allow-list enabled with disallowed domain
+@e2e exclude never built: no `header_widget_allowed_image_domains` setting and no hostname check exist in lib/, src/, appinfo/ or the nc-vue CnHeaderWidget renderer (`git log --all -S header_widget_allowed_image_domains -- lib src appinfo` is empty; the key appears only under openspec/), so there is no allow-list to configure or observe; no unit test exists
 
 - GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://untrusted-site.com/image.jpg"
@@ -229,6 +228,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 - AND no error UI MUST be displayed
 
 #### Scenario: Empty allow-list allows all domains
+@e2e exclude never built: no `header_widget_allowed_image_domains` setting and no hostname check exist in lib/, src/, appinfo/ or the nc-vue CnHeaderWidget renderer (`git log --all -S header_widget_allowed_image_domains -- lib src appinfo` is empty; the key appears only under openspec/), so there is no allow-list to configure or observe; no unit test exists
 
 - GIVEN launchpad.header_widget_allowed_image_domains=null or []
 - WHEN a placement is configured with any external backgroundImageUrl
@@ -236,6 +236,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 - AND this is the default behavior (zero-config = all allowed)
 
 #### Scenario: Same-origin URLs bypass allow-list
+@e2e exclude never built: no `header_widget_allowed_image_domains` setting and no hostname check exist in lib/, src/, appinfo/ or the nc-vue CnHeaderWidget renderer (`git log --all -S header_widget_allowed_image_domains -- lib src appinfo` is empty; the key appears only under openspec/), so there is no allow-list to configure or observe; no unit test exists
 
 - GIVEN the dashboard is loaded from localhost:3000
 - WHEN a placement is configured with backgroundImageUrl="http://localhost:3000/images/banner.jpg"
@@ -243,6 +244,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 - AND same-origin is determined by protocol, hostname, and port
 
 #### Scenario: Allow-list hostname matching is case-insensitive
+@e2e exclude never built: no `header_widget_allowed_image_domains` setting and no hostname check exist in lib/, src/, appinfo/ or the nc-vue CnHeaderWidget renderer (`git log --all -S header_widget_allowed_image_domains -- lib src appinfo` is empty; the key appears only under openspec/), so there is no allow-list to configure or observe; no unit test exists
 
 - GIVEN launchpad.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
@@ -251,7 +253,6 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 ### Requirement: REQ-HDR-006 File ID image with ACL validation
 
 The system MUST validate file read permissions when `backgroundImageFileId` is set, falling back to backgroundColor if the user cannot read the file.
-@e2e exclude file ID image with ACL validation tests PHP ACL + IURLGenerator — Newman scope
 
 #### Scenario: User can read file
 
@@ -280,7 +281,6 @@ The system MUST validate file read permissions when `backgroundImageFileId` is s
 ### Requirement: REQ-HDR-007 Image load failure graceful fallback
 
 The system MUST gracefully handle image load failures (404, timeout, invalid URL) by falling back to backgroundColor and continuing to render the widget without error UI.
-@e2e exclude image load failure graceful fallback tests Vue imgError handler — Vitest scope; requires broken-image URL injection
 
 #### Scenario: External image returns 404
 
@@ -307,7 +307,6 @@ The system MUST gracefully handle image load failures (404, timeout, invalid URL
 ### Requirement: REQ-HDR-008 Text rendering and styling
 
 The system MUST render title and subtitle with semantic HTML and configurable styling (color, alignment, vertical positioning).
-@e2e exclude text rendering and styling tests Vue slot rendering + CSS — Vitest snapshot scope
 
 #### Scenario: Title rendered as h2
 
@@ -347,7 +346,6 @@ The system MUST render title and subtitle with semantic HTML and configurable st
 ### Requirement: REQ-HDR-009 Height presets and responsive sizing
 
 The system MUST support four height presets (small, medium, large, xlarge) that map to fixed pixel values, and default widgets to full dashboard width.
-@e2e exclude height presets and responsive sizing tests CSS calc values — visual regression scope
 
 #### Scenario: Height small (120px)
 
@@ -385,7 +383,6 @@ The system MUST support four height presets (small, medium, large, xlarge) that 
 ### Requirement: REQ-HDR-010 Call-to-action button rendering and navigation
 
 The system MUST render an optional CTA button with configurable style and handle navigation to internal or external URLs.
-@e2e exclude CTA button rendering and navigation tests a router.push / window.open click handler inside a placed widget — requires seeded header placement
 
 #### Scenario: CTA button with primary style
 
@@ -431,7 +428,6 @@ The system MUST render an optional CTA button with configurable style and handle
 ### Requirement: REQ-HDR-011 Accessibility for header widgets
 
 The system MUST ensure header widgets are accessible to keyboard navigation and screen readers, with proper ARIA labels and semantic HTML.
-@e2e exclude accessibility ARIA attributes are render-time assertions; covered by Vitest snapshot
 
 #### Scenario: Title is keyboard-navigable
 
@@ -471,7 +467,6 @@ The system MUST ensure header widgets are accessible to keyboard navigation and 
 ### Requirement: REQ-HDR-012 Print-friendly rendering
 
 The system MUST render header widgets visibly when printed, including background images and colors, subject to the user's "print backgrounds" browser setting.
-@e2e exclude print-friendly rendering tests CSS @media print — not observable in headless Chromium CI
 
 #### Scenario: Header widget prints with background image
 

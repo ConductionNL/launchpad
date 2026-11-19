@@ -287,8 +287,8 @@ class Application extends App implements IBootstrap {
 			listener: TreeListener::class
 		);
 
-		// openregister-leaf-integrations: the discussion object of a shared
-		// dashboard follows its audience and goes with the dashboard.
+		// The discussion object of a shared dashboard follows its audience and
+		// goes with the dashboard (openregister-leaf-integrations).
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: DashboardDiscussionListener::class

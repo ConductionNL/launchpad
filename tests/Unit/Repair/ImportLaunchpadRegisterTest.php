@@ -201,21 +201,21 @@ class ImportLaunchpadRegisterTest extends TestCase {
 	 */
 	public function testTheShippedDashboardSchemaReadsFollowTheAudience(): void {
 		$this->root = dirname(__DIR__, 3);
-		$importer   = $this->importer(false);
-		$this->runStep($importer);
+		$importer   = $this->importer(failing: false);
+		$this->runStep(importer: $importer);
 		$this->root = sys_get_temp_dir() . '/lp-register-' . getmypid();
 
 		$schema = $importer->imported[0]['components']['schemas']['Dashboard'];
 		$this->assertSame(
-			[
+			expected: [
 				['group' => 'authenticated', 'match' => ['audienceUsers' => ['$contains' => '$userId']]],
 				['group' => 'authenticated', 'match' => ['audienceGroups' => ['$contains' => '$user.groups']]],
 				['group' => 'authenticated', 'match' => ['audienceEveryone' => true]],
 			],
-			$schema['authorization']['read']
+			actual: $schema['authorization']['read']
 		);
-		$this->assertSame(['read'], array_keys($schema['authorization']));
-		$this->assertSame('array', $schema['properties']['audienceUsers']['type']);
+		$this->assertSame(expected: ['read'], actual: array_keys($schema['authorization']));
+		$this->assertSame(expected: 'array', actual: $schema['properties']['audienceUsers']['type']);
 	}
 
 	/**

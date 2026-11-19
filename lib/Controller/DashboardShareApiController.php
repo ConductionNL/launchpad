@@ -25,7 +25,6 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\DashboardShareService;
@@ -136,7 +135,7 @@ class DashboardShareApiController extends Controller {
 					),
 					callerId: $this->userId
 				);
-				$this->audienceChanged(event: new DashboardAudienceChangedEvent(dashboardId: $id));
+				$this->tools->audienceChanged(dashboardId: $id);
 				return new DataResponse(data: $share->jsonSerialize(), statusCode: Http::STATUS_CREATED);
 			},
 			notFound: 'Dashboard not found'
@@ -168,7 +167,7 @@ class DashboardShareApiController extends Controller {
 					shareId: $shareId,
 					callerId: $this->userId
 				);
-				$this->audienceChanged(event: new DashboardAudienceChangedEvent(ownerId: $this->userId));
+				$this->tools->audienceChanged(ownerId: $this->userId);
 				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 			},
 			notFound: 'Share not found'
@@ -206,7 +205,7 @@ class DashboardShareApiController extends Controller {
 					shares: $shares,
 					userId: $this->userId
 				);
-				$this->audienceChanged(event: new DashboardAudienceChangedEvent(dashboardId: $id));
+				$this->tools->audienceChanged(dashboardId: $id);
 				return new DataResponse(data: $this->serializeShares(shares: $replaced));
 			},
 			notFound: 'Dashboard not found'
@@ -239,7 +238,7 @@ class DashboardShareApiController extends Controller {
 				shareWith: $shareWith,
 				callerId: $this->userId
 			);
-			$this->audienceChanged(event: new DashboardAudienceChangedEvent(ownerId: $this->userId));
+			$this->tools->audienceChanged(ownerId: $this->userId);
 			return new DataResponse(data: ['deleted' => $count]);
 		} catch (InvalidArgumentException $e) {
 			return new DataResponse(
@@ -380,20 +379,6 @@ class DashboardShareApiController extends Controller {
 			statusCode: Http::STATUS_UNAUTHORIZED
 		);
 	}//end notLoggedIn()
-
-	/**
-	 * Announce that a share change altered who may view a dashboard, so the
-	 * dashboard's discussion object follows it (openregister-leaf-integrations).
-	 *
-	 * @param DashboardAudienceChangedEvent $event The dashboard, or the owner whose dashboards changed.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-8
-	 */
-	private function audienceChanged(DashboardAudienceChangedEvent $event): void {
-		$this->tools->events?->dispatchTyped($event);
-	}//end audienceChanged()
 
 	/**
 	 * Run a share operation and map its failures: invalid input → 400,

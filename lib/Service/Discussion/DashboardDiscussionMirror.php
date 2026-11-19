@@ -119,7 +119,7 @@ class DashboardDiscussionMirror {
 		}
 
 		$ids = $this->shares->findSharedDashboardIds();
-		foreach ($this->dashboards->findAllGroupShared() as $dashboard) {
+		foreach ($this->dashboards->findByGroup(groupId: null) as $dashboard) {
 			$ids[] = (int)$dashboard->getId();
 		}
 

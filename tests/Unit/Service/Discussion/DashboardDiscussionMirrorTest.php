@@ -200,7 +200,7 @@ class DashboardDiscussionMirrorTest extends TestCase {
 	 */
 	public function testSyncAllSharedVisitsSharedAndGroupDashboardsOnce(): void {
 		$this->shares->method('findSharedDashboardIds')->willReturn([7, 8]);
-		$this->dashboards->method('findAllGroupShared')->willReturn([$this->dashboard(id: 8, owner: null), $this->dashboard(id: 9, owner: null)]);
+		$this->dashboards->method('findByGroup')->willReturn([$this->dashboard(id: 8, owner: null), $this->dashboard(id: 9, owner: null)]);
 		$this->dashboards->expects($this->exactly(count: 3))->method('find')
 			->willReturnCallback(fn (int $id): Dashboard => $this->dashboard(id: $id, owner: 'alice'));
 		$this->shares->method('findByDashboardId')->willReturn([]);

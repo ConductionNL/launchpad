@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IGroupManager;
 use OCP\IUserManager;
@@ -52,4 +53,20 @@ class ShareApiTools {
 		public readonly ?IEventDispatcher $events = null,
 	) {
 	}//end __construct()
+
+	/**
+	 * Announce that a share change altered who may view a dashboard, or the
+	 * dashboards of an owner, so the dashboard's discussion object follows it
+	 * (openregister-leaf-integrations).
+	 *
+	 * @param int|null    $dashboardId The dashboard, when one is known.
+	 * @param string|null $ownerId     The owner whose dashboards it can reach.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-8
+	 */
+	public function audienceChanged(?int $dashboardId = null, ?string $ownerId = null): void {
+		$this->events?->dispatchTyped(new DashboardAudienceChangedEvent(dashboardId: $dashboardId, ownerId: $ownerId));
+	}//end audienceChanged()
 }//end class

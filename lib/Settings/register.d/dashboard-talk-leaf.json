@@ -3,29 +3,57 @@
     "schemas": {
       "Dashboard": {
         "configuration": {
-          "linkedTypes": ["talk"]
+          "linkedTypes": [
+            "talk"
+          ]
         },
         "properties": {
           "audienceUsers": {
+            "title": "Audience users",
             "type": "array",
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "description": "DERIVED by LaunchPad from the dashboard's owner and user shares; never written by a client. The bare user ids the read rule matches with $contains, so the dashboard's discussion is open exactly to those who may view the dashboard (openregister-leaf-integrations)."
           },
           "audienceGroups": {
+            "title": "Audience groups",
             "type": "array",
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "description": "DERIVED by LaunchPad from the dashboard's group shares, or the group of a group dashboard. The bare group ids the read rule matches with $contains against the caller's groups."
           },
           "audienceEveryone": {
+            "title": "Open to everyone",
             "type": "boolean",
             "description": "DERIVED by LaunchPad: true for the default group dashboard, which every signed-in user may view."
           }
         },
         "authorization": {
           "read": [
-            { "group": "authenticated", "match": { "audienceUsers": { "$contains": "$userId" } } },
-            { "group": "authenticated", "match": { "audienceGroups": { "$contains": "$user.groups" } } },
-            { "group": "authenticated", "match": { "audienceEveryone": true } }
+            {
+              "group": "authenticated",
+              "match": {
+                "audienceUsers": {
+                  "$contains": "$userId"
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "audienceGroups": {
+                  "$contains": "$user.groups"
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "audienceEveryone": true
+              }
+            }
           ]
         }
       }

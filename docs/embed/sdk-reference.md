@@ -1,4 +1,7 @@
-# @conduction/launchpad-embed reference
+# Embed SDK reference
+
+Load the SDK from your Nextcloud instance: `/index.php/apps/launchpad/embed-sdk/embed-sdk.esm.js`
+(ES module) or `/index.php/apps/launchpad/embed-sdk/embed-sdk.umd.js` (global `LaunchPadEmbed`).
 
 ## `LaunchPadEmbed.render(container, config)`
 

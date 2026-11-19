@@ -9,7 +9,7 @@
 		"npm": "^11.0.0"
 	},
 	"scripts": {
-		"build": "webpack --config webpack.config.js --progress --mode production",
+		"build": "webpack --config webpack.config.js --progress --mode production && npm run build:embed-sdk",
 		"build:embed-sdk": "webpack --config src/embed-sdk/webpack.config.cjs",
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",

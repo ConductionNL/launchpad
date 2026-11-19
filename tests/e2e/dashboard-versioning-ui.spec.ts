@@ -288,7 +288,6 @@ test.describe('REQ-VERSUI-001 who sees "Version history"', () => {
 						'[data-testid="cn-grouped-menu-item-config"]',
 					),
 				).toHaveCount(0)
-				await pieterPage.waitForLoadState('networkidle')
 				// ... and no version history entry.
 				await expect(pieterPage.locator(VERSIONS_ITEM)).toHaveCount(0)
 			} finally {

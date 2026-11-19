@@ -39,6 +39,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Mcp;
 
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
+use Psr\Container\ContainerInterface;
 
 /**
  * The MCP tool provider for LaunchPad.
@@ -119,17 +120,135 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'annotations' => ['readOnlyHint' => true],
 			'inputSchema' => self::NO_ARGUMENTS,
 		],
+		[
+			'id' => 'launchpad.getDashboardTree',
+			'name' => 'Get dashboard tree',
+			'description' => 'The parent and child structure of the dashboards you can see.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
+		[
+			'id' => 'launchpad.listShares',
+			'name' => 'List shares',
+			'description' => 'List the user and group shares of a dashboard you own.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => ['dashboardId' => ['type' => 'integer', 'minimum' => 1]],
+				'required' => ['dashboardId'],
+			],
+		],
+		[
+			'id' => 'launchpad.listVersions',
+			'name' => 'List versions',
+			'description' => 'List the saved versions of a dashboard you own or administer.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => ['dashboardUuid' => ['type' => 'string', 'format' => 'uuid']],
+				'required' => ['dashboardUuid'],
+			],
+		],
+		[
+			'id' => 'launchpad.listTemplates',
+			'name' => 'List templates',
+			'description' => 'List the dashboard templates you can start a dashboard from, optionally of one category.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'category' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'sort' => ['type' => 'string', 'enum' => ['name', 'updatedAt']],
+				],
+				'required' => [],
+			],
+		],
+		[
+			'id' => 'launchpad.getDashboardMetadata',
+			'name' => 'Get dashboard metadata',
+			'description' => 'Fetch the metadata values of a dashboard you can see.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => ['dashboardUuid' => ['type' => 'string', 'format' => 'uuid']],
+				'required' => ['dashboardUuid'],
+			],
+		],
+		[
+			'id' => 'launchpad.getReactions',
+			'name' => 'Get reactions',
+			'description' => 'Fetch the reaction counts of a dashboard and the reactions you gave.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => ['dashboardUuid' => ['type' => 'string', 'format' => 'uuid']],
+				'required' => ['dashboardUuid'],
+			],
+		],
+		[
+			'id' => 'launchpad.listPendingAcknowledgements',
+			'name' => 'List pending acknowledgements',
+			'description' => 'List the dashboards that ask you to acknowledge them and that you have not acknowledged yet.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
+		[
+			'id' => 'launchpad.listKioskPlaylists',
+			'name' => 'List kiosk playlists',
+			'description' => 'List the kiosk playlists you may see: your own, or every active one for an administrator.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
+	];
+
+	/**
+	 * The handler class and method of each tool. The handler is resolved from
+	 * the container only when its tool runs.
+	 *
+	 * @var array<string, array{0: class-string, 1: string}>
+	 */
+	public const TOOL_HANDLERS = [
+		'launchpad.listDashboards' => [McpDashboardTools::class, 'listDashboards'],
+		'launchpad.getDashboard' => [McpDashboardTools::class, 'getDashboard'],
+		'launchpad.getActiveDashboard' => [McpDashboardTools::class, 'getActiveDashboard'],
+		'launchpad.listGroupDashboards' => [McpDashboardTools::class, 'listGroupDashboards'],
+		'launchpad.listWidgetTypes' => [McpDashboardTools::class, 'listWidgetTypes'],
+		'launchpad.listTiles' => [McpTileTools::class, 'listTiles'],
+		'launchpad.getDashboardTree' => [McpCatalogueTools::class, 'getDashboardTree'],
+		'launchpad.listShares' => [McpSharingTools::class, 'listShares'],
+		'launchpad.listVersions' => [McpHistoryTools::class, 'listVersions'],
+		'launchpad.listTemplates' => [McpCatalogueTools::class, 'listTemplates'],
+		'launchpad.getDashboardMetadata' => [McpMetadataTools::class, 'getDashboardMetadata'],
+		'launchpad.getReactions' => [McpEngagementTools::class, 'getReactions'],
+		'launchpad.listPendingAcknowledgements' => [McpEngagementTools::class, 'listPendingAcknowledgements'],
+		'launchpad.listKioskPlaylists' => [McpSharingTools::class, 'listKioskPlaylists'],
 	];
 
 	/**
 	 * Constructor.
 	 *
-	 * @param McpDashboardTools $dashboardTools The dashboard and widget-type handlers.
-	 * @param McpTileTools      $tileTools      The tile handlers.
+	 * @param ContainerInterface $container Resolves the handler of the tool that runs.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function __construct(
-		private readonly McpDashboardTools $dashboardTools,
-		private readonly McpTileTools $tileTools,
+		private readonly ContainerInterface $container,
 	) {
 	}//end __construct()
 
@@ -164,20 +283,19 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	 * @return array<string, mixed> The result, or a structured error.
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function invokeTool(string $toolId, array $arguments): array {
-		return match ($toolId) {
-			'launchpad.listDashboards' => $this->dashboardTools->listDashboards(args: $arguments),
-			'launchpad.getDashboard' => $this->dashboardTools->getDashboard(args: $arguments),
-			'launchpad.getActiveDashboard' => $this->dashboardTools->getActiveDashboard(args: $arguments),
-			'launchpad.listGroupDashboards' => $this->dashboardTools->listGroupDashboards(args: $arguments),
-			'launchpad.listWidgetTypes' => $this->dashboardTools->listWidgetTypes(args: $arguments),
-			'launchpad.listTiles' => $this->tileTools->listTiles(args: $arguments),
-			default => McpArgumentValidator::error(
+		$handler = (self::TOOL_HANDLERS[$toolId] ?? null);
+		if ($handler === null) {
+			return (new McpArgumentValidator())->refuse(
 				code: 'unknown_tool',
 				message: "Unknown tool id '{$toolId}'. Available tools: "
 					. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.'
-			),
-		};
+			);
+		}
+
+		[$class, $method] = $handler;
+		return $this->container->get($class)->$method($arguments);
 	}//end invokeTool()
 }//end class

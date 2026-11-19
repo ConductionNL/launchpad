@@ -69,6 +69,7 @@ The system MUST cache the badge state in `ICache` with a short TTL and MUST refr
 - THEN the system MUST return the cached badge with `stale = false` and MUST NOT perform a new upstream request
 
 #### Scenario: Background refresh of due entries
+@e2e exclude a TimedJob with no HTTP read of its own (the endpoint refreshes on read, so a fetched badge cannot tell a job refresh from a read refresh); pinned by tests/Unit/Service/HealthPingServiceTest.php::testRefreshDuePlacementsOnlyRefreshesDuePingEnabledPlacements and ::testRefreshDuePlacementsSkipsNonAllowListedHosts, and the job's delegation by tests/Unit/BackgroundJob/HealthPingRefreshJobTest.php::testRunDelegatesToRefreshDuePlacements
 - GIVEN ping-enabled placements whose cached badge is older than their interval
 - WHEN the `HealthPingRefreshJob` `TimedJob` runs
 - THEN it MUST refresh only the due, ping-enabled placements and skip any whose host is not allow-listed

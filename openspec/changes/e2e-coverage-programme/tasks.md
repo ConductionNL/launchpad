@@ -108,7 +108,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/calendar-widget.spec.ts`, `calendar-widget-sources.spec.ts`, `calendar-widget-rendering.spec.ts`, `calendar-widget-config.spec.ts`; 13 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.6 `links-widget`: 52 scenarios, 0 cited.
+  - Spec written: `tests/e2e/links-widget.spec.ts`, `links-widget-grid-navigation.spec.ts`, `links-widget-config.spec.ts`, `links-widget-editor.spec.ts`; 0 scenarios excluded, 52 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.7 `video-widget`: 51 scenarios, 0 cited.
+  - Spec written: `tests/e2e/video-widget.spec.ts`, `video-widget-files.spec.ts` (with `fixtures/tiny.webm`); 18 scenarios excluded with reasons, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
@@ -145,11 +147,16 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
 - [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
 - [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/confluence-html-import.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with reasons
 - [ ] 5.7 `prometheus-metrics`: 23 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/prometheus-metrics.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 10 excluded with reasons
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.
 - [ ] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
+  - Spec written: tests/e2e/service-health-ping.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with reasons
 - [ ] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/initial-state-contract.spec.ts, 2 scenarios cited, 9 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
 - [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)

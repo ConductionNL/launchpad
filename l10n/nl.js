@@ -2276,7 +2276,9 @@ OC.L10N.register(
     "Values read: {inputs}" : "Gelezen waarden: {inputs}",
     "empty" : "leeg",
     "Discussion" : "Gesprek",
-    "No conversation linked to this dashboard yet" : "Nog geen gesprek gekoppeld aan dit dashboard"
+    "No conversation linked to this dashboard yet" : "Nog geen gesprek gekoppeld aan dit dashboard",
+    "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard." : "Deze widget publiceert {dimension} uit {field}, maar dat veld zit niet in de gegevens. Een klik erop filtert het dashboard niet.",
+    "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered." : "Deze widget gebruikt {dimension}, maar geen hiërarchie op dit dashboard publiceert dat. De widget toont zijn gegevens ongefilterd."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -81,10 +81,12 @@ class OrphanedSharesCategory implements CleanupCategoryInterface {
 	 * because its dashboard is gone.
 	 *
 	 * @return bool True.
+	 *
+	 * @spec openspec/changes/cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
-	public function getSafeToPurgeAutomatically(): bool {
+	public function isSafeToPurgeAutomatically(): bool {
 		return true;
-	}//end getSafeToPurgeAutomatically()
+	}//end isSafeToPurgeAutomatically()
 
 	/**
 	 * Always available — `launchpad_dashboard_shares` ships in the core

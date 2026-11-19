@@ -74,8 +74,10 @@ interface CleanupCategoryInterface {
 	 * admin opt-in.
 	 *
 	 * @return bool True for Tier-A categories.
+	 *
+	 * @spec openspec/changes/cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
-	public function getSafeToPurgeAutomatically(): bool;
+	public function isSafeToPurgeAutomatically(): bool;
 
 	/**
 	 * Whether the underlying feature / table is currently available.

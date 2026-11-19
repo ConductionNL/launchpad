@@ -77,10 +77,12 @@ class ExpiredLocksCategory implements CleanupCategoryInterface {
 	 * definition gone (TTL exceeded), so no user is ever affected.
 	 *
 	 * @return bool True.
+	 *
+	 * @spec openspec/changes/cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
-	public function getSafeToPurgeAutomatically(): bool {
+	public function isSafeToPurgeAutomatically(): bool {
 		return true;
-	}//end getSafeToPurgeAutomatically()
+	}//end isSafeToPurgeAutomatically()
 
 	/**
 	 * Always available — `launchpad_dashboard_locks` ships in the core

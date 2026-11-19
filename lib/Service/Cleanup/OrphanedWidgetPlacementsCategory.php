@@ -73,10 +73,12 @@ class OrphanedWidgetPlacementsCategory implements CleanupCategoryInterface {
 	 * Tier-B — placements may carry recoverable user configuration.
 	 *
 	 * @return bool False.
+	 *
+	 * @spec openspec/changes/cleanup-category-boolean-getter-name/tasks.md#task-2
 	 */
-	public function getSafeToPurgeAutomatically(): bool {
+	public function isSafeToPurgeAutomatically(): bool {
 		return false;
-	}//end getSafeToPurgeAutomatically()
+	}//end isSafeToPurgeAutomatically()
 
 	/**
 	 * Always available — `launchpad_widget_placements` ships in the core

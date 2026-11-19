@@ -42,6 +42,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
+import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import {
 	adminContext,
 	API,
@@ -95,6 +96,7 @@ async function createDashboard(
 	const dash = (await res.json()).dashboard
 	const out = { id: Number(dash.id), uuid: String(dash.uuid) }
 	created.push({ api, id: out.id })
+	await clearSeededWidgets(api, out.id)
 	return out
 }
 
@@ -333,7 +335,7 @@ test.describe('dashboard cascade events', () => {
 		expect((await api.get(`${API}/dashboard/${child.id}`)).status()).toBe(200)
 	})
 
-	test('a non-cascade delete of a parent is refused with 400 before anything changes', async () => {
+	test('a non-cascade delete of a parent is refused with 409 before anything changes', async () => {
 		// @e2e dashboard-cascade-events::non-cascade-delete-with-children-is-rejected-before-event-dispatch
 		const api = owner!.api
 		const parent = await createDashboard(api, 'guard parent')
@@ -343,7 +345,7 @@ test.describe('dashboard cascade events', () => {
 		const childPlacement = await addPlacement(api, child.id)
 
 		const res = await api.delete(`${API}/dashboard/${parent.id}`)
-		expect(res.status(), await res.text()).toBe(400)
+		expect(res.status(), await res.text()).toBe(409)
 		const body = await res.json()
 		expect(JSON.stringify(body)).toMatch(/children/i)
 

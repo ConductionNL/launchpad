@@ -381,7 +381,7 @@ Cascade deletion of a parent dashboard MUST only proceed when explicitly request
 
 - GIVEN dashboard `P1` has child `C1`
 - WHEN a caller sends `DELETE /api/dashboards/P1.uuid` without a cascade flag
-- THEN the system MUST return HTTP 400 with an error indicating children exist
+- THEN the system MUST return HTTP 409 with an error indicating children exist (REQ-DASH-030 in dashboards)
 - AND `DashboardDeletedEvent` MUST NOT be dispatched for `P1` or `C1`
 - AND no dependent data MUST be altered
 

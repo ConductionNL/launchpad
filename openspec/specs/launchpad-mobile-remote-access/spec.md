@@ -40,8 +40,6 @@ remote/mobile access + curated app + news access).
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented capability — adds a `mobileReady` registry/manifest field + mobile-breakpoint hide/force-desktop behaviour that is not yet built. Scenarios assert registry/manifest completeness contract, viewport-driven visibility, session-expiry from Specter sources, and curated-app/news sourcing — backend/contract and breakpoint internals belong in unit + Newman. Re-annotate with real UI tests when the capability ships.
-
 ### REQ-MRA-001: Every widget registry entry SHALL declare a `mobileReady` boolean
 
 `src/constants/widgetRegistry.js` entries MUST extend the existing
@@ -53,12 +51,16 @@ cannot render on mobile (e.g. complex multi-column tables) MUST set
 
 #### Scenario: Registry entry missing the field fails the completeness test
 
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. widgetRegistry.completeness.spec.js checks no such field, and it is a vitest, not a browser behaviour.
+
 - **GIVEN** a registry entry omits `mobileReady`
 - **WHEN** `npm test` runs the completeness test
 - **THEN** the test MUST fail with a message naming the type
   + the missing `mobileReady` field
 
 #### Scenario: Every shipped widget declares the field
+
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. No registry entry carries the field, and no test checks for it.
 
 - **GIVEN** the canonical widget set (`calendar`, `container`,
   `divider`, `files`, `header`, `image`, `label`, `link`, `links`,
@@ -79,12 +81,16 @@ extension).
 
 #### Scenario: Manifest declaration matches registry
 
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. src/manifest.json has no top-level widgets[] since 2cf53831, and scripts/check-manifest.js compares no such field; a CLI check in any case.
+
 - **GIVEN** the registry sets `tile.mobileReady = true`
 - **WHEN** `npm run check:manifest` runs
 - **THEN** the manifest entry for `tile` MUST also set
   `mobileReady: true`
 
 #### Scenario: Mismatch fails the check
+
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. scripts/check-manifest.js has no registry comparison and there is no `compliance-audit` widget type; a CLI check in any case.
 
 - **GIVEN** the registry sets `compliance-audit.mobileReady = false`
 - **AND** the manifest sets `compliance-audit.mobileReady = true`
@@ -103,6 +109,8 @@ the desktop breakpoint at the cost of horizontal scroll).
 
 #### Scenario: Mobile viewport hides non-ready widgets
 
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. Nothing filters placements by viewport, and `git log --all -S'hidden on mobile'` finds no notice in any commit. The generic one-column reflow on a phone is cited under grid-layout::single-column-on-mobile.
+
 - **GIVEN** a dashboard with 6 placements (4 mobile-ready, 2 not)
 - **WHEN** the viewport is 375 px (mobile)
 - **THEN** only the 4 mobile-ready widget DOM nodes MUST render
@@ -110,12 +118,16 @@ the desktop breakpoint at the cost of horizontal scroll).
 
 #### Scenario: Desktop viewport renders all
 
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. The GIVEN (four mobile-ready, two not) cannot be set up, and the absent mobile notice cannot fail to be absent when no notice exists.
+
 - **GIVEN** the same dashboard
 - **WHEN** the viewport is 1280 px
 - **THEN** all 6 widgets MUST render normally
 - **AND** the mobile notice MUST NOT appear
 
 #### Scenario: Force desktop layout link
+
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. There is no mobile notice and no "view desktop layout" link (`git log --all -S'desktop layout'` is empty).
 
 - **GIVEN** the mobile notice is visible
 - **WHEN** the viewer clicks "view desktop layout"
@@ -132,6 +144,8 @@ switcher, or any non-grid affordance.
 
 #### Scenario: All non-mobile dashboard shows empty-state
 
+@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. The empty-state string "This dashboard has no mobile-ready widgets" appears in no commit (`git log --all -S'mobile-ready'` is empty).
+
 - **GIVEN** a dashboard where all 4 placements have
   `mobileReady: false`
 - **WHEN** the viewport is 375 px
@@ -141,6 +155,8 @@ switcher, or any non-grid affordance.
 - **AND** the sidebar MUST remain usable
 
 #### Scenario: Other affordances stay live
+
+@e2e exclude never built: its GIVEN is the mobile empty-state, which does not exist (`mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json). The dashboard switcher itself is cited by the dashboard-switcher specs.
 
 - **GIVEN** the empty-state is rendered
 - **WHEN** the viewer opens the dashboard switcher
@@ -161,6 +177,8 @@ MUST resume without losing in-progress widget state.
 
 #### Scenario: Session expires (Specter source)
 
+@e2e exclude nothing in launchpad to test, and the fixture cannot expire a session: launchpad has no session or heartbeat code (grep of src for heartbeat or re-auth finds only the dashboard edit-lock heartbeat), so the overlay is Nextcloud core's own. Driving it needs `session_lifetime` shortened in config.php or via occ, which the CI fixture does not do. No unit test either.
+
 - **GIVEN** a remote employee authenticated AND the session is
   idle past the Nextcloud-configured timeout
 - **WHEN** the next heartbeat fires
@@ -170,6 +188,8 @@ MUST resume without losing in-progress widget state.
 
 #### Scenario: No launchpad-local timer
 
+@e2e exclude a source scan, not a browser behaviour, and no test performs it. Checked by hand: the only setInterval near a session in src is useDashboardLock.js, which renews a dashboard edit lock and never logs out or redirects.
+
 - **GIVEN** the workspace shell source files
 - **WHEN** scanned for `setTimeout` / `setInterval` calls that
   trigger logout, redirect, or session-end
@@ -177,6 +197,8 @@ MUST resume without losing in-progress widget state.
   Nextcloud)
 
 #### Scenario: Re-auth preserves in-progress state
+
+@e2e exclude needs an expired session, which the CI fixture cannot produce (see Session expires above), and launchpad has no re-auth handling of its own to test. No unit test either.
 
 - **GIVEN** a viewer is editing a widget's config when the session
   expires
@@ -203,12 +225,16 @@ policy" table — the per-role visibility engine already exists.
 
 #### Scenario: News feed via existing news capability (Specter source)
 
+@e2e exclude needs an external service the CI fixture lacks: the news widget fetches feeds server-side, https only (NewsWidgetService::isHttpsUrl), from an allow-listed host, and CI has no https feed host Nextcloud can reach. Role scoping by a visibility rule is the same mechanism the curated-app-list test proves; the news rendering itself belongs to the news-widget spec.
+
 - **GIVEN** a `news-widget` is placed AND scoped per role
 - **WHEN** the employee opens the dashboard
 - **THEN** the news feed MUST render via that widget — no new
   news plumbing in this capability
 
 #### Scenario: No launchpad-local mobile-policy table
+
+@e2e exclude a source inspection, not a browser behaviour, and no test performs it. Checked by hand: no file in lib/Migration mentions a mobile policy or app whitelist.
 
 - **GIVEN** the launchpad migrations after this widget ships
 - **WHEN** inspected

@@ -132,11 +132,13 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
   - Spec written: tests/e2e/clock-weather-widgets.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with a reason
 - [ ] 4.15 `launchpad-spend-analytics-widget`: 21 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/launchpad-spend-analytics-widget.spec.ts`, 9 scenarios cited, 12 excluded with a reason (8 never built, 4 unit-only, CLI or source scan), not yet run (cloud, 2026-11-19). The blanket was wrong: the widget was built in 7d7da1bb and renders today through nc-vue `CnSpendAnalyticsWidget`; the manifest entry it describes was removed in 2cf53831.
 - [ ] 4.16 `launchpad-ai-dashboard-assistant`: 18 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/launchpad-ai-dashboard-assistant.spec.ts, 8 scenarios cited, 3 excluded with a reason, not yet run (cloud, 2026-11-19)
 - [ ] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/iframe-embed-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
 - [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/launchpad-mobile-remote-access.spec.ts`, 1 scenario cited, 14 excluded with a reason (8 never built: `mobileReady` appears in no commit under src, lib, appinfo or templates (`git log --all -S`); 6 need an expired session, an https feed host, or are source scans), not yet run (cloud, 2026-11-19)
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/live-data-tile-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with a reason
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.

@@ -118,6 +118,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
   - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
+  - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
 - [ ] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.

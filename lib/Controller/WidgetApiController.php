@@ -24,6 +24,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
 use OCA\LaunchPad\Service\CalculatedFieldService;
@@ -46,6 +47,9 @@ use Throwable;
  *                                                 share this controller.
  *
  * @spec openspec/changes/role-based-content/tasks.md#task-3
+ *
+ * @psalm-import-type LaunchPadPlacement from ResponseDefinitions
+ * @psalm-import-type LaunchPadStatusOk from ResponseDefinitions
  */
 class WidgetApiController extends Controller {
 	use RespondsWithErrors;
@@ -179,6 +183,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The created widget placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	#[NoAdminRequired]
@@ -500,6 +508,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The created tile placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/widgets/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -572,6 +584,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated widget placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -783,6 +799,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The removal confirmation.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

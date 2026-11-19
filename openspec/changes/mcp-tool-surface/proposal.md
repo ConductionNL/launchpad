@@ -12,7 +12,7 @@ The fleet mechanism is proven: decidesk ships the reference implementation (`dec
 
 ## What Changes
 
-- New `lib/Mcp/` namespace with `LaunchpadToolProvider` implementing `OCA\OpenRegister\Mcp\IMcpToolProvider`, registered in `AppInfo\Application` under the DI alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`. Tool ids are `launchpad.{toolName}`.
+- New `lib/Mcp/` namespace with `LaunchPadToolProvider` implementing `OCA\OpenRegister\Mcp\IMcpToolProvider`, registered in `AppInfo\Application` under the DI alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`. Tool ids are `launchpad.{toolName}`.
 - A full-coverage tool catalogue derived from the real controller/service surface (see spec REQ-MCP-002/003): 14 read tools and 35 write tools covering dashboard CRUD, active/default selection, forking, widget add/reposition/remove, tile CRUD, sharing, publication state, public links, versioning, metadata, group dashboards, and admin template management.
 - Read tools carry `readOnlyHint: true`; every write tool is annotated with **scope** (`create` / `update` / `delete`) and **reach** (`self` / `user` / `instance` / `external`) so hermiq's grant matrix can authorize each tool individually, default-deny.
 - Authorization parity: every tool routes through the exact same guards as the HTTP surface — `PermissionService::can*()`, `ActionAuthService::requireAction()` (ADR-023 matrix), and the admin checks — via a `McpDashboardGate` mirroring decidesk's `McpMeetingGate`. Argument validation via a `McpArgumentValidator` counterpart.
@@ -32,7 +32,7 @@ The fleet mechanism is proven: decidesk ships the reference implementation (`dec
 
 **Affected code:**
 
-- `lib/Mcp/LaunchpadToolProvider.php` — dispatcher + tool catalogue (new)
+- `lib/Mcp/LaunchPadToolProvider.php` — dispatcher + tool catalogue (new)
 - `lib/Mcp/McpDashboardTools.php`, `lib/Mcp/McpWidgetTools.php`, `lib/Mcp/McpSharingTools.php`, `lib/Mcp/McpAdminTools.php` — handlers grouped by domain (new)
 - `lib/Mcp/McpDashboardGate.php`, `lib/Mcp/McpArgumentValidator.php` — authorization + validation (new)
 - `lib/AppInfo/Application.php` — DI alias registration (string alias, no autoload at boot, per the ADR-083-safe pattern decidesk uses)

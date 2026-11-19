@@ -660,7 +660,7 @@
                 "qb1.addOrderBy(\"id\", null)",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"url\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\",\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"url\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\",\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\"]"
         },
         "findByUuid all": {
             "calls": [

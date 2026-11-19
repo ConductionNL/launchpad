@@ -15,7 +15,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use InvalidArgumentException;
  * template should learn it was not taken. A stored value that no longer
  * validates reads as empty, so nothing unsafe ever reaches a tile.
  *
- * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
  */
 class TileLaunchSettings {
 
@@ -61,7 +61,7 @@ class TileLaunchSettings {
 	 *
 	 * @throws InvalidArgumentException Naming the scheme refused.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
 	 */
 	public function schemes(mixed $input): array {
 		if (is_array($input) === false || count($input) > self::MAX_ENTRIES) {
@@ -98,7 +98,7 @@ class TileLaunchSettings {
 	 *
 	 * @throws InvalidArgumentException Naming the template refused.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-single-sign-on-into-a-company-app-req-tlt-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-single-sign-on-into-a-company-app-req-tlt-003
 	 */
 	public function templates(mixed $input): array {
 		if (is_array($input) === false || count($input) > self::MAX_ENTRIES) {
@@ -126,7 +126,7 @@ class TileLaunchSettings {
 	 *
 	 * @return list<mixed>
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
 	 */
 	public function stored(string $setting, mixed $stored): array {
 		if ($stored === null) {

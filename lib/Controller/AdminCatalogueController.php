@@ -42,7 +42,7 @@ use OCP\IUser;
 /**
  * App catalogue endpoints for administrators.
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-4
  */
 class AdminCatalogueController extends Controller {
 	use GuardsActions;
@@ -55,7 +55,7 @@ class AdminCatalogueController extends Controller {
 	 * @param ActionCaller     $caller       The session and the action check.
 	 * @param IGroupManager    $groupManager Admin check.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-4
 	 */
 	public function __construct(
 		IRequest $request,
@@ -71,7 +71,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{apps, requests, managerGroup}`, 401 or 403.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
@@ -94,7 +94,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{app}` (201), 400, 401 or 403.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function create(): JSONResponse {
@@ -119,7 +119,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{app}`, 400, 401, 403 or 404.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(string $uuid): JSONResponse {
@@ -146,7 +146,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{deleted: true}`, 401, 403 or 404.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function destroy(string $uuid): JSONResponse {
@@ -171,7 +171,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{request, app}`, 400, 401, 403, 404 or 409 (code `request_not_open`).
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function approve(string $uuid): JSONResponse {
@@ -205,7 +205,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{request}`, 400, 401, 403, 404 or 409 (code `request_not_open`).
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function decline(string $uuid, ?string $note = null): JSONResponse {
@@ -234,7 +234,7 @@ class AdminCatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{managerGroup}`, 400, 401 or 403.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-5
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-5
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function setManagerGroup(?string $managerGroup = null): JSONResponse {

@@ -6,7 +6,7 @@
  * (launcher-tile-open-behaviour D3). A tile writes here; `WorkspaceApp`
  * renders `TileSidePanel` from it. Opening another tile replaces the panel.
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { defineStore } from 'pinia'
@@ -38,7 +38,7 @@ export const useTilePanelStore = defineStore('launchpad-tile-panel', {
 		 * @param {HTMLElement|null} [tile.opener] The element focus returns to on close.
 		 * @return {void}
 		 *
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
 		 */
 		open({ url, title = '', sameOrigin = false, opener = null }) {
 			this.url = url
@@ -52,7 +52,7 @@ export const useTilePanelStore = defineStore('launchpad-tile-panel', {
 		 *
 		 * @return {void}
 		 *
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-can-open-its-app-in-a-panel-beside-the-tiles-req-tob-003
 		 */
 		close() {
 			const opener = this.opener

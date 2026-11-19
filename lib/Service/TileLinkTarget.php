@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 declare(strict_types=1);
@@ -29,7 +29,7 @@ use InvalidArgumentException;
 /**
  * Link-target values and their resolution (launcher-tile-open-behaviour D1, D2).
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 class TileLinkTarget {
 
@@ -66,7 +66,7 @@ class TileLinkTarget {
 	 *
 	 * @throws InvalidArgumentException When the value is not a link target.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public static function validated(mixed $value, string $field='linkTarget'): ?string {
 		if ($value === null || $value === '') {
@@ -93,7 +93,7 @@ class TileLinkTarget {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public static function resolve(?string $tileTarget, ?string $dashboardDefault, ?string $linkType): string {
 		foreach ([$tileTarget, $dashboardDefault] as $candidate) {

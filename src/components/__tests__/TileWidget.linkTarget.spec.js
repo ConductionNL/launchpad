@@ -4,7 +4,7 @@
  *
  * How TileWidget opens per link target (launcher-tile-open-behaviour D2, D3).
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { mount } from '@vue/test-utils'

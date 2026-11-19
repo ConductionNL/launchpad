@@ -11,7 +11,7 @@
  * instance without one the pack has no "New ..." tile and the creation test
  * is skipped with that reason; the refusal test runs everywhere.
  *
- * The add flow is opened through "More" → "Add app" (launchpad#1300).
+ * The add flow is opened through "More" → "Add widget".
  * Accounts are throwaway non-admin accounts logged in from an empty storage
  * state.
  *
@@ -24,14 +24,14 @@
 
 import type { APIRequestContext, Page } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { BASE_URL } from './support/baseUrl.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -53,13 +53,7 @@ let account: Account | null = null
  * @return the context; the caller disposes it.
  */
 async function apiAs(who?: Account): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: who
-			? { username: who.username, password: who.password }
-			: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return contextFor(who?.username ?? ADMIN.user, who?.password ?? ADMIN.pass)
 }
 
 /**
@@ -179,7 +173,7 @@ test('the pack is placed from the add flow and a document created twice gives tw
 		const more = page.locator(MORE_MENU)
 		await expect(more).toBeVisible({ timeout: 30_000 })
 		await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-		await page.locator('[data-testid="cn-grouped-menu-item-add-app"]').click()
+		await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
 		const picker = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(picker).toBeVisible({ timeout: 10_000 })
 		const placed = page.waitForResponse((res) =>

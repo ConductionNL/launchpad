@@ -225,7 +225,7 @@ class InitialStateBuilderTest extends TestCase {
 	/**
 	 * The tile editor gets the allowed schemes and the template names, never the template addresses.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 	 */
 	public function testTileLaunchOptionsLeaveTheTemplateAddressesOut(): void {
 		$sink = [];

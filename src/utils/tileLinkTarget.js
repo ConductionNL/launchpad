@@ -5,7 +5,7 @@
  * How a tile opens: same tab, new tab or the panel beside the tiles
  * (launcher-tile-open-behaviour D1, D2). Mirrors lib/Service/TileLinkTarget.php.
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 export const SAME_TAB = 'same-tab'
@@ -21,7 +21,7 @@ export const LINK_TARGETS = [SAME_TAB, NEW_TAB, SIDE_PANEL]
  * @param {string|null|undefined} value The value.
  * @return {boolean}
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-carries-its-own-link-target-req-tob-001
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-tile-carries-its-own-link-target-req-tob-001
  */
 export function isLinkTarget(value) {
 	return LINK_TARGETS.includes(value)
@@ -37,7 +37,7 @@ export function isLinkTarget(value) {
  * @param {string|null|undefined} linkType The tile's link type.
  * @return {string} The target.
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
  */
 export function resolveLinkTarget(tileTarget, dashboardDefault, linkType) {
 	if (isLinkTarget(tileTarget)) {
@@ -57,7 +57,7 @@ export function resolveLinkTarget(tileTarget, dashboardDefault, linkType) {
  * @param {string} [origin] The page origin (defaults to window.location.origin).
  * @return {boolean}
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-the-panel-only-frames-allowed-pages-req-tob-004
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-the-panel-only-frames-allowed-pages-req-tob-004
  */
 export function isSameOrigin(href, origin = window.location.origin) {
 	try {

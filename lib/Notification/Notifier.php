@@ -347,7 +347,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return NotificationCopy
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 	 */
 	private function appRequestedCopy(array $params, IL10N $l): NotificationCopy {
 		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
@@ -369,7 +369,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return NotificationCopy
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 	 */
 	private function appDecidedCopy(array $params, IL10N $l): NotificationCopy {
 		$name = (string)($params[0] ?? '');

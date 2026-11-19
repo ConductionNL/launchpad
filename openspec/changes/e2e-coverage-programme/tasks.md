@@ -94,6 +94,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
 - [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
+  - Spec written: tests/e2e/live-data-tile-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with a reason
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
 - [ ] 4.21 `label-widget`: 12 scenarios, 11 cited.
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.

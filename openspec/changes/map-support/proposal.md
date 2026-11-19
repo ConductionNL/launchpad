@@ -16,7 +16,7 @@ Map rendering is a contained UI surface that depends on geospatial data shipped 
 
 ## Approach
 
-- Leaflet 1.9 as the map library — lightweight, well-maintained, plays well with PDOK tile layers and Vue 2 via `vue2-leaflet`.
+- Leaflet 1.9 as the map library, bound to Vue through `@vue-leaflet/vue-leaflet` (the Vue 3 port, 0.10.1 on npm, MIT, peer `leaflet` ^1.6.0). LaunchPad is on Vue 3, so `vue2-leaflet` cannot be used (Ruben, 19 Nov 2026).
 - Default base layer: PDOK BRT achtergrondkaart (`https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0`).
 - Coordinate transformation (WGS84 ↔ EPSG:28992 RD) via `proj4` when widgets request RD-projected output.
 - Widget configuration UI: register/schema picker (reuse existing dashboard-widget config), spatial filter (none / bbox / drawn polygon), clustering threshold.

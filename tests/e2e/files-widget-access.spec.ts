@@ -20,7 +20,7 @@
  *   @e2e files-widget::config-for-upload-and-delete-permissions
  *   @e2e files-widget::user-cannot-read-folder
  *   @e2e files-widget::user-loses-permission-after-widget-creation
- *   @e2e files-widget::upload-delete-checks-at-action-time
+ *   @e2e files-widget::uploaddelete-checks-at-action-time
  *   @e2e files-widget::upload-button-hidden-when-not-allowed
  *   @e2e files-widget::delete-button-hidden-when-not-allowed
  *   @e2e files-widget::delete-on-permission-denied-folder
@@ -281,7 +281,7 @@ test('when the owner revokes read access, the next load answers 403 no_access an
 	await expect(widget.locator('.cn-files-widget__row')).toHaveCount(0)
 })
 
-// @e2e files-widget::upload-delete-checks-at-action-time
+// @e2e files-widget::uploaddelete-checks-at-action-time
 test('on a readable but read-only folder neither upload nor delete is offered, and a forced DELETE is 403', async ({ browser }) => {
 	const name = `readonly-${RUN}`
 	const dir = await adminFolder(name, ['kept.txt'])

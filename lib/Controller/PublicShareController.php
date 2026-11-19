@@ -94,7 +94,7 @@ class PublicShareController extends Controller {
 	 * @psalm-return DataResponse<Http::STATUS_CREATED, LaunchPadPublicShare, array<string, mixed>>|
 	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -134,7 +134,7 @@ class PublicShareController extends Controller {
 	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadPublicShare>, array<string, mixed>>|
 	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -171,7 +171,7 @@ class PublicShareController extends Controller {
 	 * @psalm-return DataResponse<Http::STATUS_NO_CONTENT, array{}, array<string, mixed>>|
 	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]

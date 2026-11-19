@@ -120,7 +120,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardList|list<LaunchPadDashboard>, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-17
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -156,7 +156,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardList|list<LaunchPadDashboard>, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboards/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -204,7 +204,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardEnvelope, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -274,7 +274,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardEnvelope, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-21
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -449,7 +449,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadCreatedDashboard, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
 	#[NoAdminRequired]
@@ -632,7 +632,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, array{dashboard: LaunchPadDashboard}, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
@@ -868,7 +868,7 @@ class DashboardApiController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-20
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { busDeclarationsOf, consumedFilter, withBusFilter } from '../widgetBusConsumption.js'
+import { busDeclarationsOf, consumedFilter, publishedClauses, withBusFilter } from '../widgetBusConsumption.js'
 
 describe('busDeclarationsOf', () => {
 	it('reads the declarations from the content, else from content.props, strings as dimensions', () => {
@@ -61,5 +61,22 @@ describe('withBusFilter', () => {
 		const source = { schema: 'zaak' }
 		expect(withBusFilter(source, {})).toBe(source)
 		expect(withBusFilter(null, { a: 1 })).toBeNull()
+	})
+})
+
+describe('publishedClauses (REQ-CWF-001)', () => {
+	it('publishes a widget click for each dimension published from the picked field', () => {
+		const publishes = [{ dimension: 'gemeenteCode', fromField: 'gemeente' }, { dimension: 'status', fromField: 'status' }, 'anyField']
+		expect(publishedClauses(publishes, { field: 'gemeente', value: 'GM0355' }, '7')).toEqual([
+			{ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355', source: 'widgetClick', sourceWidgetId: '7' },
+			{ dimension: 'anyField', operator: 'eq', value: 'GM0355', source: 'widgetClick', sourceWidgetId: '7' },
+		])
+	})
+
+	it('publishes nothing for an empty pick', () => {
+		const publishes = [{ dimension: 'gemeenteCode' }]
+		expect(publishedClauses(publishes, null, '7')).toEqual([])
+		expect(publishedClauses(publishes, { field: 'gemeente', value: '' }, '7')).toEqual([])
+		expect(publishedClauses(publishes, { field: 'gemeente', value: null }, '7')).toEqual([])
 	})
 })

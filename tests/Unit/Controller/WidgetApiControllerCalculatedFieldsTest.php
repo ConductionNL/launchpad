@@ -56,6 +56,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Save-time validation of calculated fields on the placement update endpoint.
@@ -150,18 +153,15 @@ class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 		$permissions->method('canStyleWidget')->willReturn(true);
 
 		return new WidgetApiController(
-			$request,
-			new WidgetApiSources(
+			request: $request,
+			sources: new WidgetApiSources(
 				$this->widgetService,
 				$this->createMock(NewsWidgetService::class),
 				$this->createMock(CalendarWidgetService::class),
 				$this->createMock(WidgetPlacementService::class)
 			),
-			$permissions,
-			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class)),
-			new RequestActor($session, $this->createMock(ActionAuthService::class)),
-			'alice',
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			access: new WidgetApiAccess(permissionService: $permissions, policy: new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class))),
+			context: new ActorResponses(actor: new RequestActor($session, $this->createMock(ActionAuthService::class)), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end controller()
 

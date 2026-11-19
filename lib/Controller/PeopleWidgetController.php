@@ -26,7 +26,6 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\AppFramework\Controller;
@@ -36,7 +35,6 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * REST controller exposing the paginated People widget directory.
@@ -49,20 +47,14 @@ class PeopleWidgetController extends Controller {
 	 *
 	 * @param IRequest $request HTTP request.
 	 * @param PeopleWidgetService $service People widget service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId Active user (null when anonymous).
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param ActorResponses $context Holds the actionAuth, userSession, userId and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly PeopleWidgetService $service,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly ?string $userId,
-		private readonly ResponseHelper $responseHelper,
+		private readonly ActorResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -109,17 +101,17 @@ class PeopleWidgetController extends Controller {
 		?int $offset = 0,
 		?string $q = null,
 	): JSONResponse {
-		if ($this->userId === null) {
+		if ($this->context->userId === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'people-widget.get-users');
+			$this->context->actor->actionAuth->requireAction($user, 'people-widget.get-users');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -150,7 +142,7 @@ class PeopleWidgetController extends Controller {
 			return $this->badRequest(exception: $e, message: 'Invalid request parameters');
 		}
 
-		return $this->responseHelper->success(data: $payload);
+		return $this->context->responseHelper->success(data: $payload);
 	}//end getUsers()
 
 	/**
@@ -164,7 +156,7 @@ class PeopleWidgetController extends Controller {
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function badRequest(InvalidArgumentException $exception, string $message): JSONResponse {
-		return $this->responseHelper->error(
+		return $this->context->responseHelper->error(
 			exception: $exception,
 			statusCode: Http::STATUS_BAD_REQUEST,
 			message: $message

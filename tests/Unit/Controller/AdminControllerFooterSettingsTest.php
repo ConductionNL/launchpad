@@ -42,6 +42,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerFooterSettingsTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -78,13 +79,12 @@ class AdminControllerFooterSettingsTest extends TestCase {
 				footerService: $this->footerService,
 				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			caller: new AdminCallerAndRoles(
+			context: new AdminContext(caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
 				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			),
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}
 

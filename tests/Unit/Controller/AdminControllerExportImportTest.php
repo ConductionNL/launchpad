@@ -41,6 +41,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerExportImportTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -93,13 +94,12 @@ class AdminControllerExportImportTest extends TestCase {
 				footerService: $this->footerService,
 				setupWizardService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			caller: new AdminCallerAndRoles(
+			context: new AdminContext(caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\RoleService::class),
 				feedRefresh: $this->createMock(originalClassName: \OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(originalClassName: \OCA\LaunchPad\Service\ActionAuthService::class)
-			),
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}
 

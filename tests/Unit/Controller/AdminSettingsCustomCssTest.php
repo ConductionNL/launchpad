@@ -38,6 +38,8 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminSettingsContext;
+use OCA\LaunchPad\Controller\AdminSettingsSources;
 
 #[CoversClass(AdminSettingsController::class)]
 #[UsesClass(RequestGuard::class)]
@@ -62,15 +64,13 @@ class AdminSettingsCustomCssTest extends TestCase {
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->controller   = new AdminSettingsController(
 			request: $this->createMock(IRequest::class),
-			settingsService: $this->createMock(AdminSettingsService::class),
 			guard: new RequestGuard(
 				userSession: $this->userSession,
 				groupManager: $this->groupManager,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			shortcuts: $this->createMock(SearchShortcutServiceInterface::class),
-			css: $this->css,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			sources: new AdminSettingsSources(settingsService: $this->createMock(AdminSettingsService::class), shortcuts: $this->createMock(SearchShortcutServiceInterface::class)),
+			context: new AdminSettingsContext(css: $this->css, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}
 

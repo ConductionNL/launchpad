@@ -37,6 +37,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 /**
  * The template patch of updateTemplate(), case by case.
@@ -77,13 +78,12 @@ class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
 				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			caller: new AdminCallerAndRoles(
+			context: new AdminContext(caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
 				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->createMock(IUserSession::class),
 				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
-			),
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end controller()
 

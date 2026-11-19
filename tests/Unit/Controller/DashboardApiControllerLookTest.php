@@ -40,6 +40,9 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * The look on the update route: it needs the layout permission, and a pale accent answers 400 with the ratio.
@@ -140,16 +143,13 @@ class DashboardApiControllerLookTest extends TestCase {
 		return new DashboardApiController(
 			request: $request,
 			services: new DashboardApiServices(dashboardService: $service),
-			permissionService: $permissions,
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(userSession: $session, actionAuth: $actionAuth),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			)),
+			context: new ActorResponses(actor: new RequestActor(userSession: $session, actionAuth: $actionAuth), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end controller()
 

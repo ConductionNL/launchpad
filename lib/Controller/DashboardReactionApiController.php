@@ -64,8 +64,7 @@ class DashboardReactionApiController extends Controller {
 	 * @param IRequest      $request The request.
 	 * @param ReactionTools $reactions The reaction service and logger.
 	 * @param ActionCaller  $caller The session and the action check.
-	 * @param string|null   $userId The acting user ID.
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -73,8 +72,7 @@ class DashboardReactionApiController extends Controller {
 		IRequest $request,
 		private readonly ReactionTools $reactions,
 		private readonly ActionCaller $caller,
-		private readonly ?string $userId,
-		private readonly ResponseHelper $responseHelper,
+		private readonly UserResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -102,13 +100,13 @@ class DashboardReactionApiController extends Controller {
 		try {
 			$summary = $this->reactions->reactionService->getReactionsSummary(
 				dashboardUuid: $uuid,
-				userId: $this->userId
+				userId: $this->context->userId
 			);
 		} catch (Throwable $e) {
 			return $this->reactionFailure(exception: $e, operation: 'getReactions');
 		}
 
-		return $this->responseHelper->success(data: $summary);
+		return $this->context->responseHelper->success(data: $summary);
 	}//end getReactions()
 
 	/**
@@ -136,14 +134,14 @@ class DashboardReactionApiController extends Controller {
 		try {
 			$summary = $this->reactions->reactionService->addReaction(
 				dashboardUuid: $uuid,
-				userId: $this->userId,
+				userId: $this->context->userId,
 				emoji: $emoji
 			);
 		} catch (Throwable $e) {
 			return $this->addFailure(exception: $e);
 		}
 
-		return $this->responseHelper->success(data: $summary);
+		return $this->context->responseHelper->success(data: $summary);
 	}//end addReaction()
 
 	/**
@@ -156,6 +154,7 @@ class DashboardReactionApiController extends Controller {
 	 * @return JSONResponse Empty 204 response.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function removeReaction(string $uuid, string $emoji): JSONResponse {
@@ -169,7 +168,7 @@ class DashboardReactionApiController extends Controller {
 		try {
 			$this->reactions->reactionService->removeReaction(
 				dashboardUuid: $uuid,
-				userId: $this->userId,
+				userId: $this->context->userId,
 				emoji: $emoji
 			);
 		} catch (Throwable $e) {
@@ -215,14 +214,14 @@ class DashboardReactionApiController extends Controller {
 			$page = $this->reactions->reactionService->getReactorsByEmoji(
 				dashboardUuid: $uuid,
 				emoji: $emoji,
-				userId: $this->userId,
+				userId: $this->context->userId,
 				cursor: $cursor
 			);
 		} catch (Throwable $e) {
 			return $this->reactionFailure(exception: $e, operation: 'getReactorsByEmoji');
 		}
 
-		return $this->responseHelper->success(data: $page);
+		return $this->context->responseHelper->success(data: $page);
 	}//end getReactorsByEmoji()
 
 	/**
@@ -260,7 +259,7 @@ class DashboardReactionApiController extends Controller {
 		}
 
 		if ($exception instanceof PermissionDeniedException) {
-			return $this->responseHelper->forbidden(message: $exception->getMessage());
+			return $this->context->responseHelper->forbidden(message: $exception->getMessage());
 		}
 
 		$this->reactions->logger->error(
@@ -287,7 +286,7 @@ class DashboardReactionApiController extends Controller {
 		}
 
 		if ($exception instanceof ReactionsDisabledException) {
-			return $this->responseHelper->forbidden(message: $exception->getMessage());
+			return $this->context->responseHelper->forbidden(message: $exception->getMessage());
 		}
 
 		if ($exception instanceof InvalidArgumentException) {

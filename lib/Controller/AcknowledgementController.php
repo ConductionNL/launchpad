@@ -57,8 +57,7 @@ class AcknowledgementController extends Controller {
 	 * @param IRequest             $request The request.
 	 * @param AcknowledgementTools $tools The acknowledgement and role services and the logger.
 	 * @param IGroupManager        $groupManager NC admin check.
-	 * @param string|null          $userId Acting user ID.
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param UserResponses $context Holds the userId and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -66,8 +65,7 @@ class AcknowledgementController extends Controller {
 		IRequest $request,
 		private readonly AcknowledgementTools $tools,
 		private readonly IGroupManager $groupManager,
-		private readonly ?string $userId,
-		private readonly ResponseHelper $responseHelper,
+		private readonly UserResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -84,8 +82,8 @@ class AcknowledgementController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function acknowledge(): JSONResponse {
-		if ($this->userId === null) {
-			return $this->responseHelper->unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		$announcementKey = (string)$this->request->getParam(key: 'announcementKey', default: '');
@@ -93,7 +91,7 @@ class AcknowledgementController extends Controller {
 			return $this->failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$refusal = $this->refuseForeignUser() ?? $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->userId);
+		$refusal = $this->refuseForeignUser() ?? $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->context->userId);
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -108,14 +106,14 @@ class AcknowledgementController extends Controller {
 		try {
 			$receipt = $this->tools->acknowledgements->acknowledge(
 				announcementKey: $announcementKey,
-				userId: $this->userId,
+				userId: $this->context->userId,
 				contentVersion: $contentVersion
 			);
 		} catch (Throwable $e) {
 			return $this->loggedFailure(exception: $e, operation: 'acknowledge');
 		}
 
-		return $this->responseHelper->success(data: $receipt->jsonSerialize());
+		return $this->context->responseHelper->success(data: $receipt->jsonSerialize());
 	}//end acknowledge()
 
 	/**
@@ -129,8 +127,8 @@ class AcknowledgementController extends Controller {
 	 */
 	private function refuseForeignUser(): JSONResponse|null {
 		$bodyUserId = $this->request->getParam(key: 'userId');
-		if ($bodyUserId !== null && (string)$bodyUserId !== $this->userId) {
-			return $this->responseHelper->forbidden(
+		if ($bodyUserId !== null && (string)$bodyUserId !== $this->context->userId) {
+			return $this->context->responseHelper->forbidden(
 				message: 'Cannot acknowledge on behalf of another user'
 			);
 		}
@@ -202,7 +200,7 @@ class AcknowledgementController extends Controller {
 	 */
 	private function denyOutsideAudience(string $announcementKey, string $userId): ?JSONResponse {
 		if ($this->tools->acknowledgements->isAllowedToAcknowledge(announcementKey: $announcementKey, userId: $userId) === false) {
-			return $this->responseHelper->forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'This announcement is not addressed to you'
 			);
 		}
@@ -226,9 +224,9 @@ class AcknowledgementController extends Controller {
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function rejectUnpublishedVersion(string $announcementKey, int $contentVersion): ?JSONResponse {
-		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->userId);
+		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->context->userId);
 		if ($current === null || $contentVersion > $current) {
-			return $this->responseHelper->invalidArgument(
+			return $this->context->responseHelper->invalidArgument(
 				message: 'contentVersion is not a published version of this announcement'
 			);
 		}
@@ -247,17 +245,17 @@ class AcknowledgementController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function pending(): JSONResponse {
-		if ($this->userId === null) {
-			return $this->responseHelper->unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
-			$result = $this->tools->acknowledgements->getPending(userId: $this->userId);
+			$result = $this->tools->acknowledgements->getPending(userId: $this->context->userId);
 		} catch (Throwable $e) {
 			return $this->loggedFailure(exception: $e, operation: 'pending');
 		}
 
-		return $this->responseHelper->success(data: $result);
+		return $this->context->responseHelper->success(data: $result);
 	}//end pending()
 
 	/**
@@ -274,12 +272,12 @@ class AcknowledgementController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function report(string $announcementKey): JSONResponse {
-		if ($this->userId === null) {
-			return $this->responseHelper->unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		if ($this->isManager(announcementKey: $announcementKey) === false) {
-			return $this->responseHelper->forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Only an admin or the template owner may read this report'
 			);
 		}
@@ -289,7 +287,7 @@ class AcknowledgementController extends Controller {
 			return $report;
 		}
 
-		return $this->responseHelper->success(data: $report);
+		return $this->context->responseHelper->success(data: $report);
 	}//end report()
 
 	/**
@@ -307,12 +305,12 @@ class AcknowledgementController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function reportCsv(string $announcementKey) {
-		if ($this->userId === null) {
-			return $this->responseHelper->unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		if ($this->isManager(announcementKey: $announcementKey) === false) {
-			return $this->responseHelper->forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Only an admin or the template owner may export this report'
 			);
 		}
@@ -376,17 +374,19 @@ class AcknowledgementController extends Controller {
 	 * @param string $announcementKey The announcement identity.
 	 *
 	 * @return bool True when authorized.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function isManager(string $announcementKey): bool {
-		if ($this->userId === null) {
+		if ($this->context->userId === null) {
 			return false;
 		}
 
-		if ($this->groupManager->isAdmin(userId: $this->userId) === true) {
+		if ($this->groupManager->isAdmin(userId: $this->context->userId) === true) {
 			return true;
 		}
 
-		if ($this->tools->roleService->isAdmin(userId: $this->userId) === true) {
+		if ($this->tools->roleService->isAdmin(userId: $this->context->userId) === true) {
 			return true;
 		}
 
@@ -394,6 +394,6 @@ class AcknowledgementController extends Controller {
 			announcementKey: $announcementKey
 		);
 
-		return $owner !== null && $owner === $this->userId;
+		return $owner !== null && $owner === $this->context->userId;
 	}//end isManager()
 }//end class

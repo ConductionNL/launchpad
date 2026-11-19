@@ -35,6 +35,16 @@ use ReflectionNamedType;
 use Throwable;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\CallerResponses;
+use OCA\LaunchPad\Controller\AdminContext;
+use OCA\LaunchPad\Controller\AdminSettingsSources;
+use OCA\LaunchPad\Controller\AdminSettingsContext;
+use OCA\LaunchPad\Controller\AnalyticsContext;
+use OCA\LaunchPad\Controller\TileAnalyticsContext;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Refused and allowed outcomes of the dashboard API caller guard.
@@ -160,18 +170,23 @@ class DashboardApiControllerGuardGoldenTest extends TestCase {
 			}
 		);
 
-		$args = [];
-		foreach ((new ReflectionClass(DashboardApiController::class))->getConstructor()->getParameters() as $param) {
-			$type   = $param->getType();
-			$name   = ($type instanceof ReflectionNamedType) ? $type->getName() : 'mixed';
-			$args[] = match (true) {
-				$param->getName() === 'userId' => ($scenario === 'no user id') ? null : 'alice',
-				$name === RequestActor::class => new RequestActor(userSession: $session, actionAuth: $auth),
-				$name === ResponseHelper::class => new ResponseHelper(logger: new NullLogger()),
-				default => $this->createMock($name),
-			};
-		}
+		$build = function (string $target) use (&$build, $session, $auth, $scenario): object {
+			$args = [];
+			foreach ((new ReflectionClass($target))->getConstructor()->getParameters() as $param) {
+				$type   = $param->getType();
+				$name   = ($type instanceof ReflectionNamedType) ? $type->getName() : 'mixed';
+				$args[] = match (true) {
+					$param->getName() === 'userId' => ($scenario === 'no user id') ? null : 'alice',
+					$name === RequestActor::class => new RequestActor(userSession: $session, actionAuth: $auth),
+					$name === ResponseHelper::class => new ResponseHelper(logger: new NullLogger()),
+					in_array($name, [UserResponses::class, ActorResponses::class, CallerResponses::class, AdminContext::class, AdminSettingsSources::class, AdminSettingsContext::class, AnalyticsContext::class, TileAnalyticsContext::class, DashboardApiAccess::class, WidgetApiAccess::class], true) => $build($name),
+					default => $this->createMock($name),
+				};
+			}
 
-		return new DashboardApiController(...$args);
+			return new $target(...$args);
+		};
+
+		return $build(DashboardApiController::class);
 	}//end controller()
 }//end class

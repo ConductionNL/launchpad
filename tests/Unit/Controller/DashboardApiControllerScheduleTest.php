@@ -37,6 +37,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 class DashboardApiControllerScheduleTest extends TestCase {
 	private $dashboardService;
@@ -53,19 +56,16 @@ class DashboardApiControllerScheduleTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->dashboardService
 			),
-			permissionService: $this->createMock(PermissionService::class),
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			),
-			userId: 'sanne',
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: 'sanne', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}
 

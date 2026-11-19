@@ -40,6 +40,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * @covers \OCA\LaunchPad\Controller\BookmarkImportController
@@ -84,12 +86,10 @@ class BookmarkImportControllerTest extends TestCase {
 		$this->session->method('getUser')->willReturn($this->createMock(IUser::class));
 		$this->request->method('getParam')->willReturnCallback(static fn (string $key, $default = null) => ($body[$key] ?? $default));
 		return new BookmarkImportController(
-			$this->request,
-			$this->widgetService,
-			$this->permissions,
-			new RequestActor($this->session, $this->actionAuth),
-			'pieter',
-			responseHelper: new ResponseHelper(logger: new NullLogger())
+			request: $this->request,
+			widgetService: $this->widgetService,
+			permissionService: $this->permissions,
+			context: new ActorResponses(actor: new RequestActor($this->session, $this->actionAuth), responses: new UserResponses(userId: 'pieter', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end controller()
 
@@ -114,12 +114,10 @@ class BookmarkImportControllerTest extends TestCase {
 		$this->session->method('getUser')->willReturn(null);
 		$this->widgetService->expects(self::never())->method('importBookmarks');
 		$controller = new BookmarkImportController(
-			$this->request,
-			$this->widgetService,
-			$this->permissions,
-			new RequestActor($this->session, $this->actionAuth),
-			null,
-			responseHelper: new ResponseHelper(logger: new NullLogger())
+			request: $this->request,
+			widgetService: $this->widgetService,
+			permissionService: $this->permissions,
+			context: new ActorResponses(actor: new RequestActor($this->session, $this->actionAuth), responses: new UserResponses(userId: null, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 
 		self::assertSame(401, $controller->import(dashboardId: 3)->getStatus());

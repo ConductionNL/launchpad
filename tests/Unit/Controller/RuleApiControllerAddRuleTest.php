@@ -33,6 +33,8 @@ use RuntimeException;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use OCA\LaunchPad\Controller\ActionCaller;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\CallerResponses;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * @covers \OCA\LaunchPad\Controller\RuleApiController
@@ -65,9 +67,7 @@ class RuleApiControllerAddRuleTest extends TestCase {
 			request: $this->createMock(IRequest::class),
 			conditionalService: $this->rules,
 			permissionService: $this->permissions,
-			caller: new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->session),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			context: new CallerResponses(caller: new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->session), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}
 

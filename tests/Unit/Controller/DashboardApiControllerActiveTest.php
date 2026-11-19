@@ -39,6 +39,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Unit tests for the setActiveDashboard controller action (REQ-DASH-019).
@@ -92,19 +95,16 @@ class DashboardApiControllerActiveTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->dashboardService
 			),
-			permissionService: $this->permissionService,
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				treeService: $this->treeService,
 				versionService: $this->versionService,
 				analyticsService: $this->analyticsService,
 				logger: $this->logger
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 

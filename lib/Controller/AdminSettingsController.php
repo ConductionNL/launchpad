@@ -46,9 +46,6 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
-use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -69,21 +66,17 @@ class AdminSettingsController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param AdminSettingsService $settingsService Persisted-settings service.
 	 * @param RequestGuard $guard The session and administrator check.
-	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
-	 * @param CustomCssService $css Stores the cleaned administrator CSS.
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param AdminSettingsSources $sources Holds the settingsService and shortcuts.
+	 * @param AdminSettingsContext $context Holds the css and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AdminSettingsService $settingsService,
 		private readonly RequestGuard $guard,
-		private readonly SearchShortcutServiceInterface $shortcuts,
-		private readonly CustomCssService $css,
-		private readonly ResponseHelper $responseHelper,
+		private readonly AdminSettingsSources $sources,
+		private readonly AdminSettingsContext $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -115,9 +108,9 @@ class AdminSettingsController extends Controller {
 		}
 
 		$allKnown = $this->knownGroups();
-		$active = $this->settingsService->getGroupOrder();
+		$active = $this->sources->settingsService->getGroupOrder();
 
-		return $this->responseHelper->success(
+		return $this->context->responseHelper->success(
 			data: [
 				'active' => $active,
 				'inactive' => self::inactiveGroups(allKnown: $allKnown, active: $active),
@@ -211,15 +204,15 @@ class AdminSettingsController extends Controller {
 		}
 
 		try {
-			$this->settingsService->setGroupOrder(groupIds: $groups);
+			$this->sources->settingsService->setGroupOrder(groupIds: $groups);
 		} catch (InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		return $this->responseHelper->success(
+		return $this->context->responseHelper->success(
 			data: [
 				'status' => 'ok',
-				'groupOrder' => $this->settingsService->getGroupOrder(),
+				'groupOrder' => $this->sources->settingsService->getGroupOrder(),
 			]
 		);
 	}//end updateGroupOrder()
@@ -231,6 +224,7 @@ class AdminSettingsController extends Controller {
 	 *                      non-administrator or a denied ADR-023 action.
 	 *
 	 * @spec openspec/specs/tile-quick-search/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listSearchShortcuts(): JSONResponse {
@@ -239,7 +233,7 @@ class AdminSettingsController extends Controller {
 			return $refused;
 		}
 
-		return new JSONResponse(data: ['shortcuts' => $this->shortcuts->getShortcuts()]);
+		return new JSONResponse(data: ['shortcuts' => $this->sources->shortcuts->getShortcuts()]);
 	}//end listSearchShortcuts()
 
 	/**
@@ -250,6 +244,7 @@ class AdminSettingsController extends Controller {
 	 * @return JSONResponse `{shortcuts: [...]}`, 400, 401 or 403.
 	 *
 	 * @spec openspec/specs/tile-quick-search/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function saveSearchShortcuts(?array $shortcuts = null): JSONResponse {
@@ -259,7 +254,7 @@ class AdminSettingsController extends Controller {
 		}
 
 		try {
-			$saved = $this->shortcuts->saveShortcuts(raw: ($shortcuts ?? []));
+			$saved = $this->sources->shortcuts->saveShortcuts(raw: ($shortcuts ?? []));
 		} catch (InvalidArgumentException $e) {
 			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
 		}
@@ -282,7 +277,7 @@ class AdminSettingsController extends Controller {
 			return $refusal;
 		}
 
-		return $this->responseHelper->success(data: ['customCss' => $this->css->getGlobalCss()]);
+		return $this->context->responseHelper->success(data: ['customCss' => $this->context->css->getGlobalCss()]);
 	}//end showCustomCss()
 
 	/**
@@ -308,7 +303,7 @@ class AdminSettingsController extends Controller {
 		}
 
 		try {
-			return $this->responseHelper->success(data: $this->css->setGlobalCss(css: $customCss));
+			return $this->context->responseHelper->success(data: $this->context->css->setGlobalCss(css: $customCss));
 		} catch (InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
@@ -339,7 +334,7 @@ class AdminSettingsController extends Controller {
 		}
 
 		try {
-			return $this->responseHelper->success(data: $this->css->setDashboardCss(uuid: $uuid, css: $customCss));
+			return $this->context->responseHelper->success(data: $this->context->css->setDashboardCss(uuid: $uuid, css: $customCss));
 		} catch (DoesNotExistException) {
 			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
@@ -367,6 +362,6 @@ class AdminSettingsController extends Controller {
 			return $refusal;
 		}
 
-		return $this->responseHelper->forbidden();
+		return $this->context->responseHelper->forbidden();
 	}//end assertAdmin()
 }//end class

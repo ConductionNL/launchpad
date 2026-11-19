@@ -60,6 +60,9 @@ use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * The create paths' rows, case by case.
@@ -229,19 +232,16 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->service()
 			),
-			permissionService: $permissions,
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			),
-			userId: 'alice',
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end controller()
 

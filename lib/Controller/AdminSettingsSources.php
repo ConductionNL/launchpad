@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * AdminSettingsSources
+ *
+ * Collaborators AdminSettingsController takes as one value, so its constructor stays small.
+ *
+ * @category  Controller
+ * @package   OCA\LaunchPad\Controller
+ * @author    Conduction b.v. <info@conduction.nl>
+ * @copyright 2026 Conduction b.v.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @version   GIT:auto
+ * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+ */
+
+declare(strict_types=1);
+
+namespace OCA\LaunchPad\Controller;
+
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
+
+/**
+ * Collaborators AdminSettingsController takes as one value.
+ */
+class AdminSettingsSources {
+	/**
+	 * Constructor.
+	 *
+	 * @param AdminSettingsService           $settingsService Persisted-settings service.
+	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
+	 */
+	public function __construct(
+		public readonly AdminSettingsService $settingsService,
+		public readonly SearchShortcutServiceInterface $shortcuts,
+	) {
+	}//end __construct()
+}//end class

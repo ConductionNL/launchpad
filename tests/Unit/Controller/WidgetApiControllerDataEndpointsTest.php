@@ -64,6 +64,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Contract tests for newsItems, calendarEvents and calendars.
@@ -161,17 +164,14 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 				calendarService: $this->calendarService,
 				placementService: $this->createMock(WidgetPlacementService::class)
 			),
-			permissionService: $this->permissionService,
-			policy: new WidgetApiPolicy(
+			access: new WidgetApiAccess(permissionService: $this->permissionService, policy: new WidgetApiPolicy(
 				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 
 	}//end makeController()

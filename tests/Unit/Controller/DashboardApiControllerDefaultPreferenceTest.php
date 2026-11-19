@@ -48,6 +48,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Contract tests for the default-dashboard pin endpoints.
@@ -118,19 +121,16 @@ class DashboardApiControllerDefaultPreferenceTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->dashboardService
 			),
-			permissionService: $this->createMock(PermissionService::class),
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 
 	}//end makeController()

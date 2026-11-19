@@ -48,9 +48,7 @@ class BookmarkImportController extends Controller {
 	 * @param IRequest          $request           The request.
 	 * @param WidgetService     $widgetService     Creates the placements.
 	 * @param PermissionService $permissionService Whether the user may add to the dashboard.
-	 * @param RequestActor      $actor             The session and the action check.
-	 * @param string|null       $userId            The current user ID.
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -58,9 +56,7 @@ class BookmarkImportController extends Controller {
 		IRequest $request,
 		private readonly WidgetService $widgetService,
 		private readonly PermissionService $permissionService,
-		private readonly RequestActor $actor,
-		private readonly ?string $userId,
-		private readonly ResponseHelper $responseHelper,
+		private readonly ActorResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -81,15 +77,15 @@ class BookmarkImportController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function import(int $dashboardId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null || $this->userId === null) {
-			return $this->responseHelper->unauthorized();
+		$user = $this->context->actor->userSession->getUser();
+		if ($user === null || $this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.import-bookmarks');
+		$this->context->actor->actionAuth->requireAction($user, 'widget.import-bookmarks');
 
-		if ($this->permissionService->canAddWidget(userId: $this->userId, dashboardId: $dashboardId) === false) {
-			return $this->responseHelper->forbidden();
+		if ($this->permissionService->canAddWidget(userId: $this->context->userId, dashboardId: $dashboardId) === false) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
@@ -99,16 +95,16 @@ class BookmarkImportController extends Controller {
 			);
 			$created = $this->widgetService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
 		} catch (InvalidArgumentException $e) {
-			return $this->responseHelper->invalidArgument(message: $e->getMessage());
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
 		} catch (QuotaExceededException $e) {
-			return $this->responseHelper->quotaExceeded(exception: $e);
+			return $this->context->responseHelper->quotaExceeded(exception: $e);
 		} catch (\Exception $e) {
-			return $this->responseHelper->error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 
-		return $this->responseHelper->success(
+		return $this->context->responseHelper->success(
 			data: [
-				'placements' => $this->responseHelper->serializeList(entities: $created),
+				'placements' => $this->context->responseHelper->serializeList(entities: $created),
 				'skipped' => $plan->skipped(),
 			],
 			statusCode: 201

@@ -40,6 +40,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Unit tests for the canonical-path lookup endpoint.
@@ -82,19 +85,16 @@ class DashboardApiControllerComputePathTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->createMock(originalClassName: DashboardService::class)
 			),
-			permissionService: $this->createMock(originalClassName: PermissionService::class),
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
 				treeService: $this->treeService,
 				versionService: $this->createMock(originalClassName: DashboardVersionService::class),
 				analyticsService: $this->createMock(originalClassName: AnalyticsService::class),
 				logger: $this->createMock(originalClassName: LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
-			),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 

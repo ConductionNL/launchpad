@@ -28,6 +28,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Which language variant a dashboard is shown in, and what the response tells the client.
@@ -103,8 +104,7 @@ class DashboardTranslationApiControllerResolvedTest extends TestCase {
 			request: $this->request,
 			translations: new TranslationSources(dashboardMapper: $this->dashboards, translationService: $this->translations),
 			caller: new ActionCaller(actionAuth: $this->createMock(ActionAuthService::class), userSession: $session),
-			userId: 'alice',
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			context: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end controller()
 

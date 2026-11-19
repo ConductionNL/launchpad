@@ -47,7 +47,6 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin-only controller for dashboard view-analytics endpoints.
@@ -63,8 +62,7 @@ class AnalyticsController extends Controller {
 	 * @param IRequest $request The HTTP request.
 	 * @param AnalyticsServiceInterface $analyticsService The analytics reporting service.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession Current user session.
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param AnalyticsContext $context Holds the userSession and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -72,8 +70,7 @@ class AnalyticsController extends Controller {
 		IRequest $request,
 		private readonly AnalyticsServiceInterface $analyticsService,
 		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly ResponseHelper $responseHelper,
+		private readonly AnalyticsContext $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -108,7 +105,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return $this->responseHelper->success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end topDashboards()
 
 	/**
@@ -144,7 +141,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}//end try
 
-		return $this->responseHelper->success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end dashboardDetail()
 
 	/**
@@ -172,7 +169,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return $this->responseHelper->success(data: $summary);
+		return $this->context->responseHelper->success(data: $summary);
 	}//end instanceSummary()
 
 	/**
@@ -216,9 +213,11 @@ class AnalyticsController extends Controller {
 	 * @param string $action The action identifier to require.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		$check = new SessionActionCheck(userSession: $this->userSession, actionAuth: $this->actionAuth);
+		$check = new SessionActionCheck(userSession: $this->context->userSession, actionAuth: $this->actionAuth);
 		return $check->refusal(action: $action);
 	}//end actionRefusal()
 }//end class

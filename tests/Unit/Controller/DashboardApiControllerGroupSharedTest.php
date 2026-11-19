@@ -42,6 +42,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Tests for the group-scoped controller actions (REQ-DASH-011, REQ-DASH-013, REQ-DASH-014).
@@ -130,19 +133,16 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 			services: new DashboardApiServices(
 				dashboardService: $this->dashboardService
 			),
-			permissionService: $this->permissionService,
-			history: new DashboardApiHistory(
+			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				treeService: $this->treeService,
 				versionService: $this->versionService,
 				analyticsService: $this->analyticsService,
 				logger: $this->logger
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			),
-			userId: $userId,
-			responseHelper: new ResponseHelper(logger: new NullLogger()),
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 

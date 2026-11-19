@@ -38,9 +38,7 @@ class RuleApiController extends Controller {
 	 * @param IRequest $request The request.
 	 * @param ConditionalServiceInterface $conditionalService The conditional service.
 	 * @param PermissionService $permissionService The permission service.
-	 * @param ActionCaller $caller The session user and the ADR-023 action check.
-	 * @param string|null $userId The user ID.
-	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 * @param CallerResponses $context Holds the caller, userId and responseHelper.
 	 *
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -48,9 +46,7 @@ class RuleApiController extends Controller {
 		IRequest $request,
 		private readonly ConditionalServiceInterface $conditionalService,
 		private readonly PermissionService $permissionService,
-		private readonly ActionCaller $caller,
-		private readonly ?string $userId,
-		private readonly ResponseHelper $responseHelper,
+		private readonly CallerResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -74,7 +70,7 @@ class RuleApiController extends Controller {
 
 		try {
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $placementId
 			);
 			$rules = $this->conditionalService->getRules(
@@ -82,17 +78,17 @@ class RuleApiController extends Controller {
 			);
 			$isVisible = $this->conditionalService->checkRulesForPlacement(
 				placementId: $placementId,
-				userId: $this->userId
+				userId: $this->context->userId
 			);
 
-			return $this->responseHelper->success(
+			return $this->context->responseHelper->success(
 				data: [
-					'rules' => $this->responseHelper->serializeList(entities: $rules),
+					'rules' => $this->context->responseHelper->serializeList(entities: $rules),
 					'isVisible' => $isVisible,
 				]
 			);
 		} catch (\Exception $e) {
-			return $this->responseHelper->error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end getRules()
 
@@ -125,7 +121,7 @@ class RuleApiController extends Controller {
 		// 400 instead of a TypeError 500 from the dispatcher. Mirrors the
 		// hardening on WidgetApiController::addWidget.
 		if ($ruleType === null || $ruleType === '') {
-			return $this->responseHelper->error(
+			return $this->context->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: ruleType'
 				),
@@ -134,7 +130,7 @@ class RuleApiController extends Controller {
 		}
 
 		if ($ruleConfig === null) {
-			return $this->responseHelper->error(
+			return $this->context->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: ruleConfig'
 				),
@@ -144,7 +140,7 @@ class RuleApiController extends Controller {
 
 		try {
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $placementId
 			);
 			$rule = $this->conditionalService->addRule(
@@ -154,12 +150,12 @@ class RuleApiController extends Controller {
 				isInclude: $isInclude
 			);
 
-			return $this->responseHelper->success(
+			return $this->context->responseHelper->success(
 				data: $rule->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (\Exception $e) {
-			return $this->responseHelper->error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end addRule()
 
@@ -199,7 +195,7 @@ class RuleApiController extends Controller {
 			// the caller owns that placement before applying any update.
 			$rule = $this->conditionalService->findRule(ruleId: $ruleId);
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $rule->getWidgetPlacementId()
 			);
 
@@ -214,11 +210,11 @@ class RuleApiController extends Controller {
 				data: $data
 			);
 
-			return $this->responseHelper->success(
+			return $this->context->responseHelper->success(
 				data: $rule->jsonSerialize()
 			);
 		} catch (\Exception $e) {
-			return $this->responseHelper->error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end updateRule()
 
@@ -250,15 +246,15 @@ class RuleApiController extends Controller {
 			// the caller owns that placement before deleting.
 			$rule = $this->conditionalService->findRule(ruleId: $ruleId);
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $rule->getWidgetPlacementId()
 			);
 
 			$this->conditionalService->deleteRule(ruleId: $ruleId);
 
-			return $this->responseHelper->success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
 		} catch (\Exception $e) {
-			return $this->responseHelper->error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end deleteRule()
 
@@ -304,6 +300,6 @@ class RuleApiController extends Controller {
 	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		return $this->caller->refusal(userId: $this->userId, action: $action);
+		return $this->context->caller->refusal(userId: $this->context->userId, action: $action);
 	}//end actionRefusal()
 }//end class

@@ -35,20 +35,28 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 2.1 `dashboard-bulk-operations`: 50 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-bulk-operations.spec.ts, tests/e2e/dashboard-bulk-operations-ui.spec.ts, 44 scenarios cited, not yet run (cloud, 2026-11-19). 6 excluded with a reason.
+  - Run 19 Nov (live pass, NC 34.0.6 + OpenRegister 2.2.0-dev): `dashboard-bulk-operations.spec.ts` green after the non-admin refusal was aligned with the framework (Nextcloud's admin-setting check answers 403 before LaunchPad's message; spec scenario amended). `dashboard-bulk-operations-ui.spec.ts`: the header-checkbox test does not find its seeded rows in the bulk table; open.
 - [ ] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
+  - Run 19 Nov: 33 of 37 green. Open, decision: the spec wants `{status:'error', error:'forbidden'}` for a non-admin and 403 for an anonymous caller, but `#[AuthorizedAdminSetting]` lets Nextcloud answer first (403 with its own body, 401 for anonymous).
 - [ ] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-versioning.spec.ts, tests/e2e/dashboard-versioning-ui.spec.ts, 29 scenarios cited, not yet run (cloud, 2026-11-19). 14 excluded with a reason.
+  - Run 19 Nov: 2 app defects fixed (#1430: restore of calculatedFields; seeded widgets now cleared by the spec). Open, decisions: REQ-VERS-002..005 say owner and admin, `lib/actions.seed.json` grants `dashboard-version.*` to admin only; the scenarios "Automatic snapshot on PUT" (state before the update) and "Snapshot captures full state" (the new metadata as persisted) contradict each other; the code takes the state after.
 - [ ] 2.4 `orphaned-data-cleanup`: 36 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/orphaned-data-cleanup.spec.ts, 13 scenarios cited, not yet run (cloud, 2026-11-19). 23 excluded with a reason.
-- [ ] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.
-  - Spec written: tests/e2e/dashboard-cascade-events.spec.ts, 9 scenarios cited (8 new), not yet run (cloud, 2026-11-19). 26 excluded with a reason.
+  - Run 19 Nov: 12 of 13 green. Open, decision: an unauthenticated scan gets Nextcloud's 401, the spec says 403.
+- [x] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.
+  - Spec written: tests/e2e/dashboard-cascade-events.spec.ts, 9 scenarios cited (8 new) (cloud, 2026-11-19). 26 excluded with a reason.
+  - Run 19 Nov (live pass, NC 34.0.6 + OpenRegister 2.2.0-dev): `dashboard-cascade-events.spec.ts` green, after the spec cleared the seeded default widgets before counting placements and the non-cascade refusal was aligned with REQ-DASH-030 (409; scenario amended).
 - [ ] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-locking.spec.ts, 17 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
+  - Run 19 Nov: 3 red. Open, decisions: an administrator may not acquire the lock of another user's dashboard after a force-release (403 lock_forbidden); a colleague's save after the owner deleted the dashboard answers 403, the spec says 404; the lock-cleanup test relies on an import restoring the dashboard under its uuid, which it does not.
 - [ ] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-metadata-fields.spec.ts, 30 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
+  - Run 19 Nov: app defect fixed (#1430: a text field was refused by the database). Open, decision: `dashboard-metadata.set-metadata` is admin-only in `lib/actions.seed.json`, the spec lets the owner write values.
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-quota-limits.spec.ts, 20 scenarios cited, not yet run (cloud, 2026-11-19). 4 excluded with a reason.
+  - Run 19 Nov: 1 red. Open, decision: a non-admin adding a LaunchPad widget gets 403 because the shipped default widget rights (`SeedRolePermissions`, group `default`) allow only activity and recommendations.
 - [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/legacy-widget-bridge.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.

@@ -32,8 +32,6 @@ export default {
 
 	components: { CnStatsBlockWidget },
 
-	emits: ['data'],
-
 	props: {
 		/** The placement's content blob — `{ title, dataSource, props }`. */
 		content: OBJECT_PROP,
@@ -42,6 +40,8 @@ export default {
 		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding
 		placement: OBJECT_PROP,
 	},
+
+	emits: ['data'],
 
 	computed: {
 		/** The card title. */

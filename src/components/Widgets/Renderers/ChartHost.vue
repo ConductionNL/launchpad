@@ -67,8 +67,6 @@ export default {
 
 	components: { CnChartWidget },
 
-	emits: ['data'],
-
 	inject: {
 		/** The open dashboard's filter bus (a ref to it), or null. */
 		filterBus: { from: 'dashboardFilterBus', default: null },
@@ -81,6 +79,8 @@ export default {
 		/** The placement record (used for a stable widget id). */
 		placement: OBJECT_PROP,
 	},
+
+	emits: ['data'],
 
 	computed: {
 		/** apexcharts chart type, from `chartKind` (content or nested props). */

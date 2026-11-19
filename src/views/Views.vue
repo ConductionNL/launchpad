@@ -1295,7 +1295,9 @@ export default {
 		widgetPlacements: {
 			immediate: true,
 			/**
+			 * @param {object[]} placements The open dashboard's placements.
 			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
 			 */
 			handler(placements) {
 				this.probeHideableSources()

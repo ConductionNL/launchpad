@@ -337,7 +337,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
 		await flushPromises()
 
-		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
 		expect(picker().vm.$attrs.open).toBe(true)
 		expect(picker().vm.$attrs.discoveredApps).toEqual(discovered)
 		expect(picker().vm.$attrs.catalogueApps).toEqual(catalogue)

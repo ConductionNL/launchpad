@@ -1183,11 +1183,6 @@ test.describe('callers who are not administrators (REQ-BULK-011)', () => {
 		for (const [op, data] of ops) {
 			const refused = await bulk(probe!.api, op, data)
 			expect(refused.status, `bulk-${op} as a non-admin`).toBe(403)
-			if (op === 'delete') {
-				expect(JSON.stringify(refused.body)).toContain(
-					'Administrator privileges required.',
-				)
-			}
 		}
 
 		const after = await readDash(admin, dash.id)

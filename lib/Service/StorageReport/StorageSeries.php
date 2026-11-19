@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use OCP\Files\NotFoundException;
  * all), never a file or a person's files, the same daily-bucket shape the
  * dashboard view analytics keep. No table is added for it.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
  */
 class StorageSeries {
 
@@ -59,7 +59,7 @@ class StorageSeries {
 	 *
 	 * @param IAppData $appData Launchpad's app data.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public function __construct(
 		private readonly IAppData $appData,
@@ -71,7 +71,7 @@ class StorageSeries {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public function all(): array {
 		try {
@@ -97,7 +97,7 @@ class StorageSeries {
 	 *
 	 * @return array<string,array<string,mixed>> The series as kept.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public function record(string $day, array $snapshot): array {
 		$series       = $this->all();

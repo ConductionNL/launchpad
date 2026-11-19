@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use OCP\IRequest;
  * The objects are read through OpenRegister as the caller, so a report
  * counts only what the caller may see; the author is the caller.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
  */
 class StatusReportController extends Controller {
 	use RespondsWithErrors;
@@ -51,7 +51,7 @@ class StatusReportController extends Controller {
 	 * @param StatusReportService $reports Prefills and keeps.
 	 * @param string|null         $userId  The signed-in user.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -87,7 +87,7 @@ class StatusReportController extends Controller {
 	 * @no-admin-idor-exempt No stored object is addressed and nothing is kept; the objects counted are read through
 	 *   OpenRegister's object search as the caller, so the caller's own read rights scope them.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	#[NoAdminRequired]
 	public function draft(): JSONResponse {
@@ -100,7 +100,7 @@ class StatusReportController extends Controller {
 	 *
 	 * @return JSONResponse 201 with the kept report, or 400, 401, 409 or 503.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 	 */
 	#[NoAdminRequired]
 	public function keep(): JSONResponse {

@@ -411,7 +411,7 @@ class DashboardService {
 	 *
 	 * @return array The placements the caller sees.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	private function withPersonalLayer(
 		array $placements,
@@ -444,7 +444,7 @@ class DashboardService {
 	 * @return array|null The effective dashboard data or null.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function getEffectiveDashboard(string $userId): ?array {
 		$result = $this->resolveEffectiveDashboard(userId: $userId);

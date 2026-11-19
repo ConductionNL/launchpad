@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ use RuntimeException;
 /**
  * Refuses the storage report, carrying the HTTP status to answer with.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
  */
 class StorageReportRefusedException extends RuntimeException {
 
@@ -40,7 +40,7 @@ class StorageReportRefusedException extends RuntimeException {
 	 * @param string $message    Why.
 	 * @param int    $statusCode The HTTP status.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.4
 	 */
 	public function __construct(string $message, public readonly int $statusCode=403) {
 		parent::__construct(message: $message);

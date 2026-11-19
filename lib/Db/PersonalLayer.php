@@ -100,7 +100,7 @@ class PersonalLayer extends Entity implements JsonSerializable {
 	 *
 	 * @return array<int, array<string, int>>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function overridesArray(): array {
 		$decoded = json_decode((string)$this->getOverrides(), true);
@@ -123,7 +123,7 @@ class PersonalLayer extends Entity implements JsonSerializable {
 	 *
 	 * @return array<int, int>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function hiddenArray(): array {
 		$decoded = json_decode((string)$this->getHidden(), true);
@@ -139,7 +139,7 @@ class PersonalLayer extends Entity implements JsonSerializable {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function jsonSerialize(): array {
 		return [

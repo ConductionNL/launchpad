@@ -20,7 +20,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+ * @spec openspec/specs/rest-api-reference/spec.md
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ namespace OCA\LaunchPad\Scripts;
 /**
  * Generates the OpenAPI document of LaunchPad's API.
  *
- * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+ * @spec openspec/specs/rest-api-reference/spec.md
  */
 final class OpenApiGenerator {
 
@@ -153,7 +153,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return array<string, int>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function statusCodes(string $httpFile): array {
 		preg_match_all('/const\s+(STATUS_[A-Z_]+)\s*=\s*(\d+)\s*;/', (string) @file_get_contents($httpFile), $matches, PREG_SET_ORDER);
@@ -173,7 +173,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return array<string, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function definitions(string $file, OpenApiTypeMapper $types): array {
 		$schemas = [];
@@ -191,7 +191,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return array<string, string>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function aliasTypes(string $file): array {
 		$source = (string) @file_get_contents($file);
@@ -214,7 +214,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 */
 	public function generate(array $routes, array $overlay, array $definitions=[]): array {
 		$controllers = [];
@@ -259,7 +259,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function encode(array $document): string {
 		return json_encode($document, (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR))."\n";
@@ -272,7 +272,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function kebab(string $name): string {
 		return strtolower((string) preg_replace('/(?<=[a-z0-9])([A-Z])/', '-$1', $name));
@@ -290,7 +290,7 @@ final class OpenApiGenerator {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/governance-rest-api-reference/design.md
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
 	 */
 	public static function merge(array $base, array $override): array {
 		foreach ($override as $key => $value) {

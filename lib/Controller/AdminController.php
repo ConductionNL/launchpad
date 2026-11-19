@@ -672,7 +672,7 @@ class AdminController extends Controller {
 	 * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
 	 *
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/admin-templates/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -742,7 +742,7 @@ class AdminController extends Controller {
 	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadImportSummary, array<string, mixed>>|
 	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
 	 * @openapi-stability public
-	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/admin-templates/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

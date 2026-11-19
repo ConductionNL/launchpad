@@ -11,9 +11,9 @@
 > instead, keeping the stored content shape of existing map widgets: new keys
 > are optional, and a chosen base map is stored as an ordinary `basemaps[]` item.
 
-- [ ] PDOK tile sources in the shared map widget: `CnMapWidgetForm` offers OpenStreetMap and the PDOK BRT achtergrondkaart (standaard, grijs, pastel) and luchtfoto presets, in EPSG:3857, stored as plain `basemaps[]` items (nextcloud-vue PR [ConductionNL/nextcloud-vue#2219](https://github.com/ConductionNL/nextcloud-vue/pull/2219), against main, not yet merged).
-- [ ] Geo-property data source in the shared map widget: `markers.geoProperty` draws each object from that property, a GeoJSON geometry of any type (point, line, polygon, multi-geometry) or a lat/lng value, falling back to `@self.geo` (same PR).
-- [ ] Raise launchpad's `@conduction/nextcloud-vue` pin to the release that carries that PR.
+- [x] PDOK tile sources in the shared map widget: `CnMapWidgetForm` offers OpenStreetMap and the PDOK BRT achtergrondkaart (standaard, grijs, pastel) and luchtfoto presets, in EPSG:3857, stored as plain `basemaps[]` items (nextcloud-vue PR [ConductionNL/nextcloud-vue#2219](https://github.com/ConductionNL/nextcloud-vue/pull/2219), merged into main 19 Nov, released in 2.182.0).
+- [x] Geo-property data source in the shared map widget: `markers.geoProperty` draws each object from that property, a GeoJSON geometry of any type (point, line, polygon, multi-geometry) or a lat/lng value, falling back to `@self.geo` (same PR).
+- [x] Raise launchpad's `@conduction/nextcloud-vue` pin to the release that carries that PR (2.182.0).
 - [ ] Spatial filters (bbox / polygon / nearest-N) in the shared widget's data source, through OpenRegister's geo filters. Not in the PR above.
 - [ ] Click-to-detail: clicking a feature opens the underlying object's deep-link in a new tab using the deep-link-registry.
 

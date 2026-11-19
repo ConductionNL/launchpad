@@ -18,69 +18,91 @@
  * intercepted request bodies rather than on the row re-rendering, which a
  * purely local component could fake.
  *
- * WHAT IS DELIBERATELY NOT HERE, AND WHY IT IS NOT AN @e2e exclude
- * ================================================================
- * Five scenarios in this spec need the author to PICK A GROUP, and the group
- * picker has no options to pick from — `Views.vue` renders
- * `<VisibilityRulesModal :open :placement-id>` and never passes
- * `available-groups`, so the prop keeps its `default: () => []`. Measured in
- * a browser: the combobox reports "No results", and typing a group name and
- * pressing Enter selects nothing (it is not taggable). The same empty list
- * feeds the preview-as-audience picker, so "preview as groups [marketing]"
- * cannot be performed either.
+ * THREE PRODUCT DEFECTS THESE TESTS ARE EXPECTED TO GO RED ON
+ * ===========================================================
+ * Nine scenarios here used to carry no test at all, with a note per scenario
+ * explaining which defect blocked it. They now carry tests that assert the
+ * SPEC's behaviour, and those tests are expected to be red until the defect
+ * underneath them is fixed. A test that is red for a named reason is a
+ * finding; a missing test is not.
  *
- *   REQ-CVUI-001 add-a-group-inclusion-rule-through-the-ui
- *   REQ-CVUI-002 group-row-operands
- *   REQ-CVUI-004 preview-shows-visible-for-a-matching-audience
- *   REQ-CVUI-004 preview-shows-hidden-for-a-non-matching-audience
- *   REQ-CVUI-004 preview-reflects-an-exclude-override
+ * 1. The group pickers have no options (launchpad#97). `Views.vue` renders
+ *    `<VisibilityRulesModal :open :placement-id>` and never passes
+ *    `available-groups`, so the prop keeps its `default: () => []`. With an
+ *    empty `:options`, the vendored `NcSelectTags` falls back to listing
+ *    SYSTEM TAGS, not groups. Measured earlier: the combobox reports "No
+ *    results". The same empty list feeds the preview-as-audience picker.
+ *    Red on: add-a-group-inclusion-rule-through-the-ui, group-row-operands,
+ *    preview-shows-visible-for-a-matching-audience,
+ *    preview-shows-hidden-for-a-non-matching-audience,
+ *    preview-reflects-an-exclude-override. Each fails at `pickGroup()`, whose
+ *    message names #97.
  *
- * Those five carry NO `@e2e exclude`. An exclusion states "a browser cannot
- * observe this scenario", which is false — a browser observes it perfectly
- * well, and what it observes is that the feature is not wired. Per
- * `.github#345` the gate scores an exclusion as POSITIVE coverage, so
- * excluding them would buy five findings with a false statement. Filed
- * instead as launchpad#97.
+ * 2. No exclude rule can be stored (launchpad#96).
+ *    `POST /api/widgets/{id}/rules` with `isInclude: false` answers HTTP 400
+ *    `{"error":"Operation failed"}`; the same body with `isInclude: true`
+ *    answers 201. `oc_launchpad_conditional_rules.is_include` is
+ *    `smallint NOT NULL DEFAULT 1` (lib/Migration/RulesTableBuilder.php) while
+ *    `ConditionalRule` declares `addType('isInclude', 'boolean')`
+ *    (lib/Db/ConditionalRule.php), so the mapper binds PARAM_BOOL, which
+ *    PostgreSQL will not put into a smallint.
+ *    Red on: include-rules-grouped-under-an-or-heading, and the last shape of
+ *    endpoint-delegates-to-the-shared-evaluation-service. Both fail inside
+ *    `seedRule()`, with the server's body in the message.
  *
- * The group RULE ITSELF works end to end when seeded through the API — it is
- * only the picker's option list that is missing — which is why the tests
- * below can still load, render, preview and evaluate group rules.
+ * 3. Visibility is never enforced at render time (launchpad#98).
+ *    `ConditionalService::checkRulesForPlacement()` has exactly one
+ *    production caller, `RuleApiController::getRules()` (the editor's own
+ *    read), and no `isWidgetVisible()` exists in `lib/`. A placement whose
+ *    rules do not match keeps rendering.
+ *    Red on: editor-does-not-change-evaluation-semantics,
+ *    endpoint-delegates-to-the-shared-evaluation-service,
+ *    preview-verdict-matches-render-time-verdict-for-identical-inputs.
  *
- * A SECOND BLOCKER, FOUND WHILE WRITING THESE TESTS: NO EXCLUDE RULE CAN BE
- * CREATED AT ALL (launchpad#96)
- * ==========================================================================
- * `POST /api/widgets/{id}/rules` with `isInclude: false` answers **HTTP 400
- * `{"error":"Operation failed"}`**. The identical body with `isInclude: true`
- * answers 201. `PUT /api/rules/{id}` with `{"isInclude": false}` is refused
- * the same way, so there is no path to an exclude rule — not through the API,
- * not through this editor.
+ * `includeexclude-toggle` asserts only what the ROW emits and where it moves,
+ * both observable before the server sees the request, so #96 does not turn
+ * it red.
  *
- * Root cause is a type mismatch: `oc_launchpad_conditional_rules.is_include`
- * is `smallint NOT NULL DEFAULT 1`, while `ConditionalRule` declares
- * `protected bool $isInclude` plus `addType('isInclude', 'boolean')`, so
- * `QBMapper::getParameterTypeForProperty()` binds `PARAM_BOOL`. On PostgreSQL
- * — the shared workflow's DEFAULT database, so this is the CI fixture too —
- * a boolean will not go into a smallint column. The controller reports it
- * through `ResponseHelper::error()` WITHOUT a logger, so the real exception is
- * written nowhere and the client sees only the generic message.
+ * WHY THE SUBJECT PLACEMENT STAYS VISIBLE
+ * =======================================
+ * Under include=OR a placement with include rules and no match is HIDDEN,
+ * and a hidden placement cannot be right-clicked, so the editor could not be
+ * reopened once enforcement lands. Two things guard against that: every
+ * fixture with a non-matching include rule seeds a matching one beside it
+ * (KEEP_VISIBLE), and the admin is a member of the run's "marketing" group,
+ * so a group rule naming it matches the author too.
  *
- * That costs `include-rules-grouped-under-an-or-heading`, which needs a saved
- * exclude rule to exist. It is left uncovered and unexcluded for the same
- * reason as the five above.
- *
- * `includeexclude-toggle` IS still covered, deliberately and narrowly: that
- * requirement is about what the ROW emits and where the row moves to, and
- * both are observable before the server ever sees the request. The test
- * asserts exactly that and does not assert persistence, which would be
- * asserting #97 is fixed.
+ * GROUP NAMES ARE STAMPED
+ * =======================
+ * The scenarios say "marketing", "sales" and "engineering". This suite
+ * creates `cve-marketing-<stamp>` and so on, and deletes them in afterAll,
+ * because creating or deleting a group literally called "marketing" on a
+ * shared instance could take one somebody else relies on. The asserted shape
+ * is the same: `{"groups":[<id>, <id>]}`.
  *
  * @spec openspec/specs/conditional-visibility-editor/spec.md
  */
 
-import type { APIRequestContext, Locator, Page } from '@playwright/test'
+import type {
+	APIRequestContext,
+	Browser,
+	BrowserContext,
+	Locator,
+	Page,
+} from '@playwright/test'
+import type { Principal } from './support/principals.ts'
 
 import { expect, request, test } from '@playwright/test'
+import { loginAs } from './fixtures/secondary-user.ts'
 import { BASE_URL } from './support/baseUrl.ts'
+import {
+	addToGroup,
+	assertActingAs,
+	createGroup,
+	createPrincipal,
+	removeGroup,
+	removePrincipal,
+} from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -285,6 +307,163 @@ test.afterAll(async () => {
 	}
 	await api.dispose()
 })
+
+/*
+ * Groups the group-rule scenarios pick from, stamped per run (see the header).
+ * The admin joins `marketing`, so a rule naming it matches the author and the
+ * subject placement stays right-clickable once render-time enforcement lands.
+ */
+const GROUP = {
+	marketing: `cve-marketing-${STAMP}`,
+	sales: `cve-sales-${STAMP}`,
+	engineering: `cve-engineering-${STAMP}`,
+} as const
+
+/*
+ * A second tile on the shared dashboard that carries NO rules. It is the
+ * CONTROL for every "the subject is not rendered" assertion: until it is on
+ * screen, a zero count for the subject says nothing. Its title is letters
+ * only, so the `hasText: STAMP` locators above can never pick it instead of
+ * the subject.
+ */
+const ANCHOR_TITLE = `Visibility anchor ${Math.random()
+	.toString(36)
+	.replace(/[^a-z]/g, '')
+	.slice(0, 8)}x`
+
+let groupsCreated: string[] = []
+
+test.beforeAll(async () => {
+	const api = await adminApi()
+	for (const id of Object.values(GROUP)) {
+		await createGroup(api, id)
+		groupsCreated.push(id)
+	}
+	await addToGroup(api, ADMIN.user, GROUP.marketing)
+
+	const anchor = await api.post(
+		`/index.php/apps/launchpad/api/dashboard/${dashboardId}/tile`,
+		{
+			data: {
+				title: ANCHOR_TITLE,
+				linkType: 'url',
+				linkValue: 'https://example.invalid/anchor',
+				gridX: 4,
+				gridY: 0,
+				gridWidth: 3,
+				gridHeight: 2,
+			},
+		},
+	)
+	expect(
+		anchor.status(),
+		`seeding the anchor tile: ${await anchor.text()}`,
+	).toBeLessThan(300)
+	await api.dispose()
+})
+
+test.afterAll(async () => {
+	const api = await adminApi()
+	for (const id of groupsCreated) {
+		await removeGroup(api, id)
+	}
+	groupsCreated = []
+	await api.dispose()
+})
+
+/**
+ * Pick one group in an `NcSelectTags` group picker by its id.
+ *
+ * Typed first, so the option list is narrowed to the stamped id and the
+ * option count is exactly one. Clicked by the user's own route: open the
+ * combobox, choose the option. Escape closes the dropdown so the next pick
+ * starts from a closed control.
+ *
+ * @param page the page.
+ * @param field the picker's `data-test` selector (it may land on the root or
+ *   on the input, so both are tried).
+ * @param scope where to look for the picker: a row, or the whole page.
+ * @param groupId the group to choose.
+ */
+async function pickGroup(
+	page: Page,
+	field: string,
+	scope: Locator | Page,
+	groupId: string,
+): Promise<void> {
+	const input = scope.locator(`${field} input, input${field}`).first()
+	await input.click()
+	await input.fill(groupId)
+	const option = page.locator('.vs__dropdown-option').filter({ hasText: groupId })
+	await expect(
+		option,
+		`the picker must offer the group "${groupId}". It is fed by `
+			+ '`availableGroups`, which Views.vue never passes to '
+			+ 'VisibilityRulesModal (launchpad#97)',
+	).toHaveCount(1)
+	await option.click()
+	await page.keyboard.press('Escape')
+}
+
+/** The body of the last `POST /api/visibility/preview` the page sent. */
+function lastPreviewBody(
+	writes: Array<{ method: string; url: string; body: string }>,
+): {
+	rules: Array<Record<string, unknown>>
+	context: { groups: string[]; datetime: string | null }
+} {
+	return lastWrite(writes, 'POST', '/api/visibility/preview') as never
+}
+
+/**
+ * Press Preview, require the request to succeed, and wait for the verdict.
+ *
+ * @param page the page.
+ */
+async function runPreviewAndWait(page: Page): Promise<void> {
+	const settled = page.waitForResponse(
+		(res) =>
+			res.request().method() === 'POST'
+			&& res.url().includes('/api/visibility/preview'),
+	)
+	await page.locator(RUN_PREVIEW).click()
+	const res = await settled
+	expect(
+		res.status(),
+		`the preview request must succeed: ${await res.text()}`,
+	).toBe(200)
+	await expect(page.locator(PREVIEW_VERDICT)).toBeVisible({ timeout: 15_000 })
+}
+
+/**
+ * Reload the workspace and report whether the subject placement rendered.
+ *
+ * The anchor tile is waited for first: it carries no rules, so once it is on
+ * screen the grid has rendered this dashboard's placements, and the subject's
+ * absence is a verdict rather than a page that has not loaded yet.
+ *
+ * @param page the page, as whoever is viewing.
+ * @param subject text unique to the subject tile.
+ * @param anchor text unique to the anchor tile.
+ * @return whether the subject is rendered.
+ */
+async function renderedVerdict(
+	page: Page,
+	subject: string,
+	anchor: string,
+): Promise<boolean> {
+	await page.goto(APP_URL)
+	await expect(
+		page.locator('.launchpad-grid-item').filter({ hasText: anchor }).first(),
+		`CONTROL: the rule-free anchor tile "${anchor}" must render, or the subject's absence below means nothing`,
+	).toBeVisible({ timeout: 30_000 })
+	return (
+		(await page
+			.locator('.launchpad-grid-item')
+			.filter({ hasText: subject })
+			.count()) > 0
+	)
+}
 
 /** Load the workspace on the seeded dashboard, in edit mode. */
 async function openWorkspaceInEditMode(page: Page): Promise<void> {
@@ -672,30 +851,197 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		await api2.dispose()
 	})
 
-	/*
-	 * REQ-CVUI-001 `editor-does-not-change-evaluation-semantics` HAS NO TEST,
-	 * because there is no render-time evaluation for the editor to preserve.
-	 * See launchpad#98 — conditional visibility is never enforced.
-	 *
-	 * A test was written for it and is deliberately not kept, because it could
-	 * only ever have been red: it saved an include rule whose window closed in
-	 * 2020 and expected the placement to stop rendering. It kept rendering.
-	 *
-	 * Three independent observations, in the order they were taken:
-	 *   1. the browser still renders the placement after the rule is saved;
-	 *   2. `GET /api/dashboard/{id}` (HTTP 200) still returns that placement,
-	 *      with `isVisible: 1`;
-	 *   3. `ConditionalService::checkRulesForPlacement()` has exactly one
-	 *      production caller — `RuleApiController::getRules()`, i.e. the
-	 *      EDITOR's own read — and `isWidgetVisible()`, the render-time entry
-	 *      point REQ-CVUI-005 names, does not exist anywhere in `lib/`.
-	 *
-	 * (3) is an absence claim, so it was taken with a positive control: the
-	 * same grep for `previewRules` finds its caller immediately.
-	 *
-	 * No `@e2e exclude`. A browser observes this scenario perfectly well the
-	 * moment the feature is wired; what it observes today is that it is not.
-	 */
+	// @e2e conditional-visibility-editor::add-a-group-inclusion-rule-through-the-ui
+	test('adding a group include rule POSTs the canonical body and, on 201, shows it in the include section', async ({
+		page,
+	}) => {
+		const writes = recordWrites(page)
+		await openVisibilityEditor(page)
+
+		// GIVEN: no rules. Asserted, not assumed: beforeEach cleared them.
+		await expect(
+			page.locator(EMPTY_STATE),
+			'CONTROL: the placement must start with no rules',
+		).toBeVisible()
+		await expect(page.locator(ROW_INCLUDE)).toHaveCount(0)
+
+		await page.locator(ADD_RULE).click()
+		const row = anyRow(page)
+		await chooseType(page, row, TYPE.group)
+		await pickGroup(page, '[data-test="rule-groups"]', row, GROUP.marketing)
+		await pickGroup(page, '[data-test="rule-groups"]', row, GROUP.sales)
+
+		// "sets it to include": the row's own Include radio, clicked rather than
+		// trusted to be the default.
+		await activateSwitch(row.locator('[data-test="rule-mode-include"]'))
+
+		const created = page.waitForResponse(
+			(res) =>
+				res.request().method() === 'POST'
+				&& res.url().includes(`/api/widgets/${placementId}/rules`),
+		)
+		await page
+			.locator(ROW_INCLUDE)
+			.first()
+			.locator('[data-test="rule-save"]')
+			.click()
+		const response = await created
+
+		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expect(
+			sent,
+			'the editor must send exactly the canonical body, nothing more',
+		).toEqual({
+			ruleType: 'group',
+			ruleConfig: { groups: [GROUP.marketing, GROUP.sales] },
+			isInclude: true,
+		})
+		expect(
+			response.status(),
+			`the create must answer HTTP 201: ${await response.text()}`,
+		).toBe(201)
+
+		// The persisted shape, read back from the server rather than echoed.
+		const api = await adminApi()
+		const stored = await storedRules(api)
+		await api.dispose()
+		expect(stored, 'exactly one rule must be stored').toHaveLength(1)
+		expect(stored[0].ruleType).toBe('group')
+		expect(
+			stored[0].ruleConfig,
+			'the stored ruleConfig must be the canonical camelCase `groups` array',
+		).toEqual({ groups: [GROUP.marketing, GROUP.sales] })
+
+		// And the row sits in the include section, populated.
+		await expect(
+			page.locator(`${INCLUDE_SECTION} ${ROW_INCLUDE}`),
+			'the new rule must appear as a row in the include section',
+		).toHaveCount(1)
+		await expect(page.locator(ROW_EXCLUDE)).toHaveCount(0)
+		await expect(page.locator(ROW_INCLUDE).first()).toContainText(
+			GROUP.marketing,
+		)
+		await expect(page.locator(ROW_INCLUDE).first()).toContainText(GROUP.sales)
+		await expect(page.locator(EMPTY_STATE)).toHaveCount(0)
+	})
+
+	// @e2e conditional-visibility-editor::editor-does-not-change-evaluation-semantics
+	test('rules created and edited through the editor are what the render-time pipeline evaluates', async ({
+		page,
+	}) => {
+		/*
+		 * Expected RED until launchpad#98 is fixed: nothing at render time
+		 * evaluates the rules, so the subject keeps rendering after the edit
+		 * below closes its window.
+		 *
+		 * The render-time verdict is read two ways and both must agree with
+		 * the rules: the pipeline's own verdict (`isVisible` from
+		 * `GET /api/widgets/{id}/rules`, which is
+		 * `ConditionalService::checkRulesForPlacement()`), and what the
+		 * browser actually renders after a reload.
+		 */
+		const closedEnd = `${new Date().getUTCFullYear() - 1}-12-31`
+		const writes = recordWrites(page)
+
+		try {
+			// CREATE through the editor: an include rule that matches now.
+			await openVisibilityEditor(page)
+			await page.locator(ADD_RULE).click()
+			const draft = anyRow(page)
+			await chooseType(page, draft, TYPE.date)
+			await draft
+				.locator('[data-test="rule-start-date"]')
+				.fill(MATCHING_START_DATE)
+			const created = page.waitForResponse(
+				(res) =>
+					res.request().method() === 'POST'
+					&& res.url().includes(`/api/widgets/${placementId}/rules`),
+			)
+			await draft.locator('[data-test="rule-save"]').click()
+			expect((await created).status(), 'the create must succeed').toBe(201)
+
+			const api = await adminApi()
+			const afterCreate = await api.get(
+				`/index.php/apps/launchpad/api/widgets/${placementId}/rules`,
+			)
+			const createdBody = await afterCreate.json()
+			const createdRules = createdBody.rules ?? createdBody.data?.rules ?? []
+			expect(createdRules).toHaveLength(1)
+			expect(
+				createdRules[0].ruleConfig,
+				'the stored shape must be the one the row emitted, untranslated',
+			).toEqual({ startDate: MATCHING_START_DATE })
+			expect(
+				createdBody.isVisible ?? createdBody.data?.isVisible,
+				'CONTROL: the pipeline must judge a started, open-ended include rule visible',
+			).toBe(true)
+			expect(
+				await renderedVerdict(page, STAMP, ANCHOR_TITLE),
+				'CONTROL: a matching rule must leave the placement rendered',
+			).toBe(true)
+
+			// EDIT through the editor: close the window, so the rule no
+			// longer matches.
+			await openVisibilityEditor(page)
+			const row = page.locator(ROW_INCLUDE).first()
+			await expect(row.locator('[data-test="rule-start-date"]')).toHaveValue(
+				MATCHING_START_DATE,
+			)
+			await row.locator('[data-test="rule-end-date"]').fill(closedEnd)
+			const ruleId = Number(createdRules[0].id)
+			const updated = page.waitForResponse(
+				(res) =>
+					res.request().method() === 'PUT'
+					&& res.url().includes(`/api/rules/${ruleId}`),
+			)
+			await row.locator('[data-test="rule-save"]').click()
+			expect((await updated).status(), 'the edit must succeed').toBe(200)
+
+			const afterEdit = await api.get(
+				`/index.php/apps/launchpad/api/widgets/${placementId}/rules`,
+			)
+			const editedBody = await afterEdit.json()
+			const editedRules = editedBody.rules ?? editedBody.data?.rules ?? []
+			await api.dispose()
+			expect(
+				editedRules[0].ruleConfig,
+				'the edited rule must be stored in the canonical date shape',
+			).toEqual({ startDate: MATCHING_START_DATE, endDate: closedEnd })
+			const pipeline = editedBody.isVisible ?? editedBody.data?.isVisible
+			expect(
+				pipeline,
+				'the pipeline must judge an include rule whose window has closed hidden',
+			).toBe(false)
+
+			// The render must follow the pipeline. Red today (launchpad#98).
+			expect(
+				await renderedVerdict(page, STAMP, ANCHOR_TITLE),
+				'the dashboard must render what the pipeline decided: a placement whose only include rule has closed must not render (launchpad#98)',
+			).toBe(pipeline)
+
+			// No alternative persistence path: every rule-related write went to
+			// the two canonical CRUD endpoints.
+			const ruleWrites = writes.filter((w) => /rule|visibilit/i.test(w.url))
+			expect(
+				ruleWrites.length,
+				'CONTROL: the create and the edit must both have been seen',
+			).toBeGreaterThanOrEqual(2)
+			for (const w of ruleWrites) {
+				const canonical =
+					(w.method === 'POST'
+						&& w.url.includes(`/api/widgets/${placementId}/rules`))
+					|| (w.method === 'PUT' && w.url.includes(`/api/rules/${ruleId}`))
+				expect(
+					canonical,
+					`a rule write went somewhere other than the CRUD endpoints: ${w.method} ${w.url}`,
+				).toBe(true)
+			}
+		} finally {
+			const api = await adminApi()
+			await clearRules(api)
+			await api.dispose()
+		}
+	})
 })
 
 test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)', () => {
@@ -894,6 +1240,59 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 			'date',
 		)
 	})
+
+	// @e2e conditional-visibility-editor::group-row-operands
+	test('a group row emits ruleConfig {groups: [...]} with the selected groups', async ({
+		page,
+	}) => {
+		/*
+		 * "The row MUST emit" is observed at both places the emission goes:
+		 * the live `update:rule` sync, which is what the preview request
+		 * carries before anything is saved, and the save itself.
+		 */
+		const writes = recordWrites(page)
+		await openVisibilityEditor(page)
+
+		await page.locator(ADD_RULE).click()
+		const row = anyRow(page)
+		await chooseType(page, row, TYPE.group)
+		await pickGroup(page, '[data-test="rule-groups"]', row, GROUP.marketing)
+		await pickGroup(page, '[data-test="rule-groups"]', row, GROUP.sales)
+
+		await runPreviewAndWait(page)
+		const previewed = lastPreviewBody(writes).rules
+		expect(
+			previewed,
+			'the in-editor rule set must hold the one row',
+		).toHaveLength(1)
+		expect(previewed[0].ruleType).toBe('group')
+		expect(
+			previewed[0].ruleConfig,
+			'the row must emit exactly {groups: [marketing, sales]}',
+		).toEqual({ groups: [GROUP.marketing, GROUP.sales] })
+
+		await page
+			.locator(`${ROW_INCLUDE}, ${ROW_EXCLUDE}`)
+			.first()
+			.locator('[data-test="rule-save"]')
+			.click()
+		await expect
+			.poll(
+				() =>
+					writes.filter(
+						(w) =>
+							w.method === 'POST'
+							&& w.url.includes(`/api/widgets/${placementId}/rules`),
+					).length,
+				{ message: 'saving the group row must POST it', timeout: 15_000 },
+			)
+			.toBeGreaterThan(0)
+		const saved = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expect(
+			saved.ruleConfig,
+			'the saved row must emit the same groups shape',
+		).toEqual({ groups: [GROUP.marketing, GROUP.sales] })
+	})
 })
 
 test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003)', () => {
@@ -903,22 +1302,57 @@ test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003
 		await api.dispose()
 	})
 
-	/*
-	 * REQ-CVUI-003 `include-rules-grouped-under-an-or-heading` HAS NO TEST.
-	 *
-	 * Its GIVEN is "placement id 10 has two include rules and one exclude
-	 * rule", and a stored exclude rule cannot be created — every
-	 * `isInclude: false` write is refused with HTTP 400 (launchpad#96). No
-	 * `@e2e exclude` is added: a browser could observe this scenario perfectly
-	 * well the moment the rule can be saved, so recording "a browser cannot
-	 * see this" would be false, and per `.github#345` it would be counted as
-	 * coverage.
-	 *
-	 * The sibling scenario below IS covered, because it can build its exclude
-	 * section from an UNSAVED draft row — the grouping is computed client-side
-	 * from `isInclude`, so a toggled draft populates the "Hide when…" section
-	 * without ever touching the server.
-	 */
+	// @e2e conditional-visibility-editor::include-rules-grouped-under-an-or-heading
+	test('two include rules sit under "Show when ANY", one exclude rule under "Hide when ANY"', async ({
+		page,
+	}) => {
+		/*
+		 * Expected RED until launchpad#96 is fixed: the exclude rule in the
+		 * GIVEN cannot be stored, and `seedRule()` fails with the server's
+		 * 400 body. The exclude rule's window closed last year, so once it CAN
+		 * be stored it does not hide the subject (and lock the editor out).
+		 */
+		const year = new Date().getUTCFullYear() - 1
+		const api = await adminApi()
+		await seedRule(api, { ...KEEP_VISIBLE })
+		await seedRule(api, {
+			ruleType: 'attribute',
+			ruleConfig: { attribute: 'language', operator: 'equals', value: 'nl' },
+			isInclude: true,
+		})
+		await seedRule(api, {
+			ruleType: 'date',
+			ruleConfig: { startDate: `${year}-01-01`, endDate: `${year}-01-31` },
+			isInclude: false,
+		})
+		await api.dispose()
+
+		await openVisibilityEditor(page)
+
+		await expect(
+			page.locator(`${INCLUDE_SECTION} h3`),
+			'the include section must say it is an OR',
+		).toHaveText(/Show when ANY of these match/i)
+		await expect(
+			page.locator(`${INCLUDE_SECTION} ${ROW_INCLUDE}`),
+			'both include rules must sit under the include heading',
+		).toHaveCount(2)
+		await expect(page.locator(`${INCLUDE_SECTION} ${ROW_EXCLUDE}`)).toHaveCount(
+			0,
+		)
+
+		await expect(
+			page.locator(`${EXCLUDE_SECTION} h3`),
+			'the exclude section must say any match hides the widget',
+		).toHaveText(/Hide when ANY of these match/i)
+		await expect(
+			page.locator(`${EXCLUDE_SECTION} ${ROW_EXCLUDE}`),
+			'the exclude rule must sit under the exclude heading',
+		).toHaveCount(1)
+		await expect(page.locator(`${EXCLUDE_SECTION} ${ROW_INCLUDE}`)).toHaveCount(
+			0,
+		)
+	})
 
 	// @e2e conditional-visibility-editor::semantics-conveyed-without-relying-on-colour
 	test('the include/exclude distinction survives with colour removed', async ({
@@ -1151,25 +1585,181 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		expect(previewed.isInclude).toBe(persisted.isInclude)
 	})
 
-	/*
-	 * REQ-CVUI-005 `preview-verdict-matches-render-time-verdict-for-identical-inputs`
-	 * HAS NO TEST, and this is the scenario that found launchpad#98.
-	 *
-	 * The test existed and ran. Its first half passed — the editor previews a
-	 * closed-window include rule as **Hidden**. Its second half failed:
-	 * after saving that same rule, the dashboard still rendered the placement.
-	 * The two verdicts do not merely risk drifting, as the requirement
-	 * anticipates; they disagree today, because only one of them is computed
-	 * at all. See the note in the REQ-CVUI-001 describe above for the three
-	 * observations, and launchpad#98.
-	 *
-	 * The requirement's own words are the clearest statement of what is
-	 * broken: the equality "MUST hold because both paths execute the same
-	 * evaluation code". There is no second path.
-	 *
-	 * Not `@e2e exclude`d — the scenario is browser-observable, and a browser
-	 * is exactly what observed it failing.
-	 */
+	// @e2e conditional-visibility-editor::preview-shows-visible-for-a-matching-audience
+	test('previewing as the matching group shows Visible, with icon and text, and names the matched include rule', async ({
+		page,
+	}) => {
+		const api = await adminApi()
+		const ruleId = await seedRule(api, {
+			ruleType: 'group',
+			ruleConfig: { groups: [GROUP.marketing] },
+			isInclude: true,
+		})
+		await api.dispose()
+
+		const writes = recordWrites(page)
+		await openVisibilityEditor(page)
+		await expect(
+			page.locator(ROW_INCLUDE),
+			'CONTROL: the editor must hold the one seeded include rule',
+		).toHaveCount(1)
+
+		await pickGroup(page, '[data-test="preview-groups"]', page, GROUP.marketing)
+		await page.locator('[data-test="preview-datetime"]').fill('2026-07-23T14:30')
+		await runPreviewAndWait(page)
+
+		// The request: the current rule set, and the chosen context. The
+		// editor sends the datetime-local value as an ISO instant, computed in
+		// the browser's own timezone, so the expectation is computed there too.
+		const expectedInstant = await page.evaluate(() =>
+			new Date('2026-07-23T14:30').toISOString(),
+		)
+		const body = lastPreviewBody(writes)
+		expect(body.rules, 'the preview must carry the editor rule set').toEqual([
+			{
+				id: ruleId,
+				ruleType: 'group',
+				ruleConfig: { groups: [GROUP.marketing] },
+				isInclude: true,
+			},
+		])
+		expect(body.context.groups).toEqual([GROUP.marketing])
+		expect(body.context.datetime).toBe(expectedInstant)
+
+		// The verdict: text AND an icon, so it is not carried by colour alone.
+		const verdict = page.locator(
+			'[data-test="preview-result"] .conditional-visibility-editor__preview-verdict',
+		)
+		await expect(page.locator(PREVIEW_VERDICT)).toHaveText(/^\s*Visible\s*$/)
+		await expect(
+			verdict.locator('.eye-icon svg'),
+			'a Visible verdict must carry the eye icon',
+		).toHaveCount(1)
+		await expect(verdict.locator('.eye-off-icon')).toHaveCount(0)
+
+		// The matched include rule is indicated.
+		const matched = page.locator('[data-test="preview-matched-include"]')
+		await expect(
+			matched,
+			'the matched include rule must be indicated',
+		).toHaveCount(1)
+		await expect(matched).toContainText(GROUP.marketing)
+		await expect(
+			page.locator('[data-test="preview-matched-exclude"]'),
+		).toHaveCount(0)
+	})
+
+	// @e2e conditional-visibility-editor::preview-shows-hidden-for-a-non-matching-audience
+	test('previewing as a group the rule does not name shows Hidden and indicates no matched include rule', async ({
+		page,
+	}) => {
+		const api = await adminApi()
+		await seedRule(api, {
+			ruleType: 'group',
+			ruleConfig: { groups: [GROUP.marketing] },
+			isInclude: true,
+		})
+		await api.dispose()
+
+		const writes = recordWrites(page)
+		await openVisibilityEditor(page)
+
+		// "at any datetime": the datetime field is left empty.
+		await pickGroup(
+			page,
+			'[data-test="preview-groups"]',
+			page,
+			GROUP.engineering,
+		)
+		await runPreviewAndWait(page)
+
+		expect(lastPreviewBody(writes).context.groups).toEqual([GROUP.engineering])
+		await expect(page.locator(PREVIEW_VERDICT)).toHaveText(/^\s*Hidden\s*$/)
+		await expect(
+			page.locator('[data-test="preview-result"] .eye-off-icon svg'),
+			'a Hidden verdict must carry the eye-off icon',
+		).toHaveCount(1)
+		await expect(
+			page.locator('[data-test="preview-matched-include"]'),
+			'no include rule may be indicated as matched',
+		).toHaveCount(0)
+
+		/*
+		 * CONTROL. "No include rule indicated" is also what a broken indicator
+		 * would show. Adding the matching group to the audience must flip the
+		 * verdict and make the indicator appear, which proves it can.
+		 */
+		await pickGroup(page, '[data-test="preview-groups"]', page, GROUP.marketing)
+		await runPreviewAndWait(page)
+		await expect(page.locator(PREVIEW_VERDICT)).toHaveText(/^\s*Visible\s*$/)
+		await expect(
+			page.locator('[data-test="preview-matched-include"]'),
+			'CONTROL: with the matching group added, the include rule must be indicated',
+		).toHaveCount(1)
+	})
+
+	// @e2e conditional-visibility-editor::preview-reflects-an-exclude-override
+	test('a matching exclude date rule overrides a matching include rule, and is named as the reason', async ({
+		page,
+	}) => {
+		/*
+		 * The include rule is stored; the exclude rule is held in the editor
+		 * as an unsaved row, which is what "the editor holds" allows, and the
+		 * only way to hold one while launchpad#96 refuses to store it.
+		 *
+		 * Also expected RED on the last assertion even after #97 is fixed: an
+		 * unsaved row has `id: null`, the endpoint echoes its array INDEX as
+		 * the correlation id (`$entry['id'] ?? $index` in
+		 * VisibilityPreviewController::ruleEntity), and the editor matches
+		 * `ids.includes(r.id)` (ConditionalVisibilityEditor.vue,
+		 * `matchedExcludeRules`), so a matched draft row is never indicated.
+		 */
+		const api = await adminApi()
+		await seedRule(api, {
+			ruleType: 'group',
+			ruleConfig: { groups: [GROUP.marketing] },
+			isInclude: true,
+		})
+		await api.dispose()
+
+		const writes = recordWrites(page)
+		await openVisibilityEditor(page)
+
+		await page.locator(ADD_RULE).click()
+		const draft = page.locator(ROW_INCLUDE).last()
+		await chooseType(page, draft, TYPE.date)
+		await draft.locator('[data-test="rule-start-date"]').fill('2026-07-01')
+		await draft.locator('[data-test="rule-end-date"]').fill('2026-07-31')
+		await activateSwitch(draft.locator('[data-test="rule-mode-exclude"]'))
+		await expect(page.locator(ROW_EXCLUDE)).toHaveCount(1)
+
+		await pickGroup(page, '[data-test="preview-groups"]', page, GROUP.marketing)
+		await page.locator('[data-test="preview-datetime"]').fill('2026-07-15T10:00')
+		await runPreviewAndWait(page)
+
+		const body = lastPreviewBody(writes)
+		expect(body.rules, 'both rules must be previewed').toHaveLength(2)
+		expect(
+			body.rules.find((r) => r.isInclude === false)?.ruleConfig,
+			'the exclude row must be sent with its window',
+		).toEqual({ startDate: '2026-07-01', endDate: '2026-07-31' })
+
+		await expect(page.locator(PREVIEW_VERDICT)).toHaveText(/^\s*Hidden\s*$/)
+
+		// CONTROL: the include rule DID match, so Hidden is the exclude
+		// override and not an include miss.
+		await expect(
+			page.locator('[data-test="preview-matched-include"]'),
+			'CONTROL: the include rule must be shown as matched, or Hidden could be an include miss',
+		).toHaveCount(1)
+
+		const reason = page.locator('[data-test="preview-matched-exclude"]')
+		await expect(
+			reason,
+			'the matched exclude rule must be indicated as the reason',
+		).toHaveCount(1)
+		await expect(reason).toContainText('2026-07-01')
+	})
 
 	// @e2e conditional-visibility-editor::preview-rejects-an-invalid-rule-set
 	test('the preview endpoint refuses an unknown ruleType with HTTP 400', async ({
@@ -1336,5 +1926,421 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 			`CONTROL: the same request WITH credentials must be served — got ${ok.status()}: ${(await ok.text()).slice(0, 300)}`,
 		).toBeLessThan(300)
 		await authed.dispose()
+	})
+})
+
+/*
+ * REQ-CVUI-005, measured against REAL AUDIENCES.
+ *
+ * "The same evaluation path" is a wiring claim, and an e2e cannot read
+ * wiring. What it can do is the thing the wiring is for: put the same rule
+ * set in front of the preview endpoint and in front of a real user of that
+ * audience, at the same moment, and compare. Each audience here is an
+ * ordinary throwaway account that OWNS its dashboard (rules are owner-only:
+ * `verifyPlacementOwnership` in RuleApiController), with a subject tile that
+ * carries the rules and an anchor tile that carries none.
+ *
+ * The render-time verdict is read twice: as the pipeline reports it
+ * (`isVisible` on `GET /api/widgets/{id}/rules`, which is
+ * `ConditionalService::checkRulesForPlacement()` for that user), and as the
+ * browser renders the dashboard for that user. The preview is called by the
+ * same user, with the context set to that user's ACTUAL groups (read back
+ * from Nextcloud, not assumed) and the current instant.
+ *
+ * Expected RED until launchpad#98 is fixed: the browser renders the subject
+ * whatever the verdict, so every shape whose verdict is Hidden disagrees.
+ */
+test.describe('conditional-visibility editor — preview equals render for a real audience (REQ-CVUI-005)', () => {
+	const API = '/index.php/apps/launchpad/api'
+	const AUDIENCE_GROUP = `cve-audience-${STAMP}`
+	const OTHER_GROUP = `cve-other-${STAMP}`
+
+	interface Audience {
+		who: Principal
+		dashboardId: number
+		subjectId: number
+		subject: string
+		anchor: string
+		groups: string[]
+	}
+
+	type Rule = {
+		ruleType: string
+		ruleConfig: Record<string, unknown>
+		isInclude: boolean
+	}
+
+	let member: Audience | null = null
+	let outsider: Audience | null = null
+
+	/** Seed a dashboard the principal owns, with a subject and an anchor tile. */
+	async function seedAudience(
+		admin: APIRequestContext,
+		who: Principal,
+		label: string,
+	): Promise<Audience> {
+		await assertActingAs(who.api, who.username)
+		const subject = `Audience subject ${label} ${STAMP}`
+		const anchor = `Audience anchor ${label} ${STAMP}`
+
+		const created = await who.api.post(`${API}/dashboard`, {
+			data: { name: `E2E Audience ${label} ${STAMP}` },
+		})
+		expect(
+			created.status(),
+			`${who.username} creating a dashboard: ${await created.text()}`,
+		).toBeLessThan(300)
+		const body = await created.json()
+		const dash = body.dashboard ?? body.data?.dashboard ?? body
+		const dashboardId = Number(dash.id)
+
+		const tile = async (title: string, gridX: number): Promise<number> => {
+			const res = await who.api.post(`${API}/dashboard/${dashboardId}/tile`, {
+				data: {
+					title,
+					linkType: 'url',
+					linkValue: `https://example.invalid/${encodeURIComponent(title)}`,
+					gridX,
+					gridY: 0,
+					gridWidth: 3,
+					gridHeight: 2,
+				},
+			})
+			expect(
+				res.status(),
+				`seeding tile "${title}": ${await res.text()}`,
+			).toBeLessThan(300)
+			return Number((await res.json()).id)
+		}
+		const subjectId = await tile(subject, 0)
+		await tile(anchor, 4)
+
+		// Both activation mechanisms, as in the suite's own beforeAll.
+		const activate = await who.api.post(
+			`${API}/dashboard/${dashboardId}/activate`,
+		)
+		expect(activate.status(), await activate.text()).toBeLessThan(300)
+		const preference = await who.api.post(`${API}/dashboards/active`, {
+			data: { uuid: String(dash.uuid) },
+		})
+		expect(preference.status(), await preference.text()).toBeLessThan(300)
+
+		// The audience's real group set, as Nextcloud reports it.
+		const groupsRes = await admin.get(
+			`/ocs/v1.php/cloud/users/${encodeURIComponent(who.username)}/groups?format=json`,
+		)
+		expect(groupsRes.status(), await groupsRes.text()).toBe(200)
+		const groups: string[] = (await groupsRes.json()).ocs?.data?.groups ?? []
+
+		return { who, dashboardId, subjectId, subject, anchor, groups }
+	}
+
+	/** The audience's stored rules, and the pipeline's verdict for that user. */
+	async function pipeline(
+		a: Audience,
+	): Promise<{ rules: Array<Record<string, unknown>>; isVisible: unknown }> {
+		const res = await a.who.api.get(`${API}/widgets/${a.subjectId}/rules`)
+		expect(res.status(), `reading rules: ${await res.text()}`).toBe(200)
+		const body = await res.json()
+		return {
+			rules: body.rules ?? body.data?.rules ?? [],
+			isVisible: body.isVisible ?? body.data?.isVisible,
+		}
+	}
+
+	/** Replace the subject's rules with `rules`, through the CRUD endpoints. */
+	async function storeRules(a: Audience, rules: Rule[]): Promise<void> {
+		for (const old of (await pipeline(a)).rules) {
+			const res = await a.who.api.delete(`${API}/rules/${old.id}`)
+			expect(res.status(), await res.text()).toBeLessThan(300)
+		}
+		for (const rule of rules) {
+			const res = await a.who.api.post(`${API}/widgets/${a.subjectId}/rules`, {
+				data: rule,
+			})
+			expect(
+				res.status(),
+				`storing ${rule.isInclude ? 'an include' : 'an exclude'} ${rule.ruleType} rule: ${await res.text()}`,
+			).toBe(201)
+		}
+		expect(
+			(await pipeline(a)).rules,
+			'CONTROL: the stored rule set must be exactly the one under test',
+		).toHaveLength(rules.length)
+	}
+
+	/** Preview the STORED rule set, as the audience, for its own groups, now. */
+	async function previewStored(a: Audience): Promise<boolean> {
+		const stored = (await pipeline(a)).rules
+		const res = await a.who.api.post(`${API}/visibility/preview`, {
+			data: {
+				rules: stored.map((r) => ({
+					id: r.id,
+					ruleType: r.ruleType,
+					ruleConfig: r.ruleConfig,
+					isInclude: r.isInclude,
+				})),
+				context: { groups: a.groups, datetime: new Date().toISOString() },
+			},
+		})
+		expect(res.status(), `preview: ${await res.text()}`).toBe(200)
+		const body = await res.json()
+		expect(
+			Object.keys(body).sort(),
+			'the preview must answer with its documented fields',
+		).toEqual(['matchedExcludeRuleIds', 'matchedIncludeRuleIds', 'visible'])
+		return body.visible
+	}
+
+	/** Run `fn` in a browser session that is the audience's own login. */
+	async function asAudience<T>(
+		browser: Browser,
+		a: Audience,
+		fn: (page: Page) => Promise<T>,
+	): Promise<T> {
+		const session: { context: BrowserContext; page: Page } = await loginAs(
+			browser,
+			a.who.username,
+			a.who.password,
+		)
+		try {
+			return await fn(session.page)
+		} finally {
+			await session.context.close()
+		}
+	}
+
+	test.beforeAll(async () => {
+		const admin = await adminApi()
+		for (const id of [AUDIENCE_GROUP, OTHER_GROUP]) {
+			await createGroup(admin, id)
+			groupsCreated.push(id)
+		}
+		const m = await createPrincipal(admin, 'cve-member')
+		await addToGroup(admin, m.username, AUDIENCE_GROUP)
+		member = await seedAudience(admin, m, 'member')
+		const o = await createPrincipal(admin, 'cve-outsider')
+		outsider = await seedAudience(admin, o, 'outsider')
+		await admin.dispose()
+
+		expect(
+			member.groups,
+			'CONTROL: the member must really be in the audience group',
+		).toContain(AUDIENCE_GROUP)
+		expect(
+			outsider.groups,
+			'CONTROL: the outsider must really be outside it',
+		).not.toContain(AUDIENCE_GROUP)
+	})
+
+	test.afterAll(async () => {
+		const admin = await adminApi()
+		for (const a of [member, outsider]) {
+			if (a !== null) {
+				await a.who.api.delete(`${API}/dashboard/${a.dashboardId}`)
+				await removePrincipal(admin, a.who)
+			}
+		}
+		member = null
+		outsider = null
+		await admin.dispose()
+	})
+
+	// @e2e conditional-visibility-editor::endpoint-delegates-to-the-shared-evaluation-service
+	test('for every rule shape, the preview verdict is the verdict the render-time pipeline reaches', async ({
+		browser,
+	}) => {
+		const a = member!
+		const year = new Date().getUTCFullYear()
+		const shapes: Array<{ name: string; expected: boolean; rules: Rule[] }> = [
+			{ name: 'no rules', expected: true, rules: [] },
+			{
+				name: 'include: a group the user is in',
+				expected: true,
+				rules: [
+					{
+						ruleType: 'group',
+						ruleConfig: { groups: [AUDIENCE_GROUP] },
+						isInclude: true,
+					},
+				],
+			},
+			{
+				name: 'include: a group the user is not in',
+				expected: false,
+				rules: [
+					{
+						ruleType: 'group',
+						ruleConfig: { groups: [OTHER_GROUP] },
+						isInclude: true,
+					},
+				],
+			},
+			{
+				name: 'include OR: one miss, one match',
+				expected: true,
+				rules: [
+					{
+						ruleType: 'group',
+						ruleConfig: { groups: [OTHER_GROUP] },
+						isInclude: true,
+					},
+					{
+						ruleType: 'group',
+						ruleConfig: { groups: [AUDIENCE_GROUP] },
+						isInclude: true,
+					},
+				],
+			},
+			{
+				name: 'include: a date window that has closed',
+				expected: false,
+				rules: [
+					{
+						ruleType: 'date',
+						ruleConfig: {
+							startDate: `${year - 2}-01-01`,
+							endDate: `${year - 2}-12-31`,
+						},
+						isInclude: true,
+					},
+				],
+			},
+			{
+				name: 'include: an open-ended date that has started',
+				expected: true,
+				rules: [
+					{
+						ruleType: 'date',
+						ruleConfig: { startDate: `${year - 1}-01-01` },
+						isInclude: true,
+					},
+				],
+			},
+			{
+				name: 'include: a time window covering the whole day',
+				expected: true,
+				rules: [
+					{
+						ruleType: 'time',
+						ruleConfig: { startTime: '00:00', endTime: '23:59' },
+						isInclude: true,
+					},
+				],
+			},
+			// Last on purpose: it cannot be stored until launchpad#96 is fixed,
+			// and its failure must not hide the verdicts of the shapes above.
+			{
+				name: 'include matches, but a matching exclude overrides it',
+				expected: false,
+				rules: [
+					{
+						ruleType: 'group',
+						ruleConfig: { groups: [AUDIENCE_GROUP] },
+						isInclude: true,
+					},
+					{
+						ruleType: 'date',
+						ruleConfig: { startDate: `${year - 1}-01-01` },
+						isInclude: false,
+					},
+				],
+			},
+		]
+
+		const seen = new Set<boolean>()
+		try {
+			await asAudience(browser, a, async (page) => {
+				for (const shape of shapes) {
+					await storeRules(a, shape.rules)
+					const previewed = await previewStored(a)
+					seen.add(previewed)
+					expect
+						.soft(previewed, `[${shape.name}] preview verdict`)
+						.toBe(shape.expected)
+					expect
+						.soft(
+							(await pipeline(a)).isVisible,
+							`[${shape.name}] the pipeline's verdict must equal the preview's`,
+						)
+						.toBe(previewed)
+					expect
+						.soft(
+							await renderedVerdict(page, a.subject, a.anchor),
+							`[${shape.name}] what the user is shown must equal the preview's verdict (launchpad#98)`,
+						)
+						.toBe(previewed)
+				}
+			})
+		} finally {
+			await storeRules(a, []).catch(() => null)
+		}
+
+		// CONTROL: equality between two booleans that were always `true`
+		// would prove nothing.
+		expect(
+			[...seen].sort(),
+			'CONTROL: the shapes must produce both verdicts',
+		).toEqual([false, true])
+	})
+
+	// @e2e conditional-visibility-editor::preview-verdict-matches-render-time-verdict-for-identical-inputs
+	test('one rule set, two real audiences: each sees exactly what the preview predicted for them', async ({
+		browser,
+	}) => {
+		const R: Rule[] = [
+			{
+				ruleType: 'group',
+				ruleConfig: { groups: [AUDIENCE_GROUP] },
+				isInclude: true,
+			},
+		]
+
+		const verdicts: Record<
+			string,
+			{ preview: boolean; pipeline: unknown; rendered: boolean }
+		> = {}
+		try {
+			for (const [label, a] of [
+				['member', member!],
+				['outsider', outsider!],
+			] as const) {
+				await storeRules(a, R)
+				const preview = await previewStored(a)
+				const pipelineVerdict = (await pipeline(a)).isVisible
+				const rendered = await asAudience(browser, a, (page) =>
+					renderedVerdict(page, a.subject, a.anchor),
+				)
+				verdicts[label] = { preview, pipeline: pipelineVerdict, rendered }
+			}
+		} finally {
+			for (const a of [member, outsider]) {
+				if (a !== null) {
+					await storeRules(a, []).catch(() => null)
+				}
+			}
+		}
+
+		// CONTROL: the two audiences must get DIFFERENT predictions, or an
+		// endpoint that always answers the same thing would pass.
+		expect(
+			verdicts.member.preview,
+			'CONTROL: the preview must predict Visible for a member of the group',
+		).toBe(true)
+		expect(
+			verdicts.outsider.preview,
+			'CONTROL: the preview must predict Hidden for a non-member',
+		).toBe(false)
+
+		for (const label of ['member', 'outsider']) {
+			expect(
+				verdicts[label].pipeline,
+				`${label}: the render-time pipeline must reach the preview's verdict`,
+			).toBe(verdicts[label].preview)
+			expect(
+				verdicts[label].rendered,
+				`${label}: what the user is actually shown must equal the preview's verdict (launchpad#98)`,
+			).toBe(verdicts[label].preview)
+		}
 	})
 })

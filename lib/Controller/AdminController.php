@@ -27,6 +27,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
 use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
 use OCA\LaunchPad\Exception\ResourceException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\ResourceService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -85,6 +86,8 @@ use OCP\IRequest;
  *                                                  nested branching inside
  *                                                  any single method.
  * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
+ *
+ * @psalm-import-type LaunchPadImportSummary from ResponseDefinitions
  */
 class AdminController extends Controller {
 	use RespondsWithErrors;
@@ -668,6 +671,8 @@ class AdminController extends Controller {
 	 *
 	 * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
 	 *
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/admin-templates/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -734,6 +739,10 @@ class AdminController extends Controller {
 	 *
 	 * @return JSONResponse The import summary, or an error response.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadImportSummary, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/changes/governance-rest-api-reference/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/admin-templates/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

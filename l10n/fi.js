@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Laske käyntini",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
     "Your choice could not be saved." : "Valintaasi ei voitu tallentaa.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} muokkaa myös tätä koontinäyttöä klo {time} alkaen. Muutoksiasi ei korvata.",
+    "Who else is editing?" : "Kuka muu muokkaa?",
     "App catalogue" : "Sovelluskatalogi",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Hyväksytyt sovellukset, jotka käyttäjät voivat lisätä ruuduksi Lisää-painikkeella. Sovellus, jolla ei ole ryhmiä, näkyy kaikille.",
     "Open requests" : "Avoimet pyynnöt",

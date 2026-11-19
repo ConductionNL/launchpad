@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Враховувати мої відвідування",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Коли це вимкнено, ваші відвідування панелей і натискання на плитки не враховуються в кількості переглядів.",
     "Your choice could not be saved." : "Не вдалося зберегти ваш вибір.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} також редагує цю панель з {time}. Ваші зміни не буде перезаписано.",
+    "Who else is editing?" : "Хто ще редагує?",
     "App catalogue" : "Каталог застосунків",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Схвалені застосунки, які користувачі можуть додати як плитку через «Додати». Застосунок без груп бачать усі.",
     "Open requests" : "Відкриті запити",

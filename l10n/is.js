@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Telja heimsóknir mínar",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
     "Your choice could not be saved." : "Ekki tókst að vista valið þitt.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} er líka að breyta þessu stjórnborði frá {time}. Breytingarnar þínar verða ekki yfirskrifaðar.",
+    "Who else is editing?" : "Hver annar er að breyta?",
     "App catalogue" : "Forritaskrá",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Samþykkt forrit sem fólk getur bætt við sem reit úr „Bæta við“. Forrit án hópa er sýnilegt öllum.",
     "Open requests" : "Opnar beiðnir",

@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Dumbrar mias visitas",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
     "Your choice could not be saved." : "Tia tscherna n'ha betg pudì vegnir memorisada.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} elavura era quest dashboard dapi {time}. Voss midaments na vegnan betg surscrits.",
+    "Who else is editing?" : "Tgi elavura anc?",
     "App catalogue" : "Catalog d'applicaziuns",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Las applicaziuns approvadas che las persunas pon agiuntar sco plattatscha via «Agiuntar». In'applicaziun senza gruppas è visibla per tuts.",
     "Open requests" : "Dumondas avertas",

@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Tæl mine besøg",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Når dette er slået fra, tælles dine besøg på dashboards og klik på fliser ikke med i visningstallene.",
     "Your choice could not be saved." : "Dit valg kunne ikke gemmes.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} redigerer også dette dashboard, siden {time}. Dine ændringer bliver ikke overskrevet.",
+    "Who else is editing?" : "Hvem redigerer ellers?",
     "App catalogue" : "App-katalog",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "De godkendte apps, som brugere kan tilføje som et felt via »Tilføj«. En app uden grupper er synlig for alle.",
     "Open requests" : "Åbne anmodninger",

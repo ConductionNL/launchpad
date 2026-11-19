@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Skaitīt manus apmeklējumus",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kad tas ir izslēgts, jūsu informācijas paneļu apmeklējumi un klikšķi uz flīzēm netiek ieskaitīti skatījumu skaitā.",
     "Your choice could not be saved." : "Jūsu izvēli neizdevās saglabāt.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} arī rediģē šo informācijas paneli kopš {time}. Jūsu izmaiņas netiks pārrakstītas.",
+    "Who else is editing?" : "Kas vēl rediģē?",
     "App catalogue" : "Lietotņu katalogs",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Apstiprinātās lietotnes, kuras lietotāji var pievienot kā elementu, izmantojot “Pievienot”. Lietotne bez grupām ir redzama visiem.",
     "Open requests" : "Atvērtie pieprasījumi",

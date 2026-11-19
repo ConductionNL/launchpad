@@ -1374,6 +1374,8 @@
         "Count my visits": "Враховувати мої відвідування",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Коли це вимкнено, ваші відвідування панелей і натискання на плитки не враховуються в кількості переглядів.",
         "Your choice could not be saved.": "Не вдалося зберегти ваш вибір.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} також редагує цю панель з {time}. Ваші зміни не буде перезаписано.",
+        "Who else is editing?": "Хто ще редагує?",
         "%1$s asked for the app **%2$s**": "Запит від %1$s на застосунок **%2$s**",
         "%1$s asked for the app %2$s": "Запит від %1$s на застосунок %2$s",
         "Approve or decline it under App catalogue in the LaunchPad admin settings": "Схваліть або відхиліть його в розділі «Каталог застосунків» у налаштуваннях адміністратора LaunchPad",

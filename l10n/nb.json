@@ -1373,6 +1373,8 @@
         "Count my visits": "Tell besøkene mine",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Når dette er slått av, telles ikke besøkene dine på dashbord og klikk på fliser med i visningstallene.",
         "Your choice could not be saved.": "Valget ditt kunne ikke lagres.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} redigerer også dette dashbordet, siden {time}. Endringene dine blir ikke overskrevet.",
+        "Who else is editing?": "Hvem redigerer ellers?",
         "%1$s asked for the app **%2$s**": "%1$s har bedt om appen **%2$s**",
         "%1$s asked for the app %2$s": "%1$s har bedt om appen %2$s",
         "Approve or decline it under App catalogue in the LaunchPad admin settings": "Godkjenn eller avslå den under «Appkatalog» i administrasjonsinnstillingene for LaunchPad",

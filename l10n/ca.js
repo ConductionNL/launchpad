@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Compta les meves visites",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quan això està desactivat, les teves visites als taulers i els clics a les rajoles no es tenen en compte en el recompte de visualitzacions.",
     "Your choice could not be saved." : "No s'ha pogut desar la teva tria.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} també edita aquest tauler des de les {time}. Els vostres canvis no se sobreescriuran.",
+    "Who else is editing?" : "Qui més l'està editant?",
     "App catalogue" : "Catàleg d'aplicacions",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Les aplicacions aprovades que els usuaris poden afegir com a tessel·la des d'Afegeix. Una aplicació sense grups és visible per a tothom.",
     "Open requests" : "Sol·licituds obertes",

@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Contar mis visitas",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Si esto está desactivado, tus visitas a los paneles y tus clics en los mosaicos no se incluyen en el recuento de visualizaciones.",
     "Your choice could not be saved." : "No se ha podido guardar tu elección.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} también está editando este panel desde las {time}. Tus cambios no se sobrescribirán.",
+    "Who else is editing?" : "¿Quién más lo está editando?",
     "App catalogue" : "Catálogo de aplicaciones",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Las aplicaciones aprobadas que los usuarios pueden añadir como mosaico desde «Añadir». Una aplicación sin grupos es visible para todos.",
     "Open requests" : "Solicitudes pendientes",

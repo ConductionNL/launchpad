@@ -1373,6 +1373,8 @@
         "Count my visits": "Látogatásaim számolása",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
         "Your choice could not be saved.": "A választásodat nem sikerült menteni.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} is szerkeszti ezt az irányítópultot {time} óta. A módosításai nem íródnak felül.",
+        "Who else is editing?": "Ki szerkeszti még?",
         "%1$s asked for the app **%2$s**": "%1$s kérte a(z) **%2$s** alkalmazást",
         "%1$s asked for the app %2$s": "%1$s kérte a(z) %2$s alkalmazást",
         "Approve or decline it under App catalogue in the LaunchPad admin settings": "Hagyja jóvá vagy utasítsa el a LaunchPad adminisztrációs beállításainak Alkalmazáskatalógus részében",

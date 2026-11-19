@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Meine Besuche zählen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Wenn das aus ist, werden deine Dashboard-Besuche und Klicks auf Kacheln nicht in den Aufrufzahlen mitgezählt.",
     "Your choice could not be saved." : "Deine Auswahl konnte nicht gespeichert werden.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} bearbeitet dieses Dashboard ebenfalls, seit {time}. Ihre Änderungen werden nicht überschrieben.",
+    "Who else is editing?" : "Wer bearbeitet es noch?",
     "App catalogue" : "App-Katalog",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Die genehmigten Apps, die Benutzer über „Hinzufügen“ als Kachel hinzufügen können. Eine App ohne Gruppen ist für alle sichtbar.",
     "Open requests" : "Offene Anfragen",

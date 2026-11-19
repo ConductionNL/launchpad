@@ -834,6 +834,13 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Workspace/CoEditorsBanner.vue | editors": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/Workspace/DashboardBreadcrumb.vue | dashboard": {
 		"type": "Object",
 		"required": false,

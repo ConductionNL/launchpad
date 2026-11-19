@@ -1374,6 +1374,8 @@
         "Count my visits": "Броји моје посете",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Када је ово искључено, ваше посете контролним таблама и кликови на плочице не улазе у број прегледа.",
         "Your choice could not be saved.": "Ваш избор није могуће сачувати.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} такође уређује ову контролну таблу од {time}. Ваше измене неће бити преписане.",
+        "Who else is editing?": "Ко још уређује?",
         "%1$s asked for the app **%2$s**": "Захтев корисника %1$s за апликацију **%2$s**",
         "%1$s asked for the app %2$s": "Захтев корисника %1$s за апликацију %2$s",
         "Approve or decline it under App catalogue in the LaunchPad admin settings": "Одобрите га или одбијте у одељку „Каталог апликација” у административним подешавањима LaunchPad-а",

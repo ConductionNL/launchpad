@@ -1374,6 +1374,8 @@
         "Count my visits": "Licz moje odwiedziny",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Gdy to jest wyłączone, Twoje odwiedziny pulpitów i kliknięcia kafelków nie są wliczane do liczby wyświetleń.",
         "Your choice could not be saved.": "Nie udało się zapisać Twojego wyboru.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} również edytuje ten pulpit od {time}. Twoje zmiany nie zostaną nadpisane.",
+        "Who else is editing?": "Kto jeszcze edytuje?",
         "%1$s asked for the app **%2$s**": "Użytkownik %1$s poprosił o aplikację **%2$s**",
         "%1$s asked for the app %2$s": "Użytkownik %1$s poprosił o aplikację %2$s",
         "Approve or decline it under App catalogue in the LaunchPad admin settings": "Zatwierdź lub odrzuć go w sekcji Katalog aplikacji w ustawieniach administracyjnych LaunchPad",

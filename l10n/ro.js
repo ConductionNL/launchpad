@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Numără vizitele mele",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Când aceasta este dezactivată, vizitele tale pe panouri și clicurile pe dale nu sunt incluse în numărul de vizualizări.",
     "Your choice could not be saved." : "Alegerea ta nu a putut fi salvată.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} editează și acest tablou de bord din {time}. Modificările dvs. nu vor fi suprascrise.",
+    "Who else is editing?" : "Cine mai editează?",
     "App catalogue" : "Catalog de aplicații",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Aplicațiile aprobate pe care utilizatorii le pot adăuga ca dală din „Adăugați”. O aplicație fără grupuri este vizibilă pentru toți.",
     "Open requests" : "Cereri deschise",

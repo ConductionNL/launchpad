@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Počítat moje návštěvy",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Když je to vypnuté, vaše návštěvy nástěnek a kliknutí na dlaždice se nezapočítávají do počtu zobrazení.",
     "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} tento panel také upravuje od {time}. Vaše změny nebudou přepsány.",
+    "Who else is editing?" : "Kdo další ho upravuje?",
     "App catalogue" : "Katalog aplikací",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Schválené aplikace, které si lidé mohou přidat jako dlaždici přes „Přidat“. Aplikace bez skupin je viditelná pro všechny.",
     "Open requests" : "Nevyřízené žádosti",

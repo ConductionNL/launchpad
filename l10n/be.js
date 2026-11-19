@@ -1422,6 +1422,8 @@ OC.L10N.register(
     "Count my visits" : "Улічваць мае наведванні",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
     "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} таксама рэдагуе гэтую панэль з {time}. Вашы змены не будуць перазапісаны.",
+    "Who else is editing?" : "Хто яшчэ рэдагуе?",
     "App catalogue" : "Каталог праграм",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Ухваленыя праграмы, якія карыстальнікі могуць дадаць як плітку праз «Дадаць». Праграму без груп бачаць усе.",
     "Open requests" : "Адкрытыя запыты",

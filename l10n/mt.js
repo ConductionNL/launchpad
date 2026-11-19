@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Għodd iż-żjarat tiegħi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Meta dan ikun mitfi, iż-żjarat tiegħek fid-dashboards u l-klikks fuq il-madum ma jingħaddux fin-numru ta' dehriet.",
     "Your choice could not be saved." : "L-għażla tiegħek ma setgħetx tiġi ssejvjata.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} qed jeditja wkoll dan id-dashboard minn {time}. Il-bidliet tiegħek mhux se jinkitbu fuqhom.",
+    "Who else is editing?" : "Min iktar qed jeditja?",
     "App catalogue" : "Katalgu tal-apps",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "L-apps approvati li n-nies jistgħu jżidu bħala madum minn Żid. App mingħajr gruppi tidher għal kulħadd.",
     "Open requests" : "Talbiet miftuħa",

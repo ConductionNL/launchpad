@@ -1830,6 +1830,8 @@
         "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.": "Onder Rollen en rechten kies je wie LaunchPad mag beheren en wat elke rol mag wijzigen.",
         "Under Sharing you set who may share dashboards and with whom.": "Onder Delen stel je in wie dashboards mag delen en met wie.",
         "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} bewerkt dit dashboard ook, sinds {time}. Je wijzigingen worden niet overschreven.",
+        "Who else is editing?": "Wie werkt er mee?",
         "Ready-made reports": "Kant-en-klare rapporten",
         "Reports that ship with LaunchPad: run one without composing a dashboard, or save its result as a dashboard of your own.": "Rapporten die met LaunchPad worden meegeleverd: draai er een zonder eerst een dashboard samen te stellen, of bewaar de uitkomst als je eigen dashboard.",
         "No reports ship with this version.": "Deze versie levert geen rapporten mee.",

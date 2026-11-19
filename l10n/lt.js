@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Skaičiuoti mano apsilankymus",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kai tai išjungta, jūsų apsilankymai skydeliuose ir paspaudimai ant plytelių neįskaičiuojami į peržiūrų skaičių.",
     "Your choice could not be saved." : "Nepavyko išsaugoti jūsų pasirinkimo.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} taip pat redaguoja šią suvestinę nuo {time}. Jūsų pakeitimai nebus perrašyti.",
+    "Who else is editing?" : "Kas dar redaguoja?",
     "App catalogue" : "Programų katalogas",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Patvirtintos programos, kurias naudotojai gali pridėti kaip plytelę per „Pridėti“. Programa be grupių matoma visiems.",
     "Open requests" : "Atviros užklausos",

@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Loe minu külastusi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
     "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} muudab seda töölauda samuti alates {time}. Sinu muudatusi ei kirjutata üle.",
+    "Who else is editing?" : "Kes veel muudab?",
     "App catalogue" : "Rakenduste kataloog",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Heakskiidetud rakendused, mida kasutajad saavad nupu „Lisa” kaudu paanina lisada. Grupideta rakendus on nähtav kõigile.",
     "Open requests" : "Avatud taotlused",

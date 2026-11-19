@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Látogatásaim számolása",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
     "Your choice could not be saved." : "A választásodat nem sikerült menteni.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} is szerkeszti ezt az irányítópultot {time} óta. A módosításai nem íródnak felül.",
+    "Who else is editing?" : "Ki szerkeszti még?",
     "App catalogue" : "Alkalmazáskatalógus",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "A jóváhagyott alkalmazások, amelyeket a felhasználók csempeként adhatnak hozzá a Hozzáadás gombbal. A csoportok nélküli alkalmazás mindenki számára látható.",
     "Open requests" : "Nyitott kérelmek",

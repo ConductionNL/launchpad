@@ -1829,6 +1829,8 @@ OC.L10N.register(
     "Count my visits" : "Mijn bezoeken meetellen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Als dit uit staat, tellen je bezoeken aan dashboards en je klikken op tegels niet mee in de bezoekcijfers.",
     "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} bewerkt dit dashboard ook, sinds {time}. Je wijzigingen worden niet overschreven.",
+    "Who else is editing?" : "Wie werkt er mee?",
     "App catalogue" : "App-catalogus",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "De goedgekeurde apps die mensen via ‘Toevoegen’ als tegel kunnen toevoegen. Een app zonder groepen is voor iedereen zichtbaar.",
     "Open requests" : "Openstaande verzoeken",

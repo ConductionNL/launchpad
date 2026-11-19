@@ -1375,6 +1375,8 @@
         "Count my visits": "Štej moje obiske",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Ko je to izklopljeno, se vaši obiski nadzornih plošč in kliki na ploščice ne štejejo v število ogledov.",
         "Your choice could not be saved.": "Vaše izbire ni bilo mogoče shraniti.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} prav tako ureja to nadzorno ploščo od {time}. Vaše spremembe ne bodo prepisane.",
+        "Who else is editing?": "Kdo še ureja?",
         "%1$s asked for the app **%2$s**": "Zahteva uporabnika %1$s za aplikacijo **%2$s**",
         "%1$s asked for the app %2$s": "Zahteva uporabnika %1$s za aplikacijo %2$s",
         "Approve or decline it under App catalogue in the LaunchPad admin settings": "Zahtevo odobrite ali zavrnite v razdelku »Katalog aplikacij« v skrbniških nastavitvah LaunchPad",

@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Broji moje posjete",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kada je ovo isključeno, vaše posjete kontrolnim pločama i klikovi na pločice ne ulaze u broj pregleda.",
     "Your choice could not be saved." : "Vaš izbor nije moguće sačuvati.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} također uređuje ovu kontrolnu ploču od {time}. Vaše izmjene neće biti prepisane.",
+    "Who else is editing?" : "Ko još uređuje?",
     "App catalogue" : "Katalog aplikacija",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Odobrene aplikacije koje korisnici mogu dodati kao pločicu putem opcije Dodaj. Aplikacija bez grupa vidljiva je svima.",
     "Open requests" : "Otvoreni zahtjevi",

@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Numëro vizitat e mia",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kur kjo është e çaktivizuar, vizitat tuaja në panele dhe klikimet mbi pllakat nuk përfshihen në numrin e shikimeve.",
     "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} po e redakton gjithashtu këtë panel që nga {time}. Ndryshimet tuaja nuk do të mbishkruhen.",
+    "Who else is editing?" : "Kush tjetër po e redakton?",
     "App catalogue" : "Katalogu i aplikacioneve",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Aplikacionet e miratuara që përdoruesit mund t’i shtojnë si pllakëz nga «Shto». Një aplikacion pa grupe është i dukshëm për të gjithë.",
     "Open requests" : "Kërkesa të hapura",

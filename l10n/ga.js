@@ -1431,6 +1431,8 @@ OC.L10N.register(
     "Count my visits" : "Comhair mo chuairteanna",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
     "Your choice could not be saved." : "Níorbh fhéidir do rogha a shábháil.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "Tá {name} ag cur an deais seo in eagar freisin ó {time}. Ní scríobhfar thar d'athruithe.",
+    "Who else is editing?" : "Cé eile atá á chur in eagar?",
     "App catalogue" : "Catalóg aipeanna",
     "The approved apps people can add as a tile from Add. An app without groups is visible to everyone." : "Na haipeanna ceadaithe is féidir le daoine a chur leis mar thíl ó “Cuir leis”. Tá aip gan ghrúpaí le feiceáil ag gach duine.",
     "Open requests" : "Iarratais oscailte",

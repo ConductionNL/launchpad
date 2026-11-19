@@ -4,10 +4,8 @@ Render geospatial properties from OpenRegister objects on a map widget inside la
 
 ## Affected code units
 
-- `src/components/widgets/MapWidget.vue` — new Leaflet-based widget that renders GeoJSON returned by OpenRegister's spatial-query API; supports point / line / polygon / multi-geometry layers, click-to-detail navigation back to the underlying object, optional clustering for dense point sets.
-- `src/constants/widgetTypes.js` — register `map` alongside the existing widget types so dashboard authors can pick it from the widget palette.
-- `src/store/modules/widgetData.js` — extend the data-fetch path to call OpenRegister's spatial-query endpoint with bbox / within-polygon / nearest-N filters when the widget is configured as a map.
-- `lib/Db/Widget.php` — annotate `type` field convention (existing column; new accepted value `map`).
+- `@conduction/nextcloud-vue` `CnMapWidget` / `CnMapWidgetForm` (in the nextcloud-vue repository): PDOK base map presets and the `markers.geoProperty` data source (point, line, polygon, multi-geometry).
+- LaunchPad: only the `@conduction/nextcloud-vue` pin, once that change is released. The communal `map` type already reaches the widget picker through `widgetRegistry.js`.
 - No DB schema change.
 
 ## Why a new change
@@ -16,7 +14,7 @@ Map rendering is a contained UI surface that depends on geospatial data shipped 
 
 ## Approach
 
-- Leaflet 1.9 as the map library, bound to Vue through `@vue-leaflet/vue-leaflet` (the Vue 3 port, 0.10.1 on npm, MIT, peer `leaflet` ^1.6.0). LaunchPad is on Vue 3, so `vue2-leaflet` cannot be used (Ruben, 19 Nov 2026).
+- The map is nextcloud-vue's shared `CnMapWidget` (Leaflet 1.9 with clustering), registered communally as the `map` widget type. LaunchPad builds no map widget and adds no map library; PDOK tile sources and the geo-property data source are added to the shared widget, keeping the content shape existing map widgets store (Ruben, 19 Nov 2026).
 - Default base layer: PDOK BRT achtergrondkaart (`https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0`).
 - Coordinate transformation (WGS84 ↔ EPSG:28992 RD) via `proj4` when widgets request RD-projected output.
 - Widget configuration UI: register/schema picker (reuse existing dashboard-widget config), spatial filter (none / bbox / drawn polygon), clustering threshold.

@@ -15,7 +15,7 @@
  * @param {string} term the filter term the person typed.
  * @param {Array<string>} fields the row fields to match against.
  * @return {Array<object>} the matching rows, in their original order.
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
  */
 export function filterRows(rows, term, fields) {
 	const list = Array.isArray(rows) ? rows : []

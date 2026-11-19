@@ -35,8 +35,6 @@ annotate agenda items on dashboard).
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented widget — `launchpad_meeting_actions` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, DAV calendar reads, decidesk presence/absence gating, and Specter-sourced annotation flows — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
-
 ### REQ-MCA-001: The system SHALL register a `launchpad_meeting_actions` widget type distinct from `calendar-widget`
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the
@@ -49,6 +47,8 @@ types fulfil different use-cases (broad calendar view vs governance
 
 #### Scenario: Both calendar widget types registered
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. Only `calendar` is registered, and no test lists the other type.
+
 - **GIVEN** the registry completeness test
 - **WHEN** it runs
 - **THEN** both `calendar` and `meeting-actions` MUST appear in
@@ -57,6 +57,8 @@ types fulfil different use-cases (broad calendar view vs governance
   (`'Calendar'` vs `'Meetings & actions'`)
 
 #### Scenario: Widget appears in the Add modal
+
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json, so the type picker cannot offer it (`git log --all -S'Meetings & actions'` is empty too).
 
 - **GIVEN** the Add Widget modal type picker
 - **WHEN** rendered
@@ -77,12 +79,16 @@ The placement MUST persist `{type: 'meeting-actions', content: {...}}` with:
 
 #### Scenario: Minimal placement validates
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no form and no content contract for the type.
+
 - **GIVEN** the content shape
 - **WHEN** `{type: 'meeting-actions', content: {daysAhead: 7}}` is saved
 - **THEN** validation MUST pass
 - **AND** defaults MUST apply
 
 #### Scenario: Negative `daysAhead` rejected
+
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no form with a validate() to reject it, and no unit test.
 
 - **GIVEN** `content.daysAhead = -1`
 - **WHEN** `validate()` runs
@@ -100,6 +106,8 @@ convention.
 
 #### Scenario: DAV query issued on mount
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. The existing `calendar` widget is not this: it reads events from LaunchPad's own `GET /api/widgets/calendar/{placementId}/events` (src/services/widgetDataAdapters.js), not a CalDAV REPORT from the browser; it has its own calendar-widget spec.
+
 - **GIVEN** the widget mounts with default `calendarSources`
 - **WHEN** the renderer queries
 - **THEN** a CalDAV `REPORT` MUST be issued against the viewer's
@@ -107,6 +115,8 @@ convention.
 - **AND** the time range MUST equal `now .. now + daysAhead`
 
 #### Scenario: No launchpad event table
+
+@e2e exclude never built, and a source inspection rather than a browser behaviour: the widget never shipped (`launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json). Checked by hand: no migration in lib/Migration creates an event, calendar or meeting table. No test performs the check.
 
 - **GIVEN** the launchpad migrations after this widget ships
 - **WHEN** inspected
@@ -125,6 +135,8 @@ inline info chip:
 
 #### Scenario: decidesk present surfaces meetings inline
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. No launchpad code queries decidesk; the only `decidesk` hits under src and lib are the fleet app-id alias in lib/Support/FleetAppId.php and a template test fixture. decidesk is not in the CI fixture either.
+
 - **GIVEN** decidesk is installed AND has 2 upcoming meetings in
   the window
 - **WHEN** the widget renders
@@ -132,6 +144,8 @@ inline info chip:
   agenda items (when `includeAgendaItems === true`)
 
 #### Scenario: decidesk absent falls back gracefully
+
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. The info chip text (`git log --all -S'Decidesk meetings unavailable'`) appears in no commit.
 
 - **GIVEN** decidesk is not installed
 - **WHEN** the widget renders
@@ -148,6 +162,8 @@ MUST NOT mirror annotation state.
 
 #### Scenario: Annotation save (Specter source)
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. No code under src or lib issues a decidesk agenda-item mutation; the `annotation` hits in history are MCP tool annotations and the generated openapi.json, not this widget.
+
 - **GIVEN** an agenda item is visible on the dashboard
 - **WHEN** the viewer adds an annotation
 - **THEN** the annotation MUST persist via a GraphQL mutation to
@@ -157,6 +173,8 @@ MUST NOT mirror annotation state.
 
 #### Scenario: Annotation edit reflects immediately (Specter source)
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no annotation control to edit.
+
 - **GIVEN** an annotated agenda item on the dashboard
 - **WHEN** the viewer edits the annotation
 - **THEN** the updated text MUST reflect immediately without a
@@ -165,6 +183,8 @@ MUST NOT mirror annotation state.
 
 #### Scenario: Annotation removal (Specter source)
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no annotation control to remove.
+
 - **GIVEN** an annotated agenda item
 - **WHEN** the viewer removes the annotation
 - **THEN** the annotation MUST be deleted via a GraphQL mutation
@@ -172,6 +192,8 @@ MUST NOT mirror annotation state.
 - **AND** the agenda item MUST return to its unannotated state
 
 #### Scenario: decidesk absent disables annotation control
+
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no annotation control, so its absence on DAV events cannot fail.
 
 - **GIVEN** decidesk is not installed AND `showAnnotations === true`
 - **WHEN** the widget renders DAV events
@@ -189,6 +211,8 @@ own responsibility per its CalDAV integration spec.
 
 #### Scenario: Duplicate event dedup
 
+@e2e exclude never built: `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. `X-DECIDESK-MEETING-ID` appears in no commit (`git log --all -S`), and nothing joins DAV events with decidesk meetings.
+
 - **GIVEN** a decidesk meeting `m-1` exists both as a decidesk
   meeting and as a DAV event with `X-DECIDESK-MEETING-ID: m-1`
 - **WHEN** the timeline renders
@@ -197,6 +221,8 @@ own responsibility per its CalDAV integration spec.
   (location / attendees) and decidesk metadata (agenda items)
 
 #### Scenario: No launchpad↔decidesk link mutation
+
+@e2e exclude never built, and a source scan rather than a browser behaviour: the widget source files it would scan do not exist (`launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json). No test performs the scan.
 
 - **GIVEN** the widget source files
 - **WHEN** scanned for POST/PUT to `/apps/decidesk/.*link` or

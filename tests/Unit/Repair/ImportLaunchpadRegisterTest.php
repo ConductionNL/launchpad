@@ -189,7 +189,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 	/**
 	 * The shipped fragments add the status report schema to the launchpad register.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.1
 	 */
 	public function testTheShippedRegisterCarriesTheStatusReportSchema(): void {
 		$this->root = dirname(__DIR__, 3);

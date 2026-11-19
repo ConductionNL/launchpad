@@ -948,6 +948,168 @@
           }
         ],
         "correlationId": "00000000-0000-4000-8000-000000000002"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "embed_token",
+          "slug": "embed-token-voorbeeld-name-1-1"
+        },
+        "name": "Voorbeeld Name 1",
+        "tokenHash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "subject": {
+          "type": "widget",
+          "id": "Voorbeeld Id 1",
+          "filterContext": {}
+        },
+        "scope": {
+          "mode": "read",
+          "allowedFilters": [
+            "Voorbeeld Allowedfilters 1"
+          ],
+          "allowedActions": [
+            "interact"
+          ]
+        },
+        "hostOrigins": [
+          "Voorbeeld Hostorigins 1"
+        ],
+        "description": "Voorbeeld Description 1",
+        "tenantThemeId": "Voorbeeld Tenantthemeid 1",
+        "tokenExpiresAt": "2026-03-01T09:00:00+00:00",
+        "revokedAt": "2026-03-01T09:00:00+00:00",
+        "revocationReason": "compromised",
+        "revocationNotes": "Voorbeeld Revocationnotes 1",
+        "revokedBy": "Voorbeeld Revokedby 1",
+        "rateLimitPolicy": {
+          "requestsPerMinute": 1,
+          "burstSize": 1
+        },
+        "keyId": "Voorbeeld Keyid 1",
+        "createdBy": "Voorbeeld Createdby 1",
+        "createdAt": "2026-03-01T09:00:00+00:00",
+        "updatedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "embed_token",
+          "slug": "embed-token-voorbeeld-name-2-2"
+        },
+        "name": "Voorbeeld Name 2",
+        "tokenHash": "123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0",
+        "subject": {
+          "type": "dashboard",
+          "id": "Voorbeeld Id 2",
+          "filterContext": {}
+        },
+        "scope": {
+          "mode": "read-with-interactions",
+          "allowedFilters": [
+            "Voorbeeld Allowedfilters 2"
+          ],
+          "allowedActions": [
+            "export"
+          ]
+        },
+        "hostOrigins": [
+          "Voorbeeld Hostorigins 2"
+        ],
+        "description": "Voorbeeld Description 2",
+        "tenantThemeId": "Voorbeeld Tenantthemeid 2",
+        "tokenExpiresAt": "2026-03-02T09:00:00+00:00",
+        "revokedAt": "2026-03-02T09:00:00+00:00",
+        "revocationReason": "no_longer_needed",
+        "revocationNotes": "Voorbeeld Revocationnotes 2",
+        "revokedBy": "Voorbeeld Revokedby 2",
+        "rateLimitPolicy": {
+          "requestsPerMinute": 2,
+          "burstSize": 2
+        },
+        "keyId": "Voorbeeld Keyid 2",
+        "createdBy": "Voorbeeld Createdby 2",
+        "createdAt": "2026-03-02T09:00:00+00:00",
+        "updatedAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "embed_token",
+          "slug": "embed-token-voorbeeld-name-3-3"
+        },
+        "name": "Voorbeeld Name 3",
+        "tokenHash": "23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
+        "subject": {
+          "type": "widget",
+          "id": "Voorbeeld Id 3",
+          "filterContext": {}
+        },
+        "scope": {
+          "mode": "read",
+          "allowedFilters": [
+            "Voorbeeld Allowedfilters 3"
+          ],
+          "allowedActions": [
+            "drillDown"
+          ]
+        },
+        "hostOrigins": [
+          "Voorbeeld Hostorigins 3"
+        ],
+        "description": "Voorbeeld Description 3",
+        "tenantThemeId": "Voorbeeld Tenantthemeid 3",
+        "tokenExpiresAt": "2026-03-03T09:00:00+00:00",
+        "revokedAt": "2026-03-03T09:00:00+00:00",
+        "revocationReason": "host_decommissioned",
+        "revocationNotes": "Voorbeeld Revocationnotes 3",
+        "revokedBy": "Voorbeeld Revokedby 3",
+        "rateLimitPolicy": {
+          "requestsPerMinute": 3,
+          "burstSize": 3
+        },
+        "keyId": "Voorbeeld Keyid 3",
+        "createdBy": "Voorbeeld Createdby 3",
+        "createdAt": "2026-03-03T09:00:00+00:00",
+        "updatedAt": "2026-03-03T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "tenant_theme",
+          "slug": "tenant-theme-voorbeeld-name-1-1"
+        },
+        "name": "Voorbeeld Name 1",
+        "cssVariables": {},
+        "logoUrl": "https://example.invalid/resource/0",
+        "customCss": "Voorbeeld Customcss 1",
+        "createdBy": "Voorbeeld Createdby 1",
+        "createdAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "tenant_theme",
+          "slug": "tenant-theme-voorbeeld-name-2-2"
+        },
+        "name": "Voorbeeld Name 2",
+        "cssVariables": {},
+        "logoUrl": "https://example.invalid/resource/1",
+        "customCss": "Voorbeeld Customcss 2",
+        "createdBy": "Voorbeeld Createdby 2",
+        "createdAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "tenant_theme",
+          "slug": "tenant-theme-voorbeeld-name-3-3"
+        },
+        "name": "Voorbeeld Name 3",
+        "cssVariables": {},
+        "logoUrl": "https://example.invalid/resource/2",
+        "customCss": "Voorbeeld Customcss 3",
+        "createdBy": "Voorbeeld Createdby 3",
+        "createdAt": "2026-03-03T09:00:00+00:00"
       }
     ]
   }

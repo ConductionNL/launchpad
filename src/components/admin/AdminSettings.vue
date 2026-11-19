@@ -81,6 +81,9 @@
 					:groups="injectedAllGroups"
 					:configuredGroups="configuredGroups" />
 			</template>
+			<template #tab-embeds>
+				<EmbedsTab />
+			</template>
 			<template #tab-kiosk>
 				<KioskTab />
 			</template>
@@ -433,6 +436,7 @@ import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
 import CommunitiesTab from './tabs/CommunitiesTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
+import EmbedsTab from './tabs/EmbedsTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
@@ -465,6 +469,7 @@ export default {
 		SetupWizardModal,
 		TemplatesPage,
 		OperationsTab,
+		EmbedsTab,
 		RolesPermissionsTab,
 		VersioningAuditTab,
 		MetadataFieldsSettings,
@@ -647,6 +652,7 @@ export default {
 					label: this.t('launchpad', 'Versioning & Audit'),
 				},
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
+				{ id: 'embeds', label: this.t('launchpad', 'Embeds') },
 				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
 				{ id: 'communities', label: this.t('launchpad', 'Communities') },
 				{

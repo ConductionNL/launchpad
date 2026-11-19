@@ -90,8 +90,9 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 * which existing installs only take on a version change. 1.0.3 adds the
 	 * `saved_view` and `filter_event` schemas of
 	 * `register.d/drill-down-cross-widget-filter.json` to the register; 1.0.4 adds
-	 * the `status_report` schema from `register.d/dashboards-and-who-may-see-them.json`.
-	 * The import is also
+	 * the `status_report` schema from `register.d/dashboards-and-who-may-see-them.json`;
+	 * 1.0.5 lists the four embed schemas of `register.d/embedded-analytics.json`
+	 * on it (embedded-analytics). The import is also
 	 * content-authoritative for schemas — OpenRegister's
 	 * `ImportHandler::schemaContentDiffers()` compares properties, required and
 	 * authorization — so a schema edit still applies even when this version has
@@ -99,7 +100,7 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_VERSION = '1.0.4';
+	private const REGISTER_VERSION = '1.0.5';
 
 	/**
 	 * Constructor.

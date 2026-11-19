@@ -48,6 +48,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 3.1 `dashboards`: 167 scenarios, 0 cited, blanket. The largest spec. Split it by requirement across several PRs.
 - [ ] 3.2 `widgets`: 110 scenarios, 0 cited, blanket. Split it by requirement across several PRs.
+  - Spec written: `tests/e2e/widgets-placements-api.spec.ts`, `widgets-rendering.spec.ts`, `widgets-picker.spec.ts`, `widgets-context-menu-contract.spec.ts`, `widgets-nc-widget.spec.ts`, `widgets-tile-type.spec.ts`, `widgets-canvas-search.spec.ts`, `widgets-reload-interval.spec.ts` (helpers `support/widgets.ts`, `support/widgetPlacements.ts`), 99 scenarios cited (12 tests `test.fixme` for suspected defects, see the PR), 21 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.3 `admin-templates`: 86 scenarios, 0 cited, blanket.
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.

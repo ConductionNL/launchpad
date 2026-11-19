@@ -53,6 +53,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/widgets-placements-api.spec.ts`, `widgets-rendering.spec.ts`, `widgets-picker.spec.ts`, `widgets-context-menu-contract.spec.ts`, `widgets-nc-widget.spec.ts`, `widgets-tile-type.spec.ts`, `widgets-canvas-search.spec.ts`, `widgets-reload-interval.spec.ts` (helpers `support/widgets.ts`, `support/widgetPlacements.ts`), 99 scenarios cited (12 tests `test.fixme` for suspected defects, see the PR), 21 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.3 `admin-templates`: 86 scenarios, 0 cited, blanket.
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
+  - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
@@ -60,6 +61,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.7 `navigation-editor-org`: 45 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/navigation-editor-org-api.spec.ts`, `tests/e2e/navigation-editor-org-editor.spec.ts`, `tests/e2e/navigation-editor-org-panel.spec.ts` (helper `tests/e2e/support/orgNavigation.ts`), 45 scenarios cited (22 tests are `test.fixme` for suspected defects, see the PR), 0 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.8 `tiles`: 38 scenarios, 0 cited.
+  - Spec written: `tests/e2e/tiles-api.spec.ts`, `tiles-rendering.spec.ts`, `tiles-launch-target.spec.ts`, `tiles-import-discovery.spec.ts`, 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 13 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
@@ -71,6 +73,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
   - Spec written: tests/e2e/conditional-visibility-editor.spec.ts, 23 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
+  - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
@@ -85,7 +88,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 24 specs, 817 scenarios.
 
 - [ ] 4.1 `text-display-widget`: 90 scenarios, 9 cited.
+  - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
 - [ ] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
@@ -101,6 +106,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
 - [ ] 4.15 `launchpad-spend-analytics-widget`: 21 scenarios, 0 cited, blanket.
 - [ ] 4.16 `launchpad-ai-dashboard-assistant`: 18 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/launchpad-ai-dashboard-assistant.spec.ts, 8 scenarios cited, 3 excluded with a reason, not yet run (cloud, 2026-11-19)
 - [ ] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
 - [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.

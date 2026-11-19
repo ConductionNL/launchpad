@@ -167,7 +167,7 @@ class DashboardApiControllerGuardGoldenTest extends TestCase {
 			$args[] = match (true) {
 				$param->getName() === 'userId' => ($scenario === 'no user id') ? null : 'alice',
 				$name === RequestActor::class => new RequestActor(userSession: $session, actionAuth: $auth),
-				$name === ResponseHelper::class => new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+				$name === ResponseHelper::class => new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 				default => $this->createMock($name),
 			};
 		}

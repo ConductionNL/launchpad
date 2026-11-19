@@ -104,7 +104,7 @@ class DashboardTranslationApiControllerResolvedTest extends TestCase {
 			translations: new TranslationSources(dashboardMapper: $this->dashboards, translationService: $this->translations),
 			caller: new ActionCaller(actionAuth: $this->createMock(ActionAuthService::class), userSession: $session),
 			userId: 'alice',
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

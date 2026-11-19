@@ -210,7 +210,7 @@ class CallerGuardGoldenTest extends TestCase {
 					actionAuth: $auth,
 					userSession: $session
 				),
-				$name === ResponseHelper::class => new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+				$name === ResponseHelper::class => new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 				default => $this->createMock($name),
 			};
 		}

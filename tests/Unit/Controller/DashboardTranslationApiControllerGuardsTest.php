@@ -208,7 +208,7 @@ class DashboardTranslationApiControllerGuardsTest extends TestCase {
 			translations: new TranslationSources(dashboardMapper: $mapper, translationService: $service),
 			caller: new ActionCaller(actionAuth: $auth, userSession: $session),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 }//end class

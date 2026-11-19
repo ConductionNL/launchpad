@@ -77,6 +77,8 @@ class ExpiredLocksCategory implements CleanupCategoryInterface {
 	 * definition gone (TTL exceeded), so no user is ever affected.
 	 *
 	 * @return bool True.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function getSafeToPurgeAutomatically(): bool {
 		return true;

@@ -94,7 +94,7 @@ class DashboardLockServiceGoldenTest extends TestCase {
 		$users->method('get')->willReturn(null);
 
 		$this->service = new DashboardLockService(
-			locks: new LockStore(lockMapper: $locks, logger: $this->createMock(LoggerInterface::class)),
+			locks: new LockStore(lockMapper: $locks, logger: $this->createMock(originalClassName: LoggerInterface::class)),
 			dashboardMapper: $dashboards,
 			directory: new LockDirectory(userManager: $users, groupManager: $this->createMock(IGroupManager::class)),
 			permissionService: $permissions

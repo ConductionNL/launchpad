@@ -105,6 +105,6 @@ class InitializeActionsTest extends TestCase {
 			}
 		);
 
-		return new InitializeActions(actionAuth: $auth, logger: $this->createMock(LoggerInterface::class));
+		return new InitializeActions(actionAuth: $auth, logger: $this->createMock(originalClassName: LoggerInterface::class));
 	}//end step()
 }//end class

@@ -148,7 +148,7 @@ class DashboardApiControllerLookTest extends TestCase {
 			),
 			actor: new RequestActor(userSession: $session, actionAuth: $actionAuth),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

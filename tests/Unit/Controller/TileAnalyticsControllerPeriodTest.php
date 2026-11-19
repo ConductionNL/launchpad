@@ -64,7 +64,7 @@ class TileAnalyticsControllerPeriodTest extends TestCase {
 			tileAnalyticsService: $this->service,
 			actionAuth: $this->actionAuth,
 			userSession: $session,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end setUp()
 

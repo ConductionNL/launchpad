@@ -145,7 +145,7 @@ class OfficeNetworkServiceTest extends TestCase {
 			request: $request,
 			ipFactory: $this->ipFactory(),
 			settingMapper: $mapper,
-			logger: ($logger ?? $this->createMock(LoggerInterface::class))
+			logger: ($logger ?? $this->createMock(originalClassName: LoggerInterface::class))
 		);
 	}//end service()
 

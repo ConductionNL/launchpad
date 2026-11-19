@@ -62,7 +62,7 @@ class MetadataAdminControllerTest extends TestCase {
 			request: $this->request,
 			metadataService: $this->metadataService,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->actionAuth),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

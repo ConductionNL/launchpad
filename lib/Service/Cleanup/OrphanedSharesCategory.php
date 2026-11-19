@@ -81,6 +81,8 @@ class OrphanedSharesCategory implements CleanupCategoryInterface {
 	 * because its dashboard is gone.
 	 *
 	 * @return bool True.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function getSafeToPurgeAutomatically(): bool {
 		return true;

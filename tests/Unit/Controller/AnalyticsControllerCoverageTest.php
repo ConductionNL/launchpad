@@ -65,7 +65,7 @@ class AnalyticsControllerCoverageTest extends TestCase {
 			analyticsService: $this->analytics,
 			actionAuth: $this->actionAuth,
 			userSession: $session,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end setUp()
 

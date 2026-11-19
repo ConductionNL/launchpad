@@ -77,10 +77,10 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	private function controller(?string $userId = 'alice'): AcknowledgementController {
 		return new AcknowledgementController(
 			request: $this->createMock(IRequest::class),
-			tools: new AcknowledgementTools(acknowledgements: $this->service, roleService: $this->roles, logger: $this->createMock(LoggerInterface::class)),
+			tools: new AcknowledgementTools(acknowledgements: $this->service, roleService: $this->roles, logger: $this->createMock(originalClassName: LoggerInterface::class)),
 			groupManager: $this->groups,
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

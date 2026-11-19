@@ -83,7 +83,7 @@ class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 				userSession: $this->createMock(IUserSession::class),
 				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

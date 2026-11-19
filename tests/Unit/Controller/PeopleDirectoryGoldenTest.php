@@ -245,7 +245,7 @@ class PeopleDirectoryGoldenTest extends TestCase {
 			actionAuth: $auth,
 			userSession: $session,
 			userId: $viewer,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 
 		[$filters, $excludeDisabled, $showBirthdays, $sortBy, $limit, $offset, $q] = $params;

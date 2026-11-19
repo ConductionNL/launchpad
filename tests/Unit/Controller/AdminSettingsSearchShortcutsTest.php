@@ -87,11 +87,10 @@ class AdminSettingsSearchShortcutsTest extends TestCase {
 		return new AdminSettingsController(
 			request: $this->createMock(IRequest::class),
 			settingsService: $this->createMock(AdminSettingsService::class),
-			groupManager: $groups,
 			guard: new RequestGuard(userSession: $session, groupManager: $groups, actionAuth: $auth),
 			shortcuts: $service,
 			css: $this->createMock(CustomCssService::class),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

@@ -63,7 +63,6 @@ class AdminSettingsCustomCssTest extends TestCase {
 		$this->controller   = new AdminSettingsController(
 			request: $this->createMock(IRequest::class),
 			settingsService: $this->createMock(AdminSettingsService::class),
-			groupManager: $this->groupManager,
 			guard: new RequestGuard(
 				userSession: $this->userSession,
 				groupManager: $this->groupManager,
@@ -71,7 +70,7 @@ class AdminSettingsCustomCssTest extends TestCase {
 			),
 			shortcuts: $this->createMock(SearchShortcutServiceInterface::class),
 			css: $this->css,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

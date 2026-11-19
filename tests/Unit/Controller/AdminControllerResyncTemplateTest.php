@@ -89,7 +89,7 @@ class AdminControllerResyncTemplateTest extends TestCase {
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

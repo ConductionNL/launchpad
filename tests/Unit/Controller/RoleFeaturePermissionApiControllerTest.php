@@ -81,7 +81,7 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 		$this->controller = new RoleFeaturePermissionApiController(
 			request: $this->request,
 			service: $this->service,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end setUp()
 

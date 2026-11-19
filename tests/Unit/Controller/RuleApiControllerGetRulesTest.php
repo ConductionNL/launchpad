@@ -48,6 +48,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ActionCaller;
 
 /**
  * Contract tests for RuleApiController::getRules.
@@ -125,10 +126,9 @@ class RuleApiControllerGetRulesTest extends TestCase {
 			request: $this->request,
 			conditionalService: $this->conditionalService,
 			permissionService: $this->permissionService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
+			caller: new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 
 	}//end makeController()

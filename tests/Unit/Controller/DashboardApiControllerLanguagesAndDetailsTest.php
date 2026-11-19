@@ -83,7 +83,7 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
 			userId: 'jan',
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

@@ -136,7 +136,7 @@ class AdminControllerRolesAndTemplatesTest extends TestCase {
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end setUp()
 

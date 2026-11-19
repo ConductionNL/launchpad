@@ -19,7 +19,7 @@
 
 - [x] 2.1 Convert `lib/Controller/ResponseHelper.php` to an instance class with a
       constructor-injected `LoggerInterface`.
-- [x] 2.2 Register it in `lib/AppInfo/Application.php`.
+- [x] 2.2 Register it in `lib/AppInfo/Application.php`. Not needed: the container autowires it (a concrete class whose one dependency is `LoggerInterface`), so no registration line adds a dependency on it.
 - [x] 2.3 Inject it into the 18 `lib/` files that use it; convert all 224 call sites.
 - [x] 2.4 Make `LoggerInterface` non-optional in `error()`, discharging the standing
       TODO in the REQ-DASH-041 notes.

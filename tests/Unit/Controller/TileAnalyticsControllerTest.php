@@ -72,7 +72,7 @@ class TileAnalyticsControllerTest extends TestCase {
 			tileAnalyticsService: $this->tileAnalyticsService,
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end setUp()
 

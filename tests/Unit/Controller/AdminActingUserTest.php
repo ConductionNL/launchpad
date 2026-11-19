@@ -188,7 +188,7 @@ class AdminActingUserTest extends TestCase {
 			request: $this->forgedRequest(),
 			sources: new OrgNavigationSources(service: $service, settings: $this->createMock(AdminSettingMapper::class)),
 			guard: $this->guard(uid: $uid),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 }

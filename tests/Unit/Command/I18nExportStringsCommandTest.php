@@ -43,7 +43,7 @@ class I18nExportStringsCommandTest extends TestCase {
 
 	private function runCommand(array $input): CommandTester {
 		$command = new I18nExportStringsCommand(
-			new CommandService($this->createMock(LoggerInterface::class)),
+			new CommandService($this->createMock(originalClassName: LoggerInterface::class)),
 			$this->createMock(IUserSession::class),
 			$this->root
 		);

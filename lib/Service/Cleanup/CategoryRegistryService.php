@@ -121,6 +121,7 @@ class CategoryRegistryService {
 	 * @return array<int, string> The Tier-A category names.
 	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function getAutoSafeCategoryNames(): array {
 		$names = [];

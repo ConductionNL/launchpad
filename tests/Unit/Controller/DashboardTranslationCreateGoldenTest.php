@@ -132,7 +132,7 @@ class DashboardTranslationCreateGoldenTest extends TestCase {
 					userSession: $session
 				),
 				userId: 'alice',
-				responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+				responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 			);
 
 			$response      = $controller->create('uuid-1', ...$args);

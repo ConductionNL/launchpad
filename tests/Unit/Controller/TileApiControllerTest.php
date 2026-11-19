@@ -83,7 +83,7 @@ class TileApiControllerTest extends TestCase {
 				userSession: $this->userSession
 			),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

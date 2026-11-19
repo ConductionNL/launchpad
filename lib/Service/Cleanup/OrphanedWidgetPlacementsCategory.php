@@ -73,6 +73,8 @@ class OrphanedWidgetPlacementsCategory implements CleanupCategoryInterface {
 	 * Tier-B — placements may carry recoverable user configuration.
 	 *
 	 * @return bool False.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function getSafeToPurgeAutomatically(): bool {
 		return false;

@@ -21,14 +21,12 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for conditional rule API endpoints.
@@ -40,8 +38,7 @@ class RuleApiController extends Controller {
 	 * @param IRequest $request The request.
 	 * @param ConditionalServiceInterface $conditionalService The conditional service.
 	 * @param PermissionService $permissionService The permission service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
+	 * @param ActionCaller $caller The session user and the ADR-023 action check.
 	 * @param string|null $userId The user ID.
 	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
 	 *
@@ -51,8 +48,7 @@ class RuleApiController extends Controller {
 		IRequest $request,
 		private readonly ConditionalServiceInterface $conditionalService,
 		private readonly PermissionService $permissionService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
+		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
 		private readonly ResponseHelper $responseHelper,
 	) {
@@ -304,8 +300,10 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
 	 * @see ActionCaller::refusal()
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		return (new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession))->refusal(userId: $this->userId, action: $action);
+		return $this->caller->refusal(userId: $this->userId, action: $action);
 	}//end actionRefusal()
 }//end class

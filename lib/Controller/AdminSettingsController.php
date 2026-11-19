@@ -56,7 +56,6 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
 
 /**
@@ -71,7 +70,6 @@ class AdminSettingsController extends Controller {
 	 *
 	 * @param IRequest $request The HTTP request.
 	 * @param AdminSettingsService $settingsService Persisted-settings service.
-	 * @param IGroupManager $groupManager Group manager (admin check + listing).
 	 * @param RequestGuard $guard The session and administrator check.
 	 * @param SearchShortcutServiceInterface $shortcuts The search shortcut list.
 	 * @param CustomCssService $css Stores the cleaned administrator CSS.
@@ -82,7 +80,6 @@ class AdminSettingsController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly AdminSettingsService $settingsService,
-		private readonly IGroupManager $groupManager,
 		private readonly RequestGuard $guard,
 		private readonly SearchShortcutServiceInterface $shortcuts,
 		private readonly CustomCssService $css,
@@ -133,10 +130,12 @@ class AdminSettingsController extends Controller {
 	 * Every Nextcloud group as `{id, displayName}`.
 	 *
 	 * @return list<array{id: string, displayName: string}> The groups.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function knownGroups(): array {
 		$allKnown = [];
-		foreach ($this->groupManager->search(search: '') as $group) {
+		foreach ($this->guard->groupManager->search(search: '') as $group) {
 			$allKnown[] = [
 				'id' => $group->getGID(),
 				'displayName' => $group->getDisplayName(),

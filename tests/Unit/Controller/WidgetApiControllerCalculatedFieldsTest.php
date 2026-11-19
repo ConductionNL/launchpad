@@ -157,10 +157,10 @@ class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 				$this->createMock(WidgetPlacementService::class)
 			),
 			$permissions,
-			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(LoggerInterface::class)),
+			new WidgetApiPolicy($this->createMock(RoleFeaturePermissionService::class), $this->createMock(originalClassName: LoggerInterface::class)),
 			new RequestActor($session, $this->createMock(ActionAuthService::class)),
 			'alice',
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

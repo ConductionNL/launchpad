@@ -71,7 +71,7 @@ class DashboardApiControllerBreadcrumbsTest extends TestCase {
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
 			userId: 'sanne',
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

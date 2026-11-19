@@ -74,7 +74,7 @@ class AdminDemoShowcasesControllerDestroyTest extends TestCase {
 				groupManager: $this->groups,
 				actionAuth: $this->createMock(ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end setUp()
 

@@ -221,7 +221,7 @@ class PeopleWidgetControllerTest extends TestCase {
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end buildController()
 }//end class

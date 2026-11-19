@@ -94,7 +94,7 @@ class AdminControllerRoleExportGoldenTest extends TestCase {
 				userSession: $userSession,
 				actionAuth: $this->createMock(originalClassName: \OCA\LaunchPad\Service\ActionAuthService::class)
 			),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

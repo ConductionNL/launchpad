@@ -83,7 +83,7 @@ class BookmarkImportControllerTest extends TestCase {
 	private function controller(array $body): BookmarkImportController {
 		$this->session->method('getUser')->willReturn($this->createMock(IUser::class));
 		$this->request->method('getParam')->willReturnCallback(static fn (string $key, $default = null) => ($body[$key] ?? $default));
-		return new BookmarkImportController($this->request, $this->widgetService, $this->permissions, new RequestActor($this->session, $this->actionAuth), 'pieter', responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)));
+		return new BookmarkImportController($this->request, $this->widgetService, $this->permissions, new RequestActor($this->session, $this->actionAuth), 'pieter', responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)));
 	}//end controller()
 
 	/**
@@ -106,7 +106,7 @@ class BookmarkImportControllerTest extends TestCase {
 	public function testWithoutASessionTheImportIs401(): void {
 		$this->session->method('getUser')->willReturn(null);
 		$this->widgetService->expects(self::never())->method('importBookmarks');
-		$controller = new BookmarkImportController($this->request, $this->widgetService, $this->permissions, new RequestActor($this->session, $this->actionAuth), null, responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)));
+		$controller = new BookmarkImportController($this->request, $this->widgetService, $this->permissions, new RequestActor($this->session, $this->actionAuth), null, responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)));
 
 		self::assertSame(401, $controller->import(dashboardId: 3)->getStatus());
 	}//end testWithoutASessionTheImportIs401()

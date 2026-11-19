@@ -74,6 +74,8 @@ class OrphanedConditionalRulesCategory implements CleanupCategoryInterface {
 	 * recovering, so this category is opt-in only.
 	 *
 	 * @return bool False.
+	 *
+	 * @spec openspec/changes/responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function getSafeToPurgeAutomatically(): bool {
 		return false;

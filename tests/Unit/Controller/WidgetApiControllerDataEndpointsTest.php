@@ -170,7 +170,7 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 				actionAuth: $this->actionAuth
 			),
 			userId: $userId,
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 
 	}//end makeController()

@@ -120,7 +120,7 @@ class MetadataFieldWriteGoldenTest extends TestCase {
 				logger: $this->createMock(LoggerInterface::class),
 			),
 			guard: new RequestGuard(userSession: $session, groupManager: $groups, actionAuth: $this->createMock(ActionAuthService::class)),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}//end controller()
 

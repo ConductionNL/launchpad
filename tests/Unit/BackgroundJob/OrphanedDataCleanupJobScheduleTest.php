@@ -47,7 +47,7 @@ class OrphanedDataCleanupJobScheduleTest extends TestCase {
 			time: $this->createMock(ITimeFactory::class),
 			cleanupService: $this->service,
 			registry: $this->registry,
-			tools: new CleanupJobTools(appConfig: $this->config, logger: $this->createMock(LoggerInterface::class))
+			tools: new CleanupJobTools(appConfig: $this->config, logger: $this->createMock(originalClassName: LoggerInterface::class))
 		);
 	}
 

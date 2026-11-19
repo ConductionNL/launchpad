@@ -57,11 +57,10 @@ class AdminSettingsControllerTest extends TestCase {
 		$this->controller = new AdminSettingsController(
 			request: $this->request,
 			settingsService: $this->settingsService,
-			groupManager: $this->groupManager,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 			shortcuts: $this->createMock(SearchShortcutService::class),
 			css: $this->createMock(CustomCssService::class),
-			responseHelper: new ResponseHelper(logger: $this->createMock(LoggerInterface::class)),
+			responseHelper: new ResponseHelper(logger: $this->createMock(originalClassName: LoggerInterface::class)),
 		);
 	}
 

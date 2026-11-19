@@ -35,7 +35,9 @@ class AdminWidgetRulesControllerTest extends TestCase {
 		$service = $this->createMock(ConditionalService::class);
 		$service->expects($this->once())->method('listAllRules')->willReturn([['id' => 1, 'ruleType' => 'group']]);
 
-		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service,
+		$response = (new AdminWidgetRulesController(
+			request: $this->createMock(originalClassName: IRequest::class),
+			conditionalService: $service,
 			responseHelper: new ResponseHelper(logger: new NullLogger())
 		))->index();
 
@@ -47,7 +49,9 @@ class AdminWidgetRulesControllerTest extends TestCase {
 		$service = $this->createMock(ConditionalService::class);
 		$service->method('listAllRules')->willThrowException(new RuntimeException('db down'));
 
-		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service,
+		$response = (new AdminWidgetRulesController(
+			request: $this->createMock(originalClassName: IRequest::class),
+			conditionalService: $service,
 			responseHelper: new ResponseHelper(logger: new NullLogger())
 		))->index();
 

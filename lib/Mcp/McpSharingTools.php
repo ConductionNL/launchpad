@@ -61,7 +61,7 @@ class McpSharingTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
 	 */
 	public function listShares(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId') ?? $this->gate->requireUser());
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId') ?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -85,7 +85,7 @@ class McpSharingTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
 	 */
 	public function shareDashboard(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId')
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId')
 			?? $this->validator->oneOf(args: $args, name: 'shareType', allowed: ['user', 'group'])
 			?? $this->validator->string(args: $args, name: 'shareWith', min: 1, max: 255)
 			?? $this->validator->oneOf(args: $args, name: 'permissionLevel', allowed: ['view_only', 'add_only', 'full'])
@@ -117,7 +117,7 @@ class McpSharingTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
 	 */
 	public function replaceShares(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId') ?? $this->gate->requireUser());
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId') ?? $this->gate->requireUser());
 		if ($refusal === null && is_array($args['shares'] ?? null) === false) {
 			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'Argument shares must be a list of shares.');
 		}
@@ -148,7 +148,7 @@ class McpSharingTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
 	 */
 	public function unshareDashboard(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'shareId') ?? $this->gate->requireUser());
+		$refusal = ($this->validator->positiveId(args: $args, name: 'shareId') ?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
 		}

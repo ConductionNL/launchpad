@@ -16,7 +16,6 @@ list response carries an additive `quota` envelope so the UI can disable
 creation affordances at the limit while the server check stays
 authoritative.
 
-@e2e exclude no live-NC Playwright run available in this build context; quota enforcement (under/at/over limit, scope filtering, most-restrictive-wins, grandfathering, provisioning bypass) is covered by PHPUnit (QuotaService + service-wiring + controller 409/envelope tests), and the UI affordance logic (disabled "Add dashboard" / "Add widget", localised tooltip, envelope unwrap, 409 race handling) is covered by vitest store tests. Re-annotate with real Playwright tests once a live instance is wired (tasks.md Task 10).
 
 ## Requirements
 ### Requirement: REQ-QUOTA-001 Quota Admin Settings
@@ -78,6 +77,8 @@ through the same check.
 - THEN each path MUST return the same HTTP 409 `quota_exceeded` response
 - NOTE: Enforcement lives in the dashboard service creation choke point; controllers only map the exception. A creation path that skips the check is a defect.
 
+@e2e exclude only the fork path exists for a user: there is no duplicate-dashboard endpoint (none in appinfo/routes.php or src/services/api.js; `git log --all -S'duplicateDashboard' -- lib src appinfo` is empty), and importing a dashboard export is admin-only (`POST /api/admin/import`), so "each path" cannot be asserted; the fork 409 is asserted as an extra in tests/e2e/dashboard-quota-limits.spec.ts (creation-blocked-at-the-limit) and pinned by tests/Unit/Service/DashboardServiceQuotaWiringTest.php::testForkAsPersonalThrowsAtQuota
+
 #### Scenario: Deleting a dashboard frees quota immediately
 - GIVEN user "alice" at her limit of 5
 - WHEN she deletes one of her dashboards and then creates a new one
@@ -123,6 +124,8 @@ already has that many placements. The rejection MUST be HTTP 409 with body
 - WHEN a user imports a dashboard export containing 55 placements
 - THEN the import MUST be rejected with the structured `quota_exceeded` error (not silently truncated to 40)
 
+@e2e exclude never built for users: the only dashboard-export import is the admin-only `POST /api/admin/import`, and lib/Service/ImportService.php (insert at lines 448 and 478) writes dashboards and placements through the mappers without consulting QuotaService; no unit test pins an import quota
+
 ### Requirement: REQ-QUOTA-004 Admin Provisioning Exemption
 
 The system MUST exempt admin-initiated provisioning — template rollout to groups,
@@ -136,11 +139,15 @@ context on the quota service), never inferred from the acting user's group membe
 - THEN the rollout MUST succeed for alice
 - AND her personal-creation quota MUST remain enforced for her own subsequent creations
 
+@e2e exclude never built as described: `QuotaService::runProvisioning()` has no caller in lib/ (`git log --all -S'runProvisioning(' -- lib` shows only 0b16993c6, which defines it), and a template copy is made only for a member who owns no dashboard yet (`DashboardService::templateStepsAside`, lib/Service/DashboardService.php:2189), so a user at a non-zero limit never receives a rollout copy to observe; the bypass itself is pinned by tests/Unit/Service/QuotaServiceTest.php::testProvisioningBypassesDashboardQuota
+
 #### Scenario: Compulsory widget push exceeds the widget quota
 - GIVEN `max_widgets_per_dashboard = 40` and a user dashboard with 40 placements
 - WHEN an admin pushes a compulsory widget to that dashboard
 - THEN the push MUST succeed, putting the dashboard at 41 placements
 - AND the user's own next placement creation MUST still be rejected (over-quota state blocks new user creations only)
+
+@e2e exclude never built: there is no compulsory-widget push endpoint in appinfo/routes.php (the nearest path, template resync `POST /api/admin/templates/{id}/resync`, copies template placements with the mapper in lib/Service/TemplateResyncService.php:483, outside QuotaService altogether, and is not a compulsory push), and `QuotaService::runProvisioning()` has no caller in lib/ (`git log --all -S'runProvisioning(' -- lib` shows only 0b16993c6, which defines it); the bypass is pinned by tests/Unit/Service/QuotaServiceTest.php::testProvisioningBypassesWidgetQuota
 
 #### Scenario: Admins are bound by quotas for their own personal dashboards
 - GIVEN `max_dashboards_per_user = 5` and admin "carol" owns 5 personal dashboards

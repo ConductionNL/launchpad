@@ -1,13 +1,13 @@
 # Tasks — rename getSafeToPurgeAutomatically() to isSafeToPurgeAutomatically()
 
-> **BLOCKED: awaiting a human decision on `proposal.md`.**
+> Approved by Ruben on 19 Nov 2026.
 > Spec-first: nothing in section 2 may start until section 1 is merged.
 
 ## 1. Spec amendment (must land first, on its own)
 
-- [ ] 1.1 `openspec/specs/orphaned-data-cleanup/spec.md` line 227 — rename in the
+- [x] 1.1 `openspec/specs/orphaned-data-cleanup/spec.md` line 227 — rename in the
       normative statement about how a category exposes its tier.
-- [ ] 1.2 Same file, line 314 — rename in the `CleanupCategoryInterface` method list.
+- [x] 1.2 Same file, line 314 — rename in the `CleanupCategoryInterface` method list.
 
 ## 2. Implementation (only after 1 is merged)
 

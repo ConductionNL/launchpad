@@ -1,7 +1,7 @@
 # Rename `CleanupCategoryInterface::getSafeToPurgeAutomatically()` to `isSafeToPurgeAutomatically()`
 
-> **STATUS: RAISED FOR HUMAN DECISION — NOT APPROVED, NOT STARTED.**
-> Spec-first by design. No code has been changed.
+> **STATUS: APPROVED by Ruben on 19 Nov 2026.** Spec-first: the spec amendment
+> lands in its own PR, the rename follows in the next one.
 
 ## Why
 

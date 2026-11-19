@@ -224,7 +224,7 @@ A scheduled daily job MUST run and automatically purge a safe-to-auto-purge subs
 
 ### Requirement: REQ-CLN-008 Safe-to-Auto-Purge List
 
-The implementation MUST define which categories are safe enough to auto-purge without admin inspection. The shipped Tier-A list MUST contain exactly the two zero-impact categories: `expired_locks` and `expired_share_tokens`. Each category exposes its tier through `CleanupCategoryInterface::getSafeToPurgeAutomatically()`.
+The implementation MUST define which categories are safe enough to auto-purge without admin inspection. The shipped Tier-A list MUST contain exactly the two zero-impact categories: `expired_locks` and `expired_share_tokens`. Each category exposes its tier through `CleanupCategoryInterface::isSafeToPurgeAutomatically()`.
 
 #### Scenario: Default auto-purge list is Tier-A only
 
@@ -311,7 +311,7 @@ Adding a new cleanup category MUST require only creating one new class implement
 
 #### Scenario: Category interface contract
 
-- GIVEN the `CleanupCategoryInterface` with methods `getName()`, `getDisplayName()`, `getSafeToPurgeAutomatically()`, `isAvailable()`, `scan()`, and `purge(bool $dryRun = false)`
+- GIVEN the `CleanupCategoryInterface` with methods `getName()`, `getDisplayName()`, `isSafeToPurgeAutomatically()`, `isAvailable()`, `scan()`, and `purge(bool $dryRun = false)`
 - WHEN a new class implements this interface
 - THEN the registry MUST discover it via constructor injection and the orchestrator MUST invoke it without modification to calling code
 

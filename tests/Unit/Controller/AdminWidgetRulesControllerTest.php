@@ -35,7 +35,9 @@ class AdminWidgetRulesControllerTest extends TestCase {
 		$service = $this->createMock(ConditionalService::class);
 		$service->expects($this->once())->method('listAllRules')->willReturn([['id' => 1, 'ruleType' => 'group']]);
 
-		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service, responseHelper: new ResponseHelper(logger: new NullLogger())))->index();
+		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service,
+			responseHelper: new ResponseHelper(logger: new NullLogger())
+		))->index();
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame([['id' => 1, 'ruleType' => 'group']], $response->getData());
@@ -45,7 +47,9 @@ class AdminWidgetRulesControllerTest extends TestCase {
 		$service = $this->createMock(ConditionalService::class);
 		$service->method('listAllRules')->willThrowException(new RuntimeException('db down'));
 
-		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service, responseHelper: new ResponseHelper(logger: new NullLogger())))->index();
+		$response = (new AdminWidgetRulesController($this->createMock(IRequest::class), $service,
+			responseHelper: new ResponseHelper(logger: new NullLogger())
+		))->index();
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 		$this->assertSame(['error' => 'Operation failed'], $response->getData());

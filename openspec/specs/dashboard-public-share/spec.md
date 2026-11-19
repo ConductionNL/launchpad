@@ -190,8 +190,6 @@ Any mutation endpoint accessed with a public-share token (not a logged-in Nextcl
 
 ### Requirement: REQ-PSHR-007 View Count Debouncing
 
-@e2e exclude viewCount and lastViewedAt are DB columns that no anonymous response echoes back, so a browser cannot read the value the debounce is about; the three scenarios additionally need either distinct client IPs (one CI runner has one) or 60-second-plus wall-clock waits inside a 60s per-test timeout
-
 View counts MUST be incremented at most once per minute per (token, client IP) pair to prevent refresh-spam inflation.
 
 #### Scenario: Repeated renders from same IP in one minute
@@ -201,11 +199,13 @@ View counts MUST be incremented at most once per minute per (token, client IP) p
 - AND `lastViewedAt` MUST be set to the latest render time (t=45s)
 
 #### Scenario: Renders from different IPs are counted separately
+@e2e exclude needs two distinct client IPs reaching the server, and the Playwright job has one runner; Nextcloud only honours X-Forwarded-For from a configured `trusted_proxies`, which the fixture does not set, so a header cannot stand in for a second IP. The per-(token, IP) cache key is pinned by PublicShareMapperTest::testDebounceIncrementsSetsCache and PublicShareMapperCoverageTest::testIncrementViewCountCountsOnceAndArmsTheDebounceKey; no test renders from two IPs
 - GIVEN the same share
 - WHEN IP `203.0.113.42` renders at t=0s and IP `203.0.113.43` renders at t=10s
 - THEN `viewCount` MUST be incremented once per IP (each IP counts independently)
 
 #### Scenario: Renders beyond the 60-second window reset the debounce
+@e2e exclude needs a 65-second wall-clock wait between two renders, longer than the 60s per-test timeout in playwright.config.ts, with no clock a test can move; the window expiring is the 60s TTL of the cache key, pinned by PublicShareMapperTest::testDebounceIncrementsSetsCache (it asserts the key is armed with ttl 60). The same-IP scenario above is covered by tests/e2e/ci/public-share-view-count.spec.ts
 - GIVEN the same share
 - WHEN IP `203.0.113.42` renders at t=0s and again at t=65s (beyond the 60-second window)
 - THEN `viewCount` MUST be incremented twice (one per window)
@@ -234,11 +234,10 @@ Shares with `expiresAt < now()` OR `revokedAt IS NOT NULL` MUST return HTTP 404 
 
 ### Requirement: REQ-PSHR-009 Brute-Force Protection
 
-@e2e exclude all three scenarios spend the IThrottler `launchpad_share_password` bucket, which the spec itself defines as IP-global; playwright.config.ts runs workers:1 / fullyParallel:false from one runner IP, so a test that exhausts it hands 429 to every test that follows and the throttle-resets scenario additionally needs a 60s+ wall-clock wait against a 60s test timeout. The 429 path is asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled
-
 Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent password guessing.
 
 #### Scenario: 10 failed unlocks per 60 seconds allowed
+@e2e exclude spends the IThrottler `launchpad_share_password` bucket, which is IP-global on purpose; playwright.config.ts runs workers:1 / fullyParallel:false from one runner IP, so a test that exhausts it hands 429 to every later unlock test in the job, and there is no endpoint to reset it. The 429 path is asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled
 - GIVEN a public share with a password
 - WHEN an attacker sends unlock requests with wrong passwords from IP `203.0.113.50`
 - THEN the first 10 attempts MUST return HTTP 401
@@ -246,6 +245,7 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 - NOTE: The throttle action is `launchpad_share_password` with limit 10 per 60 s, tracked IP-globally (not per-share). The IThrottler action string contains no token component.
 
 #### Scenario: Throttle is IP-global across all shares
+@e2e exclude same as the scenario above: proving the bucket is shared across shares means exhausting it from the one runner IP, which leaves every later unlock test in the job facing 429. Asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled; no test drives two shares
 - GIVEN two different public shares A and B
 - WHEN IP `203.0.113.50` sends 10 failed unlocks against share A
 - THEN the throttle counter for `launchpad_share_password` is IP-global: those 10 attempts count toward share B as well
@@ -253,6 +253,7 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 - NOTE: There is no per-share scoping of the throttle. An attacker trying many tokens from the same IP hits the ceiling across all shares simultaneously.
 
 #### Scenario: Throttle resets after time window
+@e2e exclude needs the bucket exhausted (see above) and then a 60s+ wall-clock wait, against a 60s per-test timeout; the reset is Nextcloud's own IThrottler window, not LaunchPad code, and no LaunchPad test pins it
 - GIVEN IP `203.0.113.50` exhausted 10 failed attempts
 - AND 60+ seconds pass with no new attempts
 - WHEN they send another unlock attempt
@@ -260,11 +261,10 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 
 ### Requirement: REQ-PSHR-010 Service-Account File Read for GroupFolder Content
 
-@e2e exclude both scenarios are about which account the GroupFolders backend is read as, and the GroupFolders app is not installed on the Playwright fixture — code-quality.yml `additional-apps` provisions only ConductionNL/openregister and neither seed script adds it — so the branch cannot be entered from a browser; same reason the sibling groupfolder-storage-backend spec carries
-
 Public shares referencing dashboards with GroupFolder-backed content MUST use a service-account read path, not the viewer's session.
 
 #### Scenario: Public share rendering GroupFolder content uses service account
+@e2e exclude the GroupFolders app is not installed on the Playwright fixture — code-quality.yml `additional-apps` provisions only ConductionNL/openregister and ConductionNL/integriq and neither seed script adds groupfolders — so the GroupFolder read path cannot be entered from a browser; same reason the sibling groupfolder-storage-backend spec carries
 - GIVEN a dashboard containing a widget that references a GroupFolder resource
 - WHEN an anonymous user renders the dashboard via a public share token
 - THEN the system MUST use a service-account file-read context (NOT the anonymous user's non-existent session)
@@ -272,6 +272,7 @@ Public shares referencing dashboards with GroupFolder-backed content MUST use a 
 - NOTE: The service-account context MUST be obtained before any GroupFolder filesystem call. The anonymous viewer's session (which does not exist) MUST NOT be passed to the GroupFolder ACL evaluator. Passing a null or non-existent user context causes reads to fail silently or return empty widget data.
 
 #### Scenario: Widget data accessible via service account
+@e2e exclude same as the scenario above: needs the GroupFolders app and a folder ACL limited to a group, and the app is not installed on the Playwright fixture
 - GIVEN a GroupFolder resource is readable only by members of group "Engineering"
 - AND an anonymous public-share user is not a member of "Engineering"
 - WHEN the service-account render path is used
@@ -324,6 +325,7 @@ The start page MUST show a "Sign in" button that opens the login form with `dire
 - **AND** after signing in he lands on his Workspace page
 
 #### Scenario: LaunchPad is the default app after install
+@e2e exclude happens once, when the app is installed, before any test runs, and the second clause needs Nextcloud's `defaultapp` system value preset to another app, which only `occ config:system:set` or config.php can write; re-installing LaunchPad mid-suite would reset the state every other spec relies on. Pinned by SetDefaultAppTest::testRunClaimsAndReports and DefaultAppSettingTest::testClaimSetsLaunchpadWhenNoDefaultAppIsSet / testClaimKeepsTheAdministratorsDefaultApp
 
 - **GIVEN** the administrator has not set a default app (`defaultapp` is empty)
 - **WHEN** LaunchPad is installed
@@ -331,6 +333,7 @@ The start page MUST show a "Sign in" button that opens the login form with `dire
 - **AND** when a default app is already set, LaunchPad keeps it
 
 #### Scenario: The administrator switches it off
+@e2e exclude two of its three clauses need Nextcloud's `defaultapp` system value set to another app, which no HTTP route writes (only `occ config:system:set` or config.php), and flipping the instance default app mid-suite changes where every later login in the job lands (tests/e2e/public-start-page.spec.ts relies on it). Pinned by DefaultAppSettingTest::testSwitchingOffUnsetsTheDefaultAppLaunchpadSet, testSwitchingOffKeepsADefaultAppChosenLater and testSwitchingBackOnSetsLaunchpadAgain
 
 - **GIVEN** LaunchPad set itself as the default app
 - **WHEN** the administrator switches off "Open LaunchPad after signing in" in the admin settings (`defaultAppEnabled`, on by default)

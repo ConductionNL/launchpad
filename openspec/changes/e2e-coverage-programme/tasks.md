@@ -18,7 +18,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 1.3 `conditional-visibility`: 49 scenarios, 0 cited, blanket. In progress 2026-09-11.
 - [ ] 1.4 `permissions`: 42 scenarios, 0 cited, blanket. In progress 2026-09-11, with `admin-roles` and the access requirements of `admin-settings`.
 - [ ] 1.5 `dashboard-public-share`: 38 scenarios, 25 cited. In progress 2026-09-11.
+  - Spec written: `tests/e2e/public-start-page-admin.spec.ts`, `tests/e2e/ci/public-share-view-count.spec.ts`, 31 scenarios cited, 14 excluded with a reason, requirement-level excludes replaced per scenario, not yet run (cloud, 2026-11-19)
 - [ ] 1.6 `dashboard-sharing`: 34 scenarios, 10 cited. In progress 2026-09-11. Supersedes `add-dashboard-sharing-e2e-coverage`.
+  - Spec written: `tests/e2e/ci/dashboard-share-access.spec.ts`, `tests/e2e/ci/dashboard-share-notifications.spec.ts`, `tests/e2e/ci/dashboard-share-user-deletion.spec.ts`, `tests/e2e/dashboard-sharing-limits.spec.ts` (helpers `tests/e2e/support/shareApi.ts`, `tests/e2e/support/notifications.ts`), 37 scenarios cited, 1 excluded with a reason, not yet run (cloud, 2026-11-19)
 - [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
 - [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
 

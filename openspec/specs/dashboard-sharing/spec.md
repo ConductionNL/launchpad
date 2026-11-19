@@ -123,8 +123,6 @@ Only the owner of a dashboard MUST be allowed to list, create, update, or delete
 
 ### Requirement: Loading a shared dashboard with placements (REQ-SHARE-003)
 
-@e2e exclude recipient-side placement load is exercised by DashboardShareServiceFollowupsTest + the shared-dashboard read path; no owner-driven UI surface distinct from REQ-SHARE-002
-
 `GET /api/dashboard/{id}` MUST return the dashboard, its widget placements, and the caller's effective permission level for any dashboard the caller can view (owned or shared). Callers without ownership AND without any matching share MUST receive HTTP 403.
 
 #### Scenario: Recipient loads a shared dashboard
@@ -154,8 +152,6 @@ When a user accesses a dashboard via a share, the system MUST evaluate widget/ti
 - AND when alice attempts the same call, the system MUST return HTTP 403
 
 ### Requirement: Owner-only metadata and lifecycle operations (REQ-SHARE-005)
-
-@e2e exclude owner-only 403 enforcement is a server-side authorization contract with no distinct UI state beyond REQ-SHARE-001; covered by DashboardShareApiControllerFollowupsTest
 
 Even with a `full`-level share, recipients MUST NOT be able to:
 
@@ -198,8 +194,6 @@ Even with a `full`-level share, recipients MUST NOT be able to:
 
 ### Requirement: Cascade on dashboard delete (REQ-SHARE-007)
 
-@e2e exclude DB cascade side-effect with no observable UI state; covered by DashboardShareServiceFollowupsTest
-
 When a dashboard is deleted (by its owner), every share row referencing that dashboard MUST be deleted in the same transaction. No orphan share rows MAY remain.
 
 #### Scenario: Shares are removed when the dashboard is deleted
@@ -211,8 +205,6 @@ When a dashboard is deleted (by its owner), every share row referencing that das
 - AND a query for shares on dashboard `5` MUST return 0 rows
 
 ### Requirement: Notify recipient on share add and on level upgrade (REQ-SHARE-008)
-
-@e2e exclude notification dispatch is a server-side side-effect asserted by DashboardShareServiceFollowupsTest; no owner-facing UI surface
 
 When a share is created OR its `permission_level` is **upgraded** (`view_only → add_only|full`, or `add_only → full`), the system MUST publish a Nextcloud notification to each affected recipient via `OCP\Notification\IManager`. The notification MUST use:
 
@@ -299,8 +291,6 @@ After the transaction commits, the system MUST publish notifications per REQ-SHA
 
 ### Requirement: Revoke all shares granted to a recipient (REQ-SHARE-010)
 
-@e2e exclude admin bulk-revoke path with no owner-facing config-modal surface; covered by DashboardShareServiceFollowupsTest
-
 The system MUST support `DELETE /api/sharees/{shareType}/{shareWith}` for an authenticated user. The operation MUST delete every share row where:
 
 - `share_type = $shareType AND share_with = $shareWith`, AND
@@ -321,8 +311,6 @@ The response MUST include the count of removed share rows. No notifications MUST
 - AND the response MUST report the number of rows actually deleted (2 in this scenario)
 
 ### Requirement: Notifier renders share and ownership-transfer subjects (REQ-SHARE-011)
-
-@e2e exclude notifier subject-string rendering is a server-side Notifier unit concern with no dashboard-config UI surface
 
 The app MUST register an `OCP\Notification\INotifier` implementation with `id = 'launchpad'` that handles two subjects: `dashboard_shared` and `dashboard_ownership_transferred`. For any other subject the notifier MUST throw `\OCP\Notification\UnknownNotificationException` so that other notifiers may handle it.
 
@@ -347,14 +335,13 @@ Localisation MUST be performed via `IFactory::get('launchpad')` so the existing 
 - AND the link MUST resolve via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index') . '?dashboard=' . <uuid of dashboard 5>`
 
 #### Scenario: Unknown subject throws
+@e2e exclude no HTTP route lets a caller publish a LaunchPad notification with an arbitrary subject — every notification subject in lib/ is chosen by the code, never by the caller — so `Notifier::prepare()` can never be handed `something_else` from a browser or the API, and an exception the notifications app swallows has no reader anyway. Pinned by NotifierTest::testUnknownAppAndSubjectAreRefused
 
 - GIVEN an `INotification` with `app='launchpad'`, `subject='something_else'`
 - WHEN the notifier prepares it
 - THEN `\OCP\Notification\UnknownNotificationException` MUST be thrown
 
 ### Requirement: Cascade and admin retention on user deletion (REQ-SHARE-012)
-
-@e2e exclude UserDeletedEvent-driven cascade/retention with no interactive UI surface; covered by the service-layer followups suite
 
 The app MUST listen to `OCP\User\Events\UserDeletedEvent`. On every event for user `X`, in a single DB transaction per affected dashboard, the system MUST:
 
@@ -411,8 +398,6 @@ The app MUST listen to `OCP\User\Events\UserDeletedEvent`. On every event for us
 - THEN dashboard `5` MUST be deleted (admin pool is empty after filtering)
 
 ### Requirement: Deterministic new-owner selection (REQ-SHARE-013)
-
-@e2e exclude pure ranking/tie-break logic for owner reassignment with no observable UI state; covered by the service-layer followups suite
 
 When REQ-SHARE-012 calls for picking a new owner from the admin pool, the system MUST apply this ordering rule:
 

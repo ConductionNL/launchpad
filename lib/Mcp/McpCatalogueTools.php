@@ -91,8 +91,8 @@ class McpCatalogueTools {
 	 */
 	public function listTemplates(array $args): array {
 		$validator = new McpArgumentValidator();
-		$refusal   = ($validator->string(args: $args, name: 'category', min: 1, max: 255, required: false)
-			?? $validator->oneOf(args: $args, name: 'sort', allowed: ['name', 'updatedAt'], required: false)
+		$refusal   = ($validator->optional(args: $args, name: 'category', refusal: $validator->string(args: $args, name: 'category', min: 1, max: 255))
+			?? $validator->optional(args: $args, name: 'sort', refusal: $validator->oneOf(args: $args, name: 'sort', allowed: ['name', 'updatedAt']))
 			?? $this->gate->requireAction(action: 'template.gallery'));
 		if ($refusal !== null) {
 			return $refusal;

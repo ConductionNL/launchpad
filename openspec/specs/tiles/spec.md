@@ -38,7 +38,6 @@ This means tile placements store a COPY of the tile configuration at creation ti
 ### Requirement: REQ-TILE-001 Reusable tile entity model \u2014 DEPRECATED
 
 The reusable tile entity model (rows in `oc_launchpad_tiles`, accessed via `TileService::createTile / updateTile / deleteTile` and `POST/PUT/DELETE /api/tiles[/{id}]`) MUST be treated as deprecated as of the `unified-add-widget-flow` change. The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
-@e2e exclude tile entity DEPRECATED — write endpoints return 410; checked by Newman, not UI The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
 
 The following behaviour MUST hold during the deprecation window:
 
@@ -61,6 +60,7 @@ The following behaviour MUST hold during the deprecation window:
 - **WHEN** an authenticated user calls `GET /api/tiles`
 - **THEN** the response MUST be HTTP 200 with the row's fields in the documented shape
 - **AND** this MUST work as long as the `oc_launchpad_tiles` table exists in the schema
+@e2e exclude needs rows in oc_launchpad_tiles, which no API can create any more (POST /api/tiles is 410 Gone, cited by tiles::write-endpoints-return-410-gone) and the CI instance seeds none; pinned by tests/Unit/Controller/TileApiControllerTest.php testIndexStillReturnsExistingRowsForBackwardsCompat; the empty-list read is cited by tiles::list-tiles-when-none-exist
 
 #### Scenario: Existing tile placements still render
 
@@ -72,19 +72,20 @@ The following behaviour MUST hold during the deprecation window:
 ### Requirement: List User Tiles (REQ-TILE-002)
 
 Users MUST be able to retrieve all their custom tile definitions, scoped to their user ID.
-@e2e exclude list user tiles tests REST endpoint — Newman scope
 
 #### Scenario: List tiles for a user
 - GIVEN user "alice" has 5 custom tiles
 - WHEN she sends GET /api/tiles
 - THEN the system MUST return HTTP 200 with an array of all 5 tiles
 - AND each tile MUST include: id, userId, title, icon, iconType, backgroundColor, textColor, linkType, linkValue, createdAt, updatedAt
+@e2e exclude needs rows in oc_launchpad_tiles, which no API can create any more (POST /api/tiles is 410 Gone, cited by tiles::write-endpoints-return-410-gone) and the CI instance seeds none; pinned by tests/Unit/Controller/TileApiControllerTest.php testIndexStillReturnsExistingRowsForBackwardsCompat and tests/Unit/Db/TileMapperTest.php
 
 #### Scenario: Tiles are user-scoped
 - GIVEN user "alice" has 5 tiles and user "bob" has 3 tiles
 - WHEN "alice" sends GET /api/tiles
 - THEN the response MUST contain only alice's 5 tiles
 - AND bob's tiles MUST NOT be included
+@e2e exclude needs rows in oc_launchpad_tiles, which no API can create any more (POST /api/tiles is 410 Gone, cited by tiles::write-endpoints-return-410-gone) and the CI instance seeds none; user scoping is pinned by tests/Unit/Db/TileMapperTest.php (findByUserId)
 
 #### Scenario: List tiles when none exist
 - GIVEN user "carol" has no custom tiles
@@ -94,7 +95,7 @@ Users MUST be able to retrieve all their custom tile definitions, scoped to thei
 ### Requirement: Update Custom Tile (REQ-TILE-003)
 
 Users MUST be able to update the properties of their custom tiles with ownership verification.
-@e2e exclude update tile tests REST PUT — Newman scope
+@e2e exclude superseded by REQ-TILE-001: PUT /api/tiles/{id} answers 410 Gone for every caller (cited by tiles::write-endpoints-return-410-gone; pinned by tests/Unit/Controller/TileApiControllerTest.php testUpdateReturns410GoneEnvelope), and no tile row can be created to update since POST /api/tiles is 410 too
 
 #### Scenario: Update tile title and colors
 - GIVEN user "alice" has tile id 3 with title "My Files"
@@ -132,7 +133,7 @@ Users MUST be able to update the properties of their custom tiles with ownership
 ### Requirement: Delete Custom Tile (REQ-TILE-004)
 
 Users MUST be able to delete their custom tile definitions with ownership verification.
-@e2e exclude delete tile tests REST DELETE — Newman scope
+@e2e exclude superseded by REQ-TILE-001: DELETE /api/tiles/{id} answers 410 Gone for every caller (cited by tiles::write-endpoints-return-410-gone; pinned by tests/Unit/Controller/TileApiControllerTest.php testDestroyReturns410GoneEnvelope), and no tile row can be created to delete since POST /api/tiles is 410 too
 
 #### Scenario: Delete a tile not placed on any dashboard
 - GIVEN user "alice" has tile id 3 that is not placed on any dashboard
@@ -156,7 +157,6 @@ Users MUST be able to delete their custom tile definitions with ownership verifi
 ### Requirement: Place Tile on Dashboard (REQ-TILE-005)
 
 Users MUST be able to place tile data onto a dashboard, creating a widget placement with inline tile data.
-@e2e exclude place tile on dashboard tests REST POST — Newman scope
 
 #### Scenario: Place a tile on a dashboard
 - GIVEN user "alice" has dashboard id 5
@@ -197,7 +197,6 @@ Users MUST be able to place tile data onto a dashboard, creating a widget placem
 ### Requirement: Tile Icon Rendering (REQ-TILE-006)
 
 The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path.
-@e2e exclude tile icon rendering (emoji/CSS/URL/SVG path) requires a pre-placed tile on the dashboard — needs seeded state not available in CI fixture
 
 #### Scenario: Render emoji icon
 - GIVEN a tile with `iconType: "emoji"` and `icon: "\ud83d\udcc1"`
@@ -226,7 +225,6 @@ The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path
 ### Requirement: Tile Color Validation (REQ-TILE-007)
 
 Tile colors MUST be validated to ensure proper display and accessibility.
-@e2e exclude tile color validation tests server-side validator — Newman scope
 
 #### Scenario: Valid hex colors accepted
 - GIVEN a tile creation request with `backgroundColor: "#3b82f6"` and `textColor: "#ffffff"`
@@ -247,7 +245,6 @@ Tile colors MUST be validated to ensure proper display and accessibility.
 ### Requirement: Tile Link Navigation (REQ-TILE-008)
 
 Tiles MUST navigate correctly based on their linkType.
-@e2e exclude tile link navigation tests window.location or router.push inside a widget click — requires a placed tile; seeding not available
 
 #### Scenario: App link navigation
 - GIVEN a tile with `linkType: "app"` and `linkValue: "files"`
@@ -268,7 +265,6 @@ Tiles MUST navigate correctly based on their linkType.
 ### Requirement: Tile Styling (REQ-TILE-009)
 
 Tiles MUST apply their configured colors as CSS custom properties for consistent rendering.
-@e2e exclude tile background/text colour CSS tests require a pre-placed tile — seeded state not available in CI fixture
 
 #### Scenario: Tile background and text colors applied
 - GIVEN a tile with `backgroundColor: "#3b82f6"` and `textColor: "#ffffff"`
@@ -292,7 +288,6 @@ Tiles MUST apply their configured colors as CSS custom properties for consistent
 ### Requirement: Tile Edit Mode (REQ-TILE-010)
 
 Tiles MUST support an edit mode that allows configuration changes.
-@e2e exclude tile edit-mode button visibility requires a placed tile in edit mode — seeded state not available
 
 #### Scenario: Edit button visible in edit mode
 - GIVEN a tile on a dashboard in edit mode
@@ -314,12 +309,12 @@ Tiles MUST support an edit mode that allows configuration changes.
 ### Requirement: Tile Management UI (REQ-TILE-011)
 
 Users MUST be able to manage their tile definitions through a dedicated UI.
-@e2e exclude tile management UI (modal form) requires an existing tile placement — seeded state not available
 
 #### Scenario: Tile card display
 - GIVEN user "alice" has custom tiles
 - WHEN she views the tile management panel
 - THEN each tile MUST be displayed as a `TileCard` component with its icon, title, and colors
+@e2e exclude never built: no TileCard component or tile management panel exists (`git log --all --diff-filter=A -- '*TileCard.vue'` finds nothing); tiles are managed on the grid through TileEditor, cited by tiles::tile-editor
 
 #### Scenario: Tile editor
 - GIVEN the user wants to create or edit a tile
@@ -330,7 +325,6 @@ Users MUST be able to manage their tile definitions through a dedicated UI.
 ### Requirement: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical
 
 Tile placements (rows in `oc_launchpad_widget_placements` with `tileType: 'custom'` historically, or `widgetId: 'tile'` going forward) MUST store their data INLINE on the placement. This MUST be treated as the canonical model for tile data on dashboards going forward.
-@e2e exclude inline-content placement model is a data-model spec — no distinct UI surface beyond what REQ-TILE-010/011 cover
 
 New tile placements created via the unified add-widget flow (REQ-WDG-010 + REQ-WDG-022) MUST store their data in `placement.content.{title, icon, iconType, backgroundColor, textColor, linkType, linkValue}` — the standard widget-content shape. Legacy placements with the flat `placement.tileTitle / tileIcon / ...` shape MUST continue to work via the renderer's dual-shape support (REQ-WDG-022 scenario "Tile renderer supports legacy and new content shapes").
 
@@ -477,6 +471,7 @@ Discovery MUST read only the Nextcloud app menu. It MUST NOT read a Docker socke
 - **WHEN** Pieter opens "Add"
 - **THEN** "Context Chat" is discovered from the app menu
 - **AND** LaunchPad makes no call to a Docker or AppAPI daemon endpoint
+@e2e exclude needs AppAPI with an external app (Context Chat), which the CI instance lacks, and the absence of a server-side daemon call is not observable from the browser; pinned by tests/Unit/Service/ServiceDiscoveryServiceTest.php (testKeepsAnExternalApp, testListsTheMenuAppsWithoutLaunchPad: discovery reads only INavigationManager)
 
 ### Requirement: A tile can start a program on the user's computer (REQ-TLT-001)
 

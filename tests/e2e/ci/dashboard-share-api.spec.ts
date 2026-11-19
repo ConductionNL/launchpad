@@ -829,10 +829,10 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 
 	/*
 	 * The spec's scenario has two clauses: "no rows MUST change" and "no
-	 * notifications MUST be published". Only the first is observable from a
-	 * browser — a notification is a server-side dispatch to a recipient's
-	 * queue, which is why REQ-SHARE-008 carries its own `@e2e exclude`. This
-	 * test asserts the row clause, exactly and completely.
+	 * notifications MUST be published". This test asserts the row clause,
+	 * exactly and completely; the notification clause is asserted by the test
+	 * of the same scenario in `dashboard-share-notifications.spec.ts`, which
+	 * reads each recipient's notifications feed.
 	 */
 	// @e2e dashboard-sharing::idempotent-re-put-publishes-nothing
 	test('replaying the same PUT changes no rows', async () => {

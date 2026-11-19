@@ -76,7 +76,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
   - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
+  - Spec written: tests/e2e/dashboard-switcher.spec.ts (new), 19 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
+  - Spec written: tests/e2e/runtime-shell.spec.ts (new), with tests/e2e/support/firstVisit.ts, 20 scenarios cited (11 by the new file), not yet run (cloud, 2026-11-19)
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
   - Written: `tests/e2e/dashboard-deeplinking.spec.ts` cites 6 scenarios (stale slug lands on a dashboard with 200, a slug address opens that dashboard, the path endpoint, one pushState per switch and none on mount, back returns to the previous dashboard, the health route); their exclusions are removed. The route-table order keeps a reasoned exclusion. The NULL-slug half of the path endpoint stays with DashboardApiControllerComputePathTest (a created dashboard always gets a derived slug). Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
 - [ ] 3.18 `default-widget-bundle`: 6 scenarios, 0 cited.

@@ -28,8 +28,6 @@ Stale-lock cleanup is performed inline: `DashboardLockService` calls `DashboardL
 ## Requirements
 
 
-@e2e exclude all scenarios test PHP DashboardLockService REST API — multi-tab locking race conditions cannot be reliably asserted in Playwright headless
-
 ### Requirement: REQ-LOCK-001 Acquire Dashboard Lock
 
 A user MUST be able to acquire an exclusive write lock on a dashboard. Only one user (or admin) can hold a lock at a time. A second user attempting to acquire MUST receive the existing lock details in a conflict response.
@@ -59,6 +57,8 @@ Same-user acquire is re-entrant: if the same user already holds the lock, the ac
   - `lastHeartbeat = ...` (current heartbeat timestamp; client computes implied expiry as `lastHeartbeat + 900s`)
 - AND bob MUST see a read-only banner on the dashboard with alice's display name and the implied lock expiry time
 
+@e2e exclude removed from the page: its read-only banner clause cannot hold since building-edit-a-dashboard-together (594fe5c90) took the lock out of the workspace page (src/views/Views.vue, 'edit mode no longer takes a lock'). The HTTP half (409, no new lock) runs uncited in tests/e2e/dashboard-locking.spec.ts. The 409 body also deliberately omits userId (M2, DashboardLock::jsonSerializeConflict, pinned by DashboardLockApiControllerTest::testAcquireConflictResponseDoesNotLeakUserId), which contradicts the scenario's userId clause
+
 #### Scenario: Same user with two browser tabs (re-entrant acquire)
 - GIVEN alice has tab-1 open on dashboard "d1" and has already acquired the lock
 - WHEN alice opens tab-2 on the same dashboard and tab-2 sends `POST /api/dashboards/d1/lock`
@@ -73,6 +73,8 @@ Same-user acquire is re-entrant: if the same user already holds the lock, the ac
 - THEN the system MUST treat the expired lock as non-existent (inline cleanup removes it first)
 - AND bob MUST receive HTTP 200 with a new lock owned by bob
 - AND alice's expired lock MUST be deleted before the new lock is created
+
+@e2e exclude needs a lock whose lastHeartbeat is more than 15 minutes old: no endpoint backdates a heartbeat and e2e cannot move the server clock, so the only way is 900 s of real waiting per case; expiry is pinned by DashboardLockTest::testIsExpiredReturnsTrueForOldHeartbeat and the inline cleanup by DashboardLockServiceTest::testGetLockStateRunsInlineCleanup
 
 ### Requirement: REQ-LOCK-002 Heartbeat to Extend Lock
 
@@ -104,6 +106,8 @@ A lock owner MUST be able to extend the lock by sending a heartbeat. Ownership i
 - AND alice MUST retain exclusive edit access indefinitely
 - NOTE: The recommended heartbeat cadence is every 60 seconds (15× safety margin against the 15-minute TTL); the server does not enforce a minimum frequency
 
+@e2e exclude needs a browser held open past the 15-minute TTL with heartbeats in between, i.e. more than 900 s of real time; a heartbeat moving lastHeartbeat is asserted by the e2e for lock-owner-extends-lease-with-heartbeat, and a fresh heartbeat counting as live by DashboardLockTest::testIsExpiredReturnsFalseForFreshHeartbeat
+
 ### Requirement: REQ-LOCK-003 Release Dashboard Lock
 
 A lock owner or administrator MUST be able to release a lock, returning the dashboard to an unlocked state. Non-owners MUST NOT be able to release another user's lock unless they are admins. Ownership is determined by `userId` alone.
@@ -129,6 +133,8 @@ A lock owner or administrator MUST be able to release a lock, returning the dash
 - THEN the system MUST delete alice's lock
 - AND the response MUST return HTTP 204
 - AND the action MUST be audit-logged separately (via REQ-LOCK-006)
+
+@e2e exclude the audit-log clause cannot be observed over HTTP: the line is written with LoggerInterface::info() (lib/Service/DashboardLockService.php), which Nextcloud's default loglevel 2 discards, and no endpoint the suite may call serves the log; no PHPUnit test asserts the info() call either (DashboardLockServiceTest::testReleaseByAdminSucceedsViaOverride asserts only the delete). The 204 and the deletion run uncited in tests/e2e/dashboard-locking.spec.ts
 
 #### Scenario: Release non-existent lock
 - GIVEN dashboard "d1" has no lock
@@ -164,6 +170,8 @@ Any logged-in user MUST be able to query the current lock state of a dashboard t
 - AND the response MUST NOT leak expired lock details
 - AND bob MUST be able to acquire a new lock immediately
 
+@e2e exclude needs a lock whose lastHeartbeat is more than 15 minutes old: no endpoint backdates a heartbeat and e2e cannot move the server clock, so the only way is 900 s of real waiting per case; expiry is pinned by DashboardLockTest::testIsExpiredReturnsTrueForOldHeartbeat and the inline cleanup by DashboardLockServiceTest::testGetLockStateRunsInlineCleanup
+
 #### Scenario: Cached displayName is stale
 - GIVEN alice acquires a lock on dashboard "d1"
 - AND alice's display name is later changed in Nextcloud (e.g., "Alice Smith" → "Alice S.")
@@ -181,12 +189,16 @@ Locks MUST automatically become stale when `lastHeartbeat + LOCK_TIMEOUT` (15 mi
 - THEN the system MUST perform inline cleanup and return HTTP 404 (or null)
 - AND the response MUST NOT include the stale lock
 
+@e2e exclude needs a lock whose lastHeartbeat is more than 15 minutes old: no endpoint backdates a heartbeat and e2e cannot move the server clock, so the only way is 900 s of real waiting per case; expiry is pinned by DashboardLockTest::testIsExpiredReturnsTrueForOldHeartbeat and the inline cleanup by DashboardLockServiceTest::testGetLockStateRunsInlineCleanup
+
 #### Scenario: Stale lock does not block new acquisition
 - GIVEN dashboard "d1" has a lock where `lastHeartbeat` is more than 15 minutes in the past
 - WHEN bob sends `POST /api/dashboards/d1/lock`
 - THEN the system MUST NOT return HTTP 409 (conflict)
 - AND the inline cleanup MUST delete the stale row before inserting the new lock
 - AND bob MUST receive HTTP 200 with a new lock
+
+@e2e exclude needs a lock whose lastHeartbeat is more than 15 minutes old: no endpoint backdates a heartbeat and e2e cannot move the server clock, so the only way is 900 s of real waiting per case; expiry is pinned by DashboardLockTest::testIsExpiredReturnsTrueForOldHeartbeat and the inline cleanup by DashboardLockServiceTest::testGetLockStateRunsInlineCleanup
 
 #### Scenario: Network outage does not prevent lock release
 - GIVEN alice acquires a lock and then closes her browser (crash or network cut)
@@ -195,11 +207,15 @@ Locks MUST automatically become stale when `lastHeartbeat + LOCK_TIMEOUT` (15 mi
 - THEN bob MUST succeed immediately (no manual admin intervention required for correctness)
 - NOTE: Inline cleanup removes the stale row at acquire time; no background sweeper is required for correctness
 
+@e2e exclude needs a lock whose lastHeartbeat is more than 15 minutes old: no endpoint backdates a heartbeat and e2e cannot move the server clock, so the only way is 900 s of real waiting per case; expiry is pinned by DashboardLockTest::testIsExpiredReturnsTrueForOldHeartbeat and the inline cleanup by DashboardLockServiceTest::testGetLockStateRunsInlineCleanup
+
 #### Scenario: Default TTL is 15 minutes
 - GIVEN alice acquires a lock on dashboard "d1" at time `T0`
 - THEN the lock's effective expiry is `T0 + 900 seconds` (15 minutes), computed from `lastHeartbeat`
 - WHEN 901 seconds have passed without a heartbeat
 - THEN the lock MUST be considered stale and treated as non-existent on the next read or acquire
+
+@e2e exclude needs a lock whose lastHeartbeat is more than 15 minutes old: no endpoint backdates a heartbeat and e2e cannot move the server clock, so the only way is 900 s of real waiting per case; expiry is pinned by DashboardLockTest::testIsExpiredReturnsTrueForOldHeartbeat and the inline cleanup by DashboardLockServiceTest::testGetLockStateRunsInlineCleanup; the 900 s lease (lockTimeoutSec, expiresAt = lastHeartbeat + 900 s) is asserted by the e2e for get-active-lock
 
 ### Requirement: REQ-LOCK-006 Admin Override and Audit Logging
 
@@ -213,6 +229,8 @@ A Nextcloud administrator MUST be able to release a lock from any user via `POST
 - AND the response MUST return HTTP 200 (or HTTP 204)
 - AND the action MUST be logged via `LoggerInterface::info()` with the original owner's userId, the dashboard UUID, and the admin's userId
 - AND dashboard "d1" MUST be in an unlocked state after this call
+
+@e2e exclude the audit-log clause cannot be observed over HTTP: the line is written with LoggerInterface::info() (lib/Service/DashboardLockService.php), which Nextcloud's default loglevel 2 discards, and no endpoint the suite may call serves the log; no PHPUnit test asserts the info() call either (DashboardLockServiceTest::testForceReleaseByAdminDeletesLock asserts only the delete). The 200 and the unlocked state are asserted by the e2e tests for admin-acquires-lock-after-force-release-normal-flow and non-admin-cannot-force-release
 
 #### Scenario: Admin acquires lock after force-release (normal flow)
 - GIVEN charlie (admin) has just force-released alice's lock on dashboard "d1"
@@ -232,6 +250,8 @@ A Nextcloud administrator MUST be able to release a lock from any user via `POST
 - WHEN charlie sends `POST /api/dashboards/d1/lock/force-release`
 - THEN charlie MUST receive HTTP 200 (or HTTP 204) — idempotent
 - AND the action MUST still be logged
+
+@e2e exclude the audit-log clause cannot be observed over HTTP: the line is written with LoggerInterface::info() (lib/Service/DashboardLockService.php), which Nextcloud's default loglevel 2 discards, and no endpoint the suite may call serves the log; no PHPUnit test asserts the info() call either (DashboardLockServiceTest::testForceReleaseOnMissingLockIsIdempotent asserts only the delete); the expired half also needs a heartbeat older than 15 minutes
 
 ### Requirement: REQ-LOCK-007 Contention and Consistency
 
@@ -261,6 +281,8 @@ When multiple users attempt to acquire the same lock simultaneously (network rac
   - Bob's acquire succeeds first → alice's release succeeds with HTTP 204 (idempotent; lock is gone but already not hers)
 - AND no lock MUST be lost or duplicated
 
+@e2e exclude needs a chosen interleaving of two concurrent requests, which HTTP cannot force; and its second branch (bob's acquire succeeding while alice still holds the lock, then alice's release answering 204) contradicts REQ-LOCK-001, so the scenario text needs fixing before it can be tested. Release idempotency is asserted by the e2e for release-non-existent-lock
+
 ### Requirement: REQ-LOCK-008 Lock Lifecycle on Dashboard Deletion
 
 When a dashboard is deleted, its lock (if any) MUST be automatically deleted as a cascade. No manual cleanup is required.
@@ -283,8 +305,6 @@ When a dashboard is deleted, its lock (if any) MUST be automatically deleted as 
 
 ### Requirement: The workspace page holds the lock while a person edits (REQ-LOCKUI-001)
 
-@e2e exclude the lock needs two live sessions against one dashboard; the page behaviour is asserted in src/views/__tests__/ViewsEditLock.spec.js and src/composables/__tests__/useDashboardLock.spec.js, the banner in src/components/Workspace/__tests__/EditLockBanner.spec.js
-
 Entering edit mode on a dashboard MUST acquire the dashboard lock first. The page MUST enter edit mode only when the lock is granted. Leaving edit mode, saving, or closing the page MUST release it.
 
 #### Scenario: Second editor is stopped
@@ -293,15 +313,17 @@ Entering edit mode on a dashboard MUST acquire the dashboard lock first. The pag
 - **WHEN** Pieter clicks Edit on "Finance" in the Workspace page
 - **THEN** the page stays read-only, a banner reads "Sanne is editing this dashboard", and the grid shows no edit handles
 
+@e2e exclude removed from the page: building-edit-a-dashboard-together (594fe5c90) took the lock out of the workspace page. src/views/Views.vue no longer uses useDashboardLock (edit mode announces a presence instead, see its `presence: useDashboardPresence` comment 'edit mode no longer takes a lock'), so there is no page behaviour to drive; the leftover pieces are pinned by src/composables/__tests__/useDashboardLock.spec.js 'REQ-LOCKUI-001: a 409 blocks and names the holder' and src/components/Workspace/__tests__/EditLockBanner.spec.js 'REQ-LOCKUI-001: names the colleague who is editing'
+
 #### Scenario: Lock is released on leaving
 
 - **GIVEN** Sanne holds the lock on "Finance"
 - **WHEN** she leaves edit mode
 - **THEN** a `DELETE /api/dashboards/{uuid}/lock` is sent and Pieter can start editing at once
 
-### Requirement: The lock is refreshed and lost safely (REQ-LOCKUI-002)
+@e2e exclude removed from the page: building-edit-a-dashboard-together (594fe5c90) took the lock out of the workspace page. src/views/Views.vue no longer uses useDashboardLock (edit mode announces a presence instead, see its `presence: useDashboardPresence` comment 'edit mode no longer takes a lock'), so there is no page behaviour to drive; the leftover pieces are pinned by src/composables/__tests__/useDashboardLock.spec.js 'REQ-LOCKUI-001: release sends DELETE and stops refreshing'
 
-@e2e exclude the lock needs two live sessions against one dashboard; the page behaviour is asserted in src/views/__tests__/ViewsEditLock.spec.js and src/composables/__tests__/useDashboardLock.spec.js, the banner in src/components/Workspace/__tests__/EditLockBanner.spec.js
+### Requirement: The lock is refreshed and lost safely (REQ-LOCKUI-002)
 
 While a person edits, the page MUST refresh the lock at least every five minutes. If a refresh is answered with 404, the page MUST leave edit mode, keep the unsaved changes in memory and tell the person the lock was lost.
 
@@ -311,9 +333,9 @@ While a person edits, the page MUST refresh the lock at least every five minutes
 - **WHEN** Sanne's next refresh returns 404
 - **THEN** the page returns to read-only and a message says another person took over, with the unsaved edits still readable on screen
 
-### Requirement: An administrator can take over a lock (REQ-LOCKUI-003)
+@e2e exclude removed from the page: building-edit-a-dashboard-together (594fe5c90) took the lock out of the workspace page. src/views/Views.vue no longer uses useDashboardLock (edit mode announces a presence instead, see its `presence: useDashboardPresence` comment 'edit mode no longer takes a lock'), so there is no page behaviour to drive; the leftover pieces are pinned by src/composables/__tests__/useDashboardLock.spec.js 'REQ-LOCKUI-002: a 404 on refresh loses the lock and tells the page' and src/components/Workspace/__tests__/EditLockBanner.spec.js 'REQ-LOCKUI-002: says the lock was lost'
 
-@e2e exclude the lock needs two live sessions against one dashboard; the page behaviour is asserted in src/views/__tests__/ViewsEditLock.spec.js and src/composables/__tests__/useDashboardLock.spec.js, the banner in src/components/Workspace/__tests__/EditLockBanner.spec.js
+### Requirement: An administrator can take over a lock (REQ-LOCKUI-003)
 
 The banner MUST show a "Take over" button to administrators only. It MUST ask for confirmation, then force-release the lock and acquire it for the administrator.
 
@@ -323,11 +345,15 @@ The banner MUST show a "Take over" button to administrators only. It MUST ask fo
 - **WHEN** Ruben clicks "Take over" and confirms
 - **THEN** the lock is force-released, Ruben enters edit mode, and Sanne sees the lost-lock message on her next refresh
 
+@e2e exclude removed from the page: building-edit-a-dashboard-together (594fe5c90) took the lock out of the workspace page. src/views/Views.vue no longer uses useDashboardLock (edit mode announces a presence instead, see its `presence: useDashboardPresence` comment 'edit mode no longer takes a lock'), so there is no page behaviour to drive; the leftover pieces are pinned by src/composables/__tests__/useDashboardLock.spec.js 'REQ-LOCKUI-003: take over force-releases and then acquires'
+
 #### Scenario: Non-admin has no button
 
 - **GIVEN** Sanne holds the lock and Pieter is not an administrator
 - **WHEN** Pieter opens the banner
 - **THEN** no "Take over" button is rendered
+
+@e2e exclude removed from the page: building-edit-a-dashboard-together (594fe5c90) took the lock out of the workspace page. src/views/Views.vue no longer uses useDashboardLock (edit mode announces a presence instead, see its `presence: useDashboardPresence` comment 'edit mode no longer takes a lock'), so there is no page behaviour to drive; the leftover pieces are pinned by src/components/Workspace/__tests__/EditLockBanner.spec.js 'REQ-LOCKUI-003: administrators get "Take over", others do not'
 
 ## Non-Functional Requirements
 

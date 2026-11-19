@@ -11,8 +11,6 @@ Enable version history and one-click restoration for LaunchPad dashboards. The f
 ## Data Model
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Database Backend (Default)
 
 Each dashboard version snapshot is stored in `oc_launchpad_dash_versions` with:
@@ -116,6 +114,8 @@ The system MUST expose GET /api/dashboards/{uuid}/versions returning an ordered 
 - THEN the system MUST resolve to `IVersionManager` file-versions and map each file-version to a compatible response object
 - AND the response format MUST be identical to database backend (versionNumber synthesized from file-version timestamp, createdBy from NC user ID if available, etc.)
 
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed; only the dispatch stub is pinned, by DashboardVersionServiceTest::testGroupfolderBackedDashboardReturnsSoftFail
+
 #### Scenario: List versions for a dashboard with no snapshots
 
 - GIVEN a dashboard that exists but has no version snapshots
@@ -130,6 +130,8 @@ The system MUST expose GET /api/dashboards/{uuid}/versions returning an ordered 
 - THEN the response MUST return HTTP 200 with body `{versions: [], modeSupported: false}`
 - AND MUST NOT return HTTP 500 or raise an error
 - AND the UI SHOULD show "version history disabled" to the user
+
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed; the soft-fail envelope is pinned by DashboardVersionServiceTest::testGroupfolderBackedDashboardReturnsSoftFail and the dialog's message by src/modals/__tests__/VersionHistoryModal.spec.js 'says so when versioning is not supported for the dashboard'
 
 #### Scenario: Only owners and admins can list
 
@@ -230,6 +232,8 @@ The system MUST automatically prune old snapshots, keeping only the 50 most rece
 - THEN LaunchPad MUST NOT independently prune NC file-versions
 - AND the system MUST respect NC's retention settings
 
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed, so there are no NC file-versions for LaunchPad to leave alone
+
 #### Scenario: Pruning does not affect versionNumber sequence
 
 - GIVEN a database-backed dashboard where versions 1..10 were pruned, versions 11..60 remain
@@ -257,12 +261,16 @@ The system MUST emit a Nextcloud activity event for every restore, enabling audi
 - AND the event data MUST include: dashboardUuid, restoredFrom (versionNumber), restoredBy (alice), restoredAt (current timestamp)
 - AND admins viewing the activity log MUST see this event
 
+@e2e exclude never built: `Extension::EVENT_RESTORED` ('dashboard_restored', lib/Activity/Extension.php:90) is declared, but nothing publishes it; `DashboardVersionService::restoreVersion()` emits no activity (the spec's Implementation Notes list REQ-VERS-007 as deferred)
+
 #### Scenario: Activity events include full context
 
 - GIVEN a restore event is emitted
 - WHEN an admin queries the activity log
 - THEN the event MUST be human-readable (e.g., "Alice restored dashboard 'My Dashboard' from version 3")
 - AND the event MUST link to the dashboard (via uuid) if the activity UI supports it
+
+@e2e exclude never built: no `dashboard_restored` activity is ever published (see Activity event on restore), so there is no event whose wording or link could be checked
 
 #### Scenario: Automatic snapshots do NOT emit activity
 
@@ -291,6 +299,8 @@ The system MUST transparently adapt all version endpoints to the dashboard's con
 - AND map each file-version object to a compatible response format
 - AND synthesize versionNumber from file-version timestamp if NC doesn't provide one, ensuring monotonic ordering
 
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed
+
 #### Scenario: GroupFolder backend fetch snapshot
 
 - GIVEN a groupfolder-backed dashboard and a user requests GET /api/dashboards/{uuid}/versions/2
@@ -298,6 +308,8 @@ The system MUST transparently adapt all version endpoints to the dashboard's con
 - THEN the system MUST retrieve the specific file-version from NC (not from the current live file)
 - AND return the full file content
 - AND return HTTP 200 with the version body
+
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed; the stub's 404 is pinned by DashboardVersionServiceCoverageTest::testFetchSnapshotOnGroupfolderDashboardThrowsNotFound
 
 #### Scenario: GroupFolder backend restore
 
@@ -309,12 +321,16 @@ The system MUST transparently adapt all version endpoints to the dashboard's con
   3. Return HTTP 200
 - AND the content MUST revert to version 3's state
 
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed; the stub's refusal is pinned by DashboardVersionServiceCoverageTest::testRestoreVersionRefusesGroupfolderDashboard
+
 #### Scenario: Mode detection is automatic
 
 - GIVEN a dashboard object
 - WHEN version endpoints are called
 - THEN the system MUST check the dashboard's `contentBackend` field or equivalent to determine mode
 - AND route the call accordingly WITHOUT requiring a mode parameter in the API request
+
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed; with one backend there is no routing to observe, and the endpoints taking no mode parameter is what every test in tests/e2e/dashboard-versioning.spec.ts already calls
 
 ### Requirement: REQ-VERS-009 Soft-Failure Tolerance
 
@@ -327,12 +343,16 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 - THEN the response MUST be HTTP 200 with body `{versions: [], modeSupported: false}`
 - AND no error MUST be logged (this is expected behavior)
 
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed; the envelope is pinned by DashboardVersionServiceTest::testGroupfolderBackedDashboardReturnsSoftFail
+
 #### Scenario: IVersionManager unavailable
 
 - GIVEN a groupfolder-backed dashboard
 - WHEN `IVersionManager` is not accessible or throws an exception
 - THEN the system MUST catch the exception and return HTTP 200 `{versions: [], modeSupported: false}`
 - AND a warning MAY be logged for ops visibility
+
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed
 
 #### Scenario: Database connection error is NOT soft-fail
 
@@ -342,6 +362,8 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 - AND an error MUST be logged
 - NOTE: Soft-fail applies only to Nextcloud versioning unavailability (groupfolder mode), not database unavailability
 
+@e2e exclude needs a database fault: e2e cannot make the instance's database unreachable for one request; the 500 mapping of an unexpected service failure is pinned by DashboardVersionApiControllerRestoreTest::testRestoreVersionHidesAndLogsUnexpectedFailures and DashboardVersionApiControllerTest::testCreateVersionHidesUnexpectedFailureDetail
+
 #### Scenario: Graceful degradation UI hint
 
 - GIVEN the API returns `{versions: [], modeSupported: false}` for a groupfolder dashboard
@@ -349,9 +371,9 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 - THEN the UI SHOULD display "Version history is not available for this dashboard"
 - AND the restore button SHOULD be disabled or hidden
 
-### Requirement: The owner sees the version history (REQ-VERSUI-001)
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed, so no server answers `modeSupported: false`; the dialog's message is pinned by src/modals/__tests__/VersionHistoryModal.spec.js 'says so when versioning is not supported for the dashboard' and the hidden entry by src/views/__tests__/ViewsVersionHistory.spec.js 'REQ-VERSUI-001: an unsupported dashboard hides the entry'
 
-@e2e exclude restoring needs a seeded version history on a live instance; the flow is asserted in src/modals/__tests__/VersionHistoryModal.spec.js and the menu gate in src/views/__tests__/ViewsVersionHistory.spec.js
+### Requirement: The owner sees the version history (REQ-VERSUI-001)
 
 The dashboard menu MUST show "Version history" to the dashboard owner and to administrators when versioning is supported for the dashboard. It MUST list versions newest first with number, date, author and note.
 
@@ -373,9 +395,9 @@ The dashboard menu MUST show "Version history" to the dashboard owner and to adm
 - **WHEN** the owner opens the dashboard menu
 - **THEN** the entry is hidden
 
-### Requirement: A person can save a named version (REQ-VERSUI-002)
+@e2e exclude never built: the groupfolder backend does not exist. `Dashboard` has no `contentBackend` field, so `DashboardVersionService::isGroupfolderBacked()` (lib/Service/DashboardVersionService.php:588) always answers false, `IVersionManager` is never called anywhere in lib/ (it appears only in a doc comment), and every dashboard is database-backed, so no dashboard answers `modeSupported: false`; the hidden entry is pinned by src/views/__tests__/ViewsVersionHistory.spec.js 'REQ-VERSUI-001: an unsupported dashboard hides the entry'
 
-@e2e exclude restoring needs a seeded version history on a live instance; the flow is asserted in src/modals/__tests__/VersionHistoryModal.spec.js and the menu gate in src/views/__tests__/ViewsVersionHistory.spec.js
+### Requirement: A person can save a named version (REQ-VERSUI-002)
 
 The history dialog MUST offer "Save this version now" with an optional note, calling the explicit snapshot endpoint, and the new version MUST appear at the top of the list.
 
@@ -386,8 +408,6 @@ The history dialog MUST offer "Save this version now" with an optional note, cal
 - **THEN** the list shows a new top entry with that note
 
 ### Requirement: Restoring asks first and can be undone (REQ-VERSUI-003)
-
-@e2e exclude restoring needs a seeded version history on a live instance; the flow is asserted in src/modals/__tests__/VersionHistoryModal.spec.js and the menu gate in src/views/__tests__/ViewsVersionHistory.spec.js
 
 Restore MUST ask for confirmation naming the version date, restore through the restore endpoint, and reload the dashboard. The list MUST then show the `pre-restore` version so the restore can itself be reversed.
 

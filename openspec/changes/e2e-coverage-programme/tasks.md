@@ -27,11 +27,17 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 11 specs, 341 scenarios.
 
 - [ ] 2.1 `dashboard-bulk-operations`: 50 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-bulk-operations.spec.ts, tests/e2e/dashboard-bulk-operations-ui.spec.ts, 44 scenarios cited, not yet run (cloud, 2026-11-19). 6 excluded with a reason.
 - [ ] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
 - [ ] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-versioning.spec.ts, tests/e2e/dashboard-versioning-ui.spec.ts, 29 scenarios cited, not yet run (cloud, 2026-11-19). 14 excluded with a reason.
 - [ ] 2.4 `orphaned-data-cleanup`: 36 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/orphaned-data-cleanup.spec.ts, 13 scenarios cited, not yet run (cloud, 2026-11-19). 23 excluded with a reason.
 - [ ] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.
+  - Spec written: tests/e2e/dashboard-cascade-events.spec.ts, 9 scenarios cited (8 new), not yet run (cloud, 2026-11-19). 26 excluded with a reason.
 - [ ] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-locking.spec.ts, 17 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
 - [ ] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
 - [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
@@ -44,18 +50,28 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 3.1 `dashboards`: 167 scenarios, 0 cited, blanket. The largest spec. Split it by requirement across several PRs.
 - [ ] 3.2 `widgets`: 110 scenarios, 0 cited, blanket. Split it by requirement across several PRs.
+  - Spec written: `tests/e2e/widgets-placements-api.spec.ts`, `widgets-rendering.spec.ts`, `widgets-picker.spec.ts`, `widgets-context-menu-contract.spec.ts`, `widgets-nc-widget.spec.ts`, `widgets-tile-type.spec.ts`, `widgets-canvas-search.spec.ts`, `widgets-reload-interval.spec.ts` (helpers `support/widgets.ts`, `support/widgetPlacements.ts`), 99 scenarios cited (12 tests `test.fixme` for suspected defects, see the PR), 21 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.3 `admin-templates`: 86 scenarios, 0 cited, blanket.
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/footer-customization-api.spec.ts`, `tests/e2e/footer-customization-render.spec.ts` (helper `tests/e2e/support/footerSettings.ts`), 46 scenarios cited (29 of them as `test.fixme` because the footer never renders, see the PR), 1 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.7 `navigation-editor-org`: 45 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/navigation-editor-org-api.spec.ts`, `tests/e2e/navigation-editor-org-editor.spec.ts`, `tests/e2e/navigation-editor-org-panel.spec.ts` (helper `tests/e2e/support/orgNavigation.ts`), 45 scenarios cited (22 tests are `test.fixme` for suspected defects, see the PR), 0 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.8 `tiles`: 38 scenarios, 0 cited.
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/dashboard-reactions.spec.ts`, `tests/e2e/dashboard-reactions-ui.spec.ts`, 27 scenarios cited, 6 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
+  - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
+  - Spec written: tests/e2e/dashboard-icons.spec.ts (new), 21 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
+  - Spec written: tests/e2e/conditional-visibility-editor.spec.ts, 23 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
+  - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
@@ -70,7 +86,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 24 specs, 817 scenarios.
 
 - [ ] 4.1 `text-display-widget`: 90 scenarios, 9 cited.
+  - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
+  - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
 - [ ] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
@@ -79,6 +97,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
+  - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
@@ -101,6 +120,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
 - [ ] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
+  - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
 - [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
 - [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
@@ -111,7 +131,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
 - [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
+  - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
+  - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
 
 ## 6. Close the programme
 

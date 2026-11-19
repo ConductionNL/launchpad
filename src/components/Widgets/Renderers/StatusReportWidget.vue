@@ -144,17 +144,17 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		subject() {
 			return subjectOf(this.content)
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		configured() {
 			return Boolean(this.subject.register && this.subject.schema)
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		subjectLine() {
 			const name = this.subject.title || `${this.subject.register}/${this.subject.schema}`
 			return this.subject.deadline
@@ -162,7 +162,7 @@ export default {
 				: t('launchpad', 'Status of {name}', { name })
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		healthOptions() {
 			return ['on-track', 'at-risk', 'off-track'].map((id) => ({ id, label: this.healthLabel(id) }))
 		},
@@ -171,7 +171,7 @@ export default {
 		 * The prefilled figures, in a fixed order, as label and value.
 		 *
 		 * @return {Array<{key: string, label: string, value: (string|number)}>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		figures() {
 			const figures = this.draft?.figures ?? {}
@@ -195,7 +195,7 @@ export default {
 		/**
 		 * @param {string} health the rating
 		 * @return {string} the rating in words
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		healthLabel(health) {
 			return {
@@ -208,7 +208,7 @@ export default {
 		/**
 		 * @param {string} origin `computed` or `written`
 		 * @return {string} who the value came from
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		originLabel(origin) {
 			return origin === 'written' ? t('launchpad', 'written by a person') : t('launchpad', 'computed by LaunchPad')
@@ -219,7 +219,7 @@ export default {
 		 *
 		 * @param {number} status the HTTP status
 		 * @return {string}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		refusalText(status) {
 			if (status === 503) {
@@ -234,7 +234,7 @@ export default {
 			return t('launchpad', 'The report could not be made. Try again.')
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2 */
 		async prepare() {
 			await this.run(async () => {
 				const answer = await draftStatusReport(this.subject)
@@ -248,7 +248,7 @@ export default {
 			})
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		async keep() {
 			if (this.summary.trim() === '') {
 				return
@@ -267,7 +267,7 @@ export default {
 		 * Run one request with the busy flag and the refusal cleared.
 		 *
 		 * @param {function(): Promise<void>} step the request
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		async run(step) {
 			this.busy = true
@@ -282,7 +282,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		reset() {
 			this.draft = null
 			this.kept = null

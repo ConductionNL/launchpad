@@ -211,7 +211,7 @@ export default {
 		 * Who, which period and how many actions, from the server's answer.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
 		 */
 		summary() {
 			const report = this.report
@@ -235,7 +235,7 @@ export default {
 
 		/**
 		 * @return {Array<{type: string, label: string, count: number}>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
 		 */
 		countRows() {
 			return Object.entries(this.report?.counts ?? {}).map(([type, count]) => ({
@@ -249,7 +249,7 @@ export default {
 		 * One cell per day of the period, a day without activity at level 0.
 		 *
 		 * @return {Array<{date: string, count: number, level: number, label: string}>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
 		 */
 		calendar() {
 			const days = this.report?.days ?? {}
@@ -266,14 +266,14 @@ export default {
 			})
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.6 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.6 */
 		csvUrl() {
 			// The report as shown, not the fields as edited since.
 			return activityReportCsvUrl({ user: this.report.self ? '' : this.report.subject, from: this.report.from, to: this.report.to })
 		},
 	},
 
-	/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2 */
+	/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2 */
 	async created() {
 		await this.load()
 	},
@@ -281,7 +281,7 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2 */
 		async load() {
 			this.loading = true
 			this.loadFailed = false
@@ -308,7 +308,7 @@ export default {
 		 *
 		 * @param {{status: number, enabled: boolean}} refusal the refusal
 		 * @return {string}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
 		 */
 		refusalText(refusal) {
 			if (refusal.status === 400) {

@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ use RuntimeException;
 /**
  * Refuses a status report, carrying the HTTP status to answer with.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
  */
 class StatusReportRefusedException extends RuntimeException {
 
@@ -40,7 +40,7 @@ class StatusReportRefusedException extends RuntimeException {
 	 * @param string $message    Why.
 	 * @param int    $statusCode The HTTP status.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.1
 	 */
 	public function __construct(string $message, public readonly int $statusCode=400) {
 		parent::__construct(message: $message);

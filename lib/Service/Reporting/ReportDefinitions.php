@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ use InvalidArgumentException;
 /**
  * Loads and checks the shipped report definitions.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 class ReportDefinitions {
 
@@ -74,7 +74,7 @@ class ReportDefinitions {
 	 *
 	 * @throws InvalidArgumentException When the file or a definition is malformed.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function all(): array {
 		return array_values($this->load());
@@ -87,7 +87,7 @@ class ReportDefinitions {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function find(string $id): ?array {
 		return ($this->load()[$id] ?? null);
@@ -104,7 +104,7 @@ class ReportDefinitions {
 	 *
 	 * @throws InvalidArgumentException Naming the field that is wrong.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function check(mixed $definition): array {
 		if (is_array($definition) === false) {

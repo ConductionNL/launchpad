@@ -34,7 +34,7 @@ use OCP\IDBConnection;
  *
  * @extends QBMapper<PersonalLayer>
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 class PersonalLayerMapper extends QBMapper {
 	/**
@@ -58,7 +58,7 @@ class PersonalLayerMapper extends QBMapper {
 	 *
 	 * @return PersonalLayer|null
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function findForUser(string $userId, int $dashboardId): ?PersonalLayer {
 		$qb = $this->db->getQueryBuilder();
@@ -85,7 +85,7 @@ class PersonalLayerMapper extends QBMapper {
 	 *
 	 * @return int How many rows went.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function deleteForUser(string $userId, int $dashboardId): int {
 		$qb = $this->db->getQueryBuilder();
@@ -103,7 +103,7 @@ class PersonalLayerMapper extends QBMapper {
 	 *
 	 * @return PersonalLayer[]
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function findByDashboard(int $dashboardId): array {
 		$qb = $this->db->getQueryBuilder();

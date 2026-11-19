@@ -106,7 +106,7 @@ class McpExternalTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-11
 	 */
 	public function updateKioskPlaylist(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'playlistId') ?? $this->playlistRefusal(args: $args) ?? $this->gate->requireUser());
+		$refusal = ($this->validator->positiveId(args: $args, name: 'playlistId') ?? $this->playlistRefusal(args: $args) ?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -130,7 +130,7 @@ class McpExternalTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-11
 	 */
 	public function deleteKioskPlaylist(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'playlistId') ?? $this->gate->requireUser());
+		$refusal = ($this->validator->positiveId(args: $args, name: 'playlistId') ?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -155,8 +155,8 @@ class McpExternalTools {
 	 */
 	public function createPublicShareLink(array $args): array {
 		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
-			?? $this->validator->string(args: $args, name: 'password', min: 1, max: 255, required: false)
-			?? $this->validator->string(args: $args, name: 'expiresAt', min: 10, max: 32, required: false)
+			?? $this->validator->optional(args: $args, name: 'password', refusal: $this->validator->string(args: $args, name: 'password', min: 1, max: 255))
+			?? $this->validator->optional(args: $args, name: 'expiresAt', refusal: $this->validator->string(args: $args, name: 'expiresAt', min: 10, max: 32))
 			?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
@@ -185,7 +185,7 @@ class McpExternalTools {
 	 */
 	public function revokePublicShareLink(array $args): array {
 		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
-			?? $this->validator->id(args: $args, name: 'shareId')
+			?? $this->validator->positiveId(args: $args, name: 'shareId')
 			?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;

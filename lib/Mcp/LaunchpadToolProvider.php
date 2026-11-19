@@ -61,6 +61,21 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'required' => ['dashboardUuid', 'emoji'],
 	];
 
+	private const DASHBOARD_FIELDS = [
+		'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+		'description' => ['type' => 'string', 'maxLength' => 2000],
+		'icon' => ['type' => 'string'],
+		'parentUuid' => ['type' => 'string'],
+		'slug' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+		'sortOrder' => ['type' => 'integer'],
+	];
+
+	private const PLACEMENT_ID_ARGUMENT = [
+		'type' => 'object',
+		'properties' => ['placementId' => ['type' => 'integer', 'minimum' => 1]],
+		'required' => ['placementId'],
+	];
+
 	private const DASHBOARD_UUID_ARGUMENT = [
 		'type' => 'object',
 		'properties' => ['dashboardUuid' => ['type' => 'string', 'format' => 'uuid']],
@@ -242,6 +257,198 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'scope' => 'delete', 'reach' => 'self', 'readOnlyHint' => false, 'destructiveHint' => true,
 			'inputSchema' => self::REACTION_ARGUMENTS,
 		],
+		[
+			'id' => 'launchpad.addWidget',
+			'name' => 'Add widget',
+			'description' => 'Place a widget on a dashboard you may add widgets to; find the widgetId with launchpad.listWidgetTypes.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'widgetId' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'gridX' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridY' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridWidth' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 12],
+					'gridHeight' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 100],
+					'content' => ['type' => 'object'],
+				],
+				'required' => ['dashboardId', 'widgetId'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateWidgetPlacement',
+			'name' => 'Update widget placement',
+			'description' => 'Move, resize, show, hide, retitle, restyle or change the content of a widget you may change.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'placementId' => ['type' => 'integer', 'minimum' => 1],
+					'gridX' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridY' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridWidth' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 12],
+					'gridHeight' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 100],
+					'version' => ['type' => 'integer'],
+					'isVisible' => ['type' => 'boolean'],
+					'showTitle' => ['type' => 'boolean'],
+					'customTitle' => ['type' => 'string'],
+					'customIcon' => ['type' => 'string'],
+					'styleConfig' => ['type' => 'object'],
+					'content' => ['type' => 'object'],
+				],
+				'required' => ['placementId'],
+			],
+		],
+		[
+			'id' => 'launchpad.removeWidget',
+			'name' => 'Remove widget',
+			'description' => 'Remove a widget from a dashboard you may remove widgets from.',
+			'scope' => 'delete', 'reach' => 'self', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => self::PLACEMENT_ID_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.addTileToDashboard',
+			'name' => 'Add tile to dashboard',
+			'description' => 'Add a tile (a title and a link to an app or a web address) to a dashboard you may add widgets to.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'title' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'linkType' => ['type' => 'string', 'enum' => ['app', 'url']],
+					'linkValue' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 2048],
+					'icon' => ['type' => 'string'],
+					'iconType' => ['type' => 'string'],
+					'backgroundColor' => ['type' => 'string'],
+					'textColor' => ['type' => 'string'],
+					'gridX' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridY' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+				],
+				'required' => ['dashboardId', 'title', 'linkType', 'linkValue'],
+			],
+		],
+		[
+			'id' => 'launchpad.createTile',
+			'name' => 'Create tile',
+			'description' => 'Create a tile, a widget of type tile with a title and a link, on a dashboard you may add widgets to.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'title' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'linkType' => ['type' => 'string', 'enum' => ['app', 'url']],
+					'linkValue' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 2048],
+					'icon' => ['type' => 'string'],
+					'iconType' => ['type' => 'string'],
+					'backgroundColor' => ['type' => 'string'],
+					'textColor' => ['type' => 'string'],
+					'gridX' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridY' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridWidth' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 12],
+					'gridHeight' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 100],
+				],
+				'required' => ['dashboardId', 'title', 'linkType', 'linkValue'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateTile',
+			'name' => 'Update tile',
+			'description' => 'Change the title, link, icon, colours or position of a tile you may change.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'placementId' => ['type' => 'integer', 'minimum' => 1],
+					'title' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+					'linkType' => ['type' => 'string', 'enum' => ['app', 'url']],
+					'linkValue' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 2048],
+					'icon' => ['type' => 'string'],
+					'iconType' => ['type' => 'string'],
+					'backgroundColor' => ['type' => 'string'],
+					'textColor' => ['type' => 'string'],
+					'gridX' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridY' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 1000],
+					'gridWidth' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 12],
+					'gridHeight' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 100],
+					'version' => ['type' => 'integer'],
+				],
+				'required' => ['placementId'],
+			],
+		],
+		[
+			'id' => 'launchpad.deleteTile',
+			'name' => 'Delete tile',
+			'description' => 'Delete a tile from a dashboard you may remove widgets from.',
+			'scope' => 'delete', 'reach' => 'self', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => self::PLACEMENT_ID_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.createDashboard',
+			'name' => 'Create dashboard',
+			'description' => 'Create a personal dashboard, seeded with the default widgets.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => self::DASHBOARD_FIELDS,
+				'required' => ['name'],
+			],
+		],
+		[
+			'id' => 'launchpad.updateDashboard',
+			'name' => 'Update dashboard',
+			'description' => 'Rename, describe, move or re-slug a dashboard whose details you may edit.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => ['dashboardId' => ['type' => 'integer', 'minimum' => 1]] + self::DASHBOARD_FIELDS,
+				'required' => ['dashboardId'],
+			],
+		],
+		[
+			'id' => 'launchpad.deleteDashboard',
+			'name' => 'Delete dashboard',
+			'description' => 'Delete a dashboard you own; set cascade to delete its child dashboards too.',
+			'scope' => 'delete', 'reach' => 'self', 'readOnlyHint' => false, 'destructiveHint' => true,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardId' => ['type' => 'integer', 'minimum' => 1],
+					'cascade' => ['type' => 'boolean'],
+				],
+				'required' => ['dashboardId'],
+			],
+		],
+		[
+			'id' => 'launchpad.switchActiveDashboard',
+			'name' => 'Switch active dashboard',
+			'description' => 'Make a dashboard the one LaunchPad opens on for you.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => self::DASHBOARD_UUID_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.setDefaultDashboard',
+			'name' => 'Set default dashboard',
+			'description' => 'Make a dashboard your default.',
+			'scope' => 'update', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => self::DASHBOARD_UUID_ARGUMENT,
+		],
+		[
+			'id' => 'launchpad.forkDashboard',
+			'name' => 'Fork dashboard',
+			'description' => 'Copy a dashboard you can see, or a gallery template, as your own dashboard.',
+			'scope' => 'create', 'reach' => 'self', 'readOnlyHint' => false,
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'dashboardUuid' => ['type' => 'string', 'format' => 'uuid'],
+					'name' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 255],
+				],
+				'required' => ['dashboardUuid'],
+			],
+		],
 	];
 
 	/**
@@ -270,6 +477,19 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		'launchpad.setDashboardMetadata' => [McpMetadataTools::class, 'setDashboardMetadata'],
 		'launchpad.addReaction' => [McpEngagementTools::class, 'addReaction'],
 		'launchpad.removeReaction' => [McpEngagementTools::class, 'removeReaction'],
+		'launchpad.addWidget' => [McpWidgetTools::class, 'addWidget'],
+		'launchpad.updateWidgetPlacement' => [McpWidgetTools::class, 'updateWidgetPlacement'],
+		'launchpad.removeWidget' => [McpWidgetTools::class, 'removeWidget'],
+		'launchpad.addTileToDashboard' => [McpWidgetTools::class, 'addTileToDashboard'],
+		'launchpad.createTile' => [McpWidgetTools::class, 'createTile'],
+		'launchpad.updateTile' => [McpWidgetTools::class, 'updateTile'],
+		'launchpad.deleteTile' => [McpWidgetTools::class, 'deleteTile'],
+		'launchpad.createDashboard' => [McpDashboardWriteTools::class, 'createDashboard'],
+		'launchpad.updateDashboard' => [McpDashboardWriteTools::class, 'updateDashboard'],
+		'launchpad.deleteDashboard' => [McpDashboardWriteTools::class, 'deleteDashboard'],
+		'launchpad.switchActiveDashboard' => [McpDashboardWriteTools::class, 'switchActiveDashboard'],
+		'launchpad.setDefaultDashboard' => [McpDashboardWriteTools::class, 'setDefaultDashboard'],
+		'launchpad.forkDashboard' => [McpDashboardWriteTools::class, 'forkDashboard'],
 	];
 
 	/**
@@ -350,7 +570,7 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	private function auditRecord(string $toolId, array $arguments): array {
 		return [
 			'tool' => $toolId,
-			'target' => ($arguments['dashboardUuid'] ?? $arguments['dashboardId'] ?? null),
+			'target' => ($arguments['dashboardUuid'] ?? $arguments['dashboardId'] ?? $arguments['placementId'] ?? null),
 			'caller' => $this->container->get(McpDashboardGate::class)->currentUserId(),
 		];
 	}//end auditRecord()

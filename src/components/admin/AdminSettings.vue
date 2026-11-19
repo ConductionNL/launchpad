@@ -87,6 +87,9 @@
 			<template #tab-kiosk>
 				<KioskTab />
 			</template>
+			<template #tab-communities>
+				<CommunitiesTab />
+			</template>
 			<template #tab-org-navigation>
 				<OrgNavigationTab :groups="injectedAllGroups" />
 			</template>
@@ -104,6 +107,9 @@
 			</template>
 			<template #tab-search-shortcuts>
 				<SearchShortcutsTab />
+			</template>
+			<template #tab-app-catalogue>
+				<AppCatalogueTab :groups="injectedAllGroups" />
 			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
@@ -361,6 +367,8 @@ import {
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
+import CommunitiesTab from './tabs/CommunitiesTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import EmbedsTab from './tabs/EmbedsTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
@@ -400,12 +408,14 @@ export default {
 		MetadataFieldsSettings,
 		TileLaunchSettings,
 		KioskTab,
+		CommunitiesTab,
 		ProfileFieldsTab,
 		SearchShortcutsTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
 		GroupDashboardsTab,
+		AppCatalogueTab,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
@@ -553,6 +563,7 @@ export default {
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
 				{ id: 'embeds', label: this.t('launchpad', 'Embeds') },
 				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
+				{ id: 'communities', label: this.t('launchpad', 'Communities') },
 				{
 					id: 'org-navigation',
 					label: this.t('launchpad', 'Org navigation'),
@@ -573,6 +584,10 @@ export default {
 				{
 					id: 'search-shortcuts',
 					label: this.t('launchpad', 'Search shortcuts'),
+				},
+				{
+					id: 'app-catalogue',
+					label: this.t('launchpad', 'App catalogue'),
 				},
 			]
 		},

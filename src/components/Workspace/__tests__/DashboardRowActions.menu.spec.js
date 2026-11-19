@@ -26,7 +26,7 @@ vi.mock('@nextcloud/vue', () => ({
 	},
 }))
 
-const icons = ['Cog', 'ContentSave', 'Pencil', 'Tune', 'ShapePolygonPlus', 'TrashCanOutline', 'Star', 'StarCheck', 'ShareVariant', 'CalendarClock', 'Publish', 'PublishOff', 'History']
+const icons = ['Cog', 'ContentSave', 'Pencil', 'Tune', 'ShapePolygonPlus', 'BookmarkPlusOutline', 'TrashCanOutline', 'Star', 'StarCheck', 'ShareVariant', 'CalendarClock', 'Publish', 'PublishOff', 'History']
 const stubs = Object.fromEntries(icons.map((name) => [name, { template: `<i class="icon-${name}" />` }]))
 
 /**
@@ -53,9 +53,20 @@ describe('DashboardRowActions menu', () => {
 		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canManagePublication: true, canViewHistory: true })
 
 		expect(entries(wrapper)).toEqual([
-			'cog-edit-dashboard', 'cog-dashboard-config', 'cog-add-widget', 'cog-set-default',
+			'cog-edit-dashboard', 'cog-dashboard-config', 'cog-add-widget', 'cog-import-bookmarks', 'cog-set-default',
 			'cog-publish', 'cog-schedule', 'cog-version-history', 'cog-share', 'cog-delete',
 		])
+	})
+
+	it('offers "Import bookmarks" only where the user may add, and asks the host for it', async () => {
+		expect(entries(menu())).not.toContain('cog-import-bookmarks')
+		expect(entries(menu({ canEdit: false, source: 'user' }))).not.toContain('cog-import-bookmarks')
+
+		const wrapper = menu({ canEdit: true })
+		const entry = wrapper.find('[data-testid="cog-import-bookmarks"]')
+		expect(entry.text()).toBe('Import bookmarks')
+		await entry.trigger('click')
+		expect(wrapper.emitted('importBookmarks')).toHaveLength(1)
 	})
 
 	it('treats a group dashboard as owned only when it says so', () => {

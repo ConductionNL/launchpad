@@ -62,12 +62,14 @@ describe('AdminSettings tabs', () => {
 			'sharing',
 			'embeds',
 			'kiosk',
+			'communities',
 			'org-navigation',
 			'demo-data',
 			'group-dashboards',
 			'detail-fields',
 			'profile-fields',
 			'search-shortcuts',
+			'app-catalogue',
 		])
 		expect(source).toContain(':tabs="beheerTabs"')
 		expect(render).toContain('tabsVariant: "underline"')

@@ -326,6 +326,44 @@ class ArchiveParserEdgeCaseTest extends TestCase {
 	}//end testSortOrderComesFromTheFirstIndexLink()
 
 	/**
+	 * An index.html larger than the per-entry cap is never read, so the
+	 * archive counts as one without an index and is rejected.
+	 *
+	 * @return void
+	 */
+	public function testAnOversizedIndexCountsAsMissing(): void {
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'index.html not found in archive');
+
+		$this->parse(
+			entries: [
+				'index.html'    => str_repeat(string: 'i', times: (26_214_400 + 1)),
+				'SPACE/ok.html' => '<html><title>Ok</title><body>ok</body></html>',
+			]
+		);
+	}//end testAnOversizedIndexCountsAsMissing()
+
+	/**
+	 * A page whose file name is only the extension has no page id: it is
+	 * left out with a parse warning, while its siblings are kept.
+	 *
+	 * @return void
+	 */
+	public function testAPageWithoutAnIdIsLeftOut(): void {
+		$archive = $this->parse(
+			entries: [
+				'index.html'      => self::INDEX,
+				'SPACE/.html'     => '<html><title>Nameless</title><body>x</body></html>',
+				'SPACE/kept.html' => '<html><title>Kept</title><body>x</body></html>',
+			]
+		);
+
+		$this->assertSame(expected: ['Kept'], actual: $this->titles(archive: $archive));
+		$this->assertSame(expected: 'kept', actual: $archive->pages[0]->pageId);
+		$this->assertSame(expected: ['Failed to parse SPACE/.html'], actual: $archive->warnings);
+	}//end testAPageWithoutAnIdIsLeftOut()
+
+	/**
 	 * Parse an archive with only index.html and one page, and return that page.
 	 *
 	 * @param string $html The page source.

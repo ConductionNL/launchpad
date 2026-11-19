@@ -1,0 +1,6 @@
+# Tasks: mijn-werkdag-v3
+
+- [x] 1. `hideWhenUnavailable`: the page asks OpenRegister once per source and leaves a 404 list out, outside edit mode. Verify: `ViewsHideUnavailableSource.spec.js`.
+- [x] 2. Template version 3 with "Mijn tickets" and "Wacht op uw stem", every list hideable. Verify: `ShippedTemplateServiceTest::testTheShippedDefinitionIsWellFormed`, `::testAShippedTemplateRendersAsInstalled` with the two new register fixtures.
+- [x] 3. Listing, Templates page and command name the registers the lists read. Verify: `ShippedTemplateServiceTest::testTheListingNamesWidgetsNothingRegisters`, `TemplatesPage.shipped.spec.js`, `TemplateInstallCommandTest::testInstallsForAGroup`.
+- [x] 4. Live: update an instance from version 2 with `--update`, see a member's page without pipelinq and decidiq. Done 17 Nov 2026 (live pass): version 2 installed for `werkdag`, a member visited, then `--update --dry-run` and `--update` brought it to version 5 (the version shipped now) and the member's copy followed ("Copies changed: 1"). In the browser the member sees Vandaag, Vandaag eerst, Apps, Agenda vandaag and Verder waar u was; the dossiq, pipelinq and decidiq stat widgets are left out (OpenRegister answers 404, none of the three is installed) and no "Could not load" line shows.

@@ -135,6 +135,13 @@ class DashboardApiController extends Controller {
 		$dashboards = $this->services->dashboardService->getUserDashboards(
 			userId: $this->context->userId
 		);
+		$filters    = $this->metadataFilters();
+		if ($filters !== [] && $this->services->metadataService !== null) {
+			$dashboards = $this->services->metadataService->filterDashboards(
+				dashboards: $dashboards,
+				metadataFilters: $filters
+			);
+		}
 
 		$serialized = $this->context->responseHelper->serializeList(entities: $dashboards);
 
@@ -350,8 +357,8 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	private function filterByMetadata(array $items): array {
-		$filters = $this->request->getParam('metadata');
-		if ($this->services->metadataService === null || is_array($filters) === false || $filters === []) {
+		$filters = $this->metadataFilters();
+		if ($this->services->metadataService === null || $filters === []) {
 			return $items;
 		}
 
@@ -367,6 +374,71 @@ class DashboardApiController extends Controller {
 			)
 		);
 	}//end filterByMetadata()
+
+	/**
+	 * The metadata filters of the request, sent as `metadata[<key>]=` or as
+	 * `metadata.<key>=` (REQ-MDFL-007, REQ-MDUI-003).
+	 *
+	 * @return array<string, mixed> The filters by field key, empty without any.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private function metadataFilters(): array {
+		$filters = $this->request->getParam('metadata');
+		if (is_array($filters) === false) {
+			$filters = [];
+		}
+
+		$query = (string)parse_url($this->request->getRequestUri(), PHP_URL_QUERY);
+
+		return array_replace($filters, self::filtersFromQueryString(query: $query));
+	}//end metadataFilters()
+
+	/**
+	 * The `metadata.<key>=` and `metadata.<key>.<bound>=` filters of a raw
+	 * query string, in the shape MetadataService::filterDashboards() takes
+	 * (REQ-MDFL-007).
+	 *
+	 * PHP rewrites the dots of query parameter names to underscores, so
+	 * these cannot be read from the parsed parameters.
+	 *
+	 * @param string $query The query string, without the leading `?`.
+	 *
+	 * @return array<string, string|array<string, string>> The filters by field key.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private static function filtersFromQueryString(string $query): array {
+		$filters = [];
+		foreach (explode('&', $query) as $pair) {
+			$parts = explode('=', $pair, 2);
+			$name  = urldecode($parts[0]);
+			if (count($parts) !== 2 || str_starts_with($name, 'metadata.') === false) {
+				continue;
+			}
+
+			$path  = explode('.', substr($name, strlen('metadata.')));
+			$value = urldecode($parts[1]);
+			if ($path[0] === '' || count($path) > 2) {
+				continue;
+			}
+
+			if (count($path) === 1) {
+				$filters[$path[0]] = $value;
+				continue;
+			}
+
+			$bounds = [];
+			if (is_array($filters[$path[0]] ?? null) === true) {
+				$bounds = $filters[$path[0]];
+			}
+
+			$bounds[$path[1]]   = $value;
+			$filters[$path[0]] = $bounds;
+		}//end foreach
+
+		return $filters;
+	}//end filtersFromQueryString()
 
 	/**
 	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the

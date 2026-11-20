@@ -544,52 +544,51 @@ test.describe('resource-uploads: base64 upload (REQ-RES-001..005)', () => {
 		// ResourceControllerTest::testUnexpectedThrowableIsMaskedAsStorageFailure.
 		// A non-admin is refused by Nextcloud before LaunchPad answers, in
 		// Nextcloud's own shape; the refusal tests below pin that.
-		{
-			const probes: Array<[string, number, Promise<APIResponse>]> = [
-					'unsupported_media_type',
-					415,
-					admin.post(RESOURCES, { multipart: { base64: 'x' } }),
-				],
-				['invalid_data_url', 400, postBase64(admin, 'not a data url')],
-				[
-					'invalid_image_format',
-					400,
-					postBase64(admin, dataUrl('tiff', makePng(8, 8))),
-				],
-				[
-					'file_too_large',
-					400,
-					postBase64(admin, dataUrl('png', garbage(MAX_BYTES + 1))),
-				],
-				['mime_mismatch', 400, postBase64(admin, dataUrl('gif', JPEG))],
-				[
-					'corrupt_image',
-					400,
-					postBase64(admin, dataUrl('webp', garbage(256))),
-				],
-				[
-					'invalid_svg',
-					400,
-					postBase64(admin, dataUrl('svg+xml', '<svg><unclosed')),
-				],
-			]
+		const probes: Array<[string, number, Promise<APIResponse>]> = [
+			[
+				'unsupported_media_type',
+				415,
+				admin.post(RESOURCES, { multipart: { base64: 'x' } }),
+			],
+			['invalid_data_url', 400, postBase64(admin, 'not a data url')],
+			[
+				'invalid_image_format',
+				400,
+				postBase64(admin, dataUrl('tiff', makePng(8, 8))),
+			],
+			[
+				'file_too_large',
+				400,
+				postBase64(admin, dataUrl('png', garbage(MAX_BYTES + 1))),
+			],
+			['mime_mismatch', 400, postBase64(admin, dataUrl('gif', JPEG))],
+			[
+				'corrupt_image',
+				400,
+				postBase64(admin, dataUrl('webp', garbage(256))),
+			],
+			[
+				'invalid_svg',
+				400,
+				postBase64(admin, dataUrl('svg+xml', '<svg><unclosed')),
+			],
+		]
 
-			for (const [code, status, pending] of probes) {
-				const res = await pending
-				const text = await res.text()
-				expect(res.status(), `${code}: ${text}`).toBe(status)
-				const body = JSON.parse(text)
-				expect(Object.keys(body), `${code}: ${text}`).toEqual(
-					expect.arrayContaining(['status', 'error', 'message']),
-				)
-				expect(body.status).toBe('error')
-				expect(ERROR_ENUM, `${code}: ${text}`).toContain(body.error)
-				expect(body.error).toBe(code)
-				expect(typeof body.message).toBe('string')
-				expect(text, `${code} leaked internals`).not.toMatch(
-					/Stack trace|Exception|\.php|#\d+ \/|libxml|DOMDocument/i,
-				)
-			}
+		for (const [code, status, pending] of probes) {
+			const res = await pending
+			const text = await res.text()
+			expect(res.status(), `${code}: ${text}`).toBe(status)
+			const body = JSON.parse(text)
+			expect(Object.keys(body), `${code}: ${text}`).toEqual(
+				expect.arrayContaining(['status', 'error', 'message']),
+			)
+			expect(body.status).toBe('error')
+			expect(ERROR_ENUM, `${code}: ${text}`).toContain(body.error)
+			expect(body.error).toBe(code)
+			expect(typeof body.message).toBe('string')
+			expect(text, `${code} leaked internals`).not.toMatch(
+				/Stack trace|Exception|\.php|#\d+ \/|libxml|DOMDocument/i,
+			)
 		}
 	})
 })

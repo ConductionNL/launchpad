@@ -194,12 +194,11 @@ class PermissionService {
 			return false;
 		}
 
-		// L4: admin-template owners retain full metadata-edit rights
-		// (REQ-PERM-011). An admin who owns a template must not be blocked
-		// from renaming it. Non-admin users can never edit admin templates.
+		// REQ-PERM-011: admin templates are edited by Nextcloud admins only,
+		// and belong to nobody (their userId is null), so ownership is not
+		// asked. Non-admin users can never edit admin templates.
 		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
-			return $dashboard->getUserId() === $userId
-				&& $this->groupManager->isAdmin(userId: $userId);
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
 		// Only owner can rename / change description.

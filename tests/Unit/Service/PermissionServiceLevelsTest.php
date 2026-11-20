@@ -64,10 +64,11 @@ class PermissionServiceLevelsTest extends TestCase {
 	 * @param string $level        The dashboard's own permission level.
 	 * @param int    $isCompulsory Whether its placement is compulsory.
 	 * @param bool   $viewer       Whether every user holds the Viewer role.
+	 * @param array  $admins       The Nextcloud admins.
 	 *
 	 * @return array{0: PermissionService, 1: Dashboard, 2: WidgetPlacement}
 	 */
-	private function serviceFor(string $level, int $isCompulsory = 0, bool $viewer = false): array {
+	private function serviceFor(string $level, int $isCompulsory = 0, bool $viewer = false, array $admins = []): array {
 		$dashboard = new Dashboard();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$dashboard->setId(5);
@@ -109,7 +110,7 @@ class PermissionServiceLevelsTest extends TestCase {
 		$roles->method('isEditorOrHigher')->willReturn(false);
 
 		$groups = $this->createMock(IGroupManager::class);
-		$groups->method('isAdmin')->willReturn(false);
+		$groups->method('isAdmin')->willReturnCallback(static fn (string $userId): bool => in_array($userId, $admins, true));
 
 		$shares = $this->createMock(DashboardShareService::class);
 		$shares->method('resolveSharedDashboards')->willReturn([]);
@@ -240,4 +241,20 @@ class PermissionServiceLevelsTest extends TestCase {
 		$this->assertTrue($ownerService->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
 		$this->assertTrue($ownerService->canDeleteDashboards(userId: self::OWNER));
 	}//end testAViewerMayNotRenameOrDeleteEvenTheirOwnDashboard()
+	/**
+	 * REQ-PERM-011: an admin template belongs to nobody; a Nextcloud admin
+	 * may rename it, an ordinary user may not.
+	 *
+	 * @return void
+	 */
+	public function testANextcloudAdminRenamesAnAdminTemplateThatBelongsToNobody(): void {
+		[$service, $dashboard] = $this->serviceFor(level: Dashboard::PERMISSION_FULL, admins: ['admin']);
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$dashboard->setUserId(null);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->assertTrue($service->canEditDashboardMetadata(userId: 'admin', dashboardId: 5));
+		$this->assertFalse($service->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
+	}//end testANextcloudAdminRenamesAnAdminTemplateThatBelongsToNobody()
 }//end class

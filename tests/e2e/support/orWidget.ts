@@ -30,6 +30,8 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import type { Account } from './filterBus.ts'
 
 import { expect } from '@playwright/test'
+import * as fs from 'fs'
+import * as path from 'path'
 import { API, apiAs } from './filterBus.ts'
 
 /** The register the object-list reads: LaunchPad's own. */
@@ -170,25 +172,18 @@ export function degradedLabel(widget: Locator): Locator {
 export const RAW_ERROR = /Request failed|status code|Internal Server Error|Service Unavailable|Exception|\bat \S+ \(/
 
 /**
- * The shipped `src/manifest.json`, fetched from the app's own web root.
+ * The shipped `src/manifest.json`, read from the checkout under test.
  *
- * `OC.linkTo` resolves the app directory however it is mounted (`apps/` or
- * `custom_apps/`), so this reads the very file the scenario names rather than
- * a copy of it.
+ * Nextcloud's web server answers static app files only for asset extensions
+ * (js, css, images, fonts); a `.json` under an app directory is routed to
+ * `index.php` and comes back 404, so the file cannot be fetched over HTTP.
  *
- * @param page a logged-in page on any Nextcloud route.
+ * @param _page unused; kept so callers need not change.
  * @return the parsed manifest.
  */
-export async function readShippedManifest(page: Page): Promise<Record<string, unknown>> {
-	const path = await page.evaluate(() =>
-		(window as unknown as { OC: { linkTo: (app: string, file: string) => string } }).OC.linkTo(
-			'launchpad',
-			'src/manifest.json',
-		),
-	)
-	const res = await page.request.get(path)
-	expect(res.status(), `GET ${path} must serve the shipped manifest`).toBe(200)
-	return res.json()
+export async function readShippedManifest(_page?: Page): Promise<Record<string, unknown>> {
+	const raw = fs.readFileSync(path.resolve(process.cwd(), 'src/manifest.json'), 'utf8')
+	return JSON.parse(raw)
 }
 
 /**

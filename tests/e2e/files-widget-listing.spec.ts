@@ -39,6 +39,7 @@ import {
 	ADMIN,
 	apiAs,
 	crumbs,
+	fileIdOf,
 	filesWidget,
 	mkdirs,
 	nextContents,
@@ -367,7 +368,12 @@ test('grid mode without thumbnails draws tiles with a file-type icon and request
 		expect(icon.trim()).toBe('📄')
 	}
 	// The picture's preview would come from /core/preview: nothing asked for one.
-	expect(previews.filter((u) => u.includes('fileId='))).toEqual([])
+	// Other widgets on the page may load previews of their own files, so only
+	// this folder's files count.
+	const ids = await Promise.all(['picture.png', 'document.pdf', 'clip.mp4']
+		.map((name) => fileIdOf(admin, ADMIN.user, `${folder}/${name}`)))
+	const ours = previews.filter((u) => ids.includes(Number(new URL(u).searchParams.get('fileId'))))
+	expect(ours).toEqual([])
 })
 
 // @e2e files-widget::sort-order-applied-per-view-mode

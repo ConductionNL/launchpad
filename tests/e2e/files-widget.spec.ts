@@ -60,6 +60,8 @@ import {
 const RUN = Date.now()
 const ROOT = `E2E-FW-config-${RUN}`
 const PNG = fs.readFileSync(path.join(__dirname, 'fixtures', 'tiny.png'))
+/** 64x64: Nextcloud makes no preview of a 1x1 image, so the thumbnail test needs a larger one. */
+const PREVIEWABLE_PNG = fs.readFileSync(path.join(__dirname, 'fixtures', 'preview.png'))
 
 let admin: APIRequestContext
 let dashboard: SeededDashboard | null = null
@@ -203,7 +205,7 @@ test('the view mode is stored as list, grid or tree and defaults to list', async
 test('thumbnails default to on, can be switched off, and are not drawn in tree mode', async ({ page }) => {
 	const folder = `${ROOT}/thumbs`
 	await mkdirs(admin, ADMIN.user, folder)
-	await putFile(admin, ADMIN.user, `${folder}/picture.png`, PNG)
+	await putFile(admin, ADMIN.user, `${folder}/picture.png`, PREVIEWABLE_PNG)
 
 	const untouched = await addThroughDialog(page)
 	expect(untouched.content.showThumbnails).toBe(true)

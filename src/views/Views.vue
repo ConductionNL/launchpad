@@ -557,10 +557,14 @@ import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredAp
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
+import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/** The workspace grid's row height in pixels; matches `:cellHeight` above. */
+const GRID_ROW_HEIGHT = 60
 
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
@@ -2421,10 +2425,13 @@ export default {
 					// Create the placement, then apply the chrome (title /
 					// background / icon) from the same modal as a follow-up
 					// patch against the new id.
-					const created = await this.addWidgetToDashboard({
-						type: payload.type,
-						content: payload.content,
-					})
+					const created = await this.addWidgetToDashboard(
+						{
+							type: payload.type,
+							content: payload.content,
+						},
+						newWidgetSize(payload, this.activeDashboard?.gridColumns, GRID_ROW_HEIGHT),
+					)
 					if (created?.id) {
 						await this.updateWidgetPlacement(
 							created.id,

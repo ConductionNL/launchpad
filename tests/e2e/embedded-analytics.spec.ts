@@ -462,7 +462,7 @@ test('a read-only token cannot write, whatever the frontend sends', async () => 
 	const bearer = { Authorization: `Bearer ${token.jwt}` }
 
 	// The public write route: LaunchPad's middleware refuses before the controller.
-	const unlock = await anon.post(`${APP}/s/e2e-${STAMP}/unlock`, {
+	const unlock = await anon.post(`${APP}/s/e2e${STAMP}/unlock`, {
 		headers: bearer,
 		form: { password: 'irrelevant' },
 	})
@@ -512,7 +512,7 @@ test('filters a viewer applies are limited to the allowed ones, under the pinned
 	expect((await ignored.json()).filters, 'a read token takes no viewer filters').toEqual({ gemeente: 'Amsterdam' })
 
 	// A write that names no allowed action is refused even for an interactive token.
-	const unlock = await anon.post(`${APP}/s/e2e-${STAMP}/unlock`, {
+	const unlock = await anon.post(`${APP}/s/e2e${STAMP}/unlock`, {
 		headers: { Authorization: `Bearer ${interactive.jwt}` },
 		form: { password: 'irrelevant' },
 	})

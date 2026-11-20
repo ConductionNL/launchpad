@@ -29,6 +29,7 @@ import {
 	restoreRoleFeaturePermissions,
 } from '../fixtures/role-feature-permissions.ts'
 import { loginAs } from '../fixtures/secondary-user.ts'
+import { clearSeededWidgets } from './dashboardFixture.ts'
 import {
 	adminContext,
 	API,
@@ -98,6 +99,8 @@ export async function setUpOwnDashboard(
 	const dash = json.dashboard ?? json.data?.dashboard ?? json
 	const id = Number(dash.id)
 	expect(id, JSON.stringify(json)).toBeGreaterThan(0)
+	// A new dashboard carries the default bundle; the grid starts empty.
+	await clearSeededWidgets(owner.api, id)
 	expect(
 		(await owner.api.post(`${API}/dashboard/${id}/activate`)).status(),
 	).toBeLessThan(300)

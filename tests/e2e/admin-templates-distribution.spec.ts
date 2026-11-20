@@ -322,7 +322,8 @@ test.describe('first access (REQ-TMPL-005)', () => {
 			})
 			const alice = await member('multi', [marketing])
 			const first = await activeDashboard(alice.api)
-			expect(first.dashboard.basedOnTemplate).toBe(tpl.id)
+			expect(first.status, JSON.stringify(first)).toBe(200)
+			expect(first.dashboard?.basedOnTemplate, JSON.stringify(first)).toBe(tpl.id)
 			expect(await copiesOf(alice.api, company.id)).toHaveLength(0)
 			expect(await copiesOf(alice.api, tpl.id)).toHaveLength(1)
 		} finally {

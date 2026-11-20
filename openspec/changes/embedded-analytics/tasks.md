@@ -346,12 +346,12 @@
   - Read-only tokens cannot mutate state
   - Wildcard origins rejected at creation time
 
-- [ ] Task 40: Integration with existing LaunchPad features:
+- [x] Task 40: Integration with existing LaunchPad features:
   - Dashboards display "Share" → includes "Create embed token" action alongside existing share modes
   - Widgets display "Embed" button → quick token creation for single widget
   - Admin Settings → "Embed Tokens" section with manager + themes
   - Audit log records token lifecycle (create, revoke, re-issue)
-  > Partly built: Admin settings has an Embeds tab (`tabs/EmbedsTab.vue`: token manager and theme manager); an administrator's dashboard menu has "Create embed token", opening that tab with the dashboard pre-selected (`?tab=embeds&embedType=dashboard&embedId=&embedDashboard=`, read by `embedDefaultsFrom`); the token lifecycle (issue, revoke, restore, re-issue) is written to the audit log by `EmbedTokenService` (`CriticalActionPerformedEvent`, tested in `EmbedTokenServiceTest`). Left: an "Embed" entry on a single widget, which needs a menu entry in the shared widget edit cog (`CnWidgetEditCog`, @conduction/nextcloud-vue); the create form already takes a widget subject through the same link (`embedType=widget`).
+  > Admin settings has an Embeds tab (`tabs/EmbedsTab.vue`: token manager and theme manager); an administrator's dashboard menu has "Create embed token", opening that tab with the dashboard pre-selected (`?tab=embeds&embedType=dashboard&embedId=&embedDashboard=`, read by `embedDefaultsFrom`, built by `embedAdminSearch`); in view mode an administrator's widget has the same entry in its own options menu (`WidgetWrapper` `embedHref`, built by `Views.placementEmbedHref` → `embedAdminHref(dashboard, placement)`), opening the tab with that widget placement pre-selected (`embedType=widget`); the shared edit cog (`CnWidgetEditCog`) is left alone, as it only shows in edit mode. The token lifecycle (issue, revoke, restore, re-issue) is written to the audit log by `EmbedTokenService` (`CriticalActionPerformedEvent`, tested in `EmbedTokenServiceTest`). Tests: `WidgetWrapper.embed.spec.js` (3), `Views.placementEmbed.methods.spec.js` (2), `DashboardRowActions.embed.spec.js` and `embedToken.spec.js` (`embedAdminSearch`).
 
 ## Verification
 

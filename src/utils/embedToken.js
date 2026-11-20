@@ -240,3 +240,26 @@ export function embedDefaultsFrom(search) {
 	const dashboard = Number.parseInt(params.get('embedDashboard') ?? '', 10)
 	return { subjectType: type, subjectId: id, dashboardId: Number.isNaN(dashboard) ? null : dashboard }
 }
+
+/**
+ * The query string of a link into Beheer ▸ Embeds that pre-selects a subject;
+ * the inverse of `embedDefaultsFrom`.
+ *
+ * @param {string} subjectType 'dashboard' or 'widget'.
+ * @param {string|number} subjectId The dashboard uuid or the widget placement id.
+ * @param {string|number|null} dashboardId The numeric id of the dashboard holding the subject.
+ * @return {string} The query string without a leading '?', or '' without a valid subject.
+ * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+ */
+export function embedAdminSearch(subjectType, subjectId, dashboardId = null) {
+	const id = String(subjectId ?? '')
+	if (!['dashboard', 'widget'].includes(subjectType) || id === '') {
+		return ''
+	}
+	return new URLSearchParams({
+		tab: 'embeds',
+		embedType: subjectType,
+		embedId: id,
+		embedDashboard: String(dashboardId ?? ''),
+	}).toString()
+}

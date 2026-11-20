@@ -299,10 +299,14 @@ test('clicking a file opens it in the Files app in a new tab, by its file id', a
 	const byPath = url.pathname.replace(/\/+$/, '').endsWith(`/apps/files/files/${fileId}`)
 	expect(byQuery || byPath, url.toString()).toBe(true)
 
-	// The Files app loads the file in its standard way: in its own folder, as
-	// the row being opened.
-	const row = files.locator(`[data-cy-files-list-row-fileid="${fileId}"]`)
-	await expect(row).toBeVisible({ timeout: 30_000 })
+	// The Files app resolves the id to the file's own folder and opens it in
+	// its standard way. Which viewer then covers the list (an office suite for
+	// an .xlsx, when one is installed) is the Files app's business, so the
+	// folder it resolved to is read from its address, not from a list row.
+	await expect.poll(
+		() => new URL(files.url()).searchParams.get('dir'),
+		{ timeout: 30_000 },
+	).toBe(`/${ROOT}/deeplink/Marketing`)
 	await files.close()
 
 	// The widget page itself did not navigate away.

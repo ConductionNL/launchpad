@@ -238,11 +238,19 @@ test.describe('text widget — empty placeholder (REQ-TXT-003)', () => {
 	}) => {
 		const { widget } = await render(page, { text: '' })
 		await expectPlaceholder(widget)
-		// The wrapper fills its cell: same height as the box it sits in.
-		const [own, cell] = await widget.evaluate((el) => [
-			Math.round(el.getBoundingClientRect().height),
-			Math.round(el.parentElement!.getBoundingClientRect().height),
-		])
+		// The wrapper fills its cell: as tall as the content box it sits in
+		// (the renderer's own padding is not part of the cell).
+		const [own, cell] = await widget.evaluate((el) => {
+			const parent = getComputedStyle(el.parentElement!)
+			return [
+				Math.round(el.getBoundingClientRect().height),
+				Math.round(
+					el.parentElement!.clientHeight
+					- Number.parseFloat(parent.paddingTop)
+					- Number.parseFloat(parent.paddingBottom),
+				),
+			]
+		})
 		expect(own).toBeGreaterThan(0)
 		expect(own).toBe(cell)
 	})

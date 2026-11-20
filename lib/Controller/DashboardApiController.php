@@ -596,6 +596,11 @@ class DashboardApiController extends Controller {
 			return $refusal;
 		}
 
+		// REQ-ASET-003: the switch never restricts a Nextcloud administrator.
+		if ($this->services->dashboardService->isAdmin(userId: (string)$this->context->userId) === true) {
+			return null;
+		}
+
 		try {
 			$this->services->dashboardService->assertPersonalDashboardsAllowed();
 		} catch (PersonalDashboardsDisabledException $e) {

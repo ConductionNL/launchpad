@@ -134,6 +134,13 @@ class DashboardApiController extends Controller {
 		$dashboards = $this->services->dashboardService->getUserDashboards(
 			userId: $this->context->userId
 		);
+		$filters    = $this->metadataFilters();
+		if ($filters !== [] && $this->services->metadataService !== null) {
+			$dashboards = $this->services->metadataService->filterDashboards(
+				dashboards: $dashboards,
+				metadataFilters: $filters
+			);
+		}
 
 		$serialized = $this->context->responseHelper->serializeList(entities: $dashboards);
 
@@ -349,8 +356,8 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	private function filterByMetadata(array $items): array {
-		$filters = $this->request->getParam('metadata');
-		if ($this->services->metadataService === null || is_array($filters) === false || $filters === []) {
+		$filters = $this->metadataFilters();
+		if ($this->services->metadataService === null || $filters === []) {
 			return $items;
 		}
 
@@ -366,6 +373,25 @@ class DashboardApiController extends Controller {
 			)
 		);
 	}//end filterByMetadata()
+
+	/**
+	 * The metadata filters of the request, sent as `metadata[<key>]=` or as
+	 * `metadata.<key>=` (REQ-MDFL-007, REQ-MDUI-003).
+	 *
+	 * @return array<string, mixed> The filters by field key, empty without any.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private function metadataFilters(): array {
+		$filters = $this->request->getParam('metadata');
+		if (is_array($filters) === false) {
+			$filters = [];
+		}
+
+		$query = (string)parse_url($this->request->getRequestUri(), PHP_URL_QUERY);
+
+		return array_replace($filters, MetadataService::filtersFromQueryString(query: $query));
+	}//end metadataFilters()
 
 	/**
 	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the

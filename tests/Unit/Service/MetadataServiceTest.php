@@ -346,6 +346,25 @@ class MetadataServiceTest extends TestCase {
 		$this->assertSame('uuid-a', $result[0]['uuid']);
 	}
 
+	/**
+	 * PHP turns the dots of `?metadata.<key>=` into underscores, so the
+	 * filters are read from the raw query string (REQ-MDFL-007).
+	 */
+	public function testFiltersFromQueryStringReadsTheDotForm(): void {
+		$this->assertSame(
+			[
+				'department' => 'sales team',
+				'priority' => ['min' => '5', 'max' => '7'],
+				'go_live' => ['after' => '2026-01-01'],
+			],
+			MetadataService::filtersFromQueryString(
+				'metadata.department=sales+team&metadata.priority.min=5&metadata.priority.max=7'
+				.'&other=1&metadata%2Ego_live.after=2026-01-01&metadata.=x&metadata.bad.key.deep=1&page'
+			)
+		);
+		$this->assertSame([], MetadataService::filtersFromQueryString(''));
+	}
+
 	public function testFilterDashboardsNumberRange(): void {
 		$field = $this->makeField(1, 'priority', MetadataField::TYPE_NUMBER);
 		$this->fieldMapper->method('findByKey')->willReturn($field);

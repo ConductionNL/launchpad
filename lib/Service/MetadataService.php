@@ -474,6 +474,51 @@ class MetadataService {
 	}//end filterDashboards()
 
 	/**
+	 * The `metadata.<key>=` and `metadata.<key>.<bound>=` filters of a raw
+	 * query string, in the shape filterDashboards() takes (REQ-MDFL-007).
+	 *
+	 * PHP rewrites the dots of query parameter names to underscores, so
+	 * these cannot be read from the parsed parameters.
+	 *
+	 * @param string $query The query string, without the leading `?`.
+	 *
+	 * @return array<string, string|array<string, string>> The filters by field key.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	public static function filtersFromQueryString(string $query): array {
+		$filters = [];
+		foreach (explode('&', $query) as $pair) {
+			$parts = explode('=', $pair, 2);
+			$name  = urldecode($parts[0]);
+			if (count($parts) !== 2 || str_starts_with($name, 'metadata.') === false) {
+				continue;
+			}
+
+			$path  = explode('.', substr($name, strlen('metadata.')));
+			$value = urldecode($parts[1]);
+			if ($path[0] === '' || count($path) > 2) {
+				continue;
+			}
+
+			if (count($path) === 1) {
+				$filters[$path[0]] = $value;
+				continue;
+			}
+
+			$bounds = [];
+			if (is_array($filters[$path[0]] ?? null) === true) {
+				$bounds = $filters[$path[0]];
+			}
+
+			$bounds[$path[1]]   = $value;
+			$filters[$path[0]] = $bounds;
+		}//end foreach
+
+		return $filters;
+	}//end filtersFromQueryString()
+
+	/**
 	 * Resolve raw `metadata.<key>` filter keys to their field definitions.
 	 *
 	 * Keys that no longer correspond to a registered field are dropped

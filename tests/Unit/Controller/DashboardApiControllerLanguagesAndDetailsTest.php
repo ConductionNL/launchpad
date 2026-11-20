@@ -133,6 +133,22 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 		$this->assertSame(['Payroll'], array_column($data, 'name'));
 	}
 
+	public function testThePersonalListFiltersOnTheDotForm(): void {
+		$payroll = $this->dashboard('payroll', 'Payroll');
+		$onboarding = $this->dashboard('onb', 'Onboarding');
+		$this->dashboardService->method('getUserDashboards')->willReturn([$payroll, $onboarding]);
+		$this->request->method('getRequestUri')
+			->willReturn('/index.php/apps/launchpad/api/dashboards?metadata.department=Finance&metadata.priority.min=5');
+		$this->metadata->expects($this->once())
+			->method('filterDashboards')
+			->with([$payroll, $onboarding], ['department' => 'Finance', 'priority' => ['min' => '5']])
+			->willReturn([$payroll]);
+
+		$data = $this->controller()->list()->getData();
+
+		$this->assertSame(['Payroll'], array_column($data, 'name'));
+	}
+
 	public function testNoFilterLeavesTheListAlone(): void {
 		$this->dashboardService->method('getVisibleToUser')->willReturn(
 			[['dashboard' => $this->dashboard('payroll', 'Payroll'), 'source' => 'group']]

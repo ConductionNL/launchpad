@@ -56,6 +56,7 @@ import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import {
 	activeDashboard,
+	addTitledTextWidget,
 	copiesOf,
 	createTemplate,
 	deleteTemplates,
@@ -448,13 +449,13 @@ test.describe('updating and deleting after distribution (REQ-TMPL-003, -004, -00
 		)
 		const bobBefore = await placementsOf(bob.api, bCopy.dashboard.id)
 
-		const added = await alice.api.post(
-			`${API}/dashboard/${aCopy.dashboard.id}/widgets`,
-			{
-				data: textWidget(`${STAMP} alice own`, { x: 0, y: 4 }),
-			},
+		const added = await addTitledTextWidget(
+			alice.api,
+			aCopy.dashboard.id,
+			`${STAMP} alice own`,
+			{ x: 0, y: 4 },
 		)
-		expect(added.status()).toBe(201)
+		expect(added).toEqual({ created: 201, titled: 200 })
 		expect(
 			(await placementsOf(alice.api, aCopy.dashboard.id)).map(
 				(p) => p.customTitle,

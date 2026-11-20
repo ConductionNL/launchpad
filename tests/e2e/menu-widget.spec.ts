@@ -138,7 +138,10 @@ test.describe('menu widget — registration and structure (REQ-MENU-001)', () =>
 		await expect(child).toBeVisible()
 
 		// In the DOM: the child sits inside the parent's own list item.
-		const parentItem = widget.locator('li.cn-menu-widget__bar-item').filter({ has: parent })
+		// `has` is matched inside each <li>, so it takes a locator without the widget root.
+		const parentItem = widget
+			.locator('li.cn-menu-widget__bar-item')
+			.filter({ has: page.getByRole('menuitem', { name: 'Parent', exact: true }) })
 		await expect(parentItem.getByRole('menuitem', { name: 'Child', exact: true })).toBeVisible()
 
 		// Visually: the child is drawn below the parent.

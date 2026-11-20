@@ -13,8 +13,11 @@ declare(strict_types=1);
 
 namespace Unit\Mcp;
 
+use OCA\LaunchPad\Exception\McpToolRefusedException;
+use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\LaunchPadToolProvider;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use OCA\LaunchPad\Mcp\McpEngagementTools;
@@ -189,17 +192,74 @@ class LaunchPadToolProviderTest extends TestCase {
 	}//end testEachToolDispatchesToItsHandler()
 
 	/**
-	 * An unknown tool is a structured error naming the available ids.
+	 * An unknown tool is refused with a typed exception naming the available ids.
 	 *
 	 * @return void
 	 */
-	public function testAnUnknownToolIsAStructuredError(): void {
-		$result = $this->provider()->invokeTool(toolId: 'launchpad.dropTables', arguments: []);
+	public function testAnUnknownToolIsRefused(): void {
+		$refusal = $this->refusalOf(provider: $this->provider(), toolId: 'launchpad.dropTables', arguments: []);
 
-		$this->assertTrue(condition: $result['isError']);
-		$this->assertSame(expected: 'unknown_tool', actual: $result['error']);
-		$this->assertStringContainsString(needle: 'launchpad.listDashboards', haystack: $result['message']);
-	}//end testAnUnknownToolIsAStructuredError()
+		$this->assertSame(expected: 'unknown_tool', actual: $refusal->getErrorCode());
+		$this->assertTrue(condition: $refusal->getResult()['isError']);
+		$this->assertStringStartsWith(prefix: 'unknown_tool: ', string: $refusal->getMessage());
+		$this->assertStringContainsString(needle: 'launchpad.listDashboards', haystack: $refusal->getMessage());
+	}//end testAnUnknownToolIsRefused()
+
+	/**
+	 * Every kind of refusal a tool answers, read or write, leaves the provider
+	 * as a typed exception, so OpenRegister answers it with `isError: true`.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function refusals(): array {
+		return [
+			'no permission, read tool' => ['launchpad.getDashboard', 'forbidden'],
+			'not found, read tool' => ['launchpad.getDashboard', 'not_found'],
+			'invalid input, read tool' => ['launchpad.getDashboard', 'invalid_arguments'],
+			'no permission, write tool' => ['launchpad.addWidget', 'forbidden'],
+			'not found, write tool' => ['launchpad.addWidget', 'not_found'],
+			'invalid input, write tool' => ['launchpad.addWidget', 'invalid_arguments'],
+		];
+	}//end refusals()
+
+	/**
+	 * A tool's refusal is thrown with its code and message.
+	 *
+	 * @param string $toolId The tool.
+	 * @param string $code   The refusal code the tool answers.
+	 *
+	 * @return void
+	 */
+	#[DataProvider('refusals')]
+	public function testARefusalIsThrown(string $toolId, string $code): void {
+		[$class, $method] = LaunchPadToolProvider::TOOL_HANDLERS[$toolId];
+		$handler = $this->createMock(originalClassName: $class);
+		$handler->method($method)->willReturn(McpArgumentValidator::error(code: $code, message: 'Refused.'));
+
+		$refusal = $this->refusalOf(provider: $this->provider(handlers: [$class => $handler]), toolId: $toolId, arguments: ['dashboardId' => 3]);
+
+		$this->assertSame(expected: $code, actual: $refusal->getErrorCode());
+		$this->assertSame(expected: $code . ': Refused.', actual: $refusal->getMessage());
+	}//end testARefusalIsThrown()
+
+	/**
+	 * Invoke a tool that must refuse, and return the refusal.
+	 *
+	 * @param LaunchPadToolProvider $provider  The provider.
+	 * @param string                $toolId    The tool.
+	 * @param array<string, mixed>  $arguments The arguments.
+	 *
+	 * @return McpToolRefusedException
+	 */
+	private function refusalOf(LaunchPadToolProvider $provider, string $toolId, array $arguments): McpToolRefusedException {
+		try {
+			$provider->invokeTool(toolId: $toolId, arguments: $arguments);
+		} catch (McpToolRefusedException $refusal) {
+			return $refusal;
+		}
+
+		$this->fail(message: $toolId . ' answered instead of refusing');
+	}//end refusalOf()
 
 	/**
 	 * A write tool's answer carries the tool, target, caller and outcome for
@@ -218,7 +278,10 @@ class LaunchPadToolProviderTest extends TestCase {
 			expected: ['tool' => 'launchpad.addReaction', 'target' => 'u-1', 'caller' => 'alice', 'outcome' => 'done'],
 			actual: $provider->invokeTool(toolId: 'launchpad.addReaction', arguments: $args)['audit']
 		);
-		$this->assertSame(expected: 'forbidden', actual: $provider->invokeTool(toolId: 'launchpad.removeReaction', arguments: $args)['audit']['outcome']);
+		$this->assertSame(
+			expected: ['tool' => 'launchpad.removeReaction', 'target' => 'u-1', 'caller' => 'alice', 'outcome' => 'forbidden'],
+			actual: $this->refusalOf(provider: $provider, toolId: 'launchpad.removeReaction', arguments: $args)->getResult()['audit']
+		);
 	}//end testAWriteCarriesItsAuditRecord()
 
 	/**

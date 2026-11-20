@@ -83,6 +83,24 @@ class FooterServiceTest extends TestCase {
 		$this->assertStringContainsString('href="https://example.com"', $out);
 	}
 
+	public function testSanitiseKeepsSingleQuotedAndUnquotedHref(): void {
+		$this->assertSame(
+			'<a href="https://example.com" rel="noopener noreferrer" target="_blank">Link</a>',
+			$this->service->sanitiseHtml(html: "<a href='https://example.com'>Link</a>")
+		);
+		$this->assertSame(
+			'<a href="https://example.com" rel="noopener noreferrer" target="_blank">Link</a>',
+			$this->service->sanitiseHtml(html: '<a href=https://example.com>Link</a>')
+		);
+	}
+
+	public function testSanitiseImgRejectsSingleQuotedDataUri(): void {
+		$out = $this->service->sanitiseHtml(
+			html: "<img src='data:image/png;base64,AAAA' />"
+		);
+		$this->assertStringNotContainsString('src', $out);
+	}
+
 	public function testSanitiseImgKeepsSrcOnly(): void {
 		$out = $this->service->sanitiseHtml(
 			html: '<img src="https://example.com/logo.png" alt="logo" onerror="bad()" />'

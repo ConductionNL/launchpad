@@ -665,6 +665,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// the token is checked by EmbedTokenMiddleware, the subject by EmbedController.
 		['name' => 'embed#render', 'url' => '/embed/{subjectType}/{subjectId}', 'verb' => 'GET'],
 		['name' => 'embed#data', 'url' => '/embed/{subjectType}/{subjectId}/data', 'verb' => 'GET'],
+		// The embed SDK bundles, served with the app (embedded-analytics task 24): public and cacheable.
+		['name' => 'embedSdk#bundle', 'url' => '/embed-sdk/{file}', 'verb' => 'GET'],
 		// Embed tokens (embedded-analytics, REQ-EMB-001/008/009): admin-only.
 		['name' => 'embedTokenApi#index', 'url' => '/api/embed-tokens', 'verb' => 'GET'],
 		['name' => 'embedTokenApi#create', 'url' => '/api/embed-tokens', 'verb' => 'POST'],

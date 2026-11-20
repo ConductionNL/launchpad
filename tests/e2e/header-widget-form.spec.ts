@@ -120,7 +120,7 @@ function addButton(dialog: Locator): Locator {
 async function choose(page: Page, dialog: Locator, label: string, index: number): Promise<void> {
 	const select = dialog
 		.locator('.v-select')
-		.filter({ has: page.locator('label.select__label', { hasText: label }) })
+		.filter({ has: page.getByRole('combobox', { name: label, exact: true }) })
 	await expect(select, `the "${label}" select`).toHaveCount(1)
 	await select.locator('.vs__dropdown-toggle').click()
 	const option = page.locator('.vs__dropdown-menu .vs__dropdown-option').nth(index)

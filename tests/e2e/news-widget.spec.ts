@@ -117,8 +117,6 @@ async function submit(page: Page, dialog: Locator, method: 'POST' | 'PUT'): Prom
 	return Number(body.id ?? body.data?.id ?? body.placement?.id)
 }
 
-test.describe.configure({ mode: 'serial' })
-
 test.beforeAll(async () => {
 	api = await adminApi()
 	dashboard = await seedActiveDashboard(api, `E2E News config ${STAMP}`)

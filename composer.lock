@@ -2877,16 +2877,16 @@
         },
         {
             "name": "nextcloud/ocp",
-            "version": "v35.0.2",
+            "version": "v35.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nextcloud-deps/ocp.git",
-                "reference": "1f372f9d20bc38860d1d11a55c1c16293b759e6c"
+                "reference": "a7babe4273fc6e5c7359e92843ef2613b7555f76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/1f372f9d20bc38860d1d11a55c1c16293b759e6c",
-                "reference": "1f372f9d20bc38860d1d11a55c1c16293b759e6c",
+                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/a7babe4273fc6e5c7359e92843ef2613b7555f76",
+                "reference": "a7babe4273fc6e5c7359e92843ef2613b7555f76",
                 "shasum": ""
             },
             "require": {
@@ -2924,9 +2924,9 @@
             "description": "Composer package containing Nextcloud's public OCP API and the unstable NCU API",
             "support": {
                 "issues": "https://github.com/nextcloud-deps/ocp/issues",
-                "source": "https://github.com/nextcloud-deps/ocp/tree/v35.0.2"
+                "source": "https://github.com/nextcloud-deps/ocp/tree/v35.0.3"
             },
-            "time": "2026-10-09T03:32:50+00:00"
+            "time": "2026-11-06T04:03:15+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -4188,11 +4188,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.5",
+            "version": "2.3.6",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/645a1bd6bead15fc1b8474137467961d0fa30a79",
-                "reference": "645a1bd6bead15fc1b8474137467961d0fa30a79",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/00cedebb76cc82c1592414fa4f616cefdccda16f",
+                "reference": "00cedebb76cc82c1592414fa4f616cefdccda16f",
                 "shasum": ""
             },
             "require": {
@@ -4248,7 +4248,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00"
+            "time": "2026-11-15T19:58:26+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -4682,16 +4682,16 @@
         },
         {
             "name": "psalm/plugin-laravel",
-            "version": "v4.21.1",
+            "version": "v4.22.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-laravel.git",
-                "reference": "0e010b4ba9223ac60ac2bf564a8630e3b6050b53"
+                "reference": "bbaf61532600b5ffda4f29f25a738543ee993078"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-laravel/zipball/0e010b4ba9223ac60ac2bf564a8630e3b6050b53",
-                "reference": "0e010b4ba9223ac60ac2bf564a8630e3b6050b53",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-laravel/zipball/bbaf61532600b5ffda4f29f25a738543ee993078",
+                "reference": "bbaf61532600b5ffda4f29f25a738543ee993078",
                 "shasum": ""
             },
             "require": {
@@ -4701,7 +4701,7 @@
                 "psalm/psalm-plugin-api": "^0.4.5",
                 "sebastian/diff": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0",
                 "symfony/console": "^6.4 || ^7.0 || ^8.0",
-                "vimeo/psalm": "^7.6.0"
+                "vimeo/psalm": "^7.9.0@stable"
             },
             "conflict": {
                 "laravel/framework": "<12.27 || 13.0.0 || >=13.1 <13.20",
@@ -4709,6 +4709,7 @@
             },
             "require-dev": {
                 "alies-dev/psalm-tester": "^0.4",
+                "boundwize/structarmed": "^0.21",
                 "brianium/paratest": "^7.7",
                 "friendsofphp/php-cs-fixer": "^3.94",
                 "laravel/framework": "^12.27 || ^13.20",
@@ -4759,7 +4760,7 @@
             ],
             "support": {
                 "issues": "https://github.com/psalm/psalm-plugin-laravel/issues",
-                "source": "https://github.com/psalm/psalm-plugin-laravel/tree/v4.21.1"
+                "source": "https://github.com/psalm/psalm-plugin-laravel/tree/v4.22.2"
             },
             "funding": [
                 {
@@ -4767,27 +4768,27 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-15T22:39:01+00:00"
+            "time": "2026-11-17T23:49:06+00:00"
         },
         {
             "name": "psalm/plugin-mockery",
-            "version": "1.3.2",
+            "version": "1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-mockery.git",
-                "reference": "ddff47dd095dc3c47224a3f6bf137e28570ef022"
+                "reference": "2d482b39de60fdf5b504066eb63b69de74021dc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-mockery/zipball/ddff47dd095dc3c47224a3f6bf137e28570ef022",
-                "reference": "ddff47dd095dc3c47224a3f6bf137e28570ef022",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-mockery/zipball/2d482b39de60fdf5b504066eb63b69de74021dc4",
+                "reference": "2d482b39de60fdf5b504066eb63b69de74021dc4",
                 "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2.0",
                 "composer/semver": "^1.4 || ^2.0 || ^3.0",
                 "php": ">=8.1",
-                "psalm/psalm-plugin-api": "^0.4",
+                "psalm/psalm-plugin-api": "^0.4 || ^0.5",
                 "vimeo/psalm": "^7|dev-master"
             },
             "conflict": {
@@ -4826,9 +4827,9 @@
             "description": "Psalm plugin for Mockery",
             "support": {
                 "issues": "https://github.com/psalm/psalm-plugin-mockery/issues",
-                "source": "https://github.com/psalm/psalm-plugin-mockery/tree/1.3.2"
+                "source": "https://github.com/psalm/psalm-plugin-mockery/tree/1.3.3"
             },
-            "time": "2026-10-28T12:21:43+00:00"
+            "time": "2026-11-19T11:02:45+00:00"
         },
         {
             "name": "psalm/plugin-phpunit",
@@ -4888,28 +4889,29 @@
         },
         {
             "name": "psalm/plugin-symfony",
-            "version": "v5.11.0",
+            "version": "v5.12.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-symfony.git",
-                "reference": "1fef73d616f0e187ffc05d13dd98f10ade6bc9e0"
+                "reference": "6350618df34ab885b91c0b25b7ca187194f7dae9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-symfony/zipball/1fef73d616f0e187ffc05d13dd98f10ade6bc9e0",
-                "reference": "1fef73d616f0e187ffc05d13dd98f10ade6bc9e0",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-symfony/zipball/6350618df34ab885b91c0b25b7ca187194f7dae9",
+                "reference": "6350618df34ab885b91c0b25b7ca187194f7dae9",
                 "shasum": ""
             },
             "require": {
                 "ext-simplexml": "*",
                 "php": ">=8.2",
-                "psalm/psalm-plugin-api": "^0.4.2",
-                "vimeo/psalm": "^7.0@stable|dev-master"
+                "psalm/psalm-plugin-api": "^0.4.2 || ^0.5",
+                "vimeo/psalm": "^7.4@stable|dev-master"
             },
             "conflict": {
                 "fidry/cpu-core-counter": "<1.2",
                 "symfony/expression-language": "<5.0",
-                "symfony/framework-bundle": "<5.0"
+                "symfony/framework-bundle": "<5.0",
+                "twig/twig": "<3.12"
             },
             "require-dev": {
                 "doctrine/annotations": "^1.8|^2",
@@ -4955,22 +4957,22 @@
             "description": "Psalm Plugin for Symfony",
             "support": {
                 "issues": "https://github.com/psalm/psalm-plugin-symfony/issues",
-                "source": "https://github.com/psalm/psalm-plugin-symfony/tree/v5.11.0"
+                "source": "https://github.com/psalm/psalm-plugin-symfony/tree/v5.12.2"
             },
-            "time": "2026-11-11T11:34:54+00:00"
+            "time": "2026-11-19T11:02:38+00:00"
         },
         {
             "name": "psalm/psalm-plugin-api",
-            "version": "0.4.5",
+            "version": "0.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-api.git",
-                "reference": "7c3efea3f371a28efb8ea6287eae8e27b70c054e"
+                "reference": "9f0a7eb670a4ac4e7473cf6246b4d97841fda5b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-api/zipball/7c3efea3f371a28efb8ea6287eae8e27b70c054e",
-                "reference": "7c3efea3f371a28efb8ea6287eae8e27b70c054e",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-api/zipball/9f0a7eb670a4ac4e7473cf6246b4d97841fda5b6",
+                "reference": "9f0a7eb670a4ac4e7473cf6246b4d97841fda5b6",
                 "shasum": ""
             },
             "conflict": {
@@ -4990,9 +4992,9 @@
             "description": "Stable, semantically versioned API for Psalm plugins",
             "support": {
                 "issues": "https://github.com/psalm/psalm-plugin-api/issues",
-                "source": "https://github.com/psalm/psalm-plugin-api/tree/0.4.5"
+                "source": "https://github.com/psalm/psalm-plugin-api/tree/0.4.6"
             },
-            "time": "2026-11-14T14:03:08+00:00"
+            "time": "2026-11-16T14:04:52+00:00"
         },
         {
             "name": "psr/clock",
@@ -9480,16 +9482,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "7.6.0",
+            "version": "7.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "4303c7dbbc23efaac3d988707b4acf4d5508a9cc"
+                "reference": "6b439ac5947fccc105ec83faf60568d15e24d2a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/4303c7dbbc23efaac3d988707b4acf4d5508a9cc",
-                "reference": "4303c7dbbc23efaac3d988707b4acf4d5508a9cc",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/6b439ac5947fccc105ec83faf60568d15e24d2a9",
+                "reference": "6b439ac5947fccc105ec83faf60568d15e24d2a9",
                 "shasum": ""
             },
             "require": {
@@ -9517,7 +9519,7 @@
                 "psalm/plugin-mockery": "^1.3.2",
                 "psalm/plugin-phpunit": "^0.21 || ^0.22 || ^1.0",
                 "psalm/plugin-symfony": "^5.9.1",
-                "psalm/psalm-plugin-api": "0.4.5",
+                "psalm/psalm-plugin-api": "0.4.6",
                 "sebastian/diff": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0",
                 "spatie/array-to-xml": "^2.17.0 || ^3.0",
                 "symfony/console": "^6.0 || ^7.0 || ^8.0",
@@ -9597,7 +9599,7 @@
                 "issues": "https://github.com/vimeo/psalm/issues",
                 "source": "https://github.com/vimeo/psalm"
             },
-            "time": "2026-11-14T23:56:08+00:00"
+            "time": "2026-11-16T23:00:17+00:00"
         },
         {
             "name": "webmozart/assert",

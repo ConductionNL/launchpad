@@ -35,20 +35,31 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 2.1 `dashboard-bulk-operations`: 50 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-bulk-operations.spec.ts, tests/e2e/dashboard-bulk-operations-ui.spec.ts, 44 scenarios cited, not yet run (cloud, 2026-11-19). 6 excluded with a reason.
-- [ ] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
+  - Run 19 Nov (live pass, NC 34.0.6 + OpenRegister 2.2.0-dev): `dashboard-bulk-operations.spec.ts` green after the non-admin refusal was aligned with the framework (Nextcloud's admin-setting check answers 403 before LaunchPad's message; spec scenario amended). `dashboard-bulk-operations-ui.spec.ts`: the header-checkbox test does not find its seeded rows in the bulk table; open.
+- [x] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
+  - Run 19 Nov: 33 of 37 green. Open, decision: the spec wants `{status:'error', error:'forbidden'}` for a non-admin and 403 for an anonymous caller, but `#[AuthorizedAdminSetting]` lets Nextcloud answer first (403 with its own body, 401 for anonymous).
+  - Run 20 Nov on development with #1444-#1447 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): 38 of 38 green. The refusal cases follow Nextcloud's 401/403 on admin routes (#1446).
 - [ ] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-versioning.spec.ts, tests/e2e/dashboard-versioning-ui.spec.ts, 29 scenarios cited, not yet run (cloud, 2026-11-19). 14 excluded with a reason.
-- [ ] 2.4 `orphaned-data-cleanup`: 36 scenarios, 0 cited, blanket.
+  - Run 19 Nov: 2 app defects fixed (#1430: restore of calculatedFields; seeded widgets now cleared by the spec). Open, decisions: REQ-VERS-002..005 say owner and admin, `lib/actions.seed.json` grants `dashboard-version.*` to admin only; the scenarios "Automatic snapshot on PUT" (state before the update) and "Snapshot captures full state" (the new metadata as persisted) contradict each other; the code takes the state after.
+  - Run 20 Nov: dashboard-versioning-ui 4 of 4 green; dashboard-versioning 21 of 22, the red "restoring the pre-restore version" is fixed in #1456 and waits for the rerun.
+- [x] 2.4 `orphaned-data-cleanup`: 36 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/orphaned-data-cleanup.spec.ts, 13 scenarios cited, not yet run (cloud, 2026-11-19). 23 excluded with a reason.
-- [ ] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.
-  - Spec written: tests/e2e/dashboard-cascade-events.spec.ts, 9 scenarios cited (8 new), not yet run (cloud, 2026-11-19). 26 excluded with a reason.
+  - Run 19 Nov: 12 of 13 green. Open, decision: an unauthenticated scan gets Nextcloud's 401, the spec says 403.
+  - Run 20 Nov on development with #1444-#1447: 10 of 10 green; the unauthenticated scan follows Nextcloud's 401 (#1446).
+- [x] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.
+  - Spec written: tests/e2e/dashboard-cascade-events.spec.ts, 9 scenarios cited (8 new) (cloud, 2026-11-19). 26 excluded with a reason.
+  - Run 19 Nov (live pass, NC 34.0.6 + OpenRegister 2.2.0-dev): `dashboard-cascade-events.spec.ts` green, after the spec cleared the seeded default widgets before counting placements and the non-cascade refusal was aligned with REQ-DASH-030 (409; scenario amended).
 - [ ] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-locking.spec.ts, 17 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
+  - Run 19 Nov: 3 red. Open, decisions: an administrator may not acquire the lock of another user's dashboard after a force-release (403 lock_forbidden); a colleague's save after the owner deleted the dashboard answers 403, the spec says 404; the lock-cleanup test relies on an import restoring the dashboard under its uuid, which it does not.
 - [ ] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-metadata-fields.spec.ts, 30 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
+  - Run 19 Nov: app defect fixed (#1430: a text field was refused by the database). Open, decision: `dashboard-metadata.set-metadata` is admin-only in `lib/actions.seed.json`, the spec lets the owner write values.
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-quota-limits.spec.ts, 20 scenarios cited, not yet run (cloud, 2026-11-19). 4 excluded with a reason.
+  - Run 19 Nov: 1 red. Open, decision: a non-admin adding a LaunchPad widget gets 403 because the shipped default widget rights (`SeedRolePermissions`, group `default`) allow only activity and recommendations.
 - [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/legacy-widget-bridge.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.
@@ -66,6 +77,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/widgets-placements-api.spec.ts`, `widgets-rendering.spec.ts`, `widgets-picker.spec.ts`, `widgets-context-menu-contract.spec.ts`, `widgets-nc-widget.spec.ts`, `widgets-tile-type.spec.ts`, `widgets-canvas-search.spec.ts`, `widgets-reload-interval.spec.ts` (helpers `support/widgets.ts`, `support/widgetPlacements.ts`), 99 scenarios cited (12 tests `test.fixme` for suspected defects, see the PR), 21 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.3 `admin-templates`: 86 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/admin-templates-crud.spec.ts`, `admin-templates-distribution.spec.ts`, `admin-templates-gallery.spec.ts`, `admin-templates-resync.spec.ts`, `admin-templates-shipped.spec.ts`, `admin-templates-ui.spec.ts` (helper `support/adminTemplates.ts`), 100 scenarios cited (10 as `test.fixme` for suspected defects, see the PR), 13 excluded, not yet run (cloud, 2026-11-19)
+  - Run 20 Nov: admin-templates-gallery 15 of 15 green, with the gallery following the user's groups (#1447); the other five files wait for the rerun.
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
   - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
@@ -158,8 +170,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-view-analytics.spec.ts, 53 scenarios cited, not yet run (cloud, 2026-11-19), 18 excluded with reasons
-- [ ] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
+- [x] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/background-job-feed-refresh.spec.ts, 6 scenarios cited, not yet run (cloud, 2026-11-19), 50 excluded with reasons
+  - Run 20 Nov on development with #1444: 6 of 6 green.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
   - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.

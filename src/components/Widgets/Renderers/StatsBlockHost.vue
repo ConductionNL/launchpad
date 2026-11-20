@@ -12,7 +12,8 @@
 		:showZeroCount="props.showZeroCount"
 		:horizontal="props.horizontal"
 		:route="props.route"
-		:iconClass="props.iconClass" />
+		:iconClass="props.iconClass"
+		@data="$emit('data', $event)" />
 </template>
 
 <script>
@@ -39,6 +40,8 @@ export default {
 		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding
 		placement: OBJECT_PROP,
 	},
+
+	emits: ['data'],
 
 	computed: {
 		/** The card title. */

@@ -63,9 +63,12 @@
 
 ## 9. Handover
 
-- [ ] 9.1 Give the dossiq lane the consumer half: case widgets contributed to a launchpad dashboard, each declaring the roles that may see it.
-- [ ] 9.2 Agree with the openregister lane which aggregations a shipped report may rely on.
-- [ ] 9.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.
+- [x] 9.1 Give the dossiq lane the consumer half: case widgets contributed to a launchpad dashboard, each declaring the roles that may see it.
+  - Handed over 19 Nov (Ruben's decision) as the dossiq openspec change `case-widgets-declare-who-may-see-them` ([ConductionNL/dossiq#6672](https://github.com/ConductionNL/dossiq/pull/6672), merged 19 Nov).
+- [x] 9.2 Agree with the openregister lane which aggregations a shipped report may rely on.
+  - Handed over 19 Nov (Ruben's decision) as the openregister openspec change `aggregations-a-shipped-report-may-rely-on` ([ConductionNL/openregister#10869](https://github.com/ConductionNL/openregister/pull/10869), open against main). The report library moves onto that contract in a later launchpad change once it lands.
+- [x] 9.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.
+  - Handed over with 9.1 and 9.2: `competitor-parity-2026-09` 2.1 and 2.2 are ticked as handed over in the same PR.
 
 ## What shipped, and what has not
 

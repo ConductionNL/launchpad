@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use OCP\IAppConfig;
  * report on a named person shows; turning it off keeps the purpose, so it
  * reads the same when it is turned on again.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
  */
 class ActivityReportingPolicy {
 
@@ -59,7 +59,7 @@ class ActivityReportingPolicy {
 	 *
 	 * @param IAppConfig $appConfig Where the switch and the purpose are kept.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.1
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
@@ -71,7 +71,7 @@ class ActivityReportingPolicy {
 	 *
 	 * @return bool True when on.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.1
 	 */
 	public function isEnabled(): bool {
 		return $this->appConfig->getValueBool(Application::APP_ID, self::KEY_ENABLED, false) === true
@@ -83,7 +83,7 @@ class ActivityReportingPolicy {
 	 *
 	 * @return string The purpose.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.1
 	 */
 	public function purpose(): string {
 		return trim($this->appConfig->getValueString(Application::APP_ID, self::KEY_PURPOSE, ''));
@@ -99,7 +99,7 @@ class ActivityReportingPolicy {
 	 *
 	 * @throws InvalidArgumentException When it is switched on without a purpose, or the purpose is too long.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.1
 	 */
 	public function configure(bool $enabled, ?string $purpose=null): array {
 		$purpose = trim((string) ($purpose ?? $this->purpose()));

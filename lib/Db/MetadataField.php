@@ -124,7 +124,7 @@ class MetadataField extends Entity implements JsonSerializable {
 	 *
 	 * @var string
 	 */
-	protected string $type = self::TYPE_TEXT;
+	protected string $type = '';
 
 	/**
 	 * JSON-encoded options array for select / multi-select types.

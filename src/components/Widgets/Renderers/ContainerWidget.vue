@@ -262,9 +262,37 @@ export default {
 		 * @return {void}
 		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
 		 */
-		forgetUsage() {
+		async forgetUsage() {
 			forgetTileUse(this.children.map(childUseKey).filter((key) => key !== ''))
 			this.tileUse = readTileUse()
+			await this.$nextTick()
+			this.moveGridItemsToAttributes()
+		},
+
+		/**
+		 * Move every inner grid item to the position its `gs-*` attributes now
+		 * name. GridStack keeps its own copy of each item's position, so a
+		 * re-sorted view only shows its new order once the grid is told.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		moveGridItemsToAttributes() {
+			const grid = this.gridInstance
+			if (!grid || typeof grid.update !== 'function' || !this.$refs.innerGrid) {
+				return
+			}
+			const items = this.$refs.innerGrid.querySelectorAll(':scope > .grid-stack-item')
+			grid.batchUpdate?.()
+			for (const el of items) {
+				grid.update(el, {
+					x: Number(el.getAttribute('gs-x') ?? 0),
+					y: Number(el.getAttribute('gs-y') ?? 0),
+					w: Number(el.getAttribute('gs-w') ?? 2),
+					h: Number(el.getAttribute('gs-h') ?? 2),
+				})
+			}
+			grid.batchUpdate?.(false)
 		},
 
 		/**

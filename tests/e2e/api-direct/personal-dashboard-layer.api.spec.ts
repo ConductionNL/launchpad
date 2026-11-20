@@ -27,7 +27,7 @@
  *   testResetDeletesTheWholeLayerAndReturnsTheOwnersArrangement,
  *   testOrphanedEntriesGoWhenAPlacementDisappears)
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 import type { APIRequestContext, request } from '@playwright/test'

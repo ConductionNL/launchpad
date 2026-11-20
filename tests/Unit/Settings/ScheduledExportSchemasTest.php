@@ -98,4 +98,42 @@ class ScheduledExportSchemasTest extends TestCase {
 		$this->assertSame('^[a-f0-9]{64}$', $run['properties']['renderArtefacts']['items']['properties']['sha256']['pattern']);
 		$this->assertSame(['schedule', 'manual'], $run['properties']['triggeredBy']['enum']);
 	}//end testTheRunSchemaRecordsDeliveriesAndArtefactHashes()
+
+	/**
+	 * The export stores its creator: the runner renders and delivers as that
+	 * user, and OpenRegister drops a property its schema does not declare.
+	 * The app stamps it, so a client cannot.
+	 *
+	 * @return void
+	 */
+	public function testTheExportSchemaDeclaresItsCreator(): void {
+		$createdBy = self::register()['components']['schemas']['scheduled_export']['properties']['createdBy'] ?? null;
+
+		$this->assertIsArray($createdBy, 'scheduled_export declares createdBy');
+		$this->assertSame('string', $createdBy['type']);
+		$this->assertTrue($createdBy['readOnly']);
+	}//end testTheExportSchemaDeclaresItsCreator()
+
+	/**
+	 * The run-row fields the app sets to null are nullable, in the form
+	 * OpenRegister reads (`nullable: true` on a scalar type; a union type is
+	 * rejected by its importer): a purged file's `storagePath`, and a settled
+	 * delivery's `nextAttemptAt` and `error`.
+	 *
+	 * @return void
+	 */
+	public function testTheRunFieldsTheAppNullsAreNullable(): void {
+		$run       = self::register()['components']['schemas']['scheduled_export_run']['properties'];
+		$artefact  = $run['renderArtefacts']['items']['properties'];
+		$delivery  = $run['deliveries']['items']['properties'];
+		$nullables = [
+			'renderArtefacts[].storagePath' => $artefact['storagePath'],
+			'deliveries[].nextAttemptAt' => $delivery['nextAttemptAt'],
+			'deliveries[].error' => $delivery['error'],
+		];
+		foreach ($nullables as $field => $property) {
+			$this->assertTrue($property['nullable'] ?? false, $field . ' is nullable');
+			$this->assertSame('string', $property['type'], $field . ' keeps a scalar type');
+		}
+	}//end testTheRunFieldsTheAppNullsAreNullable()
 }//end class

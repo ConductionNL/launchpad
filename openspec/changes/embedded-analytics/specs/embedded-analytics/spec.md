@@ -300,18 +300,19 @@ The system SHALL reject any write operation (POST/PUT/PATCH/DELETE) issued under
 #### Scenario: 4.1 — Read-mode token rejects write operation
 
 GIVEN an `embed_token` with `scope.mode="read"` for dashboard D
-  AND an authenticated user holds this token (via JWT in Authorization or query parameter)
-  AND the user (or JavaScript running in the iframe) attempts a POST to add a comment on dashboard D
-WHEN the SDK or frontend invokes `POST /api/dashboards/D/comments` with a comment payload
-THEN the API SHALL respond 403 with body:
+  AND JavaScript running in the iframe holds this token as `Authorization: Bearer <jwt>`
+WHEN it sends a write (POST/PUT/PATCH/DELETE) to a LaunchPad route that needs no Nextcloud login (a public route)
+THEN the API SHALL respond 403 before the controller runs, with body:
   ```json
   {
     "error": "read_only_token",
     "message": "This token does not permit write operations. Token scope: mode=read"
   }
   ```
-  AND NO state SHALL be mutated (no comment created, no audit log entry)
-  AND a `embed_usage_event` SHALL be written with `eventType: "pageView"`, `responseStatusCode: 403`
+  AND NO state SHALL be mutated
+WHEN it sends a write to a route that needs a Nextcloud login, such as `POST /api/dashboard/{id}/widgets` to add a widget to dashboard D
+THEN Nextcloud SHALL refuse it with 401 before LaunchPad runs, because an embed token is not a Nextcloud login
+  AND NO state SHALL be mutated (no widget added, no audit log entry)
 
 #### Scenario: 4.2 — Read-mode token rejects DELETE
 
@@ -644,14 +645,14 @@ THEN:
 
 ### Requirement: REQ-EMB-006 — JS-SDK exposes render, event, and resize APIs
 
-The system SHALL publish a JS-SDK (`@conduction/launchpad-embed`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
+The system SHALL serve a JS-SDK from the app itself (ESM and UMD builds at `/apps/launchpad/embed-sdk/embed-sdk.esm.js` and `.../embed-sdk.umd.js`, public, cacheable, loadable from any origin and versioned with the app; not published on npm) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
 
 #### Scenario: 6.1 — SDK initialization and iframe creation
 
 GIVEN a host page (e.g., a SaaS customer portal) that imports the SDK:
   ```html
-  <script src="https://cdn.example.com/@conduction/launchpad-embed@1.0.0/dist/embed-sdk.umd.js"></script>
-  <!-- OR ESM: import LaunchPadEmbed from '@conduction/launchpad-embed'; -->
+  <script src="https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.umd.js"></script>
+  <!-- OR ESM: import LaunchPadEmbed from 'https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.esm.js'; -->
   ```
 WHEN the host page calls:
   ```javascript
@@ -764,8 +765,8 @@ THEN the SDK SHALL:
 GIVEN a TypeScript host application
 WHEN it imports the SDK:
   ```typescript
-  import LaunchPadEmbed from '@conduction/launchpad-embed';
-  import type { EmbedConfig, EmbedInstance } from '@conduction/launchpad-embed';
+  import LaunchPadEmbed from 'https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.esm.js';
+  import type { EmbedConfig, EmbedInstance } from './launchpad-embed-types'; // a copy of src/embed-sdk/src/types.ts
   
   const config: EmbedConfig = {
     token: 'eyJ...',

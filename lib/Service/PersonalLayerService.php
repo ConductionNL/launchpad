@@ -29,7 +29,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -45,7 +45,7 @@ use OCA\LaunchPad\Kernel\Contracts\PersonalLayerServiceInterface;
 /**
  * Applies, saves and resets a personal layer.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 class PersonalLayerService implements PersonalLayerServiceInterface {
 	/**
@@ -75,7 +75,7 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 	 * @return array<int, WidgetPlacement> The placements this person sees, in
 	 *         their order. A person with no layer gets the input back.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function applyTo(array $placements, string $userId, int $dashboardId): array {
 		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
@@ -123,7 +123,7 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 	 * @return array{saved: true}|array{error: string, placementId: int} The
 	 *         refusal names the placement, so the message can say which widget.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function save(string $userId, int $dashboardId, array $overrides, array $hide, array $placements): array {
 		[$known, $compulsory] = $this->knownAndCompulsoryIds(placements: $placements);
@@ -206,7 +206,7 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 	 * @return bool True when a layer was there and is now gone. False means
 	 *         there was nothing to reset, which is not a failure.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function reset(string $userId, int $dashboardId): bool {
 		return ($this->layers->deleteForUser(userId: $userId, dashboardId: $dashboardId) > 0);
@@ -240,7 +240,7 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 	 *
 	 * @return int How many entries were dropped.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function pruneOrphans(string $userId, int $dashboardId, array $liveIds): int {
 		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
@@ -280,7 +280,7 @@ class PersonalLayerService implements PersonalLayerServiceInterface {
 	 *
 	 * @return int How many entries were dropped, over all layers.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function pruneDashboard(int $dashboardId, array $liveIds): int {
 		if ($dashboardId <= 0) {

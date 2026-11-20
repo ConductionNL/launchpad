@@ -68,7 +68,23 @@ The public operations cover:
 
 ## Keeping the reference complete
 
+`openapi.json` is generated, never edited by hand. `composer openapi:generate`
+writes it from `appinfo/routes.php` and the controllers:
+
+- each controller method's docblock gives the summary and description, its
+  `@param` tags and signature the parameters and request body, and its
+  `#[PublicPage]`, `#[NoAdminRequired]` or `#[AuthorizedAdminSetting]`
+  attribute who may call it;
+- the status codes come from the method body (and the methods of its class it
+  calls); a `@psalm-return JSONResponse<Http::STATUS_OK, Shape, ...>` declares
+  the success responses and their bodies, with the shared shapes as
+  `@psalm-type` aliases in `lib/ResponseDefinitions.php`;
+- `@openapi-stability public` marks a public operation; anything else is internal;
+- `scripts/openapi-overlay.json` holds what code cannot say: the document's
+  introduction, the shared components and wording for some operations.
+
 `composer lint:openapi` (part of `composer check:strict`) fails when an API
 route has no operation in `openapi.json`, when an operation has no
-`x-launchpad-stability`, or when an operation is documented for a route that
-no longer exists. A new route therefore cannot be merged undocumented.
+`x-launchpad-stability`, when an operation is documented for a route that no
+longer exists, or when regenerating would change the committed file. A new or
+changed route therefore cannot be merged undocumented.

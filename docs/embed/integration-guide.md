@@ -17,9 +17,10 @@ Give the iframe a `title` that says what it shows: screen readers announce it.
 ## 2. JavaScript SDK
 
 The SDK creates the iframe, completes a handshake with it, relays its events and resizes it.
+Your Nextcloud instance serves it with the app, so load it from there; it is not on npm.
 
 ```js
-import { LaunchPadEmbed } from '@conduction/launchpad-embed'
+import { LaunchPadEmbed } from 'https://cloud.example.nl/index.php/apps/launchpad/embed-sdk/embed-sdk.esm.js'
 
 const embed = await LaunchPadEmbed.render(document.getElementById('woo'), {
   baseUrl: 'https://cloud.example.nl/index.php/apps/launchpad',
@@ -30,7 +31,8 @@ const embed = await LaunchPadEmbed.render(document.getElementById('woo'), {
 })
 ```
 
-See the [SDK reference](sdk-reference.md).
+Without modules, load `embed-sdk/embed-sdk.umd.js` with a script tag and use the global
+`LaunchPadEmbed`. See the [SDK reference](sdk-reference.md).
 
 ## Your website's own headers
 

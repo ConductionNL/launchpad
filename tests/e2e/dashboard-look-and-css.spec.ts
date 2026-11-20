@@ -16,10 +16,10 @@
  *
  * Not run in the change that wrote it (decision 139): the live pass runs it.
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md
  */
-// @e2e openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#scenario-a-green-team-dashboard
-// @e2e openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#scenario-import-dropped
+// @e2e openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#scenario-a-green-team-dashboard
+// @e2e openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#scenario-import-dropped
 
 import type { APIRequestContext, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'

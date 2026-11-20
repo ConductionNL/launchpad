@@ -58,6 +58,7 @@ use Throwable;
  *                                                 unavoidable for this
  *                                                 capability.
  * @spec                                           openspec/specs/files-widget/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength) The listing, paths and previews of one widget belong together.
  */
 class FilesWidgetService {
 	/**
@@ -136,7 +137,7 @@ class FilesWidgetService {
 			throw new NoAccessException();
 		}
 
-		$items = $this->listVisibleItems(folder: $target, config: $config);
+		$items = $this->listVisibleItems(folder: $target, config: $config, root: $rootFolder);
 
 		return $this->paginate(items: $items, limit: $this->clampLimit(limit: $limit), cursor: $cursor);
 	}//end getContentsForPlacement()
@@ -148,17 +149,18 @@ class FilesWidgetService {
 	 *
 	 * @param Folder $folder The readable folder being listed.
 	 * @param array  $config Placement config.
+	 * @param Folder $root   The widget's configured root folder.
 	 *
 	 * @return list<array<string,mixed>> The sorted item metadata.
 	 */
-	private function listVisibleItems(Folder $folder, array $config): array {
+	private function listVisibleItems(Folder $folder, array $config, Folder $root): array {
 		$children = $folder->getDirectoryListing();
 		$mimeFilter = $this->normaliseMimeFilter(filter: ($config['mimeTypeFilter'] ?? []));
 
 		$items = [];
 		foreach ($children as $child) {
 			if ($this->isListed(node: $child, mimeFilter: $mimeFilter) === true) {
-				$items[] = $this->buildFileMetadata(node: $child);
+				$items[] = $this->buildFileMetadata(node: $child, root: $root);
 			}
 		}
 
@@ -217,7 +219,7 @@ class FilesWidgetService {
 		$root = $this->resolveConfiguredFolder(userId: $userId, config: $config);
 		$target = $this->writableFolder(root: $root, subPath: $currentSubPath);
 
-		return $this->storeUploads(target: $this->uploadTarget(folder: $target, config: $config), uploadedFiles: $uploadedFiles);
+		return $this->storeUploads(target: $this->uploadTarget(folder: $target, config: $config, root: $root), uploadedFiles: $uploadedFiles);
 	}//end uploadFiles()
 
 	/**
@@ -246,17 +248,18 @@ class FilesWidgetService {
 	 *
 	 * @param Folder $folder The writable destination folder.
 	 * @param array  $config Placement config.
+	 * @param Folder $root   The widget's configured root folder.
 	 *
 	 * @return FilesWidgetUploadTarget The destination.
 	 */
-	private function uploadTarget(Folder $folder, array $config): FilesWidgetUploadTarget {
+	private function uploadTarget(Folder $folder, array $config, Folder $root): FilesWidgetUploadTarget {
 		// M3: normalise the placement's MIME type filter so we can gate
 		// uploads against it (same filter already enforced on reads).
 		$mimeFilter = $this->normaliseMimeFilter(
 			filter: ($config['mimeTypeFilter'] ?? [])
 		);
 
-		return new FilesWidgetUploadTarget(folder: $folder, mimeFilter: $mimeFilter);
+		return new FilesWidgetUploadTarget(folder: $folder, mimeFilter: $mimeFilter, root: $root);
 	}//end uploadTarget()
 
 	/**
@@ -319,7 +322,7 @@ class FilesWidgetService {
 				tmp: (string)$entry['tmp_name'],
 				safeName: $safeName
 			);
-			return $this->buildFileMetadata(node: $file);
+			return $this->buildFileMetadata(node: $file, root: $target->root);
 		} catch (Throwable $e) {
 			return 'storage_failed';
 		}
@@ -536,13 +539,14 @@ class FilesWidgetService {
 	 * Build the normalised JSON-friendly file metadata blob the
 	 * frontend renderer consumes (REQ-FLS-003).
 	 *
-	 * @param Node $node A file or folder node.
+	 * @param Node        $node A file or folder node.
+	 * @param Folder|null $root The widget's configured root folder, which `path` is relative to.
 	 *
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
-	public function buildFileMetadata(Node $node): array {
+	public function buildFileMetadata(Node $node, ?Folder $root=null): array {
 		$isFolder = $node instanceof Folder;
 
 		// Emit a preview URL for any file Nextcloud can render a thumbnail
@@ -572,7 +576,7 @@ class FilesWidgetService {
 		return [
 			'fileId' => (int)$node->getId(),
 			'name' => $node->getName(),
-			'path' => $node->getInternalPath(),
+			'path' => $this->pathWithinRoot(node: $node, root: $root),
 			'mimeType' => $node->getMimetype(),
 			'size' => (int)$node->getSize(),
 			'modifiedAt' => $this->formatTimestamp(timestamp: $node->getMTime()),
@@ -582,6 +586,24 @@ class FilesWidgetService {
 			'canDelete' => $canDelete,
 		];
 	}//end buildFileMetadata()
+
+	/**
+	 * A node's path relative to the widget's root folder, with a leading
+	 * slash; just `/<name>` when no root is known or the node is outside it.
+	 *
+	 * @param Node        $node The listed node.
+	 * @param Folder|null $root The widget's configured root folder.
+	 *
+	 * @return string The root-relative path.
+	 */
+	private function pathWithinRoot(Node $node, ?Folder $root): string {
+		$relative = $root?->getRelativePath(path: $node->getPath());
+		if (is_string($relative) === true && $relative !== '') {
+			return $relative;
+		}
+
+		return '/' . $node->getName();
+	}//end pathWithinRoot()
 
 	/**
 	 * Resolve the placement's configured folder for the given user.

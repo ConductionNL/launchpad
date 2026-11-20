@@ -19,13 +19,13 @@ Write tools are annotated on hermiq's two grant axes:
 
 ### Requirement: REQ-MCP-001 Provider class, DI alias, and tool id namespace
 
-LaunchPad MUST implement `OCA\OpenRegister\Mcp\IMcpToolProvider` in a new class `OCA\LaunchPad\Mcp\LaunchpadToolProvider` (dispatcher + catalogue constant, handlers in domain-grouped classes, per the decidesk layout). It MUST be registered in `lib/AppInfo/Application.php` under the string DI alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad` (string alias so registration triggers no autoload and the app boots without OpenRegister, matching decidesk's `IMcpToolProvider::decidesk` registration). Every tool id MUST use the `launchpad.{toolName}` namespace.
+LaunchPad MUST implement `OCA\OpenRegister\Mcp\IMcpToolProvider` in a new class `OCA\LaunchPad\Mcp\LaunchPadToolProvider` (dispatcher + catalogue constant, handlers in domain-grouped classes, per the decidesk layout). It MUST be registered in `lib/AppInfo/Application.php` under the string DI alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad` (string alias so registration triggers no autoload and the app boots without OpenRegister, matching decidesk's `IMcpToolProvider::decidesk` registration). Every tool id MUST use the `launchpad.{toolName}` namespace.
 
 #### Scenario: Provider resolves through the alias
 
 - **GIVEN** an instance with OpenRegister and launchpad enabled
 - **WHEN** the container resolves `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`
-- **THEN** it MUST return a `LaunchpadToolProvider` instance
+- **THEN** it MUST return a `LaunchPadToolProvider` instance
 - **AND** every id in its catalogue MUST start with `launchpad.`
 
 #### Scenario: Boot without OpenRegister
@@ -154,7 +154,7 @@ Every tool handler MUST enforce the exact same authorization as the correspondin
 
 - **GIVEN** a caller for whom `PUT /api/dashboard/{id}` would return a permission error
 - **WHEN** the same caller's agent invokes `launchpad.updateDashboard` for that dashboard
-- **THEN** the tool MUST deny with a structured error
+- **THEN** the tool MUST deny with a structured error, thrown as a `McpToolRefusedException` (REQ-MCP-010)
 - **AND** no partial mutation MUST occur
 
 #### Scenario: Admin tools require admin
@@ -171,7 +171,7 @@ Every tool handler MUST enforce the exact same authorization as the correspondin
 
 ### Requirement: REQ-MCP-005 Argument validation before any service call
 
-Every tool MUST validate its arguments against its declared `inputSchema` before touching a service, via a `McpArgumentValidator` (decidesk pattern: typed UUID/date/string-length checks returning a structured error array on failure). Invalid arguments MUST produce a validation error result, never an exception escaping the provider and never a service call with coerced values.
+Every tool MUST validate its arguments against its declared `inputSchema` before touching a service, via a `McpArgumentValidator` (decidesk pattern: typed UUID/date/string-length checks returning a structured error array on failure). Invalid arguments MUST produce a validation error, never a service call with coerced values. The provider throws that error as a `McpToolRefusedException` (REQ-MCP-010); no other exception escapes the provider.
 
 #### Scenario: Malformed UUID is rejected
 
@@ -187,7 +187,7 @@ Every tool MUST validate its arguments against its declared `inputSchema` before
 
 ### Requirement: REQ-MCP-006 Destructive and external tools are flagged for human approval and audited
 
-Tools with scope `delete`, and all tools with reach `external`, MUST carry a destructive/approval annotation so hermiq inserts its human approval gate before execution. Every write tool invocation (allowed or denied) MUST be auditable: the provider returns enough structured context (tool id, target uuid/id, caller uid, outcome) for hermiq's audit trail to record the action.
+Tools with scope `delete`, and all tools with reach `external`, MUST carry a destructive/approval annotation so hermiq inserts its human approval gate before execution. Every write tool invocation (allowed or denied) MUST be auditable: the provider returns enough structured context (tool id, target uuid/id, caller uid, outcome) for hermiq's audit trail to record the action. For a denied call that context travels on the thrown `McpToolRefusedException` (`getResult()['audit']`).
 
 #### Scenario: Delete requires approval
 
@@ -242,7 +242,19 @@ The catalogue MUST be sufficient for hermiq to execute common chat commands as s
 - **GIVEN** an agent granted `read/self`, `create/self`, and `update/self`
 - **WHEN** the user sends the command
 - **THEN** the agent MUST resolve it as `launchpad.listTemplates` → `launchpad.forkDashboard` → `launchpad.setDefaultDashboard`
+- **AND** `launchpad.listTemplates` MUST offer only the templates for the caller's groups (a template without groups is offered to everyone), and `launchpad.forkDashboard` MUST accept exactly those (admin-templates REQ-TMPL-018)
 - **AND** the resulting dashboard MUST be the caller's default landing dashboard
+
+### Requirement: REQ-MCP-010 A refusal reaches the agent as an error
+
+OpenRegister marks a tool answer `isError: true` only when the provider throws. When a LaunchPad tool refuses (no permission, a target that does not exist, invalid input, or an unknown tool id), `LaunchPadToolProvider::invokeTool()` MUST throw a `McpToolRefusedException` instead of returning the refusal. Its message MUST be `<error code>: <message>`, and `getErrorCode()` and `getResult()` MUST carry the refusal as the tool built it, audit record included for a write tool. A tool that succeeds MUST return its answer as before.
+
+#### Scenario: A refused tool answers isError true
+
+- **GIVEN** an agent invokes a LaunchPad tool the caller may not use, on a target that does not exist, or with invalid arguments
+- **WHEN** OpenRegister runs the call
+- **THEN** the answer MUST carry `isError: true`
+- **AND** its text MUST name the refusal code (`forbidden`, `not_found` or `invalid_arguments`) and message
 
 ### Requirement: REQ-MCP-009 Read-only x-openregister-mcp block on the Dashboard schema
 

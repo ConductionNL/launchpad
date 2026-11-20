@@ -23,8 +23,6 @@ consume OR data at runtime.** OR is never a hard dependency.
 
 ## Requirements
 
-@e2e exclude pure runtime/contract spec — scenarios assert manifest.json/info.xml/composer dependency contents, `useOrFeatureDetect()` composable gating, `?_lang=` query-param construction, tenant-scope headers, @nextcloud/axios usage, and OR-absent/5xx/recovery HTTP behaviour. None is a user-facing UI surface; these are unit-test + Newman concerns (no OR-data widget is shipped in launchpad to drive through the UI).
-
 ### Requirement: No install-time OR dependency (REQ-OR-001)
 
 LaunchPad MUST NOT declare an install-time dependency on `openregister` or
@@ -32,6 +30,8 @@ LaunchPad MUST NOT declare an install-time dependency on `openregister` or
 `src/manifest.json`.
 
 #### Scenario: Fresh install without OR boots normally
+
+@e2e exclude the GIVEN is an instance with OpenRegister ABSENT, and the Playwright fixture installs it on purpose (`additional-apps: ConductionNL/openregister` in `.github/workflows/code-quality.yml`); one CI job cannot be both. The OR-less server path is pinned in PHPUnit by `tests/Unit/Controller/ManifestControllerCoverageTest.php::testAMissingObjectServiceYieldsAnEmptyManifest` (the container cannot resolve `OCA\OpenRegister\Service\ObjectService`, the manifest still answers 200, with no pages). Note that the same test expects a `warning` log line (`ObjectService unavailable — returning empty manifest`) and `dependencies: ['openregister']` in the body, both at odds with this scenario's THEN; no test asserts the log stays free of such an entry.
 
 - GIVEN a Nextcloud instance with LaunchPad installed but OpenRegister absent
 - WHEN an admin opens LaunchPad
@@ -55,6 +55,8 @@ Any widget that fetches data from OR MUST first call `useOrFeatureDetect()`
 and check `enabled.value` before issuing any OR API request.
 
 #### Scenario: Widget skips OR fetch when OR is absent
+
+@e2e exclude needs an instance with OpenRegister ABSENT, which the CI fixture is not (it installs OpenRegister via `additional-apps`). Faking absence with `page.route()` would only replay the 5xx case below, which is cited. `useOrFeatureDetect` does not exist anywhere under `src/` (only in `docs/widgets/or-data.md` and `docs/architecture.md`; `git log --all -S useOrFeatureDetect -- src lib` finds no commit), so no test pins it either: spec ahead of code.
 
 - GIVEN a Nextcloud instance without OR installed
 - WHEN an OR-data widget mounts
@@ -108,6 +110,8 @@ Until `useTenantContext()` is available:
 
 #### Scenario: Widget passes tenant scope when context is available
 
+@e2e exclude `useTenantContext` IS exported by the installed `@conduction/nextcloud-vue` 2.180.0 (its `src/index.js`), but no LaunchPad source imports it and nc-vue's `CnObjectListWidget` does not consult it, so no widget sends tenant scope. There is also no value to assert: OpenRegister reads no tenant header or query parameter on object reads; it scopes by the user's stored `active_organisation` preference (`openregister/lib/Db/OrganisationMapper.php`). The visibility half (only `acme-corp` objects) is OpenRegister's own server-side ACL, which the requirement itself defers to; LaunchPad has no test for it.
+
 - GIVEN `useTenantContext()` is available in the installed nc-vue version
 - AND the current user is scoped to tenant `acme-corp`
 - WHEN an OR-data widget fetches OR objects
@@ -124,6 +128,8 @@ absent OR when OR returns a 4xx or 5xx response. The empty state MUST NOT
 show a raw error message or stack trace.
 
 #### Scenario: OR absent — empty state shown
+
+@e2e exclude needs an instance with OpenRegister ABSENT, which the CI fixture is not. The browser-reachable half, that a failing OR fetch leaves a labelled state and no raw error, is cited under `or-5xx-widget-degrades-to-empty-state`. No test renders the widget on an OR-less instance.
 
 - GIVEN OR is not installed
 - WHEN an OR-data widget renders

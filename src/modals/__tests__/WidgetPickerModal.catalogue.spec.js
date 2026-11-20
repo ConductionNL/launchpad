@@ -7,7 +7,7 @@
  * host to place one as a tile, and offers "Can't find your app?" to ask IT
  * for a missing one.
  *
- * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

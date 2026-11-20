@@ -127,17 +127,17 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1 */
 		limit() {
 			return bounded(this.content?.limit, DEFAULT_LIMIT, MAX_LIMIT)
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1 */
 		periodDays() {
 			return bounded(this.content?.days, DEFAULT_DAYS, MAX_DAYS)
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-6.1 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-6.1 */
 		filteredEntries() {
 			return filterRows(this.entries, this.rowFilter, ['actorDisplayName', 'title', 'type'])
 		},
@@ -146,7 +146,7 @@ export default {
 		 * The totals line, from the server's figures: only entries the reader may see are in them.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.2
 		 */
 		summary() {
 			return n(
@@ -159,14 +159,14 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1 */
+	/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1 */
 	async created() {
 		await this.load()
 	},
 
 	methods: {
 		t,
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1 */
 		async load() {
 			this.loading = true
 			this.loadFailed = false
@@ -190,7 +190,7 @@ export default {
 		 *
 		 * @param {object} entry the entry
 		 * @return {string}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 		 */
 		describe(entry) {
 			const kind = String(entry.type || '').replace(/_/g, ' ')
@@ -200,7 +200,7 @@ export default {
 		/**
 		 * @param {number} timestamp Unix seconds
 		 * @return {string} the ISO time
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 		 */
 		isoTime(timestamp) {
 			return new Date(Number(timestamp) * 1000).toISOString()
@@ -209,7 +209,7 @@ export default {
 		/**
 		 * @param {number} timestamp Unix seconds
 		 * @return {string} the local date and time
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 		 */
 		shortTime(timestamp) {
 			return new Date(Number(timestamp) * 1000).toLocaleString(undefined, {

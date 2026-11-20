@@ -10,8 +10,6 @@ Admin settings provide Nextcloud administrators with global configuration option
 
 ## Data Model
 
-@e2e exclude Most scenarios here are REST, service or config contracts, covered by PHPUnit and Newman rather than a browser. The browser-observable parts are still exercised: the two REQ-ASET-002 round-trip scenarios are cited by tests/e2e/admin-settings-key-roundtrip.spec.ts, and the personal-dashboard flag's sidebar effect is covered by tests/e2e/allow-personal-dashboards-flag.spec.ts.
-
 ### Admin Settings (oc_launchpad_admin_settings)
 Settings are stored as key-value pairs:
 - **id**: Auto-increment integer primary key
@@ -40,12 +38,15 @@ Settings are stored as key-value pairs:
 | `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
 NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts each setting under the key the GET response uses (`defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`) and under its short parameter name (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`). When both arrive in one body the short name wins. See REQ-ASET-002.
+
 ## Requirements
+
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
 Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the fourteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
+@e2e exclude needs a fresh installation with no settings row; the suite shares one instance and no endpoint deletes a stored setting (PUT treats null as not supplied). Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults (which lists 23 keys, not fourteen; see the format-consistency test).
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
 - THEN the system MUST return HTTP 200 with all fourteen settings at their default values:
@@ -96,6 +97,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - AND the response MUST be a flat JSON object (no nesting)
 
 #### Scenario: The retired content storage key is not returned
+@e2e exclude needs a content_storage row written straight into oc_launchpad_admin_settings; no endpoint writes that key (PUT ignores unknown keys) and "stays unread" is a database-only fact. Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsCamelCaseKeys and tests/Unit/Db/AdminSettingKeyTest.php::testContentStorageKeyIsRetired.
 - GIVEN an instance that still holds a `content_storage` row written by the retired setup-wizard storage step
 - WHEN the admin sends GET /api/admin/settings
 - THEN the response MUST NOT contain `launchpad.content_storage`
@@ -140,18 +142,21 @@ Administrators MUST be able to update individual or multiple admin settings in a
 - AND settings not included in the request MUST remain unchanged
 
 #### Scenario: Update with invalid permission level value
+@e2e exclude never built: AdminSettingsService::updateSettings() stores defaultPermLevel unchecked (git log --all -S finds no validation for it in lib/), so "super_admin" is stored and answered 200. No PHPUnit or Newman test pins a 400.
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultPermLevel": "super_admin"}`
 - THEN the system SHOULD return HTTP 400 with a validation error
 - AND only `view_only`, `add_only`, and `full` SHOULD be accepted for this setting
 - NOTE: Permission level validation is NOT currently implemented -- any string value is accepted
 
 #### Scenario: Update with invalid grid columns value
+@e2e exclude never built: defaultGridCols is stored unchecked (no range check exists in lib/ history), so 0 is stored and answered 200. No PHPUnit or Newman test pins a 400.
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultGridCols": 0}`
 - THEN the system SHOULD return HTTP 400 with a validation error
 - AND `defaultGridCols` SHOULD be a positive integer between 1 and 24
 - NOTE: Grid columns validation is NOT currently implemented -- any integer value is accepted
 
 #### Scenario: Update with invalid boolean value
+@e2e exclude never built: no boolean check exists; Nextcloud casts "maybe" to true for the bool parameter and it is stored with 200. No PHPUnit or Newman test pins a 400.
 - GIVEN the admin sends PUT /api/admin/settings with body `{"allowUserDash": "maybe"}`
 - THEN the system SHOULD return HTTP 400 with a validation error
 - AND boolean settings SHOULD only accept `true` or `false`
@@ -219,6 +224,7 @@ Admins MAY always create dashboards regardless of the flag (the `PermissionServi
 - AND no rows in `oc_launchpad_dashboards` or `oc_launchpad_widget_placements` MUST have been touched
 
 #### Scenario: Default value when setting is missing
+@e2e exclude needs the allow_user_dashboards row to be absent; no endpoint deletes a stored setting and the shared instance has one. Pinned by tests/Unit/Service/DashboardServiceAllowFlagTest.php::testDefaultValueBlocksCreation and tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsDefaults.
 - GIVEN a fresh LaunchPad install with no row for `allow_user_dashboards` in `oc_launchpad_admin_settings`
 - WHEN any code reads the setting (via `DashboardService::getAllowUserDashboards()`, `PermissionService::canCreateDashboard()`, or `AdminSettingsService::getSettings()`)
 - THEN it MUST evaluate to `false` (creation blocked) — the secure default
@@ -289,6 +295,7 @@ The `defaultPermissionLevel` setting MUST be applied as a fallback when resolvin
 - AND the `defaultPermissionLevel` admin setting acts as a fallback in `PermissionService::getEffectivePermissionLevel()` only when the dashboard's own `permissionLevel` is empty
 
 #### Scenario: Factory default permission (add_only)
+@e2e exclude needs a dashboard with no permissionLevel and no template, which no endpoint creates (DashboardFactory sets full, template copies take the template level). Pinned by tests/Unit/Service/PermissionServiceAccessGoldenTest.php (dashboard 8: empty level, stored default add_only). Note: with the row absent PermissionService::getEffectivePermissionLevel() falls back to full, not add_only.
 - GIVEN `defaultPermissionLevel` is at its factory default of `add_only`
 - WHEN `PermissionService::getEffectivePermissionLevel()` is called for a dashboard with no `permissionLevel` set and no `basedOnTemplate`
 - THEN the effective level MUST resolve to `add_only` (the admin default)
@@ -340,12 +347,14 @@ The `defaultGridColumns` setting MUST be applied to new dashboards when no expli
 Admin settings MUST be persisted across server restarts and app updates.
 
 #### Scenario: Settings survive server restart
+@e2e exclude needs restarting the Nextcloud server mid-test, which the shared e2e instance cannot do. No PHPUnit or Newman test pins it.
 - GIVEN the admin has configured `allowUserDashboards: false`
 - WHEN the Nextcloud server is restarted
 - THEN GET /api/admin/settings MUST still return `allowUserDashboards: false`
 - AND the setting MUST NOT revert to its default value
 
 #### Scenario: Settings survive app update
+@e2e exclude needs upgrading the installed app mid-test. No PHPUnit or Newman test pins it.
 - GIVEN the admin has configured custom settings
 - WHEN the LaunchPad app is updated to a new version
 - THEN all previously configured settings MUST be preserved
@@ -441,12 +450,14 @@ Concurrent admin settings updates MUST be handled safely.
 The settings API MUST return consistent error responses for various failure scenarios.
 
 #### Scenario: Database connection failure during settings retrieval
+@e2e exclude needs the database taken down under a running instance shared by the suite. No PHPUnit or Newman test pins it (AdminController::getSettings() has no try/catch).
 - GIVEN the database is temporarily unavailable
 - WHEN the admin sends GET /api/admin/settings
 - THEN the system MUST return HTTP 500 with an error message
 - AND the error MUST NOT expose internal database details
 
 #### Scenario: Database connection failure during settings update
+@e2e exclude needs the database taken down under a running instance shared by the suite. No PHPUnit or Newman test pins it.
 - GIVEN the database is temporarily unavailable
 - WHEN the admin sends PUT /api/admin/settings with valid data
 - THEN the system MUST return HTTP 500 with an error message
@@ -482,6 +493,7 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 - AND `"a"` MUST be removed (no implicit merge)
 
 #### Scenario: Corrupt DB JSON falls back to empty array
+@e2e exclude needs a hand-written corrupt group_order row; no endpoint stores invalid JSON. Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetGroupOrderReturnsEmptyOnCorruptValue.
 
 - GIVEN the row `group_order` exists in `oc_launchpad_admin_settings` with `setting_value = '{not-json'`
 - WHEN any caller invokes `AdminSettingsService::getGroupOrder()`
@@ -490,6 +502,7 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 - AND `GET /api/admin/groups` MUST return `active: []` in this state
 
 #### Scenario: Default when setting absent
+@e2e exclude needs the group_order row to be absent; no endpoint deletes it. Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetGroupOrderReturnsEmptyWhenRowAbsent.
 
 - GIVEN no `group_order` row has ever been written to `oc_launchpad_admin_settings`
 - WHEN `AdminSettingsService::getGroupOrder()` is called
@@ -614,6 +627,22 @@ The current value of `allow_user_dashboards` MUST be pushed as initial state `al
 - AND the backend returns HTTP 403 with `error: 'personal_dashboards_disabled'`
 - THEN the store MUST surface a localised toast via `@nextcloud/dialogs::showError` reading the `Personal dashboards are not enabled by your administrator` translation
 - AND the original error MUST be re-thrown so callers can short-circuit
+
+### Requirement: Program schemes and single sign-on launch templates are admin settings (REQ-ASET-020)
+
+The admin settings MUST hold `tileAllowedSchemes` (stored as `tile_allowed_schemes`), a list of lower-case URL schemes a program tile may use, and `ssoLaunchTemplates` (stored as `sso_launch_templates`), a list of `{key, name, urlTemplate}` where `urlTemplate` is an https address containing `{appId}` exactly once. Both MUST be empty by default. A write MUST be refused with HTTP 400, naming the entry, when a scheme is not lower-case or is one of `javascript`, `data`, `file`, `vbscript`, `about` or `blob`, or when a template is not https, lacks or repeats `{appId}`, carries another placeholder or credentials, or reuses a key; a refused write MUST leave both lists as they were. A stored value that no longer validates MUST read as empty. With these two, `GET /api/admin/settings` (REQ-ASET-001) returns fourteen keys; the REQ-ASET-001 list is updated when this change is archived.
+
+#### Scenario: A script scheme cannot be allowed
+
+- **GIVEN** an administrator on the LaunchPad admin page
+- **WHEN** they save `javascript` as an allowed scheme
+- **THEN** the response is 400 naming `javascript` and the allowed list is unchanged
+
+#### Scenario: A launch template must be https with the app id
+
+- **GIVEN** an administrator defining a launch template
+- **WHEN** they save `http://idp.example.nl/{appId}`
+- **THEN** the response is 400 and no template is stored
 
 ## Non-Functional Requirements
 

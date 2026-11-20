@@ -11,7 +11,7 @@
  * instance without one the pack has no "New ..." tile and the creation test
  * is skipped with that reason; the refusal test runs everywhere.
  *
- * The add flow is opened through "More" → "Add app" (launchpad#1300).
+ * The add flow is opened through "More" → "Add widget".
  * Accounts are throwaway non-admin accounts logged in from an empty storage
  * state.
  *
@@ -24,14 +24,14 @@
 
 import type { APIRequestContext, Page } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { BASE_URL } from './support/baseUrl.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -53,13 +53,7 @@ let account: Account | null = null
  * @return the context; the caller disposes it.
  */
 async function apiAs(who?: Account): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: who
-			? { username: who.username, password: who.password }
-			: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return contextFor(who?.username ?? ADMIN.user, who?.password ?? ADMIN.pass)
 }
 
 /**
@@ -122,13 +116,22 @@ async function createFromTile(page: Page, title: string): Promise<string> {
 	const dialog = page.getByRole('dialog').filter({ has: page.getByRole('textbox', { name: 'File name' }) })
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog.getByRole('textbox', { name: 'File name' }).fill(FILE_NAME)
-	const created = page.waitForResponse((res) =>
-		res.url().includes('/api/office-tiles/create') && res.request().method() === 'POST',
-	)
+	// The new file opens in its editor, which navigates away and drops the
+	// response body, so the body is read while the request passes through.
+	let resolveCreated: (value: { status: number; body: string }) => void = () => {}
+	const created = new Promise<{ status: number; body: string }>((resolve) => {
+		resolveCreated = resolve
+	})
+	await page.route('**/api/office-tiles/create', async (route) => {
+		const response = await route.fetch()
+		resolveCreated({ status: response.status(), body: await response.text() })
+		await route.fulfill({ response })
+	})
 	await dialog.getByRole('button', { name: 'Create' }).click()
 	const response = await created
-	expect(response.status(), await response.text()).toBe(201)
-	const body = await response.json()
+	await page.unroute('**/api/office-tiles/create')
+	expect(response.status, response.body).toBe(201)
+	const body = JSON.parse(response.body)
 	expect(body.url, 'the new file opens in its editor').toBeTruthy()
 	return String(body.path)
 }
@@ -170,7 +173,10 @@ test('the pack is placed from the add flow and a document created twice gives tw
 	const tiles = await packTiles()
 	const creators = tiles.filter((tile) => tile.linkType === 'create')
 	test.skip(creators.length === 0, 'no office app on this instance registers a file creator')
-	const newDocument = creators.find((tile) => /document/i.test(tile.title)) ?? creators[0]
+	// Nextcloud Text registers a "Text document" creator too; the task is about the office app's.
+	const officeCreators = creators.filter((tile) => !tile.linkValue.startsWith('text:'))
+	test.skip(officeCreators.length === 0, 'no office app on this instance registers a file creator')
+	const newDocument = officeCreators.find((tile) => /document/i.test(tile.title)) ?? officeCreators[0]
 
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {
@@ -179,7 +185,7 @@ test('the pack is placed from the add flow and a document created twice gives tw
 		const more = page.locator(MORE_MENU)
 		await expect(more).toBeVisible({ timeout: 30_000 })
 		await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-		await page.locator('[data-testid="cn-grouped-menu-item-add-app"]').click()
+		await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
 		const picker = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(picker).toBeVisible({ timeout: 10_000 })
 		const placed = page.waitForResponse((res) =>

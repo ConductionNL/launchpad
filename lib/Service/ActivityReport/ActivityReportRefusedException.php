@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -29,7 +29,7 @@ use RuntimeException;
 /**
  * An activity report the caller may not have, with the HTTP status it answers.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
  */
 class ActivityReportRefusedException extends RuntimeException {
 
@@ -40,7 +40,7 @@ class ActivityReportRefusedException extends RuntimeException {
 	 * @param int    $statusCode The HTTP status.
 	 * @param bool   $disabled   Whether the refusal is that activity reporting is off.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.4
 	 */
 	public function __construct(
 		string $message,

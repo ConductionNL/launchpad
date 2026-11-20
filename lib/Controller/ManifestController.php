@@ -481,7 +481,9 @@ class ManifestController extends Controller {
 		return [
 			'$schema' => self::SCHEMA_URL,
 			'version' => '1.0.0',
-			'dependencies' => ['openregister'],
+			// A soft dependency, as in src/manifest.json: LaunchPad runs without
+			// OpenRegister, so its absence is a banner, not a blocked shell.
+			'dependencies' => [['id' => 'openregister', 'required' => false, 'name' => 'OpenRegister']],
 			'menu' => $menu,
 			'pages' => $pages,
 			'runtime' => [

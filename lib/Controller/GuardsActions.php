@@ -18,7 +18,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-4
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use OCP\IUser;
 /**
  * Signed-in, allowed and, where asked, administrator.
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-4
  */
 trait GuardsActions {
 

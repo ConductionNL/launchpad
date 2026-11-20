@@ -21,7 +21,7 @@ const dashboardStore = {
 	openDashboard: vi.fn(),
 	createDashboard: vi.fn(),
 }
-const orgNavStore = { shouldRender: false, position: 'top' }
+const orgNavStore = { shouldRender: false, position: 'top', fetchPosition: vi.fn(), fetchTree: vi.fn() }
 const logged = []
 
 vi.mock('../../stores/dashboard.js', () => ({
@@ -236,6 +236,14 @@ describe('WorkspaceApp org navigation', () => {
 		const wrapper = mountShell()
 
 		expect(wrapper.classes()).toContain('workspace-shell--org-nav-hidden')
+		wrapper.unmount()
+	})
+
+	it('loads the position and the tree itself, because the rail mounts only once they are known', () => {
+		const wrapper = mountShell()
+
+		expect(orgNavStore.fetchPosition).toHaveBeenCalledTimes(1)
+		expect(orgNavStore.fetchTree).toHaveBeenCalledTimes(1)
 		wrapper.unmount()
 	})
 

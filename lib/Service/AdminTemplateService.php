@@ -480,28 +480,38 @@ class AdminTemplateService {
 	}//end applyTemplateGalleryUpdates()
 
 	/**
-	 * List admin templates for the discovery gallery (REQ-TMPL-014).
+	 * List the admin templates offered to a user, for the discovery gallery
+	 * (REQ-TMPL-014, REQ-TMPL-018).
 	 *
 	 * Returns a serialised list of `{uuid, name, description, category,
 	 * previewImage, gridColumns, widgetCount, lastUpdatedAt}` entries
 	 * suitable for direct return to the frontend. Widget bodies are not
 	 * fetched — `widgetCount` comes from a single COUNT query per
 	 * template via {@see WidgetPlacementMapper::countByDashboardId()}.
+	 * Only templates offered to the user are listed: see {@see TemplateAudience}.
 	 *
+	 * @param string      $userId   The user the gallery is for.
 	 * @param string|null $category Optional exact-match category filter.
-	 * @param string $sortBy `'name'` (default) or `'updatedAt'`.
+	 * @param string      $sortBy   `'name'` (default) or `'updatedAt'`.
 	 *
 	 * @return array<int, array<string, mixed>> The gallery entries.
 	 *
-	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-template-gallery-endpoint-req-tmpl-014
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-the-gallery-offers-a-template-to-the-groups-it-names-req-tmpl-018
 	 */
 	public function getGallery(
+		string $userId,
 		?string $category = null,
 		string $sortBy = 'name',
 	): array {
-		$templates = $this->stores->dashboardMapper->findAllTemplatesForGallery(
-			category: $category,
-			sortBy: $sortBy
+		$userGroupIds = $this->getUserGroupIdsFor(userId: $userId);
+		$audience     = new TemplateAudience();
+		$templates    = array_filter(
+			$this->stores->dashboardMapper->findAllTemplatesForGallery(
+				category: $category,
+				sortBy: $sortBy
+			),
+			static fn (Dashboard $template): bool => $audience->offers(template: $template, userGroupIds: $userGroupIds)
 		);
 
 		$result = [];
@@ -523,6 +533,34 @@ class AdminTemplateService {
 
 		return $result;
 	}//end getGallery()
+
+	/**
+	 * The admin template with this UUID when the gallery offers it to the
+	 * user, so a fork accepts exactly what the gallery lists (REQ-TMPL-018).
+	 *
+	 * @param string $userId The user.
+	 * @param string $uuid   The template UUID.
+	 *
+	 * @return Dashboard|null The template, or null when it does not exist,
+	 *                        is not a template, or is not offered to the user.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-the-gallery-offers-a-template-to-the-groups-it-names-req-tmpl-018
+	 */
+	public function findOfferedTemplate(string $userId, string $uuid): ?Dashboard {
+		try {
+			$template = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		if ($template->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE
+			|| (new TemplateAudience())->offers(template: $template, userGroupIds: $this->getUserGroupIdsFor(userId: $userId)) === false
+		) {
+			return null;
+		}
+
+		return $template;
+	}//end findOfferedTemplate()
 
 	/**
 	 * Upload a preview image for an admin template (REQ-TMPL-017).

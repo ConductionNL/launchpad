@@ -718,7 +718,7 @@ class Dashboard extends Entity implements JsonSerializable {
 	 *
 	 * @return array<string, mixed> The fields, in wire order.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 	 */
 	private function lookFields(): array {
 		$textColor = null;

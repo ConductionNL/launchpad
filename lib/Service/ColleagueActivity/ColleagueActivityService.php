@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ use Throwable;
  * is left out. A left-out entry is absent, not redacted, and every count the
  * widget shows is taken from the entries that remain.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-007-recent-colleague-activity-filtered-by-what-you-may-see
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-007-recent-colleague-activity-filtered-by-what-you-may-see
  */
 class ColleagueActivityService {
 
@@ -74,7 +74,7 @@ class ColleagueActivityService {
 	 * @param IUserManager            $users       The actors' display names.
 	 * @param ITimeFactory            $time        Now.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.2
 	 */
 	public function __construct(
 		private readonly ColleagueActivityReader $reader,
@@ -95,7 +95,7 @@ class ColleagueActivityService {
 	 * @return array{available:bool,days:int,entries:list<array<string,mixed>>,total:int,counts:array<string,int>,actors:int}
 	 *         The listed entries, and the totals of every visible entry in the period.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.2
 	 */
 	public function recent(string $readerId, array $window=[]): array {
 		$limit = max(1, min((int) ($window['limit'] ?? self::DEFAULT_LIMIT), self::MAX_LIMIT));

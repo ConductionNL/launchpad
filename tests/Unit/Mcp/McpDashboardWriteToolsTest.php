@@ -185,6 +185,39 @@ class McpDashboardWriteToolsTest extends TestCase {
 	}//end testUpdateDashboard()
 
 	/**
+	 * The automatic version holds the dashboard as it was before the update
+	 * (REQ-VERS-001), not the updated one.
+	 *
+	 * @return void
+	 */
+	public function testUpdateDashboardSnapshotsTheStateItReplaces(): void {
+		$this->gate->method('requireMetadataEdit')->willReturn(null);
+		$before = self::dashboard();
+		$after  = self::dashboard();
+		$after->setName('Renamed');
+		$this->versions->method('stateBeforeUpdate')->willReturn(['dashboard' => $before, 'snapshotJson' => '{"before":true}']);
+		$this->dashboards->method('updateDashboard')->willReturn($after);
+		$this->versions->expects($this->once())->method('captureSnapshot')
+			->with($this->identicalTo(value: $before), $this->anything(), ['snapshotJson' => '{"before":true}']);
+
+		$this->tools()->updateDashboard(args: ['dashboardId' => 9, 'name' => 'Renamed']);
+	}//end testUpdateDashboardSnapshotsTheStateItReplaces()
+
+	/**
+	 * updateDashboard needs no name, but refuses a bad one or a bad description it is given.
+	 *
+	 * @return void
+	 */
+	public function testUpdateDashboardChecksTheFieldsItIsGiven(): void {
+		$this->gate->method('requireMetadataEdit')->willReturn(null);
+		$this->dashboards->expects($this->never())->method('updateDashboard');
+
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->updateDashboard(args: ['dashboardId' => 9, 'name' => ''])['error']);
+		$long = ['dashboardId' => 9, 'description' => str_repeat(string: 'x', times: 2001)];
+		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools()->updateDashboard(args: $long)['error']);
+	}//end testUpdateDashboardChecksTheFieldsItIsGiven()
+
+	/**
 	 * deleteDashboard passes the cascade choice and names a refusal for children.
 	 *
 	 * @return void

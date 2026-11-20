@@ -198,7 +198,7 @@ class McpDashboardWriteToolsTest extends TestCase {
 		$this->versions->method('stateBeforeUpdate')->willReturn(['dashboard' => $before, 'snapshotJson' => '{"before":true}']);
 		$this->dashboards->method('updateDashboard')->willReturn($after);
 		$this->versions->expects($this->once())->method('captureSnapshot')
-			->with($this->identicalTo($before), $this->anything(), ['snapshotJson' => '{"before":true}']);
+			->with($this->identicalTo(value: $before), $this->anything(), ['snapshotJson' => '{"before":true}']);
 
 		$this->tools()->updateDashboard(args: ['dashboardId' => 9, 'name' => 'Renamed']);
 	}//end testUpdateDashboardSnapshotsTheStateItReplaces()

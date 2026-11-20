@@ -144,7 +144,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 			services: new DashboardApiServices(dashboardService: $service),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
-				versionService: ($versions ?? $this->createMock(DashboardVersionService::class)),
+				versionService: ($versions ?? $this->createMock(originalClassName: DashboardVersionService::class)),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
 			)),

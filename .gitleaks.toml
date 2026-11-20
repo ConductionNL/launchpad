@@ -44,7 +44,7 @@ paths = [
 description = "Design note: a curl example with a user:app-password placeholder."
 targetRules = ["curl-auth-user"]
 paths = [
-  '''(^|/)openspec/changes/governance\-rest\-api\-reference/design\.md$''',
+  '''(^|/)openspec/changes/archive/2026\-11\-19\-governance\-rest\-api\-reference/design\.md$''',
 ]
 
 [[allowlists]]
@@ -59,4 +59,18 @@ description = "E2E seed script: curl login built from the ADMIN_USER/ADMIN_PASSW
 targetRules = ["curl-auth-user"]
 paths = [
   '''(^|/)tests/e2e/seed\.sh$''',
+]
+
+[[allowlists]]
+description = "Feature documentation: a curl example with an alice:app-password placeholder."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)docs/features/rest\-api\.md$''',
+]
+
+[[allowlists]]
+description = "Mock register seed data: embed token hashes are rotations of the hex string 0123456789abcdef, not hashes of real tokens."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)lib/Settings/launchpad_mock_register\.json$''',
 ]

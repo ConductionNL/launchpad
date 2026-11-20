@@ -480,11 +480,6 @@ test('a host off the allow-list is refused at save, naming the host, and nothing
 	}
 })
 
-// SUSPECTED BUG: The "no longer permitted" state does not exist: IframeWidget.vue
-// restart() (:289) maps every framable:false answer (including host_not_allowed) to
-// failureReason "blocked", which shows "This site does not allow itself to be
-// embedded…" (fallbackMessage, IframeWidget.vue:218-230); the text "This embed is no
-// longer permitted by your administrator" is nowhere in src/.
 // @e2e iframe-embed-widget::host-removed-after-configuration-is-refused-at-render
 test('a placement whose host was taken off the allow-list renders no frame', async ({
 	page,

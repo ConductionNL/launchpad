@@ -1717,6 +1717,7 @@ OC.L10N.register(
     "This host is allow-listed." : "Deze site is toegestaan.",
     "This host is not on the allow-list." : "Deze site is niet toegestaan.",
     "The host {host} is not on the allow-list." : "De site {host} is niet toegestaan.",
+    "This embed is no longer permitted by your administrator." : "Je beheerder staat deze ingesloten pagina niet meer toe.",
     "e.g. Status page" : "bijv. Statuspagina",
     "https://…" : "https://…",
     "Data source unavailable" : "Gegevensbron niet beschikbaar",

@@ -219,6 +219,9 @@ export default {
 			if (!this.hasUrl) {
 				return t('launchpad', 'This embed has not been configured yet.')
 			}
+			if (this.failureReason === 'not_permitted') {
+				return t('launchpad', 'This embed is no longer permitted by your administrator.')
+			}
 			if (this.failureReason === 'blocked') {
 				return t(
 					'launchpad',
@@ -286,7 +289,7 @@ export default {
 				if (result && result.framable === false) {
 					this.clearTimer()
 					this.state = 'failed'
-					this.failureReason = 'blocked'
+					this.failureReason = result.reason === 'host_not_allowed' ? 'not_permitted' : 'blocked'
 					return
 				}
 				// Server confirms framing is permitted — ONLY NOW render the

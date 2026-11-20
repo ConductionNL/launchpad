@@ -323,6 +323,7 @@
 								isPlacementOutstanding(item)
 							"
 							:canHideForMe="canHideForMe"
+							:embedHref="placementEmbedHref(item)"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -514,6 +515,7 @@ import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
+import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
@@ -635,6 +637,13 @@ export default {
 		// rendered (handles renamed parents / stale bookmarks).
 		injectedDeepLinkPath: {
 			from: 'deepLinkPath',
+			default: '',
+		},
+
+		// UUID of the dashboard the server resolved for this request; for a
+		// slug address, the dashboard that address names (REQ-DDL-002).
+		injectedActiveDashboardId: {
+			from: 'activeDashboardId',
 			default: '',
 		},
 	},
@@ -1429,6 +1438,7 @@ export default {
 		// Read now, because mounted() rewrites the address.
 		const editFromAddress =
 			new URLSearchParams(window.location.search).get('edit') === '1'
+		const bootPath = window.location.pathname
 
 		const dashboardStore = useDashboardStore()
 		const widgetStore = useWidgetStore()
@@ -1439,6 +1449,7 @@ export default {
 			widgetStore.loadAvailableWidgets(),
 			tileStore.loadTiles(),
 		])
+		await this.openDeepLinkedDashboard(bootPath)
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding
@@ -1511,6 +1522,22 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The Beheer ▸ Embeds link that creates an embed token for one widget
+		 * of the active dashboard; '' for a non-administrator, or without a
+		 * saved dashboard and placement.
+		 *
+		 * @param {object} placement The widget placement.
+		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		placementEmbedHref(placement) {
+			if (this.isAdmin !== true || !this.activeDashboard?.id || !placement?.id) {
+				return ''
+			}
+			return embedAdminHref(this.activeDashboard, placement)
+		},
+
 		/**
 		 * Dock the top-right controls into the greeting row when the page
 		 * has one and is not being edited; float them otherwise.
@@ -2949,6 +2976,34 @@ export default {
 			const prefix = generateUrl('/apps/launchpad')
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
+		},
+
+		/**
+		 * Open the dashboard a slug address names. The store loads the
+		 * stored active dashboard, so without this a slug address showed
+		 * whichever dashboard was open last. Only an address the server
+		 * resolved to its canonical path counts: any other address (a stale
+		 * slug, a router path) keeps what the store chose.
+		 *
+		 * @param {string} bootPath `window.location.pathname` at boot.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-deeplinking/spec.md
+		 */
+		async openDeepLinkedDashboard(bootPath) {
+			const uuid = this.injectedActiveDashboardId
+			const canonical = this.buildDeepLinkUrl(this.injectedDeepLinkPath)
+			if (!uuid || !canonical || this.activeDashboard?.uuid === uuid) {
+				return
+			}
+			const bare = (path) =>
+				path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+			if (bare(bootPath) !== bare(canonical)) {
+				return
+			}
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.switchDashboard(target.id)
+			}
 		},
 
 		/**

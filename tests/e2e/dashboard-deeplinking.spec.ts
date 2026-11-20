@@ -193,7 +193,11 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 			const res = await api.get(`${API}/dashboards/${dashA.uuid}/path`)
 			expect(res.status(), await res.text()).toBe(200)
 			const body = await res.json()
-			expect(body.data?.path).toBe(SLUG_A)
+			// The body is the bare `{path}` the sidebar reads (Views.vue
+			// `res.data.path`, axios' `data` being the body), not a `data`
+			// envelope, and the chain carries a leading slash
+			// (DashboardTreeService::computePath).
+			expect(body.path, JSON.stringify(body)).toBe(`/${SLUG_A}`)
 		} finally {
 			await api.dispose()
 		}

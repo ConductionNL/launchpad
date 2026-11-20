@@ -16,7 +16,8 @@
 			:content="normalizedContent"
 			:placement="placement"
 			v-bind="rendererProps"
-			@data="onWidgetData" />
+			@data="onWidgetData"
+			@editRequest="$emit('editRequest')" />
 
 		<CalculatedValues v-if="registryEntry" :placement="placement" />
 
@@ -80,6 +81,7 @@ import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue
 import TileWidget from './TileWidget.vue'
 import CalculatedValues from './Widgets/CalculatedFields/CalculatedValues.vue'
 import {
+	FLAG_PROP,
 	NULLABLE_OBJECT_PROP,
 	REQUIRED_OBJECT_PROP,
 } from '../constants/propDefinitions.js'
@@ -163,7 +165,11 @@ export default {
 		widget: NULLABLE_OBJECT_PROP,
 
 		placement: REQUIRED_OBJECT_PROP,
+
+		editMode: FLAG_PROP,
 	},
+
+	emits: ['editRequest'],
 
 	data() {
 		return {
@@ -235,7 +241,12 @@ export default {
 		 * @return {object} extra props for `<component :is>` (empty for most types).
 		 */
 		rendererProps() {
-			return buildRendererExtraProps(this.placement?.widgetId)
+			const props = buildRendererExtraProps(this.placement?.widgetId)
+			if (this.placement?.widgetId === 'menu') {
+				// The menu's empty-state gear asks for the editor only when both are set.
+				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
+			}
+			return props
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

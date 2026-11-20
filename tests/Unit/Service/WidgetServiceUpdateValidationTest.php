@@ -27,8 +27,8 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Service\WidgetPlatform;
 use OCA\LaunchPad\Service\WidgetRendering;
-use InvalidArgumentException;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 use OCA\LaunchPad\Service\MenuService;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\WidgetFormatter;
@@ -107,7 +107,7 @@ class WidgetServiceUpdateValidationTest extends TestCase {
 			],
 		];
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(InvalidWidgetContentException::class);
 		$this->expectExceptionMessage('Menu items can nest at most 3 levels deep');
 
 		$this->service->updatePlacement(

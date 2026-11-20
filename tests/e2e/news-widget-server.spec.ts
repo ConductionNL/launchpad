@@ -82,8 +82,6 @@ async function metadataField(): Promise<string> {
 	return key
 }
 
-test.describe.configure({ mode: 'serial' })
-
 test.beforeAll(async () => {
 	api = await adminApi()
 	dashboard = await seedActiveDashboard(api, `E2E News server ${STAMP}`)

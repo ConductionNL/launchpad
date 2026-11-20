@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 
 /**
  * Service for discovering and querying Nextcloud dashboard widgets.
@@ -52,11 +53,30 @@ class WidgetService {
 	 * @param array $content Widget content blob.
 	 *
 	 * @return void
-	 * @throws \InvalidArgumentException When the content blob is invalid.
+	 * @throws InvalidWidgetContentException When the content blob is invalid.
 	 *
 	 * @spec openspec/specs/widgets/spec.md
 	 */
 	public function validateWidgetContent(string $widgetType, array $content): void {
+		try {
+			$this->validateContentOfType(widgetType: $widgetType, content: $content);
+		} catch (\InvalidArgumentException $e) {
+			throw new InvalidWidgetContentException(message: $e->getMessage(), previous: $e);
+		}
+	}//end validateWidgetContent()
+
+	/**
+	 * Run the validator of a widget type over its content blob.
+	 *
+	 * @param string $widgetType Widget type identifier.
+	 * @param array $content Widget content blob.
+	 *
+	 * @return void
+	 * @throws \InvalidArgumentException When the content blob is invalid.
+	 *
+	 * @spec openspec/specs/widgets/spec.md
+	 */
+	private function validateContentOfType(string $widgetType, array $content): void {
 		if ($widgetType === 'map') {
 			(new MapContentValidator())->validate(content: $content);
 			return;
@@ -73,7 +93,7 @@ class WidgetService {
 
 		$this->menuService->validateMenuConfig(content: $content);
 		$this->menuService->validateMenuItems(items: $items);
-	}//end validateWidgetContent()
+	}//end validateContentOfType()
 
 	/**
 	 * Get all available widgets from Nextcloud.

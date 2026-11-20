@@ -40,6 +40,7 @@ import {
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 
@@ -129,7 +130,7 @@ test.describe('image widget', () => {
 
 		// Reload and verify persistence.
 		await page.reload()
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		await expect(
 			page
 				.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)

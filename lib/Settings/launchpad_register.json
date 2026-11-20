@@ -740,6 +740,10 @@
                   "nullable": true,
                   "description": "Null once the retention period removed the file."
                 },
+                "filename": {
+                  "type": "string",
+                  "description": "The name recipients get; the archived copy may carry a (2) suffix."
+                },
                 "expiresAt": {
                   "type": "string",
                   "format": "date-time"

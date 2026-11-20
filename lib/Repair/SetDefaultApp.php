@@ -3,9 +3,9 @@
 /**
  * SetDefaultApp Repair Step
  *
- * On install, makes LaunchPad the instance's default app, so signing in lands
- * on the Workspace page (REQ-PSP-003). Only when the administrator has not
- * chosen a default app, and only while the admin toggle is on (it is on by
+ * On install and on upgrade, makes LaunchPad the instance's default app, so
+ * signing in lands on the Workspace page (REQ-PSP-003). Only when no default
+ * app is configured at all, and only while the admin toggle is on (it is on by
  * default); {@see DefaultAppSetting} holds the rules.
  *
  * Like {@see SeedDefaultDashboard} the step never lets an exception escape: a
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Make LaunchPad the default app on install.
+ * Make LaunchPad the default app on install and upgrade.
  *
  * @spec openspec/specs/dashboard-public-share/spec.md#requirement-the-start-page-offers-a-way-in-for-staff-req-psp-003
  */

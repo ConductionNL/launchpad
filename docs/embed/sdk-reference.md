@@ -34,7 +34,7 @@ answer within `timeout` milliseconds (default 10000).
 | Event | Payload |
 | --- | --- |
 | `filterApplied` | The filter the visitor set. |
-| `drillDown` | What the visitor opened. |
+| `drillDown` | What the visitor opened: `{placementId, title, link, source: 'user-interaction'}`. Sent when the token's scope is `read-with-interactions` with `drillDown` allowed; the visitor opens a tile. |
 | `export` | The export started. |
 | `error` | `{error, message}`, e.g. when the token is revoked while the page is open. |
 

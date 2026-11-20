@@ -184,6 +184,24 @@ class EmbedTokenServiceTest extends TestCase {
 	}//end testCreateReturnsTheJwtOnceAndStoresItsHash()
 
 	/**
+	 * Every write of a token carries a hash the schema accepts (64 hex
+	 * characters), the first one included, which is made before the JWT exists.
+	 *
+	 * @return void
+	 */
+	public function testEveryTokenWriteCarriesAHashTheSchemaAccepts(): void {
+		$service = $this->service();
+		$id      = $service->createToken(input: self::INPUT, userId: 'admin')['id'];
+		$service->reissueToken(id: $id, userId: 'admin');
+
+		$writes = $this->objects->saved['launchpad/embed_token'];
+		$this->assertGreaterThanOrEqual(expected: 4, actual: count($writes));
+		foreach ($writes as $write) {
+			$this->assertMatchesRegularExpression(pattern: '/^[0-9a-f]{64}$/', string: (string)($write['tokenHash'] ?? ''));
+		}
+	}//end testEveryTokenWriteCarriesAHashTheSchemaAccepts()
+
+	/**
 	 * Metadata never carries the JWT or the hash, and lists the actions.
 	 *
 	 * @return void

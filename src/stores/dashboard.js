@@ -7,8 +7,7 @@ import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
 import { defineStore } from 'pinia'
 import {
-	DEFAULT_H,
-	DEFAULT_W,
+	defaultSizeFor,
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
@@ -1065,8 +1064,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addWidgetToDashboard(widgetId, position = null) {
 			try {
+				const type = typeof widgetId === 'object' && widgetId !== null ? widgetId.type : widgetId
 				const placement = newPlacement(position, {
-					size: { w: DEFAULT_W, h: DEFAULT_H },
+					size: defaultSizeFor(type, this.activeDashboard?.gridColumns || undefined),
 					store: this,
 				})
 				const response = await api.addWidget(

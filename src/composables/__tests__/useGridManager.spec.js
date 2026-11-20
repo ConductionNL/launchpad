@@ -40,6 +40,7 @@ import {
 	DEFAULT_COLUMNS,
 	DEFAULT_H,
 	DEFAULT_W,
+	defaultSizeFor,
 	getColumnOpts,
 	GRID_MARGIN,
 	MIN_CELLS,
@@ -556,5 +557,20 @@ describe('nudgePlacement (keyboard-accessible repositioning)', () => {
 			gridWidth: 4,
 			gridHeight: 4,
 		})
+	})
+})
+
+describe('divider sizing — REQ-DIV-006', () => {
+	it('a new divider spans every column and is one row tall; other widgets keep the default', () => {
+		expect(defaultSizeFor('divider', 12)).toEqual({ w: 12, h: 1 })
+		expect(defaultSizeFor('divider', 6)).toEqual({ w: 6, h: 1 })
+		expect(defaultSizeFor('calendar', 12)).toEqual({ w: DEFAULT_W, h: DEFAULT_H })
+	})
+
+	it('a divider shrinks to one row; any other widget stops at two', () => {
+		const rect = { id: 1, gridX: 0, gridY: 0, gridWidth: 8, gridHeight: 2 }
+		expect(nudgePlacement({ ...rect, widgetId: 'divider' }, 'shrink-height', []).gridHeight).toBe(1)
+		expect(nudgePlacement({ ...rect, widgetId: 'divider', gridHeight: 1 }, 'shrink-height', []).gridHeight).toBe(1)
+		expect(nudgePlacement({ ...rect, widgetId: 'text' }, 'shrink-height', []).gridHeight).toBe(2)
 	})
 })

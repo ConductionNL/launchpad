@@ -78,6 +78,14 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.rendererProps.call({ placement: { widgetId: 'label' } })).toEqual({})
 	})
 
+	it('lets the menu offer its editor only in edit mode', () => {
+		expect(computed.rendererProps.call({ placement: { widgetId: 'menu' }, editMode: true }))
+			.toEqual({ isAdmin: true, canEdit: true })
+		expect(computed.rendererProps.call({ placement: { widgetId: 'menu' }, editMode: false }))
+			.toEqual({ isAdmin: false, canEdit: false })
+		expect(computed.rendererProps.call({ placement: { widgetId: 'label' }, editMode: true })).toEqual({})
+	})
+
 	it('treats a tile- widget id or a tileType as a tile', () => {
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'tile-3' } })).toBe(true)
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'mydash-tile', tileType: 'link' } })).toBe(true)

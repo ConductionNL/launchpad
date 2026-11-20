@@ -122,6 +122,11 @@ const ERROR_ENUM = [
 	'storage_failure',
 ]
 
+/** What Nextcloud answers a non-admin on an `AuthorizedAdminSetting` route. */
+const NOT_ADMIN = 'Logged in account must be an admin, a sub admin or gotten special right to access this setting'
+/** What Nextcloud answers a request without a session. */
+const NOT_LOGGED_IN = 'Current user is not logged in'
+
 const SVG_NS = 'xmlns="http://www.w3.org/2000/svg"'
 const XLINK_NS = 'xmlns:xlink="http://www.w3.org/1999/xlink"'
 
@@ -270,6 +275,24 @@ async function expectError(
 	return body
 }
 
+/**
+ * Assert Nextcloud's own refusal: its status and `{message}` body, sent before
+ * LaunchPad's controller runs.
+ *
+ * @param res the response.
+ * @param status the expected status, 401 or 403.
+ * @param message Nextcloud's message.
+ */
+async function expectNextcloudRefusal(
+	res: APIResponse,
+	status: number,
+	message: string,
+): Promise<void> {
+	const text = await res.text()
+	expect(res.status(), text).toBe(status)
+	expect(JSON.parse(text), text).toEqual({ message })
+}
+
 /** Every resource name the listing reports, read as admin. */
 async function resourceNames(api: APIRequestContext): Promise<Set<string>> {
 	const res = await api.get(RESOURCES)
@@ -342,7 +365,7 @@ test.describe('resource-uploads: base64 upload (REQ-RES-001..005)', () => {
 		expect(Buffer.compare(await served.body(), png)).toBe(0)
 	})
 
-	test('a signed-in non-admin is refused with 403 forbidden and writes nothing', async () => {
+	test('a signed-in non-admin is refused with Nextcloud\'s 403 and writes nothing', async () => {
 		// @e2e resource-uploads::non-admin-rejected
 		test.setTimeout(120_000)
 		let user: Principal | null = null
@@ -352,7 +375,7 @@ test.describe('resource-uploads: base64 upload (REQ-RES-001..005)', () => {
 			const body = dataUrl('png', makePng(8, 8))
 			const before = await resourceNames(admin)
 
-			await expectError(await postBase64(user.api, body), 403, 'forbidden')
+			await expectNextcloudRefusal(await postBase64(user.api, body), 403, NOT_ADMIN)
 			await expectNothingWritten(admin, before)
 
 			// The allowed principal succeeds with the same body.
@@ -519,18 +542,10 @@ test.describe('resource-uploads: base64 upload (REQ-RES-001..005)', () => {
 		test.setTimeout(180_000)
 		// storage_failure cannot be provoked over HTTP; its envelope is pinned by
 		// ResourceControllerTest::testUnexpectedThrowableIsMaskedAsStorageFailure.
-		let user: Principal | null = null
-		try {
-			user = await createPrincipal(admin, `res-env-${RUN}`)
-			await assertActingAs(user.api, user.username)
-
+		// A non-admin is refused by Nextcloud before LaunchPad answers, in
+		// Nextcloud's own shape; the refusal tests below pin that.
+		{
 			const probes: Array<[string, number, Promise<APIResponse>]> = [
-				[
-					'forbidden',
-					403,
-					postBase64(user.api, dataUrl('png', makePng(8, 8))),
-				],
-				[
 					'unsupported_media_type',
 					415,
 					admin.post(RESOURCES, { multipart: { base64: 'x' } }),
@@ -575,8 +590,6 @@ test.describe('resource-uploads: base64 upload (REQ-RES-001..005)', () => {
 					/Stack trace|Exception|\.php|#\d+ \/|libxml|DOMDocument/i,
 				)
 			}
-		} finally {
-			await removePrincipal(admin, user)
 		}
 	})
 })
@@ -1050,7 +1063,7 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 		})
 	})
 
-	test('a signed-in non-admin posting a file is refused with 403 forbidden and writes nothing', async () => {
+	test('a signed-in non-admin posting a file is refused with Nextcloud\'s 403 and writes nothing', async () => {
 		// @e2e resource-uploads::non-admin-rejected
 		test.setTimeout(120_000)
 		let user: Principal | null = null
@@ -1060,10 +1073,10 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 			const png = makePng(8, 8)
 			const before = await resourceNames(admin)
 
-			await expectError(
+			await expectNextcloudRefusal(
 				await postFile(user.api, 'x.png', png),
 				403,
-				'forbidden',
+				NOT_ADMIN,
 			)
 			await expectNothingWritten(admin, before)
 
@@ -1073,7 +1086,7 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 		}
 	})
 
-	test('an anonymous file post is refused with 403 forbidden and writes nothing', async () => {
+	test('an anonymous file post is refused with Nextcloud\'s 401 and writes nothing', async () => {
 		// @e2e resource-uploads::unauthenticated-request-rejected
 		const anonymous = await pwRequest.newContext({
 			baseURL: BASE_URL,
@@ -1084,10 +1097,10 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 			const png = makePng(8, 8)
 			const before = await resourceNames(admin)
 
-			await expectError(
+			await expectNextcloudRefusal(
 				await postFile(anonymous, 'x.png', png),
-				403,
-				'forbidden',
+				401,
+				NOT_LOGGED_IN,
 			)
 			await expectNothingWritten(admin, before)
 

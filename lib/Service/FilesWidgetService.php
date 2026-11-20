@@ -39,6 +39,7 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCP\Constants;
+use OCP\Files\Cache\IFileAccess;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -96,11 +97,15 @@ class FilesWidgetService {
 	 *                                    deep links into the Files app.
 	 * @param IPreview $previewManager Decides which files have a
 	 *                                 previewable thumbnail.
+	 * @param IFileAccess|null $fileAccess File cache lookup that tells a
+	 *                                     folder the viewer cannot see
+	 *                                     from one that is gone.
 	 */
 	public function __construct(
 		private readonly IRootFolder $rootFolder,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly IPreview $previewManager,
+		private readonly ?IFileAccess $fileAccess=null,
 	) {
 	}//end __construct()
 
@@ -631,6 +636,10 @@ class FilesWidgetService {
 
 		$node = $this->configuredNode(userFolder: $userFolder, config: $config);
 		if ($node === null) {
+			if ($this->existsOutsideViewer(fileId: $this->extractFileId(config: $config)) === true) {
+				throw new NoAccessException();
+			}
+
 			throw new FolderNotFoundException();
 		}
 
@@ -640,6 +649,29 @@ class FilesWidgetService {
 
 		return $node;
 	}//end resolveConfiguredFolder()
+
+	/**
+	 * Whether a folder id the viewer cannot resolve still exists in
+	 * someone's files: then the viewer lacks access, rather than the
+	 * folder being gone. A trashed folder counts as gone.
+	 *
+	 * @param integer|null $fileId The configured folder id.
+	 *
+	 * @return bool True when the folder exists outside the viewer's view.
+	 */
+	private function existsOutsideViewer(?int $fileId): bool {
+		if ($fileId === null || $this->fileAccess === null) {
+			return false;
+		}
+
+		try {
+			$entry = $this->fileAccess->getByFileId(fileId: $fileId);
+		} catch (Throwable $e) {
+			return false;
+		}
+
+		return $entry !== null && str_starts_with(haystack: $entry->getPath(), needle: 'files/') === true;
+	}//end existsOutsideViewer()
 
 	/**
 	 * The folder a placement config names: by `fileId` first, else by

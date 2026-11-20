@@ -116,13 +116,22 @@ async function createFromTile(page: Page, title: string): Promise<string> {
 	const dialog = page.getByRole('dialog').filter({ has: page.getByRole('textbox', { name: 'File name' }) })
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog.getByRole('textbox', { name: 'File name' }).fill(FILE_NAME)
-	const created = page.waitForResponse((res) =>
-		res.url().includes('/api/office-tiles/create') && res.request().method() === 'POST',
-	)
+	// The new file opens in its editor, which navigates away and drops the
+	// response body, so the body is read while the request passes through.
+	let resolveCreated: (value: { status: number; body: string }) => void = () => {}
+	const created = new Promise<{ status: number; body: string }>((resolve) => {
+		resolveCreated = resolve
+	})
+	await page.route('**/api/office-tiles/create', async (route) => {
+		const response = await route.fetch()
+		resolveCreated({ status: response.status(), body: await response.text() })
+		await route.fulfill({ response })
+	})
 	await dialog.getByRole('button', { name: 'Create' }).click()
 	const response = await created
-	expect(response.status(), await response.text()).toBe(201)
-	const body = await response.json()
+	await page.unroute('**/api/office-tiles/create')
+	expect(response.status, response.body).toBe(201)
+	const body = JSON.parse(response.body)
 	expect(body.url, 'the new file opens in its editor').toBeTruthy()
 	return String(body.path)
 }
@@ -164,7 +173,10 @@ test('the pack is placed from the add flow and a document created twice gives tw
 	const tiles = await packTiles()
 	const creators = tiles.filter((tile) => tile.linkType === 'create')
 	test.skip(creators.length === 0, 'no office app on this instance registers a file creator')
-	const newDocument = creators.find((tile) => /document/i.test(tile.title)) ?? creators[0]
+	// Nextcloud Text registers a "Text document" creator too; the task is about the office app's.
+	const officeCreators = creators.filter((tile) => !tile.linkValue.startsWith('text:'))
+	test.skip(officeCreators.length === 0, 'no office app on this instance registers a file creator')
+	const newDocument = officeCreators.find((tile) => /document/i.test(tile.title)) ?? officeCreators[0]
 
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {

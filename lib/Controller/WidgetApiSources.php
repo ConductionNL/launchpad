@@ -23,7 +23,12 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\CalendarWidgetService;
+use OCA\LaunchPad\Kernel\Contracts\CalendarWidgetServiceInterface;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldAstChecker;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldTypeChecker;
+use OCA\LaunchPad\Service\CalculatedFieldService;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
 use OCA\LaunchPad\Service\WidgetService;
@@ -34,19 +39,36 @@ use OCA\LaunchPad\Service\WidgetService;
  * @spec openspec/specs/widgets/spec.md
  */
 class WidgetApiSources {
+
+	/**
+	 * Save-time validation of calculated fields (widget-calculated-fields, task 24).
+	 *
+	 * @var CalculatedFieldService
+	 */
+	public readonly CalculatedFieldService $calculatedFields;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param WidgetService          $widgetService The widget service.
 	 * @param NewsWidgetService      $newsWidgetService The news widget service.
-	 * @param CalendarWidgetService  $calendarService The calendar widget service (REQ-CAL-003).
+	 * @param CalendarWidgetServiceInterface  $calendarService The calendar widget service (REQ-CAL-003).
 	 * @param WidgetPlacementService $placementService Placement-payload validators (REQ-CONT-006).
+	 * @param CalculatedFieldService|null $calculatedFields Calculated-field validation; the stateless
+	 *                                                      default when not injected.
 	 */
 	public function __construct(
 		public readonly WidgetService $widgetService,
 		public readonly NewsWidgetService $newsWidgetService,
-		public readonly CalendarWidgetService $calendarService,
+		public readonly CalendarWidgetServiceInterface $calendarService,
 		public readonly WidgetPlacementService $placementService,
+		?CalculatedFieldService $calculatedFields=null,
 	) {
+		$this->calculatedFields = $calculatedFields ?? new CalculatedFieldService(
+			astChecker: new CalculatedFieldAstChecker(),
+			typeChecker: new CalculatedFieldTypeChecker(),
+			cycleDetector: new CalculatedFieldCycleDetector(),
+			evaluator: new CalculatedFieldEvaluator()
+		);
 	}//end __construct()
 }//end class

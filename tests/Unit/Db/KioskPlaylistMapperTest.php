@@ -83,6 +83,23 @@ class KioskPlaylistMapperTest extends TestCase {
 		return $qb;
 	}
 
+	public function testAnInsertedPlaylistCarriesItsUrl(): void {
+		$qb = $this->makeQueryBuilder();
+		$qb->method('insert')->willReturnSelf();
+		$qb->method('setValue')->willReturnSelf();
+		$qb->method('getLastInsertId')->willReturn(5);
+		$this->db->method('getQueryBuilder')->willReturn($qb);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://nc.example/apps/launchpad/kiosk/tok-new');
+
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok-new');
+		$playlist->setName('Lobby');
+
+		$stored = $this->mapper->insert($playlist);
+
+		$this->assertSame('https://nc.example/apps/launchpad/kiosk/tok-new', $stored->jsonSerialize()['url']);
+	}
+
 	public function testMapperInstantiates(): void {
 		$this->assertInstanceOf(KioskPlaylistMapper::class, $this->mapper);
 	}

@@ -25,7 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ProfileFieldService;
+use OCA\LaunchPad\Kernel\Contracts\ProfileFieldServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -43,13 +43,15 @@ use OCP\IUser;
  * @spec openspec/specs/people-widget/spec.md
  */
 class ProfileFieldsController extends Controller {
+	use GuardsActions;
+
 	use RespondsWithErrors;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest            $request HTTP request.
-	 * @param ProfileFieldService $profileFields Profile field service.
+	 * @param ProfileFieldServiceInterface $profileFields Profile field service.
 	 * @param ActionCaller        $caller The session and the action check.
 	 * @param IGroupManager       $groupManager Admin check.
 	 *
@@ -57,7 +59,7 @@ class ProfileFieldsController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ProfileFieldService $profileFields,
+		private readonly ProfileFieldServiceInterface $profileFields,
 		private readonly ActionCaller $caller,
 		private readonly IGroupManager $groupManager,
 	) {
@@ -152,28 +154,6 @@ class ProfileFieldsController extends Controller {
 	}//end saveDefinitions()
 
 	/**
-	 * Signed-in and allowed to call the action.
-	 *
-	 * @param IUser|null $user The caller.
-	 * @param callable $check ADR-023 action check; throws OCSForbiddenException when refused.
-	 *
-	 * @return JSONResponse|null An error response, or null when allowed.
-	 */
-	private function guard(?IUser $user, callable $check): ?JSONResponse {
-		if ($user === null) {
-			return self::unauthenticated();
-		}
-
-		try {
-			$check($user);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		return null;
-	}//end guard()
-
-	/**
 	 * Signed-in administrator allowed to call the action.
 	 *
 	 * @param callable $check ADR-023 action check; throws OCSForbiddenException when refused.
@@ -181,12 +161,7 @@ class ProfileFieldsController extends Controller {
 	 * @return JSONResponse|null An error response, or null when allowed.
 	 */
 	private function adminGuard(callable $check): ?JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($user !== null && $this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
-		}
-
-		return $this->guard(user: $user, check: $check);
+		return $this->guardAdmin(user: $this->caller->userSession->getUser(), groupManager: $this->groupManager, check: $check);
 	}//end adminGuard()
 
 	/**

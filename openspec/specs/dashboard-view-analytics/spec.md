@@ -27,15 +27,17 @@ Two settings gate tracking:
 |---------|-------|---------|-----------------|
 | `launchpad.analytics_enabled` | global | `true` | All view events are no-ops. |
 | `launchpad.analytics_optout` | per-user pref | `false` | This user's view events are no-ops. |
+
 ## Requirements
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
 
 ### Requirement: REQ-ANLT-001 Dashboard Views Table Schema
 
 The system MUST track dashboard view events in a dedicated relational table with daily aggregation buckets, privacy-preserving counters, and composite unique indexes.
 
 #### Scenario: Create views table with correct schema
+
+@e2e exclude the migration's schema has no HTTP or UI read. lib/Migration/DashboardViewsTableBuilder.php builds it; no test pins its columns or indexes (tests/Unit/Migration/IdentifierLengthTest.php only checks identifier lengths across all migrations).
 
 - GIVEN the system has no `oc_launchpad_dashboard_views` table
 - WHEN the schema migration runs
@@ -58,6 +60,8 @@ The system MUST track dashboard view events in a dedicated relational table with
 
 #### Scenario: Two different days create separate rows
 
+@e2e exclude needs two UTC days, and only today's bucket can be written from outside. tests/Unit/Db/VersionAndViewMapperTest.php::testUpsertView pins insert-a-new-bucket versus update-the-existing-one, against a recorded (not real) connection.
+
 - GIVEN a dashboard "uuid-456" exists
 - WHEN a view event is recorded on 2026-05-01
 - AND another view event is recorded on 2026-05-02
@@ -66,6 +70,8 @@ The system MUST track dashboard view events in a dedicated relational table with
   - Row 2: `(dashboardUuid = 'uuid-456', viewBucket = '2026-05-02', viewCount = 1, uniqueViewerCount = Y)`
 
 #### Scenario: Schema supports multiple databases
+
+@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL. The PHPUnit job runs on all three (database-test-matrix in .github/workflows/code-quality.yml), so the migration is exercised on each, but no test asserts the unique index refuses a duplicate.
 
 - GIVEN the Nextcloud instance may use SQLite, MySQL, or PostgreSQL
 - WHEN the migration runs on any of these databases
@@ -87,6 +93,8 @@ The system MUST expose an authenticated endpoint that records a view event when 
 - AND no response body is returned
 
 #### Scenario: Dedup cache key is per dashboard and viewer hash
+
+@e2e exclude the cache key and its TTL are internal; no API exposes the cache. tests/Unit/Service/UniqueViewerDedupTest.php::testSecondsUntilNextUtcMidnightIsPositive and ::testIsNewUniqueViewerReturnsTrueOnFirstView cover the TTL helper and the single cache write, but no test asserts the key format or that the TTL passed to set() is the seconds until midnight.
 
 - GIVEN user "alice" (userId: 1) posts a view event for dashboard "uuid-101" on 2026-05-01
 - WHEN the system checks for a duplicate within the same UTC day
@@ -132,6 +140,8 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
 
 #### Scenario: Daily salt rotation prevents user re-identification across days
 
+@e2e exclude needs two UTC days on one instance. tests/Unit/Service/UniqueViewerDedupTest.php::testGetSaltForDateRotatesWhenDateIsStale pins a new salt for a new date, ::testHashUserForDateIsDeterministicWithSameSalt the same-salt hash.
+
 - GIVEN user "bob" (userId: 2) loads a dashboard on 2026-05-01 at 11:00 PM
 - AND loads the same dashboard again on 2026-05-02 at 12:00 AM (next day)
 - WHEN the system computes unique-viewer hashes:
@@ -152,6 +162,8 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
 
 #### Scenario: Hash stored in cache, not in database
 
+@e2e exclude the salt read, the hash and the cache write are internal and have no HTTP read. tests/Unit/Service/UniqueViewerDedupTest.php::testIsNewUniqueViewerReturnsTrueOnFirstView / ::testIsNewUniqueViewerReturnsFalseOnRepeat and tests/Unit/Service/AnalyticsServiceTest.php::testRecordViewEventLeavesUniqueAtZeroForRepeatViewer pin it; the CSV columns asserted in tests/e2e/dashboard-view-analytics.spec.ts show no user id or hash leaves the table.
+
 - GIVEN user "diana" (userId: 4) posts a view event for dashboard "uuid-105" on 2026-05-01
 - WHEN the system increments uniqueViewerCount
 - THEN the system MUST:
@@ -162,6 +174,8 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
   - Increment `uniqueViewerCount` only if hash is NOT already in cache
 
 #### Scenario: Salt rotation discards previous salt with no history retained
+
+@e2e exclude SaltRotationJob is a background job; a rotation cannot be triggered or observed over HTTP. tests/Unit/Service/UniqueViewerDedupTest.php::testRotateSaltOverwritesPreviousValueWithoutHistory and tests/Unit/BackgroundJob/SaltRotationJobTest.php::testRunRotatesTodaysSaltAndLogsTheDate pin it.
 
 - GIVEN `SaltRotationJob` ran on 2026-05-01 and stored `dailySalt_A` in `launchpad.analytics_dailysalt`
 - AND viewer hashes for 2026-05-01 were computed using `dailySalt_A`
@@ -246,6 +260,8 @@ The system MUST expose an admin-only endpoint that returns the most-viewed dashb
 - THEN the system MUST return exactly 5 dashboards (the top 5)
 
 #### Scenario: Period parameter filters date range
+
+@e2e exclude needs view rows on past dates, and only today's bucket can be written from outside. No test pins the boundary: tests/Unit/Service/AnalyticsServiceTest.php::testPeriodToDateRangeReturnsTwoDates only checks the format and order of the two dates.
 
 - GIVEN dashboards have view rows for dates: 2026-04-01, 2026-04-15, 2026-05-01
 - WHEN an admin sends `GET /api/admin/analytics/dashboards/top?period=7d&limit=10`
@@ -352,6 +368,8 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Default retention is 365 days
 
+@e2e exclude PurgeViewsJob is a background job with no HTTP trigger or read. No test pins the 365-day default or the cutoff arithmetic: tests/Unit/BackgroundJob/PurgeViewsJobTest.php mocks getPurgeCutoffDate().
+
 - GIVEN a fresh installation with no explicit retention setting
 - WHEN the daily purge job runs
 - THEN rows with `viewBucket < CURRENT_DATE - 365 days` MUST be deleted
@@ -359,12 +377,16 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Admin can configure retention period
 
+@e2e exclude the setting only takes effect in PurgeViewsJob, a background job with no HTTP trigger or read. tests/Unit/Service/AnalyticsServiceTest.php::testGetRetentionDaysReturnsValueInRange pins the read and tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunPurgesBothTablesWithSameCutoff the delete with the cutoff.
+
 - GIVEN an admin sets `launchpad.analytics_retention_days = 90`
 - WHEN the purge job runs
 - THEN only rows with `viewBucket < CURRENT_DATE - 90 days` MUST be deleted
 - AND the new retention becomes effective on the next job run
 
 #### Scenario: Retention minimum and maximum bounds
+
+@e2e exclude there is no HTTP surface that sets or reads the retention; the clamp is service logic pinned by tests/Unit/Service/AnalyticsServiceTest.php::testGetRetentionDaysClampsBelowMinimum, ::testGetRetentionDaysClampsAboveMaximum and ::testSetRetentionDaysClampsAndPersists.
 
 - GIVEN the admin attempts to set `launchpad.analytics_retention_days = 10` (below minimum 30)
 - THEN the system MUST either:
@@ -376,6 +398,8 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Purge job is automatic and idempotent
 
+@e2e exclude a background job with no HTTP trigger; tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunIsIdempotentWhenNothingToDelete pins the re-run. The daily interval is set in lib/BackgroundJob/PurgeViewsJob.php (setInterval 86400); no test asserts it.
+
 - GIVEN the daily purge job has run once and deleted old rows
 - WHEN it runs again (on the next day or re-triggered)
 - THEN no errors MUST occur
@@ -383,6 +407,8 @@ The system MUST automatically purge view-count rows older than a configurable re
 - NOTE: Job MUST be registered with Nextcloud scheduler and run daily at a fixed time (e.g., 02:00 UTC)
 
 #### Scenario: Purge logs execution
+
+@e2e exclude log output of a background job; tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunLogsAggregateCountsOnly pins the counts, the cutoff and the absence of user data.
 
 - GIVEN the daily purge job runs
 - WHEN rows are deleted
@@ -474,6 +500,8 @@ The system MUST track per-tile (per-widget-placement) click events in a dedicate
 
 #### Scenario: Create tile clicks table with correct schema
 
+@e2e exclude the migration's schema has no HTTP or UI read. lib/Migration/TileClicksTableBuilder.php builds it; no test pins its columns or indexes (tests/Unit/Migration/IdentifierLengthTest.php only checks identifier lengths).
+
 - GIVEN the system has no `oc_launchpad_tile_clicks` table
 - WHEN the schema migration runs
 - THEN the system MUST create `oc_launchpad_tile_clicks` with columns:
@@ -496,6 +524,8 @@ The system MUST track per-tile (per-widget-placement) click events in a dedicate
 - AND the system MUST NOT persist any per-event row
 
 #### Scenario: Schema supports multiple databases
+
+@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL. The PHPUnit job runs on all three (database-test-matrix in .github/workflows/code-quality.yml), so the migration is exercised on each, but no test asserts the unique index refuses a duplicate.
 
 - GIVEN the Nextcloud instance may use SQLite, MySQL, or PostgreSQL
 - WHEN the migration runs on any of these databases
@@ -585,6 +615,8 @@ The system MUST expose admin-only endpoints that report tile usage: a top-tiles 
 
 #### Scenario: Period parameter filters the date range
 
+@e2e exclude needs click rows on past dates, and only today's bucket can be written from outside. tests/Unit/Service/TileAnalyticsServiceTest.php::testGetTopTilesDelegatesToMapperWithDateRange pins that the range reaches the mapper; no test pins the boundary date.
+
 - GIVEN a tile has click rows for 2026-04-01, 2026-04-15, and 2026-05-01
 - WHEN an admin queries top tiles with `period=7d` on 2026-05-01
 - THEN the system MUST sum only rows where `clickBucket >= '2026-04-24'`
@@ -617,12 +649,16 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 
 #### Scenario: Daily salt is shared, not duplicated
 
+@e2e exclude which salt a hash uses is internal. tests/Unit/Service/TileAnalyticsServiceTest.php::testRecordClickReusesSharedDedupScopedByPlacement pins that tile clicks go through the one UniqueViewerDedup (and so the one launchpad.analytics_dailysalt).
+
 - GIVEN `SaltRotationJob` has stored `launchpad.analytics_dailysalt`
 - WHEN the system computes a tile-click unique-actor hash
 - THEN it MUST use the SAME `launchpad.analytics_dailysalt` value
 - AND the system MUST NOT introduce a separate tile-analytics salt or a second rotation job
 
 #### Scenario: Retention purge also deletes tile rows
+
+@e2e exclude PurgeViewsJob is a background job with no HTTP trigger; tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunPurgesBothTablesWithSameCutoff and ::testRunIsIdempotentWhenNothingToDelete pin both tables and the re-run.
 
 - GIVEN the admin has set `launchpad.analytics_retention_days = 90`
 - WHEN the existing analytics purge job runs
@@ -631,8 +667,6 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 - AND the purge MUST be idempotent (re-running deletes nothing already deleted and raises no error)
 
 ### Requirement: An administrator sees the most clicked tiles (REQ-TILEUI-001)
-
-@e2e exclude reading a count needs clicks recorded on a live instance; the report is asserted in src/components/admin/__tests__/TileClickReport.spec.js and the names in tests/Unit/Service/TileAnalyticsServiceTest.php
 
 The analytics page in administration MUST show the most clicked tiles for the selected period with dashboard name, tile title, click count and distinct people, and MUST offer the CSV export.
 
@@ -650,8 +684,6 @@ The analytics page in administration MUST show the most clicked tiles for the se
 
 ### Requirement: Tile numbers are not shown when tracking is off (REQ-TILEUI-002)
 
-@e2e exclude reading a count needs clicks recorded on a live instance; the report is asserted in src/components/admin/__tests__/TileClickReport.spec.js and the names in tests/Unit/Service/TileAnalyticsServiceTest.php
-
 When tile tracking is inactive, the tiles section MUST state that clicks are not recorded and MUST NOT show a table or an export button.
 
 #### Scenario: Tracking off
@@ -659,3 +691,27 @@ When tile tracking is inactive, the tiles section MUST state that clicks are not
 - **GIVEN** the administrator switched tile tracking off
 - **WHEN** Ruben opens the Tiles section
 - **THEN** a message says clicks are not being recorded and no table is rendered
+
+### Requirement: A person turns view counting off in their own settings (REQ-ANLT-UI-001)
+
+LaunchPad's personal settings MUST show a "Count my visits" switch, on by default. Turning it off MUST store `analytics_optout = true` for that person, so REQ-ANLT-004 ignores their view and tile-click events. Turning it on again MUST store `false`. The switch MUST NOT show when an administrator has turned analytics off for everyone.
+
+#### Scenario: A person stops their visits being counted
+
+- **GIVEN** Eva is signed in and analytics is on for the organisation
+- **WHEN** she opens her LaunchPad settings and turns "Count my visits" off
+- **THEN** her user value `analytics_optout` is `true`
+- **AND** her next dashboard visit adds nothing to the view counts
+
+#### Scenario: A person counts again
+
+- **GIVEN** Eva turned "Count my visits" off earlier
+- **WHEN** she turns it on again
+- **THEN** her user value `analytics_optout` is `false`
+- **AND** her next dashboard visit is counted
+
+#### Scenario: Analytics is off for everyone
+
+- **GIVEN** an administrator turned analytics off for the organisation
+- **WHEN** Eva opens her LaunchPad settings
+- **THEN** the "Count my visits" switch is not shown

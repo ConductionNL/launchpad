@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\CalendarWidgetServiceInterface;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IResponse;
@@ -60,8 +61,9 @@ use Throwable;
  *                                                   guard naturally pushes
  *                                                   total complexity past
  *                                                   the project default.
+ * @SuppressWarnings(PHPMD.TooManyMethods) One small method per calendar source and recurrence step.
  */
-class CalendarWidgetService {
+class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	/**
 	 * Default cache TTL for raw ICS bodies (in seconds).
 	 *
@@ -165,29 +167,54 @@ class CalendarWidgetService {
 		$internalCalendars = (array)($config['internalCalendars'] ?? []);
 		$externalIcsUrls = (array)($config['externalIcsUrls'] ?? []);
 
-		$events = [];
-		$failures = [];
+		$result = [
+			'events' => [],
+			'failures' => [],
+		];
 
 		if ($internalCalendars !== []) {
-			$internalResult = $this->fetchInternalEvents(
-				principals: $internalCalendars,
-				from: $from,
-				to: $to
+			$result = $this->appendResult(
+				result: $result,
+				source: $this->fetchInternalEvents(principals: $internalCalendars, from: $from, to: $to)
 			);
-			$events = array_merge($events, $internalResult['events']);
-			$failures = array_merge($failures, $internalResult['failures']);
 		}
 
 		if ($externalIcsUrls !== []) {
-			$externalResult = $this->fetchExternalIcsEvents(
-				urls: $externalIcsUrls,
-				from: $from,
-				to: $to
+			$result = $this->appendResult(
+				result: $result,
+				source: $this->fetchExternalIcsEvents(urls: $externalIcsUrls, from: $from, to: $to)
 			);
-			$events = array_merge($events, $externalResult['events']);
-			$failures = array_merge($failures, $externalResult['failures']);
 		}
 
+		return [
+			'events' => $this->sortedByStart(events: $result['events']),
+			'failures' => $result['failures'],
+		];
+	}//end getEvents()
+
+	/**
+	 * One source's events and failures appended to those gathered so far.
+	 *
+	 * @param array{events: array<int, array<string, mixed>>, failures: array<int, string>} $result The result so far.
+	 * @param array{events: array<int, array<string, mixed>>, failures: array<int, string>} $source One source's result.
+	 *
+	 * @return array{events: array<int, array<string, mixed>>, failures: array<int, string>}
+	 */
+	private function appendResult(array $result, array $source): array {
+		return [
+			'events' => array_merge($result['events'], $source['events']),
+			'failures' => array_merge($result['failures'], $source['failures']),
+		];
+	}//end appendResult()
+
+	/**
+	 * Events ordered by their ISO start.
+	 *
+	 * @param array<int, array<string, mixed>> $events The events.
+	 *
+	 * @return array<int, array<string, mixed>> The same events, sorted.
+	 */
+	private function sortedByStart(array $events): array {
 		usort(
 			array: $events,
 			callback: static function (array $eventA, array $eventB): int {
@@ -195,11 +222,8 @@ class CalendarWidgetService {
 			}
 		);
 
-		return [
-			'events' => $events,
-			'failures' => $failures,
-		];
-	}//end getEvents()
+		return $events;
+	}//end sortedByStart()
 
 	/**
 	 * List the current user's internal calendars for the config-form picker
@@ -347,7 +371,8 @@ class CalendarWidgetService {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function eventsInScope(array $matches, array $principals): array {
-		$events = [];
+		$calendars = $this->calendarDisplay();
+		$events    = [];
 		foreach ($matches as $match) {
 			$matchArr = (array)$match;
 			if ($this->isCalendarInScope(match: $matchArr, principals: $principals) === false) {
@@ -355,11 +380,76 @@ class CalendarWidgetService {
 				continue;
 			}
 
-			$events[] = $this->normalizeInternalEvent(raw: $matchArr);
+			$matchArr = array_merge(
+				($calendars[(string)($matchArr['calendar-key'] ?? '')] ?? []),
+				$matchArr
+			);
+			foreach ($this->instancesOf(match: $matchArr) as $instance) {
+				$events[] = $this->normalizeInternalEvent(raw: $instance);
+			}
 		}
 
 		return $events;
 	}//end eventsInScope()
+
+	/**
+	 * One search match per event instance.
+	 *
+	 * With a time range, NC's CalDAV search expands a recurring event into
+	 * one entry of `objects` per instance in the range; each becomes its own
+	 * match so every instance is an event.
+	 *
+	 * @param array<string, mixed> $match One raw search match.
+	 *
+	 * @return array<int, array<string, mixed>> The match once per instance.
+	 */
+	private function instancesOf(array $match): array {
+		$objects = ($match['objects'] ?? []);
+		if (is_array(value: $objects) === false || count($objects) < 2) {
+			return [$match];
+		}
+
+		$instances = [];
+		foreach ($objects as $object) {
+			$instances[] = array_merge($match, ['objects' => [$object]]);
+		}
+
+		return $instances;
+	}//end instancesOf()
+
+	/**
+	 * The display name and colour of the user's calendars, by calendar key,
+	 * in the keys a search match carries them under.
+	 *
+	 * NC's search result names a calendar only by `calendar-key`.
+	 *
+	 * @return array<string, array{calendar-name: string, calendar-color: string|null}>
+	 */
+	private function calendarDisplay(): array {
+		$display = [];
+		try {
+			$calendars = ($this->calendarMgr?->getCalendars() ?? []);
+		} catch (Throwable $exception) {
+			$this->logger->warning(
+				message: 'Calendar widget: reading calendar names failed: ' . $exception->getMessage()
+			);
+			return [];
+		}
+
+		foreach ($calendars as $calendar) {
+			$color = null;
+			if (method_exists(object_or_class: $calendar, method: 'getDisplayColor') === true) {
+				$color = $this->filledOrNull(value: $calendar->getDisplayColor());
+			}
+
+			$display[(string)$calendar->getKey()] = [
+				'calendar-name' => (string)$calendar->getDisplayName(),
+				'calendar-color' => $color,
+			];
+		}
+
+		return $display;
+	}//end calendarDisplay()
 
 	/**
 	 * Whether the match's calendar (by key or name) is among the principals; all are when none are given.
@@ -815,7 +905,7 @@ class CalendarWidgetService {
 			'title' => $resolvedTitle,
 			'start' => $this->scalarDateToIso(value: $startVal),
 			'end' => $this->scalarDateToIso(value: $endVal),
-			'allDay' => (bool)($raw['allDay'] ?? false),
+			'allDay' => ((bool)($raw['allDay'] ?? false) || $this->startsOnADate(raw: $raw)),
 			'location' => $this->filledOrNull(value: $locVal),
 			'description' => $this->filledOrNull(value: $descVal),
 			'calendarId' => (string)($raw['calendar-key'] ?? $raw['calendarUri'] ?? ''),
@@ -846,6 +936,23 @@ class CalendarWidgetService {
 
 		return ($fromRaw ?? $fromObj ?? ($raw[self::FLAT_EVENT_KEYS[$name]] ?? null));
 	}//end searchProperty()
+
+	/**
+	 * Whether the result's DTSTART is a date without a time (`VALUE=DATE`),
+	 * which makes the event all-day.
+	 *
+	 * @param array<string, mixed> $raw The raw search result.
+	 *
+	 * @return bool
+	 */
+	private function startsOnADate(array $raw): bool {
+		$start = ($raw['objects'][0]['DTSTART'] ?? null);
+		if (is_array(value: $start) === false || is_array(value: ($start[1] ?? null)) === false) {
+			return false;
+		}
+
+		return strtoupper(string: (string)($start[1]['VALUE'] ?? '')) === 'DATE';
+	}//end startsOnADate()
 
 	/**
 	 * The value as a string, or NULL when it is NULL or empty.

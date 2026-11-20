@@ -28,6 +28,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Kernel\Contracts\AnnouncementCommentServiceInterface;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\IUserManager;
@@ -45,7 +46,7 @@ use OCP\IUserManager;
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
  */
-class AnnouncementCommentService {
+class AnnouncementCommentService implements AnnouncementCommentServiceInterface {
 
 	/**
 	 * The comments object type of an announcement.

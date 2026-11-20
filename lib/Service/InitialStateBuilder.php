@@ -347,6 +347,22 @@ class InitialStateBuilder {
 	}//end setQuicksearchFallbackTarget()
 
 	/**
+	 * Set the search shortcuts every search box honours (search-ai-prefix-shortcuts,
+	 * REQ-SPX-002). Optional key, like `quicksearchFallbackTarget`: the JS reader
+	 * defaults it to an empty list.
+	 *
+	 * @param array $shortcuts Validated `{prefix, name, urlTemplate}` entries.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/tile-quick-search/spec.md
+	 */
+	public function setSearchShortcuts(array $shortcuts): self {
+		$this->values['searchShortcuts'] = array_values(array: $shortcuts);
+		return $this;
+	}//end setSearchShortcuts()
+
+	/**
 	 * Set whether the dashboard view renders without the left navigation
 	 * panel (workspace).
 	 *
@@ -368,6 +384,41 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set the administrator CSS for all of LaunchPad (workspace).
+	 *
+	 * Optional key, like {@see self::setStartPageWithoutNavigation()}. The
+	 * value is the cleaned and scoped CSS the server stored; the page inserts
+	 * it as the text of a style element, never as markup (REQ-THM-003).
+	 *
+	 * @param string $customCss The stored CSS, or '' for none.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	public function setCustomCss(string $customCss): self {
+		$this->values['customCss'] = $customCss;
+		return $this;
+	}//end setCustomCss()
+
+	/**
+	 * Push whether the organisation opted in to filter telemetry, so the
+	 * dashboard's filter bus writes `filter_event` rows only when it did
+	 * (drill-down-cross-widget-filter REQ-CWF-010). Optional key: the JS
+	 * reader defaults to `false`.
+	 *
+	 * @param bool $enabled True when the administrator switched telemetry on.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function setFilterTelemetryEnabled(bool $enabled): self {
+		$this->values['filterTelemetryEnabled'] = $enabled;
+		return $this;
+	}//end setFilterTelemetryEnabled()
+
+	/**
 	 * Set what the tile editor offers for program and single sign-on tiles
 	 * (workspace): the schemes the administrator allowed, and the key and
 	 * name of each launch template. The template addresses stay on the
@@ -381,7 +432,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self Fluent.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 	 */
 	public function setTileLaunchOptions(array $schemes, array $templates): self {
 		$this->values['tileAllowedSchemes'] = array_values($schemes);
@@ -395,6 +446,76 @@ class InitialStateBuilder {
 		$this->values['ssoLaunchTemplates'] = $names;
 		return $this;
 	}//end setTileLaunchOptions()
+
+	/**
+	 * Set whether this request comes from inside the office networks.
+	 *
+	 * Optional key, like {@see self::setStartPageWithoutNavigation()}: a
+	 * server that never calls it leaves the JS reader's `false` default, so
+	 * every tile opens its main address (launcher-tile-internal-address D1).
+	 *
+	 * @param bool $onOfficeNetwork True when the request address falls in an office network.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 */
+	public function setOnOfficeNetwork(bool $onOfficeNetwork): self {
+		$this->values['onOfficeNetwork'] = $onOfficeNetwork;
+		return $this;
+	}//end setOnOfficeNetwork()
+
+	/**
+	 * Set whether Nextcloud Talk is enabled for the viewer (workspace).
+	 *
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: the JS
+	 * reader's `false` default makes the Communities widget explain that Talk
+	 * is needed instead of calling it (engagement-communities REQ-COMM-004).
+	 *
+	 * @param bool $talkEnabled True when Talk is enabled for the viewer.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 */
+	public function setTalkEnabled(bool $talkEnabled): self {
+		$this->values['talkEnabled'] = $talkEnabled;
+		return $this;
+	}//end setTalkEnabled()
+
+	/**
+	 * Set the viewer's Nextcloud timezone (workspace).
+	 *
+	 * Optional key; the JS reader defaults to '', which makes a clock without
+	 * its own zone follow the device (REQ-CLOCK-002).
+	 *
+	 * @param string $timezone The IANA timezone name, or ''.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	public function setUserTimezone(string $timezone): self {
+		$this->values['userTimezone'] = $timezone;
+		return $this;
+	}//end setUserTimezone()
+
+	/**
+	 * Set the Talk conversation tokens the organisation pinned (workspace).
+	 *
+	 * Optional key; the JS reader defaults to an empty list
+	 * (engagement-communities REQ-COMM-003).
+	 *
+	 * @param array<int, string> $tokens The pinned tokens, in the order pinned.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	public function setPinnedCommunities(array $tokens): self {
+		$this->values['pinnedCommunities'] = array_values($tokens);
+		return $this;
+	}//end setPinnedCommunities()
 
 	/**
 	 * Set every Nextcloud group (admin).

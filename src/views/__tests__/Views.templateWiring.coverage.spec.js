@@ -76,6 +76,9 @@ const stubs = {
 	DashboardRowActions: passthrough('DashboardRowActions', {
 		template: '<div class="stub-row-actions" />',
 	}),
+	DashboardMoreMenu: passthrough('DashboardMoreMenu', {
+		template: '<div class="stub-more-menu" />',
+	}),
 	NcButton: {
 		name: 'NcButton',
 		template: '<button><slot name="icon" /><slot /></button>',
@@ -103,13 +106,17 @@ const stubs = {
 	VersionHistoryModal: passthrough('VersionHistoryModal', {
 		props: { open: Boolean },
 	}),
+	ScheduledExportsModal: passthrough('ScheduledExportsModal', {
+		props: { open: Boolean, subjects: Array, defaultSubject: Object },
+	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
 	}),
 	DashboardReactions: passthrough('DashboardReactions'),
 	DashboardLanguageHeading: passthrough('DashboardLanguageHeading'),
 	DashboardBreadcrumb: passthrough('DashboardBreadcrumb'),
-	EditLockBanner: passthrough('EditLockBanner'),
+	EditLockBanner: passthrough('EditLockBanner', { props: { status: String } }),
+	CoEditorsBanner: passthrough('CoEditorsBanner', { props: { editors: Array } }),
 	CnDashboardGrid: {
 		name: 'CnDashboardGrid',
 		props: { layout: { type: Array, default: () => [] } },
@@ -264,68 +271,94 @@ afterEach(() => {
 	document.body.innerHTML = ''
 })
 
-describe('Views — top-bar cog and sidebar wiring', () => {
-	it('opens the sidebar from the hamburger and closes it through the sidebar and the backdrop', async () => {
+describe('Views — the Meer menu and sidebar wiring', () => {
+	it('opens the sidebar from the Meer menu\'s "All dashboards" and closes it through the sidebar and the backdrop', async () => {
 		const { wrapper } = await mountViews()
 		const sidebar = () => wrapper.findComponent({ name: 'DashboardSwitcherSidebar' })
+		const more = () => wrapper.findComponent({ name: 'DashboardMoreMenu' })
 
-		expect(wrapper.find('.launchpad-sidebar-toggle .stub-menu-icon').exists()).toBe(true)
 		expect(sidebar().props('isOpen')).toBe(false)
 		expect(wrapper.find('.stub-backdrop').exists()).toBe(false)
 
-		await wrapper.find('.launchpad-sidebar-toggle').trigger('click')
+		await more().vm.$emit('openAll')
 		expect(sidebar().props('isOpen')).toBe(true)
 		expect(wrapper.find('.stub-backdrop').exists()).toBe(true)
 
 		await wrapper.findComponent({ name: 'SidebarBackdrop' }).vm.$emit('close')
 		expect(sidebar().props('isOpen')).toBe(false)
 
-		await wrapper.find('.launchpad-sidebar-toggle').trigger('click')
+		await more().vm.$emit('openAll')
 		await sidebar().vm.$emit('update:open', false)
 		expect(sidebar().props('isOpen')).toBe(false)
 		expect(wrapper.find('.stub-backdrop').exists()).toBe(false)
 	}, 90000)
 
-	it('renders the share icon and opens the config drawer on the sharing tab', async () => {
+	it('the Meer menu\'s "Share" opens the config drawer on the sharing tab', async () => {
 		const { wrapper } = await mountViews()
-		const share = wrapper.find('[data-test="dashboard-share-action"]')
-		expect(share.find('.stub-share-icon').exists()).toBe(true)
-
-		await share.trigger('click')
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('share')
+		await flushPromises()
 		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
 		expect(config.props('open')).toBe(true)
 		expect(config.props('initialTab')).toBe('sharing')
 	}, 90000)
 
-	it('the cog\'s "Edit" asks for the lock and enters edit mode; "Configure" opens the config modal', async () => {
+	it('the Meer menu\'s "Edit" announces the editor and enters edit mode; "Configure" opens the config modal', async () => {
 		const { wrapper } = await mountViews()
-		const cog = wrapper.findComponent({ name: 'DashboardRowActions' })
+		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 
 		cog.vm.$emit('toggleEdit')
 		await flushPromises()
-		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
 		expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 
 		// Entering edit mode re-renders the top bar: address the cog afresh.
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('openConfig')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('openConfig')
 		await flushPromises()
 		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
 		expect(config.props('open')).toBe(true)
 		expect(config.props('initialTab')).toBe('general')
 	}, 90000)
 
-	it('the cog\'s "Add widget" opens the custom-widget modal for the active dashboard', async () => {
+	it('the Meer menu\'s "Add widget" opens the widget picker with the server apps and the catalogue', async () => {
+		const discovered = [{ appId: 'files', name: 'Files', href: '/apps/files', icon: '' }]
+		const catalogue = [{ uuid: 'c-1', name: 'Mail', icon: '', iconType: 'url' }]
+		routeAxios({
+			get: (url) => {
+				if (url === `${BASE}/api/tiles/discover`) {
+					return Promise.resolve({ data: { apps: discovered } })
+				}
+				if (url === `${BASE}/api/catalogue`) {
+					return Promise.resolve({ data: { apps: catalogue } })
+				}
+				return Promise.resolve({ data: {} })
+			},
+		})
+		const { wrapper } = await mountViews()
+		const picker = () => wrapper.findComponent({ name: 'WidgetPickerModal' })
+		expect(picker().vm.$attrs.open).toBe(false)
+
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
+		await flushPromises()
+
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
+		expect(picker().vm.$attrs.open).toBe(true)
+		expect(picker().vm.$attrs.discoveredApps).toEqual(discovered)
+		expect(picker().vm.$attrs.catalogueApps).toEqual(catalogue)
+		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(false)
+	}, 90000)
+
+	it('the Meer menu\'s "Add custom widget…" opens the custom-widget modal for the active dashboard', async () => {
 		const { wrapper, dashStore } = await mountViews()
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('addCustomWidget')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addCustomWidget')
 		await flushPromises()
 
 		expect(dashStore.switchDashboard).not.toHaveBeenCalled()
 		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(true)
 	}, 90000)
 
-	it('the cog\'s "Set as default" toggles the pinned default dashboard over HTTP', async () => {
+	it('the Meer menu\'s "Set as default" toggles the pinned default dashboard over HTTP', async () => {
 		const { wrapper } = await mountViews()
-		const cog = wrapper.findComponent({ name: 'DashboardRowActions' })
+		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 
 		cog.vm.$emit('setDefault')
 		await flushPromises()
@@ -336,11 +369,11 @@ describe('Views — top-bar cog and sidebar wiring', () => {
 		expect(wrapper.vm.defaultDashboardUuid).toBe('u-7')
 	}, 90000)
 
-	it('the cog\'s "Schedule" opens the schedule dialog, which closing hides again', async () => {
+	it('the Meer menu\'s "Schedule" opens the schedule dialog, which closing hides again', async () => {
 		const { wrapper } = await mountViews()
 		expect(wrapper.find('.stub-schedule').exists()).toBe(false)
 
-		await wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('schedule')
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('schedule')
 		expect(wrapper.find('.stub-schedule').exists()).toBe(true)
 
 		const dialog = wrapper.findComponent({ name: 'ScheduleDashboardDialog' })
@@ -350,31 +383,51 @@ describe('Views — top-bar cog and sidebar wiring', () => {
 		expect(wrapper.find('.stub-schedule').exists()).toBe(false)
 	}, 90000)
 
-	it('the cog\'s "Version history" opens the modal, and its close event shuts it', async () => {
+	it('the Meer menu\'s "Scheduled exports" opens the export list with the dashboards and widgets to export', async () => {
+		const { wrapper } = await mountViews({
+			widgetPlacements: [{ id: 41, widgetId: 'launchpad_text', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2, customTitle: 'KPI' }],
+		})
+		const modal = () => wrapper.findComponent({ name: 'ScheduledExportsModal' })
+		expect(modal().props('open')).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canScheduleExports).toBe(true)
+
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('scheduledExports')
+		expect(modal().props('open')).toBe(true)
+		expect(modal().props('defaultSubject')).toEqual({ type: 'dashboard', id: 'u-7' })
+		expect(modal().props('subjects')).toEqual([
+			{ type: 'dashboard', id: 'u-7', label: 'Home' },
+			{ type: 'widget', id: '41', label: expect.any(String) },
+		])
+
+		await modal().vm.$emit('close')
+		expect(modal().props('open')).toBe(false)
+	}, 90000)
+
+	it('the Meer menu\'s "Version history" opens the modal, and its close event shuts it', async () => {
 		const { wrapper } = await mountViews()
 		const modal = () => wrapper.findComponent({ name: 'VersionHistoryModal' })
 		expect(modal().props('open')).toBe(false)
 
-		await wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('versionHistory')
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('versionHistory')
 		expect(modal().props('open')).toBe(true)
 
 		await modal().vm.$emit('close')
 		expect(modal().props('open')).toBe(false)
 	}, 90000)
 
-	it('opening the cog menu asks once whether the owner\'s dashboard keeps versions', async () => {
+	it('opening the Meer menu asks once whether the owner\'s dashboard keeps versions', async () => {
 		const { wrapper } = await mountViews()
-		const cog = wrapper.findComponent({ name: 'DashboardRowActions' })
+		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 
 		cog.vm.$emit('menuOpen')
 		await flushPromises()
 		expect(axios.get).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/versions`)
-		expect(wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$attrs.canViewHistory).toBe(true)
+		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canViewHistory).toBe(true)
 	}, 90000)
 
-	it('the cog\'s "Delete" opens the delete dialog for the active dashboard', async () => {
+	it('the Meer menu\'s "Delete" opens the delete dialog for the active dashboard', async () => {
 		const { wrapper } = await mountViews()
-		await wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('delete')
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('delete')
 
 		const dialog = wrapper.findComponent({ name: 'DeleteDashboardDialog' })
 		expect(dialog.props('open')).toBe(true)
@@ -382,7 +435,7 @@ describe('Views — top-bar cog and sidebar wiring', () => {
 	}, 90000)
 })
 
-describe('Views — read receipts and the edit-lock take-over', () => {
+describe('Views — read receipts and the colleagues editing', () => {
 	it('"Read receipts" opens the report for the first announcement; its close shuts it', async () => {
 		const { wrapper } = await mountViews({
 			widgetPlacements: [
@@ -395,7 +448,7 @@ describe('Views — read receipts and the edit-lock take-over', () => {
 		const report = () => wrapper.findComponent({ name: 'AcknowledgementReportModal' })
 		expect(report().props('open')).toBe(false)
 
-		await wrapper.find('[data-testid="open-acknowledgement-report"]').trigger('click')
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('readReceipts')
 		expect(report().props('open')).toBe(true)
 		expect(report().props('announcementKey')).toBe('ann-a')
 
@@ -403,15 +456,16 @@ describe('Views — read receipts and the edit-lock take-over', () => {
 		expect(report().props('open')).toBe(false)
 	}, 90000)
 
-	it('the banner\'s "Take over" opens the confirmation, and its close dismisses it', async () => {
-		const { wrapper } = await mountViews({ isAdmin: true })
-		expect(wrapper.find('.stub-confirm').exists()).toBe(false)
+	it('in edit mode the colleagues editing are shown, in view mode not', async () => {
+		const marieke = { displayName: 'Marieke Jansen', since: '2026-11-14T10:42:00+01:00' }
+		const { wrapper } = await mountViews()
+		expect(wrapper.findComponent({ name: 'CoEditorsBanner' }).exists()).toBe(false)
 
-		await wrapper.findComponent({ name: 'EditLockBanner' }).vm.$emit('takeOver')
-		expect(wrapper.find('.stub-confirm').exists()).toBe(true)
+		axios.post.mockImplementation(() => Promise.resolve({ data: { editors: [marieke] } }))
 
-		await wrapper.findComponent({ name: 'CnConfirmDialog' }).vm.$emit('close')
-		expect(wrapper.find('.stub-confirm').exists()).toBe(false)
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
+		await flushPromises()
+		expect(wrapper.findComponent({ name: 'CoEditorsBanner' }).props('editors')).toEqual([marieke])
 	}, 90000)
 })
 
@@ -486,7 +540,7 @@ describe('Views — right-click context menu', () => {
 	 */
 	async function openMenu() {
 		const mounted = await mountViews({ widgetPlacements: [placement] })
-		mounted.wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+		mounted.wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
 		await flushPromises()
 		await mounted.wrapper
 			.find('.launchpad-grid-item[data-placement-id="21"]')
@@ -499,7 +553,7 @@ describe('Views — right-click context menu', () => {
 		await wrapper.find('.launchpad-grid-item').trigger('contextmenu', { clientX: 40, clientY: 50 })
 		expect(wrapper.find('.stub-ctx').exists()).toBe(false)
 
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
 		await flushPromises()
 		await wrapper.find('.launchpad-grid-item').trigger('contextmenu', { clientX: 40, clientY: 50 })
 		const menu = wrapper.findComponent({ name: 'WidgetContextMenu' })
@@ -599,7 +653,7 @@ describe('Views — lifecycle', () => {
 		window.history.replaceState(null, '', '/apps/launchpad?edit=1')
 		await mountViews()
 
-		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
 		expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 	}, 90000)
 
@@ -642,7 +696,7 @@ describe('Views — lifecycle', () => {
 		expect(controls().classList.contains('launchpad-floating-controls--docked')).toBe(true)
 		expect(controls().closest('.cn-header-widget--ground')).not.toBeNull()
 
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
 		await flushPromises()
 		expect(controls().classList.contains('launchpad-floating-controls--docked')).toBe(false)
 		expect(controls().closest('.cn-header-widget--ground')).toBeNull()
@@ -668,9 +722,9 @@ describe('Views — lifecycle', () => {
 		expect(controls().classList.contains('launchpad-floating-controls--docked')).toBe(true)
 	}, 90000)
 
-	it('unmounting gives the held lock back and stops following the back button', async () => {
+	it('unmounting withdraws the presence and stops following the back button', async () => {
 		await mountViews()
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
 		await flushPromises()
 		const removed = vi.spyOn(window, 'removeEventListener')
 		const popHandler = wrapper.vm.handleHistoryPopState
@@ -679,24 +733,24 @@ describe('Views — lifecycle', () => {
 		wrapper = null
 		await flushPromises()
 
-		expect(axios.delete).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.delete).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`, undefined)
 		expect(removed).toHaveBeenCalledWith('popstate', popHandler)
 		removed.mockRestore()
 	}, 90000)
 
-	it('a lost lock (heartbeat answers 404) drops the page back to view mode', async () => {
+	it('a refused renewal (403) drops the page back to view mode', async () => {
 		vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
 		try {
 			await mountViews()
-			wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+			wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
 			await flushPromises()
 			expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 
-			axios.put.mockImplementation(() => Promise.reject({ response: { status: 404 } }))
-			vi.advanceTimersByTime(5 * 60 * 1000)
+			axios.post.mockImplementation(() => Promise.reject({ response: { status: 403 } }))
+			vi.advanceTimersByTime(30 * 1000)
 			await flushPromises()
 
-			expect(axios.put).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+			expect(wrapper.findComponent({ name: 'EditLockBanner' }).props('status')).toBe('forbidden')
 			expect(wrapper.find('.launchpad-container').classes()).not.toContain('launchpad-edit-mode')
 		} finally {
 			vi.useRealTimers()
@@ -716,11 +770,11 @@ describe('Views — states without a full dashboard', () => {
 	it('offers no version history for a dashboard without a uuid', async () => {
 		await mountViews({ activeDashboard: { id: 5, name: 'Legacy', isOwner: true } })
 
-		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('menuOpen')
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('menuOpen')
 		await flushPromises()
 
 		expect(axios.get).not.toHaveBeenCalledWith(expect.stringContaining('/versions'))
-		const cog = wrapper.findComponent({ name: 'DashboardRowActions' })
+		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 		expect(cog.vm.$attrs.canManagePublication).toBe(false)
 		expect(cog.vm.$attrs.canViewHistory).toBe(false)
 	}, 90000)

@@ -26,7 +26,7 @@ namespace OCA\LaunchPad\Command;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,13 +40,13 @@ class DashboardDebugShareCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
 	 * @param DashboardShareMapper $shareMapper Share mapper.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly DashboardShareMapper $shareMapper,

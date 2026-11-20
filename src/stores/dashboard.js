@@ -7,8 +7,7 @@ import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
 import { defineStore } from 'pinia'
 import {
-	DEFAULT_H,
-	DEFAULT_W,
+	defaultSizeFor,
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
@@ -196,15 +195,33 @@ function reportCreateFailure(store, error) {
 			),
 		)
 	}
-	if (status === 409 && code === 'quota_exceeded') {
-		const limit = error.response.data.limit
-		showError(
-			t('launchpad', 'You have reached the limit of {limit} dashboards', {
-				limit,
-			}),
-		)
-		store.loadDashboards().catch(() => {})
+	reportDashboardQuota(store, error)
+}
+
+/**
+ * On the structured 409 `quota_exceeded` of a create or fork, name the
+ * dashboard limit and reread the quota envelope so the button disables
+ * (REQ-QUOTA-006, race case).
+ *
+ * @param {object} store The dashboard store.
+ * @param {object} error The axios error.
+ * @return {boolean} Whether the error was a quota refusal.
+ */
+function reportDashboardQuota(store, error) {
+	if (
+		error?.response?.status !== 409
+		|| error?.response?.data?.error !== 'quota_exceeded'
+	) {
+		return false
 	}
+	const limit = error.response.data.limit
+	showError(
+		t('launchpad', 'You have reached the limit of {limit} dashboards', {
+			limit,
+		}),
+	)
+	store.loadDashboards().catch(() => {})
+	return true
 }
 
 /**
@@ -414,6 +431,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		// backend 7-step precedence (REQ-DASH-018).
 		primaryGroup: '',
 		loading: false,
+		// The first loadDashboards() has finished.
+		loadedOnce: false,
+		// A dashboard the address asked for before that load finished.
+		requestedDashboardId: null,
 		saving: false,
 		// REQ-RXN-003 — per-dashboard reactions summary cache.
 		// Map<uuid, {counts: {emoji: number, ...}, mine: [emoji, ...], enabled: boolean}>.
@@ -690,7 +711,31 @@ export const useDashboardStore = defineStore('dashboard', {
 				logger.error('Failed to load dashboards:', error)
 			} finally {
 				this.loading = false
+				this.loadedOnce = true
 			}
+
+			const requested = this.requestedDashboardId
+			this.requestedDashboardId = null
+			if (requested !== null && String(this.activeDashboardId) !== String(requested)) {
+				await this.switchDashboard(requested)
+			}
+		},
+
+		/**
+		 * Open the dashboard an address names (`/dashboards/:id`). Before the
+		 * first load has finished the request is kept and applied when it
+		 * does, so the stored active dashboard does not replace it.
+		 *
+		 * @param {string|number} dashboardId Id of the dashboard to open.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 */
+		async openDashboard(dashboardId) {
+			if (!this.loadedOnce) {
+				this.requestedDashboardId = dashboardId
+				return
+			}
+			await this.switchDashboard(dashboardId)
 		},
 
 		/**
@@ -940,16 +985,17 @@ export const useDashboardStore = defineStore('dashboard', {
 						sharedBy: null,
 					})
 					this.activeDashboard = { ...fork, isOwner: true, sharedBy: null }
-					// Placements come back via the next switchDashboard /
-					// loadDashboards round-trip — fork is a brand-new
-					// active dashboard but the by-id endpoint is the
-					// canonical source of truth for placements.
 					this.widgetPlacements = []
 					this.permissionLevel = 'full'
+					// The fork carries the source's widgets; the by-id
+					// endpoint is the canonical source of its placements.
+					await this.switchDashboard(fork.id)
 				}
 				return fork
 			} catch (error) {
-				showError(forkFailureText(error))
+				if (!reportDashboardQuota(this, error)) {
+					showError(forkFailureText(error))
+				}
 				logger.error('Failed to fork dashboard:', error)
 				throw error
 			} finally {
@@ -1037,8 +1083,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addWidgetToDashboard(widgetId, position = null) {
 			try {
+				const type = typeof widgetId === 'object' && widgetId !== null ? widgetId.type : widgetId
 				const placement = newPlacement(position, {
-					size: { w: DEFAULT_W, h: DEFAULT_H },
+					size: defaultSizeFor(type, this.activeDashboard?.gridColumns || undefined),
 					store: this,
 				})
 				const response = await api.addWidget(
@@ -1059,6 +1106,23 @@ export const useDashboardStore = defineStore('dashboard', {
 				this.handleWidgetQuotaError(error)
 				logger.error('Failed to add widget:', error)
 			}
+		},
+
+		/**
+		 * Import chosen browser bookmarks onto the active dashboard. The server
+		 * appends the containers and tiles at the bottom and answers with them
+		 * and the skipped bookmarks; the new placements join the store. A 409
+		 * (not enough room left) is rethrown for the dialog to explain.
+		 *
+		 * @param {{folders: Array<object>, bookmarks: Array<object>}} chosen The chosen folders and loose bookmarks.
+		 * @return {Promise<{placements: Array<object>, skipped: Array<object>}>}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		async importBookmarks(chosen) {
+			const response = await api.importBookmarks(this.activeDashboard.id, chosen)
+			const placements = Array.isArray(response.data?.placements) ? response.data.placements : []
+			this.widgetPlacements.push(...placements)
+			return { placements, skipped: Array.isArray(response.data?.skipped) ? response.data.skipped : [] }
 		},
 
 		/**

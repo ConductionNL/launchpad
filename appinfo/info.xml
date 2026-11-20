@@ -52,7 +52,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.1.7-unstable.20261114110000</version>
+	<version>1.1.8-unstable.20261120010948</version>
 	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -97,8 +97,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 		<!-- widgets-people-expertise-and-fields REQ-PEX-001/004: daily LDAP and profile mirror sync. -->
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
+		<!-- scheduled-exports REQ-SCH-002/006: due fires and due retries, every minute. -->
+		<job>OCA\LaunchPad\BackgroundJob\ScheduledExportRunner</job>
+		<!-- scheduled-exports REQ-SCH-007: artefact and run-row retention, hourly. -->
+		<job>OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor</job>
 		<!-- engagement-announcements D5: tell category followers about newly visible announcements. -->
 		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
+		<!-- dashboards-and-who-may-see-them REQ-DWMS-010: the storage report's daily snapshot. -->
+		<job>OCA\LaunchPad\BackgroundJob\StorageSnapshotJob</job>
 	</background-jobs>
 
 	<repair-steps>
@@ -122,6 +128,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     no default template. Idempotent, so an instance that already
 			     has dashboards is untouched. -->
 			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
+			<!-- openregister-leaf-integrations: shared and group dashboards get
+			     their discussion object in OpenRegister. Idempotent; nothing
+			     without OpenRegister. Must run AFTER ImportLaunchpadRegister. -->
+			<step>OCA\LaunchPad\Repair\MirrorSharedDashboards</step>
+			<!-- REQ-RFP-011: an untouched shipped `default` widget rule lets
+			     every user add LaunchPad's own widgets. An edited rule is kept. -->
+			<step>OCA\LaunchPad\Repair\BroadenDefaultWidgetRule</step>
+			<!-- REQ-PSP-003: instances installed before the install step existed
+			     get LaunchPad as default app too, but only when no default app
+			     is configured at all. -->
+			<step>OCA\LaunchPad\Repair\SetDefaultApp</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
@@ -143,6 +160,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     dashboard at all and renders the "contact your administrator"
 			     empty state. -->
 			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
+			<!-- REQ-PSP-003: sign-in lands on the Workspace page. Only fills an
+			     absent default app; the admin toggle (on by default) gives it back. -->
+			<step>OCA\LaunchPad\Repair\SetDefaultApp</step>
 		</install>
 	</repair-steps>
 

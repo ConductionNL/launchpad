@@ -4,7 +4,29 @@
 -->
 
 <template>
-	<div class="attention-widget" data-testid="attention-widget">
+	<div
+		class="attention-widget"
+		:class="{ 'attention-widget--columns': isColumns }"
+		:style="isColumns ? { '--attention-columns': columns } : undefined"
+		data-testid="attention-widget">
+		<div v-if="heading" class="attention-widget__head">
+			<h2 class="attention-widget__heading">
+				{{ heading }}
+			</h2>
+			<span
+				v-if="state === 'items'"
+				class="attention-widget__summary"
+				data-testid="attention-summary">
+				{{
+					n(
+						'launchpad',
+						'%n thing from all your apps that needs attention today',
+						'%n things from all your apps that need attention today',
+						visibleItems.length,
+					)
+				}}
+			</span>
+		</div>
 		<div
 			v-if="state === 'loading'"
 			class="attention-widget__state"
@@ -96,7 +118,7 @@
 </template>
 
 <script>
-import { translate as t } from '@nextcloud/l10n'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import WidgetRowFilter from '../WidgetRowFilter.vue'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { loadAttentionFeed } from '../../../services/attentionFeed.js'
@@ -161,13 +183,51 @@ export default {
 		 * items and the widget's settings are never touched.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
 		 */
 		filteredItems() {
 			return filterRows(this.items, this.rowFilter, ['title', 'reason', 'appName'])
 		},
 
 		/** @spec openspec/specs/attention-feed/spec.md#req-att-004 */
+		/**
+		 * Whether the items stand side by side, one row of `columns`
+		 * (`content.layout: "columns"`), as LpVandaag's "Vandaag eerst".
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-vandaag-eerst-is-one-row
+		 */
+		isColumns() {
+			return this.content?.layout === 'columns'
+		},
+
+		/**
+		 * How many items stand side by side in the columns layout: 1 to 4,
+		 * 3 by default.
+		 *
+		 * @return {number}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-vandaag-eerst-is-one-row
+		 */
+		columns() {
+			const columns = Number(this.content?.columns)
+			return Number.isInteger(columns) && columns >= 1 && columns <= 4
+				? columns
+				: 3
+		},
+
+		/**
+		 * The widget's own heading (`content.title`), drawn with the count
+		 * of items beside it; '' without one, when the card's header names
+		 * the widget.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-vandaag-eerst-is-one-row
+		 */
+		heading() {
+			const title = this.content?.title
+			return typeof title === 'string' ? title : ''
+		},
+
 		visibleItems() {
 			return this.filteredItems.slice(0, this.limit)
 		},
@@ -207,6 +267,7 @@ export default {
 
 	methods: {
 		t,
+		n,
 
 		/**
 		 * Load and count. A failure of the sources endpoint is the widget's
@@ -265,6 +326,86 @@ export default {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+
+.attention-widget__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 4px 12px;
+	margin-bottom: 6px;
+}
+
+.attention-widget__heading {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.attention-widget__summary {
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
+}
+
+/* `layout: "columns"`: the items in one row, each with its title, reason
+   and app on the left and its action on the right (LpVandaag). */
+.attention-widget--columns {
+	padding: 0;
+}
+
+.attention-widget--columns .attention-widget__list {
+	display: grid;
+	grid-template-columns: repeat(var(--attention-columns, 3), minmax(0, 1fr));
+	gap: 12px;
+}
+
+.attention-widget--columns .attention-widget__item {
+	display: grid;
+	grid-template-areas: 'text action' 'app action';
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 2px 12px;
+	padding: 0 0 0 12px;
+	border-bottom: 0;
+}
+
+.attention-widget--columns .attention-widget__text {
+	grid-area: text;
+	min-width: 0;
+}
+
+.attention-widget--columns .attention-widget__title,
+.attention-widget--columns .attention-widget__reason {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.attention-widget--columns .attention-widget__reason {
+	font-size: 13px;
+}
+
+.attention-widget--columns .attention-widget__app {
+	grid-area: app;
+	justify-self: start;
+	margin-top: 2px;
+	padding: 1px 8px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.attention-widget--columns .attention-widget__action {
+	grid-area: action;
+	min-height: 34px;
+	font-size: 13px;
+}
+
+@media (max-width: 960px) {
+	.attention-widget--columns .attention-widget__list {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 .attention-widget__item {

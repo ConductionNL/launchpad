@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 
 /**
  * Service for discovering and querying Nextcloud dashboard widgets.
@@ -43,8 +44,8 @@ class WidgetService {
 	/**
 	 * Validate the `content` blob of a widget placement before save.
 	 *
-	 * REQ-MENU-002 server-side hook. Currently only the `menu` widget type
-	 * has a server-side validator; any future widget that needs save-time
+	 * REQ-MENU-002 server-side hook. The `menu` and `map` widget types have a
+	 * server-side validator; any future widget that needs save-time
 	 * validation should add its own branch here so the dispatcher stays
 	 * single-responsibility.
 	 *
@@ -52,11 +53,35 @@ class WidgetService {
 	 * @param array $content Widget content blob.
 	 *
 	 * @return void
-	 * @throws \InvalidArgumentException When the content blob is invalid.
+	 * @throws InvalidWidgetContentException When the content blob is invalid.
 	 *
 	 * @spec openspec/specs/widgets/spec.md
 	 */
 	public function validateWidgetContent(string $widgetType, array $content): void {
+		try {
+			$this->validateContentOfType(widgetType: $widgetType, content: $content);
+		} catch (\InvalidArgumentException $e) {
+			throw new InvalidWidgetContentException(message: $e->getMessage(), previous: $e);
+		}
+	}//end validateWidgetContent()
+
+	/**
+	 * Run the validator of a widget type over its content blob.
+	 *
+	 * @param string $widgetType Widget type identifier.
+	 * @param array $content Widget content blob.
+	 *
+	 * @return void
+	 * @throws \InvalidArgumentException When the content blob is invalid.
+	 *
+	 * @spec openspec/specs/widgets/spec.md
+	 */
+	private function validateContentOfType(string $widgetType, array $content): void {
+		if ($widgetType === 'map') {
+			(new MapContentValidator())->validate(content: $content);
+			return;
+		}
+
 		if ($widgetType !== 'menu') {
 			return;
 		}
@@ -68,7 +93,7 @@ class WidgetService {
 
 		$this->menuService->validateMenuConfig(content: $content);
 		$this->menuService->validateMenuItems(items: $items);
-	}//end validateWidgetContent()
+	}//end validateContentOfType()
 
 	/**
 	 * Get all available widgets from Nextcloud.
@@ -178,6 +203,20 @@ class WidgetService {
 			tileData: $tileData
 		);
 	}//end addTileFromArray()
+
+	/**
+	 * Import chosen bookmarks onto a dashboard as containers and tiles.
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return list<WidgetPlacement> The created placements.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+	 */
+	public function importBookmarks(int $dashboardId, BookmarkImportPlan $plan): array {
+		return $this->placementService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
+	}//end importBookmarks()
 
 	/**
 	 * Update a widget placement.

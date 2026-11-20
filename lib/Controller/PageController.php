@@ -170,15 +170,6 @@ class PageController extends Controller {
 			->setUserDashboards($descriptors['user'])
 			->setAllowUserDashboards($allowUserDashboards);
 
-		// PR #95 (role-based-content): per-user widget allow-list.
-		// `null` = no admin policy for this user (unlimited).
-		$allowedWidgets = null;
-		if ($userId !== '') {
-			$allowedWidgets = $this->settings->roleFeaturePerm->getAllowedWidgetIds(
-				userId: $userId
-			);
-		}
-
 		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
 		// no-match fallback target. `getSettings()` already resolves the
 		// safe 'none' default when unset/invalid, so this never throws.
@@ -187,14 +178,21 @@ class PageController extends Controller {
 		);
 
 		$builder
-			->setAllowedWidgets($allowedWidgets)
+			->setAllowedWidgets($this->allowedWidgets(userId: $userId))
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
+			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
+			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
 			->setTileLaunchOptions(
 				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
 				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
 			)
+			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
+			->setTalkEnabled($this->isTalkEnabled())
+			->setUserTimezone($this->userTimezone(userId: $userId))
+			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass
@@ -220,6 +218,24 @@ class PageController extends Controller {
 
 		return $response;
 	}//end index()
+
+	/**
+	 * The per-user widget allow-list (PR #95, role-based-content).
+	 *
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return array|null The allowed widget ids, or null when no admin policy
+	 *                    applies to this user (unlimited).
+	 */
+	private function allowedWidgets(string $userId): ?array {
+		if ($userId === '') {
+			return null;
+		}
+
+		return $this->settings->roleFeaturePerm->getAllowedWidgetIds(
+			userId: $userId
+		);
+	}//end allowedWidgets()
 
 	/**
 	 * Resolve the widgets to bridge into the workspace, if any.
@@ -287,6 +303,47 @@ class PageController extends Controller {
 			'name' => $primaryGroupName,
 		];
 	}//end resolveRoutingGroup()
+
+	/**
+	 * The viewer's Nextcloud timezone, which a clock without its own zone
+	 * shows (REQ-CLOCK-002), or '' when it is unknown.
+	 *
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return string The IANA timezone name, or ''.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	private function userTimezone(string $userId): string {
+		if ($userId === '' || $this->settings->config === null) {
+			return '';
+		}
+
+		return $this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'timezone', default: '');
+	}//end userTimezone()
+
+	/**
+	 * Whether Nextcloud Talk is enabled for the signed-in user. Talk is optional:
+	 * when it is absent, disabled for this user, or the check fails, the
+	 * Communities widget explains itself instead of calling Talk
+	 * (engagement-communities REQ-COMM-004).
+	 *
+	 * @return bool True when Talk is enabled for the viewer.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 */
+	private function isTalkEnabled(): bool {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->settings->appManager === null) {
+			return false;
+		}
+
+		try {
+			return $this->settings->appManager->isEnabledForUser(appId: 'spreed', user: $user);
+		} catch (Throwable) {
+			return false;
+		}
+	}//end isTalkEnabled()
 
 	/**
 	 * Resolve the active session's user id.

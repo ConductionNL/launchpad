@@ -44,6 +44,9 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerSettingsAliasTest extends TestCase {
 	private AdminController $controller;
@@ -68,12 +71,12 @@ class AdminControllerSettingsAliasTest extends TestCase {
 				footerService: $this->createMock(FooterService::class),
 				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			caller: new AdminCallerAndRoles(
+			context: new AdminContext(caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
 				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
 				userSession: $this->createMock(IUserSession::class),
 				actionAuth: $this->createMock(ActionAuthService::class)
-			)
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end setUp()
 
@@ -86,7 +89,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 17 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 21 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -219,6 +222,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 						'sharingRecipientScope' => null,
 						'tileAllowedSchemes' => null,
 						'ssoLaunchTemplates' => null,
+						'officeNetworks' => null,
 					]
 				)
 			);
@@ -231,7 +235,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
 	 */
 	public function testTileLaunchSettingsArePassedThrough(): void {
 		$templates = [['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];
@@ -253,4 +257,71 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(announcementEditorGroups: ['communicatie']);
 	}//end testAnnouncementEditorGroupsArePassedThrough()
+
+	/**
+	 * Drill-down-cross-widget-filter REQ-CWF-010: the telemetry switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testFilterTelemetrySwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'filterTelemetryEnabled' => true]));
+
+		$this->controller->updateSettings(filterTelemetryEnabled: true);
+	}//end testFilterTelemetrySwitchIsPassedThrough()
+
+	/**
+	 * The office networks reach the service as given (launcher-tile-internal-address REQ-TIA-001).
+	 *
+	 * @return void
+	 */
+	public function testOfficeNetworksArePassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'officeNetworks' => ['10.20.0.0/16']]));
+
+		$this->controller->updateSettings(officeNetworks: ['10.20.0.0/16']);
+	}//end testOfficeNetworksArePassedThrough()
+
+	/**
+	 * REQ-PSP-003: the default app switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testDefaultAppSwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['filterTelemetryEnabled' => null, 'defaultAppEnabled' => false]));
+
+		$this->controller->updateSettings(defaultAppEnabled: false);
+	}//end testDefaultAppSwitchIsPassedThrough()
+
+	/**
+	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the
+	 * service, and a refused list answers 400 with the service's reason.
+	 *
+	 * @return void
+	 */
+	public function testPinnedCommunitiesArePassedThroughAndARefusalIsABadRequest(): void {
+		$calls = 0;
+		$this->settingsService->expects($this->exactly(2))
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'pinnedCommunities' => ['vraagict']]))
+			->willReturnCallback(
+				static function () use (&$calls): void {
+					$calls++;
+					if ($calls === 2) {
+						throw new \InvalidArgumentException('at most 20 conversations can be pinned');
+					}
+				}
+			);
+
+		$first = $this->controller->updateSettings(pinnedCommunities: ['vraagict']);
+		$this->assertSame(200, $first->getStatus(), json_encode($first->getData()));
+
+		$refused = $this->controller->updateSettings(pinnedCommunities: ['vraagict']);
+		$this->assertSame(400, $refused->getStatus());
+		$this->assertSame(['error' => 'at most 20 conversations can be pinned'], $refused->getData());
+	}//end testPinnedCommunitiesArePassedThroughAndARefusalIsABadRequest()
 }//end class

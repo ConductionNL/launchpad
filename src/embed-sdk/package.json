@@ -1,0 +1,8 @@
+{
+	"private": true,
+	"description": "The LaunchPad embed SDK, built into js/embed-sdk/ and served by the app at /apps/launchpad/embed-sdk/.",
+	"license": "EUPL-1.2",
+	"sideEffects": false,
+	"type": "module",
+	"types": "src/types.ts"
+}

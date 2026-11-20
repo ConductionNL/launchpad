@@ -354,6 +354,762 @@
         "isDefault": false,
         "type": "group_shared",
         "groupId": "Voorbeeld Groupid 3"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "status_report",
+          "slug": "status-report-status-report-1-1"
+        },
+        "date": "2026-03-01",
+        "subject": {
+          "register": "Voorbeeld Register 1",
+          "schema": "Voorbeeld Schema 1",
+          "title": "Voorbeeld Title 1",
+          "deadline": "2026-03-01",
+          "filters": {},
+          "statusProperty": "Voorbeeld Statusproperty 1",
+          "closedValues": [
+            "Voorbeeld Closedvalues 1"
+          ],
+          "dueProperty": "Voorbeeld Dueproperty 1"
+        },
+        "health": "on-track",
+        "summary": "Voorbeeld Summary 1",
+        "figures": {
+          "total": 0,
+          "open": 0,
+          "closed": 0,
+          "overdue": 0,
+          "percentClosed": 0,
+          "daysToDeadline": 1
+        },
+        "provenance": {
+          "date": "computed",
+          "health": "computed",
+          "summary": "computed",
+          "figures": {}
+        },
+        "author": "Voorbeeld Author 1",
+        "keptAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "status_report",
+          "slug": "status-report-status-report-2-2"
+        },
+        "date": "2026-03-02",
+        "subject": {
+          "register": "Voorbeeld Register 2",
+          "schema": "Voorbeeld Schema 2",
+          "title": "Voorbeeld Title 2",
+          "deadline": "2026-03-02",
+          "filters": {},
+          "statusProperty": "Voorbeeld Statusproperty 2",
+          "closedValues": [
+            "Voorbeeld Closedvalues 2"
+          ],
+          "dueProperty": "Voorbeeld Dueproperty 2"
+        },
+        "health": "at-risk",
+        "summary": "Voorbeeld Summary 2",
+        "figures": {
+          "total": 1,
+          "open": 1,
+          "closed": 1,
+          "overdue": 1,
+          "percentClosed": 1,
+          "daysToDeadline": 2
+        },
+        "provenance": {
+          "date": "written",
+          "health": "written",
+          "summary": "written",
+          "figures": {}
+        },
+        "author": "Voorbeeld Author 2",
+        "keptAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "status_report",
+          "slug": "status-report-status-report-3-3"
+        },
+        "date": "2026-03-03",
+        "subject": {
+          "register": "Voorbeeld Register 3",
+          "schema": "Voorbeeld Schema 3",
+          "title": "Voorbeeld Title 3",
+          "deadline": "2026-03-03",
+          "filters": {},
+          "statusProperty": "Voorbeeld Statusproperty 3",
+          "closedValues": [
+            "Voorbeeld Closedvalues 3"
+          ],
+          "dueProperty": "Voorbeeld Dueproperty 3"
+        },
+        "health": "off-track",
+        "summary": "Voorbeeld Summary 3",
+        "figures": {
+          "total": 2,
+          "open": 2,
+          "closed": 2,
+          "overdue": 2,
+          "percentClosed": 2,
+          "daysToDeadline": 3
+        },
+        "provenance": {
+          "date": "computed",
+          "health": "computed",
+          "summary": "computed",
+          "figures": {}
+        },
+        "author": "Voorbeeld Author 3",
+        "keptAt": "2026-03-03T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "filter_event",
+          "slug": "filter-event-filter-event-1-1"
+        },
+        "dashboardId": "00000000-0000-4000-8000-000000000000",
+        "userId": "Voorbeeld Userid 1",
+        "eventType": "apply",
+        "filterDelta": [
+          {
+            "dimension": "Voorbeeld Dimension 1",
+            "operator": "eq",
+            "source": "userExplicit",
+            "sourceWidgetId": "Voorbeeld Sourcewidgetid 1",
+            "pinned": false
+          }
+        ],
+        "timestamp": "2026-03-01T09:00:00+00:00",
+        "widgetId": "Voorbeeld Widgetid 1"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "filter_event",
+          "slug": "filter-event-filter-event-2-2"
+        },
+        "dashboardId": "00000000-0000-4000-8000-000000000001",
+        "userId": "Voorbeeld Userid 2",
+        "eventType": "reset",
+        "filterDelta": [
+          {
+            "dimension": "Voorbeeld Dimension 2",
+            "operator": "in",
+            "source": "widgetClick",
+            "sourceWidgetId": "Voorbeeld Sourcewidgetid 2",
+            "pinned": false
+          }
+        ],
+        "timestamp": "2026-03-02T09:00:00+00:00",
+        "widgetId": "Voorbeeld Widgetid 2"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "filter_event",
+          "slug": "filter-event-filter-event-3-3"
+        },
+        "dashboardId": "00000000-0000-4000-8000-000000000002",
+        "userId": "Voorbeeld Userid 3",
+        "eventType": "bookmark",
+        "filterDelta": [
+          {
+            "dimension": "Voorbeeld Dimension 3",
+            "operator": "between",
+            "source": "urlBootstrap",
+            "sourceWidgetId": "Voorbeeld Sourcewidgetid 3",
+            "pinned": false
+          }
+        ],
+        "timestamp": "2026-03-03T09:00:00+00:00",
+        "widgetId": "Voorbeeld Widgetid 3"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "recipient",
+          "slug": "recipient-recipient-1-1"
+        },
+        "channel": "email",
+        "enabled": true,
+        "filterContext": {},
+        "channelConfig": {},
+        "retryPolicy": {
+          "maxAttempts": 1,
+          "initialBackoffSeconds": 1,
+          "maxBackoffSeconds": 1,
+          "jitter": true
+        }
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "recipient",
+          "slug": "recipient-recipient-2-2"
+        },
+        "channel": "nextcloudFiles",
+        "enabled": true,
+        "filterContext": {},
+        "channelConfig": {},
+        "retryPolicy": {
+          "maxAttempts": 2,
+          "initialBackoffSeconds": 2,
+          "maxBackoffSeconds": 2,
+          "jitter": false
+        }
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "recipient",
+          "slug": "recipient-recipient-3-3"
+        },
+        "channel": "webhook",
+        "enabled": true,
+        "filterContext": {},
+        "channelConfig": {},
+        "retryPolicy": {
+          "maxAttempts": 3,
+          "initialBackoffSeconds": 3,
+          "maxBackoffSeconds": 3,
+          "jitter": true
+        }
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "render_target",
+          "slug": "render-target-render-target-1-1"
+        },
+        "format": "pdf",
+        "formatOptions": {},
+        "filenamePattern": "{name}-{date}.{ext}"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "render_target",
+          "slug": "render-target-render-target-2-2"
+        },
+        "format": "png",
+        "formatOptions": {},
+        "filenamePattern": "{name}-{date}.{ext}"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "render_target",
+          "slug": "render-target-render-target-3-3"
+        },
+        "format": "csv",
+        "formatOptions": {},
+        "filenamePattern": "{name}-{date}.{ext}"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "saved_view",
+          "slug": "saved-view-voorbeeld-name-1-1"
+        },
+        "dashboardId": "00000000-0000-4000-8000-000000000000",
+        "name": "Voorbeeld Name 1",
+        "filters": [
+          {
+            "dimension": "Voorbeeld Dimension 1",
+            "operator": "eq",
+            "source": "userExplicit",
+            "sourceWidgetId": "Voorbeeld Sourcewidgetid 1",
+            "pinned": false,
+            "value": "Voorbeeld Value 1"
+          }
+        ],
+        "createdBy": "Voorbeeld Createdby 1",
+        "description": "Voorbeeld Description 1",
+        "isShared": false,
+        "sharedWith": [
+          "Voorbeeld Sharedwith 1"
+        ],
+        "createdAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "saved_view",
+          "slug": "saved-view-voorbeeld-name-2-2"
+        },
+        "dashboardId": "00000000-0000-4000-8000-000000000001",
+        "name": "Voorbeeld Name 2",
+        "filters": [
+          {
+            "dimension": "Voorbeeld Dimension 2",
+            "operator": "in",
+            "source": "widgetClick",
+            "sourceWidgetId": "Voorbeeld Sourcewidgetid 2",
+            "pinned": false,
+            "value": "Voorbeeld Value 2"
+          }
+        ],
+        "createdBy": "Voorbeeld Createdby 2",
+        "description": "Voorbeeld Description 2",
+        "isShared": false,
+        "sharedWith": [
+          "Voorbeeld Sharedwith 2"
+        ],
+        "createdAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "saved_view",
+          "slug": "saved-view-voorbeeld-name-3-3"
+        },
+        "dashboardId": "00000000-0000-4000-8000-000000000002",
+        "name": "Voorbeeld Name 3",
+        "filters": [
+          {
+            "dimension": "Voorbeeld Dimension 3",
+            "operator": "between",
+            "source": "urlBootstrap",
+            "sourceWidgetId": "Voorbeeld Sourcewidgetid 3",
+            "pinned": false,
+            "value": "Voorbeeld Value 3"
+          }
+        ],
+        "createdBy": "Voorbeeld Createdby 3",
+        "description": "Voorbeeld Description 3",
+        "isShared": false,
+        "sharedWith": [
+          "Voorbeeld Sharedwith 3"
+        ],
+        "createdAt": "2026-03-03T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "scheduled_export",
+          "slug": "scheduled-export-voorbeeld-name-1-1"
+        },
+        "name": "Voorbeeld Name 1",
+        "subjectType": "dashboard",
+        "subjectId": "00000000-0000-4000-8000-000000000000",
+        "recurrence": {
+          "type": "weekly",
+          "daysOfWeek": [
+            "MO"
+          ],
+          "dayOfMonth": 1,
+          "lastDay": true,
+          "timeOfDay": "00:00",
+          "expression": "Voorbeeld Expression 1"
+        },
+        "renderTargets": [
+          {
+            "format": "pdf",
+            "formatOptions": {},
+            "filenamePattern": "{name}-{date}.{ext}"
+          }
+        ],
+        "recipients": [
+          {
+            "channel": "email",
+            "enabled": true,
+            "filterContext": {},
+            "channelConfig": {},
+            "retryPolicy": {
+              "maxAttempts": 1,
+              "initialBackoffSeconds": 1,
+              "maxBackoffSeconds": 1,
+              "jitter": true
+            }
+          }
+        ],
+        "description": "Voorbeeld Description 1",
+        "enabled": true,
+        "retention": {
+          "keepArtefactsForDays": 30,
+          "keepAuditForDays": 365
+        },
+        "runTimezone": "Voorbeeld Runtimezone 1",
+        "nextRunAt": "2026-03-01T09:00:00+00:00",
+        "lastRunAt": "2026-03-01T09:00:00+00:00",
+        "lastRunStatus": "success"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "scheduled_export",
+          "slug": "scheduled-export-voorbeeld-name-2-2"
+        },
+        "name": "Voorbeeld Name 2",
+        "subjectType": "widget",
+        "subjectId": "00000000-0000-4000-8000-000000000001",
+        "recurrence": {
+          "type": "monthly",
+          "daysOfWeek": [
+            "TU"
+          ],
+          "dayOfMonth": 2,
+          "lastDay": false,
+          "timeOfDay": "11:11",
+          "expression": "Voorbeeld Expression 2"
+        },
+        "renderTargets": [
+          {
+            "format": "png",
+            "formatOptions": {},
+            "filenamePattern": "{name}-{date}.{ext}"
+          }
+        ],
+        "recipients": [
+          {
+            "channel": "nextcloudFiles",
+            "enabled": true,
+            "filterContext": {},
+            "channelConfig": {},
+            "retryPolicy": {
+              "maxAttempts": 2,
+              "initialBackoffSeconds": 2,
+              "maxBackoffSeconds": 2,
+              "jitter": false
+            }
+          }
+        ],
+        "description": "Voorbeeld Description 2",
+        "enabled": true,
+        "retention": {
+          "keepArtefactsForDays": 30,
+          "keepAuditForDays": 365
+        },
+        "runTimezone": "Voorbeeld Runtimezone 2",
+        "nextRunAt": "2026-03-02T09:00:00+00:00",
+        "lastRunAt": "2026-03-02T09:00:00+00:00",
+        "lastRunStatus": "partial"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "scheduled_export",
+          "slug": "scheduled-export-voorbeeld-name-3-3"
+        },
+        "name": "Voorbeeld Name 3",
+        "subjectType": "dashboard",
+        "subjectId": "00000000-0000-4000-8000-000000000002",
+        "recurrence": {
+          "type": "daily",
+          "daysOfWeek": [
+            "WE"
+          ],
+          "dayOfMonth": 3,
+          "lastDay": true,
+          "timeOfDay": "02:22",
+          "expression": "Voorbeeld Expression 3"
+        },
+        "renderTargets": [
+          {
+            "format": "csv",
+            "formatOptions": {},
+            "filenamePattern": "{name}-{date}.{ext}"
+          }
+        ],
+        "recipients": [
+          {
+            "channel": "webhook",
+            "enabled": true,
+            "filterContext": {},
+            "channelConfig": {},
+            "retryPolicy": {
+              "maxAttempts": 3,
+              "initialBackoffSeconds": 3,
+              "maxBackoffSeconds": 3,
+              "jitter": true
+            }
+          }
+        ],
+        "description": "Voorbeeld Description 3",
+        "enabled": true,
+        "retention": {
+          "keepArtefactsForDays": 30,
+          "keepAuditForDays": 365
+        },
+        "runTimezone": "Voorbeeld Runtimezone 3",
+        "nextRunAt": "2026-03-03T09:00:00+00:00",
+        "lastRunAt": "2026-03-03T09:00:00+00:00",
+        "lastRunStatus": "failed"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "scheduled_export_run",
+          "slug": "scheduled-export-run-scheduled-export-run-1-1"
+        },
+        "exportId": "00000000-0000-4000-8000-000000000000",
+        "startedAt": "2026-03-01T09:00:00+00:00",
+        "status": "running",
+        "triggeredBy": "schedule",
+        "finishedAt": "2026-03-01T09:00:00+00:00",
+        "triggeredByUser": "Voorbeeld Triggeredbyuser 1",
+        "renderArtefacts": [
+          {
+            "format": "pdf",
+            "sizeBytes": 0,
+            "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+            "storagePath": "Voorbeeld Storagepath 1",
+            "expiresAt": "2026-03-01T09:00:00+00:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "recipientId": "Voorbeeld Recipientid 1",
+            "channel": "email",
+            "attemptCount": 0,
+            "status": "pending",
+            "nextAttemptAt": "2026-03-01T09:00:00+00:00",
+            "deliveredAt": "2026-03-01T09:00:00+00:00",
+            "providerMessageId": "Voorbeeld Providermessageid 1",
+            "error": "Voorbeeld Error 1"
+          }
+        ],
+        "correlationId": "00000000-0000-4000-8000-000000000000"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "scheduled_export_run",
+          "slug": "scheduled-export-run-scheduled-export-run-2-2"
+        },
+        "exportId": "00000000-0000-4000-8000-000000000001",
+        "startedAt": "2026-03-02T09:00:00+00:00",
+        "status": "success",
+        "triggeredBy": "manual",
+        "finishedAt": "2026-03-02T09:00:00+00:00",
+        "triggeredByUser": "Voorbeeld Triggeredbyuser 2",
+        "renderArtefacts": [
+          {
+            "format": "png",
+            "sizeBytes": 1,
+            "sha256": "bcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789a",
+            "storagePath": "Voorbeeld Storagepath 2",
+            "expiresAt": "2026-03-02T09:00:00+00:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "recipientId": "Voorbeeld Recipientid 2",
+            "channel": "nextcloudFiles",
+            "attemptCount": 1,
+            "status": "retrying",
+            "nextAttemptAt": "2026-03-02T09:00:00+00:00",
+            "deliveredAt": "2026-03-02T09:00:00+00:00",
+            "providerMessageId": "Voorbeeld Providermessageid 2",
+            "error": "Voorbeeld Error 2"
+          }
+        ],
+        "correlationId": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "scheduled_export_run",
+          "slug": "scheduled-export-run-scheduled-export-run-3-3"
+        },
+        "exportId": "00000000-0000-4000-8000-000000000002",
+        "startedAt": "2026-03-03T09:00:00+00:00",
+        "status": "partial",
+        "triggeredBy": "schedule",
+        "finishedAt": "2026-03-03T09:00:00+00:00",
+        "triggeredByUser": "Voorbeeld Triggeredbyuser 3",
+        "renderArtefacts": [
+          {
+            "format": "csv",
+            "sizeBytes": 2,
+            "sha256": "cdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789ab",
+            "storagePath": "Voorbeeld Storagepath 3",
+            "expiresAt": "2026-03-03T09:00:00+00:00"
+          }
+        ],
+        "deliveries": [
+          {
+            "recipientId": "Voorbeeld Recipientid 3",
+            "channel": "webhook",
+            "attemptCount": 2,
+            "status": "success",
+            "nextAttemptAt": "2026-03-03T09:00:00+00:00",
+            "deliveredAt": "2026-03-03T09:00:00+00:00",
+            "providerMessageId": "Voorbeeld Providermessageid 3",
+            "error": "Voorbeeld Error 3"
+          }
+        ],
+        "correlationId": "00000000-0000-4000-8000-000000000002"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "embed_token",
+          "slug": "embed-token-voorbeeld-name-1-1"
+        },
+        "name": "Voorbeeld Name 1",
+        "tokenHash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "subject": {
+          "type": "widget",
+          "id": "Voorbeeld Id 1",
+          "filterContext": {}
+        },
+        "scope": {
+          "mode": "read",
+          "allowedFilters": [
+            "Voorbeeld Allowedfilters 1"
+          ],
+          "allowedActions": [
+            "interact"
+          ]
+        },
+        "hostOrigins": [
+          "Voorbeeld Hostorigins 1"
+        ],
+        "description": "Voorbeeld Description 1",
+        "tenantThemeId": "Voorbeeld Tenantthemeid 1",
+        "tokenExpiresAt": "2026-03-01T09:00:00+00:00",
+        "revokedAt": "2026-03-01T09:00:00+00:00",
+        "revocationReason": "compromised",
+        "revocationNotes": "Voorbeeld Revocationnotes 1",
+        "revokedBy": "Voorbeeld Revokedby 1",
+        "rateLimitPolicy": {
+          "requestsPerMinute": 1,
+          "burstSize": 1
+        },
+        "keyId": "Voorbeeld Keyid 1",
+        "createdBy": "Voorbeeld Createdby 1",
+        "createdAt": "2026-03-01T09:00:00+00:00",
+        "updatedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "embed_token",
+          "slug": "embed-token-voorbeeld-name-2-2"
+        },
+        "name": "Voorbeeld Name 2",
+        "tokenHash": "123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0",
+        "subject": {
+          "type": "dashboard",
+          "id": "Voorbeeld Id 2",
+          "filterContext": {}
+        },
+        "scope": {
+          "mode": "read-with-interactions",
+          "allowedFilters": [
+            "Voorbeeld Allowedfilters 2"
+          ],
+          "allowedActions": [
+            "export"
+          ]
+        },
+        "hostOrigins": [
+          "Voorbeeld Hostorigins 2"
+        ],
+        "description": "Voorbeeld Description 2",
+        "tenantThemeId": "Voorbeeld Tenantthemeid 2",
+        "tokenExpiresAt": "2026-03-02T09:00:00+00:00",
+        "revokedAt": "2026-03-02T09:00:00+00:00",
+        "revocationReason": "no_longer_needed",
+        "revocationNotes": "Voorbeeld Revocationnotes 2",
+        "revokedBy": "Voorbeeld Revokedby 2",
+        "rateLimitPolicy": {
+          "requestsPerMinute": 2,
+          "burstSize": 2
+        },
+        "keyId": "Voorbeeld Keyid 2",
+        "createdBy": "Voorbeeld Createdby 2",
+        "createdAt": "2026-03-02T09:00:00+00:00",
+        "updatedAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "embed_token",
+          "slug": "embed-token-voorbeeld-name-3-3"
+        },
+        "name": "Voorbeeld Name 3",
+        "tokenHash": "23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
+        "subject": {
+          "type": "widget",
+          "id": "Voorbeeld Id 3",
+          "filterContext": {}
+        },
+        "scope": {
+          "mode": "read",
+          "allowedFilters": [
+            "Voorbeeld Allowedfilters 3"
+          ],
+          "allowedActions": [
+            "drillDown"
+          ]
+        },
+        "hostOrigins": [
+          "Voorbeeld Hostorigins 3"
+        ],
+        "description": "Voorbeeld Description 3",
+        "tenantThemeId": "Voorbeeld Tenantthemeid 3",
+        "tokenExpiresAt": "2026-03-03T09:00:00+00:00",
+        "revokedAt": "2026-03-03T09:00:00+00:00",
+        "revocationReason": "host_decommissioned",
+        "revocationNotes": "Voorbeeld Revocationnotes 3",
+        "revokedBy": "Voorbeeld Revokedby 3",
+        "rateLimitPolicy": {
+          "requestsPerMinute": 3,
+          "burstSize": 3
+        },
+        "keyId": "Voorbeeld Keyid 3",
+        "createdBy": "Voorbeeld Createdby 3",
+        "createdAt": "2026-03-03T09:00:00+00:00",
+        "updatedAt": "2026-03-03T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "tenant_theme",
+          "slug": "tenant-theme-voorbeeld-name-1-1"
+        },
+        "name": "Voorbeeld Name 1",
+        "cssVariables": {},
+        "logoUrl": "https://example.invalid/resource/0",
+        "customCss": "Voorbeeld Customcss 1",
+        "createdBy": "Voorbeeld Createdby 1",
+        "createdAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "tenant_theme",
+          "slug": "tenant-theme-voorbeeld-name-2-2"
+        },
+        "name": "Voorbeeld Name 2",
+        "cssVariables": {},
+        "logoUrl": "https://example.invalid/resource/1",
+        "customCss": "Voorbeeld Customcss 2",
+        "createdBy": "Voorbeeld Createdby 2",
+        "createdAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "launchpad",
+          "schema": "tenant_theme",
+          "slug": "tenant-theme-voorbeeld-name-3-3"
+        },
+        "name": "Voorbeeld Name 3",
+        "cssVariables": {},
+        "logoUrl": "https://example.invalid/resource/2",
+        "customCss": "Voorbeeld Customcss 3",
+        "createdBy": "Voorbeeld Createdby 3",
+        "createdAt": "2026-03-03T09:00:00+00:00"
       }
     ]
   }

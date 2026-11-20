@@ -12,9 +12,6 @@ A typed PHP `InitialStateBuilder` service centralises the writes; a typed JS `lo
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: Centralised PHP builder for initial state (REQ-INIT-001)
 
 The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor accepting an `IInitialState` and a `Page` enum (`Page::WORKSPACE` or `Page::ADMIN`). The builder MUST expose typed setter methods (e.g. `setWidgets(array $widgets): self`, `setLayout(array $layout): self`, `setIsAdmin(bool $isAdmin): self`) and a final `apply(): void` that writes every key to the initial-state service. `apply()` MUST throw `MissingInitialStateException` if any required key was not set for the chosen page. Controllers (`PageController`, `LaunchPadAdmin`) MUST use the builder; direct calls to `IInitialState::provideInitialState` from controllers are forbidden by code review (a grep lint MUST find such calls only inside `InitialStateBuilder`).
@@ -26,12 +23,14 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 - **AND** the JS bundle MUST receive all 10 workspace keys declared in the Data Model
 
 #### Scenario: Missing required key raises before render
+@e2e exclude needs a controller that omits setLayout(), which only a code change produces; pinned by tests/Unit/Service/InitialStateBuilderTest.php::testWorkspaceBuilderRejectsMissingRequiredKey (MissingInitialStateException naming "layout" for page "workspace")
 
 - **WHEN** a controller constructs the builder for `Page::WORKSPACE`, omits the required `setLayout()` call, and then invokes `apply()`
 - **THEN** the system MUST throw `MissingInitialStateException` with a message naming the missing key `layout`
 - **AND** the page MUST NOT render (HTTP 500 surfaces during dev; CI test catches this earlier)
 
 #### Scenario: Direct provideInitialState call rejected
+@e2e exclude a source-code lint, not product behaviour; pinned by tests/Unit/Service/InitialStateContractLintTest.php::testNoDirectProvideInitialStateCallsOutsideBuilder (greps lib/, failure message points to InitialStateBuilder) and `composer lint:initial-state`
 
 - **WHEN** a developer adds `$initialState->provideInitialState('foo', 'bar')` directly inside `lib/Controller/PageController.php`
 - **THEN** the lint test (grep against `lib/`) MUST fail with a message pointing to `InitialStateBuilder`
@@ -66,6 +65,7 @@ The Admin page (mounted into `#launchpad-admin-settings`) MUST expose exactly th
 | `allowUserDashboards` | `boolean` | `false` |
 
 #### Scenario: Adding a key bumps version
+@e2e exclude a code-review rule about a future change, nothing a running instance shows; the only automated part, PHP and JS constants in lockstep, is pinned by src/utils/__tests__/loadInitialState.spec.js 'exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (3)'
 
 - **WHEN** a developer adds a new workspace initial-state key `theme` and submits the change for review
 - **THEN** the spec Data Model table MUST list `theme` with type and default
@@ -83,12 +83,14 @@ The Admin page (mounted into `#launchpad-admin-settings`) MUST expose exactly th
 The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialState(page: 'workspace' | 'admin'): InitialState`. The reader MUST call `loadState('launchpad', key, default)` for every key declared for `page` in the Data Model, MUST return a typed object with default-filled fields (no `undefined` values), and MUST validate the received `_schemaVersion` against the compiled-in `INITIAL_STATE_SCHEMA_VERSION` constant per REQ-INIT-002. Entry points (`src/main.js`, `src/admin.js`) MUST use the reader; direct `loadState('launchpad', ...)` calls outside the reader are forbidden by a JS-side grep lint.
 
 #### Scenario: Reader fills defaults
+@e2e exclude the reader's returned object stays inside the bundle and the page exposes none of it, so "no field is undefined" cannot be read from a browser; pinned by src/utils/__tests__/loadInitialState.spec.js 'fills defaults for every workspace key the server omitted'
 
 - **WHEN** PHP pushes only `widgets` (other keys missing for any reason) and `loadInitialState('workspace')` runs
 - **THEN** every key declared for the workspace page MUST have a defined value taken from the Data Model defaults
 - **AND** no field on the returned object MUST be `undefined`
 
 #### Scenario: Direct loadState rejected
+@e2e exclude a source-code lint, not product behaviour; enforced by scripts/lint-initial-state.js (`npm run lint:initial-state`, part of `npm run lint`), whose failure message names loadInitialState; no test exercises the lint's failure path
 
 - **WHEN** a Vue component under `src/` calls `loadState('launchpad', 'something')` directly
 - **THEN** the lint test (grep against `src/`) MUST fail
@@ -99,12 +101,14 @@ The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialSta
 After the entry point loads the initial state, it MUST expose every key via the Vue root `provide` option (Vue 2.7) — semantically equivalent to `app.provide(key, value)` in Vue 3 — so descendant components can `inject(key, default)` without re-reading from `loadState`. The provide call MUST use the same key string as the initial-state key — no renaming at the boundary (renaming is itself a spec change and bumps the schema version).
 
 #### Scenario: Provide names match initial-state keys
+@e2e exclude provide/inject wiring inside the Vue app, not observable from the page; pinned by src/utils/__tests__/loadInitialState.spec.js 'exposes every key via provide/inject for descendant components (REQ-INIT-004)'
 
 - **WHEN** the workspace entry loads 10 initial-state keys via the reader and exposes them through `provide`
 - **THEN** the entry MUST emit exactly 10 provided keys, one per initial-state key, with identical key strings
 - **AND** no key renaming MUST occur at this boundary
 
 #### Scenario: Components inject by key name
+@e2e exclude provide/inject wiring inside the Vue app, not observable from the page; pinned by src/utils/__tests__/loadInitialState.spec.js 'exposes every key via provide/inject for descendant components (REQ-INIT-004)'
 
 - **WHEN** a deep child component calls `inject('widgets', [])`
 - **THEN** the component MUST receive the value the entry point provided
@@ -115,12 +119,14 @@ After the entry point loads the initial state, it MUST expose every key via the 
 `provide`/`inject` distributes static snapshots — values are NOT reactive across writes. Components that need to mutate shared state (for example `layout` after editing) MUST clone the injected value into a local `ref` (or hand off to a Pinia store fed from the injected value). The entry-point provides MUST NEVER be wrapped in a `ref` to "make them reactive" — that would let component code accidentally mutate the boot snapshot and break re-mount semantics.
 
 #### Scenario: Mutation does not leak through inject
+@e2e exclude component-internal reactivity, not observable from the page; pinned by src/utils/__tests__/loadInitialState.spec.js 'mutating a cloned ref does not leak to a sibling (REQ-INIT-005)'
 
 - **WHEN** component `A` injects `layout`, clones into `localLayout = ref([...injectedLayout])`, and mutates `localLayout`
 - **THEN** any sibling component that injects `layout` MUST still see the original (unmutated) value
 - **AND** no console error MUST fire about reactive mutation
 
 #### Scenario: Entry point does not wrap provide in ref
+@e2e exclude a static property of src/main.js and src/admin.js checked by code review; no test exists
 
 - **WHEN** a code reviewer inspects `src/main.js` or `src/admin.js`
 - **THEN** every provided value MUST be a plain (non-reactive) value

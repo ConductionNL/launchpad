@@ -78,6 +78,7 @@ class DashboardVersionService {
 	private const BLOB_SETTERS = [
 		'styleConfig' => 'setStyleConfigArray',
 		'content' => 'setContentArray',
+		'calculatedFields' => 'setCalculatedFieldsArray',
 	];
 
 	/**
@@ -174,11 +175,8 @@ class DashboardVersionService {
 	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
 	public function captureSnapshot(Dashboard $dashboard, string $createdBy, array $options=[]): ?DashboardVersion {
-		$options     += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
-		$snapshotJson = $options['snapshotJson'];
-		$note         = $options['note'];
-		$explicit     = $options['explicit'];
-		$uuid = (string)$dashboard->getUuid();
+		$options += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
+		$uuid     = (string)$dashboard->getUuid();
 		if ($uuid === '') {
 			// Defensive — without a UUID we have nothing to key the
 			// snapshot to. Refuse silently rather than throw because
@@ -186,10 +184,53 @@ class DashboardVersionService {
 			return null;
 		}
 
-		if ($explicit === false && $this->isDebounced(uuid: $uuid) === true) {
+		if ($options['explicit'] === false && $this->isDebounced(uuid: $uuid) === true) {
 			return null;
 		}
 
+		$entity = $this->newVersion(dashboard: $dashboard, options: $options);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setCreatedBy($createdBy);
+
+		return $this->insertVersion(entity: $entity);
+	}//end captureSnapshot()
+
+	/**
+	 * The stored dashboard and its snapshot payload, built before an update so
+	 * the automatic snapshot holds the state the update replaces, placements
+	 * included (REQ-VERS-001). Pass both to captureSnapshot() once the update
+	 * succeeded.
+	 *
+	 * @param int $dashboardId The dashboard about to be updated.
+	 *
+	 * @return array{dashboard: Dashboard, snapshotJson: string}|null The state, or null when the dashboard does not exist.
+	 *
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	public function stateBeforeUpdate(int $dashboardId): ?array {
+		try {
+			$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		return ['dashboard' => $dashboard, 'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard)];
+	}//end stateBeforeUpdate()
+
+	/**
+	 * The next version row of a dashboard, not yet persisted and without
+	 * its author.
+	 *
+	 * @param Dashboard $dashboard The dashboard being snapshotted (it has a UUID).
+	 * @param array     $options   `snapshotJson`, `note` and `explicit` as
+	 *                             {@see self::captureSnapshot()} takes them.
+	 *
+	 * @return DashboardVersion The unsaved row.
+	 */
+	private function newVersion(Dashboard $dashboard, array $options): DashboardVersion {
+		$uuid         = (string)$dashboard->getUuid();
+		$snapshotJson = $options['snapshotJson'];
+		$note         = $options['note'];
 		// Auto-build the payload when the caller hands us nothing —
 		// this keeps the integration with `DashboardService` simple.
 		if ($snapshotJson === null || $snapshotJson === '') {
@@ -197,7 +238,7 @@ class DashboardVersionService {
 		}
 
 		$coercedNote = null;
-		if ($explicit === true && $note !== null && $note !== '') {
+		if ($options['explicit'] === true && $note !== null && $note !== '') {
 			$coercedNote = $note;
 		}
 
@@ -212,13 +253,25 @@ class DashboardVersionService {
 		$entity->setDashboardUuid($uuid);
 		$entity->setVersionNumber($next);
 		$entity->setSnapshotJson($snapshotJson);
-		$entity->setCreatedBy($createdBy);
 		$entity->setCreatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
 		$entity->setNote($coercedNote);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
+		return $entity;
+	}//end newVersion()
+
+	/**
+	 * Persist a version row, prune past the retention limit and refresh
+	 * the debounce key.
+	 *
+	 * @param DashboardVersion $entity The row to insert.
+	 *
+	 * @return DashboardVersion The persisted row.
+	 */
+	private function insertVersion(DashboardVersion $entity): DashboardVersion {
+		$uuid      = (string)$entity->getDashboardUuid();
 		$persisted = $this->stores->versionMapper->insert(entity: $entity);
 
 		// REQ-VERS-006: prune inline so the table never exceeds the
@@ -235,7 +288,7 @@ class DashboardVersionService {
 		$this->markDebounced(uuid: $uuid);
 
 		return $persisted;
-	}//end captureSnapshot()
+	}//end insertVersion()
 
 	/**
 	 * List the versions available for a dashboard, newest-first
@@ -382,10 +435,11 @@ class DashboardVersionService {
 	 * BEFORE the restore overwrites the body so the operation is
 	 * itself reversible.
 	 *
-	 * Restoring to the latest version is treated as a no-op (idempotent
-	 * round-trip) — no new snapshot is created and the existing
-	 * dashboard is returned untouched. This matches the
-	 * "restore to current is a no-op" scenario in REQ-VERS-005.
+	 * Restoring the latest version while it holds the dashboard's current
+	 * placements is a no-op: no new snapshot, the dashboard untouched
+	 * ("restore to current is a no-op" in REQ-VERS-005). A latest version
+	 * that differs, such as a pre-restore snapshot, is restored normally
+	 * ("restore is reversible").
 	 *
 	 * @param Dashboard $dashboard The dashboard.
 	 * @param integer $versionNumber The target version number.
@@ -422,7 +476,7 @@ class DashboardVersionService {
 			dashboardUuid: $uuid
 		);
 
-		if ($latest === $versionNumber) {
+		if ($latest === $versionNumber && $this->holdsCurrentPlacements(dashboard: $dashboard, target: $target) === true) {
 			// REQ-VERS-005: restoring to the current version is a no-op.
 			return [
 				'snapshot' => (string)$target->getSnapshotJson(),
@@ -446,6 +500,51 @@ class DashboardVersionService {
 			'version' => $target,
 		];
 	}//end restoreVersion()
+
+	/**
+	 * Whether a version holds the same placements as the dashboard now,
+	 * ignoring the row ids and timestamps a restore does not keep.
+	 *
+	 * @param Dashboard        $dashboard The dashboard.
+	 * @param DashboardVersion $target    The version to compare.
+	 *
+	 * @return boolean True when restoring the version would change no placement.
+	 */
+	private function holdsCurrentPlacements(Dashboard $dashboard, DashboardVersion $target): bool {
+		$current = json_decode($this->buildDefaultSnapshot(dashboard: $dashboard), associative: true);
+		$stored  = json_decode((string)$target->getSnapshotJson(), associative: true);
+
+		return $this->comparablePlacements(payload: $current) === $this->comparablePlacements(payload: $stored);
+	}//end holdsCurrentPlacements()
+
+	/**
+	 * The placements of a decoded snapshot as sorted JSON strings without
+	 * id, dashboardId, createdAt and updatedAt.
+	 *
+	 * @param mixed $payload The decoded snapshot.
+	 *
+	 * @return string[] One string per placement, sorted.
+	 */
+	private function comparablePlacements(mixed $payload): array {
+		$placements = [];
+		if (is_array($payload) === true && is_array($payload['placements'] ?? null) === true) {
+			$placements = $payload['placements'];
+		}
+
+		$comparable = [];
+		foreach ($placements as $placement) {
+			if (is_array($placement) === false) {
+				continue;
+			}
+
+			unset($placement['id'], $placement['dashboardId'], $placement['createdAt'], $placement['updatedAt']);
+			ksort($placement);
+			$comparable[] = (string)json_encode($placement);
+		}
+
+		sort($comparable);
+		return $comparable;
+	}//end comparablePlacements()
 
 	/**
 	 * Run a restore inside one DB transaction, rolled back and logged on failure.

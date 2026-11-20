@@ -147,6 +147,27 @@ class Notifier implements INotifier {
 			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
 		}
 
+		if ($notification->getSubject() === 'embed_token_revoked') {
+			return $this->urlGenerator->linkToRouteAbsolute(routeName: 'settings.AdminSettings.index', arguments: ['section' => 'launchpad']);
+		}
+
+		// The app catalogue (launcher-app-catalogue): a request opens the admin
+		// section where it is decided; a decision opens LaunchPad, where Add lists the catalogue.
+		if ($notification->getSubject() === 'app_requested') {
+			return $this->urlGenerator->linkToRouteAbsolute(
+				routeName: 'settings.AdminSettings.index',
+				arguments: ['section' => 'launchpad']
+			);
+		}
+
+		if ($notification->getSubject() === 'app_request_decided') {
+			return $this->buildDashboardUrl(objectId: '');
+		}
+
+		if ($notification->getSubject() === 'scheduled_export_failed') {
+			return $this->buildDashboardUrl(objectId: '');
+		}
+
 		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
 	}//end linkFor()
 
@@ -165,9 +186,13 @@ class Notifier implements INotifier {
 
 		return match ($notification->getSubject()) {
 			'mentioned_in_comment' => $this->mentionCopy(params: $params, l: $l),
+			'embed_token_revoked' => $this->embedRevokedCopy(params: $params, l: $l),
 			'dashboard_shared' => $this->sharedCopy(params: $params, l: $l),
 			'dashboard_ownership_transferred' => $this->transferredCopy(params: $params, l: $l),
 			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
+			'scheduled_export_failed' => $this->exportFailedCopy(params: $params, l: $l),
+			'app_requested' => $this->appRequestedCopy(params: $params, l: $l),
+			'app_request_decided' => $this->appDecidedCopy(params: $params, l: $l),
 			'announcement_published' => $this->announcementCopy(params: $params, l: $l),
 			default => throw new UnknownNotificationException(
 				message: 'Unknown subject: ' . $notification->getSubject()
@@ -196,6 +221,32 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end mentionCopy()
+
+	/**
+	 * Copy for an embed token that was revoked: who, why and when (REQ-EMB-009 9.2).
+	 *
+	 * @param array<int|string, mixed> $params [name, revokedBy, reason, notes, revokedAt].
+	 * @param IL10N                    $l      Translations.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-009--token-revocation-takes-effect-within-60-seconds
+	 */
+	private function embedRevokedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('Token **%1$s** has been revoked by %2$s', $names);
+		$copy->parsedSubject = $l->t('Token %1$s has been revoked by %2$s', $names);
+		$copy->message       = $l->t('Reason: %1$s', [(string)($params[2] ?? '')]);
+		if ((string)($params[3] ?? '') !== '') {
+			$copy->message .= "\n" . $l->t('Notes: %1$s', [(string)$params[3]]);
+		}
+
+		$copy->message .= "\n" . $l->t('Revocation timestamp: %1$s', [(string)($params[4] ?? '')]);
+
+		return $copy;
+	}//end embedRevokedCopy()
 
 	/**
 	 * Render a `dashboard_shared` notification.
@@ -264,6 +315,81 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end resyncedCopy()
+
+	/**
+	 * Copy for a scheduled export that failed for good (scheduled-exports
+	 * REQ-SCH-002, REQ-SCH-006): parameters are the export name and the reason.
+	 *
+	 * @param array<int, string> $params The export name and the reason.
+	 * @param IL10N              $l      The translator.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-006-retry-with-exponential-backoff-and-dead-letter
+	 */
+	private function exportFailedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('The scheduled export **%1$s** failed', $name);
+		$copy->parsedSubject = $l->t('The scheduled export %1$s failed', $name);
+		$copy->message       = (string)($params[1] ?? '');
+
+		return $copy;
+	}//end exportFailedCopy()
+
+	/**
+	 * Copy for `app_requested`: a user asked for an app the catalogue lacks
+	 * (launcher-app-catalogue, REQ-ACAT-003).
+	 *
+	 * @param array<int, string> $params [requester display name, app name].
+	 * @param IL10N              $l      The L10N instance.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 */
+	private function appRequestedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('%1$s asked for the app **%2$s**', $names);
+		$copy->parsedSubject = $l->t('%1$s asked for the app %2$s', $names);
+		$copy->message       = $l->t('Approve or decline it under App catalogue in the LaunchPad admin settings');
+
+		return $copy;
+	}//end appRequestedCopy()
+
+	/**
+	 * Copy for `app_request_decided`: the requester hears how their request
+	 * was decided (launcher-app-catalogue, REQ-ACAT-004).
+	 *
+	 * @param array<int, string> $params [app name, `approved` or `declined`, the decline note].
+	 * @param IL10N              $l      The L10N instance.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 */
+	private function appDecidedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = (string)($params[0] ?? '');
+		$copy = new NotificationCopy();
+
+		if (($params[1] ?? '') === 'approved') {
+			$copy->richSubject   = $l->t('**%1$s** is now in the app catalogue', [$name]);
+			$copy->parsedSubject = $l->t('%1$s is now in the app catalogue', [$name]);
+			$copy->message       = $l->t('Add it as a tile from Add on your dashboard');
+
+			return $copy;
+		}
+
+		$args = [$name, (string)($params[2] ?? '')];
+		$copy->richSubject   = $l->t('Your request for **%1$s** was declined: %2$s', $args);
+		$copy->parsedSubject = $l->t('Your request for %1$s was declined: %2$s', $args);
+		$copy->message       = $l->t('An administrator decided on your request in the app catalogue');
+
+		return $copy;
+	}//end appDecidedCopy()
 
 	/**
 	 * Copy for `announcement_published`: a new announcement in a followed category (REQ-ANN-003).

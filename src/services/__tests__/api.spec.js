@@ -85,6 +85,7 @@ describe('api: plain calls', () => {
 		['getCalendarWidgetCalendars', [], 'get', [`${B}/api/widgets/calendar/calendars`]],
 		['addWidget', [9, data], 'post', [`${B}/api/dashboard/9/widgets`, data]],
 		['addTile', [9, data], 'post', [`${B}/api/dashboard/9/tile`, data]],
+		['importBookmarks', [9, data], 'post', [`${B}/api/dashboard/9/tiles/import`, data]],
 		['discoverApps', [], 'get', [`${B}/api/tiles/discover`]],
 		['updateWidgetPlacement', [5, data], 'put', [`${B}/api/widgets/5`, data]],
 		['removeWidget', [5], 'delete', [`${B}/api/widgets/5`]],

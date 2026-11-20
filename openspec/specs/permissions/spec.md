@@ -18,9 +18,6 @@ Permission levels control what users can do with their dashboards. When an admin
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: View-Only Permission Level (REQ-PERM-001)
 
 Dashboards with `permissionLevel: "view_only"` MUST restrict users to viewing only, with no widget or layout editing capabilities.
@@ -160,6 +157,7 @@ Admin templates MUST be able to mark specific widget placements as compulsory, a
 - NOTE: `PlacementUpdater` does not explicitly block `isCompulsory` changes.
 
 #### Scenario: Compulsory widget visual indicator
+@e2e exclude never built: WidgetWrapper.vue renders no lock icon or Required badge for a compulsory placement (git log --all -S 'Required' and -S 'Lock' on src/components/WidgetWrapper.vue find nothing: it was never added); no unit or Vitest test pins it
 - GIVEN a dashboard with both compulsory and non-compulsory widgets
 - WHEN the dashboard is rendered in edit mode
 - THEN compulsory widgets MUST display a visual indicator (e.g., lock icon, "Required" badge)
@@ -262,6 +260,7 @@ The system MUST resolve effective permission levels through a defined chain: sou
 - AND the system MUST fall back to the dashboard's own `permissionLevel: "add_only"`
 
 #### Scenario: No template, no dashboard level, fallback to admin default
+@e2e exclude no API writes a dashboard with an empty permissionLevel (DashboardFactory hardcodes full, template copies take the template level), so the state needs a DB edit; pinned by PermissionServiceAccessGoldenTest::testEveryOutcomeMatchesTheGolden (dashboard 8: empty level, missing template, admin default add_only)
 - GIVEN a dashboard with `basedOnTemplate: null` and `permissionLevel: null`
 - AND the admin default is "add_only"
 - WHEN `getEffectivePermissionLevel()` is called

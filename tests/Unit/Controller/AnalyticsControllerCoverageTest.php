@@ -34,6 +34,9 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AnalyticsContext;
 
 /**
  * @covers \OCA\LaunchPad\Controller\AnalyticsController
@@ -62,7 +65,7 @@ class AnalyticsControllerCoverageTest extends TestCase {
 			request: $this->createMock(IRequest::class),
 			analyticsService: $this->analytics,
 			actionAuth: $this->actionAuth,
-			userSession: $session
+			context: new AnalyticsContext(userSession: $session, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end setUp()
 

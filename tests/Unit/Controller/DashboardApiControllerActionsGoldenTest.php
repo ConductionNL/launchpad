@@ -47,6 +47,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -72,17 +77,20 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$session->method('getUser')->willReturn($this->sessionUser ? $user : null);
 
 		return new DashboardApiController(
-			$this->createMock(IRequest::class),
-			new DashboardApiServices($this->dashboardService),
-			$this->permissionService,
-			new DashboardApiHistory(
+			request: $this->createMock(originalClassName: IRequest::class),
+			services: new DashboardApiServices($this->dashboardService),
+			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				$this->treeService,
 				$this->createMock(DashboardVersionService::class),
 				$this->createMock(AnalyticsService::class),
 				$this->logger,
-			),
-			new RequestActor($session, $this->createMock(ActionAuthService::class)),
-			$userId,
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(originalClassName: ActionAuthService::class)
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 
@@ -120,6 +128,18 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		[$status, $data] = $this->outcome($this->controller()->create(name: 'x'));
 
 		$this->assertSame([403, 'error', 'personal_dashboards_disabled'], [$status, $data['status'], $data['error']]);
+	}
+
+	public function testCreateWithPersonalDashboardsOffIsAllowedForAnAdministrator(): void {
+		$this->allowCreate();
+		$this->dashboardService->method('isAdmin')->with('alice')->willReturn(true);
+		$this->dashboardService->method('assertPersonalDashboardsAllowed')->willThrowException(new PersonalDashboardsDisabledException());
+		$this->dashboardService->expects($this->once())->method('createDashboard')->willReturn($this->dashboard());
+		$this->dashboardService->method('findPlacements')->willReturn([]);
+
+		[$status] = $this->outcome($this->controller()->create(name: 'Admin Dashboard'));
+
+		$this->assertSame(201, $status);
 	}
 
 	public function testCreateNotAllowedIsForbidden(): void {

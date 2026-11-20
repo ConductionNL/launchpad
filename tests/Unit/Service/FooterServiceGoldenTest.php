@@ -229,8 +229,8 @@ class FooterServiceGoldenTest extends TestCase {
 		return [
 			'empty' => ['', ''],
 			'external link' => ['<A HREF="https://e.com/?a=1&b=2" class="x">x</A>', '<a href="https://e.com/?a=1&amp;b=2" rel="noopener noreferrer" target="_blank">x</a>'],
-			'single-quoted value reads as empty' => ["<a href='/p'>p</a>", '<a href="">p</a>'],
-			'bare value reads as empty' => ['<a href=/p>p</a>', '<a href="">p</a>'],
+			'single-quoted value is kept' => ["<a href='/p'>p</a>", '<a href="/p">p</a>'],
+			'bare value is kept' => ['<a href=/p>p</a>', '<a href="/p">p</a>'],
 			'javascript link' => ['<a href="javascript:alert(1)">x</a>', '<a>x</a>'],
 			'data img' => ['<img src="data:image/png;base64,AA">', '<img />'],
 			'img with src' => ['<img src="/i.png" alt="x">', '<img src="/i.png" />'],

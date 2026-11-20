@@ -104,3 +104,25 @@ export async function removeSeededDashboard(
 	}
 	await api.delete(`${DASHBOARDS}/${dashboard.id}`)
 }
+
+/**
+ * Remove the widgets a new dashboard is seeded with.
+ *
+ * `POST /api/dashboard` places the default bundle (three tiles and a files
+ * widget) on every dashboard a person creates. A spec that counts or compares
+ * placements starts from an empty grid by calling this right after creating.
+ *
+ * @param api a context that may edit the dashboard.
+ * @param dashboardId the dashboard.
+ * @return nothing.
+ */
+export async function clearSeededWidgets(api: APIRequestContext, dashboardId: number): Promise<void> {
+	const res = await api.get(`${DASHBOARDS}/${dashboardId}`)
+	expect(res.status(), await res.text()).toBe(200)
+	const body = await res.json()
+	const placements = ((body.data ?? body).placements ?? []) as Array<{ id: number }>
+	for (const placement of placements) {
+		const removed = await api.delete(`/index.php/apps/launchpad/api/widgets/${placement.id}`)
+		expect(removed.status(), await removed.text()).toBeLessThan(300)
+	}
+}

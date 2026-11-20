@@ -105,7 +105,7 @@ class TemplateControllerTest extends TestCase {
 		$this->service
 			->expects($this->once())
 			->method('getGallery')
-			->with('marketing', 'name')
+			->with('alice', 'marketing', 'name')
 			->willReturn($payload);
 
 		$controller = $this->buildController(userId: 'alice');

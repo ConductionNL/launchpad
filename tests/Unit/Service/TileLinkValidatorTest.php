@@ -9,7 +9,7 @@
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
  */
 
 declare(strict_types=1);

@@ -315,7 +315,7 @@ describe('Views saving tiles and custom widgets', () => {
 			tileTextColor: '#fff',
 			tileLinkType: 'url',
 			tileLinkValue: 'https://example.org',
-			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60 },
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: '' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(1)
 	})
@@ -334,9 +334,23 @@ describe('Views saving tiles and custom widgets', () => {
 
 		await host.saveTile({ ...tile, healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 })
 		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 },
+			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, internalUrl: '' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(2)
+	})
+
+	it('adds a new tile with an office-network address, patching it in (launcher-tile-internal-address)', async () => {
+		const host = makeHost({
+			editingTile: null,
+			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			updateWidgetPlacement: vi.fn(),
+			closeTileEditor: vi.fn(),
+		})
+
+		await host.saveTile({ ...tile, internalUrl: 'http://zaken.intern' })
+		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: 'http://zaken.intern' },
+		})
 	})
 
 	it('keeps the tile editor open and logs when saving fails', async () => {
@@ -368,10 +382,25 @@ describe('Views saving tiles and custom widgets', () => {
 			closeCustomWidgetModal: vi.fn(),
 		})
 		await creating.saveCustomWidget({ type: 'text', content: { text: 'Hi' } })
-		expect(creating.addWidgetToDashboard).toHaveBeenCalledWith({ type: 'text', content: { text: 'Hi' } })
+		expect(creating.addWidgetToDashboard).toHaveBeenCalledWith({ type: 'text', content: { text: 'Hi' } }, null)
 		expect(creating.updateWidgetPlacement).toHaveBeenCalledWith(11, expect.any(Object))
 		expect(creating.updateWidgetPlacement.mock.calls[0][1]).not.toHaveProperty('content')
 		expect(creating.closeCustomWidgetModal).toHaveBeenCalledTimes(1)
+	})
+
+	it('starts a new header at the full grid width and as tall as its preset', async () => {
+		const host = makeHost({
+			activeDashboard: { id: 1, gridColumns: 12 },
+			customWidgetEditing: null,
+			updateWidgetPlacement: vi.fn(),
+			addWidgetToDashboard: vi.fn(async () => ({ id: 12, styleConfig: {} })),
+			closeCustomWidgetModal: vi.fn(),
+		})
+		await host.saveCustomWidget({ type: 'header', content: { title: 'Hi', height: 'large' } })
+		expect(host.addWidgetToDashboard).toHaveBeenCalledWith(
+			{ type: 'header', content: { title: 'Hi', height: 'large' } },
+			{ w: 12, h: 6 },
+		)
 	})
 
 	it('skips the chrome patch when nothing was created, and logs a failed save', async () => {

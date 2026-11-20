@@ -92,10 +92,32 @@ describe('AdminSettings: general settings', () => {
 			allowUserDash: false,
 			allowMultiDash: true,
 			startPageWithoutNavigation: false,
+			filterTelemetryEnabled: false,
+			defaultAppEnabled: true,
 			defaultGridCols: 12,
 			maxDashboardsPerUser: 5,
 			maxWidgetsPerDashboard: 10000,
 		})
+	})
+
+	it('saves the filter telemetry switch as a boolean (drill-down-cross-widget-filter REQ-CWF-010)', async () => {
+		const wrapper = await mountSettings()
+
+		wrapper.vm.updateSetting('filterTelemetryEnabled', true)
+		await flushPromises()
+
+		expect(api.updateAdminSettings).toHaveBeenLastCalledWith(expect.objectContaining({ filterTelemetryEnabled: true }))
+		expect(wrapper.find('[data-testid="admin-filter-telemetry-enabled"]').exists()).toBe(true)
+	})
+
+	it('saves the default app switch as a boolean, on unless switched off (REQ-PSP-003)', async () => {
+		const wrapper = await mountSettings()
+
+		wrapper.vm.updateSetting('defaultAppEnabled', false)
+		await flushPromises()
+
+		expect(api.updateAdminSettings).toHaveBeenLastCalledWith(expect.objectContaining({ defaultAppEnabled: false }))
+		expect(wrapper.find('[data-testid="admin-default-app-enabled"]').exists()).toBe(true)
 	})
 
 	it.each([

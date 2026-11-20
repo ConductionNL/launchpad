@@ -22,10 +22,14 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
+use OCA\LaunchPad\ResponseDefinitions;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
+use OCA\LaunchPad\Service\CalculatedFieldService;
 use OCA\LaunchPad\Service\NewsWidgetService;
-use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -44,6 +48,9 @@ use Throwable;
  *                                                 share this controller.
  *
  * @spec openspec/changes/role-based-content/tasks.md#task-3
+ *
+ * @psalm-import-type LaunchPadPlacement from ResponseDefinitions
+ * @psalm-import-type LaunchPadStatusOk from ResponseDefinitions
  */
 class WidgetApiController extends Controller {
 	use RespondsWithErrors;
@@ -53,18 +60,16 @@ class WidgetApiController extends Controller {
 	 *
 	 * @param IRequest          $request The request.
 	 * @param WidgetApiSources  $sources The widget, news, calendar and placement services.
-	 * @param PermissionService $permissionService The permission service.
-	 * @param WidgetApiPolicy   $policy The role feature permission service and the logger.
-	 * @param RequestActor      $actor The user session and the action authorisation service.
-	 * @param string|null       $userId The user ID.
+	 * @param WidgetApiAccess $access Holds the permissionService and policy.
+	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly WidgetApiSources $sources,
-		private readonly PermissionService $permissionService,
-		private readonly WidgetApiPolicy $policy,
-		private readonly RequestActor $actor,
-		private readonly ?string $userId,
+		private readonly WidgetApiAccess $access,
+		private readonly ActorResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -76,6 +81,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The list of available widgets.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function listAvailable(): JSONResponse {
@@ -86,9 +92,9 @@ class WidgetApiController extends Controller {
 
 		$widgets = $this->sources->widgetService->getAvailableWidgets();
 
-		$filter = new AllowedWidgetFilter(roleFeaturePerm: $this->policy->roleFeaturePerm, userId: $this->userId);
+		$filter = new AllowedWidgetFilter(roleFeaturePerm: $this->access->policy->roleFeaturePerm, userId: $this->context->userId);
 
-		return ResponseHelper::success(data: $filter->filter(widgets: $widgets));
+		return $this->context->responseHelper->success(data: $filter->filter(widgets: $widgets));
 	}//end listAvailable()
 
 	/**
@@ -96,15 +102,17 @@ class WidgetApiController extends Controller {
 	 * → 401, a denied ADR-023 action → 403; NULL to proceed.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyListAvailable(): ?JSONResponse {
-		$user = $this->actor->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actor->actionAuth->requireAction($user, 'widget.list-available');
+			$this->context->actor->actionAuth->requireAction($user, 'widget.list-available');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
@@ -122,6 +130,7 @@ class WidgetApiController extends Controller {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
 	 * @spec openspec/changes/role-based-content/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -154,9 +163,9 @@ class WidgetApiController extends Controller {
 			)
 		);
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: $this->sources->widgetService->getWidgetItems(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				widgetIds: $allowedWidgets,
 				limit: $limit
 			)
@@ -175,6 +184,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The created widget placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	#[NoAdminRequired]
@@ -248,10 +261,12 @@ class WidgetApiController extends Controller {
 	 * @param callable(): object $create Creates the placement.
 	 *
 	 * @return JSONResponse The placement, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createPlacement(callable $create): JSONResponse {
 		try {
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: $create()->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
@@ -259,11 +274,30 @@ class WidgetApiController extends Controller {
 			// Dashboard-quota-limits REQ-QUOTA-003: the dashboard is at the
 			// widget limit (tiles are placements too) — HTTP 409 with the
 			// structured body.
-			return ResponseHelper::quotaExceeded(exception: $e);
+			return $this->context->responseHelper->quotaExceeded(exception: $e);
+		} catch (InvalidWidgetContentException $e) {
+			return self::invalidContentResponse(exception: $e);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end createPlacement()
+
+	/**
+	 * Answer content that breaks its widget type's rules with 400 and the
+	 * rule it broke (REQ-MENU-002), so the editor can say what to change.
+	 *
+	 * @param InvalidWidgetContentException $exception The validation failure.
+	 *
+	 * @return JSONResponse The 400 response.
+	 *
+	 * @spec openspec/specs/menu-widget/spec.md
+	 */
+	private static function invalidContentResponse(InvalidWidgetContentException $exception): JSONResponse {
+		return new JSONResponse(
+			data: ['error' => $exception->getMessage()],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end invalidContentResponse()
 
 	/**
 	 * Resolve the guard chain for {@see self::addWidget()}.
@@ -283,17 +317,18 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse {
-		$user = $this->actor->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.add-widget');
+		$this->context->actor->actionAuth->requireAction($user, 'widget.add-widget');
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		return $this->denyWidgetChoice(dashboardId: $dashboardId, widgetId: $widgetId);
@@ -313,10 +348,12 @@ class WidgetApiController extends Controller {
 	 * @param string|null $widgetId    The widget type ID.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyWidgetChoice(int $dashboardId, ?string $widgetId): ?JSONResponse {
 		if (self::isBlankId(id: $widgetId) === true) {
-			return ResponseHelper::error(
+			return $this->context->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: widgetId'
 				),
@@ -325,7 +362,7 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($this->mayAddWidget(dashboardId: $dashboardId, widgetId: (string)$widgetId) === false) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		return null;
@@ -355,14 +392,16 @@ class WidgetApiController extends Controller {
 	 * @param string $widgetId    The widget type ID.
 	 *
 	 * @return bool True when both permit it.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayAddWidget(int $dashboardId, string $widgetId): bool {
-		return $this->permissionService->canAddWidget(
-			userId: $this->userId,
+		return $this->access->permissionService->canAddWidget(
+			userId: $this->context->userId,
 			dashboardId: $dashboardId
 		) !== false
-			&& $this->policy->roleFeaturePerm->isWidgetAllowed(
-				userId: $this->userId,
+			&& $this->access->policy->roleFeaturePerm->isWidgetAllowed(
+				userId: $this->context->userId,
 				widgetId: $widgetId
 			) !== false;
 	}//end mayAddWidget()
@@ -384,18 +423,19 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyAcknowledgementChange(int $placementId): ?JSONResponse {
 		if ($this->touchesAcknowledgement() === false) {
 			return null;
 		}
 
-		if ($this->permissionService->canManageAcknowledgement(
-			userId: (string)$this->userId,
+		if ($this->access->permissionService->canManageAcknowledgement(
+			userId: (string)$this->context->userId,
 			placementId: $placementId
 		) === false
 		) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Only an admin or the template owner may set an acknowledgement requirement'
 			);
 		}
@@ -439,6 +479,7 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|NULL The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyContainerDepth(mixed $content): ?JSONResponse {
 		if (is_array($content) === false) {
@@ -454,7 +495,7 @@ class WidgetApiController extends Controller {
 				return $this->containerDepthExceededResponse();
 			}
 
-			return ResponseHelper::error(exception: $depthError);
+			return $this->context->responseHelper->error(exception: $depthError);
 		}
 
 		return null;
@@ -487,23 +528,28 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The created tile placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/widgets/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addTile(int $dashboardId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.add-tile');
+		$this->context->actor->actionAuth->requireAction($user, 'widget.add-tile');
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		if ($this->mayAddTo(dashboardId: $dashboardId) === false) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		return $this->createPlacement(
@@ -517,10 +563,12 @@ class WidgetApiController extends Controller {
 	 * @param int $dashboardId The dashboard ID.
 	 *
 	 * @return bool True when allowed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayAddTo(int $dashboardId): bool {
-		return $this->permissionService->canAddWidget(
-			userId: $this->userId,
+		return $this->access->permissionService->canAddWidget(
+			userId: $this->context->userId,
 			dashboardId: $dashboardId
 		) !== false;
 	}//end mayAddTo()
@@ -556,19 +604,24 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated widget placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function updatePlacement(int $placementId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.update-placement');
+		$this->context->actor->actionAuth->requireAction($user, 'widget.update-placement');
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		$denial = $this->denyPlacementUpdate(placementId: $placementId);
@@ -578,6 +631,10 @@ class WidgetApiController extends Controller {
 
 		try {
 			return $this->updatedPlacement(placementId: $placementId);
+		} catch (CalculatedFieldValidationError | CalculatedFieldCycleError $e) {
+			// A calculated field that does not check is refused before anything is
+			// saved, with the editor's error envelope (widget-calculated-fields, task 25).
+			return new JSONResponse($e->getDetail(), \OCP\AppFramework\Http::STATUS_BAD_REQUEST);
 		} catch (StalePlacementException $e) {
 			// A colleague saved this widget first: refuse, and hand back their
 			// version so the editor can make the change again on top of it.
@@ -589,8 +646,10 @@ class WidgetApiController extends Controller {
 				],
 				\OCP\AppFramework\Http::STATUS_CONFLICT
 			);
+		} catch (InvalidWidgetContentException $e) {
+			return self::invalidContentResponse(exception: $e);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end updatePlacement()
 
@@ -602,10 +661,12 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function denyPlacementUpdate(int $placementId): ?JSONResponse {
 		if ($this->mayStyle(placementId: $placementId) === false) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		$ackDenial = $this->denyAcknowledgementChange(placementId: $placementId);
@@ -627,10 +688,12 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return bool True when allowed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mayStyle(int $placementId): bool {
-		return $this->permissionService->canStyleWidget(
-			userId: $this->userId,
+		return $this->access->permissionService->canStyleWidget(
+			userId: $this->context->userId,
 			placementId: $placementId
 		) !== false;
 	}//end mayStyle()
@@ -641,19 +704,115 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return JSONResponse The updated placement.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function updatedPlacement(int $placementId): JSONResponse {
+		$data     = RequestDataExtractor::extractPlacementData(request: $this->request);
+		$warnings = [];
+		$before   = null;
+		if (isset($data['calculatedFields']) === false && is_array($data['content'] ?? null) === true) {
+			// A source change moves the widget's materialised fields with it, so
+			// its stored fields are checked again against the new source.
+			$before = $this->sources->widgetService->getPlacement(placementId: $placementId);
+			if ($this->sources->calculatedFields->hasServerFields(fields: $before->getCalculatedFieldsArray()) === true) {
+				$data['calculatedFields'] = $before->getCalculatedFieldsArray();
+			}
+		}
+
+		$compiled = null;
+		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
+			$compiled = $this->compiledCalculatedFields(placementId: $placementId, data: $data);
+			$data['calculatedFields'] = $compiled['fields'];
+			$warnings = $compiled['warnings'];
+		}
+
 		$placement = $this->sources->widgetService->updatePlacement(
 			placementId: $placementId,
-			data: RequestDataExtractor::extractPlacementData(
-				request: $this->request
-			)
+			data: $data
 		);
 
-		return ResponseHelper::success(
-			data: $placement->jsonSerialize()
-		);
+		if ($compiled !== null) {
+			// Server-mode fields are written to the source schema once the widget
+			// is persisted (widget-calculated-fields, task 27); when that fails
+			// the widget is saved again with those fields downgraded to client.
+			$written = $this->sources->calculatedFields->materializeForOpenRegister(
+				widget: [
+					'id'               => (string) $placementId,
+					'calculatedFields' => $compiled['fields'],
+					'source'           => CalculatedFieldService::sourceKey(content: $placement->getContentArray()),
+				],
+				previous: $compiled['previous']
+			);
+			$warnings = array_merge($warnings, $written['warnings']);
+			if ($written['changed'] === true) {
+				$placement = $this->sources->widgetService->updatePlacement(
+					placementId: $placementId,
+					data: ['calculatedFields' => $written['fields']]
+				);
+			}
+		}
+
+		$body = $placement->jsonSerialize();
+		if ($warnings !== []) {
+			// A server-mode field that had to be downgraded (REQ-CALC-007).
+			$body['warnings'] = $warnings;
+		}
+
+		return $this->context->responseHelper->success(data: $body);
 	}//end updatedPlacement()
+
+	/**
+	 * Validate a placement's new calculated fields against its dashboard and
+	 * answer them with their `returnType` set, server-mode fields that read
+	 * another source downgraded to client mode with a warning.
+	 *
+	 * A placement is created without calculated fields; they arrive through
+	 * this update, so this is where they are checked before persisting.
+	 *
+	 * @param int                $placementId The placement ID.
+	 * @param array<string,mixed> $data       The update: its `calculatedFields`, and its `content` when it
+	 *                                        changes the placement's source.
+	 *
+	 * @return array{fields: list<array<string,mixed>>, warnings: list<array<string,string>>, previous: array<string,mixed>}
+	 *         The fields to store, the warnings, and the placement's `source` and `calculatedFields` before this save.
+	 *
+	 * @throws CalculatedFieldValidationError When a field is malformed or does not type-check.
+	 * @throws CalculatedFieldCycleError      When the dashboard's fields form a cycle.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-24
+	 */
+	private function compiledCalculatedFields(int $placementId, array $data): array {
+		$current     = $this->sources->widgetService->getPlacement(placementId: $placementId);
+		$dashboardId = $current->getDashboardId();
+		$others      = [];
+		$keys        = [];
+		foreach ($this->sources->widgetService->getDashboardPlacements(dashboardId: $dashboardId) as $placement) {
+			$others[] = ['id' => (string) $placement->getId(), 'calculatedFields' => $placement->getCalculatedFieldsArray()];
+			$keys[(string) $placement->getId()] = CalculatedFieldService::sourceKey(content: $placement->getContentArray());
+		}
+
+		if (is_array($data['content'] ?? null) === true) {
+			$keys[(string) $placementId] = CalculatedFieldService::sourceKey(content: $data['content']);
+		}
+
+		$result = $this->sources->calculatedFields->validateAndCompile(
+			widget: ['id' => (string) $placementId, 'calculatedFields' => $data['calculatedFields']],
+			others: $others,
+			options: ['sources' => $keys]
+		);
+
+		$planned = $this->sources->calculatedFields->planServerFields(id: (string) $placementId, fields: $result['fields']);
+
+		return [
+			'fields'   => $planned['fields'],
+			'warnings' => array_merge($result['warnings'], $planned['warnings']),
+			'previous' => [
+				'source'           => CalculatedFieldService::sourceKey(content: $current->getContentArray()),
+				'calculatedFields' => $current->getCalculatedFieldsArray(),
+			],
+		];
+	}//end compiledCalculatedFields()
 
 	/**
 	 * Remove a widget placement.
@@ -662,37 +821,60 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The removal confirmation.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function removePlacement(int $placementId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.remove-placement');
+		$this->context->actor->actionAuth->requireAction($user, 'widget.remove-placement');
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
-		if ($this->permissionService->canRemoveWidget(
-			userId: $this->userId,
+		if ($this->access->permissionService->canRemoveWidget(
+			userId: $this->context->userId,
 			placementId: $placementId
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
+			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
+			$warnings  = [];
+			if ($this->sources->calculatedFields->hasServerFields(fields: $placement->getCalculatedFieldsArray()) === true) {
+				// The widget's materialised fields leave its source schema with it
+				// (widget-calculated-fields, task 28).
+				$warnings = $this->sources->calculatedFields->cleanupServerFields(
+					widget: [
+						'id'     => (string) $placementId,
+						'source' => CalculatedFieldService::sourceKey(content: $placement->getContentArray()),
+					]
+				);
+			}
+
 			$this->sources->widgetService->removePlacement(
 				placementId: $placementId
 			);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			$body = ['status' => 'ok'];
+			if ($warnings !== []) {
+				$body['warnings'] = $warnings;
+			}
+
+			return $this->context->responseHelper->success(data: $body);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end removePlacement()
 
@@ -709,6 +891,11 @@ class WidgetApiController extends Controller {
 	 * @param integer $placementId Placement entity id.
 	 * @param integer|null $limit Optional caller cap (default 10,
 	 *                            rejected when outside [1, 50]).
+	 *
+	 * @psalm-param int<min, max>|null $limit Unbounded for Nextcloud's
+	 *                            dispatcher, which otherwise answers a
+	 *                            `limit` below 1 with a 500 before the
+	 *                            controller can answer 400.
 	 *
 	 * @return JSONResponse
 	 *
@@ -748,6 +935,8 @@ class WidgetApiController extends Controller {
 	 * @param int $limit       The effective limit.
 	 *
 	 * @return JSONResponse The items, or the refusal.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function newsFor(int $placementId, int $limit): JSONResponse {
 		if ($limit < 1 || $limit > 50) {
@@ -766,7 +955,7 @@ class WidgetApiController extends Controller {
 			limit: $limit
 		);
 
-		return ResponseHelper::success(data: $payload);
+		return $this->context->responseHelper->success(data: $payload);
 	}//end newsFor()
 
 	/**
@@ -841,6 +1030,8 @@ class WidgetApiController extends Controller {
 	 * @param array{start: DateTimeImmutable, end: DateTimeImmutable} $range     The resolved range.
 	 *
 	 * @return JSONResponse The events, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function calendarEventsOf(object $placement, array $range): JSONResponse {
 		$config = $this->extractCalendarConfig(placement: $placement);
@@ -852,10 +1043,10 @@ class WidgetApiController extends Controller {
 				to: $range['end']->format(format: \DATE_ATOM)
 			);
 		} catch (\Exception $exception) {
-			return ResponseHelper::error(exception: $exception);
+			return $this->context->responseHelper->error(exception: $exception);
 		}
 
-		return ResponseHelper::success(data: $result);
+		return $this->context->responseHelper->success(data: $result);
 	}//end calendarEventsOf()
 
 	/**
@@ -913,28 +1104,29 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse The user's calendars, or 401 when unauthenticated.
 	 *
 	 * @spec openspec/specs/calendar-widget/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function calendars(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null || $this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$user = $this->context->actor->userSession->getUser();
+		if ($user === null || $this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
-			$this->actor->actionAuth->requireAction($user, 'widget.calendar-events');
+			$this->context->actor->actionAuth->requireAction($user, 'widget.calendar-events');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
 		}
 
 		try {
-			$calendars = $this->sources->calendarService->listCalendars(userId: $this->userId);
+			$calendars = $this->sources->calendarService->listCalendars(userId: $this->context->userId);
 		} catch (\Exception $exception) {
-			return ResponseHelper::error(exception: $exception);
+			return $this->context->responseHelper->error(exception: $exception);
 		}
 
-		return ResponseHelper::success(data: ['calendars' => $calendars]);
+		return $this->context->responseHelper->success(data: ['calendars' => $calendars]);
 	}//end calendars()
 
 	/**
@@ -1027,19 +1219,21 @@ class WidgetApiController extends Controller {
 	 * @param string $action The action identifier to require.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		$user = $this->actor->userSession->getUser();
+		$user = $this->context->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
-			$this->actor->actionAuth->requireAction($user, $action);
+			$this->context->actor->actionAuth->requireAction($user, $action);
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
@@ -1053,14 +1247,16 @@ class WidgetApiController extends Controller {
 	 * @param int $placementId The placement ID.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function placementViewRefusal(int $placementId): ?JSONResponse {
-		if ($this->permissionService->canViewPlacement(
-			userId: (string)$this->userId,
+		if ($this->access->permissionService->canViewPlacement(
+			userId: (string)$this->context->userId,
 			placementId: $placementId
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		return null;
@@ -1074,20 +1270,22 @@ class WidgetApiController extends Controller {
 	 * @param array<int, mixed> $widgets The requested widget IDs.
 	 *
 	 * @return array<int, mixed> The denied widget IDs, in request order.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function deniedWidgetIds(array $widgets): array {
 		$deniedWidgets = [];
 		foreach ($widgets as $widgetId) {
-			if ($this->policy->roleFeaturePerm->isWidgetAllowed(
-				userId: (string)$this->userId,
+			if ($this->access->policy->roleFeaturePerm->isWidgetAllowed(
+				userId: (string)$this->context->userId,
 				widgetId: (string)$widgetId
 			) === false
 			) {
 				$deniedWidgets[] = $widgetId;
-				$this->policy->logger->warning(
+				$this->access->policy->logger->warning(
 					message: 'role_permission_denied',
 					context: [
-						'userId' => $this->userId,
+						'userId' => $this->context->userId,
 						'widgetId' => $widgetId,
 						'timestamp' => (new DateTimeImmutable())->format(format: DateTimeInterface::ATOM),
 						'reason' => 'role_permission_denied',

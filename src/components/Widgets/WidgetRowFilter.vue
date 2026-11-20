@@ -27,7 +27,7 @@ import { TEXT_PROP } from '../../constants/propDefinitions.js'
  * so the term is never persisted, never shared and gone after a reload, and
  * it never writes to the placement or its saved search.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
  */
 export default {
 	name: 'WidgetRowFilter',

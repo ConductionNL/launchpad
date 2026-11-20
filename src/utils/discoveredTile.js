@@ -6,7 +6,7 @@
  * `GET /api/tiles/discover`) as a tile, and which discovered apps a dashboard
  * already holds.
  *
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
  */
 
 /** An app's own page: `/apps/<id>/`, with or without `/index.php`. */
@@ -31,7 +31,7 @@ function appIdOfHref(href) {
  *
  * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
  * @return {{title: string, icon: string, iconType: string, linkType: string, linkValue: string}} The tile.
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
  */
 export function tileFromDiscoveredApp(app) {
 	const ownPage = appIdOfHref(app.href) === app.appId
@@ -51,7 +51,7 @@ export function tileFromDiscoveredApp(app) {
  * @param {Array<object>} placements The dashboard's widget placements.
  * @param {Array<{appId: string, href: string}>} apps The discovered apps.
  * @return {Array<string>} The app ids on the dashboard.
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
  */
 export function discoveredAppIdsOnDashboard(placements, apps) {
 	const appTiles = new Set()
@@ -66,4 +66,23 @@ export function discoveredAppIdsOnDashboard(placements, apps) {
 	return (apps || [])
 		.filter((app) => appTiles.has(app.appId) || urlTiles.has(app.href))
 		.map((app) => app.appId)
+}
+
+/**
+ * The tile a catalogue entry places: an ordinary tile with the entry's name,
+ * icon and address. Later edits of the entry do not change it
+ * (launcher-app-catalogue D1).
+ *
+ * @param {{name: string, icon?: string, iconType?: string, linkType: string, linkValue: string}} app The catalogue entry.
+ * @return {{title: string, icon: string, iconType: string, linkType: string, linkValue: string}} The tile payload.
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+ */
+export function tileFromCatalogueApp(app) {
+	return {
+		title: app.name,
+		icon: app.icon || '',
+		iconType: app.iconType === 'url' ? 'url' : 'class',
+		linkType: app.linkType === 'app' ? 'app' : 'url',
+		linkValue: app.linkValue,
+	}
 }

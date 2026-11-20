@@ -29,7 +29,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -40,13 +40,14 @@ use DateTimeImmutable;
 use OCA\LaunchPad\Db\PersonalLayer;
 use OCA\LaunchPad\Db\PersonalLayerMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Kernel\Contracts\PersonalLayerServiceInterface;
 
 /**
  * Applies, saves and resets a personal layer.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
-class PersonalLayerService {
+class PersonalLayerService implements PersonalLayerServiceInterface {
 	/**
 	 * The placement keys a person may change about a placement. Anything else
 	 * a client sends is dropped: a layer holds geometry and order, never
@@ -74,7 +75,7 @@ class PersonalLayerService {
 	 * @return array<int, WidgetPlacement> The placements this person sees, in
 	 *         their order. A person with no layer gets the input back.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function applyTo(array $placements, string $userId, int $dashboardId): array {
 		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
@@ -122,24 +123,16 @@ class PersonalLayerService {
 	 * @return array{saved: true}|array{error: string, placementId: int} The
 	 *         refusal names the placement, so the message can say which widget.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function save(string $userId, int $dashboardId, array $overrides, array $hide, array $placements): array {
-		$compulsory = [];
-		$known = [];
-		foreach ($placements as $placement) {
-			$known[] = (int)$placement->getId();
-			if ($this->isCompulsory(placement: $placement) === true) {
-				$compulsory[] = (int)$placement->getId();
-			}
-		}
+		[$known, $compulsory] = $this->knownAndCompulsoryIds(placements: $placements);
 
-		foreach ($hide as $placementId) {
-			if (in_array((int)$placementId, $compulsory, true) === true) {
-				// Refused before anything is written, so a batch that touches
-				// a compulsory widget lands nothing at all.
-				return ['error' => 'placement_compulsory', 'placementId' => (int)$placementId];
-			}
+		$refused = $this->firstCompulsoryHidden(hide: $hide, compulsory: $compulsory);
+		if ($refused !== null) {
+			// Refused before anything is written, so a batch that touches
+			// a compulsory widget lands nothing at all.
+			return ['error' => 'placement_compulsory', 'placementId' => $refused];
 		}
 
 		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
@@ -166,6 +159,45 @@ class PersonalLayerService {
 	}//end save()
 
 	/**
+	 * The ids of the shared placements, and those of the compulsory ones.
+	 *
+	 * @param array<int, WidgetPlacement> $placements The shared placements.
+	 *
+	 * @return array{0: array<int, int>, 1: array<int, int>} Every placement id,
+	 *     and the compulsory placement ids.
+	 */
+	private function knownAndCompulsoryIds(array $placements): array {
+		$compulsory = [];
+		$known = [];
+		foreach ($placements as $placement) {
+			$known[] = (int)$placement->getId();
+			if ($this->isCompulsory(placement: $placement) === true) {
+				$compulsory[] = (int)$placement->getId();
+			}
+		}
+
+		return [$known, $compulsory];
+	}//end knownAndCompulsoryIds()
+
+	/**
+	 * The first placement id asked to be hidden that is compulsory.
+	 *
+	 * @param array<int, int> $hide       The placement ids asked to be hidden.
+	 * @param array<int, int> $compulsory The compulsory placement ids.
+	 *
+	 * @return int|null The refused placement id, or null when none is compulsory.
+	 */
+	private function firstCompulsoryHidden(array $hide, array $compulsory): ?int {
+		foreach ($hide as $placementId) {
+			if (in_array((int)$placementId, $compulsory, true) === true) {
+				return (int)$placementId;
+			}
+		}
+
+		return null;
+	}//end firstCompulsoryHidden()
+
+	/**
 	 * Put the dashboard back to what its owner composed.
 	 *
 	 * @param string $userId The person.
@@ -174,7 +206,7 @@ class PersonalLayerService {
 	 * @return bool True when a layer was there and is now gone. False means
 	 *         there was nothing to reset, which is not a failure.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function reset(string $userId, int $dashboardId): bool {
 		return ($this->layers->deleteForUser(userId: $userId, dashboardId: $dashboardId) > 0);
@@ -208,7 +240,7 @@ class PersonalLayerService {
 	 *
 	 * @return int How many entries were dropped.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function pruneOrphans(string $userId, int $dashboardId, array $liveIds): int {
 		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
@@ -216,20 +248,10 @@ class PersonalLayerService {
 			return 0;
 		}
 
-		$live = array_map('intval', $liveIds);
-		$overrides = $layer->overridesArray();
-		$hidden = $layer->hiddenArray();
+		[$keptOverrides, $keptHidden] = $this->liveEntries(layer: $layer, liveIds: $liveIds);
 
-		$keptOverrides = array_filter(
-			$overrides,
-			static function (int $placementId) use ($live): bool {
-				return in_array($placementId, $live, true);
-			},
-			ARRAY_FILTER_USE_KEY
-		);
-		$keptHidden = array_values(array_intersect($hidden, $live));
-
-		$dropped = ((count($overrides) - count($keptOverrides)) + (count($hidden) - count($keptHidden)));
+		$dropped = ((count($layer->overridesArray()) - count($keptOverrides))
+			+ (count($layer->hiddenArray()) - count($keptHidden)));
 		if ($dropped === 0) {
 			return 0;
 		}
@@ -246,6 +268,55 @@ class PersonalLayerService {
 
 		return $dropped;
 	}//end pruneOrphans()
+
+	/**
+	 * Drop every person's entries for placements that are gone from one dashboard.
+	 *
+	 * Called after a template re-sync removed placements: one re-sync changes the
+	 * dashboard for everybody, so the sweep walks every layer on it.
+	 *
+	 * @param int             $dashboardId The dashboard.
+	 * @param array<int, int> $liveIds     The placement ids that still exist.
+	 *
+	 * @return int How many entries were dropped, over all layers.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function pruneDashboard(int $dashboardId, array $liveIds): int {
+		if ($dashboardId <= 0) {
+			return 0;
+		}
+
+		$dropped = 0;
+		foreach ($this->layers->findByDashboard(dashboardId: $dashboardId) as $layer) {
+			$dropped += $this->pruneOrphans(userId: (string)$layer->getUserId(), dashboardId: $dashboardId, liveIds: $liveIds);
+		}
+
+		return $dropped;
+	}//end pruneDashboard()
+
+	/**
+	 * The layer's overrides and hidden ids that still point at a live placement.
+	 *
+	 * @param PersonalLayer   $layer   The person's layer.
+	 * @param array<int, int> $liveIds The placement ids that still exist.
+	 *
+	 * @return array{0: array<int, array<string, mixed>>, 1: array<int, int>} The
+	 *     kept overrides by placement id, and the kept hidden ids.
+	 */
+	private function liveEntries(PersonalLayer $layer, array $liveIds): array {
+		$live = array_map('intval', $liveIds);
+
+		$keptOverrides = array_filter(
+			$layer->overridesArray(),
+			static function (int $placementId) use ($live): bool {
+				return in_array($placementId, $live, true);
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		return [$keptOverrides, array_values(array_intersect($layer->hiddenArray(), $live))];
+	}//end liveEntries()
 
 	/**
 	 * The person's layer, or null.

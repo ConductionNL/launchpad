@@ -697,8 +697,11 @@ final class CalculatedFieldFunctions {
 			return 0;
 		}
 
-		if (is_string($value) === true && trim($value) !== '' && is_numeric(trim($value)) === true) {
-			return (trim($value) + 0);
+		if (is_string($value) === true) {
+			$trimmed = trim($value);
+			if ($trimmed !== '' && is_numeric($trimmed) === true) {
+				return ($trimmed + 0);
+			}
 		}
 
 		throw new EvaluationError('cannot convert to a number');

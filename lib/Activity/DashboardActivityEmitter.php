@@ -141,7 +141,22 @@ class DashboardActivityEmitter {
 	 * @return int The number of activity rows written.
 	 */
 	private function toAudience(string $type, Dashboard $dashboard, string $actor, ?array $shares=null): int {
-		$row   = new ActivityRow(type: $type, actorUserId: $actor, dashboard: $this->subjectOf(dashboard: $dashboard));
+		$row = new ActivityRow(type: $type, actorUserId: $actor, dashboard: $this->subjectOf(dashboard: $dashboard));
+
+		return $this->toGroups(row: $row, dashboard: $dashboard)
+			+ $this->toShares(row: $row, shares: ($shares ?? $this->shares(dashboard: $dashboard)));
+	}//end toAudience()
+
+	/**
+	 * Publish a row to every group the dashboard is assigned to; the
+	 * default group publishes globally.
+	 *
+	 * @param ActivityRow $row       The activity row.
+	 * @param Dashboard   $dashboard The dashboard.
+	 *
+	 * @return int The number of activity rows written.
+	 */
+	private function toGroups(ActivityRow $row, Dashboard $dashboard): int {
 		$count = 0;
 
 		foreach ($this->groups(dashboard: $dashboard) as $groupId) {
@@ -157,8 +172,22 @@ class DashboardActivityEmitter {
 			);
 		}//end foreach
 
+		return $count;
+	}//end toGroups()
+
+	/**
+	 * Publish a row to the dashboard's share recipients: group shares per
+	 * group, user shares in one recipient batch.
+	 *
+	 * @param ActivityRow      $row    The activity row.
+	 * @param DashboardShare[] $shares The dashboard's shares.
+	 *
+	 * @return int The number of activity rows written.
+	 */
+	private function toShares(ActivityRow $row, array $shares): int {
+		$count = 0;
 		$users = [];
-		foreach (($shares ?? $this->shares(dashboard: $dashboard)) as $share) {
+		foreach ($shares as $share) {
 			if ($share->getShareType() === DashboardShare::SHARE_TYPE_GROUP) {
 				$count += $this->guard(
 					step: fn (): int => $this->publisher->publishToGroup(
@@ -179,7 +208,7 @@ class DashboardActivityEmitter {
 		}
 
 		return $count;
-	}//end toAudience()
+	}//end toShares()
 
 	/**
 	 * The activity subject for a dashboard: its UUID and name, no link.
@@ -189,7 +218,13 @@ class DashboardActivityEmitter {
 	 * @return ActivitySubject The subject.
 	 */
 	private function subjectOf(Dashboard $dashboard): ActivitySubject {
-		return new ActivitySubject(uuid: (string) $dashboard->getUuid(), name: (string) $dashboard->getName());
+		$uuid = (string) $dashboard->getUuid();
+
+		return new ActivitySubject(
+			uuid: $uuid,
+			name: (string) $dashboard->getName(),
+			link: $this->publisher->dashboardLink(uuid: $uuid)
+		);
 	}//end subjectOf()
 
 	/**

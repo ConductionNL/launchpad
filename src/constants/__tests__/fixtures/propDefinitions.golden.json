@@ -131,6 +131,38 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/RuntimeShellSearch.vue | shortcuts": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/ScheduledExports/ExportOptionFields.vue | fields": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/ScheduledExports/ExportOptionFields.vue | values": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/ScheduledExports/ExportRunHistory.vue | exportData": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/ScheduledExports/ExportStatus.vue | status": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/TileWidget.vue | tile": {
 		"type": "Object",
 		"required": true,
@@ -168,6 +200,18 @@
 		"required": false,
 		"validator": false,
 		"default": 60
+	},
+	"../../components/TileWidget.vue | linkTarget": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/TileWidget.vue | defaultLinkTarget": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../components/WidgetRenderer.vue | widget": {
 		"type": "Object",
@@ -230,6 +274,28 @@
 		"required": false,
 		"validator": false,
 		"default": [],
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ActivityReportWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"days": 30
+		},
 		"fresh": true
 	},
 	"../../components/Widgets/Renderers/AiAssistantWidget.vue | content": {
@@ -357,6 +423,59 @@
 			"hourFormat": "auto",
 			"timezone": "",
 			"showDate": true
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"limit": 10,
+			"days": 7
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"title": "",
+			"onlyPinned": false
 		},
 		"fresh": true
 	},
@@ -610,6 +729,26 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/StatusReportWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/StatusReportWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/StatusReportWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/TileHost.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -720,6 +859,13 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Workspace/CoEditorsBanner.vue | editors": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/Workspace/DashboardBreadcrumb.vue | dashboard": {
 		"type": "Object",
 		"required": false,
@@ -731,6 +877,81 @@
 		"required": false,
 		"validator": false,
 		"default": null
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | source": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "user"
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | userDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | groupDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | sharedDashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | defaultUuid": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canShare": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canManagePublication": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canViewHistory": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canViewReadReceipts": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardMoreMenu.vue | isEditMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
@@ -793,6 +1014,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardRowActions.vue | canScheduleExports": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardRowActions.vue | buttonType": {
 		"type": "String",
 		"required": false,
@@ -804,6 +1031,38 @@
 		"required": false,
 		"validator": false,
 		"default": 18
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | dashboardId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | userId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | clauses": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardSavedViews.vue | api": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
 	},
 	"../../components/Workspace/DashboardSwitcherSidebar.vue | filterFields": {
 		"type": "Array",
@@ -922,6 +1181,26 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/Workspace/SavedViewsMenu.vue | mine": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | shared": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/SavedViewsMenu.vue | canSave": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,
@@ -999,6 +1278,13 @@
 		"required": false,
 		"validator": false,
 		"default": "30d"
+	},
+	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
 	},
 	"../../components/admin/tabs/OrgNavigationTab.vue | groups": {
 		"type": "Array",
@@ -1173,6 +1459,17 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../modals/BookmarkImportModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/BookmarkImportModal.vue | importBookmarks": {
+		"type": "Function",
+		"required": true,
+		"validator": false
+	},
 	"../../modals/DashboardConfigModal.vue | open": {
 		"type": "Boolean",
 		"required": false,
@@ -1222,6 +1519,17 @@
 		"validator": true,
 		"default": "general"
 	},
+	"../../modals/PreviewModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/PreviewModal.vue | exportData": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../modals/RolePermissionEditorModal.vue | row": {
 		"type": "Object",
 		"required": true,
@@ -1244,6 +1552,83 @@
 		"required": false,
 		"validator": false,
 		"default": false
+	},
+	"../../modals/RunDetailModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/RunDetailModal.vue | exportData": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/RunDetailModal.vue | run": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/SaveViewModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/SaveViewModal.vue | view": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/SaveViewModal.vue | error": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/ScheduledExportModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/ScheduledExportModal.vue | exportData": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/ScheduledExportModal.vue | subjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/ScheduledExportModal.vue | defaultSubject": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/ScheduledExportsModal.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../modals/ScheduledExportsModal.vue | subjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/ScheduledExportsModal.vue | defaultSubject": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/TemplateEditorModal.vue | open": {
 		"type": "Boolean",
@@ -1377,6 +1762,19 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../modals/WidgetPickerModal.vue | catalogueApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | requestAppFn": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../views/DashboardPublicShareView.vue | token": {
 		"type": "String",
 		"required": true,
@@ -1392,5 +1790,96 @@
 		"type": "String",
 		"required": true,
 		"validator": false
+	},
+	"../../components/PublicDashboardGrid.vue | embedContext": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Workspace/DashboardRowActions.vue | canEmbed": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | token": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | dashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | themes": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | defaults": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | saving": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/admin/embed/EmbedTokenManager.vue | defaults": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedUsageReport.vue | tokenId": {
+		"type": "String",
+		"required": true,
+		"validator": false
+	},
+	"../../components/admin/embed/EmbedUsageReport.vue | tokenName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | tokenCount": {
+		"type": "Number",
+		"required": false,
+		"validator": false,
+		"default": 0
+	},
+	"../../dialogs/RevokeEmbedTokenDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/RevokeEmbedTokenDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
 	}
 }

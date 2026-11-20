@@ -23,11 +23,14 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\StalePlacementException;
+use OCP\IDBConnection;
+use Throwable;
 
 /**
  * Service for managing widget placement CRUD operations.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementService {
 	/**
@@ -53,6 +56,8 @@ class PlacementService {
 	 *                                              working — when absent no quota is enforced.
 	 * @param DashboardMapper|null    $dashboardMapper Reads the dashboard's grid width for a new widget's free spot.
 	 * @param FreeSpotFinder          $freeSpots The free-spot search for a new widget.
+	 * @param IDBConnection|null      $db           Wraps a bookmark import in one transaction
+	 *                                              (launcher-bookmark-import REQ-BMI-003).
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
@@ -61,6 +66,7 @@ class PlacementService {
 		private readonly ?QuotaService $quotaService = null,
 		private readonly ?DashboardMapper $dashboardMapper = null,
 		private readonly FreeSpotFinder $freeSpots = new FreeSpotFinder(),
+		private readonly ?IDBConnection $db = null,
 	) {
 	}//end __construct()
 
@@ -108,7 +114,7 @@ class PlacementService {
 		$placement->setShowTitle(1);
 
 		if ($layout['content'] !== null) {
-			$placement->setContentArray($layout['content']);
+			$placement->setContentArray(VideoContent::forWidget(widgetId: $widgetId, content: $layout['content']));
 		}
 
 		$placement->setCreatedAt($now);
@@ -230,7 +236,7 @@ class PlacementService {
 	 *
 	 * @throws StalePlacementException When the change was made on an older version.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	private function nextVersion(WidgetPlacement $placement, array $data): int {
 		if (array_key_exists('version', $data) === false || is_numeric($data['version']) === false) {
@@ -254,7 +260,7 @@ class PlacementService {
 	 *
 	 * @return array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	private function freeSpot(int $dashboardId, array $wanted): array {
 		$occupied = array_map(
@@ -342,4 +348,89 @@ class PlacementService {
 			dashboardId: $dashboardId
 		);
 	}//end getDashboardPlacements()
+
+	/**
+	 * Create the placements of a bookmark import: the dashboard quota is
+	 * checked once for the whole import before anything is written, and every
+	 * placement is created in one transaction, so a failure leaves nothing
+	 * behind (launcher-bookmark-import REQ-BMI-001, REQ-BMI-003). Everything
+	 * goes below the dashboard's lowest edge (bottom-append).
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return list<WidgetPlacement> The created placements, containers first.
+	 *
+	 * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the import does not fit the quota.
+	 * @throws Throwable When a write fails; the transaction is rolled back first.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-the-import-respects-the-widget-quota-as-one-operation-req-bmi-003
+	 */
+	public function importBookmarks(int $dashboardId, BookmarkImportPlan $plan): array {
+		$this->publicShareContext?->requireMutable();
+		$this->quotaService?->assertCanAddPlacements(dashboardId: $dashboardId, count: $plan->placementCount());
+
+		$bottom = 0;
+		foreach ($this->getDashboardPlacements(dashboardId: $dashboardId) as $existing) {
+			$bottom = max($bottom, ((int)$existing->getGridY() + (int)$existing->getGridHeight()));
+		}
+
+		$this->db?->beginTransaction();
+		try {
+			$created = [];
+			foreach ($plan->layout(bottom: $bottom) as $spec) {
+				$created[] = $this->placementMapper->insert(entity: $this->importedPlacement(dashboardId: $dashboardId, spec: $spec));
+			}
+
+			$this->db?->commit();
+		} catch (Throwable $e) {
+			$this->db?->rollBack();
+			throw $e;
+		}
+
+		return $created;
+	}//end importBookmarks()
+
+	/**
+	 * One placement of an import: a container with its link children, or a
+	 * tile opening the bookmark in a new tab.
+	 *
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $spec        One entry of {@see BookmarkImportPlan::layout()}.
+	 *
+	 * @return WidgetPlacement
+	 */
+	private function importedPlacement(int $dashboardId, array $spec): WidgetPlacement {
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$placement = new WidgetPlacement();
+		$placement->setDashboardId($dashboardId);
+		$placement->setGridX($spec['gridX']);
+		$placement->setGridY($spec['gridY']);
+		$placement->setGridWidth($spec['gridWidth']);
+		$placement->setGridHeight($spec['gridHeight']);
+		$placement->setIsCompulsory(0);
+		$placement->setIsVisible(1);
+		$placement->setShowTitle(1);
+		$placement->setCreatedAt($now);
+		$placement->setUpdatedAt($now);
+
+		if (isset($spec['tile']) === true) {
+			$placement->setWidgetId('tile-' . uniqid());
+			$this->updaters->tileUpdater->applyTileConfig(
+				placement: $placement,
+				tileData: [
+					'title' => $spec['tile']['title'],
+					'linkType' => 'url',
+					'linkVal' => $spec['tile']['url'],
+					'icon' => 'icon-link',
+					'iconType' => 'class',
+				]
+			);
+			return $placement;
+		}
+
+		$placement->setWidgetId((string)$spec['widgetId']);
+		$placement->setContentArray($spec['content']);
+		return $placement;
+	}//end importedPlacement()
 }//end class

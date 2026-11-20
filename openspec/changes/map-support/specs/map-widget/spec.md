@@ -4,7 +4,7 @@
 
 ### Requirement: REQ-MAP-001 A map widget shows register objects that carry a location
 
-LaunchPad SHALL offer a `map` widget type that renders the GeoJSON geometry of OpenRegister objects (points, lines, polygons and multi-geometries) on a PDOK BRT base map, fetched through OpenRegister's spatial-query API.
+LaunchPad SHALL offer a `map` widget type that renders the GeoJSON geometry of OpenRegister objects (points, lines, polygons and multi-geometries) on a PDOK BRT base map, fetched through OpenRegister's spatial-query API. The map SHALL be nextcloud-vue's shared `CnMapWidget`, registered as the communal `map` type; LaunchPad SHALL NOT ship a map widget or map library of its own, and new configuration keys SHALL be optional so the content existing map widgets store keeps rendering.
 
 #### Scenario: Objects with a location appear on the map
 

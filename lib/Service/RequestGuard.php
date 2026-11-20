@@ -45,10 +45,12 @@ class RequestGuard {
 	 * @param IUserSession      $userSession  The session of the request.
 	 * @param IGroupManager     $groupManager Answers whether a user is an administrator.
 	 * @param ActionAuthService $actionAuth   Answers whether an action is granted to a user.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		public readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
+		public readonly IGroupManager $groupManager,
 		private readonly ActionAuthService $actionAuth,
 	) {
 	}//end __construct()

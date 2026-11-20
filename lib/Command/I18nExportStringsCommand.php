@@ -34,7 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IUserSession;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -64,12 +64,12 @@ class I18nExportStringsCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param string|null $appRoot The app's own folder; null resolves it from this file.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly ?string $appRoot = null,
 	) {
@@ -128,7 +128,7 @@ class I18nExportStringsCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				error: ['exitCode' => CommandService::EXIT_ERROR, 'code' => 'INTERNAL_ERROR', 'message' => 'Could not resolve app root directory.']
+				error: ['exitCode' => CommandServiceInterface::EXIT_ERROR, 'code' => 'INTERNAL_ERROR', 'message' => 'Could not resolve app root directory.']
 			);
 		}
 
@@ -137,7 +137,7 @@ class I18nExportStringsCommand extends CommandBase {
 		$target = $input->getOption(name: 'output');
 		if ($target === '-') {
 			$output->write(messages: $pot, options: OutputInterface::OUTPUT_RAW);
-			return CommandService::EXIT_SUCCESS;
+			return CommandServiceInterface::EXIT_SUCCESS;
 		}
 
 		$target = $this->targetPath(target: $target, appRoot: $appRoot);
@@ -154,7 +154,7 @@ class I18nExportStringsCommand extends CommandBase {
 			human: 'Wrote ' . count(value: $strings) . ' strings to ' . $target
 		);
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end handle()
 
 	/**
@@ -164,7 +164,7 @@ class I18nExportStringsCommand extends CommandBase {
 	 */
 	private static function signedReleaseError(): array {
 		return [
-			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS,
 			'code'     => 'SIGNED_RELEASE',
 			'message'  => 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
 				. 'the new file as a code integrity problem. Pass --output=<path> outside it, or --output=- to print the file.',

@@ -30,6 +30,34 @@ use PHPUnit\Framework\TestCase;
 
 class InitialStateBuilderTest extends TestCase {
 	/**
+	 * REQ-SPX-002: the search shortcuts reach the workspace page.
+	 *
+	 * @return void
+	 */
+	public function testSearchShortcutsReachTheWorkspace(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$shortcuts = [['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://topdesk.example.nl/?q={query}']];
+
+		(new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('g')
+			->setPrimaryGroupName('G')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->setSearchShortcuts($shortcuts)
+			->apply();
+
+		$this->assertSame($shortcuts, $sink['searchShortcuts']);
+	}//end testSearchShortcutsReachTheWorkspace()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject
@@ -105,6 +133,8 @@ class InitialStateBuilderTest extends TestCase {
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
 			->setStartPageWithoutNavigation(true)
+			->setOnOfficeNetwork(true)
+			->setCustomCss(".launchpad-workspace p {\n  margin: 0;\n}")
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -119,6 +149,70 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertTrue($sink['allowUserDashboards']);
 		// runtime-shell REQ-SHELL-009, an optional key: pushed when set.
 		$this->assertTrue($sink['startPageWithoutNavigation']);
+		// launcher-tile-internal-address REQ-TIA-003, an optional key: pushed when set.
+		$this->assertTrue($sink['onOfficeNetwork']);
+		// REQ-THM-003, an optional key: the stored administrator CSS.
+		$this->assertSame(".launchpad-workspace p {\n  margin: 0;\n}", $sink['customCss']);
+	}
+
+	/**
+	 * The viewer's Nextcloud timezone is an optional workspace key, pushed only
+	 * when set (REQ-CLOCK-002).
+	 *
+	 * @return void
+	 */
+	public function testTheUserTimezoneIsPushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)->setUserTimezone('Asia/Tokyo')->apply();
+		$this->assertSame('Asia/Tokyo', $sink['userTimezone']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('userTimezone', $bare);
+	}//end testTheUserTimezoneIsPushedOnlyWhenSet()
+
+	/**
+	 * Engagement-communities: whether Talk is enabled and the pinned tokens are
+	 * optional workspace keys, pushed only when set (REQ-COMM-003, REQ-COMM-004).
+	 *
+	 * @return void
+	 */
+	public function testTalkAndPinnedCommunitiesArePushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)
+			->setTalkEnabled(true)
+			->setPinnedCommunities([2 => 'vraagict', 5 => 'duurzaam42'])
+			->apply();
+
+		$this->assertTrue($sink['talkEnabled']);
+		$this->assertSame(['vraagict', 'duurzaam42'], $sink['pinnedCommunities']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('talkEnabled', $bare);
+		$this->assertArrayNotHasKey('pinnedCommunities', $bare);
+	}
+
+	/**
+	 * A workspace builder with every required key set, writing into the sink.
+	 *
+	 * @param array $sink The recorded state.
+	 *
+	 * @return InitialStateBuilder
+	 */
+	private function workspaceBuilder(array &$sink): InitialStateBuilder {
+		return (new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('default')
+			->setPrimaryGroupName('')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null);
 	}
 
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {
@@ -147,7 +241,7 @@ class InitialStateBuilderTest extends TestCase {
 	/**
 	 * The tile editor gets the allowed schemes and the template names, never the template addresses.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 	 */
 	public function testTileLaunchOptionsLeaveTheTemplateAddressesOut(): void {
 		$sink = [];

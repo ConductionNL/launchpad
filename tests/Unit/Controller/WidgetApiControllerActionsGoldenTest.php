@@ -33,6 +33,7 @@ use OCA\LaunchPad\Controller\WidgetApiController;
 use OCA\LaunchPad\Controller\WidgetApiPolicy;
 use OCA\LaunchPad\Controller\WidgetApiSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -49,6 +50,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -81,12 +87,18 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		$session->method('getUser')->willReturn($this->createMock(IUser::class));
 
 		return new WidgetApiController(
-			$this->request,
-			new WidgetApiSources($this->widgetService, $this->newsService, $this->calendarService, $this->placementService),
-			$this->permissionService,
-			new WidgetApiPolicy($this->roleFeaturePerm, $this->createMock(LoggerInterface::class)),
-			new RequestActor($session, $this->createMock(ActionAuthService::class)),
-			$userId,
+			request: $this->request,
+			sources: new WidgetApiSources($this->widgetService, $this->newsService, $this->calendarService, $this->placementService),
+			access: new WidgetApiAccess(permissionService: $this->permissionService, policy: new WidgetApiPolicy(
+				$this->roleFeaturePerm,
+				$this->createMock(originalClassName: LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				$session,
+				$this->createMock(originalClassName: ActionAuthService::class)
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 
@@ -183,6 +195,22 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		], array_slice($calls, 0, 2));
 		$this->assertSame(409, $full->getStatus());
 		$this->assertSame([400, ['error' => 'Operation failed']], $this->outcome($boom));
+	}
+
+	/**
+	 * Content that breaks its widget type's rules answers 400 with the rule, on create and on update.
+	 */
+	public function testInvalidWidgetContentAnswersTheRuleItBroke(): void {
+		$this->permissionService->method('canAddWidget')->willReturn(true);
+		$this->permissionService->method('canStyleWidget')->willReturn(true);
+		$this->roleFeaturePerm->method('isWidgetAllowed')->willReturn(true);
+		$refusal = new InvalidWidgetContentException('Menu items can nest at most 3 levels deep');
+		$this->widgetService->method('addWidget')->willThrowException($refusal);
+		$this->widgetService->method('updatePlacement')->willThrowException($refusal);
+
+		$expected = [400, ['error' => 'Menu items can nest at most 3 levels deep']];
+		$this->assertSame($expected, $this->outcome($this->controller()->addWidget(3, 'menu')));
+		$this->assertSame($expected, $this->outcome($this->controller()->updatePlacement(placementId: 9)));
 	}
 
 	public function testAddTileOutcomes(): void {

@@ -16,7 +16,8 @@
  *  - Footer:               FOOTER_ENABLED, FOOTER_HTML, FOOTER_CONFIG,
  *                          FOOTER_BACKGROUND_COLOR, FOOTER_TEXT_COLOR
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE
- *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search)
+ *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
+ *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
  *
  * @category Db
  * @package  OCA\LaunchPad\Db
@@ -65,9 +66,17 @@ enum AdminSettingKey: string {
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
+	case SEARCH_SHORTCUTS = 'search_shortcuts';
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 	case PUBLIC_START_ENABLED = 'public_start_enabled';
 	case PUBLIC_START_SHARE_TOKEN = 'public_start_share_token';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
+	case CUSTOM_CSS = 'custom_css';
+	// Drill-down-cross-widget-filter REQ-CWF-010: org-level opt-in for filter telemetry, off by default.
+	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
+	case OFFICE_NETWORKS = 'office_networks';
+	case PINNED_COMMUNITIES = 'pinned_communities';
+	// REQ-PSP-003: LaunchPad is the default app after sign-in unless switched off; on by default.
+	case DEFAULT_APP_ENABLED = 'default_app_enabled';
 }//end enum

@@ -59,6 +59,10 @@ const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 const SCAN = `${API}/admin/cleanup/scan`
 const PURGE = `${API}/admin/cleanup/purge`
 const STAMP = `E2E Cleanup ${Date.now()}`
+/** What Nextcloud answers a non-admin on an `AuthorizedAdminSetting` route. */
+const NOT_ADMIN = 'Logged in account must be an admin, a sub admin or gotten special right to access this setting'
+/** What Nextcloud answers a request without a session. */
+const NOT_LOGGED_IN = 'Current user is not logged in'
 
 /** The four shipped categories, in registration order (CategoryRegistryService). */
 const SHIPPED = [
@@ -222,10 +226,11 @@ test.describe('orphaned-data cleanup API', () => {
 		expect(after.cachedAt).toBe(first.scannedAt)
 	})
 
-	test('an ordinary signed-in user is refused the scan with 403', async () => {
+	test('an ordinary signed-in user is refused the scan with Nextcloud\'s 403', async () => {
 		// @e2e orphaned-data-cleanup::non-admin-user-is-denied-access
 		const refused = await member!.api.get(SCAN)
 		expect(refused.status(), await refused.text()).toBe(403)
+		expect(await refused.json()).toEqual({ message: NOT_ADMIN })
 
 		// The admin, on the same endpoint, is served.
 		const allowed = await admin.get(SCAN)
@@ -233,7 +238,7 @@ test.describe('orphaned-data cleanup API', () => {
 		expect(Object.keys((await allowed.json()).byCategory)).toEqual(SHIPPED)
 	})
 
-	test('an unauthenticated caller is refused the scan with 403', async () => {
+	test('an unauthenticated caller is refused the scan with Nextcloud\'s 401', async () => {
 		// @e2e orphaned-data-cleanup::non-admin-user-is-denied-access
 		const anon = await request.newContext({
 			baseURL: BASE_URL,
@@ -245,13 +250,14 @@ test.describe('orphaned-data cleanup API', () => {
 		})
 		try {
 			const refused = await anon.get(SCAN)
-			expect(refused.status(), await refused.text()).toBe(403)
+			expect(refused.status(), await refused.text()).toBe(401)
+			expect(await refused.json()).toEqual({ message: NOT_LOGGED_IN })
 		} finally {
 			await anon.dispose()
 		}
 	})
 
-	test('an ordinary signed-in user is refused the purge with 403 and nothing is purged', async () => {
+	test('an ordinary signed-in user is refused the purge with Nextcloud\'s 403 and nothing is purged', async () => {
 		// @e2e orphaned-data-cleanup::non-admin-user-is-denied-access
 		await forceEmptyCache()
 		const primed = await scan()
@@ -261,6 +267,7 @@ test.describe('orphaned-data cleanup API', () => {
 			data: { categories: [], dryRun: false },
 		})
 		expect(refused.status(), await refused.text()).toBe(403)
+		expect(await refused.json()).toEqual({ message: NOT_ADMIN })
 
 		// A purge that ran would have emptied the cache; it is still the same entry.
 		const reread = await scan()

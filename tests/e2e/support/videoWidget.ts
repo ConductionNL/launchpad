@@ -265,11 +265,12 @@ export async function addVideoByUrl(
  * @return the switch (click it to toggle) and its input (to read its state).
  */
 export function switchIn(dialog: Locator, label: string): { toggle: Locator, input: Locator } {
-	const toggle = dialog
+	const root = dialog
 		.locator('.cn-video-form .checkbox-radio-switch')
 		.filter({ hasText: new RegExp(`^\\s*${label}\\s*$`) })
 		.first()
-	return { toggle, input: toggle.locator('input').first() }
+	// The root spans the form's width; only its label toggles the switch.
+	return { toggle: root.locator('.checkbox-radio-switch__content').first(), input: root.locator('input').first() }
 }
 
 /**

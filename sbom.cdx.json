@@ -106,48 +106,10 @@
   "components": [
     {
       "type": "library",
-      "name": "code-frame",
-      "group": "@babel",
-      "version": "7.29.7",
-      "bom-ref": "launchpad@1.0.0|@babel/code-frame@7.29.7",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ],
-      "purl": "pkg:npm/%40babel/code-frame@7.29.7",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "02ea7b69439fa5b01483644e38937a230e5ff43301973bb4988926fe66a52d014dfd84203b8f300a3d0ac5adec10726f3d5160eec891faa4489f05dddaa8502b"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/@babel/code-frame"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "helper-string-parser",
       "group": "@babel",
-      "version": "7.29.14",
-      "bom-ref": "launchpad@1.0.0|@babel/helper-string-parser@7.29.14",
+      "version": "8.1.2",
+      "bom-ref": "launchpad@1.0.0|@babel/helper-string-parser@8.1.2",
       "licenses": [
         {
           "license": {
@@ -155,15 +117,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40babel/helper-string-parser@7.29.14",
+      "purl": "pkg:npm/%40babel/helper-string-parser@8.1.2",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.14.tgz",
+          "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-8.1.2.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "097bca305bccf348a123b568c7d8dbfa44239f28c449034f33ebc1ed4d19cfa4d6b9903e67f14bd103cc1f7d34877dea26d231f9111e0615ea58e3d6e3c4dc01"
+              "content": "4d1cf96743207c87d6ab0108abfa42a54a445d0c54b76220d996f11b749d9a149b1cc00515818e8b1d2423824b577ef5fd303ea969d0e315873d68e88e4c9114"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -180,8 +142,8 @@
       "type": "library",
       "name": "helper-validator-identifier",
       "group": "@babel",
-      "version": "7.29.7",
-      "bom-ref": "launchpad@1.0.0|@babel/helper-validator-identifier@7.29.7",
+      "version": "8.0.6",
+      "bom-ref": "launchpad@1.0.0|@babel/helper-validator-identifier@8.0.6",
       "licenses": [
         {
           "license": {
@@ -189,15 +151,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40babel/helper-validator-identifier@7.29.7",
+      "purl": "pkg:npm/%40babel/helper-validator-identifier@8.0.6",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+          "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-8.0.6.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "a9e8711a4463e7987f7dff0431a27e71887268a947231a980e7ebcdb0403ed1369f54ba3390b07a20dae4b4af6bf3af8a56fac5dff7435e79aca370d697ddf16"
+              "content": "1d8c74626b9c851c514a99e3bdc35f7e73d2f0309ab8a3669ee988b871b78e740055ec1103b91f246c05d776b2129499b3bb3847fa011f87a9a6e5dc01077925"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -214,8 +176,8 @@
       "type": "library",
       "name": "parser",
       "group": "@babel",
-      "version": "7.29.14",
-      "bom-ref": "launchpad@1.0.0|@babel/parser@7.29.14",
+      "version": "8.1.2",
+      "bom-ref": "launchpad@1.0.0|@babel/parser@8.1.2",
       "licenses": [
         {
           "license": {
@@ -223,15 +185,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40babel/parser@7.29.14",
+      "purl": "pkg:npm/%40babel/parser@8.1.2",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.14.tgz",
+          "url": "https://registry.npmjs.org/@babel/parser/-/parser-8.1.2.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "54bdb6d2f5eec8edb3deb34843063b7ed8fd530a6a3adfb7dec1feb015a439e91bb1247683b1043273b1db8665087d31380dc333fdf74a27d51466e7243f2bff"
+              "content": "643294eef697d1539177606168efb714aaffdf44ca8db532dd23197327623e782701bf8c7ac814a21e5225c139130132063d7833927a7cae7a1ae06abd898ea7"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -282,8 +244,8 @@
       "type": "library",
       "name": "types",
       "group": "@babel",
-      "version": "7.29.14",
-      "bom-ref": "launchpad@1.0.0|@babel/types@7.29.14",
+      "version": "8.1.2",
+      "bom-ref": "launchpad@1.0.0|@babel/types@8.1.2",
       "licenses": [
         {
           "license": {
@@ -291,15 +253,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40babel/types@7.29.14",
+      "purl": "pkg:npm/%40babel/types@8.1.2",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@babel/types/-/types-7.29.14.tgz",
+          "url": "https://registry.npmjs.org/@babel/types/-/types-8.1.2.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "52323f74a9b02704fda4eb33262b6ad86e8439b64f9ec6547dd0abf76cf64e51771192bd27711d7ce294ac2cc797ac05b616f3c21ce5d52a1cfd4230c518aaeb"
+              "content": "b97b7aaadd9fe46eb58d9c0d2332b544abbb9795e3b75557b4f3ce1ae56f7a16bd7f16f1d1033de14d64338a4564a4d12e358af97f2f9b08f06c87a62638904c"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -1262,10 +1224,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@emnapi/core"
         }
@@ -1301,10 +1259,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@emnapi/runtime"
         }
@@ -1339,10 +1293,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@emnapi/wasi-threads"
@@ -2737,10 +2687,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@napi-rs/wasm-runtime"
         }
@@ -3956,10 +3902,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-android-arm64"
         }
@@ -3994,10 +3936,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-darwin-arm64"
@@ -4034,10 +3972,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-darwin-x64"
         }
@@ -4072,10 +4006,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-freebsd-x64"
@@ -4112,10 +4042,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-linux-arm-glibc"
         }
@@ -4150,10 +4076,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-linux-arm-musl"
@@ -4190,10 +4112,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-linux-arm64-glibc"
         }
@@ -4228,10 +4146,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-linux-arm64-musl"
@@ -4268,10 +4182,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-linux-x64-glibc"
         }
@@ -4306,10 +4216,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-linux-x64-musl"
@@ -4346,10 +4252,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-win32-arm64"
         }
@@ -4384,10 +4286,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher-win32-x64"
@@ -4424,10 +4322,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@parcel/watcher"
         }
@@ -4462,10 +4356,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-android-arm-eabi"
@@ -4502,10 +4392,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-android-arm64"
         }
@@ -4540,10 +4426,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-darwin-arm64"
@@ -4580,10 +4462,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-darwin-x64"
         }
@@ -4618,10 +4496,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-freebsd-x64"
@@ -4658,10 +4532,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-arm-gnueabihf"
         }
@@ -4696,10 +4566,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-arm64-gnu"
@@ -4736,10 +4602,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-arm64-musl"
         }
@@ -4774,10 +4636,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-ppc64-gnu"
@@ -4814,10 +4672,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-s390x-gnu"
         }
@@ -4852,10 +4706,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-x64-gnu"
@@ -4892,10 +4742,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-linux-x64-musl"
         }
@@ -4930,10 +4776,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-openharmony-arm64"
@@ -4970,10 +4812,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-wasm32-wasi"
         }
@@ -5009,10 +4847,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-win32-arm64-msvc"
         }
@@ -5047,10 +4881,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/binding-win32-x64-msvc"
@@ -5434,10 +5264,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@tybys/wasm-util"
@@ -6816,6 +6642,144 @@
           "name": "cdx:npm:package:path",
           "value": "node_modules/@vue/compiler-core"
         }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "parser",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-core@3.5.45|@babel/parser@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/parser@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "54bdb6d2f5eec8edb3deb34843063b7ed8fd530a6a3adfb7dec1feb015a439e91bb1247683b1043273b1db8665087d31380dc333fdf74a27d51466e7243f2bff"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-core/node_modules/@babel/parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "types",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-core@3.5.45|@babel/types@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/types@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/types/-/types-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "52323f74a9b02704fda4eb33262b6ad86e8439b64f9ec6547dd0abf76cf64e51771192bd27711d7ce294ac2cc797ac05b616f3c21ce5d52a1cfd4230c518aaeb"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-core/node_modules/@babel/types"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-string-parser",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-core@3.5.45|@babel/helper-string-parser@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-string-parser@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "097bca305bccf348a123b568c7d8dbfa44239f28c449034f33ebc1ed4d19cfa4d6b9903e67f14bd103cc1f7d34877dea26d231f9111e0615ea58e3d6e3c4dc01"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-core/node_modules/@babel/helper-string-parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-validator-identifier",
+          "group": "@babel",
+          "version": "7.29.7",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-core@3.5.45|@babel/helper-validator-identifier@7.29.7",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-validator-identifier@7.29.7",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "a9e8711a4463e7987f7dff0431a27e71887268a947231a980e7ebcdb0403ed1369f54ba3390b07a20dae4b4af6bf3af8a56fac5dff7435e79aca370d697ddf16"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-core/node_modules/@babel/helper-validator-identifier"
+            }
+          ]
+        }
       ]
     },
     {
@@ -6883,6 +6847,144 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@vue/compiler-sfc"
+        }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "parser",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-sfc@3.5.45|@babel/parser@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/parser@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "54bdb6d2f5eec8edb3deb34843063b7ed8fd530a6a3adfb7dec1feb015a439e91bb1247683b1043273b1db8665087d31380dc333fdf74a27d51466e7243f2bff"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-sfc/node_modules/@babel/parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "types",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-sfc@3.5.45|@babel/types@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/types@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/types/-/types-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "52323f74a9b02704fda4eb33262b6ad86e8439b64f9ec6547dd0abf76cf64e51771192bd27711d7ce294ac2cc797ac05b616f3c21ce5d52a1cfd4230c518aaeb"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-sfc/node_modules/@babel/types"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-string-parser",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-sfc@3.5.45|@babel/helper-string-parser@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-string-parser@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "097bca305bccf348a123b568c7d8dbfa44239f28c449034f33ebc1ed4d19cfa4d6b9903e67f14bd103cc1f7d34877dea26d231f9111e0615ea58e3d6e3c4dc01"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-sfc/node_modules/@babel/helper-string-parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-validator-identifier",
+          "group": "@babel",
+          "version": "7.29.7",
+          "bom-ref": "launchpad@1.0.0|@vue/compiler-sfc@3.5.45|@babel/helper-validator-identifier@7.29.7",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-validator-identifier@7.29.7",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "a9e8711a4463e7987f7dff0431a27e71887268a947231a980e7ebcdb0403ed1369f54ba3390b07a20dae4b4af6bf3af8a56fac5dff7435e79aca370d697ddf16"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue/compiler-sfc/node_modules/@babel/helper-validator-identifier"
+            }
+          ]
         }
       ]
     },
@@ -8380,6 +8482,144 @@
           "name": "cdx:npm:package:path",
           "value": "node_modules/ast-kit"
         }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "parser",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|ast-kit@2.2.0|@babel/parser@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/parser@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "54bdb6d2f5eec8edb3deb34843063b7ed8fd530a6a3adfb7dec1feb015a439e91bb1247683b1043273b1db8665087d31380dc333fdf74a27d51466e7243f2bff"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-kit/node_modules/@babel/parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "types",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|ast-kit@2.2.0|@babel/types@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/types@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/types/-/types-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "52323f74a9b02704fda4eb33262b6ad86e8439b64f9ec6547dd0abf76cf64e51771192bd27711d7ce294ac2cc797ac05b616f3c21ce5d52a1cfd4230c518aaeb"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-kit/node_modules/@babel/types"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-string-parser",
+          "group": "@babel",
+          "version": "7.29.14",
+          "bom-ref": "launchpad@1.0.0|ast-kit@2.2.0|@babel/helper-string-parser@7.29.14",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-string-parser@7.29.14",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.14.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "097bca305bccf348a123b568c7d8dbfa44239f28c449034f33ebc1ed4d19cfa4d6b9903e67f14bd103cc1f7d34877dea26d231f9111e0615ea58e3d6e3c4dc01"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-kit/node_modules/@babel/helper-string-parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-validator-identifier",
+          "group": "@babel",
+          "version": "7.29.7",
+          "bom-ref": "launchpad@1.0.0|ast-kit@2.2.0|@babel/helper-validator-identifier@7.29.7",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-validator-identifier@7.29.7",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "a9e8711a4463e7987f7dff0431a27e71887268a947231a980e7ebcdb0403ed1369f54ba3390b07a20dae4b4af6bf3af8a56fac5dff7435e79aca370d697ddf16"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-kit/node_modules/@babel/helper-validator-identifier"
+            }
+          ]
+        }
       ]
     },
     {
@@ -8417,74 +8657,6 @@
       "components": [
         {
           "type": "library",
-          "name": "parser",
-          "group": "@babel",
-          "version": "8.1.2",
-          "bom-ref": "launchpad@1.0.0|ast-walker-scope@0.10.0|@babel/parser@8.1.2",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/%40babel/parser@8.1.2",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/@babel/parser/-/parser-8.1.2.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "643294eef697d1539177606168efb714aaffdf44ca8db532dd23197327623e782701bf8c7ac814a21e5225c139130132063d7833927a7cae7a1ae06abd898ea7"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/ast-walker-scope/node_modules/@babel/parser"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "types",
-          "group": "@babel",
-          "version": "8.1.2",
-          "bom-ref": "launchpad@1.0.0|ast-walker-scope@0.10.0|@babel/types@8.1.2",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/%40babel/types@8.1.2",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/@babel/types/-/types-8.1.2.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "b97b7aaadd9fe46eb58d9c0d2332b544abbb9795e3b75557b4f3ce1ae56f7a16bd7f16f1d1033de14d64338a4564a4d12e358af97f2f9b08f06c87a62638904c"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/ast-walker-scope/node_modules/@babel/types"
-            }
-          ]
-        },
-        {
-          "type": "library",
           "name": "ast-kit",
           "version": "3.0.1",
           "bom-ref": "launchpad@1.0.0|ast-walker-scope@0.10.0|ast-kit@3.0.1",
@@ -8513,74 +8685,6 @@
             {
               "name": "cdx:npm:package:path",
               "value": "node_modules/ast-walker-scope/node_modules/ast-kit"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "helper-string-parser",
-          "group": "@babel",
-          "version": "8.1.2",
-          "bom-ref": "launchpad@1.0.0|ast-walker-scope@0.10.0|@babel/helper-string-parser@8.1.2",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/%40babel/helper-string-parser@8.1.2",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-8.1.2.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "4d1cf96743207c87d6ab0108abfa42a54a445d0c54b76220d996f11b749d9a149b1cc00515818e8b1d2423824b577ef5fd303ea969d0e315873d68e88e4c9114"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/ast-walker-scope/node_modules/@babel/helper-string-parser"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "helper-validator-identifier",
-          "group": "@babel",
-          "version": "8.0.6",
-          "bom-ref": "launchpad@1.0.0|ast-walker-scope@0.10.0|@babel/helper-validator-identifier@8.0.6",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/%40babel/helper-validator-identifier@8.0.6",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-8.0.6.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "1d8c74626b9c851c514a99e3bdc35f7e73d2f0309ab8a3669ee988b871b78e740055ec1103b91f246c05d776b2129499b3bb3847fa011f87a9a6e5dc01077925"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/ast-walker-scope/node_modules/@babel/helper-validator-identifier"
             }
           ]
         },
@@ -13206,10 +13310,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/fsevents"
         }
@@ -15280,43 +15380,6 @@
     },
     {
       "type": "library",
-      "name": "js-tokens",
-      "version": "4.0.0",
-      "bom-ref": "launchpad@1.0.0|js-tokens@4.0.0",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ],
-      "purl": "pkg:npm/js-tokens@4.0.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "45d2547e5704ddc5332a232a420b02bb4e853eef5474824ed1b7986cf84737893a6a9809b627dca02b53f5b7313a9601b690f690233a49bce0e026aeb16fcf29"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/js-tokens"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "js-yaml",
       "version": "4.3.2",
       "bom-ref": "launchpad@1.0.0|js-yaml@4.3.2",
@@ -15735,10 +15798,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-android-arm64"
         }
@@ -15772,10 +15831,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-darwin-arm64"
@@ -15811,10 +15866,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-darwin-x64"
         }
@@ -15848,10 +15899,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-freebsd-x64"
@@ -15887,10 +15934,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-linux-arm-gnueabihf"
         }
@@ -15924,10 +15967,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-linux-arm64-gnu"
@@ -15963,10 +16002,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-linux-arm64-musl"
         }
@@ -16000,10 +16035,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-linux-x64-gnu"
@@ -16039,10 +16070,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-linux-x64-musl"
         }
@@ -16077,10 +16104,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-win32-arm64-msvc"
         }
@@ -16114,10 +16137,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/lightningcss-win32-x64-msvc"
@@ -18447,10 +18466,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/node-addon-api"
         }
@@ -19012,6 +19027,121 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/parse-json"
+        }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "code-frame",
+          "group": "@babel",
+          "version": "7.29.7",
+          "bom-ref": "launchpad@1.0.0|parse-json@5.2.0|@babel/code-frame@7.29.7",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/code-frame@7.29.7",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "02ea7b69439fa5b01483644e38937a230e5ff43301973bb4988926fe66a52d014dfd84203b8f300a3d0ac5adec10726f3d5160eec891faa4489f05dddaa8502b"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:development",
+              "value": "true"
+            },
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/parse-json/node_modules/@babel/code-frame"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-validator-identifier",
+          "group": "@babel",
+          "version": "7.29.7",
+          "bom-ref": "launchpad@1.0.0|parse-json@5.2.0|@babel/helper-validator-identifier@7.29.7",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-validator-identifier@7.29.7",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "a9e8711a4463e7987f7dff0431a27e71887268a947231a980e7ebcdb0403ed1369f54ba3390b07a20dae4b4af6bf3af8a56fac5dff7435e79aca370d697ddf16"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:development",
+              "value": "true"
+            },
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/parse-json/node_modules/@babel/helper-validator-identifier"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "js-tokens",
+          "version": "4.0.0",
+          "bom-ref": "launchpad@1.0.0|parse-json@5.2.0|js-tokens@4.0.0",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/js-tokens@4.0.0",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "45d2547e5704ddc5332a232a420b02bb4e853eef5474824ed1b7986cf84737893a6a9809b627dca02b53f5b7313a9601b690f690233a49bce0e026aeb16fcf29"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:development",
+              "value": "true"
+            },
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/parse-json/node_modules/js-tokens"
+            }
+          ]
         }
       ]
     },

@@ -8,6 +8,7 @@ Show a page from another system, such as a business-intelligence report, as a li
 The system MUST register a `launchpad_iframe` widget with the Nextcloud Dashboard Widget API (v2) so it appears in the widget picker.
 
 #### Scenario: Widget appears in discovery
+@e2e exclude never built: there is no `launchpad_iframe` id, no `IframeWidgetProvider` and no `supportsV2` declaration (`git log --all --oneline -SIframeWidgetProvider -- src lib appinfo` and `-Slaunchpad_iframe` return nothing; the archived change's tasks.md records the IManager registration as deferred). The widget ships as the LaunchPad-only type `iframe` ("Embedded page") in src/constants/widgetRegistry.js, and the picker path is driven by tests/e2e/iframe-embed-widget.spec.ts under config-stored-in-widgetcontent.
 - GIVEN the LaunchPad app is installed and enabled
 - WHEN the user opens the "Add Widget" modal on a dashboard
 - THEN the iframe-embed widget MUST appear in the widget list with id `launchpad_iframe`
@@ -15,6 +16,7 @@ The system MUST register a `launchpad_iframe` widget with the Nextcloud Dashboar
 - AND the widget MUST declare `supportsV2 = true`
 
 #### Scenario: Registration via IManager
+@e2e exclude never built, and PHP-internal: no `IframeWidgetProvider` exists and lib/AppInfo/Application.php makes no `registerWidget(...)` call (`git log --all --oneline -SIframeWidgetProvider -- src lib appinfo` returns nothing); no unit test pins it because there is nothing to pin.
 - GIVEN `OCP\Dashboard\IManager` is available
 - WHEN the LaunchPad app boots
 - THEN the app MUST register `IframeWidgetProvider` by calling `$manager->registerWidget(...)`

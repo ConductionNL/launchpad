@@ -31,12 +31,14 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\IURLGenerator;
 use OCP\App\IAppManager;
+use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 
 /**
  * The role features, tree, log and admin settings the main page reads.
  *
  * @spec openspec/specs/dashboards/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList) Each source is one injected service the page settings read.
  */
 class PageSettingsSources {
 	/**
@@ -55,6 +57,7 @@ class PageSettingsSources {
 	 * @param CustomCssService|null        $customCss The administrator CSS for all of LaunchPad (REQ-THM-003).
 	 * @param IAppManager|null             $appManager Whether Talk is enabled for the viewer
 	 *                                                 (engagement-communities REQ-COMM-004).
+	 * @param IConfig|null                 $config The viewer's Nextcloud timezone (REQ-CLOCK-002).
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
@@ -66,6 +69,7 @@ class PageSettingsSources {
 		public readonly SearchShortcutServiceInterface $searchShortcuts,
 		public readonly ?CustomCssService $customCss=null,
 		public readonly ?IAppManager $appManager = null,
+		public readonly ?IConfig $config = null,
 	) {
 	}//end __construct()
 }//end class

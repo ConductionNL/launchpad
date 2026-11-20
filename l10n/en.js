@@ -1822,7 +1822,26 @@ OC.L10N.register(
     "Failed for good" : "Failed for good",
     "Not run yet" : "Not run yet",
     "Recipient {number}" : "Recipient {number}",
-    "Scheduled exports…" : "Scheduled exports…"
+    "Scheduled exports…" : "Scheduled exports…",
+    "You have no access to this scope: {name}" : "You have no access to this scope: {name}",
+    "{name} filter changed: {from} → {to}" : "{name} filter changed: {from} → {to}",
+    "The formula cannot be read." : "The formula cannot be read.",
+    "The formula mixes values that do not go together, such as text and a number." : "The formula mixes values that do not go together, such as text and a number.",
+    "The formula refers back to itself through other fields." : "The formula refers back to itself through other fields.",
+    "The formula uses a function that does not exist." : "The formula uses a function that does not exist.",
+    "The formula uses a function this instance does not allow." : "The formula uses a function this instance does not allow.",
+    "A function in the formula has the wrong number of values." : "A function in the formula has the wrong number of values.",
+    "A function in the formula is given the wrong kind of value." : "A function in the formula is given the wrong kind of value.",
+    "Two calculated fields on this widget have the same name." : "Two calculated fields on this widget have the same name.",
+    "This field is calculated in the browser only: it cannot be stored in the register." : "This field is calculated in the browser only: it cannot be stored in the register.",
+    "This value could not be calculated ({reason})." : "This value could not be calculated ({reason}).",
+    "Formula: {expression}" : "Formula: {expression}",
+    "Values read: {inputs}" : "Values read: {inputs}",
+    "empty" : "empty",
+    "Discussion" : "Discussion",
+    "No conversation linked to this dashboard yet" : "No conversation linked to this dashboard yet",
+    "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard." : "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.",
+    "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered." : "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered."
 },
 "nplurals=2; plural=(n != 1);"
 );

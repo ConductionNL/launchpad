@@ -30,9 +30,6 @@ Two admin-config settings are read on demand (created lazily by `IAppConfig`):
 
 ## Requirements
 
-
-@e2e exclude all scenarios test PHP NewsWidgetService RSS-fetch / feed-endpoint — requires live RSS feeds and background-job setup not available in test env
-
 ### Requirement: REQ-NEWS-001 Widget Registration
 
 The system MUST register a new dashboard widget with id `launchpad_news` via `OCP\Dashboard\IManager` that appears in the widget picker alongside other discovered Nextcloud dashboard widgets.
@@ -104,6 +101,7 @@ Widget placements MUST store configuration in the `widgetContent` JSON field to 
 - AND if the filter does not match, the widget MUST not fetch items (see REQ-NEWS-008)
 
 #### Scenario: Config defaults and fallback
+@e2e exclude extractNewsConfig() is an internal PHP function with no output of its own; its defaults are pinned by tests/Unit/Service/NewsWidgetServiceTest.php::testExtractNewsConfigAppliesDefaults (the renderer's own defaults are asserted by news-widget::configure-thumbnail-and-summary-display)
 - GIVEN a placement has empty or minimal widgetContent
 - WHEN the service calls `extractNewsConfig(placement)`
 - THEN defaults MUST apply: feedUrls=[], layout=list, itemLimit=10, showThumbnails=true, showSummary=true, summaryMaxChars=200, dateFormat=relative, metadataFilter=null
@@ -113,18 +111,21 @@ Widget placements MUST store configuration in the `widgetContent` JSON field to 
 The backend MUST provide an endpoint to fetch, parse, and return merged feed items from all configured sources.
 
 #### Scenario: Fetch items for a news widget placement
+@e2e exclude needs feeds that return items, and every feed must resolve to a public host the CI fixture does not provide; the item shape is pinned by tests/Unit/Service/NewsWidgetServiceTest.php::testParseRssFeedExtractsItemFields and the endpoint's pass-through by tests/Unit/Controller/WidgetApiControllerDataEndpointsTest.php::testNewsItemsReturnsTheServicePayloadIncludingFailureCounters
 - GIVEN a placement (id=42) has config `{"feedUrls": ["https://example.com/rss", "https://other.org/feed"]}`
 - WHEN the frontend sends GET /api/widgets/news/42/items?limit=10
 - THEN the system MUST call `NewsWidgetService::getItemsForPlacement(42, 10)`
 - AND return HTTP 200 with a JSON array of items: `[{guid, title, summary, link, pubDate, sourceUrl, sourceTitle, thumbnailUrl}]`
 
 #### Scenario: Items sorted by publication date (newest first)
+@e2e exclude needs live feeds with items, which the CI fixture cannot serve (public hosts only); pinned by tests/Unit/Service/NewsWidgetServiceTest.php::testSortItemsByDateDescending
 - GIVEN feed sources contain items with pubDates [2026-05-01T14:00, 2026-04-30T10:00, 2026-05-01T16:00]
 - WHEN items are merged and returned
 - THEN the response order MUST be: [2026-05-01T16:00, 2026-05-01T14:00, 2026-04-30T10:00]
 - AND sorting MUST be descending (newest first)
 
 #### Scenario: Deduplicate items across feeds
+@e2e exclude needs two live feeds sharing a guid, which the CI fixture cannot serve; pinned by tests/Unit/Service/NewsWidgetServiceTest.php::testDeduplicateItemsKeepsFirstOccurrence
 - GIVEN feed A has item guid="article-123" and feed B also has guid="article-123"
 - WHEN items are merged
 - THEN only one copy of the item MUST be included
@@ -132,12 +133,14 @@ The backend MUST provide an endpoint to fetch, parse, and return merged feed ite
 - AND if the sources differ, the sourceTitle MUST indicate both (or the first found)
 
 #### Scenario: Item deduplication by guid
+@e2e exclude needs live feeds, which the CI fixture cannot serve; the synthetic guid is pinned by tests/Unit/Service/FeedItemParserTest.php::testMissingGuidIsDerivedFromTitleDateAndUrl and the dedup key by tests/Unit/Service/NewsWidgetServiceTest.php::testDeduplicateItemsKeepsFirstOccurrence
 - GIVEN multiple feeds include the same article (identified by matching guid)
 - WHEN items are deduplicated
 - THEN the guid field MUST be the primary deduplication key
 - AND items without a guid MUST generate a synthetic guid from hash(title + pubDate + sourceUrl)
 
 #### Scenario: Response includes source attribution
+@e2e exclude needs a live feed, which the CI fixture cannot serve; pinned by tests/Unit/Service/FeedItemParserTest.php::testRssItemIsNormalisedWithChannelTitle and tests/Unit/Service/NewsWidgetServiceFetchTest.php::testBareChannelRootAndTitleFallback (rendering the source is asserted by news-widget::list-layout-default)
 - GIVEN an item from feed "https://example.com/rss"
 - WHEN returned in the API response
 - THEN the item object MUST include:
@@ -162,6 +165,7 @@ The backend MUST provide an endpoint to fetch, parse, and return merged feed ite
 The widget MUST read from a feed-cache table (populated by the `background-job-feed-refresh` change) and only perform on-demand fetches on cold-start.
 
 #### Scenario: Cache hit — serve from background job refresh
+@e2e exclude whether an upstream request happens and how long a lookup takes are server internals with no browser or API surface, and a fresh cache entry needs a live feed; pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testCacheHitSkipsTheNetwork
 - GIVEN a feed "https://example.com/rss" was fetched 5 minutes ago
 - AND the cache entry is fresh (TTL 60 minutes not expired)
 - WHEN the widget requests items
@@ -170,6 +174,7 @@ The widget MUST read from a feed-cache table (populated by the `background-job-f
 - AND response time MUST be sub-100ms (in-database lookup)
 
 #### Scenario: Cache miss — on-demand fetch (cold-start)
+@e2e exclude needs a live feed to fetch and cache, which the CI fixture cannot serve; pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testLiveFetchIsCachedAndReported
 - GIVEN a feed cache has no entry for "https://example.com/rss"
 - WHEN the widget requests items for the first time
 - THEN the system MUST perform a synchronous HTTP fetch to https://example.com/rss
@@ -177,6 +182,7 @@ The widget MUST read from a feed-cache table (populated by the `background-job-f
 - AND subsequent requests within TTL MUST use the cache (delegating refresh to background job)
 
 #### Scenario: Cache TTL configuration
+@e2e exclude a cache entry's expiry has no outside surface and needs a live feed; the TTL read from news_widget_feed_cache_ttl_seconds (default 3600) is pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testLiveFetchIsCachedAndReported
 - GIVEN an admin sets `launchpad.news_widget_feed_cache_ttl_seconds` to 1800 (30 minutes)
 - WHEN a feed is cached
 - THEN the cache entry MUST expire after 1800 seconds
@@ -184,6 +190,7 @@ The widget MUST read from a feed-cache table (populated by the `background-job-f
 - AND default TTL MUST be 3600 seconds (60 minutes)
 
 #### Scenario: Dependency on background-job-feed-refresh
+@e2e exclude the GIVEN cannot be produced: background-job-feed-refresh has shipped (lib/Job/FeedRefreshJob.php), and the synchronous fetch path needs a live feed; that path is pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testLiveFetchIsCachedAndReported. No test pins the WARN log the scenario asks for
 - GIVEN the `background-job-feed-refresh` change has NOT been implemented
 - WHEN the widget attempts to fetch items
 - THEN the widget MUST fall back to synchronous on-demand fetch (graceful degradation)
@@ -230,12 +237,14 @@ Feed item summaries MUST be sanitised to remove dangerous HTML while preserving 
 An admin setting MUST restrict feed sources to an explicit allow-list of hostnames.
 
 #### Scenario: Allow-list is empty or null (all hosts allowed)
+@e2e exclude accepting and fetching a URL needs a live public feed, which the CI fixture does not provide; pinned by tests/Unit/Service/UrlSafetyValidatorTest.php::testAnUnsetAllowListAllowsEveryHost and tests/Unit/Service/NewsWidgetServiceTest.php::testCheckAllowListAcceptsAllWhenEmpty
 - GIVEN the admin setting `launchpad.news_widget_allowed_feed_hosts` is `null` or `[]`
 - WHEN a widget specifies feedUrl "https://any-domain.com/feed"
 - THEN the system MUST accept and fetch from the URL
 - AND no whitelist check failure MUST occur
 
 #### Scenario: Allow-list restricts to specified hosts
+@e2e exclude from outside, an allow-list skip is indistinguishable from any other failed fetch unless an allowed host can succeed, which needs a live public feed; pinned by tests/Unit/Service/UrlSafetyValidatorTest.php::testAConfiguredListAllowsExactlyItsHosts and tests/Unit/Service/NewsWidgetServiceTest.php::testCheckAllowListRejectsHostnamesNotInList
 - GIVEN the admin sets `launchpad.news_widget_allowed_feed_hosts` to `["bbc.com", "example.org"]`
 - WHEN a widget specifies feedUrl "https://bbc.com/rss"
 - THEN the system MUST allow the fetch
@@ -243,6 +252,7 @@ An admin setting MUST restrict feed sources to an explicit allow-list of hostnam
 - THEN the fetch MUST be silently skipped (not allowed)
 
 #### Scenario: Disallowed feed is skipped without error
+@e2e exclude the other allowed feeds that must keep loading need a live public feed, and the skip reason is only in the server log; pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testUnsafeAndDisallowedUrlsFailInOrder (the badge for a skipped feed is asserted by news-widget::failure-badge-single-failure)
 - GIVEN feedUrl "https://blocked-domain.com/feed" fails the allow-list check
 - WHEN the widget attempts to fetch items
 - THEN the URL MUST be silently skipped (not causing the entire widget to fail)
@@ -251,11 +261,13 @@ An admin setting MUST restrict feed sources to an explicit allow-list of hostnam
 - AND a failure badge MUST note "1 feed skipped (disallowed)" or similar
 
 #### Scenario: Hostname comparison is case-insensitive
+@e2e exclude a pure host comparison with no outside surface short of a live feed; pinned by tests/Unit/Service/NewsWidgetServiceTest.php::testCheckAllowListMatchesCaseInsensitively
 - GIVEN the allow-list contains "Example.Org"
 - WHEN feedUrl "https://example.org/feed" is checked
 - THEN the match MUST succeed (case-insensitive comparison)
 
 #### Scenario: Subdomain matching
+@e2e exclude a pure host comparison with no outside surface short of a live feed; pinned by tests/Unit/Service/NewsWidgetServiceTest.php::testCheckAllowListSubdomainNotImplied
 - GIVEN the allow-list contains "example.org"
 - WHEN feedUrl "https://news.example.org/feed" is checked
 - THEN the match MUST fail (exact hostname required, no wildcard subdomain expansion)
@@ -295,6 +307,7 @@ The system MUST support optional metadata-based filtering: if a widget specifies
 - AND return empty items array
 
 #### Scenario: Metadata filter dependency on dashboard-metadata-fields spec
+@e2e exclude the GIVEN cannot be produced: dashboard-metadata-fields has shipped (lib/Service/MetadataService.php, /api/dashboards/{uuid}/metadata). Its observable outcome, a missing field yields no items, is the e2e of news-widget::metadata-field-missing-or-null; tests/Unit/Service/NewsWidgetServiceTest.php::testCheckMetadataFilterRejectsWhenSpecNotImplemented pins the stub
 - GIVEN the sibling spec `dashboard-metadata-fields` is NOT yet implemented
 - WHEN a widget specifies a metadata filter
 - THEN the system MUST gracefully handle missing metadata (treat as no fields defined)
@@ -312,6 +325,7 @@ A single feed source failure MUST NOT break the widget. Successful feeds MUST re
 - AND a failure badge (top-right corner) MUST show "1 feed failed" with hover tooltip listing "bad.com"
 
 #### Scenario: HTTP error handling
+@e2e exclude needs a public host answering 404/403/5xx, which the CI fixture does not provide; pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testNonSuccessStatusFailsTheFeed (the failedUrls metadata and badge for a failed feed are the e2e of news-widget::all-feeds-fail)
 - GIVEN a feed URL returns HTTP 404, 403, or 5xx
 - WHEN the widget fetches
 - THEN the system MUST log a WARN-level message and skip the URL
@@ -319,6 +333,7 @@ A single feed source failure MUST NOT break the widget. Successful feeds MUST re
 - AND the failure badge MUST be displayed
 
 #### Scenario: Timeout handling
+@e2e exclude needs a public host that stalls past 10 seconds, which the CI fixture does not provide; the 10s timeout and the skip are pinned by tests/Unit/Service/NewsWidgetServiceFetchTest.php::testLiveFetchIsCachedAndReported (fetch options) and ::testClientExceptionIsLoggedAndReported
 - GIVEN an HTTP fetch to a feed URL takes longer than 10 seconds
 - WHEN the system is fetching
 - THEN the fetch MUST timeout and be skipped
@@ -326,6 +341,7 @@ A single feed source failure MUST NOT break the widget. Successful feeds MUST re
 - AND the failure badge MUST count this as a failed feed
 
 #### Scenario: Malformed feed XML
+@e2e exclude needs a public host answering 200 with broken XML, which the CI fixture does not provide. Note tests/Unit/Service/NewsWidgetServiceTest.php::testParseRssFeedReturnsEmptyOnGarbage pins the OPPOSITE of the last THEN: a malformed feed parses to no items and is not counted as failed
 - GIVEN a feed returns valid HTTP 200 but invalid/malformed RSS/Atom XML
 - WHEN the system attempts to parse
 - THEN parsing MUST fail gracefully

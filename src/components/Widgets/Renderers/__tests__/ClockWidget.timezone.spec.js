@@ -79,3 +79,22 @@ describe('ClockWidget — REQ-CLOCK-003 unknown timezone falls back to the devic
 		).toBe(expectedTime)
 	})
 })
+
+describe('ClockWidget — REQ-CLOCK-002 an unset timezone is the viewer\'s Nextcloud timezone', () => {
+	it('shows the injected user timezone when the clock names none', () => {
+		const wrapper = mount(ClockWidget, {
+			propsData: { content: { style: 'digital', hourFormat: '24h', showDate: false } },
+			global: { provide: { userTimezone: 'Asia/Tokyo' } },
+		})
+		// 13:05:09 UTC is 22:05:09 in Tokyo.
+		expect(wrapper.find('.clock-widget__time').text()).toBe('22:05:09')
+	})
+
+	it('keeps a configured timezone over the user\'s', () => {
+		const wrapper = mount(ClockWidget, {
+			propsData: { content: { style: 'digital', hourFormat: '24h', timezone: 'Europe/London', showDate: false } },
+			global: { provide: { userTimezone: 'Asia/Tokyo' } },
+		})
+		expect(wrapper.find('.clock-widget__time').text()).toBe('14:05:09')
+	})
+})

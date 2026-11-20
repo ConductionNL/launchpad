@@ -125,7 +125,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * A new sso tile stores the address the validator returns, from the content it was created with.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public function testANewLaunchTileStoresTheCheckedLink(): void {
 		$content = ['sso' => ['template' => 'entra', 'appId' => 'a1b2c3']];
@@ -147,7 +147,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * A refused check leaves the save failing (HTTP 400 at the API).
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public function testARefusedLaunchTileThrows(): void {
 		$links = $this->createMock(TileLinkValidator::class);
@@ -164,7 +164,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * An update that changes only the content of a launch tile is checked too.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public function testAnUpdateIsCheckedOnTheFinalState(): void {
 		$placement = new WidgetPlacement();
@@ -184,7 +184,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * Without a validator a launch type is refused rather than stored unchecked.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public function testALaunchTypeWithoutAValidatorIsRefused(): void {
 		$this->expectException(InvalidArgumentException::class);
@@ -194,7 +194,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * Other link types are not checked and keep their value.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public function testOtherLinkTypesAreNotChecked(): void {
 		$links = $this->createMock(TileLinkValidator::class);
@@ -233,7 +233,7 @@ class TileUpdaterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
 	 */
 	public function testAnOfficeNetworkAddressInTheAllowedFormsIsKept(): void {
 		$placement = new WidgetPlacement();
@@ -251,7 +251,7 @@ class TileUpdaterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
 	 */
 	public function testAnyOtherOfficeNetworkAddressIsRefused(): void {
 		$updater = new TileUpdater();
@@ -271,7 +271,7 @@ class TileUpdaterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
 	 */
 	public function testANewTileWithAnOfficeNetworkAddressIsChecked(): void {
 		$updater = new TileUpdater();
@@ -295,7 +295,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * A new tile stores each link target in its content; none leaves content alone.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function testApplyTileConfigStoresTheLinkTarget(): void {
 		$stored = [];
@@ -314,7 +314,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * An unknown link target on create is refused.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function testApplyTileConfigRefusesAnUnknownLinkTarget(): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -326,7 +326,7 @@ class TileUpdaterTest extends TestCase {
 	/**
 	 * On update a valid or absent content.linkTarget passes; any other value is refused.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function testApplyTileUpdatesChecksTheContentLinkTarget(): void {
 		$updater = new TileUpdater();

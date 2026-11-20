@@ -218,7 +218,13 @@ class DashboardActivityEmitter {
 	 * @return ActivitySubject The subject.
 	 */
 	private function subjectOf(Dashboard $dashboard): ActivitySubject {
-		return new ActivitySubject(uuid: (string) $dashboard->getUuid(), name: (string) $dashboard->getName());
+		$uuid = (string) $dashboard->getUuid();
+
+		return new ActivitySubject(
+			uuid: $uuid,
+			name: (string) $dashboard->getName(),
+			link: $this->publisher->dashboardLink(uuid: $uuid)
+		);
 	}//end subjectOf()
 
 	/**

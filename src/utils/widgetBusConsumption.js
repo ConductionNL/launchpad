@@ -116,3 +116,30 @@ export function withBusFilter(dataSource, busFilter) {
 	const declared = dataSource.filter && typeof dataSource.filter === 'object' ? dataSource.filter : {}
 	return { ...dataSource, filter: { ...declared, ...busFilter } }
 }
+
+/**
+ * The clauses a reader's pick on a widget publishes: one `widgetClick`
+ * clause per published dimension whose `fromField` is the picked field. A
+ * declaration without `fromField` publishes from any field, so a chart that
+ * names only its dimension still publishes.
+ *
+ * @param {Array<object>} publishes The widget's published dimensions.
+ * @param {{field?: string, value: unknown}|null} selection The pick: the grouped field and the raw key.
+ * @param {string} widgetId The publishing widget.
+ * @return {Array<object>}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+ */
+export function publishedClauses(publishes, selection, widgetId) {
+	if (!selection || selection.value === undefined || selection.value === null || selection.value === '') {
+		return []
+	}
+	return entriesOf(publishes)
+		.filter((entry) => typeof entry.fromField !== 'string' || entry.fromField === '' || entry.fromField === selection.field)
+		.map((entry) => ({
+			dimension: entry.dimension,
+			operator: 'eq',
+			value: selection.value,
+			source: 'widgetClick',
+			sourceWidgetId: widgetId,
+		}))
+}

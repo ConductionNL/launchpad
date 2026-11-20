@@ -49,7 +49,7 @@ interface RdpFileWriterInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function contents(array $connection): string;
 
@@ -60,7 +60,7 @@ interface RdpFileWriterInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function fileName(?string $title): string;
 
@@ -74,7 +74,7 @@ interface RdpFileWriterInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function disposition(string $fileName): string;
 }//end interface

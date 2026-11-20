@@ -533,10 +533,13 @@ LaunchPad widget picker without a LaunchPad change, like `chart`.
 | `markers.dataSource` | Either `{ register, schema }` (OpenRegister objects) or `{ url }` (a GeoJSON or JSON endpoint). Exactly one of the two. |
 | `markers.latField` / `lngField` | The object properties holding the coordinates, when they are not a GeoJSON geometry. |
 | `markers.popupField` | The property shown in a marker's popup. |
+| `markers.geoProperty` | The property holding each object's geometry: a GeoJSON point, line, polygon or multi-geometry, or a lat/lng value. Without it, or when it is empty, `@self.geo` is read. |
+| `markers.dataSource.spatialFilter` | Narrows a register source to an area through OpenRegister's geo filters: `{ "bbox": [west, south, east, north] }`, `{ "near": [lon, lat], "radius": 500 }` (meters) or `{ "within": <GeoJSON Polygon or MultiPolygon> }`. Exactly one; it needs a register and schema. There is no nearest-N query in OpenRegister; a radius with `limit` comes closest. |
+| `markers.detailLink` | The address a clicked object opens in a new tab, for example `/apps/dossiq/#/cases/{id}`. `{id}`, `{register}`, `{schema}` read the object's `@self`, any other `{name}` its property. Without it, a `url` the object carries is opened. An app path or an http(s) address only. |
 | `markers.clustering` / `clustering` | Group nearby markers. |
 | `center` / `zoom` | The starting view, `[lat, lng]`; the Netherlands by default. |
 | `autoFit` | Frame the markers on load (default on). |
-| `basemaps` | Background layers; OpenStreetMap by default. |
+| `basemaps` | Background layers; OpenStreetMap by default. The form offers OpenStreetMap and the PDOK BRT achtergrondkaart (standaard, grijs, pastel) and luchtfoto presets; PDOK needs `service.pdok.nl` in the CSP `img-src`. |
 | `layers` | Extra `tile`, `wms`, `wfs` or `geojson` layers. |
 | `height` | The map's height, `400px` by default. |
 
@@ -550,6 +553,19 @@ Example `content` for reports on a map:
 
 The coordinates come from OpenRegister: objects whose schema stores a location
 (see OpenRegister's geo metadata on schemas) are what this widget can show.
+
+Example `content` for open cases inside a district, each opening its case page:
+
+```json
+{ "markers": { "geoProperty": "location", "detailLink": "/apps/dossiq/#/cases/{id}",
+    "dataSource": { "register": "dossiq", "schema": "case",
+      "spatialFilter": { "bbox": [5.10, 52.05, 5.15, 52.10] } } } }
+```
+
+LaunchPad checks a map's content when it is saved: a register source needs both
+its register and its schema, a spatial filter must read and needs a register
+source, and a detail link must be an app path or an http(s) address. A map of
+`layers` only, or of inline or `url` markers, needs no register.
 
 ## table
 
@@ -621,3 +637,9 @@ the widget: the client shows an inline error for that cell, and OpenRegister
 logs the failing calculation and saves the object without it. Format options
 (currency, decimals, date pattern, duration pattern) only change the displayed
 text; alerting, exports and drill-down see the native value.
+
+A scheduled export evaluates every field on the server when it fires, with
+the same rules as the browser, over the rows the recipient's filter leaves.
+Each widget's table is followed by one row of its field values, headed by the
+field labels; a field that fails is an empty cell. Every mode is exported this
+way, so the export carries what the widget shows.

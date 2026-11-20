@@ -22,8 +22,10 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleError;
 use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValidationError;
 use OCA\LaunchPad\Service\CalculatedFieldService;
@@ -46,6 +48,9 @@ use Throwable;
  *                                                 share this controller.
  *
  * @spec openspec/changes/role-based-content/tasks.md#task-3
+ *
+ * @psalm-import-type LaunchPadPlacement from ResponseDefinitions
+ * @psalm-import-type LaunchPadStatusOk from ResponseDefinitions
  */
 class WidgetApiController extends Controller {
 	use RespondsWithErrors;
@@ -179,6 +184,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The created widget placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	#[NoAdminRequired]
@@ -266,10 +275,29 @@ class WidgetApiController extends Controller {
 			// widget limit (tiles are placements too) — HTTP 409 with the
 			// structured body.
 			return $this->context->responseHelper->quotaExceeded(exception: $e);
+		} catch (InvalidWidgetContentException $e) {
+			return self::invalidContentResponse(exception: $e);
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end createPlacement()
+
+	/**
+	 * Answer content that breaks its widget type's rules with 400 and the
+	 * rule it broke (REQ-MENU-002), so the editor can say what to change.
+	 *
+	 * @param InvalidWidgetContentException $exception The validation failure.
+	 *
+	 * @return JSONResponse The 400 response.
+	 *
+	 * @spec openspec/specs/menu-widget/spec.md
+	 */
+	private static function invalidContentResponse(InvalidWidgetContentException $exception): JSONResponse {
+		return new JSONResponse(
+			data: ['error' => $exception->getMessage()],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end invalidContentResponse()
 
 	/**
 	 * Resolve the guard chain for {@see self::addWidget()}.
@@ -500,6 +528,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The created tile placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/widgets/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -572,6 +604,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The updated widget placement.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadPlacement, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -610,6 +646,8 @@ class WidgetApiController extends Controller {
 				],
 				\OCP\AppFramework\Http::STATUS_CONFLICT
 			);
+		} catch (InvalidWidgetContentException $e) {
+			return self::invalidContentResponse(exception: $e);
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}
@@ -783,6 +821,10 @@ class WidgetApiController extends Controller {
 	 *
 	 * @return JSONResponse The removal confirmation.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -849,6 +891,11 @@ class WidgetApiController extends Controller {
 	 * @param integer $placementId Placement entity id.
 	 * @param integer|null $limit Optional caller cap (default 10,
 	 *                            rejected when outside [1, 50]).
+	 *
+	 * @psalm-param int<min, max>|null $limit Unbounded for Nextcloud's
+	 *                            dispatcher, which otherwise answers a
+	 *                            `limit` below 1 with a 500 before the
+	 *                            controller can answer 400.
 	 *
 	 * @return JSONResponse
 	 *

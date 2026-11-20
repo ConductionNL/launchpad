@@ -22,19 +22,14 @@
 
 import type { APIRequestContext, Browser, Locator, Page } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { BASE_URL } from './support/baseUrl.ts'
 import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
-
-const ADMIN = {
-	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
-	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
-}
+import { adminContext, contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const RUN = Date.now()
@@ -50,19 +45,15 @@ let account: Account | null = null
 let dashA: Dashboard
 
 /**
- * An API context as the administrator, or as the given account.
+ * An API context as the administrator, or as the given account. It never
+ * carries the admin session cookie, so a call made for the account is made
+ * as the account (see support/principals.ts).
  *
  * @param who the account; the administrator when omitted.
  * @return the context; the caller disposes it.
  */
 async function apiAs(who?: Account): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: who
-			? { username: who.username, password: who.password }
-			: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return who ? contextFor(who.username, who.password) : adminContext()
 }
 
 /**

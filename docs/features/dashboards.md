@@ -50,6 +50,13 @@ Endpoints that are **not** gated (existing personal dashboards remain fully func
 - `POST /api/dashboards/active` (set active preference)
 - All group-shared and admin-template endpoints
 
+## Discussing a shared dashboard
+
+A dashboard you share, and every group dashboard, can have a conversation in Talk. It shows under the reactions, in view mode, as a Discussion panel where people link or start a Talk room.
+
+- It appears only when the dashboard is shared or is a group dashboard, and only when OpenRegister and Talk are both installed. Without them the dashboard shows nothing extra.
+- LaunchPad keeps an object for the dashboard in OpenRegister that carries who may view it. OpenRegister lets exactly those people reach the discussion, so taking a share away also takes away access to the conversation.
+
 ## Forking a Dashboard
 
 Users can fork any dashboard they can read (personal, group-shared, or default-group) into a new personal dashboard via `POST /api/dashboards/{uuid}/fork`. The fork deep-copies all widget placements and becomes the user's active dashboard. An optional `name` field in the request body sets the fork name; omitting it uses the localised default `My copy of {source name}`.

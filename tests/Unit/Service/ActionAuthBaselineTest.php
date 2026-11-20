@@ -69,15 +69,10 @@ class ActionAuthBaselineTest extends TestCase {
 		'dashboard.unpublish',
 		'dashboard.schedule',
 		'dashboard-lock.force-release',
-		'dashboard-metadata.set-metadata',
 		'dashboard-translation.create',
 		'dashboard-translation.update',
 		'dashboard-translation.destroy',
 		'dashboard-translation.set-primary',
-		'dashboard-version.list-versions',
-		'dashboard-version.fetch-version',
-		'dashboard-version.create-version',
-		'dashboard-version.restore-version',
 		'metadata-admin.list-fields',
 		'metadata-admin.create-field',
 		'metadata-admin.get-field',
@@ -88,7 +83,6 @@ class ActionAuthBaselineTest extends TestCase {
 		'search-shortcut.save',
 		'profile-fields.get-definitions',
 		'profile-fields.save-definitions',
-		'rule.get-rules',
 		'rule.add-rule',
 		'rule.update-rule',
 		'rule.delete-rule',
@@ -128,6 +122,15 @@ class ActionAuthBaselineTest extends TestCase {
 		// The `admin.` prefix is the controller's, not a privilege level:
 		// getMyRole() only ever answers for the caller.
 		'admin.get-my-role',
+		// The dashboard owner's own versions, metadata values and rules
+		// (REQ-VERS-002..005, REQ-MDFL-005, REQ-VIS-002). Each route checks
+		// ownership per object, so the action reaches only the caller's own.
+		'dashboard-metadata.set-metadata',
+		'dashboard-version.list-versions',
+		'dashboard-version.fetch-version',
+		'dashboard-version.create-version',
+		'dashboard-version.restore-version',
+		'rule.get-rules',
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',

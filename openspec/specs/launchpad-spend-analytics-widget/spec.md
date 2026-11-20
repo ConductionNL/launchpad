@@ -31,8 +31,6 @@ feature.
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented widget — `launchpad_spend_analytics` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, financeq/procest GraphQL routing, openconnector narrative gating, deep-links, and Specter-sourced rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
-
 ### Requirement: REQ-SAW-001: The system SHALL register a `launchpad_spend_analytics` widget type discoverable via the unified Add Widget modal
 
 The widget MUST appear in `src/constants/widgetRegistry.js` (per the
@@ -44,6 +42,8 @@ the runtime GraphQL endpoints it consumes — never an entry in
 `manifest.dependencies`.
 
 #### Scenario: Widget type listed in registry completeness test
+
+@e2e exclude unit-only: this scenario is a vitest, not a browser behaviour. src/constants/__tests__/widgetRegistry.completeness.spec.js pins `spend-analytics` in EXPECTED_TYPES (read from lib/widget-types.json) with non-null form, renderer, displayName, defaultContent and icon, and widgetRegistry.spec.js pins the LaunchPad form override. The `requires` clause differs from the text: the communal entry (nc-vue CnSpendAnalyticsWidget/index.js) declares `{graphql: ['financeq', 'procest']}`, not `financeq.transactions` / `procest.cases`, and no test asserts it.
 
 - **GIVEN** the registry completeness test (REQ-WDG-023 EXPECTED_TYPES)
 - **WHEN** the test runs
@@ -72,6 +72,8 @@ behaviour, not install.
 
 #### Scenario: Manifest entry present and soft-required
 
+@e2e exclude built and removed: 7d7da1bb added a `launchpad_spend_analytics` entry to the v1 top-level `widgets[]` of src/manifest.json, and 2cf53831 deleted that block in the v2 manifest migration (the widget is now registered in the JS registry only). There is no manifest entry to assert, in e2e or anywhere else; the scenario text is out of date.
+
 - **GIVEN** the launchpad manifest at `src/manifest.json`
 - **WHEN** parsed
 - **THEN** `manifest.widgets[].find(w => w.id === 'launchpad_spend_analytics')` MUST exist
@@ -80,6 +82,8 @@ behaviour, not install.
   `financeq`, `procest`, `docudesk`, `shillinq`, `openconnector`
 
 #### Scenario: Manifest validation passes
+
+@e2e exclude CLI, not a browser behaviour: `npm run check:manifest` (scripts/check-manifest.js) runs in `npm run lint`. Its premise is gone too: 2cf53831 removed the spend-analytics manifest entry, so the check validates a manifest without one.
 
 - **GIVEN** `npm run check:manifest` is wired per ADR-024 §5
 - **WHEN** the script runs
@@ -110,6 +114,8 @@ REQ-WDG-010 emit shape). The `content` object MUST carry:
 - **AND** defaults for unset fields MUST be applied by the renderer
 
 #### Scenario: Invalid viewMode rejected
+
+@e2e exclude unreachable from the UI and pinned by no test: CnSpendAnalyticsWidgetForm offers only the four valid view modes in its select and its data() coerces a stored out-of-enum `viewMode` to `summary`, so no person can put `forecast` into the form for validate() to reject. No vitest covers validate() since the launchpad form spec went away with b67cd6a9 (the renderer and form moved to nc-vue, whose tree has no spend test).
 
 - **GIVEN** the form attempts to save `content.viewMode = 'forecast'`
 - **WHEN** `validate()` runs
@@ -145,6 +151,8 @@ NOT call OR endpoints directly via `axios` from launchpad code.
   `@conduction/nextcloud-vue` GraphQL client
 
 #### Scenario: No direct axios to sibling apps
+
+@e2e exclude a source scan, not a browser behaviour, and no test performs it. The only launchpad code that calls a sibling app is queryGraphql in src/services/graphqlClient.js (axios POST to `/apps/{app}/graphql`), pinned by src/services/__tests__/graphqlClient.spec.js and queryGraphql.golden.spec.js; spendAnalytics.spec.js pins that financeq and procest go through it.
 
 - **GIVEN** the spend-analytics renderer source files
 - **WHEN** scanned for `axios` / `fetch(` calls targeting
@@ -208,6 +216,8 @@ pattern from `project_ai-chat-companion-end-to-end` (ADR-034 chain).
 
 #### Scenario: openconnector absent disables AI panel gracefully
 
+@e2e exclude never built: the toggle has no tooltip and knows nothing of the source. CnSpendAnalyticsWidgetForm renders a plain checkbox; the renderer only learns the source is missing after the viewer clicks the panel's Generate button and the call has been sent. Neither 7d7da1bb nor the nc-vue form ever checked the `local-llm` source before the toggle (`git log --all -S'local-llm' -- src` shows only the data-layer commits). The data-layer half (a 404 maps to `available: false`) is pinned by src/services/__tests__/spendAnalytics.spec.js.
+
 - **GIVEN** openconnector is not installed or the `local-llm` source
   is not configured
 - **WHEN** the user toggles `aiInsights.enabled`
@@ -218,6 +228,8 @@ pattern from `project_ai-chat-companion-end-to-end` (ADR-034 chain).
   cards
 
 #### Scenario: No LLM SDK import
+
+@e2e exclude a source scan, not a browser behaviour: src/components/Widgets/Renderers/__tests__/noModelClient.spec.js fails on any import of openai, @anthropic-ai, @ollama or llphant, or a localhost:11434 string, anywhere in launchpad src/. The renderer itself now lives in nc-vue, which that scan does not read.
 
 - **GIVEN** the spend-analytics widget source files
 - **WHEN** scanned for `import ... from '@ollama/'`,
@@ -242,6 +254,8 @@ data.
 
 #### Scenario: Transaction row click deep-links to financeq
 
+@e2e exclude never built: the summary view has no transaction list and no transaction rows; CnSpendAnalyticsWidget links only category rows (financeq) and vendor rows (procest). No commit ever rendered transaction rows: the original renderer in 7d7da1bb drilled only into `category` and `vendor`.
+
 - **GIVEN** the `summary` view's drill-through opens a transaction
   list
 - **WHEN** the user clicks a transaction row
@@ -249,6 +263,8 @@ data.
   detail URL
 
 #### Scenario: drillThroughTarget=detail-page renders launchpad overlay
+
+@e2e exclude never built: `drillThroughTarget` is read only by the form; CnSpendAnalyticsWidget never reads it and always renders rows as plain links, and the 7d7da1bb renderer did the same. `git log --all -S'drillThroughTarget' -- src lib` finds only 7d7da1bb, fda6bd06 and 8e0488cf, none with an overlay. No unit test either.
 
 - **GIVEN** `content.drillThroughTarget === 'detail-page'` (the
   default — for users who prefer staying in launchpad)
@@ -268,6 +284,8 @@ the sibling app's responsibility.
 
 #### Scenario: Evidence files surface inline
 
+@e2e exclude never built: `attachEvidence` is read only by the form; no renderer, past or present, shows evidence chips or queries docudesk (`git log --all -S'attachEvidence' -- src lib` finds only 7d7da1bb, fda6bd06 and 8e0488cf, all form or registry code). No unit test either.
+
 - **GIVEN** a transaction with 2 docudesk-attached invoices
 - **WHEN** the widget renders the transaction row with
   `attachEvidence === true`
@@ -278,12 +296,16 @@ the sibling app's responsibility.
 
 #### Scenario: Evidence widget is read-only
 
+@e2e exclude never built, and a source scan rather than a browser behaviour: there is no evidence code to scan. No launchpad or nc-vue spend file names `/apps/docudesk/` at all, and no test performs the scan.
+
 - **GIVEN** the spend-analytics widget source files
 - **WHEN** scanned for HTTP method `POST` / `PUT` / `DELETE` against
   paths matching `/apps/docudesk/`
 - **THEN** zero matches MUST exist — uploads happen in docudesk
 
 #### Scenario: No evidence attached
+
+@e2e exclude never built: there are no transaction rows and no evidence area in CnSpendAnalyticsWidget, so there is no slot whose absence could be observed. No unit test either.
 
 - **GIVEN** a transaction with zero attached evidence
 - **WHEN** the row renders

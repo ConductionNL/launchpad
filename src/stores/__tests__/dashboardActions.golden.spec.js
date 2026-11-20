@@ -30,9 +30,12 @@ vi.mock('../../utils/logger.js', () => ({
 
 vi.mock('../../services/api.js', () => ({
 	api: {
+		activateDashboard: vi.fn(),
 		forkDashboard: vi.fn(),
+		getDashboardById: vi.fn(),
 		getDashboardByPath: vi.fn(),
 		getDashboardMetadata: vi.fn(),
+		setActiveDashboardPreference: vi.fn(),
 		updateDashboardMetadata: vi.fn(),
 	},
 }))
@@ -227,6 +230,12 @@ async function answer(name, answer) {
 	for (const fn of Object.values(api)) {
 		fn.mockReset()
 	}
+	// A fork switches to the new dashboard and loads its placements.
+	api.activateDashboard.mockResolvedValue({ data: {} })
+	api.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+	api.getDashboardById.mockImplementation(async (id) => ({
+		data: { dashboard: { id, uuid: 'b', name: 'Copy' }, isOwner: true, placements: [{ id: 7 }] },
+	}))
 	if ('error' in answer) {
 		api[name].mockRejectedValue(answer.error)
 	} else {

@@ -18,7 +18,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use InvalidArgumentException;
  * LaunchPad's own resources. Every selector is prefixed with the scope. The
  * result lists what was dropped, so the administrator can see it.
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 final class CustomCssSanitiser {
 
@@ -88,7 +88,7 @@ final class CustomCssSanitiser {
 	 *
 	 * @throws InvalidArgumentException When the UUID could break out of the selector.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	public static function dashboardScope(string $uuid): string {
 		if (preg_match('/^[A-Za-z0-9-]{1,64}$/', $uuid) !== 1) {
@@ -108,7 +108,7 @@ final class CustomCssSanitiser {
 	 *
 	 * @throws InvalidArgumentException When the CSS, or its scoped form, is larger than 20 KB.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	public function sanitise(string $css, string $scope): array {
 		if (strlen($css) > self::MAX_BYTES) {
@@ -259,7 +259,7 @@ final class CustomCssSanitiser {
 	 *
 	 * @return string The scoped selector.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	private function scopeOne(string $selector, string $scope): string {
 		if (str_starts_with($selector, $scope) === true) {

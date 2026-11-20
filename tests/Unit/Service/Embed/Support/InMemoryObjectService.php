@@ -38,6 +38,13 @@ class InMemoryObjectService {
 	 */
 	public bool $failSaves = false;
 
+	/**
+	 * Every saved payload per "register/schema", in order, as it arrived.
+	 *
+	 * @var array<string, list<array<string, mixed>>>
+	 */
+	public array $saved = [];
+
 	private string $register = '';
 
 	private string $schema = '';
@@ -62,6 +69,8 @@ class InMemoryObjectService {
 		if ($this->failSaves === true) {
 			throw new RuntimeException('database down');
 		}
+
+		$this->saved[$this->bucket()][] = $object;
 
 		$id = (string)($object['id'] ?? '');
 		if ($id === '') {

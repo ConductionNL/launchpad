@@ -8,7 +8,7 @@
  * and resolves every one of them (TileLinkValidator); these helpers only
  * build the editor's payload and the link the browser follows (design D2).
  *
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
  */
 
 export const LINK_PROGRAM = 'program'
@@ -23,7 +23,7 @@ export const DEFAULT_RDP_PORT = 3389
  *
  * @param {string} linkType The tile's link type.
  * @return {boolean}
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
  */
 export function isLaunchType(linkType) {
 	return [LINK_PROGRAM, LINK_REMOTE, LINK_SSO].includes(linkType)
@@ -34,7 +34,7 @@ export function isLaunchType(linkType) {
  *
  * @param {object} content The placement's content blob.
  * @return {{remoteMode: string, remoteUrl: string, rdpHost: string, rdpPort: string, rdpRemoteApp: string, rdpGateway: string, ssoTemplate: string, ssoAppId: string}}
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
  */
 export function launchFields(content) {
 	const port = stored(content, 'remote', 'port')
@@ -69,7 +69,7 @@ function stored(content, group, key) {
  *
  * @param {object} form The editor's form (linkType plus launchFields()).
  * @return {object}
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
  */
 export function launchContent(form) {
 	if (form.linkType === LINK_REMOTE) {
@@ -121,7 +121,7 @@ function trimmed(value) {
  * @param {number|string|null} placementId The tile's placement id.
  * @param {(path: string) => string} generateUrl Nextcloud's generateUrl.
  * @return {string|null}
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-5
  */
 export function launchHref(tile, content, placementId, generateUrl) {
 	if (tile.linkType === LINK_REMOTE && content?.remote?.mode === 'rdp') {
@@ -140,7 +140,7 @@ export function launchHref(tile, content, placementId, generateUrl) {
  * @param {object} tile The tile.
  * @param {object|null} content The placement's content blob.
  * @return {string|null} `_blank`, `_self`, or null for another type.
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-5
  */
 export function launchTarget(tile, content) {
 	if (tile.linkType === LINK_SSO) {

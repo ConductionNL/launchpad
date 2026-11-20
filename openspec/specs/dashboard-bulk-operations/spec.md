@@ -20,8 +20,6 @@ Dashboard bulk operations expose four batch admin endpoints for large-scale mana
 All four endpoints accept `?dryRun=true` (or `dryRun: true` in the JSON body) and require Nextcloud admin privileges. Bulk-delete additionally accepts `?cascade=true` (or `cascade: true` in the body) for opt-in subtree deletion.
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Request envelope (all endpoints)
 
 ```json
@@ -214,6 +212,8 @@ NOTE: The unified-search integration is provided by a sibling capability. `BulkO
 - AND the response MUST return `{reindexedCount: 2, errors: [{uuid: "uuid-2", reason: "reindex_failed", detail: "..."}]}`
 - AND the batch MUST continue after the failure (partial success is reported)
 
+@e2e exclude needs the persistence layer to reject one row's update mid-batch (a DB fault), which no HTTP request can provoke; the reindex_failed entry and continue-on-error are pinned by tests/Unit/Service/BulkOperationOutcomesGoldenTest.php::testOutcomesMatchTheRecording (fixture case "reindex / real", uuid "boom")
+
 #### Scenario: Bulk re-index with insufficient permissions
 - GIVEN admin cannot access dashboard "uuid-3"
 - WHEN she sends bulk-reindex request with that uuid
@@ -244,11 +244,15 @@ NOTE: The permission pre-check (REQ-BULK-011) is all-or-nothing and runs before 
 - AND the response MUST return `{deletedCount: 2, skippedCount: 0, errors: [{uuid: "uuid-2", reason: "transaction_failed", detail: "..."}]}`
 - AND "uuid-1" and "uuid-3" MUST be deleted; "uuid-2" MUST NOT be deleted
 
+@e2e exclude needs one dashboard's delete to fail inside its transaction (a DB fault such as a constraint violation), which no HTTP request can provoke; transaction_failed with the rest of the batch committed is pinned by tests/Unit/Service/BulkOperationOutcomesGoldenTest.php::testOutcomesMatchTheRecording (fixture case "delete / real / cascade off", uuid "boom")
+
 #### Scenario: Batch not atomic means caller must retry manually
 - GIVEN bulk-delete of 10 dashboards, 5 succeed, 5 fail
 - WHEN caller receives `{deletedCount: 5, skippedCount: 0, errors: [5 errors]}`
 - THEN the caller (admin) MUST be responsible for retrying the 5 failed dashboards
 - AND the system MUST NOT offer automatic rollback of the 5 successful deletions
+
+@e2e exclude needs five per-dashboard delete failures in one batch (DB faults no HTTP request can provoke); the no-rollback, continue-on-error tally is pinned by tests/Unit/Service/BulkOperationOutcomesGoldenTest.php::testOutcomesMatchTheRecording (fixture cases "delete / real / cascade off" and "delete / real / cascade on")
 
 ### Requirement: REQ-BULK-006 Request Size Cap (Max 500 Dashboards per Request)
 
@@ -332,17 +336,23 @@ NOTE: Per-dashboard Activity events are intentionally NOT emitted by the bulk pi
 - THEN the system MUST emit exactly ONE Activity event (not 10)
 - AND the event MUST contain `bulkOperation`, `dashboardCount`, `durationMs`, and `dryRun` parameters
 
+@e2e exclude the bulkOperation, dashboardCount, durationMs and dryRun parameters live in the activity row's subject parameters, which the Activity app's OCS API does not return (LaunchPad renders the subject to plain text); one event per request with exactly these parameters is pinned by tests/Unit/Service/BulkOperationServiceTest.php::testEmitsAuditEventOncePerOperation and ::testEveryOperationWritesItsAuditRow
+
 #### Scenario: Activity event includes operation duration
 - GIVEN admin sends bulk-move request
 - WHEN the operation completes
 - THEN the activity event MUST include `durationMs` measured from `microtime(true)` start
 - AND admins can use this to monitor performance trends
 
+@e2e exclude durationMs is a subject parameter of the activity row, which the Activity app's OCS API does not return; it is pinned by tests/Unit/Service/BulkOperationServiceTest.php::testEveryOperationWritesItsAuditRow (asserts durationMs is an int) and ::testAFailedAuditRowIsLoggedAndTheOperationCompletes (0 <= durationMs < 60000)
+
 #### Scenario: Dry-run also emits audit event
 - GIVEN admin sends bulk-delete?dryRun=true with 10 uuids
 - WHEN the dry-run completes
 - THEN the system MUST still emit ONE activity event
 - AND the activity payload MUST indicate it was a dry-run (`dryRun: true`)
+
+@e2e exclude the dryRun flag is a subject parameter of the activity row, which the Activity app's OCS API does not return; one dry-run event per operation carrying dryRun=true is pinned by tests/Unit/Service/BulkOperationServiceTest.php::testEveryOperationWritesItsAuditRow
 
 ### Requirement: REQ-BULK-010 Frontend Multi-Select Checkbox Column and Actions Dropdown
 
@@ -398,7 +408,7 @@ Every bulk endpoint MUST enforce an all-or-nothing permission model: if the call
 #### Scenario: Non-admin user cannot call bulk endpoints
 - GIVEN user "bob" with no admin privileges
 - WHEN he sends POST /api/admin/dashboards/bulk-delete
-- THEN the system MUST return HTTP 403 with `Administrator privileges required.`
+- THEN the system MUST return HTTP 403 and change nothing (Nextcloud's admin-setting check refuses the call before LaunchPad's own `Administrator privileges required.` is reached)
 
 #### Scenario: Permission check happens before size validation
 - GIVEN admin user with permission denied on one dashboard in a batch of 501 dashboards

@@ -82,37 +82,27 @@ class KioskPlaylistMapper extends QBMapper {
 	 * Insert a playlist and return it with its computed URL, so the create
 	 * response carries it (REQ-KIOSK-002).
 	 *
-	 * @param Entity $entity The playlist.
+	 * @param KioskPlaylist $entity The playlist.
 	 *
-	 * @return Entity The stored playlist.
+	 * @return KioskPlaylist The stored playlist.
 	 *
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 */
 	public function insert(Entity $entity): Entity {
-		$stored = parent::insert(entity: $entity);
-		if ($stored instanceof KioskPlaylist) {
-			$this->hydrateUrl(playlist: $stored);
-		}
-
-		return $stored;
+		return $this->hydrateUrl(playlist: parent::insert(entity: $entity));
 	}//end insert()
 
 	/**
 	 * Update a playlist and return it with its computed URL.
 	 *
-	 * @param Entity $entity The playlist.
+	 * @param KioskPlaylist $entity The playlist.
 	 *
-	 * @return Entity The stored playlist.
+	 * @return KioskPlaylist The stored playlist.
 	 *
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 */
 	public function update(Entity $entity): Entity {
-		$stored = parent::update(entity: $entity);
-		if ($stored instanceof KioskPlaylist) {
-			$this->hydrateUrl(playlist: $stored);
-		}
-
-		return $stored;
+		return $this->hydrateUrl(playlist: parent::update(entity: $entity));
 	}//end update()
 
 	/**

@@ -326,44 +326,6 @@
 	padding-inline: 0;
 }
 
-/* "Alle apps": the links are chips in one row, without the placeholder
-   icon a link without an icon gets. */
-.launchpad-container .cn-links-widget .cn-links-widget__items {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-}
-
-.launchpad-container .cn-links-widget .cn-links-widget__icon-wrap {
-	display: none;
-}
-
-.launchpad-container
-	.cn-links-widget
-	.cn-links-widget__link.cn-links-widget__link:not(#lp-chip-a) {
-	padding: 10px 18px;
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-pill, 999px);
-	background: var(--color-main-background);
-	color: var(--color-main-text) !important;
-	font-weight: 600;
-	text-decoration: none !important;
-}
-
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget):not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget)
-	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget)
-	.cn-widget-wrapper__content:not(#lp-ground-a):not(#lp-ground-b) {
-	background: transparent;
-	border: none;
-	box-shadow: none;
-	padding: 0;
-}
-
 /* The app tiles: the number card fills its cell. The wrapper's and the
    renderer's 16px padding left a 64px card for an 81px tile, which cut
    the label and the caption off. */
@@ -371,15 +333,6 @@
 	.launchpad-widget:has(.cn-stat-widget)
 	.cn-widget-wrapper__content,
 .launchpad-container .launchpad-widget:has(.cn-stat-widget) .widget-renderer {
-	padding: 0;
-}
-
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget)
-	.widget-renderer:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container
-	.cn-links-widget.cn-links-widget:not(#lp-ground-a):not(#lp-ground-b) {
-	background: transparent;
 	padding: 0;
 }
 

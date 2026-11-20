@@ -190,6 +190,21 @@ class DashboardServiceLookTest extends TestCase {
 		}
 	}
 
+	/**
+	 * REQ-ROLE-001 / REQ-ROLE-002: the controller has already authorised the
+	 * caller, so a LaunchPad admin or a group's editor saves a dashboard they
+	 * do not own, including a group dashboard whose owner column is empty.
+	 */
+	public function testANonOwnerAuthorisedByTheCallerSavesTheLook(): void {
+		foreach (['carol', null] as $owner) {
+			$dashboard = new Dashboard();
+			$dashboard->setUserId($owner);
+			$dashboard->setUuid('uuid-1');
+
+			$this->assertSame('#0b3d91', $this->update(dashboard: $dashboard, data: ['themeAccent' => '#0b3d91'])->getThemeAccent());
+		}
+	}
+
 	public function testAShortHexIsExpanded(): void {
 		$result = $this->update(dashboard: $this->makeDashboard(), data: ['themeAccent' => '#123']);
 

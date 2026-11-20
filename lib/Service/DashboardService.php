@@ -954,6 +954,12 @@ class DashboardService {
 	/**
 	 * Update a dashboard.
 	 *
+	 * The caller authorises the update first: the layout and look through
+	 * PermissionService::canEditDashboard(), the name and other metadata
+	 * through PermissionService::canEditDashboardMetadata(). That lets a
+	 * LaunchPad admin or a group's editor save a dashboard they do not own
+	 * (REQ-ROLE-001, REQ-ROLE-002).
+	 *
 	 * @param int $dashboardId The dashboard ID.
 	 * @param string $userId The user ID.
 	 * @param array $data The data to update.
@@ -970,10 +976,6 @@ class DashboardService {
 		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
 		$this->limits->publicShareContext?->requireMutable();
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
-
-		if ($dashboard->getUserId() !== $userId) {
-			throw new ForbiddenException(message: 'Access denied');
-		}
 
 		// REQ-THM-003: only administrators set custom CSS.
 		if (array_key_exists('customCss', $data) === true && $this->isAdmin(userId: $userId) === false) {

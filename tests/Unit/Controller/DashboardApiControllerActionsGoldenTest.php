@@ -238,8 +238,9 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		return [
 			'metadata allowed'  => [null, true, false, 'applied'],
 			'metadata refused'  => [null, false, true, 'forbidden'],
-			'layout allowed'    => [[['id' => 1]], false, true, 'applied'],
+			'layout allowed'    => [[['id' => 1]], true, true, 'applied'],
 			'layout refused'    => [[['id' => 1]], true, false, 'forbidden'],
+			'layout with a rename the user may not make' => [[['id' => 1]], false, true, 'forbidden'],
 		];
 	}
 

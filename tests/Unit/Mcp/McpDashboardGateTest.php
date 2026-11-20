@@ -199,4 +199,18 @@ class McpDashboardGateTest extends TestCase {
 		$this->assertNull(actual: $gate->requireMetadataEdit(dashboardId: 7));
 		$this->assertSame(expected: 'forbidden', actual: $gate->requireMetadataEdit(dashboardId: 8)['error']);
 	}//end testRequireMetadataEditAsksPermissionService()
+	/**
+	 * REQ-ROLE-008: a Viewer is refused the delete tool; anyone else passes.
+	 *
+	 * @return void
+	 */
+	public function testAViewerIsRefusedDeletingDashboards(): void {
+		$permissions = $this->createMock(originalClassName: PermissionService::class);
+		$permissions->method('canDeleteDashboards')->willReturnCallback(static fn (string $uid): bool => $uid !== 'charlie');
+		$auth   = $this->createMock(originalClassName: ActionAuthService::class);
+		$groups = $this->createMock(originalClassName: IGroupManager::class);
+
+		$this->assertSame(expected: 'forbidden', actual: $this->gate(uid: 'charlie', auth: $auth, groups: $groups, permissions: $permissions)->requireDeleteDashboards()['error']);
+		$this->assertNull(actual: $this->gate(uid: 'alice', auth: $auth, groups: $groups, permissions: $permissions)->requireDeleteDashboards());
+	}//end testAViewerIsRefusedDeletingDashboards()
 }//end class

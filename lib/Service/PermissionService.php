@@ -189,6 +189,11 @@ class PermissionService {
 			return false;
 		}
 
+		// REQ-ROLE-008: Viewer role blocks any mutation, renames included.
+		if ($this->roleService->isViewer(userId: $userId) === true) {
+			return false;
+		}
+
 		// L4: admin-template owners retain full metadata-edit rights
 		// (REQ-PERM-011). An admin who owns a template must not be blocked
 		// from renaming it. Non-admin users can never edit admin templates.
@@ -200,6 +205,21 @@ class PermissionService {
 		// Only owner can rename / change description.
 		return $dashboard->getUserId() === $userId;
 	}//end canEditDashboardMetadata()
+
+	/**
+	 * Check if the user's role lets them delete dashboards at all. Which
+	 * dashboard they may delete is the owner check of the delete itself.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return bool Whether the user may delete dashboards.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md#requirement-req-role-008-authorize-viewer-read-only-access
+	 */
+	public function canDeleteDashboards(string $userId): bool {
+		// REQ-ROLE-008: Viewer role blocks any mutation, even of what they own.
+		return $this->roleService->isViewer(userId: $userId) === false;
+	}//end canDeleteDashboards()
 
 	/**
 	 * Check if user can add widgets to a dashboard.

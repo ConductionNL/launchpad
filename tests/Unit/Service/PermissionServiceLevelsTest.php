@@ -63,10 +63,11 @@ class PermissionServiceLevelsTest extends TestCase {
 	 *
 	 * @param string $level        The dashboard's own permission level.
 	 * @param int    $isCompulsory Whether its placement is compulsory.
+	 * @param bool   $viewer       Whether every user holds the Viewer role.
 	 *
 	 * @return array{0: PermissionService, 1: Dashboard, 2: WidgetPlacement}
 	 */
-	private function serviceFor(string $level, int $isCompulsory = 0): array {
+	private function serviceFor(string $level, int $isCompulsory = 0, bool $viewer = false): array {
 		$dashboard = new Dashboard();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$dashboard->setId(5);
@@ -103,7 +104,7 @@ class PermissionServiceLevelsTest extends TestCase {
 		);
 
 		$roles = $this->createMock(RoleService::class);
-		$roles->method('isViewer')->willReturn(false);
+		$roles->method('isViewer')->willReturn($viewer);
 		$roles->method('isAdmin')->willReturn(false);
 		$roles->method('isEditorOrHigher')->willReturn(false);
 
@@ -223,4 +224,20 @@ class PermissionServiceLevelsTest extends TestCase {
 		$this->assertFalse($service->canStyleWidget(userId: 'bob', placementId: 10));
 		$this->assertFalse($service->canRemoveWidget(userId: 'bob', placementId: 10));
 	}//end testAStrangerIsRefusedEvenOnAFullDashboard()
+
+	/**
+	 * REQ-ROLE-008: a Viewer may neither rename nor delete even a dashboard
+	 * they own; the owner without the role may do both.
+	 *
+	 * @return void
+	 */
+	public function testAViewerMayNotRenameOrDeleteEvenTheirOwnDashboard(): void {
+		[$viewerService] = $this->serviceFor(level: Dashboard::PERMISSION_FULL, viewer: true);
+		[$ownerService]  = $this->serviceFor(level: Dashboard::PERMISSION_FULL);
+
+		$this->assertFalse($viewerService->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
+		$this->assertFalse($viewerService->canDeleteDashboards(userId: self::OWNER));
+		$this->assertTrue($ownerService->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
+		$this->assertTrue($ownerService->canDeleteDashboards(userId: self::OWNER));
+	}//end testAViewerMayNotRenameOrDeleteEvenTheirOwnDashboard()
 }//end class

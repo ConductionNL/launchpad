@@ -323,10 +323,6 @@ test.describe('what each LaunchPad role may do', () => {
 	test("the admin role edits someone else's personal dashboard and a group dashboard it is not in", async () => {
 		const accent = '#0b3d91'
 
-		// SUSPECTED BUG: `canEditDashboard()` grants alice (isAdminEditable),
-		// but `DashboardService::updateDashboard()` then refuses anyone but the
-		// row's owner with "Access denied", answered as 400. A group dashboard
-		// has no owner at all, so nobody can save one through this route.
 		const personal = await alice!.api.put(`${API}/dashboard/${plainDash!.id}`, {
 			data: { themeAccent: accent },
 		})
@@ -345,7 +341,6 @@ test.describe('what each LaunchPad role may do', () => {
 	// @e2e admin-roles::admin-can-edit-any-groupshared-dashboard
 	test('the admin role edits a group dashboard of a group it is not a member of', async () => {
 		const accent = '#5b1a8a'
-		// SUSPECTED BUG: same owner check as above; answered 400.
 		const res = await alice!.api.put(`${API}/dashboard/${salesDash!.id}`, {
 			data: { themeAccent: accent },
 		})
@@ -476,9 +471,6 @@ test.describe('what each LaunchPad role may do', () => {
 	// @e2e admin-roles::editor-in-correct-group-can-edit
 	test('an editor edits a group dashboard of their own group, and the edit is persisted', async () => {
 		const accent = '#7a1f1f'
-		// SUSPECTED BUG: `canEditDashboard()` grants bob (member + editor ⇒
-		// full), then `DashboardService::updateDashboard()` refuses because the
-		// group dashboard's owner is NULL, not bob; answered 400.
 		const res = await bob!.api.put(`${API}/dashboard/${engDash!.id}`, {
 			data: { themeAccent: accent },
 		})
@@ -727,9 +719,6 @@ test.describe('what each LaunchPad role may do', () => {
 		)
 		expect(layout.status(), await layout.text()).toBe(403)
 
-		// SUSPECTED BUG: a name-only update is "metadata" and goes through
-		// `canEditDashboardMetadata()`, which is owner-only and never asks the
-		// role, so the Viewer renames their own dashboard (200).
 		const rename = await charlie!.api.put(
 			`${API}/dashboard/${charlieDash!.id}`,
 			{
@@ -752,9 +741,6 @@ test.describe('what each LaunchPad role may do', () => {
 
 	// @e2e admin-roles::dashboard-viewer-cannot-delete-dashboard
 	test('a viewer cannot delete a group dashboard they can read', async () => {
-		// SUSPECTED BUG: `DashboardService::deleteDashboard()` refuses a
-		// non-owner with a bare Exception, which the controller answers as
-		// 400 "Operation failed", not 403.
 		const res = await charlie!.api.delete(`${API}/dashboard/${engDash!.id}`)
 		expect(res.status(), await res.text()).toBe(403)
 		expect((await readGroupDashboard(admin, engDash!)).uuid).toBe(engDash!.uuid)
@@ -765,8 +751,6 @@ test.describe('what each LaunchPad role may do', () => {
 
 	// @e2e admin-roles::viewer-cannot-delete-dashboard
 	test('a viewer cannot delete even a dashboard they own', async () => {
-		// SUSPECTED BUG: `delete()` checks only ownership; the Viewer role is
-		// never asked, so charlie deletes his own dashboard (200).
 		const res = await charlie!.api.delete(`${API}/dashboard/${charlieSpare!.id}`)
 		expect(res.status(), await res.text()).toBe(403)
 		expect((await read(charlie!.api, charlieSpare!.id)).dashboard.uuid).toBe(

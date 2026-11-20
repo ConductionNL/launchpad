@@ -216,6 +216,21 @@ class McpDashboardGate {
 	}//end requireCreateDashboard()
 
 	/**
+	 * A refusal when the caller's role forbids deleting dashboards (a Viewer),
+	 * or NULL to proceed. Any failure of the permission check denies.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md#requirement-req-role-008-authorize-viewer-read-only-access
+	 */
+	public function requireDeleteDashboards(): ?array {
+		return $this->refuseUnless(
+			check: fn (string $userId): bool => $this->permissions->canDeleteDashboards(userId: $userId),
+			message: 'You may not delete dashboards.'
+		);
+	}//end requireDeleteDashboards()
+
+	/**
 	 * A forbidden refusal unless the check allows the caller. A check that
 	 * throws denies.
 	 *

@@ -37,7 +37,6 @@ use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\InvalidDataUrlException;
 use OCA\LaunchPad\Exception\InvalidImageFormatException;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use RuntimeException;
@@ -550,7 +549,7 @@ class AdminTemplateService {
 	public function findOfferedTemplate(string $userId, string $uuid): ?Dashboard {
 		try {
 			$template = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
-		} catch (DoesNotExistException | MultipleObjectsReturnedException) {
+		} catch (DoesNotExistException) {
 			return null;
 		}
 

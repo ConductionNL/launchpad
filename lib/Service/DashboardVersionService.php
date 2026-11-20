@@ -196,6 +196,28 @@ class DashboardVersionService {
 	}//end captureSnapshot()
 
 	/**
+	 * The stored dashboard and its snapshot payload, built before an update so
+	 * the automatic snapshot holds the state the update replaces, placements
+	 * included (REQ-VERS-001). Pass both to captureSnapshot() once the update
+	 * succeeded.
+	 *
+	 * @param int $dashboardId The dashboard about to be updated.
+	 *
+	 * @return array{dashboard: Dashboard, snapshotJson: string}|null The state, or null when the dashboard does not exist.
+	 *
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	public function stateBeforeUpdate(int $dashboardId): ?array {
+		try {
+			$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		return ['dashboard' => $dashboard, 'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard)];
+	}//end stateBeforeUpdate()
+
+	/**
 	 * The next version row of a dashboard, not yet persisted and without
 	 * its author.
 	 *

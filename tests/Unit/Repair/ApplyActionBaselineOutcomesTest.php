@@ -100,7 +100,7 @@ class ApplyActionBaselineOutcomesTest extends TestCase {
 	private function summary(int $broadened, int $preserved): string {
 		return sprintf(
 			'Action baseline v%d applied: %d action(s) broadened to the non-admin baseline, %d admin-customized entr%s preserved.',
-			2,
+			3,
 			$broadened,
 			$preserved,
 			($preserved === 1) ? 'y' : 'ies'

@@ -83,7 +83,7 @@ test.describe('REQ-HDR-011 accessibility', () => {
 		const reached = await tabUntil(page, (placement: string) => {
 			const active = document.activeElement
 			const h2 = document.querySelector(`[data-testid="widget-placement-${placement}"] .cn-header-widget h2`)
-			return active !== null && h2 !== null && (active === h2 || active.contains(h2))
+			return active !== null && active !== document.body && h2 !== null && (active === h2 || active.contains(h2))
 		}, String(id))
 		expect(reached, 'the widget is in the tab order').toBe(true)
 

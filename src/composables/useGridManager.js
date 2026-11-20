@@ -230,18 +230,34 @@ export const MIN_CELLS = 2
 export const ONE_ROW_TYPES = Object.freeze(['divider'])
 
 /**
+ * New-widget sizes for types whose spec names one other than the default.
+ * Quicklinks is a compact row of icons, 4 by 2 (REQ-QLNK-011).
+ *
+ * @type {Readonly<Record<string, {w: number, h: number}>>}
+ */
+const TYPE_DEFAULT_SIZES = Object.freeze({
+	quicklinks: Object.freeze({ w: 4, h: 2 }),
+})
+
+/**
  * The size a new widget of a type gets when the caller names none: a divider
- * spans every column and is one row tall (REQ-DIV-006); anything else is
+ * spans every column and is one row tall (REQ-DIV-006); a type in
+ * {@link TYPE_DEFAULT_SIZES} gets its own size; anything else is
  * {@link DEFAULT_W} by {@link DEFAULT_H}.
  *
  * @param {string} type The widget type.
  * @param {number} [columns] The dashboard's column count.
  * @return {{w: number, h: number}} The size.
  * @spec openspec/specs/divider-widget/spec.md
+ * @spec openspec/specs/quicklinks-widget/spec.md
  */
 export function defaultSizeFor(type, columns = DEFAULT_COLUMNS) {
 	if (type === 'divider') {
 		return { w: columns, h: 1 }
+	}
+	const own = TYPE_DEFAULT_SIZES[type]
+	if (own) {
+		return { ...own }
 	}
 	return { w: DEFAULT_W, h: DEFAULT_H }
 }

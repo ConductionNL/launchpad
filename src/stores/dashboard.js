@@ -7,8 +7,7 @@ import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
 import { defineStore } from 'pinia'
 import {
-	DEFAULT_H,
-	DEFAULT_W,
+	defaultSizeFor,
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
@@ -196,15 +195,33 @@ function reportCreateFailure(store, error) {
 			),
 		)
 	}
-	if (status === 409 && code === 'quota_exceeded') {
-		const limit = error.response.data.limit
-		showError(
-			t('launchpad', 'You have reached the limit of {limit} dashboards', {
-				limit,
-			}),
-		)
-		store.loadDashboards().catch(() => {})
+	reportDashboardQuota(store, error)
+}
+
+/**
+ * On the structured 409 `quota_exceeded` of a create or fork, name the
+ * dashboard limit and reread the quota envelope so the button disables
+ * (REQ-QUOTA-006, race case).
+ *
+ * @param {object} store The dashboard store.
+ * @param {object} error The axios error.
+ * @return {boolean} Whether the error was a quota refusal.
+ */
+function reportDashboardQuota(store, error) {
+	if (
+		error?.response?.status !== 409
+		|| error?.response?.data?.error !== 'quota_exceeded'
+	) {
+		return false
 	}
+	const limit = error.response.data.limit
+	showError(
+		t('launchpad', 'You have reached the limit of {limit} dashboards', {
+			limit,
+		}),
+	)
+	store.loadDashboards().catch(() => {})
+	return true
 }
 
 /**
@@ -968,16 +985,17 @@ export const useDashboardStore = defineStore('dashboard', {
 						sharedBy: null,
 					})
 					this.activeDashboard = { ...fork, isOwner: true, sharedBy: null }
-					// Placements come back via the next switchDashboard /
-					// loadDashboards round-trip — fork is a brand-new
-					// active dashboard but the by-id endpoint is the
-					// canonical source of truth for placements.
 					this.widgetPlacements = []
 					this.permissionLevel = 'full'
+					// The fork carries the source's widgets; the by-id
+					// endpoint is the canonical source of its placements.
+					await this.switchDashboard(fork.id)
 				}
 				return fork
 			} catch (error) {
-				showError(forkFailureText(error))
+				if (!reportDashboardQuota(this, error)) {
+					showError(forkFailureText(error))
+				}
 				logger.error('Failed to fork dashboard:', error)
 				throw error
 			} finally {
@@ -1065,8 +1083,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addWidgetToDashboard(widgetId, position = null) {
 			try {
+				const type = typeof widgetId === 'object' && widgetId !== null ? widgetId.type : widgetId
 				const placement = newPlacement(position, {
-					size: { w: DEFAULT_W, h: DEFAULT_H },
+					size: defaultSizeFor(type, this.activeDashboard?.gridColumns || undefined),
 					store: this,
 				})
 				const response = await api.addWidget(

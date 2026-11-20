@@ -26,12 +26,14 @@ use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -86,10 +88,19 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 * @param string      $allowed    The only user the permission doubles allow.
 	 * @param bool        $denyAction Whether the action check refuses.
 	 * @param array       $body       Extra request parameters by name.
+	 * @param DashboardVersionService|null $versions The version service, a plain double when null.
 	 *
 	 * @return DashboardApiController
 	 */
-	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false, array $body=[]): DashboardApiController {
+	private function controller(
+		?string $sessionUid,
+		?string $userId,
+		string $allowed='alice',
+		bool $denyAction=false,
+		array $body=[],
+		?DashboardVersionService $versions=null,
+		?\Exception $serviceRefusal=null
+	): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
 			$user = $this->createMock(IUser::class);
@@ -121,11 +132,18 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		$service = $this->createMock(DashboardService::class);
 		$service->method('updateDashboard')->willReturnCallback(
-			function (int $dashboardId, string $userId, array $data): Dashboard {
+			function (int $dashboardId, string $userId, array $data) use ($serviceRefusal): Dashboard {
+				if ($serviceRefusal !== null) {
+					throw $serviceRefusal;
+				}
+
 				$this->saved[] = [$dashboardId, $userId];
 				return new Dashboard();
 			}
 		);
+		if ($serviceRefusal !== null) {
+			$service->method('deleteDashboard')->willThrowException($serviceRefusal);
+		}
 
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key) => $key === 'userId' ? 'alice' : ($body[$key] ?? null));
@@ -135,7 +153,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 			services: new DashboardApiServices(dashboardService: $service),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
-				versionService: $this->createMock(DashboardVersionService::class),
+				versionService: ($versions ?? $this->createMock(originalClassName: DashboardVersionService::class)),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
 			)),
@@ -280,4 +298,61 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		$this->assertSame(403, $response->getStatus());
 		$this->assertSame([['canEditDashboardMetadata', 'bob', 7]], $this->asked);
 	}//end testPermissionUsesTheInjectedUserId()
+	/**
+	 * REQ-VERS-001: the automatic snapshot holds the dashboard as it was before
+	 * the PUT, taken before the save and written once the save succeeded.
+	 *
+	 * @return void
+	 */
+	public function testAnUpdateSnapshotsTheStateItReplaces(): void {
+		$before = new Dashboard();
+		$before->setName('Before');
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->expects($this->once())->method('stateBeforeUpdate')->with(7)
+			->willReturn(['dashboard' => $before, 'snapshotJson' => '{"before":true}']);
+		$versions->expects($this->once())->method('captureSnapshot')
+			->with($this->identicalTo(value: $before), 'alice', ['snapshotJson' => '{"before":true}']);
+
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', versions: $versions)->update(7, name: 'After');
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+	}//end testAnUpdateSnapshotsTheStateItReplaces()
+
+	/**
+	 * A refused update records no snapshot.
+	 *
+	 * @return void
+	 */
+	public function testARefusedUpdateRecordsNoSnapshot(): void {
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->expects($this->never())->method('captureSnapshot');
+
+		$response = $this->controller(sessionUid: 'bob', userId: 'bob', versions: $versions)->update(7, name: 'x');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testARefusedUpdateRecordsNoSnapshot()
+
+	/**
+	 * The service refusing a non-owner's save answers 403, not 400.
+	 *
+	 * @return void
+	 */
+	public function testAServiceRefusalOfAnUpdateIsForbidden(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', serviceRefusal: new ForbiddenException(message: 'Access denied'))
+			->update(7, name: 'x');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testAServiceRefusalOfAnUpdateIsForbidden()
+
+	/**
+	 * The service refusing a non-owner's delete answers 403, not 400.
+	 *
+	 * @return void
+	 */
+	public function testAServiceRefusalOfADeleteIsForbidden(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', serviceRefusal: new ForbiddenException(message: 'Access denied'))
+			->delete(7);
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testAServiceRefusalOfADeleteIsForbidden()
 }//end class

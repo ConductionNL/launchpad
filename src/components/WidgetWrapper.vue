@@ -37,7 +37,11 @@
 			:showRefresh="false"
 			:showRequestFeature="false"
 			:showActions="showActionsMenu">
-			<WidgetRenderer :widget="widget" :placement="placement" />
+			<WidgetRenderer
+				:widget="widget"
+				:placement="placement"
+				:editMode="editMode"
+				@editRequest="$emit('edit', placement)" />
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a

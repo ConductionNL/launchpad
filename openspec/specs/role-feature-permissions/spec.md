@@ -400,6 +400,33 @@ without a separate API call.
 
 ---
 
+### Requirement: REQ-RFP-011: The shipped default rule lets every user add LaunchPad's own widgets
+
+The `default` RoleFeaturePermission that a fresh install seeds MUST allow every LaunchPad widget
+type listed in `lib/widget-types.json`, plus the Nextcloud dashboard widgets `activity` and
+`recommendations`. A user with no group rule of their own MUST be able to add any LaunchPad widget.
+On upgrade, a `default` rule that still holds exactly what older versions shipped
+(`["activity", "recommendations"]` and no denials) MUST be widened to the same list. A `default`
+rule an administrator edited MUST be kept as it is.
+
+#### Scenario: A fresh install lets every user add a LaunchPad widget
+@e2e exclude the seed runs once at install, before any test, and the e2e suite replaces the `default` rule with its own fixture (tests/e2e/fixtures/role-feature-permissions.ts); pinned by SeedRolePermissionsGoldenTest::testSeedMatchesTheRecordedFixture and WidgetTypeListTest::testTheShippedListReads
+
+- GIVEN LaunchPad is installed and the seeded `default` rule is untouched
+- AND user "sem" belongs to no group that has a rule of its own
+- WHEN sem adds a `text` widget to his own dashboard
+- THEN the widget MUST be added
+
+#### Scenario: An upgrade widens the old shipped rule and keeps an edited one
+@e2e exclude an upgrade repair step, which no HTTP request can trigger; pinned by BroadenDefaultWidgetRuleTest::testTheShippedRuleIsWidened and BroadenDefaultWidgetRuleTest::testAnEditedRuleIsKept
+
+- GIVEN an instance whose `default` rule allows only `["activity", "recommendations"]` and denies nothing
+- WHEN LaunchPad is upgraded
+- THEN the `default` rule MUST allow every LaunchPad widget type plus `activity` and `recommendations`
+- AND when an administrator had changed the `default` rule, it MUST stay as the administrator left it
+
+---
+
 ## Non-Functional Requirements
 
 - **Security**: All permission checks MUST be enforced server-side in `RoleFeaturePermissionService`.

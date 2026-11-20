@@ -90,6 +90,20 @@ describe('WidgetWrapper — edit cog', () => {
 			mountWrapper(placement, true).find('.launchpad-widget__cog').exists(),
 		).toBe(true)
 	})
+
+	it('hands the edit mode to the renderer and opens the editor on its edit request', async () => {
+		const placement = { id: 4, widgetId: 'menu', styleConfig: {} }
+		const wrapper = shallowMount(WidgetWrapper, {
+			propsData: { placement, widget: { title: 'Widget' }, editMode: true },
+			mocks: { t: (_app, key) => key },
+			global: { stubs: { CnWidgetWrapper: { template: '<div><slot /></div>' } } },
+		})
+		const renderer = wrapper.findComponent({ name: 'WidgetRenderer' })
+		expect(renderer.props('editMode')).toBe(true)
+		renderer.vm.$emit('editRequest')
+		await wrapper.vm.$nextTick()
+		expect(wrapper.emitted('edit')).toEqual([[placement]])
+	})
 })
 
 describe('WidgetWrapper — header link (LpVandaag "Open agenda")', () => {

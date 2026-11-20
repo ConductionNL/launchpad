@@ -131,7 +131,9 @@ class ConditionalRule extends Entity implements JsonSerializable {
 			fieldName: 'widgetPlacementId',
 			type: 'integer'
 		);
-		$this->addType(fieldName: 'isInclude', type: 'boolean');
+		// The is_include column is a smallint: bound as a boolean, PostgreSQL
+		// refuses false ("f") for it.
+		$this->addType(fieldName: 'isInclude', type: 'smallint');
 	}//end __construct()
 
 	/**

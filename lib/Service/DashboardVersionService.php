@@ -196,6 +196,28 @@ class DashboardVersionService {
 	}//end captureSnapshot()
 
 	/**
+	 * The stored dashboard and its snapshot payload, built before an update so
+	 * the automatic snapshot holds the state the update replaces, placements
+	 * included (REQ-VERS-001). Pass both to captureSnapshot() once the update
+	 * succeeded.
+	 *
+	 * @param int $dashboardId The dashboard about to be updated.
+	 *
+	 * @return array{dashboard: Dashboard, snapshotJson: string}|null The state, or null when the dashboard does not exist.
+	 *
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	public function stateBeforeUpdate(int $dashboardId): ?array {
+		try {
+			$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		return ['dashboard' => $dashboard, 'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard)];
+	}//end stateBeforeUpdate()
+
+	/**
 	 * The next version row of a dashboard, not yet persisted and without
 	 * its author.
 	 *
@@ -413,10 +435,11 @@ class DashboardVersionService {
 	 * BEFORE the restore overwrites the body so the operation is
 	 * itself reversible.
 	 *
-	 * Restoring to the latest version is treated as a no-op (idempotent
-	 * round-trip) — no new snapshot is created and the existing
-	 * dashboard is returned untouched. This matches the
-	 * "restore to current is a no-op" scenario in REQ-VERS-005.
+	 * Restoring the latest version while it holds the dashboard's current
+	 * placements is a no-op: no new snapshot, the dashboard untouched
+	 * ("restore to current is a no-op" in REQ-VERS-005). A latest version
+	 * that differs, such as a pre-restore snapshot, is restored normally
+	 * ("restore is reversible").
 	 *
 	 * @param Dashboard $dashboard The dashboard.
 	 * @param integer $versionNumber The target version number.
@@ -453,7 +476,7 @@ class DashboardVersionService {
 			dashboardUuid: $uuid
 		);
 
-		if ($latest === $versionNumber) {
+		if ($latest === $versionNumber && $this->holdsCurrentPlacements(dashboard: $dashboard, target: $target) === true) {
 			// REQ-VERS-005: restoring to the current version is a no-op.
 			return [
 				'snapshot' => (string)$target->getSnapshotJson(),
@@ -477,6 +500,51 @@ class DashboardVersionService {
 			'version' => $target,
 		];
 	}//end restoreVersion()
+
+	/**
+	 * Whether a version holds the same placements as the dashboard now,
+	 * ignoring the row ids and timestamps a restore does not keep.
+	 *
+	 * @param Dashboard        $dashboard The dashboard.
+	 * @param DashboardVersion $target    The version to compare.
+	 *
+	 * @return boolean True when restoring the version would change no placement.
+	 */
+	private function holdsCurrentPlacements(Dashboard $dashboard, DashboardVersion $target): bool {
+		$current = json_decode($this->buildDefaultSnapshot(dashboard: $dashboard), associative: true);
+		$stored  = json_decode((string)$target->getSnapshotJson(), associative: true);
+
+		return $this->comparablePlacements(payload: $current) === $this->comparablePlacements(payload: $stored);
+	}//end holdsCurrentPlacements()
+
+	/**
+	 * The placements of a decoded snapshot as sorted JSON strings without
+	 * id, dashboardId, createdAt and updatedAt.
+	 *
+	 * @param mixed $payload The decoded snapshot.
+	 *
+	 * @return string[] One string per placement, sorted.
+	 */
+	private function comparablePlacements(mixed $payload): array {
+		$placements = [];
+		if (is_array($payload) === true && is_array($payload['placements'] ?? null) === true) {
+			$placements = $payload['placements'];
+		}
+
+		$comparable = [];
+		foreach ($placements as $placement) {
+			if (is_array($placement) === false) {
+				continue;
+			}
+
+			unset($placement['id'], $placement['dashboardId'], $placement['createdAt'], $placement['updatedAt']);
+			ksort($placement);
+			$comparable[] = (string)json_encode($placement);
+		}
+
+		sort($comparable);
+		return $comparable;
+	}//end comparablePlacements()
 
 	/**
 	 * Run a restore inside one DB transaction, rolled back and logged on failure.

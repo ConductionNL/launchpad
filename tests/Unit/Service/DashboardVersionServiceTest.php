@@ -34,6 +34,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardVersion;
 use OCA\LaunchPad\Db\DashboardVersionMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCP\ICache;
@@ -41,6 +42,7 @@ use OCP\ICacheFactory;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use PHPUnit\Framework\MockObject\MockObject;
+use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -526,6 +528,84 @@ class DashboardVersionServiceTest extends TestCase {
 	}//end testRestoreToCurrentIsNoOp()
 
 	/**
+	 * REQ-VERS-005 "Restore is reversible": the newest version is a
+	 * pre-restore snapshot that differs from the dashboard, so restoring it
+	 * is a real restore, not the no-op for the current version.
+	 *
+	 * @return void
+	 */
+	public function testRestoringTheNewestVersionThatDiffersFromTheDashboardRestoresIt(): void {
+		$dashboard = $this->makeDashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setId(1);
+
+		$current = new WidgetPlacement();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$current->setId(10);
+		$current->setDashboardId(1);
+		$current->setWidgetId('text');
+		$current->setContentArray(['text' => 'state-3']);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$target = new DashboardVersion();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$target->setDashboardUuid('d-uuid-1');
+		$target->setVersionNumber(6);
+		$stored = ['id' => 9, 'dashboardId' => 1, 'widgetId' => 'text', 'content' => ['text' => 'state-5']];
+		$target->setSnapshotJson(json_encode(['placements' => [$stored]]));
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->versionMapper->method('findByDashboardAndVersion')->willReturn($target);
+		$this->versionMapper->method('findMaxVersionNumber')->willReturn(6);
+		$this->placementMapper->method('findByDashboardId')->willReturn([$current]);
+		$this->versionMapper->expects($this->once())->method('insert')->willReturnArgument(0);
+		$this->dashboardMapper->expects($this->once())->method('update');
+		$this->placementMapper->expects($this->once())->method('insert')->willReturnArgument(0);
+
+		$this->service->restoreVersion(dashboard: $dashboard, versionNumber: 6, restoringUser: 'alice');
+	}//end testRestoringTheNewestVersionThatDiffersFromTheDashboardRestoresIt()
+
+	/**
+	 * The newest version holding the same placements as the dashboard, under
+	 * other ids and timestamps, is the current version: restoring it is a no-op.
+	 *
+	 * @return void
+	 */
+	public function testRestoringTheNewestVersionEqualToTheDashboardIsNoOp(): void {
+		$dashboard = $this->makeDashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setId(1);
+
+		$current = new WidgetPlacement();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$current->setId(10);
+		$current->setDashboardId(1);
+		$current->setWidgetId('text');
+		$current->setContentArray(['text' => 'state-5']);
+		$current->setUpdatedAt('2026-11-20 10:00:00');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$stored = json_decode((string)json_encode($current->jsonSerialize()), associative: true);
+		$stored['id'] = 9;
+		$stored['updatedAt'] = '2026-11-19 09:00:00';
+
+		$target = new DashboardVersion();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$target->setDashboardUuid('d-uuid-1');
+		$target->setVersionNumber(5);
+		$target->setSnapshotJson(json_encode(['placements' => [$stored]]));
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->versionMapper->method('findByDashboardAndVersion')->willReturn($target);
+		$this->versionMapper->method('findMaxVersionNumber')->willReturn(5);
+		$this->placementMapper->method('findByDashboardId')->willReturn([$current]);
+		$this->versionMapper->expects($this->never())->method('insert');
+		$this->dashboardMapper->expects($this->never())->method('update');
+
+		$this->service->restoreVersion(dashboard: $dashboard, versionNumber: 5, restoringUser: 'alice');
+	}//end testRestoringTheNewestVersionEqualToTheDashboardIsNoOp()
+
+	/**
 	 * REQ-VERS-005: admin caller is allowed to restore a dashboard
 	 * owned by another user.
 	 *
@@ -750,4 +830,28 @@ class DashboardVersionServiceTest extends TestCase {
 		$this->assertFalse($envelope['modeSupported']);
 		$this->assertSame([], $envelope['versions']);
 	}//end testGroupfolderBackedDashboardReturnsSoftFail()
+
+	/**
+	 * The state before an update is the stored dashboard, or null for one that is gone.
+	 *
+	 * @return void
+	 */
+	public function testStateBeforeUpdateReadsTheStoredDashboard(): void {
+		$stored = $this->makeDashboard();
+		$this->dashboardMapper->method('find')->willReturnCallback(
+			static function (int $id) use ($stored): Dashboard {
+				if ($id === 7) {
+					return $stored;
+				}
+
+				throw new DoesNotExistException(msg: 'gone');
+			}
+		);
+
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$state = $this->service->stateBeforeUpdate(dashboardId: 7);
+		$this->assertSame(expected: $stored, actual: $state['dashboard']);
+		$this->assertSame(expected: $stored->getName(), actual: json_decode(json: $state['snapshotJson'], associative: true)['dashboard']['name']);
+		$this->assertNull(actual: $this->service->stateBeforeUpdate(dashboardId: 8));
+	}//end testStateBeforeUpdateReadsTheStoredDashboard()
 }//end class

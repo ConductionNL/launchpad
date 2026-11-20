@@ -157,8 +157,6 @@ async function gridColumns(list: Locator): Promise<number> {
 	return template.trim().split(/\s+/).filter((t) => t !== '' && t !== 'none').length
 }
 
-test.describe.configure({ mode: 'serial' })
-
 test.beforeAll(async () => {
 	api = await adminApi()
 	dashboard = await seedActiveDashboard(api, `E2E News rendering ${STAMP}`)

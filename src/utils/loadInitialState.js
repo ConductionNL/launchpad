@@ -92,6 +92,10 @@ const PAGE_KEYS = {
 		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
 		// organisation pinned, in the order pinned. Optional key.
 		pinnedCommunities: [],
+		// clock-weather-widgets REQ-CLOCK-002: the viewer's Nextcloud timezone,
+		// which a clock without its own zone shows. Optional key; '' follows
+		// the device.
+		userTimezone: '',
 	},
 	admin: {
 		allGroups: [],

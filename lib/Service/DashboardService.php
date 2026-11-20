@@ -35,6 +35,7 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -971,12 +972,12 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		// REQ-THM-003: only administrators set custom CSS.
 		if (array_key_exists('customCss', $data) === true && $this->isAdmin(userId: $userId) === false) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$this->applyDashboardUpdates(
@@ -1019,7 +1020,7 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$uuid = (string)$dashboard->getUuid();
@@ -2978,7 +2979,8 @@ class DashboardService {
 	 * chain.
 	 *
 	 * Personal, group-shared (matching), and default-group sentinel
-	 * dashboards are all eligible source candidates. A source UUID the
+	 * dashboards are all eligible source candidates, and so is every admin
+	 * template the gallery offers the user (REQ-TMPL-018). A source UUID the
 	 * caller cannot see MUST be reported as a 404 to avoid leaking
 	 * existence (REQ-DASH-020 scenario "Cannot fork a dashboard you
 	 * cannot read").
@@ -3000,6 +3002,15 @@ class DashboardService {
 			if ((string)$candidate->getUuid() === $sourceUuid) {
 				return $candidate;
 			}
+		}
+
+		// REQ-TMPL-018: a template the gallery offers the user is a source too.
+		$template = $this->builders->adminTemplateService->findOfferedTemplate(
+			userId: $userId,
+			uuid: $sourceUuid
+		);
+		if ($template !== null) {
+			return $template;
 		}
 
 		throw new DoesNotExistException(msg: 'Dashboard not found');

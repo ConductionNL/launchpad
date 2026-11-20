@@ -31,6 +31,7 @@ use OCA\LaunchPad\Db\RoleFeaturePermission;
 use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
 use OCA\LaunchPad\Db\RoleLayoutDefault;
 use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
+use OCA\LaunchPad\Support\WidgetTypeList;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -78,10 +79,10 @@ class SeedRolePermissions implements IRepairStep {
 			'priorityWeights' => ['user_status' => 10, 'calendar' => 9, 'activity' => 7],
 		],
 		[
-			'groupId' => 'default',
+			'groupId' => RoleFeaturePermission::GROUP_DEFAULT,
 			'name' => 'Standaard widget-rechten',
 			'description' => 'Basistoegang voor gebruikers zonder specifieke groepsindeling',
-			'allowedWidgets' => ['activity', 'recommendations'],
+			'allowedWidgets' => WidgetTypeList::DEFAULT_RULE_DASHBOARD_WIDGETS,
 			'deniedWidgets' => [],
 			'priorityWeights' => ['recommendations' => 10, 'activity' => 8],
 		],
@@ -213,6 +214,7 @@ class SeedRolePermissions implements IRepairStep {
 	 * @return void
 	 *
 	 * @spec openspec/changes/role-based-content/tasks.md#task-2
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
 	 */
 	private function seedPermissions(IOutput $output): void {
 		$now = (new DateTime())->format(format: 'c');
@@ -222,7 +224,12 @@ class SeedRolePermissions implements IRepairStep {
 			$entity->setGroupId($seed['groupId']);
 			$entity->setName($seed['name']);
 			$entity->setDescription($seed['description']);
-			$entity->setAllowedWidgets(json_encode(value: $seed['allowedWidgets']));
+			$allowed = $seed['allowedWidgets'];
+			if ($seed['groupId'] === RoleFeaturePermission::GROUP_DEFAULT) {
+				$allowed = (new WidgetTypeList())->defaultRuleWidgets();
+			}
+
+			$entity->setAllowedWidgets(json_encode(value: $allowed));
 			$entity->setDeniedWidgets(json_encode(value: $seed['deniedWidgets']));
 			$entity->setPriorityWeights(json_encode(value: $seed['priorityWeights']));
 			$entity->setCreatedAt($now);

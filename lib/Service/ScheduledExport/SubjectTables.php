@@ -4,9 +4,10 @@
  * SubjectTables
  *
  * The tabular data behind an export's subject (REQ-SCH-003, REQ-SCH-004):
- * one table per widget of the dashboard, or the one widget, taken from the
- * rows the widget carries (`props.rows`, `props.data` or
- * `dataSource.rows`), with the recipient's filter context applied. A
+ * one table per visible widget of a LaunchPad dashboard, or the one widget,
+ * read from LaunchPad's own dashboards and placements: a text widget's
+ * table, or the rows of objects its content carries (`rows` or `data`),
+ * with the recipient's filter context applied. A
  * filter on a field no table has is refused. A widget with calculated
  * fields gets a second table of their values, evaluated on the server over
  * the filtered rows, so the export carries what the widget shows.
@@ -29,6 +30,12 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service\ScheduledExport;
 
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\PermissionService;
+use OCP\AppFramework\Db\DoesNotExistException;
+
 /**
  * Widget tables of a dashboard or widget subject.
  *
@@ -39,11 +46,15 @@ class SubjectTables {
 	/**
 	 * Constructor.
 	 *
-	 * @param ExportObjectStore      $store      Reads the subject dashboard.
-	 * @param ExportCalculatedValues $calculated Evaluates the widgets' calculated fields.
+	 * @param DashboardMapper        $dashboards  LaunchPad's dashboards.
+	 * @param WidgetPlacementMapper  $placements  Their widget placements.
+	 * @param PermissionService      $permissions Whether the creator may see the subject.
+	 * @param ExportCalculatedValues $calculated  Evaluates the widgets' calculated fields.
 	 */
 	public function __construct(
-		private readonly ExportObjectStore $store,
+		private readonly DashboardMapper $dashboards,
+		private readonly WidgetPlacementMapper $placements,
+		private readonly PermissionService $permissions,
 		private readonly ExportCalculatedValues $calculated = new ExportCalculatedValues(),
 	) {
 	}//end __construct()
@@ -134,52 +145,125 @@ class SubjectTables {
 	}//end withCalculatedTables()
 
 	/**
-	 * The widgets the subject covers.
+	 * The widgets the subject covers, as `{id, title, props, calculatedFields}`:
+	 * the visible placements of a dashboard, or one placement. The render runs
+	 * under the creator's access (REQ-SCH-002): a subject the creator may not
+	 * see reads as gone.
 	 *
 	 * @param array<string, mixed> $export The export.
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @throws RenderException When the subject does not exist or the creator does not own it.
+	 * @throws RenderException When the subject does not exist or the creator may not see it.
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
 	private function widgets(array $export): array {
 		$subjectId = (string)($export['subjectId'] ?? '');
-		$owner     = (string)($export['createdBy'] ?? '');
+		$creator   = (string)($export['createdBy'] ?? '');
 		if (($export['subjectType'] ?? null) === 'dashboard') {
-			// REQ-SCH-002: the render runs under the creator's access, so only a
-			// dashboard the creator owns is read; any other reads as gone.
-			$dashboard = $this->store->find(schema: 'dashboard', uuid: $subjectId);
-			if ($dashboard === null || $owner === '' || (string)($dashboard['owner'] ?? '') !== $owner) {
+			$dashboardId = $this->dashboardId(uuid: $subjectId);
+			if ($dashboardId === null || $creator === '' || $this->permissions->canViewDashboard(userId: $creator, dashboardId: $dashboardId) === false) {
 				throw new RenderException('The dashboard of this export no longer exists');
 			}
 
-			return array_values(array_filter((array)($dashboard['widgets'] ?? []), 'is_array'));
+			$visible = array_filter(
+				$this->placements->findByDashboardId(dashboardId: $dashboardId),
+				static fn (WidgetPlacement $placement): bool => $placement->getIsVisible() !== 0
+			);
+
+			return array_values(array_map(static fn (WidgetPlacement $placement): array => self::widgetOf(placement: $placement), $visible));
 		}
 
-		foreach ($this->store->findAll(schema: 'dashboard', filters: ['@self' => ['owner' => $owner]]) as $dashboard) {
-			foreach ((array)($dashboard['widgets'] ?? []) as $widget) {
-				if (is_array($widget) === true && in_array($subjectId, [(string)($widget['id'] ?? ''), (string)($widget['widgetId'] ?? '')], true) === true) {
-					return [$widget];
-				}
-			}
+		$placement = $this->placement(id: $subjectId);
+		if ($placement === null || $creator === '' || $this->permissions->canViewPlacement(userId: $creator, placementId: $placement->getId()) === false) {
+			throw new RenderException('The widget of this export no longer exists');
 		}
 
-		throw new RenderException('The widget of this export no longer exists');
+		return [self::widgetOf(placement: $placement)];
 	}//end widgets()
 
 	/**
-	 * One widget's table: the union of its row keys as headers.
+	 * The id of a dashboard by uuid, or null when there is none.
 	 *
-	 * @param array<string, mixed> $widget The widget placement.
+	 * @param string $uuid The dashboard uuid.
+	 *
+	 * @return int|null
+	 */
+	private function dashboardId(string $uuid): ?int {
+		if ($uuid === '') {
+			return null;
+		}
+
+		try {
+			return $this->dashboards->findByUuid(uuid: $uuid)->getId();
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}//end dashboardId()
+
+	/**
+	 * A widget placement by its numeric id, or null when there is none.
+	 *
+	 * @param string $id The placement id.
+	 *
+	 * @return WidgetPlacement|null
+	 */
+	private function placement(string $id): ?WidgetPlacement {
+		if (ctype_digit($id) === false) {
+			return null;
+		}
+
+		try {
+			return $this->placements->find(id: (int)$id);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}//end placement()
+
+	/**
+	 * A placement as the tables read it: its id, the title it shows, its
+	 * content and its calculated fields.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function widgetOf(WidgetPlacement $placement): array {
+		$title = (string)($placement->getCustomTitle() ?? '');
+		if ($title === '') {
+			$title = (string)($placement->getTileTitle() ?? '');
+		}
+
+		if ($title === '') {
+			$title = $placement->getWidgetId();
+		}
+
+		return [
+			'id' => (string)$placement->getId(),
+			'title' => $title,
+			'props' => $placement->getContentArray(),
+			'calculatedFields' => $placement->getCalculatedFieldsArray(),
+		];
+	}//end widgetOf()
+
+	/**
+	 * One widget's table: a text widget's table (its first row the headers
+	 * when it has a header row), or rows of objects with the union of their
+	 * keys as headers.
+	 *
+	 * @param array<string, mixed> $widget The widget.
 	 *
 	 * @return array{title: string, headers: list<string>, rows: list<list<mixed>>}
 	 */
 	private function table(array $widget): array {
 		$props = (array)($widget['props'] ?? []);
-		$title = (string)($props['title'] ?? $widget['title'] ?? $widget['widgetKey'] ?? 'Widget');
-		$data  = $props['rows'] ?? $props['data'] ?? $widget['dataSource']['rows'] ?? [];
+		$title = (string)($props['title'] ?? $widget['title'] ?? 'Widget');
+		if (($props['tableMode'] ?? false) === true && is_array($props['tableData']['rows'] ?? null) === true) {
+			return ['title' => $title] + self::textTable(tableData: (array)$props['tableData']);
+		}
+
+		$data = $props['rows'] ?? $props['data'] ?? [];
 		if (is_array($data) === false) {
 			$data = [];
 		}
@@ -198,4 +282,51 @@ class SubjectTables {
 
 		return ['title' => $title, 'headers' => array_map('strval', $headers), 'rows' => $rows];
 	}//end table()
+
+	/**
+	 * The headers and rows of a text widget's table: cell texts, the first
+	 * row as headers when the table has a header row, else `Column 1` and on.
+	 * Every row is cut or padded to the header count.
+	 *
+	 * @param array<string, mixed> $tableData The widget's `tableData`.
+	 *
+	 * @return array{headers: list<string>, rows: list<list<string>>}
+	 */
+	private static function textTable(array $tableData): array {
+		$texts = [];
+		foreach ((array)$tableData['rows'] as $row) {
+			if (is_array($row) === true) {
+				$texts[] = array_map(static fn (mixed $cell): string => self::cellText(cell: $cell), array_values($row));
+			}
+		}
+
+		$width   = max(array_merge([0], array_map('count', $texts)));
+		$headers = array_map(static fn (int $index): string => 'Column ' . ($index + 1), range(0, max(0, $width - 1)));
+		if (($tableData['headerRow'] ?? false) === true && $texts !== []) {
+			$headers = array_pad(array_shift($texts), $width, '');
+		}
+
+		if ($width === 0) {
+			$headers = [];
+		}
+
+		$rows = array_map(static fn (array $row): array => array_slice(array_pad($row, $width, ''), 0, $width), $texts);
+
+		return ['headers' => array_values($headers), 'rows' => array_values($rows)];
+	}//end textTable()
+
+	/**
+	 * The text of one table cell (`{text}`, or a bare value).
+	 *
+	 * @param mixed $cell The cell.
+	 *
+	 * @return string
+	 */
+	private static function cellText(mixed $cell): string {
+		if (is_array($cell) === true) {
+			$cell = $cell['text'] ?? '';
+		}
+
+		return trim((string)$cell);
+	}//end cellText()
 }//end class

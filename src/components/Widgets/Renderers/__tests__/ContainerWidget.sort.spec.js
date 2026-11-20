@@ -137,6 +137,22 @@ describe('ContainerWidget forget my usage — REQ-TSO-003', () => {
 	})
 })
 
+describe('ContainerWidget forget my usage on a live grid — REQ-TSO-003', () => {
+	it('moves the grid items to the alphabetical places at once', async () => {
+		localStorage.setItem(TILE_USE_KEY, JSON.stringify({ 1: { count: 5, lastUsedAt: 9 } }))
+		const wrapper = mountContainer({ placements: applicaties(), sortBy: 'most-used' })
+		const update = vi.fn()
+		wrapper.vm.gridInstance = { update, batchUpdate: vi.fn() }
+
+		await wrapper.find('[data-testid="container-forget-usage"]').trigger('click')
+		await wrapper.vm.$nextTick()
+
+		const items = wrapper.findAll('.container-widget__child').map((item) => item.element)
+		expect(shown(wrapper)).toEqual([[2, 0], [3, 1], [1, 2]])
+		expect(update.mock.calls.map(([el, opts]) => [items.indexOf(el), opts.x, opts.y])).toEqual([[0, 0, 0], [1, 1, 0], [2, 2, 0]])
+	})
+})
+
 describe('ContainerWidget accessible order', () => {
 	it('describes the grid with the sort, and says nothing by hand', () => {
 		const wrapper = mountContainer({ placements: applicaties(), sortBy: 'most-used' })

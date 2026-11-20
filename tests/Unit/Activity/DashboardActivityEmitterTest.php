@@ -298,7 +298,9 @@ class DashboardActivityEmitterTest extends TestCase {
 	 */
 	public function testAnUnsavedDashboardNeverQueriesShares(): void {
 		$this->shareMapper->expects($this->never())->method('findByDashboardId');
-		$this->publisher->expects($this->never())->method($this->anything());
+		foreach (['publish', 'publishToRecipients', 'publishToGroup', 'publishGlobal'] as $method) {
+			$this->publisher->expects($this->never())->method($method);
+		}
 
 		$this->assertSame(expected: 0, actual: $this->emitter->published(dashboard: $this->dashboard(id: null), actor: 'alice'));
 	}

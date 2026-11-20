@@ -108,7 +108,7 @@ type Answer = {
 	entries: Entry[]
 }
 type Provider = { id: string; name: string; order: number }
-type Dashboard = { id: number; uuid: string; name: string }
+type Dashboard = { id: number; uuid: string; name: string; owner: Principal }
 
 let admin: APIRequestContext
 let savedSettings: Record<string, unknown> | null = null
@@ -168,11 +168,12 @@ async function dashboard(
 	expect(res.status(), await res.text()).toBeLessThan(300)
 	const body = await res.json()
 	const dash = body.dashboard ?? body.data?.dashboard ?? body
-	return { id: Number(dash.id), uuid: String(dash.uuid), name }
+	return { id: Number(dash.id), uuid: String(dash.uuid), name, owner }
 }
 
 /**
- * Place a widget on a dashboard, as the administrator.
+ * Place a widget on a dashboard, as its owner: only the owner may add
+ * widgets to a personal dashboard.
  *
  * @param dash the dashboard.
  * @param widgetId the widget type (`text`, `weather`, `calendar` …).
@@ -184,7 +185,7 @@ async function placement(
 	widgetId: string,
 	content: Record<string, unknown>,
 ): Promise<number> {
-	const res = await admin.post(`${API}/dashboard/${dash.id}/widgets`, {
+	const res = await dash.owner.api.post(`${API}/dashboard/${dash.id}/widgets`, {
 		data: { widgetId, gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2, content },
 	})
 	expect(res.status(), await res.text()).toBe(201)
@@ -397,8 +398,10 @@ function escapeRe(text: string): string {
  */
 async function openUnifiedSearch(page: Page, term: string): Promise<Locator> {
 	await page.goto(OFF_APP)
+	// Nextcloud 34 draws the trigger as a search-bar button in the header.
 	const trigger = page
-		.locator('#unified-search button')
+		.locator('.unified-search-input__button')
+		.or(page.locator('#unified-search button'))
 		.or(page.getByRole('button', { name: /unified search/i }))
 		.first()
 	await trigger.click()
@@ -569,8 +572,10 @@ test.describe.serial('unified search: name and description matching (REQ-SRCH-00
 		expect(answer.status).toBe(200)
 		const hits = about(answer.entries, dash).filter(isDashboard)
 		expect(hits.map((e) => e.title)).toEqual(['Q1 Metrics'])
-		// The subline carries metadata such as creation info or a widget count.
-		expect(hits[0].subline).toMatch(/\d+\s+widgets?|created|aangemaakt/i)
+		// REQ-SRCH-002 asks for "metadata like creation info or widget count";
+		// REQ-SRCH-006 pins the dashboard subline to the description, which is
+		// the stricter of the two and what the product answers.
+		expect(hits[0].subline).toBe(description)
 	})
 
 	// @e2e nc-unified-search-integration::partial-substring-match

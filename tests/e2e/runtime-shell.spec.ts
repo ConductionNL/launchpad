@@ -195,7 +195,7 @@ async function closeSwitcher(page: Page): Promise<void> {
  * @return the context and page.
  */
 async function sessionOf(browser: Browser, who: Principal) {
-	return loginAs(browser, who.username, who.password)
+	return loginAs(browser, who.username, who.password, { tour: true })
 }
 
 /**

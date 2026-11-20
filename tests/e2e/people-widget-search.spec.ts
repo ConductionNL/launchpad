@@ -154,6 +154,8 @@ async function leaveAndReturn(
 	if (between) {
 		await between()
 	}
+	// Choosing a dashboard closes the switcher; reopen it to come back.
+	await openSidebar(page)
 	await page.locator(ROW).filter({ hasText: home }).first().click()
 	await expect(page.locator(ROW).filter({ hasText: home }).first()).toHaveClass(/\bactive\b/, { timeout: 15_000 })
 	await closeSidebar(page)

@@ -300,18 +300,19 @@ The system SHALL reject any write operation (POST/PUT/PATCH/DELETE) issued under
 #### Scenario: 4.1 — Read-mode token rejects write operation
 
 GIVEN an `embed_token` with `scope.mode="read"` for dashboard D
-  AND an authenticated user holds this token (via JWT in Authorization or query parameter)
-  AND the user (or JavaScript running in the iframe) attempts a POST to add a comment on dashboard D
-WHEN the SDK or frontend invokes `POST /api/dashboards/D/comments` with a comment payload
-THEN the API SHALL respond 403 with body:
+  AND JavaScript running in the iframe holds this token as `Authorization: Bearer <jwt>`
+WHEN it sends a write (POST/PUT/PATCH/DELETE) to a LaunchPad route that needs no Nextcloud login (a public route)
+THEN the API SHALL respond 403 before the controller runs, with body:
   ```json
   {
     "error": "read_only_token",
     "message": "This token does not permit write operations. Token scope: mode=read"
   }
   ```
-  AND NO state SHALL be mutated (no comment created, no audit log entry)
-  AND a `embed_usage_event` SHALL be written with `eventType: "pageView"`, `responseStatusCode: 403`
+  AND NO state SHALL be mutated
+WHEN it sends a write to a route that needs a Nextcloud login, such as `POST /api/dashboard/{id}/widgets` to add a widget to dashboard D
+THEN Nextcloud SHALL refuse it with 401 before LaunchPad runs, because an embed token is not a Nextcloud login
+  AND NO state SHALL be mutated (no widget added, no audit log entry)
 
 #### Scenario: 4.2 — Read-mode token rejects DELETE
 

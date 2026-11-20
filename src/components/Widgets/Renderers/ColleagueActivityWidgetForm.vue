@@ -88,7 +88,7 @@ export default {
 		 * Keep the new limit and tell the modal.
 		 *
 		 * @param {number} limit Lines to show.
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 		 */
 		updateLimit(limit) {
 			this.limit = LIMIT_OPTIONS.includes(Number(limit)) ? Number(limit) : DEFAULT_LIMIT
@@ -99,14 +99,14 @@ export default {
 		 * Keep the new period and tell the modal.
 		 *
 		 * @param {number} days Days back.
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 		 */
 		updateDays(days) {
 			this.days = DAY_OPTIONS.includes(Number(days)) ? Number(days) : DEFAULT_DAYS
 			this.emitContent()
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1 */
 		emitContent() {
 			this.$emit('update:content', { limit: this.limit, days: this.days })
 		},
@@ -115,7 +115,7 @@ export default {
 		 * Validate the form. Both settings always have a valid value.
 		 *
 		 * @return {string[]} The validation errors (always empty).
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 		 */
 		validate() {
 			return []

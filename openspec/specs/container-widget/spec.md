@@ -35,8 +35,6 @@ The server enforces a maximum container nesting depth of **3 levels** (REQ-CONT-
 
 ## Requirements
 
-@e2e exclude container-widget API and nested-grid scenarios are backend / JS composable — inner GridStack instances cannot be reliably driven headlessly
-
 ### Requirement: REQ-CONT-001 Container widget type registered
 
 The widget registry MUST include a `container` widget type whose `defaultContent` is `{placements: [], backgroundColor: 'transparent', padding: 'medium', title: ''}`. The container widget MUST be selectable from the unified Add Custom Widget picker (REQ-WDG-010 + REQ-WDG-019 EXPECTED_TYPES).
@@ -96,6 +94,8 @@ In view mode, the container MUST be non-interactive: clicks MUST fall through to
 In edit mode, the container's inner grid MUST become editable independently of the outer grid. The user MUST be able to add, remove, move, and resize child widgets WITHIN the container without disturbing siblings on the outer grid; outer-grid drag operations MUST NOT cascade into inner-grid mutations.
 
 #### Scenario: Add a child widget inside a container
+
+@e2e exclude never built: no control adds a child to a container. ContainerWidget.vue renders no add affordance, WidgetRenderer.vue passes the container neither `editMode` nor an `update:content` listener, and CnContainerWidgetForm.vue says so in a NOTE ("there is currently no way to add a widget to a container"); `git log --all -S` for an add-to-container identifier returns nothing. The persist path that exists is pinned only by src/components/Widgets/Renderers/__tests__/ContainerWidget.persist.spec.js.
 
 - **GIVEN** a container in edit mode with two child widgets
 - **WHEN** the user opens the container's add-widget affordance and adds a label widget

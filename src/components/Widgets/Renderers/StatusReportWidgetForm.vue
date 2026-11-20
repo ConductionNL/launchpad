@@ -67,7 +67,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3 */
+		/** @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3 */
 		fields() {
 			return [
 				{ key: 'title', label: t('launchpad', 'Name of the body of work'), type: 'text' },
@@ -87,7 +87,7 @@ export default {
 		/**
 		 * @param {string} key the field
 		 * @param {string} value the typed value
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		set(key, value) {
 			this.values = { ...this.values, [key]: String(value ?? '') }
@@ -101,7 +101,7 @@ export default {
 
 		/**
 		 * @return {Array<string>} what keeps the widget from being saved
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 		 */
 		validate() {
 			const errors = []

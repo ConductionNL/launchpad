@@ -8,14 +8,20 @@
 		:type="chartType"
 		:data-source="dataSource"
 		:widgetId="widgetId"
-		v-bind="passthroughProps" />
+		:selectable="publishing"
+		v-bind="passthroughProps"
+		@select="onSelect"
+		@data="$emit('data', $event)" />
 </template>
 
 <script>
 import { CnChartWidget } from '@conduction/nextcloud-vue'
+import { showInfo, showWarning } from '@nextcloud/dialogs'
+import { translate as t } from '@nextcloud/l10n'
+import { levelLabels as hierarchyLevelLabels } from '../../../composables/useDashboardFilterSession.js'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { logger } from '../../../utils/logger.js'
-import { busDeclarationsOf, consumedFilter, withBusFilter } from '../../../utils/widgetBusConsumption.js'
+import { busDeclarationsOf, consumedFilter, publishedClauses, withBusFilter } from '../../../utils/widgetBusConsumption.js'
 import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
 
 // Chart config keys that a content-based placement may carry through to
@@ -49,6 +55,12 @@ const CHART_PROP_KEYS = [
  * CnChartWidget refetches when that filter changes (drill-down-cross-widget-
  * filter REQ-CWF-002). A declaration that does not fit the dashboard's
  * hierarchies keeps the chart off the bus, with a warning (REQ-CWF-008).
+ *
+ * A chart that declares `publishes` lets the reader pick a bar or slice:
+ * CnChartWidget's `select` names the grouped field and the raw key, and the
+ * host publishes a `widgetClick` clause for each dimension published from
+ * that field (REQ-CWF-001). A replaced filter from another widget is named
+ * in a toast (REQ-CWF-005).
  */
 export default {
 	name: 'ChartHost',
@@ -67,6 +79,8 @@ export default {
 		/** The placement record (used for a stable widget id). */
 		placement: OBJECT_PROP,
 	},
+
+	emits: ['data'],
 
 	computed: {
 		/** apexcharts chart type, from `chartKind` (content or nested props). */
@@ -122,6 +136,26 @@ export default {
 			return validateBusDeclarations({ widget: { publishes, consumes }, hierarchies: this.bus.hierarchies })
 		},
 
+		/**
+		 * Whether a click on the chart publishes to the bus.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+		 */
+		publishing() {
+			return this.busCheck.participates && this.busDeclarations.publishes.length > 0
+		},
+
+		/**
+		 * A display label per hierarchy level of the dashboard.
+		 *
+		 * @return {{[dimension: string]: string}}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+		 */
+		levelLabels() {
+			return this.bus ? hierarchyLevelLabels(this.bus.hierarchies || []) : {}
+		},
+
 		/** Stable widget id for the chart's date-range wiring. */
 		widgetId() {
 			return String(this.placement?.id ?? this.placement?.widgetId ?? 'chart')
@@ -155,6 +189,32 @@ export default {
 					logger.warn(`[launchpad] widget ${this.widgetId} is not on the filter bus: ${finding.code} (${finding.dimension})`)
 				}
 			},
+		},
+	},
+
+	methods: {
+		/**
+		 * Publish the reader's pick to the bus, and say so when it replaced
+		 * another widget's filter or was refused.
+		 *
+		 * @param {{field: string, value: unknown, label: string}} selection CnChartWidget's `select` payload.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+		 */
+		onSelect(selection) {
+			if (!this.publishing) {
+				return
+			}
+			const labels = this.levelLabels
+			for (const clause of publishedClauses(this.busDeclarations.publishes, selection, this.widgetId)) {
+				const answer = this.bus.publish(clause, { row: { [selection.field]: selection.value } })
+				const name = labels[clause.dimension] || clause.dimension
+				if (answer.reason === 'forbidden') {
+					showWarning(t('launchpad', 'You have no access to this scope: {name}', { name }))
+				} else if (answer.audit && answer.audit.silent === false) {
+					showInfo(t('launchpad', '{name} filter changed: {from} → {to}', { name, from: String(answer.audit.from), to: String(answer.audit.to) }))
+				}
+			}
 		},
 	},
 }

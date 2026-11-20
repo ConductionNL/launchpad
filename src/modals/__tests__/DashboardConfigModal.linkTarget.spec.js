@@ -4,7 +4,7 @@
  *
  * The dashboard default for how tiles open (launcher-tile-open-behaviour D2).
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

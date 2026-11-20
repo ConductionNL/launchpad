@@ -132,7 +132,7 @@ class ConfluenceImportServiceTest extends TestCase {
 		$this->assertSame(null, $parents[0]);
 		$this->assertSame(36, strlen((string) $parents[1]));
 		$this->assertSame([null, null], [$parents[2], $parents[3]]);
-		$this->assertMatchesRegularExpression('#^LaunchPad/Imports/\d{4}-\d\d-\d\dT\d\d-\d\d-\d\d$#', $result['assetFolder']);
+		$this->assertMatchesRegularExpression('#^LaunchPad/Imports/\d{4}-\d\d-\d\dT\d\d-\d\d-\d\d\.\d{6}$#', $result['assetFolder']);
 		unset($result['assetFolder']);
 		$this->assertSame(
 			[

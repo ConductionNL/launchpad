@@ -19,7 +19,7 @@
  * cannot fetch it; the spec then skips and says so rather than failing the
  * tile.
  *
- * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { Server } from 'node:http'

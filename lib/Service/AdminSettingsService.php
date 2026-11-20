@@ -192,7 +192,7 @@ class AdminSettingsService {
 	 *
 	 * @return array{officeNetworks: list<string>, currentAddress: string, currentAddressInOfficeNetworks: bool}
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md
 	 */
 	private function officeNetworkSettings(mixed $stored): array {
 		return [
@@ -584,7 +584,7 @@ class AdminSettingsService {
 	 *
 	 * @throws \InvalidArgumentException Naming the scheme or template refused.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
 	 */
 	private function persistTileLaunchSettings(array $settings): void {
 		$writes = [];
@@ -610,7 +610,7 @@ class AdminSettingsService {
 	 *
 	 * @throws InvalidArgumentException When a range is not a valid CIDR range; nothing is stored then.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 	 */
 	private function persistOfficeNetworks(?array $ranges): void {
 		if ($ranges === null) {

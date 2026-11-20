@@ -394,7 +394,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self Fluent.
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	public function setCustomCss(string $customCss): self {
 		$this->values['customCss'] = $customCss;
@@ -432,7 +432,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self Fluent.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 	 */
 	public function setTileLaunchOptions(array $schemes, array $templates): self {
 		$this->values['tileAllowedSchemes'] = array_values($schemes);
@@ -458,7 +458,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self Fluent.
 	 *
-	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 	 */
 	public function setOnOfficeNetwork(bool $onOfficeNetwork): self {
 		$this->values['onOfficeNetwork'] = $onOfficeNetwork;
@@ -482,6 +482,23 @@ class InitialStateBuilder {
 		$this->values['talkEnabled'] = $talkEnabled;
 		return $this;
 	}//end setTalkEnabled()
+
+	/**
+	 * Set the viewer's Nextcloud timezone (workspace).
+	 *
+	 * Optional key; the JS reader defaults to '', which makes a clock without
+	 * its own zone follow the device (REQ-CLOCK-002).
+	 *
+	 * @param string $timezone The IANA timezone name, or ''.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	public function setUserTimezone(string $timezone): self {
+		$this->values['userTimezone'] = $timezone;
+		return $this;
+	}//end setUserTimezone()
 
 	/**
 	 * Set the Talk conversation tokens the organisation pinned (workspace).

@@ -15,7 +15,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ use InvalidArgumentException;
  * address the server did not produce or accept. A refusal throws, which the
  * placement API answers with HTTP 400 before anything is saved.
  *
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
  */
 class TileLinkValidator {
 
@@ -86,7 +86,7 @@ class TileLinkValidator {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public static function isLaunchType(?string $type): bool {
 		return in_array($type, self::LAUNCH_TYPES, true);
@@ -103,7 +103,7 @@ class TileLinkValidator {
 	 *
 	 * @throws InvalidArgumentException When the tile may not be saved like this.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	public function check(string $type, string $value, array $content): string {
 		return match ($type) {
@@ -123,7 +123,7 @@ class TileLinkValidator {
 	 *
 	 * @throws InvalidArgumentException When the tile holds no valid RDP connection.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function rdpConnection(array $content): array {
 		$remote = $this->remote(content: $content);

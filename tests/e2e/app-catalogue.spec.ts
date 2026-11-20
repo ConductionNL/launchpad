@@ -16,20 +16,20 @@
  *   @e2e app-catalogue::non-member-does-not-see-entry
  *   @e2e app-catalogue::request-declined-with-a-note
  *
- * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { adminTab } from './support/adminTab.ts'
-import { BASE_URL } from './support/baseUrl.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -58,13 +58,7 @@ let entryUuid: string | null = null
  * @return the request context; the caller disposes it.
  */
 async function apiAs(account?: Account): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: account
-			? { username: account.username, password: account.password }
-			: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return contextFor(account?.username ?? ADMIN.user, account?.password ?? ADMIN.pass)
 }
 
 /**

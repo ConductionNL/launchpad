@@ -8,7 +8,6 @@
  * covered by the dedicated per-widget test files:
  *
  *   @e2e dashboard-switcher::all-three-sections-present
- *   @e2e dashboard-switcher::only-personal-dashboards-section-visible
  *   @e2e dashboard-switcher::personal-section-visible-when-allowed-even-with-empty-list
  *   @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
  *   @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
@@ -149,7 +148,6 @@ test.describe('dashboard-switcher sidebar', () => {
 	})
 
 	// @e2e dashboard-switcher::all-three-sections-present
-	// @e2e dashboard-switcher::only-personal-dashboards-section-visible
 	test('sidebar opens and shows at least one dashboard section', async ({
 		page,
 	}) => {

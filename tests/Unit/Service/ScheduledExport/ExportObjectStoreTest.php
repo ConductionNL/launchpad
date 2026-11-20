@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Unit\Service\ScheduledExport;
 
 use OCA\LaunchPad\Service\ScheduledExport\ExportObjectStore;
+use OCA\OpenRegister\Service\SystemOperationContext;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 
 require_once __DIR__ . '/../../../Stubs/OpenRegisterValueStubs.php';
+require_once __DIR__ . '/../../../Stubs/OpenRegisterSystemStubs.php';
 
 /**
  * @covers \OCA\LaunchPad\Service\ScheduledExport\ExportObjectStore
@@ -65,7 +67,7 @@ class ExportObjectStoreTest extends TestCase {
 			}
 
 			public function saveObject(array $object, object $options, bool $_rbac = true): object {
-				$this->calls[] = ['save', $object, $options, $_rbac];
+				$this->calls[] = ['save', $object, $options, $_rbac, SystemOperationContext::isActive()];
 				return new class($object, $options->uuid ?? 'new') implements \JsonSerializable {
 					public function __construct(private array $o, private string $id) {
 					}
@@ -154,6 +156,27 @@ class ExportObjectStoreTest extends TestCase {
 		$this->assertNull($service->calls[1][2]->uuid);
 		$this->assertFalse($service->calls[1][3]);
 	}//end testSaveUpdatesByUuidWithoutMetadata()
+
+	/**
+	 * saveAsSystem writes inside OpenRegister's system scope, so readOnly
+	 * properties can be stamped; a plain save does not.
+	 *
+	 * @return void
+	 */
+	public function testSaveAsSystemStampsInsideTheSystemScope(): void {
+		$service = $this->objectService();
+		$store   = $this->store($service);
+
+		$saved = $store->saveAsSystem(schema: 'scheduled_export', data: ['id' => 'u5', 'nextRunAt' => 'T']);
+		$store->save(schema: 'scheduled_export', data: ['id' => 'u5', 'name' => 'n']);
+
+		$this->assertSame(['nextRunAt' => 'T'], $service->calls[0][1]);
+		$this->assertTrue($service->calls[0][4], 'the app\'s own stamp is written inside the system scope');
+		$this->assertFalse($service->calls[0][3]);
+		$this->assertSame(['nextRunAt' => 'T', 'id' => 'u5', 'owner' => 'alice'], $saved);
+		$this->assertFalse($service->calls[1][4], 'a plain save is not elevated');
+		$this->assertFalse(SystemOperationContext::isActive(), 'the scope ends with the save');
+	}//end testSaveAsSystemStampsInsideTheSystemScope()
 
 	/**
 	 * delete soft-deletes the uuid through OpenRegister.

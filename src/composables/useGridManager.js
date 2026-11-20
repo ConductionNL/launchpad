@@ -222,6 +222,31 @@ function lowestBottomEdge(placements) {
 export const MIN_CELLS = 2
 
 /**
+ * Widget types that may be one row tall, below {@link MIN_CELLS}. A divider
+ * is a single line between sections (REQ-DIV-006).
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const ONE_ROW_TYPES = Object.freeze(['divider'])
+
+/**
+ * The size a new widget of a type gets when the caller names none: a divider
+ * spans every column and is one row tall (REQ-DIV-006); anything else is
+ * {@link DEFAULT_W} by {@link DEFAULT_H}.
+ *
+ * @param {string} type The widget type.
+ * @param {number} [columns] The dashboard's column count.
+ * @return {{w: number, h: number}} The size.
+ * @spec openspec/specs/divider-widget/spec.md
+ */
+export function defaultSizeFor(type, columns = DEFAULT_COLUMNS) {
+	if (type === 'divider') {
+		return { w: columns, h: 1 }
+	}
+	return { w: DEFAULT_W, h: DEFAULT_H }
+}
+
+/**
  * Whether two grid rectangles overlap.
  *
  * Half-open intervals: a rect spans columns `[x, x + w)` and rows `[y, y + h)`,
@@ -287,7 +312,7 @@ const NUDGES = {
 	}),
 	'shrink-width': (rect) => ({ ...rect, w: Math.max(MIN_CELLS, rect.w - 1) }),
 	'grow-height': (rect) => ({ ...rect, h: rect.h + 1 }),
-	'shrink-height': (rect) => ({ ...rect, h: Math.max(MIN_CELLS, rect.h - 1) }),
+	'shrink-height': (rect, columns, minHeight = MIN_CELLS) => ({ ...rect, h: Math.max(minHeight, rect.h - 1) }),
 }
 
 /**
@@ -339,8 +364,9 @@ function pushedNeighbours(moved, allPlacements) {
  *     resize by one cell, clamped to {@link MIN_CELLS} and the column
  *     count.
  *
- * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, id?: (number|string)}} placement
- *   the placement being moved/resized (LaunchPad field-name form)
+ * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, id?: (number|string), widgetId?: string}} placement
+ *   the placement being moved/resized (LaunchPad field-name form); a type in
+ *   {@link ONE_ROW_TYPES} may shrink to one row
  * @param {string} action one of the supported action strings above
  * @param {Array<object>} allPlacements every placement on the dashboard
  *   (used to compute push-down side effects), in LaunchPad field-name form
@@ -354,8 +380,9 @@ function pushedNeighbours(moved, allPlacements) {
  */
 export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	const columns = options.gridColumns || DEFAULT_COLUMNS
+	const minHeight = ONE_ROW_TYPES.includes(placement?.widgetId) ? 1 : MIN_CELLS
 	const nudge = Object.hasOwn(NUDGES, action) ? NUDGES[action] : (rect) => rect
-	const rect = keepInColumns(nudge(placementRect(placement), columns), columns)
+	const rect = keepInColumns(nudge(placementRect(placement), columns, minHeight), columns)
 
 	return {
 		gridX: rect.x,

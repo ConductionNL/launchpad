@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -46,7 +46,7 @@ use OCP\IRequest;
  * service's decision: anybody their own, an administrator another person's
  * once activity reporting is on.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
  */
 class ActivityReportController extends Controller {
 	use RespondsWithErrors;
@@ -60,7 +60,7 @@ class ActivityReportController extends Controller {
 	 * @param IGroupManager           $groupManager Whether the caller is an administrator.
 	 * @param string|null             $userId       The signed-in user.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.4
 	 */
 	public function __construct(
 		IRequest $request,
@@ -81,7 +81,7 @@ class ActivityReportController extends Controller {
 	 *
 	 * @return JSONResponse The report, or 400, 401 or 403 with the reason.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.5
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.5
 	 */
 	#[NoAdminRequired]
 	public function report(string $user='', string $from='', string $to=''): JSONResponse {
@@ -105,7 +105,7 @@ class ActivityReportController extends Controller {
 	 *
 	 * @return DataDisplayResponse|JSONResponse The CSV, or 400, 401 or 403 with the reason.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.6
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.6
 	 */
 	#[NoAdminRequired]
 	public function export(string $user='', string $from='', string $to=''): DataDisplayResponse|JSONResponse {
@@ -132,7 +132,7 @@ class ActivityReportController extends Controller {
 	 *
 	 * @return JSONResponse {enabled, purpose}.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.1
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function policy(): JSONResponse {
@@ -147,7 +147,7 @@ class ActivityReportController extends Controller {
 	 *
 	 * @return JSONResponse {enabled, purpose}, or 400 naming what is missing.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.1
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updatePolicy(bool $enabled=false, ?string $purpose=null): JSONResponse {

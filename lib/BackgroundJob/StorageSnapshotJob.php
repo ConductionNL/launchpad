@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use Throwable;
 /**
  * Daily: take the storage figures and keep them as that day's snapshot.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
  */
 class StorageSnapshotJob extends TimedJob {
 
@@ -51,7 +51,7 @@ class StorageSnapshotJob extends TimedJob {
 	 * @param StorageReportService $storage Takes and keeps the snapshot.
 	 * @param LoggerInterface      $logger  Logs a failed run.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public function __construct(
 		ITimeFactory $time,
@@ -70,7 +70,7 @@ class StorageSnapshotJob extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	protected function run($argument): void {
 		try {

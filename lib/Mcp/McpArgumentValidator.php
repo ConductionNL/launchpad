@@ -83,33 +83,28 @@ class McpArgumentValidator {
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */
-	public function id(array $args, string $name): ?array {
+	public function positiveId(array $args, string $name): ?array {
 		$value = ($args[$name] ?? null);
 		if (is_int($value) === false || $value < 1) {
 			return self::error(code: 'invalid_arguments', message: "Argument {$name} must be a positive integer.");
 		}
 
 		return null;
-	}//end id()
+	}//end positiveId()
 
 	/**
-	 * A string argument between a minimum and a maximum length; absent is allowed when not required.
+	 * A required string argument between a minimum and a maximum length.
 	 *
-	 * @param array<string, mixed> $args     The arguments.
-	 * @param string               $name     The argument name.
-	 * @param int                  $min      The minimum length.
-	 * @param int                  $max      The maximum length.
-	 * @param bool                 $required Whether the argument must be present.
+	 * @param array<string, mixed> $args The arguments.
+	 * @param string               $name The argument name.
+	 * @param int                  $min  The minimum length.
+	 * @param int                  $max  The maximum length.
 	 *
 	 * @return array<string, mixed>|null The error, or null.
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */
-	public function string(array $args, string $name, int $min, int $max, bool $required=true): ?array {
-		if (array_key_exists($name, $args) === false && $required === false) {
-			return null;
-		}
-
+	public function string(array $args, string $name, int $min, int $max): ?array {
 		$value = ($args[$name] ?? null);
 		if (is_string($value) === false || mb_strlen($value) < $min || mb_strlen($value) > $max) {
 			return self::error(
@@ -121,23 +116,19 @@ class McpArgumentValidator {
 		return null;
 	}//end string()
 
+
 	/**
-	 * An argument that must be one of a fixed set; absent is allowed when not required.
+	 * A required argument that must be one of a fixed set.
 	 *
-	 * @param array<string, mixed> $args     The arguments.
-	 * @param string               $name     The argument name.
-	 * @param list<string>         $allowed  The allowed values.
-	 * @param bool                 $required Whether the argument must be present.
+	 * @param array<string, mixed> $args    The arguments.
+	 * @param string               $name    The argument name.
+	 * @param list<string>         $allowed The allowed values.
 	 *
 	 * @return array<string, mixed>|null The error, or null.
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 */
-	public function oneOf(array $args, string $name, array $allowed, bool $required=true): ?array {
-		if (array_key_exists($name, $args) === false && $required === false) {
-			return null;
-		}
-
+	public function oneOf(array $args, string $name, array $allowed): ?array {
 		if (in_array(($args[$name] ?? null), $allowed, true) === false) {
 			return self::error(
 				code: 'invalid_arguments',
@@ -147,6 +138,28 @@ class McpArgumentValidator {
 
 		return null;
 	}//end oneOf()
+
+	/**
+	 * An optional argument: absent passes, present answers the check run on it.
+	 *
+	 * Wrap a required check to make it optional:
+	 * `optional(args: $args, name: 'note', refusal: $this->string(args: $args, name: 'note', min: 1, max: 500))`.
+	 *
+	 * @param array<string, mixed>      $args    The arguments.
+	 * @param string                    $name    The argument name.
+	 * @param array<string, mixed>|null $refusal What the required check answered.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function optional(array $args, string $name, ?array $refusal): ?array {
+		if (array_key_exists($name, $args) === false) {
+			return null;
+		}
+
+		return $refusal;
+	}//end optional()
 
 	/**
 	 * Grid bounds of a placement: each given coordinate or size is an integer in range.
@@ -210,4 +223,22 @@ class McpArgumentValidator {
 			default => self::error(code: 'failed', message: 'The operation failed.'),
 		};
 	}//end failure()
+
+	/**
+	 * Run a service call and answer its result, or the envelope of the
+	 * exception it threw (see failure()).
+	 *
+	 * @param \Closure(): array<string, mixed> $operation The service call.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
+	 */
+	public function attempt(\Closure $operation): array {
+		try {
+			return $operation();
+		} catch (Throwable $e) {
+			return $this->failure(exception: $e);
+		}
+	}//end attempt()
 }//end class

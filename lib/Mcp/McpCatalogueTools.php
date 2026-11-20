@@ -3,7 +3,7 @@
 /**
  * LaunchPad McpCatalogueTools
  *
- * Read tools over the dashboard tree and the template gallery. Each applies
+ * Read tools over the dashboard tree, the template gallery and the caller's tiles. Each applies
  * the ADR-023 action of the matching HTTP route through the gate and calls the
  * service that route calls (mcp-tool-surface REQ-MCP-002).
  *
@@ -28,7 +28,6 @@ namespace OCA\LaunchPad\Mcp;
 
 use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
-use OCA\LaunchPad\Service\AdminTemplateService;
 
 /**
  * The dashboard tree and template gallery read tools.
@@ -43,13 +42,13 @@ class McpCatalogueTools {
 	 * @param McpDashboardGate     $gate       The caller and the ADR-023 action check.
 	 * @param DashboardApiServices $services  The dashboard service, whose visible set `GET /api/dashboards/tree` filters by.
 	 * @param DashboardApiHistory  $history   The tree service `GET /api/dashboards/tree` builds with.
-	 * @param AdminTemplateService $templates The gallery `GET /api/templates/gallery` lists.
+	 * @param McpCatalogueSources  $sources   The template gallery and the tile service the routes call.
 	 */
 	public function __construct(
 		private readonly McpDashboardGate $gate,
 		private readonly DashboardApiServices $services,
 		private readonly DashboardApiHistory $history,
-		private readonly AdminTemplateService $templates,
+		private readonly McpCatalogueSources $sources,
 	) {
 	}//end __construct()
 
@@ -82,28 +81,56 @@ class McpCatalogueTools {
 	}//end getDashboardTree()
 
 	/**
-	 * The template gallery, optionally for one category.
+	 * The template gallery offered to the caller, optionally for one category.
+	 * forkDashboard accepts exactly these templates.
 	 *
 	 * @param array<string, mixed> $args The tool arguments: category, sort.
 	 *
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-25
 	 */
 	public function listTemplates(array $args): array {
 		$validator = new McpArgumentValidator();
-		$refusal   = ($validator->string(args: $args, name: 'category', min: 1, max: 255, required: false)
-			?? $validator->oneOf(args: $args, name: 'sort', allowed: ['name', 'updatedAt'], required: false)
+		$refusal   = ($validator->optional(args: $args, name: 'category', refusal: $validator->string(args: $args, name: 'category', min: 1, max: 255))
+			?? $validator->optional(args: $args, name: 'sort', refusal: $validator->oneOf(args: $args, name: 'sort', allowed: ['name', 'updatedAt']))
 			?? $this->gate->requireAction(action: 'template.gallery'));
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
 		return [
-			'templates' => $this->templates->getGallery(
+			'templates' => $this->sources->templates->getGallery(
+				userId: $this->gate->currentUserId(),
 				category: ($args['category'] ?? null),
 				sortBy: ($args['sort'] ?? 'name')
 			),
 		];
 	}//end listTemplates()
+
+	/**
+	 * The caller's own tiles, as `GET /api/tiles` lists them.
+	 *
+	 * @param array<string, mixed> $args The tool arguments (none).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The provider passes every tool its arguments.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function listTiles(array $args): array {
+		$refusal = $this->gate->requireAction(action: 'tile.index');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$items = [];
+		foreach ($this->sources->tiles->getUserTiles(userId: $this->gate->currentUserId()) as $tile) {
+			$items[] = $tile->jsonSerialize();
+		}
+
+		return ['items' => $items];
+	}//end listTiles()
 }//end class

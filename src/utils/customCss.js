@@ -21,7 +21,7 @@ export const DASHBOARD_STYLE_ID = 'launchpad-dashboard-custom-css'
  * @param {string|null|undefined} css The cleaned CSS.
  * @param {Document} doc The document, for tests.
  * @return {HTMLStyleElement|null} The element, or null when there is no CSS.
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 export function applyCustomCss(id, css, doc = document) {
 	const text = typeof css === 'string' ? css : ''
@@ -42,7 +42,7 @@ export function applyCustomCss(id, css, doc = document) {
  * @param {string} id The element's id.
  * @param {Document} doc The document.
  * @return {HTMLStyleElement}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 function styleElement(id, doc) {
 	const existing = doc.getElementById(id)

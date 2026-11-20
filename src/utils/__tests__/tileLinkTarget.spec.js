@@ -5,7 +5,7 @@
  * How a tile opens: the tile's choice, the dashboard default, then the
  * link-type rule (launcher-tile-open-behaviour D2).
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 import { describe, expect, it } from 'vitest'

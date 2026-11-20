@@ -50,7 +50,7 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getDecidedAt()
  * @method void setDecidedAt(string|null $decidedAt)
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
  */
 class AppRequest extends Entity implements JsonSerializable {
 
@@ -127,7 +127,7 @@ class AppRequest extends Entity implements JsonSerializable {
 	/**
 	 * Register the column types.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');
@@ -139,7 +139,7 @@ class AppRequest extends Entity implements JsonSerializable {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
 		return [

@@ -6,8 +6,8 @@
  * sections together: the app catalogue, the office tile pack and the apps
  * discovered on this server, each placing what it offers.
  *
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
- * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md
  * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md
  */
 

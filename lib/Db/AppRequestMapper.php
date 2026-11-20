@@ -30,7 +30,7 @@ use OCP\IDBConnection;
  *
  * @extends QBMapper<AppRequest>
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
  */
 class AppRequestMapper extends QBMapper {
 	/**
@@ -38,7 +38,7 @@ class AppRequestMapper extends QBMapper {
 	 *
 	 * @param IDBConnection $db Database connection.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function __construct(IDBConnection $db) {
 		parent::__construct(
@@ -53,7 +53,7 @@ class AppRequestMapper extends QBMapper {
 	 *
 	 * @return array<int, AppRequest>
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function findOpen(): array {
 		$qb = $this->db->getQueryBuilder();
@@ -73,7 +73,7 @@ class AppRequestMapper extends QBMapper {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function countOpenBy(string $userId): int {
 		$qb = $this->db->getQueryBuilder();
@@ -100,7 +100,7 @@ class AppRequestMapper extends QBMapper {
 	 *
 	 * @throws DoesNotExistException When there is no such request.
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function findByUuid(string $uuid): AppRequest {
 		$qb = $this->db->getQueryBuilder();

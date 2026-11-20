@@ -28,9 +28,14 @@
 				"uuid": "b",
 				"name": "Copy",
 				"isOwner": true,
-				"sharedBy": null
+				"sharedBy": "(undefined)",
+				"hasVariants": false
 			},
-			"widgetPlacements": [],
+			"widgetPlacements": [
+				{
+					"id": 7
+				}
+			],
 			"permissionLevel": "full",
 			"loading": false,
 			"metadataByDashboard": {
@@ -46,10 +51,25 @@
 			}
 		},
 		"calls": {
+			"activateDashboard": [
+				[
+					2
+				]
+			],
 			"forkDashboard": [
 				[
 					"src",
 					"Mine"
+				]
+			],
+			"getDashboardById": [
+				[
+					2
+				]
+			],
+			"setActiveDashboardPreference": [
+				[
+					"b"
 				]
 			]
 		},

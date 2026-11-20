@@ -64,7 +64,7 @@ class UserAttributeResolver {
 		}
 
 		return match ($attribute) {
-			'locale' => $this->config->getUserValue(
+			'language', 'locale' => $this->config->getUserValue(
 				userId: $userId,
 				appName: 'core',
 				key: 'lang',

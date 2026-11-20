@@ -79,7 +79,8 @@ class RenderPipeline {
 				throw new RenderException('The ' . strtoupper($result->format) . ' could not be stored in Files');
 			}
 
-			return new RenderResult(format: $result->format, filename: $file->getName(), content: $result->content, storagePath: $file->getPath());
+			// The archive copy may be renamed to stay unique; recipients get the name the pattern made.
+			return new RenderResult(format: $result->format, filename: $result->filename, content: $result->content, storagePath: $file->getPath());
 		}, $this->preview(export: $export, filterContext: $filterContext));
 	}//end render()
 

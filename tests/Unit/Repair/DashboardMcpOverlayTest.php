@@ -74,7 +74,7 @@ class DashboardMcpOverlayTest extends TestCase {
 	public function testTheDashboardSchemaDeclaresOnlyReadTools(): void {
 		[$mcp, $version] = $this->imported();
 
-		$this->assertSame(expected: '1.0.6', actual: $version);
+		$this->assertSame(expected: '1.0.8', actual: $version);
 		$this->assertTrue(condition: $mcp['enabled']);
 		$this->assertSame(expected: ['search', 'get'], actual: array_keys($mcp['tools']));
 		foreach ($mcp['tools'] as $tool) {

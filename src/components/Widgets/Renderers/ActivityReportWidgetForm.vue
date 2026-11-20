@@ -67,7 +67,7 @@ export default {
 
 		/**
 		 * @param {number} days the chosen period length
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
 		 */
 		updateDays(days) {
 			this.days = DAY_OPTIONS.includes(Number(days)) ? Number(days) : DEFAULT_DAYS
@@ -76,7 +76,7 @@ export default {
 
 		/**
 		 * @return {Array<string>} nothing to refuse: every option is valid
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
 		 */
 		validate() {
 			return []

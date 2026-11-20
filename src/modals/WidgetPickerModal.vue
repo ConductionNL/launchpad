@@ -316,7 +316,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */
 		filteredApps() {
 			const query = this.searchQuery.toLowerCase()
 			return this.discoveredApps.filter((app) => !query || String(app.name).toLowerCase().includes(query))
@@ -326,7 +326,7 @@ export default {
 		 * The catalogue entries matching the search box, by name or description.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
 		 */
 		filteredCatalogueApps() {
 			const query = this.searchQuery.toLowerCase()
@@ -384,7 +384,7 @@ export default {
 		/**
 		 * Open the request form, starting from what the user searched for.
 		 *
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 		 */
 		openRequestForm() {
 			this.requestFormOpen = true
@@ -397,7 +397,7 @@ export default {
 		/**
 		 * Close the request form and forget what was typed.
 		 *
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 		 */
 		closeRequestForm() {
 			this.requestFormOpen = false
@@ -412,7 +412,7 @@ export default {
 		 * user has too many open requests, or not sent.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 		 */
 		async submitRequest() {
 			const appName = this.requestAppName.trim()

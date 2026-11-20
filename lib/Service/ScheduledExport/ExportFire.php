@@ -238,7 +238,8 @@ class ExportFire {
 			}
 
 			if ($file instanceof File) {
-				$results[] = new RenderResult(format: (string)$meta['format'], filename: $file->getName(), content: $file->getContent(), storagePath: $path);
+				$name      = (string)($meta['filename'] ?? $file->getName());
+				$results[] = new RenderResult(format: (string)$meta['format'], filename: $name, content: $file->getContent(), storagePath: $path);
 			}
 		}
 

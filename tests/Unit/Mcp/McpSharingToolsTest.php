@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Unit tests for the MCP share and kiosk read tools.
+ * Unit tests for the MCP share tools.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -14,18 +14,16 @@ declare(strict_types=1);
 namespace Unit\Mcp;
 
 use OCA\LaunchPad\Db\DashboardShare;
-use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Mcp\McpSharingTools;
 use OCA\LaunchPad\Service\DashboardShareService;
-use OCA\LaunchPad\Service\KioskService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * listShares and listKioskPlaylists answer what the services give the caller,
+ * listShares answers what the share service gives the caller,
  * and nothing when the caller is refused.
  *
  * @covers \OCA\LaunchPad\Mcp\McpSharingTools
@@ -44,11 +42,6 @@ class McpSharingToolsTest extends TestCase {
 	private DashboardShareService $shares;
 
 	/**
-	 * @var KioskService&MockObject
-	 */
-	private KioskService $kiosk;
-
-	/**
 	 * Build the doubles.
 	 *
 	 * @return void
@@ -57,7 +50,6 @@ class McpSharingToolsTest extends TestCase {
 		$this->gate = $this->createMock(originalClassName: McpDashboardGate::class);
 		$this->gate->method('currentUserId')->willReturn('alice');
 		$this->shares = $this->createMock(originalClassName: DashboardShareService::class);
-		$this->kiosk  = $this->createMock(originalClassName: KioskService::class);
 	}//end setUp()
 
 	/**
@@ -66,7 +58,11 @@ class McpSharingToolsTest extends TestCase {
 	 * @return McpSharingTools
 	 */
 	private function tools(): McpSharingTools {
-		return new McpSharingTools(gate: $this->gate, validator: new McpArgumentValidator(), shares: $this->shares, kiosk: $this->kiosk);
+		return new McpSharingTools(
+			gate: $this->gate,
+			validator: new McpArgumentValidator(),
+			shares: $this->shares
+		);
 	}//end tools()
 
 	/**
@@ -114,23 +110,4 @@ class McpSharingToolsTest extends TestCase {
 
 		$this->assertSame(expected: 'forbidden', actual: $this->tools()->listShares(args: ['dashboardId' => 4])['error']);
 	}//end testANonOwnerIsForbidden()
-
-	/**
-	 * The playlists are those the service lists for the caller.
-	 *
-	 * @return void
-	 */
-	public function testListKioskPlaylistsIsTheServicesList(): void {
-		$this->gate->method('requireUser')->willReturn(null);
-		$playlist = new KioskPlaylist();
-		$playlist->setName('Lobby');
-		$this->kiosk->expects($this->once())->method('listPlaylists')->willReturnCallback(
-			callback: static fn (string $callerId): array => match ($callerId) {
-				'alice' => [$playlist],
-				default => [],
-			}
-		);
-
-		$this->assertSame(expected: ['items' => [$playlist->jsonSerialize()]], actual: $this->tools()->listKioskPlaylists(args: []));
-	}//end testListKioskPlaylistsIsTheServicesList()
 }//end class

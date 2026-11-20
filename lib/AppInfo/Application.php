@@ -18,12 +18,14 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\AppInfo;
 
-use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
+use OCA\LaunchPad\Mcp\LaunchPadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
+use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
+use OCA\LaunchPad\Listener\DashboardDiscussionListener;
 use OCA\LaunchPad\Listener\DashboardSharesListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
@@ -131,6 +133,10 @@ class Application extends App implements IBootstrap {
 	 * is autoloaded at registration, so an instance without OpenRegister boots
 	 * as before and simply never resolves it (mcp-tool-surface task 2, ADR-083).
 	 *
+	 * OpenRegister resolves that key through the server container, which does not
+	 * see this app's aliases, so the provider is found by its class name
+	 * `OCA\<namespace>\Mcp\<namespace>ToolProvider` (namespace from info.xml).
+	 *
 	 * @param IRegistrationContext $context The registration context.
 	 *
 	 * @return void
@@ -140,7 +146,7 @@ class Application extends App implements IBootstrap {
 	private function registerMcpToolProvider(IRegistrationContext $context): void {
 		$context->registerServiceAlias(
 			'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad',
-			LaunchpadToolProvider::class
+			LaunchPadToolProvider::class
 		);
 	}//end registerMcpToolProvider()
 
@@ -279,6 +285,17 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: TreeListener::class
+		);
+
+		// The discussion object of a shared dashboard follows its audience and
+		// goes with the dashboard (openregister-leaf-integrations).
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: DashboardDiscussionListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardAudienceChangedEvent::class,
+			listener: DashboardDiscussionListener::class
 		);
 	}//end registerCascadeListeners()
 

@@ -140,6 +140,36 @@ class FilesWidgetServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-FLS-003: an item's path is relative to the widget root, not the
+	 * storage-internal path.
+	 */
+	public function testListedItemPathIsRelativeToTheWidgetRoot(): void {
+		$sub = $this->createMock(Folder::class);
+		$sub->method('getId')->willReturn(5);
+		$sub->method('getName')->willReturn('sub');
+		$sub->method('getPath')->willReturn('/alice/files/Root/sub');
+		$sub->method('getInternalPath')->willReturn('files/Root/sub');
+		$sub->method('getMimetype')->willReturn('httpd/unix-directory');
+		$sub->method('getSize')->willReturn(0);
+		$sub->method('getMTime')->willReturn(1700000000);
+		$sub->method('isReadable')->willReturn(true);
+		$sub->method('getPermissions')->willReturn(Constants::PERMISSION_READ);
+
+		$this->configuredFolder->method('isReadable')->willReturn(true);
+		$this->configuredFolder->method('getDirectoryListing')->willReturn([$sub]);
+		$this->configuredFolder->method('getRelativePath')
+			->willReturnMap([['/alice/files/Root/sub', '/sub']]);
+		$this->userFolder->method('getById')->willReturn([$this->configuredFolder]);
+
+		$page = $this->service->getContentsForPlacement(
+			userId: 'alice',
+			config: ['fileId' => 99]
+		);
+
+		$this->assertSame('/sub', $page['items'][0]['path']);
+	}
+
+	/**
 	 * REQ-FLS-004: silently omits unreadable children.
 	 */
 	public function testUnreadableChildrenAreSilentlyOmitted(): void {

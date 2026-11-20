@@ -229,6 +229,7 @@ export default defineComponent({
 			loading,
 			dashboard,
 			share,
+			placements,
 			error,
 			errorTitle,
 			errorDescription,

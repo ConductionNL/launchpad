@@ -69,10 +69,6 @@ class ActionAuthBaselineTest extends TestCase {
 		'dashboard.unpublish',
 		'dashboard.schedule',
 		'dashboard-lock.force-release',
-		'dashboard-translation.create',
-		'dashboard-translation.update',
-		'dashboard-translation.destroy',
-		'dashboard-translation.set-primary',
 		'metadata-admin.list-fields',
 		'metadata-admin.create-field',
 		'metadata-admin.get-field',
@@ -131,6 +127,12 @@ class ActionAuthBaselineTest extends TestCase {
 		'dashboard-version.create-version',
 		'dashboard-version.restore-version',
 		'rule.get-rules',
+		// REQ-LANGUI-001: the owner manages their dashboard's language
+		// versions; each translation write checks ownership per dashboard.
+		'dashboard-translation.create',
+		'dashboard-translation.update',
+		'dashboard-translation.destroy',
+		'dashboard-translation.set-primary',
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',

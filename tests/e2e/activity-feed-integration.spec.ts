@@ -89,6 +89,19 @@ const SPEC_EVENT_TYPES = [
 	'dashboard_role_changed',
 ]
 
+/**
+ * The types a person can switch per channel, with their mail default
+ * (REQ-DIGE-001). Only the types LaunchPad emits are registered as settings;
+ * the other catalogue types are never sent, so offering them would be a
+ * switch that does nothing.
+ */
+const SETTING_MAIL_DEFAULTS: Record<string, boolean> = {
+	dashboard_shared: true,
+	dashboard_published: true,
+	dashboard_updated: false,
+	dashboard_acknowledged: false,
+}
+
 /** One entry of the Activity app's OCS feed. */
 type FeedRow = {
 	activity_id: number
@@ -367,13 +380,16 @@ test.describe('activity-feed-integration', () => {
 	})
 
 	// @e2e activity-feed-integration::extension-is-listed-in-nc-activity-admin-settings
-	test('the admin Activity settings list LaunchPad with all 13 event types', async () => {
+	test('the admin Activity settings list LaunchPad with every event type it sends', async () => {
 		const groups = await activityGroups(admin, '/index.php/settings/admin/activity')
 
 		const launchpad = groups.launchpad
 		expect(launchpad, `groups: ${Object.keys(groups).join(', ')}`).toBeDefined()
 		expect(launchpad.name).toBe('LaunchPad')
-		for (const type of SPEC_EVENT_TYPES) {
+		expect(Object.keys(launchpad.activities).sort()).toEqual(
+			Object.keys(SETTING_MAIL_DEFAULTS).sort(),
+		)
+		for (const type of Object.keys(SETTING_MAIL_DEFAULTS)) {
 			const entry = launchpad.activities[type]
 			expect(entry, `${type} is not offered for opt-out`).toBeDefined()
 			expect(entry.desc).not.toBe('')
@@ -609,16 +625,21 @@ test.describe('activity-feed-integration', () => {
 	})
 
 	// @e2e activity-feed-integration::default-notification-preferences-for-a-new-user
-	test('a new user has in-app on and email off for all 13 types', async () => {
+	test('a new user gets LaunchPad events in the stream and mail only for shares and publications', async () => {
 		const frank = await user('act-frank')
 		const groups = await activityGroups(frank.api, '/index.php/settings/user/notifications')
 
 		const activities = groups.launchpad?.activities ?? {}
-		for (const type of SPEC_EVENT_TYPES) {
+		for (const [type, mail] of Object.entries(SETTING_MAIL_DEFAULTS)) {
 			expect(activities[type], `${type} has no preference`).toBeDefined()
-			expect(Boolean(activities[type].notification), `${type} in-app`).toBe(true)
-			expect(Boolean(activities[type].email), `${type} email`).toBe(false)
+			expect(Boolean(activities[type].email), `${type} email`).toBe(mail)
 		}
+
+		// Activity 7 writes every event to the stream; its settings page only
+		// switches mail and push. In-app on means the row reaches the stream.
+		const dash = await personalDashboard(`E2E Act Frank ${RUN}`)
+		await share(dash, 'user', frank.username)
+		expect(await rowsAbout(frank.api, dash, 'dashboard_shared')).toHaveLength(1)
 	})
 
 	// @e2e activity-feed-integration::opt-out-state-is-per-user-and-per-type

@@ -114,6 +114,23 @@ describe('KioskPlayerView', () => {
 		wrapper.unmount()
 	})
 
+	it('REQ-KIOSK-005: a failed read shows a reconnect indicator until a read succeeds', async () => {
+		axios.get.mockResolvedValueOnce({ data: payload })
+		axios.get.mockRejectedValueOnce(new Error('Network Error'))
+		axios.get.mockResolvedValue({ data: payload })
+		const wrapper = mountPlayer()
+		await flushPromises()
+		const indicator = () => wrapper.find('[data-testid="kiosk-reconnecting"]')
+		expect(indicator().exists()).toBe(false)
+		await vi.advanceTimersByTimeAsync(300_000)
+		expect(indicator().exists()).toBe(true)
+		expect(indicator().attributes('role')).toBe('status')
+		expect(wrapper.text()).toContain('Nieuws')
+		await vi.advanceTimersByTimeAsync(30_000)
+		expect(indicator().exists()).toBe(false)
+		wrapper.unmount()
+	})
+
 	it('shows the unavailable message when the first read is refused', async () => {
 		axios.get.mockRejectedValue(httpError(404))
 		const wrapper = mountPlayer()

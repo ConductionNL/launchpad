@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 3;
+	private const BASELINE_VERSION = 4;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -90,6 +90,11 @@ class ApplyActionBaseline implements IRepairStep {
 	 * Each route still checks ownership per object, so opening the action
 	 * reaches no one else's dashboard.
 	 *
+	 * v4: the owner's own language versions (REQ-LANGUI-001, REQ-DASH-040..043).
+	 * They were seeded admin-only, so an owner got HTTP 403 adding, editing,
+	 * deleting or promoting a variant of their own dashboard. Every translation
+	 * write still checks ownership per dashboard.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
@@ -101,6 +106,12 @@ class ApplyActionBaseline implements IRepairStep {
 			'dashboard-version.create-version',
 			'dashboard-version.restore-version',
 			'rule.get-rules',
+		],
+		4 => [
+			'dashboard-translation.create',
+			'dashboard-translation.update',
+			'dashboard-translation.destroy',
+			'dashboard-translation.set-primary',
 		],
 	];
 

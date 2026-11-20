@@ -113,9 +113,7 @@ canonical slug-chain for a dashboard UUID:
 
 ```json
 {
-  "data": {
-    "path": "finance/q1-roadmap"
-  }
+  "path": "/finance/q1-roadmap"
 }
 ```
 
@@ -127,7 +125,7 @@ those are unaddressable.
 #### Scenario: Endpoint returns canonical slug-chain
 - **GIVEN** a dashboard with UUID `u1` and canonical path `finance/q1-roadmap`
 - **WHEN** `GET /api/dashboards/u1/path` is called
-- **THEN** the response MUST contain `{ "data": { "path": "finance/q1-roadmap" } }`
+- **THEN** the response body MUST be `{ "path": "/finance/q1-roadmap" }`, the slug-chain with a leading slash
 - **AND** a dashboard with a NULL slug MUST return an empty `""` path
 
 ### Requirement: REQ-DDL-005 Frontend `pushState` on switch

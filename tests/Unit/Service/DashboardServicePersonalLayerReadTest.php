@@ -123,7 +123,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 
 		$this->dashboardMapper = $this->getMockBuilder(DashboardMapper::class)
 			->disableOriginalConstructor()
-			->onlyMethods(['findVisibleToUser'])
+			->onlyMethods(['findVisibleToUser', 'findDueScheduled'])
 			->getMock();
 		$this->placementMapper = $this->getMockBuilder(WidgetPlacementMapper::class)
 			->disableOriginalConstructor()

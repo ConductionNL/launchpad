@@ -20,6 +20,13 @@
 				{{ current.dashboard?.name || current.dashboard?.title || '' }}
 			</h1>
 			<PublicDashboardGrid :placements="current.placements || []" />
+			<p
+				v-if="offline"
+				class="kiosk-player__reconnect"
+				role="status"
+				data-testid="kiosk-reconnecting">
+				{{ t('launchpad', 'Reconnecting…') }}
+			</p>
 		</div>
 		<p v-else-if="loaded" class="kiosk-player__message" role="status">
 			{{ t('launchpad', 'This playlist has no dashboards to show.') }}
@@ -42,7 +49,8 @@ const RETRY_MS = 30 * 1000
  * each dashboard of the playlist for its dwell time, starts over at the
  * end, re-reads the playlist every `refreshSeconds`, shows a message once
  * the link is revoked (404), and keeps the last good playlist when the
- * network fails, retrying every 30 seconds. No login and no controls.
+ * network fails, retrying every 30 seconds with a small reconnect indicator
+ * on screen until a read succeeds. No login and no controls.
  *
  * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
@@ -65,6 +73,7 @@ export default {
 			refreshSeconds: 300,
 			unavailable: false,
 			loaded: false,
+			offline: false,
 			dwellTimer: null,
 			refreshTimer: null,
 		}
@@ -110,6 +119,7 @@ export default {
 					{ headers: { Accept: 'application/json' } },
 				)
 				this.apply(data)
+				this.offline = false
 				next = this.refreshSeconds * 1000
 			} catch (error) {
 				const status = error?.response?.status
@@ -122,6 +132,7 @@ export default {
 				// Anything else is a blip: keep what is on screen.
 				next = RETRY_MS
 				this.loaded = true
+				this.offline = true
 			}
 			clearTimeout(this.refreshTimer)
 			this.refreshTimer = setTimeout(() => this.load(), next)
@@ -194,6 +205,18 @@ export default {
 .kiosk-player__title {
 	margin: 0 0 16px;
 	font-size: 2em;
+}
+
+.kiosk-player__reconnect {
+	position: fixed;
+	inset-inline-end: 16px;
+	inset-block-end: 16px;
+	margin: 0;
+	padding: 4px 12px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-background-dark);
+	color: var(--color-text-maxcontrast);
+	font-size: 0.875em;
 }
 
 .kiosk-player__message {

@@ -417,6 +417,33 @@ class DashboardMapperCoverageTest extends TestCase {
 	}//end testFindDueScheduled()
 
 	/**
+	 * setPublishedIfScheduled() flips the row only while it is still scheduled.
+	 *
+	 * @return void
+	 */
+	public function testSetPublishedIfScheduledFlipsOnlyAStillScheduledRow(): void {
+		$dashboard = $this->dashboard(uuid: 'd1');
+		$dashboard->setId(9);
+		$dashboard->setPublishedAt('2026-11-20 08:00:00');
+		$dashboard->setUpdatedAt('2026-11-20 08:00:01');
+
+		[$claimed, $calls] = $this->invokeMapper(method: 'setPublishedIfScheduled', args: [$dashboard]);
+
+		$this->assertTrue(condition: $claimed);
+		$this->assertContains(needle: 'qb1.createNamedParameter("published", 2, null)', haystack: $calls);
+		$this->assertContains(needle: 'qb1.createNamedParameter("2026-11-20 08:00:00", 2, null)', haystack: $calls);
+		$this->assertContains(needle: 'qb1.createNamedParameter(null, 2, null)', haystack: $calls);
+		$this->assertSame(
+			expected: array_merge(
+				$this->eq(verb: 'where', column: 'id', value: '9', type: 1, param: 5),
+				$this->eq(verb: 'andWhere', column: 'publication_status', value: '"scheduled"', type: 2, param: 6)
+			),
+			actual: array_slice($calls, -9, 8)
+		);
+		$this->assertSame(expected: 'qb1.executeStatement(null)', actual: end($calls));
+	}//end testSetPublishedIfScheduledFlipsOnlyAStillScheduledRow()
+
+	/**
 	 * The gallery filters by category and sorts NULL categories last, then by name.
 	 *
 	 * @return void

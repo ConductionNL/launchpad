@@ -593,9 +593,11 @@ class ConfluenceImportService implements ConfluenceImportServiceInterface {
 	/**
 	 * Build the timestamp segment for the asset folder.
 	 *
-	 * @return string The ISO 8601 segment (e.g. `2026-05-02T10-30-00`).
+	 * Microseconds keep two runs started in the same second apart.
+	 *
+	 * @return string The ISO 8601 segment (e.g. `2026-05-02T10-30-00.123456`).
 	 */
 	private function buildTimestamp(): string {
-		return (new DateTime())->format(format: 'Y-m-d\TH-i-s');
+		return (new DateTime())->format(format: 'Y-m-d\TH-i-s.u');
 	}//end buildTimestamp()
 }//end class

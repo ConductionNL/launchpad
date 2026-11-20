@@ -156,6 +156,22 @@ class InitialStateBuilderTest extends TestCase {
 	}
 
 	/**
+	 * The viewer's Nextcloud timezone is an optional workspace key, pushed only
+	 * when set (REQ-CLOCK-002).
+	 *
+	 * @return void
+	 */
+	public function testTheUserTimezoneIsPushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)->setUserTimezone('Asia/Tokyo')->apply();
+		$this->assertSame('Asia/Tokyo', $sink['userTimezone']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('userTimezone', $bare);
+	}//end testTheUserTimezoneIsPushedOnlyWhenSet()
+
+	/**
 	 * Engagement-communities: whether Talk is enabled and the pinned tokens are
 	 * optional workspace keys, pushed only when set (REQ-COMM-003, REQ-COMM-004).
 	 *

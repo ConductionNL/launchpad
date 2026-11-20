@@ -7,8 +7,7 @@ import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
 import { defineStore } from 'pinia'
 import {
-	DEFAULT_H,
-	DEFAULT_W,
+	defaultSizeFor,
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
@@ -968,12 +967,11 @@ export const useDashboardStore = defineStore('dashboard', {
 						sharedBy: null,
 					})
 					this.activeDashboard = { ...fork, isOwner: true, sharedBy: null }
-					// Placements come back via the next switchDashboard /
-					// loadDashboards round-trip — fork is a brand-new
-					// active dashboard but the by-id endpoint is the
-					// canonical source of truth for placements.
 					this.widgetPlacements = []
 					this.permissionLevel = 'full'
+					// The fork carries the source's widgets; the by-id
+					// endpoint is the canonical source of its placements.
+					await this.switchDashboard(fork.id)
 				}
 				return fork
 			} catch (error) {
@@ -1065,8 +1063,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addWidgetToDashboard(widgetId, position = null) {
 			try {
+				const type = typeof widgetId === 'object' && widgetId !== null ? widgetId.type : widgetId
 				const placement = newPlacement(position, {
-					size: { w: DEFAULT_W, h: DEFAULT_H },
+					size: defaultSizeFor(type, this.activeDashboard?.gridColumns || undefined),
 					store: this,
 				})
 				const response = await api.addWidget(

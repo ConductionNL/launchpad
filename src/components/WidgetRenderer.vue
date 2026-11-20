@@ -17,6 +17,7 @@
 			:placement="placement"
 			v-bind="rendererProps"
 			@data="onWidgetData"
+			@edit="$emit('editRequest')"
 			@editRequest="$emit('editRequest')" />
 
 		<CalculatedValues v-if="registryEntry" :placement="placement" />
@@ -242,8 +243,9 @@ export default {
 		 */
 		rendererProps() {
 			const props = buildRendererExtraProps(this.placement?.widgetId)
-			if (this.placement?.widgetId === 'menu') {
-				// The menu's empty-state gear asks for the editor only when both are set.
+			if (['menu', 'quicklinks'].includes(this.placement?.widgetId)) {
+				// Both read edit mode from these two props: the menu's empty-state
+				// gear asks for the editor, quicklinks suppresses link clicks.
 				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
 			}
 			return props

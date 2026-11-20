@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 use OCP\IURLGenerator;
@@ -76,6 +77,43 @@ class KioskPlaylistMapper extends QBMapper {
 
 		return $playlist;
 	}//end hydrateUrl()
+
+	/**
+	 * Insert a playlist and return it with its computed URL, so the create
+	 * response carries it (REQ-KIOSK-002).
+	 *
+	 * @param Entity $entity The playlist.
+	 *
+	 * @return Entity The stored playlist.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	public function insert(Entity $entity): Entity {
+		$stored = parent::insert(entity: $entity);
+		if ($stored instanceof KioskPlaylist) {
+			$this->hydrateUrl(playlist: $stored);
+		}
+
+		return $stored;
+	}//end insert()
+
+	/**
+	 * Update a playlist and return it with its computed URL.
+	 *
+	 * @param Entity $entity The playlist.
+	 *
+	 * @return Entity The stored playlist.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	public function update(Entity $entity): Entity {
+		$stored = parent::update(entity: $entity);
+		if ($stored instanceof KioskPlaylist) {
+			$this->hydrateUrl(playlist: $stored);
+		}
+
+		return $stored;
+	}//end update()
 
 	/**
 	 * Find an active (non-revoked) playlist by its unique token.

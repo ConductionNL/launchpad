@@ -671,6 +671,29 @@ class DashboardMapper extends QBMapper {
 	}//end findDueScheduled()
 
 	/**
+	 * Flip one due scheduled dashboard to published, only while it is
+	 * still scheduled, so two requests surfacing it at once cannot both
+	 * claim it. The entity carries the `publishedAt` and `updatedAt` to
+	 * store. REQ-DASH-034, REQ-DIGE-002.
+	 *
+	 * @param Dashboard $dashboard The due dashboard, with its new times set.
+	 *
+	 * @return bool True when this call flipped the row.
+	 * @spec   openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function setPublishedIfScheduled(Dashboard $dashboard): bool {
+		return $this->updateWhere(
+			set: [
+				'publication_status' => Dashboard::STATUS_PUBLISHED,
+				'published_at'       => $dashboard->getPublishedAt(),
+				'publish_at'         => null,
+				'updated_at'         => $dashboard->getUpdatedAt(),
+			],
+			match: ['id' => (int) $dashboard->getId(), 'publication_status' => Dashboard::STATUS_SCHEDULED]
+		)->executeStatement() === 1;
+	}//end setPublishedIfScheduled()
+
+	/**
 	 * Find all admin templates for the discovery gallery (REQ-TMPL-014).
 	 *
 	 * Lists rows with `type = 'admin_template'`, optionally filtered to

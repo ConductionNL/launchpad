@@ -207,19 +207,67 @@ class DashboardActivityEmissionTest extends TestCase {
 		$service->publishDashboard(uuid: 'dash-7', userId: 'alice');
 	}
 
-	public function testAScheduledDashboardThatSurfacesIsAnnouncedByItsOwner(): void {
-		$dashboard = $this->dashboard(Dashboard::TYPE_GROUP_SHARED, 'staff');
+	/**
+	 * A due schedule this request flips is announced to the group, not to
+	 * the owner who scheduled it.
+	 *
+	 * @return void
+	 */
+	public function testAScheduledDashboardThatSurfacesIsAnnouncedButNotToItsScheduler(): void {
+		$dashboard = $this->dashboard(type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
 		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
 		$this->dashboardMapper->method('findDueScheduled')->willReturn([$dashboard]);
+		$this->dashboardMapper->method('setPublishedIfScheduled')->willReturn(true);
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 
 		$this->publisher->expects($this->once())->method('publishToGroup')
 			->with(
-				$this->callback(static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_PUBLISHED && $row->actorUserId === 'alice'),
+				$this->callback(
+					callback: static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_PUBLISHED
+						&& $row->actorUserId === 'alice'
+						&& $row->tellsActor() === false
+				),
 				'staff'
 			);
 
-		$this->assertSame(1, $this->dashboardService()->materialiseScheduledDashboards());
+		$this->assertSame(expected: 1, actual: $this->dashboardService()->materialiseScheduledDashboards());
+		$this->assertSame(expected: Dashboard::STATUS_PUBLISHED, actual: $dashboard->getPublicationStatus());
+		$this->assertNull(actual: $dashboard->getPublishAt());
+	}
+
+	/**
+	 * A schedule another request flipped first is not announced twice.
+	 *
+	 * @return void
+	 */
+	public function testADashboardAnotherRequestAlreadyFlippedIsNotAnnouncedAgain(): void {
+		$dashboard = $this->dashboard(type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
+		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+		$this->dashboardMapper->method('findDueScheduled')->willReturn([$dashboard]);
+		$this->dashboardMapper->method('setPublishedIfScheduled')->willReturn(false);
+
+		$this->publisher->expects($this->never())->method('publishToGroup');
+
+		$this->assertSame(expected: 0, actual: $this->dashboardService()->materialiseScheduledDashboards());
+	}
+
+	/**
+	 * Reading the visible dashboards is what surfaces a due schedule.
+	 *
+	 * @return void
+	 */
+	public function testReadingTheVisibleDashboardsSurfacesADueSchedule(): void {
+		$dashboard = $this->dashboard(type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
+		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+		$this->dashboardMapper->expects($this->once())->method('findDueScheduled')->willReturn([$dashboard]);
+		$this->dashboardMapper->method('setPublishedIfScheduled')->willReturn(true);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->shareMapper->method('findByDashboardId')->willReturn([]);
+
+		$this->publisher->expects($this->once())->method('publishToGroup')
+			->with($this->isInstanceOf(className: ActivityRow::class), 'staff');
+
+		$this->dashboardService()->getVisibleToUser(userId: 'bob');
 	}
 
 	public function testSavingAGroupDashboardIsAnnouncedAtMostOnceADay(): void {

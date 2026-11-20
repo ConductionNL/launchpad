@@ -123,4 +123,23 @@ class DashboardActivityAudienceTest extends TestCase {
 		$this->assertSame(0, $count);
 		$this->assertSame([], $this->rows);
 	}//end testAnEmptyGroupWritesNoRow()
+
+	/**
+	 * A scheduled dashboard that goes live tells every member once and not
+	 * its owner, also when the owner is a member.
+	 *
+	 * @return void
+	 */
+	public function testASurfacedScheduleSkipsItsOwner(): void {
+		$dashboard = $this->dashboard();
+		$dashboard->setUserId('noor');
+
+		$count = $this->emitter(members: ['noor', 'bob', 'carol'])->surfaced(dashboard: $dashboard);
+
+		$this->assertSame(expected: 2, actual: $count);
+		$this->assertSame(
+			expected: ['bob', 'carol'],
+			actual: array_map(static fn (IEvent $row): string => $row->getAffectedUser(), $this->rows)
+		);
+	}//end testASurfacedScheduleSkipsItsOwner()
 }//end class

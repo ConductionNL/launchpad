@@ -115,6 +115,8 @@ class ActivityPublisher {
 	 * Emit one activity row per recipient in `$recipientUserIds`, plus
 	 * one row to the actor (REQ-ACT-005). Recipients are de-duplicated
 	 * to prevent double-emission when the actor is also a recipient.
+	 * A row that does not tell its actor skips the actor entirely, also
+	 * when they are among the recipients (REQ-DIGE-002).
 	 *
 	 * @param ActivityRow $row              The activity to write.
 	 * @param string[]    $recipientUserIds Recipient NC user IDs.
@@ -129,6 +131,9 @@ class ActivityPublisher {
 				array: array_merge([$row->actorUserId], $recipientUserIds)
 			)
 		);
+		if ($row->tellsActor() === false) {
+			$unique = array_values(array: array_diff($unique, [$row->actorUserId]));
+		}
 
 		$count = 0;
 		foreach ($unique as $userId) {
@@ -224,6 +229,10 @@ class ActivityPublisher {
 		$this->userManager->callForAllUsers(
 			callback: function (IUser $user) use ($row, &$count): void {
 				$userId = $user->getUID();
+				if ($row->tellsActor() === false && $userId === $row->actorUserId) {
+					return;
+				}
+
 				if ($this->publish(row: $row->forRecipient(recipientUserId: $userId), recipientUserId: $userId) === true) {
 					$count++;
 				}

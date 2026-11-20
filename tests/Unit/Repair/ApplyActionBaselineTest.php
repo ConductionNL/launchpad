@@ -275,4 +275,43 @@ class ApplyActionBaselineTest extends TestCase {
 			'an admin-only restriction made after v1 must survive the v2 upgrade'
 		);
 	}//end testAnInstanceAtV1KeepsAnAdminsLaterRestriction()
+
+	/**
+	 * An instance at v2 gains the owner's own versions, metadata writes and
+	 * rule reads from v3, and nothing else: an action an admin narrowed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV2GainsTheOwnerActions(): void {
+		$this->appConfig->method('getValueInt')->willReturn(2);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.create' => ['admin'],
+			'dashboard-version.list-versions' => ['admin'],
+			'dashboard-metadata.set-metadata' => ['admin'],
+			'rule.get-rules' => ['admin', 'editors'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$opened = [
+			'dashboard-version.list-versions',
+			'dashboard-version.fetch-version',
+			'dashboard-version.create-version',
+			'dashboard-version.restore-version',
+			'dashboard-metadata.set-metadata',
+		];
+		foreach ($opened as $action) {
+			$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written[$action], message: $action . ' must be open to the owner after v3');
+		}
+
+		$this->assertSame(expected: ['admin', 'editors'], actual: $written['rule.get-rules'], message: 'an entry an admin changed is kept');
+		$this->assertSame(expected: ['admin'], actual: $written['dashboard.create'], message: 'v3 adds only its own actions');
+	}//end testAnInstanceAtV2GainsTheOwnerActions()
 }//end class

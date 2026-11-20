@@ -312,6 +312,17 @@ test.describe('the Add Widget modal', () => {
 
 test.describe('on the dashboard', () => {
 	test.beforeEach(async ({ page }) => {
+		/*
+		 * The modal tests open the menu of the FIRST personal dashboard row,
+		 * which need not be this suite's, and that can make another dashboard
+		 * the active one. Make the seeded dashboard active again first.
+		 */
+		const activate = await api.post(`${API}/dashboard/${dashboard!.id}/activate`)
+		expect(activate.status(), await activate.text()).toBeLessThan(300)
+		const preference = await api.post(`${API}/dashboards/active`, {
+			data: { uuid: dashboard!.uuid },
+		})
+		expect(preference.status(), await preference.text()).toBeLessThan(300)
 		await gotoLaunchPad(page)
 	})
 
@@ -436,13 +447,16 @@ test.describe('on the dashboard', () => {
 		})
 
 		await Promise.all([
+			// The navigation is the claim, not how fast Files finishes loading.
 			page.waitForURL((url) => /\/apps\/files(\/|$)/.test(url.pathname), {
 				timeout: 20_000,
+				waitUntil: 'domcontentloaded',
 			}),
 			link.click(),
 		])
+		// With pretty URLs on, Nextcloud serves Files without /index.php.
 		expect(new URL(page.url()).pathname).toMatch(
-			/\/index\.php\/apps\/files(\/|$)/,
+			/^(\/index\.php)?\/apps\/files(\/|$)/,
 		)
 
 		const seen = await page.evaluate(() =>

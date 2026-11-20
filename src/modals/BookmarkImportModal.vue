@@ -4,10 +4,7 @@
 -->
 
 <template>
-	<!-- Mounted only while open: a hidden NcModal still arms its focus trap,
-	     which then swallows every Tab on the page. -->
 	<NcModal
-		v-if="open"
 		v-model:show="isOpen"
 		class="launchpad-modal"
 		:name="t('launchpad', 'Import bookmarks')"

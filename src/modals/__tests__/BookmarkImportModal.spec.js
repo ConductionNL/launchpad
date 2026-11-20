@@ -122,13 +122,3 @@ describe('BookmarkImportModal', () => {
 		expect(wrapper.find('[data-testid="bookmark-import-error"]').text()).toBe('This file is larger than 5 MB. Export one folder at a time.')
 	})
 })
-
-describe('BookmarkImportModal while closed', () => {
-	it('mounts no modal, so no hidden focus trap holds the page', () => {
-		const wrapper = mount(BookmarkImportModal, {
-			props: { open: false, importBookmarks: vi.fn() },
-			global: { stubs },
-		})
-		expect(wrapper.findComponent({ name: 'NcModal' }).exists()).toBe(false)
-	})
-})

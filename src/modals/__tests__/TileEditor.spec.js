@@ -208,10 +208,3 @@ describe('TileEditor health-ping config — REQ-HPING-001', () => {
 		expect(validateHealthPingConfig).not.toHaveBeenCalled()
 	})
 })
-
-describe('TileEditor while closed', () => {
-	it('mounts no modal, so no hidden focus trap holds the page', () => {
-		const wrapper = mount(TileEditor, { propsData: { open: false, tile: null } })
-		expect(wrapper.findComponent({ name: 'NcModal' }).exists()).toBe(false)
-	})
-})

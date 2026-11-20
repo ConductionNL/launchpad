@@ -24,7 +24,8 @@
 					:style="{
 						backgroundColor: item.tileBackgroundColor || undefined,
 						color: item.tileTextColor || undefined,
-					}">
+					}"
+					@click="drillDown(item, $event)">
 					<img
 						v-if="
 							item.tileIcon
@@ -198,6 +199,8 @@ export default {
 		},
 	},
 
+	emits: ['drillDown'],
+
 	computed: {
 		/**
 		 * @return {string} The embed's scope mode, read when unknown.
@@ -225,7 +228,8 @@ export default {
 
 		/**
 		 * Where a tile links to: its target, '#' without one; inside an embed
-		 * nowhere (no href) unless the scope allows `interact`.
+		 * nowhere (no href) unless the scope allows `interact`, and '#' when it
+		 * allows only `drillDown`, so the tile stays a focusable control.
 		 *
 		 * @param {object} item The display item.
 		 * @return {string|undefined}
@@ -233,9 +237,32 @@ export default {
 		 */
 		tileHref(item) {
 			if (this.embedContext !== null && !this.embedAllows('interact')) {
-				return undefined
+				return this.embedAllows('drillDown') ? '#' : undefined
 			}
 			return item.tileLink || '#'
+		},
+
+		/**
+		 * Inside an embed whose scope allows `drillDown`, emit `drillDown` with
+		 * what the visitor opened; without `interact` the link is not followed.
+		 *
+		 * @param {object} item The display item.
+		 * @param {MouseEvent} event The click.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-006--js-sdk-exposes-render-event-and-resize-apis
+		 */
+		drillDown(item, event) {
+			if (this.embedContext === null || !this.embedAllows('drillDown')) {
+				return
+			}
+			if (!this.embedAllows('interact')) {
+				event.preventDefault()
+			}
+			this.$emit('drillDown', {
+				placementId: item.id,
+				title: item.title,
+				link: item.tileLink || null,
+				source: 'user-interaction',
+			})
 		},
 
 		/**

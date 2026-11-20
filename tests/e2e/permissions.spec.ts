@@ -308,9 +308,6 @@ test.describe('permission levels on a template copy the user owns', () => {
 			res.status(),
 			`an add-only owner deleted a compulsory widget: ${text}`,
 		).toBe(403)
-		// SUSPECTED BUG: the spec wants a message saying compulsory widgets
-		// cannot be removed at this level; WidgetApiController::removePlacement
-		// answers ResponseHelper::forbidden()'s generic "Access denied".
 		expect
 			.soft(
 				String(JSON.parse(text).error ?? ''),

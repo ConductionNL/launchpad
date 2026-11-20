@@ -244,6 +244,38 @@ class PermissionService {
 	}//end canAddWidget()
 
 	/**
+	 * Why a widget change was refused, in the words of REQ-PERM-001 and
+	 * REQ-PERM-004: a view-only dashboard says so, and so does a compulsory
+	 * widget on an add-only dashboard; anything else is "Access denied".
+	 *
+	 * @param string   $userId      The user ID.
+	 * @param int|null $dashboardId The dashboard, for an add.
+	 * @param int|null $placementId The placement, for a removal.
+	 *
+	 * @return string The refusal message.
+	 *
+	 * @spec openspec/specs/permissions/spec.md
+	 */
+	public function widgetRefusal(string $userId, ?int $dashboardId = null, ?int $placementId = null): string {
+		$placement = null;
+		if ($placementId !== null) {
+			$placement   = $this->findPlacement(placementId: $placementId);
+			$dashboardId = $placement?->getDashboardId();
+		}
+
+		$level = $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId);
+		if ($level === Dashboard::PERMISSION_VIEW_ONLY) {
+			return 'This dashboard is view-only';
+		}
+
+		if ($level === Dashboard::PERMISSION_ADD_ONLY && $placement?->getIsCompulsory() === 1) {
+			return 'Compulsory widgets cannot be removed at this permission level';
+		}
+
+		return 'Access denied';
+	}//end widgetRefusal()
+
+	/**
 	 * Check if user can remove a widget.
 	 *
 	 * @param string $userId The user ID.

@@ -362,7 +362,9 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($this->mayAddWidget(dashboardId: $dashboardId, widgetId: (string)$widgetId) === false) {
-			return $this->context->responseHelper->forbidden();
+			return $this->context->responseHelper->forbidden(
+				message: $this->access->permissionService->widgetRefusal(userId: (string)$this->context->userId, dashboardId: $dashboardId)
+			);
 		}
 
 		return null;
@@ -846,7 +848,9 @@ class WidgetApiController extends Controller {
 			placementId: $placementId
 		) === false
 		) {
-			return $this->context->responseHelper->forbidden();
+			return $this->context->responseHelper->forbidden(
+				message: $this->access->permissionService->widgetRefusal(userId: $this->context->userId, placementId: $placementId)
+			);
 		}
 
 		try {

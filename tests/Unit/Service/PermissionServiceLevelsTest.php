@@ -257,4 +257,24 @@ class PermissionServiceLevelsTest extends TestCase {
 		$this->assertTrue($service->canEditDashboardMetadata(userId: 'admin', dashboardId: 5));
 		$this->assertFalse($service->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
 	}//end testANextcloudAdminRenamesAnAdminTemplateThatBelongsToNobody()
+	/**
+	 * REQ-PERM-001 / REQ-PERM-004: a refusal says why: a view-only
+	 * dashboard, or a compulsory widget at add_only; else "Access denied".
+	 *
+	 * @return void
+	 */
+	public function testARefusedWidgetChangeSaysWhy(): void {
+		[$viewOnly] = $this->serviceFor(level: Dashboard::PERMISSION_VIEW_ONLY);
+		[$addOnly]  = $this->serviceFor(level: Dashboard::PERMISSION_ADD_ONLY, isCompulsory: 1);
+		[$loose]    = $this->serviceFor(level: Dashboard::PERMISSION_ADD_ONLY);
+
+		$this->assertSame('This dashboard is view-only', $viewOnly->widgetRefusal(userId: self::OWNER, dashboardId: 5));
+		$this->assertSame('This dashboard is view-only', $viewOnly->widgetRefusal(userId: self::OWNER, placementId: 10));
+		$this->assertSame(
+			'Compulsory widgets cannot be removed at this permission level',
+			$addOnly->widgetRefusal(userId: self::OWNER, placementId: 10)
+		);
+		$this->assertSame('Access denied', $loose->widgetRefusal(userId: self::OWNER, placementId: 10));
+		$this->assertSame('Access denied', $viewOnly->widgetRefusal(userId: 'bob', dashboardId: 5));
+	}//end testARefusedWidgetChangeSaysWhy()
 }//end class

@@ -76,6 +76,7 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		$this->request->method('getParam')->willReturnCallback(fn (string $key, $default = null) => $this->params[$key] ?? $default);
 		$this->widgetService = $this->createMock(WidgetService::class);
 		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->permissionService->method('widgetRefusal')->willReturn('Access denied');
 		$this->newsService = $this->createMock(NewsWidgetService::class);
 		$this->calendarService = $this->createMock(CalendarWidgetService::class);
 		$this->placementService = $this->createMock(WidgetPlacementService::class);
@@ -154,6 +155,15 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		$this->widgetService->expects($this->never())->method('addWidget');
 
 		$this->assertSame($status, $this->controller()->addWidget(dashboardId: 3, widgetId: $widgetId)->getStatus());
+	}
+
+	public function testARefusedAddCarriesTheReasonThePermissionServiceGives(): void {
+		$permissions = $this->createMock(PermissionService::class);
+		$permissions->method('canAddWidget')->willReturn(false);
+		$permissions->method('widgetRefusal')->with('alice', 3)->willReturn('This dashboard is view-only');
+		$this->permissionService = $permissions;
+
+		$this->assertSame([403, ['error' => 'This dashboard is view-only']], $this->outcome($this->controller()->addWidget(dashboardId: 3, widgetId: 'w')));
 	}
 
 	public function testRoleFilterIsNotAskedWhenTheDashboardRefuses(): void {

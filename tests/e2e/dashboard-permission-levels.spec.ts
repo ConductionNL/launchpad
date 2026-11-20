@@ -130,9 +130,6 @@ test.describe('permission levels, probed as the user who has them', () => {
 			widget.status(),
 			`a view-only user added a widget: ${widgetText}`,
 		).toBe(403)
-		// SUSPECTED BUG: the spec wants the 403 to say the dashboard is
-		// view-only; WidgetApiController::denyWidgetChoice answers
-		// ResponseHelper::forbidden()'s generic "Access denied".
 		expect
 			.soft(
 				String(JSON.parse(widgetText).error ?? ''),

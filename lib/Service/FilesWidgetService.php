@@ -671,6 +671,8 @@ class FilesWidgetService {
 	 * @param integer|null $fileId The configured folder id.
 	 *
 	 * @return bool True when the folder exists outside the viewer's view.
+	 *
+	 * @spec openspec/specs/files-widget/spec.md
 	 */
 	private function existsOutsideViewer(?int $fileId): bool {
 		if ($fileId === null || $this->fileAccess === null) {

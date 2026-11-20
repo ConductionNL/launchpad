@@ -389,6 +389,7 @@
 			:uploadFn="iconUploadFn"
 			:fileUploadFn="imageFileUpload"
 			:calendarsFetcher="fetchCalendars"
+			:setReturnFocus="dialogReturnFocus"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
 
@@ -561,6 +562,7 @@ import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
+import { dialogReturnFocus } from '../utils/returnFocus.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -1522,6 +1524,8 @@ export default {
 	},
 
 	methods: {
+		dialogReturnFocus,
+
 		/**
 		 * The Beheer ▸ Embeds link that creates an embed token for one widget
 		 * of the active dashboard; '' for a non-administrator, or without a

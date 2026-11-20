@@ -449,9 +449,6 @@ test.describe('clock widget', () => {
 		expect(content).toEqual({ style: 'analog', timezone: 'America/New_York' })
 	})
 
-	// SUSPECTED DEFECT, EXPECTED RED: an unset timezone follows the device,
-	// never the user's Nextcloud timezone — ClockWidget.vue DEFAULT_CONTENT
-	// and the `timezone()` computed treat `''` as "browser/device timezone".
 	// @e2e clock-weather-widgets::defaults-when-unset
 	test('a clock with no config is digital, dated, and in the user’s own zone and hour format', async ({
 		browser,

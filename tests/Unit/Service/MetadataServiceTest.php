@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Db\MetadataFieldMapper;
 use OCA\LaunchPad\Db\MetadataValue;
@@ -363,6 +364,26 @@ class MetadataServiceTest extends TestCase {
 			)
 		);
 		$this->assertSame([], MetadataService::filtersFromQueryString(''));
+	}
+
+	/**
+	 * The controllers pass Dashboard entities, whose getUuid() is a magic
+	 * Entity getter, not serialised rows.
+	 */
+	public function testFilterDashboardsKeepsMatchingEntities(): void {
+		$this->fieldMapper->method('findByKey')->willReturn($this->makeField(1, 'department', MetadataField::TYPE_SELECT));
+		$this->valueMapper->method('findByField')->willReturn([
+			$this->makeValue(1, 'Finance', 'payroll'),
+			$this->makeValue(1, 'HR', 'onboarding'),
+		]);
+		$payroll = new Dashboard();
+		$payroll->setUuid('payroll');
+		$onboarding = new Dashboard();
+		$onboarding->setUuid('onboarding');
+
+		$result = $this->service->filterDashboards([$payroll, $onboarding], ['department' => 'Finance']);
+
+		$this->assertSame([$payroll], $result);
 	}
 
 	public function testFilterDashboardsNumberRange(): void {

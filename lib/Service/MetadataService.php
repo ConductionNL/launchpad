@@ -645,7 +645,9 @@ class MetadataService {
 	 * @return string|null The UUID or null when unresolvable.
 	 */
 	private static function extractUuid(mixed $dashboard): ?string {
-		if (is_object($dashboard) === true && method_exists($dashboard, 'getUuid') === true) {
+		// An Entity's getUuid() is a magic getter, which is_callable() sees
+		// and method_exists() does not.
+		if (is_object($dashboard) === true && is_callable([$dashboard, 'getUuid']) === true) {
 			return self::entityUuid(dashboard: $dashboard);
 		}
 

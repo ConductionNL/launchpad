@@ -23,7 +23,7 @@ already on the page.
 			<h1 v-if="title" class="embed-view__title">
 				{{ title }}
 			</h1>
-			<PublicDashboardGrid :placements="placements" :embedContext="embedContext" />
+			<PublicDashboardGrid :placements="placements" :embedContext="embedContext" @drillDown="onDrillDown" />
 		</template>
 	</main>
 </template>
@@ -78,7 +78,20 @@ export default {
 			}
 		})
 
+		/**
+		 * Relay a drill-down to the host page, when the token allows it; the
+		 * context posts only to a parent at one of the token's host origins.
+		 *
+		 * @param {object} payload What the visitor opened.
+		 */
+		const onDrillDown = (payload) => {
+			if (context.canRun('drillDown')) {
+				context.relay('drillDown', payload)
+			}
+		}
+
 		return {
+			onDrillDown,
 			loading: context.loading,
 			error: context.error,
 			payload: context.payload,

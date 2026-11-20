@@ -660,7 +660,7 @@
                 "qb1.addOrderBy(\"id\", null)",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"url\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\",\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"url\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\",\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\"]"
         },
         "findByUuid all": {
             "calls": [
@@ -2416,6 +2416,24 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\DashboardShare {\\\"id\\\":5,\\\"dashboardId\\\":null,\\\"shareType\\\":null,\\\"shareWith\\\":null,\\\"permissionLevel\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\DashboardShare {\\\"id\\\":6,\\\"dashboardId\\\":null,\\\"shareType\\\":null,\\\"shareWith\\\":null,\\\"permissionLevel\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
+        "findSharedDashboardIds all": {
+            "calls": [
+                "qb1 new",
+                "qb1.selectDistinct(\"dashboard_id\")",
+                "qb1.from(\"launchpad_dashboard_shares\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findSharedDashboardIds rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.selectDistinct(\"dashboard_id\")",
+                "qb1.from(\"launchpad_dashboard_shares\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
         "findByDashboardAndLevel all": {
             "calls": [
                 "qb1 new",
@@ -3978,7 +3996,7 @@
                 "qb1.addOrderBy(\"id\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findById all": {
             "calls": [
@@ -4060,7 +4078,7 @@
                 "qb1.where(\"in(\\\"id\\\", \\\":p1\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array {\"5\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"6\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"}"
+            "outcome": "returned array {\"5\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"6\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"}"
         },
         "countValuesForField all": {
             "calls": [

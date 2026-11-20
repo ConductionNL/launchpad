@@ -6,7 +6,7 @@
  * when the server saw the request come from an office network AND the tile
  * has one; everywhere else it opens its main address.
  *
- * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
  */
 
 import { mount } from '@vue/test-utils'

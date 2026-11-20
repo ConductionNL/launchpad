@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ use OCP\IRequest;
  * The route attribute keeps others out, and the service refuses anybody who
  * is not an administrator again, so the 403 does not rest on one check.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
  */
 class StorageReportController extends Controller {
 	use RespondsWithErrors;
@@ -53,7 +53,7 @@ class StorageReportController extends Controller {
 	 * @param StorageReportService $storage Builds the report.
 	 * @param string|null          $userId  The signed-in user.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.4
 	 */
 	public function __construct(
 		IRequest $request,
@@ -68,7 +68,7 @@ class StorageReportController extends Controller {
 	 *
 	 * @return JSONResponse The report, or 403.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function report(): JSONResponse {
@@ -84,7 +84,7 @@ class StorageReportController extends Controller {
 	 *
 	 * @return DataDisplayResponse|JSONResponse The CSV, or 403.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.4
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function export(): DataDisplayResponse|JSONResponse {

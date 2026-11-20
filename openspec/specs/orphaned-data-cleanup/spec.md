@@ -35,8 +35,6 @@ Default auto-purge list: Tier-A (expired_locks, expired_share_tokens). Returned 
 ## Requirements
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-CLN-001 Scan CLI Command
 
 Administrators MUST be able to run a CLI command that reports all orphaned items by category WITHOUT deleting.
@@ -51,12 +49,16 @@ Administrators MUST be able to run a CLI command that reports all orphaned items
   - Return exit code 1 (nonzero) to signal that orphans exist
 - AND the output MUST include rows for every shipped category with their counts and a TOTAL row
 
+@e2e exclude needs `occ launchpad:cleanup:scan`, which the e2e suite cannot run (no shell into the instance), and three expired locks plus orphaned shares and placements that no HTTP path can create: every delete cascades and a lock expires only 15 minutes after its heartbeat. Pinned by tests/Unit/Command/CleanupScanCommandTest.php::testScanOutput (table rows, TOTAL row, exit code 1); the per-category counting by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testScanAggregatesCountsAcrossRegistry.
+
 #### Scenario: Scan finds no orphans
 
 - GIVEN a clean LaunchPad installation with no orphaned data
 - WHEN an administrator runs `php occ launchpad:cleanup:scan`
 - THEN the system MUST display a table with all categories showing count 0
 - AND return exit code 0 (success, no orphans)
+
+@e2e exclude needs `occ launchpad:cleanup:scan`, which the e2e suite cannot run. Pinned by tests/Unit/Command/CleanupScanCommandTest.php::testScanOutput (all-zero table ending in `TOTAL 0`, exit code 0).
 
 #### Scenario: Scan handles missing tables gracefully
 
@@ -65,6 +67,8 @@ Administrators MUST be able to run a CLI command that reports all orphaned items
 - THEN the system MUST skip categories whose `CleanupCategoryInterface::isAvailable()` returns `false`
 - AND list the skipped categories under a "Skipped categories" comment line
 - AND return 0 if no other orphans exist
+
+@e2e exclude needs `occ` and a category whose `isAvailable()` is false; all four shipped categories are always available (CategoryRegistryService), so no instance can show a skipped one. Pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testScanSkipsUnavailableCategories and the `Skipped categories` line in tests/Unit/Command/CleanupScanCommandTest.php::testScanOutput.
 
 ### Requirement: REQ-CLN-002 Purge CLI Command
 
@@ -78,11 +82,15 @@ Administrators MUST be able to run a CLI command to DELETE orphaned items, with 
 - AND if the user confirms (`y`), delete all orphaned items and display a summary `Purged N items across M categories in Xms.`
 - AND if the user declines, display `Purge cancelled.` and exit 0 without deleting
 
+@e2e exclude needs an interactive `occ launchpad:cleanup:purge` session, which the e2e suite cannot run. Pinned by the `confirmed` and `declined` cases of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording.
+
 #### Scenario: Purge with --yes flag (non-interactive)
 
 - GIVEN orphaned data exists
 - WHEN an administrator runs `php occ launchpad:cleanup:purge --yes`
 - THEN the system MUST delete all orphaned items immediately (no prompt) and exit 0
+
+@e2e exclude needs `occ launchpad:cleanup:purge --yes`, which the e2e suite cannot run. Pinned by the `with skipped` case of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording; the same deletion over HTTP is cited by purge-categories-via-api.
 
 #### Scenario: Purge specific category
 
@@ -91,11 +99,15 @@ Administrators MUST be able to run a CLI command to DELETE orphaned items, with 
 - THEN the system MUST delete only orphans in `expired_locks`
 - AND display `Purged N items from category 'expired_locks' in Xms.`
 
+@e2e exclude needs `occ launchpad:cleanup:purge --category=...`, which the e2e suite cannot run. Pinned by the `one category` case of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording.
+
 #### Scenario: Purge non-existent category
 
 - GIVEN a valid cleanup setup
 - WHEN an administrator runs `php occ launchpad:cleanup:purge --category=invalid_category --yes`
 - THEN the system MUST display an error naming the invalid category, list valid categories, and return exit code 1
+
+@e2e exclude needs `occ`, which the e2e suite cannot run. Pinned by the `unknown category` case of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording; the HTTP equivalent is cited by unknown-category-yields-http-400.
 
 ### Requirement: REQ-CLN-003 Dry-Run Safety Mode
 
@@ -109,12 +121,16 @@ The purge CLI command MUST support a `--dry-run` flag that reports what WOULD be
 - AND display `DRY-RUN: Would purge N items across M categories in Xms.`
 - AND leave all data untouched
 
+@e2e exclude needs `occ launchpad:cleanup:purge --dry-run`, which the e2e suite cannot run. The rollback is pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testDryRunRollsBackAndDoesNotEmitEvent and the output by the `all categories dry run` case of tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording; the HTTP dry run is cited by purge-with-dryruntrue.
+
 #### Scenario: Dry-run with category filter
 
 - GIVEN orphans in multiple categories
 - WHEN an administrator runs `php occ launchpad:cleanup:purge --category=expired_locks --dry-run --yes`
 - THEN the system MUST report `DRY-RUN: Would purge N items from category 'expired_locks' in Xms.`
 - AND delete nothing
+
+@e2e exclude needs `occ`, which the e2e suite cannot run. Pinned by tests/Unit/Command/CleanupPurgeCommandTest.php::testRunsMatchTheRecording (category and dry-run handling) and tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testDryRunRollsBackAndDoesNotEmitEvent.
 
 ### Requirement: REQ-CLN-004 Scan API Endpoint
 
@@ -143,7 +159,9 @@ Administrators MUST be able to call an HTTP API endpoint to retrieve scan result
 
 - GIVEN an unauthenticated or non-admin user
 - WHEN they send `GET /api/admin/cleanup/scan`
-- THEN the system MUST return HTTP 403 Forbidden
+- THEN Nextcloud's admin-setting check MUST refuse the call before LaunchPad runs, in Nextcloud's own shape
+- AND a signed-in non-admin MUST receive HTTP 403 with `{"message": "Logged in account must be an admin, a sub admin or gotten special right to access this setting"}`
+- AND a request without a session MUST receive HTTP 401 with `{"message": "Current user is not logged in"}`
 
 ### Requirement: REQ-CLN-005 Purge API Endpoint
 
@@ -177,7 +195,7 @@ Administrators MUST be able to POST to an API endpoint to trigger purge with per
 
 - GIVEN a non-admin user
 - WHEN they send `POST /api/admin/cleanup/purge`
-- THEN the system MUST return HTTP 403 Forbidden
+- THEN the system MUST return Nextcloud's HTTP 403 with `{"message": "Logged in account must be an admin, a sub admin or gotten special right to access this setting"}` and purge nothing
 
 ### Requirement: REQ-CLN-006 Per-Category Breakdown
 
@@ -189,6 +207,8 @@ The scan and purge results MUST include a per-category breakdown so administrato
 - WHEN an administrator calls `php occ launchpad:cleanup:scan`
 - THEN the output table MUST display one row per category with name and count, in registration order
 - AND a TOTAL row MUST follow with the sum of all categories
+
+@e2e exclude asserts the `occ launchpad:cleanup:scan` table, which the e2e suite cannot run. Pinned by tests/Unit/Command/CleanupScanCommandTest.php::testScanOutput (rows in registration order, then TOTAL); registration order over HTTP is asserted by the scan test in tests/e2e/orphaned-data-cleanup.spec.ts.
 
 #### Scenario: Purge API returns per-category counts
 
@@ -209,6 +229,8 @@ A scheduled daily job MUST run and automatically purge a safe-to-auto-purge subs
 - AND call `OrphanedDataCleanupService::purge` with that list and `source='job'`
 - AND the orchestrator MUST emit one activity event when the total purge count is non-zero
 
+@e2e exclude needs the daily OrphanedDataCleanupJob to run, and a background-job tick cannot be triggered for a specific job over HTTP. Pinned by tests/Unit/BackgroundJob/OrphanedDataCleanupJobTest.php::testCategoriesThePurgeRuns (empty config purges the Tier-A list) and tests/Unit/BackgroundJob/OrphanedDataCleanupJobScheduleTest.php::testRunsDailyAndIsNotTimeSensitive / testPurgeIsARealJobRunWithoutAUser (24h interval, `source='job'`).
+
 #### Scenario: Admin overrides auto-purge category list
 
 - GIVEN the admin sets `cleanup_auto_purge_categories` to a JSON-encoded list (e.g. `["expired_locks"]`)
@@ -216,11 +238,15 @@ A scheduled daily job MUST run and automatically purge a safe-to-auto-purge subs
 - THEN the job MUST purge only the categories in the configured list
 - AND skip unknown / non-string entries silently
 
+@e2e exclude needs the daily background job to run, which cannot be triggered over HTTP. Pinned by tests/Unit/BackgroundJob/OrphanedDataCleanupJobTest.php::testCategoriesThePurgeRuns (the `["rules","",5,"nope","shares"]` case drops unknown and non-string entries).
+
 #### Scenario: Auto-purge job is skipped if no categories enabled
 
 - GIVEN `cleanup_auto_purge_categories` is set to an empty JSON array (`"[]"`)
 - WHEN the daily job is scheduled to run
 - THEN the job MUST resolve the list to `[]`, log `launchpad.cleanup.job_skipped reason=no_categories_enabled`, and return without invoking the orchestrator
+
+@e2e exclude needs the daily background job to run, which cannot be triggered over HTTP. Pinned by tests/Unit/BackgroundJob/OrphanedDataCleanupJobScheduleTest.php::testAnEmptyConfiguredListPurgesNothing and the `job_skipped reason=no_categories_enabled` case of tests/Unit/BackgroundJob/OrphanedDataCleanupJobTest.php::testCategoriesThePurgeRuns.
 
 ### Requirement: REQ-CLN-008 Safe-to-Auto-Purge List
 
@@ -232,11 +258,15 @@ The implementation MUST define which categories are safe enough to auto-purge wi
 - WHEN the daily job resolves its auto-purge list
 - THEN the system MUST default to `["expired_locks", "expired_share_tokens"]` as returned by `CategoryRegistryService::getAutoSafeCategoryNames()`
 
+@e2e exclude the list is resolved inside the daily background job, which cannot be triggered over HTTP. Pinned by tests/Unit/Service/Cleanup/CategoryRegistryServiceTest.php::testGetAutoSafeCategoryNamesReturnsTierAOnly and the empty-config case of tests/Unit/BackgroundJob/OrphanedDataCleanupJobTest.php::testCategoriesThePurgeRuns.
+
 #### Scenario: Admin opts into more aggressive auto-purge
 
 - GIVEN the admin sets `cleanup_auto_purge_categories` to include a Tier-B category
 - WHEN the daily job runs
 - THEN it MUST purge that category in addition to the configured Tier-A entries
+
+@e2e exclude needs the daily background job to run, which cannot be triggered over HTTP. Pinned by tests/Unit/BackgroundJob/OrphanedDataCleanupJobTest.php::testCategoriesThePurgeRuns (a configured list including a Tier-B category is purged as given).
 
 ### Requirement: REQ-CLN-009 Audit Logging
 
@@ -252,11 +282,15 @@ Every successful real (non-dry-run) purge that affects at least one row MUST emi
   - subject parameters: `totalRows`, `byCategory`, `durationMs`, `source: 'cli'`
 - AND the event MUST appear in the Nextcloud Activity log visible to admins
 
+@e2e exclude needs `occ` and a purge that deletes at least one row; no HTTP path can create an orphan (every delete cascades, locks expire only after 15 minutes). Pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testRealPurgeEmitsOneActivityEvent (source `cli`).
+
 #### Scenario: API purge emits activity event
 
 - GIVEN an administrator calls `POST /api/admin/cleanup/purge` and deletes 5 items
 - WHEN the purge succeeds
 - THEN one activity event MUST be emitted with `source: 'api'` and the authenticated admin's UID under `affectedUser`/`author`
+
+@e2e exclude an event is published only when the purge deletes at least one row, and no HTTP path can create an orphan to delete (every delete cascades, see dashboard-cascade-events; a lock expires only 15 minutes after its heartbeat). Pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testRealPurgeEmitsOneActivityEvent and tests/Unit/Controller/AdminCleanupControllerCoverageTest.php::testNonStringAndEmptyCategoryEntriesAreDroppedSilently (the controller passes the acting admin's UID and `source: 'api'`). Gap: neither asserts the setAffectedUser/setAuthor arguments.
 
 #### Scenario: Dry-run purge does NOT emit activity event
 
@@ -264,11 +298,15 @@ Every successful real (non-dry-run) purge that affects at least one row MUST emi
 - WHEN the purge completes without touching data
 - THEN NO activity event MUST be emitted
 
+@e2e exclude the absence of an event only means something when the dry run would delete rows, and no HTTP path can create an orphan. Pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testDryRunRollsBackAndDoesNotEmitEvent (`publish` never called for a 5-row dry run).
+
 #### Scenario: Background job purge emits activity event
 
 - GIVEN the daily background job runs and auto-purges N > 0 items
 - WHEN the purge completes
 - THEN exactly one activity event MUST be emitted with `source: 'job'`
+
+@e2e exclude needs the daily background job to run and delete rows; neither can be caused over HTTP. Pinned by tests/Unit/BackgroundJob/OrphanedDataCleanupJobScheduleTest.php::testPurgeIsARealJobRunWithoutAUser (`source='job'`) and tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testRealPurgeEmitsOneActivityEvent.
 
 ### Requirement: REQ-CLN-010 Cache Invalidation
 
@@ -285,6 +323,8 @@ Scan results MUST be cached in the distributed cache (`ICacheFactory::createDist
 - GIVEN a cached result from T
 - WHEN a new scan is requested at T+CACHE_TTL_SECONDS+1
 - THEN the system MUST discard the cache and perform a fresh scan returning `cached: false`
+
+@e2e exclude needs the server clock to move past CACHE_TTL_SECONDS (300s): the suite cannot set the instance clock, and a five-minute sleep in the serial shared suite is not acceptable. Expiry itself is the ICache backend's job. Gap: no PHPUnit test asserts the `ttl: 300` argument OrphanedDataCleanupService::setCachedScanResult passes.
 
 #### Scenario: Real purge invalidates cache
 
@@ -309,14 +349,20 @@ Adding a new cleanup category MUST require only creating one new class implement
 - THEN the system MUST automatically include the new category in scans, purges, the daily auto-purge default list (if Tier-A), CLI listings, and API responses
 - AND no changes to `OrphanedDataCleanupService`, `AdminCleanupController`, `CleanupScanCommand`, `CleanupPurgeCommand`, or `OrphanedDataCleanupJob` are required
 
+@e2e exclude a source-structure property (which classes a developer must edit), not runtime behaviour an instance can show. Pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testScanAggregatesCountsAcrossRegistry (the orchestrator runs any category the registry returns) and tests/Unit/Service/Cleanup/CategoryRegistryServiceTest.php::testGetCategoryNamesReturnsRegisteredOrder.
+
 #### Scenario: Category interface contract
 
 - GIVEN the `CleanupCategoryInterface` with methods `getName()`, `getDisplayName()`, `isSafeToPurgeAutomatically()`, `isAvailable()`, `scan()`, and `purge(bool $dryRun = false)`
 - WHEN a new class implements this interface
 - THEN the registry MUST discover it via constructor injection and the orchestrator MUST invoke it without modification to calling code
 
+@e2e exclude a code contract between CleanupCategoryInterface, the registry and the orchestrator; an instance only ever runs the four shipped classes. Pinned by tests/Unit/Service/Cleanup/CategoryRegistryServiceTest.php::testGetCategoriesReturnsKeyedMap and the four tests/Unit/Service/Cleanup/*CategoryTest.php files.
+
 #### Scenario: Backwards-compatible category additions
 
 - GIVEN an existing installation running cleanup regularly
 - WHEN a new category is added via a code update
 - THEN existing CLI commands, API endpoints, and the background job MUST work unchanged with the new category, picking it up automatically on the next request
+
+@e2e exclude needs a code update that adds a category, which an e2e run against a fixed build cannot perform. Pinned by tests/Unit/Service/OrphanedDataCleanupServiceTest.php::testScanAggregatesCountsAcrossRegistry and tests/Unit/Service/OrphanedDataCleanupServiceCoverageTest.php::testPurgeSkipsUnregisteredAndUnavailableCategories (callers iterate whatever the registry holds).

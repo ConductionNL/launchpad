@@ -100,7 +100,7 @@ class DashboardServiceLinkTargetTest extends TestCase {
 	/**
 	 * Each of the three values is stored; an empty value clears the default.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function testTheDefaultIsStoredAndCleared(): void {
 		$dashboard = $this->makeDashboard();
@@ -123,7 +123,7 @@ class DashboardServiceLinkTargetTest extends TestCase {
 	/**
 	 * An update that does not name the default leaves it alone.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function testAnUpdateWithoutTheDefaultKeepsIt(): void {
 		$dashboard = $this->makeDashboard();
@@ -139,7 +139,7 @@ class DashboardServiceLinkTargetTest extends TestCase {
 	/**
 	 * Any other value is refused and nothing is saved.
 	 *
-	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function testAnUnknownDefaultIsRefused(): void {
 		$dashboard = $this->makeDashboard();

@@ -90,7 +90,7 @@ class TileApiControllerTest extends TestCase {
 	/**
 	 * REQ-DISC-001: the caller's own discovered apps, behind tile.discover.
 	 *
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
 	 */
 	public function testDiscoverAnswersTheCallersApps(): void {
 		$apps = [['appId' => 'deck', 'name' => 'Deck', 'href' => '/apps/deck/', 'icon' => '/apps/deck/img/deck.svg']];
@@ -107,7 +107,7 @@ class TileApiControllerTest extends TestCase {
 	/**
 	 * Without the tile.discover action the endpoint refuses before discovering.
 	 *
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
 	 */
 	public function testDiscoverRefusesWithoutTheAction(): void {
 		$this->actionAuth->method('requireAction')
@@ -122,7 +122,7 @@ class TileApiControllerTest extends TestCase {
 	/**
 	 * An anonymous caller is refused.
 	 *
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
 	 */
 	public function testDiscoverRefusesAnonymous(): void {
 		$this->discovery->expects($this->never())->method('discover');

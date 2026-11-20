@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Recent colleague activity, as the server filtered it for the reader
- * (openspec/changes/dashboards-and-who-may-see-them REQ-DWMS-007).
+ * (openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them REQ-DWMS-007).
  */
 
 import axios from '@nextcloud/axios'
@@ -16,7 +16,7 @@ import { generateUrl } from '@nextcloud/router'
  * @param {number} options.limit how many entries to list
  * @param {number} options.days how many days back
  * @return {Promise<{available: boolean, days: number, entries: Array<object>, total: number, counts: object, actors: number}>}
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
  */
 export async function loadColleagueActivity({ limit, days }) {
 	const { data } = await axios.get(generateUrl('/apps/launchpad/api/colleague-activity'), {

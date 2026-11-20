@@ -44,6 +44,8 @@ Empty sections MUST NOT render their label or container at all (no empty heading
 
 #### Scenario: Only personal dashboards section visible
 
+@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account sees, so `groupDashboards` is never empty without deleting the shipped default on a shared instance. Pinned by src/components/Workspace/__tests__/DashboardSwitcherSidebar.spec.js "renders only the personal section when group lists are empty" and "omits empty sections entirely (no orphan heading)".
+
 - GIVEN `groupDashboards = []` and `userDashboards` has 1 item
 - WHEN the sidebar renders
 - THEN only the `'My Dashboards'` section MUST be visible
@@ -81,7 +83,6 @@ Before emitting `switch`, the sidebar MUST emit `update:open(false)` so the pare
 ### Requirement: REQ-SWITCH-003 Active item highlight
 
 The dashboard whose `id === activeDashboardId` MUST receive a visual `.active` class with `--color-primary-element-light` background and `--color-primary` icon tint. At most one item may be active at a time.
-@e2e exclude active item highlight class test requires verifying CSS class on a specific dashboard row — covered indirectly by wave3 switching test; fine-grained class assertion needs known dashboard IDs
 
 #### Scenario: Active highlight follows prop
 
@@ -100,7 +101,6 @@ The dashboard whose `id === activeDashboardId` MUST receive a visual `.active` c
 ### Requirement: REQ-SWITCH-004 Personal dashboard delete affordance
 
 Items in the `My Dashboards` section (excluding the `+ New Dashboard` row) MUST display a small close-icon delete button on hover (CSS-only `display: none → inline-flex`). Clicking it MUST emit `delete-dashboard(id)` and MUST NOT trigger the row's `switch` event (use `@click.stop`).
-@e2e exclude hover reveals delete button tests CSS hover state — not reliably assertable in Playwright without .hover() + immediate screenshot; covered by wave3 deletion test
 
 #### Scenario: Hover reveals delete button
 
@@ -122,14 +122,12 @@ When `allowUserDashboards: true`, the `My Dashboards` section MUST end with a ro
 
 #### Scenario: Create button hidden when feature disabled
 
-@e2e exclude conditional DOM presence on a prop flag — covered by Vitest component test
 - GIVEN `allowUserDashboards: false`
 - WHEN the sidebar renders
 - THEN the `+ New Dashboard` row MUST NOT be present in the DOM
 
 #### Scenario: Create button click
 
-@e2e exclude emitted-event assertion — covered by Vitest component test
 - GIVEN the user clicks `+ New Dashboard`
 - THEN the sidebar MUST emit `update:open(false)`
 - AND THEN MUST emit `create-dashboard` (no payload)
@@ -137,7 +135,6 @@ When `allowUserDashboards: true`, the `My Dashboards` section MUST end with a ro
 ### Requirement: REQ-SWITCH-006 Slide-in animation
 
 The sidebar MUST be fixed-position (`top: 50px` to clear the Nextcloud header), `width: 280px`, `z-index: 1500`. Open/close MUST be animated via `transform: translateX(-100%)` ↔ `translateX(0)` over `0.25s ease`. The `.open` CSS class MUST be added when `isOpen === true`.
-@e2e exclude slide-in animation tests CSS transform values during animation — Playwright cannot assert mid-animation CSS; open/close covered by wave3 tests
 
 #### Scenario: Closed state is off-screen
 
@@ -155,7 +152,6 @@ The sidebar MUST be fixed-position (`top: 50px` to clear the Nextcloud header), 
 ### Requirement: REQ-SWITCH-007 Icon rendering via shared renderer
 
 Each dashboard item's icon MUST be rendered via the shared `IconRenderer` component (from `dashboard-icons` capability). The sidebar MUST NOT branch on `isCustomIconUrl` itself.
-@e2e exclude icon rendering via shared IconRenderer component tests that no inline v-if branches exist — source-code assertion, not browser-observable
 
 #### Scenario: Mixed built-in and custom icons
 

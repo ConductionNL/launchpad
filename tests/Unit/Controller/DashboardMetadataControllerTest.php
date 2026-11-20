@@ -146,7 +146,41 @@ class DashboardMetadataControllerTest extends TestCase {
 		$controller = $this->controller('alice');
 		$response = $controller->getMetadata('abc');
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame(['department' => 'marketing'], $response->getData());
+		$this->assertSame(expected: '{"department":"marketing"}', actual: $response->render());
+	}
+
+	/**
+	 * No values is the empty object `{}`, not the empty list `[]` an empty
+	 * PHP array encodes to.
+	 *
+	 * @return void
+	 */
+	public function testGetMetadataWithoutValuesIsAnEmptyObject(): void {
+		$dashboard = $this->makeDashboard(uuid: 'abc', userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->permissionService->method('canViewDashboard')->willReturn(true);
+		$this->metadataService->method('getMetadataForDashboard')->willReturn([]);
+
+		$response = $this->controller(userId: 'alice')->getMetadata(uuid: 'abc');
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: '{}', actual: $response->render());
+	}
+
+	/**
+	 * Keys may be all digits; they stay object keys rather than turning the
+	 * answer into a list.
+	 *
+	 * @return void
+	 */
+	public function testSetMetadataWithDigitKeysAnswersAnObject(): void {
+		$dashboard = $this->makeDashboard(uuid: 'abc', userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->permissionService->method('canEditDashboardMetadata')->willReturn(true);
+		$this->metadataService->method('setMetadataForDashboard')->willReturn(['0' => 'a', '1' => 'b']);
+
+		$response = $this->controller(userId: 'alice')->setMetadata(uuid: 'abc', metadata: ['0' => 'a', '1' => 'b']);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: '{"0":"a","1":"b"}', actual: $response->render());
 	}
 
 	public function testGetMetadataAllowsGroupMember(): void {
@@ -186,7 +220,7 @@ class DashboardMetadataControllerTest extends TestCase {
 		$controller = $this->controller('alice');
 		$response = $controller->setMetadata('abc', ['department' => 'marketing']);
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame(['department' => 'marketing'], $response->getData());
+		$this->assertSame(expected: '{"department":"marketing"}', actual: $response->render());
 	}
 
 	/**

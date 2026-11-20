@@ -168,14 +168,14 @@
 
 ## JS-SDK
 
-- [x] Task 19: Create `@conduction/launchpad-embed` package structure:
+- [x] Task 19: Create the embed SDK package structure:
   - `src/LaunchPadEmbed.js` — main entry point (render, on, off, resize methods)
   - `src/postMessage.js` — Origin verification + handshake helpers
   - `src/types.ts` — TypeScript definitions (EmbedConfig, EmbedInstance, event types)
   - `dist/embed-sdk.esm.js` (ESM build)
   - `dist/embed-sdk.umd.js` (UMD build)
   - `package.json` with exports, version matching app version
-  > Built under `src/embed-sdk/`: `package.json` (`@conduction/launchpad-embed`, version of the app), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. `npm run build:embed-sdk` (`src/embed-sdk/webpack.config.cjs`) builds `dist/embed-sdk.esm.js` and `dist/embed-sdk.umd.js` (global `LaunchPadEmbed`); `dist/` is not committed. Test: `src/embed-sdk/__tests__/dist.spec.js` (3) builds both and loads each.
+  > Built under `src/embed-sdk/`: `package.json` (private since Task 24: the SDK is served by the app, not published), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. `npm run build:embed-sdk` (`src/embed-sdk/webpack.config.cjs`) builds `js/embed-sdk/embed-sdk.esm.js` and `js/embed-sdk/embed-sdk.umd.js` (global `LaunchPadEmbed`; Task 24 moved the output from `dist/` so the app ships and serves it); `js/` is not committed. Test: `src/embed-sdk/__tests__/dist.spec.js` (3) builds both and loads each.
 
 - [x] Task 20: Implement `LaunchPadEmbed.render(container, config)` (REQ-EMB-006):
   - Accept: `{token, subjectType, subjectId, tenantThemeId (optional)}`
@@ -211,11 +211,11 @@
   - Listen for resize messages and re-measure
   > Built as `src/embed-entry.js` (webpack entry `embed`, the `launchpad-embed` script `templates/embed.php` loads) mounting `src/views/EmbedView.vue`, which renders the subject through the public share's `PublicDashboardGrid` (no fork) with loading and refusal states. The data request is same-origin, which the server's origin check lets through (`Sec-Fetch-Site: same-origin`).
 
-- [ ] Task 24: Build and publish SDK:
-  - Create `.github/workflows/publish-sdk.yml` to build + publish @conduction/launchpad-embed to npm on release
-  - Package.json versions match app version (synchronized releases)
-  - README with examples (vanilla JS, ESM, TypeScript)
-  > Partly built: the package is `@conduction/launchpad-embed` (Ruben, 19 Nov 2026), with `repository.directory` and `publishConfig` (public, provenance). `.github/workflows/publish-embed-sdk.yml` builds, versions and publishes it on every stable release (`release: published`, not prereleases), with the release's version, through npm Trusted Publisher (OIDC) as `@conduction/nextcloud-vue` publishes, so no token secret. The README has script-tag, ESM and TypeScript examples. Left: on npmjs.com, `@conduction/launchpad-embed` does not exist yet and has no trusted-publisher entry for `ConductionNL/launchpad` + `publish-embed-sdk.yml`; an @conduction npm owner has to create it (or allow the first publish) before the workflow can publish.
+- [x] Task 24: Build and serve the SDK with the app (Ruben, 19 Nov 2026: the SDK is served from the app itself, not published on npm):
+  - `npm run build` also runs `npm run build:embed-sdk`, which writes the ESM and UMD bundles (with source maps) to `js/embed-sdk/`, so every app release carries its own SDK, versioned with the app
+  - `EmbedSdkController::bundle` serves them at `GET /apps/launchpad/embed-sdk/{file}`: public, no CSRF token, only the four built file names (anything else is a 404), `text/javascript` or `application/json`, `Access-Control-Allow-Origin: *`, `Cross-Origin-Resource-Policy: cross-origin`, `Cache-Control: public, max-age=86400`, an ETag and `X-LaunchPad-Version`
+  - README with examples (script tag, ESM, TypeScript) loading the SDK from the instance
+  > Built: the npm publish workflow (`publish-embed-sdk.yml`) is removed and `src/embed-sdk/package.json` is private with no publish metadata. Tests: `tests/Unit/Controller/EmbedSdkControllerTest.php`, `src/embed-sdk/__tests__/dist.spec.js`.
 
 ## Rate Limiting & Revocation
 

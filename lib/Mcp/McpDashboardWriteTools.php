@@ -79,7 +79,7 @@ class McpDashboardWriteTools {
 		}
 
 		$userId = $this->gate->currentUserId();
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args, $userId): array {
 				$this->services->dashboardService->assertPersonalDashboardsAllowed();
 				$hasDashboards = ($this->services->dashboardService->getUserDashboards(userId: $userId) !== []);
@@ -108,7 +108,7 @@ class McpDashboardWriteTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function updateDashboard(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId')
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId')
 			?? $this->fieldRefusal(args: $args, nameRequired: false)
 			?? $this->gate->requireAction(action: 'dashboard.update'));
 		if ($refusal === null) {
@@ -124,14 +124,18 @@ class McpDashboardWriteTools {
 			$data['parentUuid'] = null;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args, $data): array {
+				$before    = $this->history->versionService->stateBeforeUpdate(dashboardId: (int)$args['dashboardId']);
 				$dashboard = $this->services->dashboardService->updateDashboard(
 					dashboardId: (int)$args['dashboardId'],
 					userId: $this->gate->currentUserId(),
 					data: $data
 				);
-				$this->snapshot(dashboard: $dashboard);
+				$this->snapshot(
+					dashboard: ($before['dashboard'] ?? $dashboard),
+					snapshotJson: ($before['snapshotJson'] ?? null)
+				);
 				return ['dashboard' => $dashboard->jsonSerialize()];
 			}
 		);
@@ -147,7 +151,7 @@ class McpDashboardWriteTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function deleteDashboard(array $args): array {
-		$refusal = ($this->validator->id(args: $args, name: 'dashboardId') ?? $this->gate->requireAction(action: 'dashboard.delete'));
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId') ?? $this->gate->requireAction(action: 'dashboard.delete'));
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -183,7 +187,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setActivePreference(userId: $this->gate->currentUserId(), uuid: (string)$args['dashboardUuid']);
 				return ['active' => (string)$args['dashboardUuid']];
@@ -206,7 +210,7 @@ class McpDashboardWriteTools {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: function () use ($args): array {
 				$this->services->dashboardService->setDefaultPreference(userId: $this->gate->currentUserId(), uuid: (string)$args['dashboardUuid']);
 				return ['default' => (string)$args['dashboardUuid']];
@@ -226,13 +230,13 @@ class McpDashboardWriteTools {
 	 */
 	public function forkDashboard(array $args): array {
 		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
-			?? $this->validator->string(args: $args, name: 'name', min: 1, max: 255, required: false)
+			?? $this->validator->optional(args: $args, name: 'name', refusal: $this->validator->string(args: $args, name: 'name', min: 1, max: 255))
 			?? $this->gate->requireUser());
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		return $this->run(
+		return $this->validator->attempt(
 			operation: fn (): array => ['dashboard' => $this->services->dashboardService->forkAsPersonal(
 				userId: $this->gate->currentUserId(),
 				sourceUuid: (string)$args['dashboardUuid'],
@@ -240,6 +244,52 @@ class McpDashboardWriteTools {
 			)->jsonSerialize()]
 		);
 	}//end forkDashboard()
+
+	/**
+	 * Publish, unpublish or schedule a dashboard the caller owns or administers.
+	 *
+	 * @param array<string, mixed> $args The tool arguments: dashboardUuid, state (published, draft, scheduled), publishAt, unpublishAt.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
+	 */
+	public function setPublicationState(array $args): array {
+		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
+			?? $this->validator->oneOf(args: $args, name: 'state', allowed: ['published', 'draft', 'scheduled']));
+		if ($refusal === null && ($args['state'] ?? '') === 'scheduled' && empty($args['publishAt']) === true && empty($args['unpublishAt']) === true) {
+			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'A schedule needs publishAt, unpublishAt or both.');
+		}
+
+		$action = ['published' => 'dashboard.publish', 'draft' => 'dashboard.unpublish', 'scheduled' => 'dashboard.schedule'][$args['state'] ?? ''] ?? '';
+		$refusal ??= $this->gate->requireAction(action: $action);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$uuid   = (string)$args['dashboardUuid'];
+		$userId = $this->gate->currentUserId();
+		try {
+			$dashboard = match ($args['state']) {
+				'published' => $this->services->dashboardService->publishDashboard(uuid: $uuid, userId: $userId),
+				'draft' => $this->services->dashboardService->unpublish(uuid: $uuid, userId: $userId),
+				default => $this->services->dashboardService->schedule(
+					uuid: $uuid,
+					publishAt: ($args['publishAt'] ?? null),
+					userId: $userId,
+					unpublishAt: ($args['unpublishAt'] ?? null)
+				),
+			};
+		} catch (Throwable $e) {
+			if ($e->getMessage() === $this->services->dashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN) {
+				return $this->validator->refuse(code: 'forbidden', message: 'Only the owner or an administrator may publish this dashboard.');
+			}
+
+			return $this->validator->failure(exception: $e);
+		}
+
+		return ['dashboard' => $dashboard->jsonSerialize()];
+	}//end setPublicationState()
 
 	/**
 	 * A refusal for bad dashboard fields.
@@ -252,9 +302,18 @@ class McpDashboardWriteTools {
 	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) Creating and updating a dashboard differ only in whether the name is required.
 	 */
 	private function fieldRefusal(array $args, bool $nameRequired): ?array {
-		$refusal = ($this->validator->string(args: $args, name: 'name', min: 1, max: 255, required: $nameRequired)
-			?? $this->validator->string(args: $args, name: 'description', min: 0, max: 2000, required: false)
-			?? $this->validator->string(args: $args, name: 'slug', min: 1, max: 255, required: false));
+		$refusal = $this->validator->optional(args: $args, name: 'name', refusal: $this->validator->string(args: $args, name: 'name', min: 1, max: 255));
+		if ($nameRequired === true) {
+			$refusal = $this->validator->string(args: $args, name: 'name', min: 1, max: 255);
+		}
+
+		$refusal = ($refusal
+			?? $this->validator->optional(
+				args: $args,
+				name: 'description',
+				refusal: $this->validator->string(args: $args, name: 'description', min: 0, max: 2000)
+			)
+			?? $this->validator->optional(args: $args, name: 'slug', refusal: $this->validator->string(args: $args, name: 'slug', min: 1, max: 255)));
 		if ($refusal === null && array_key_exists('sortOrder', $args) === true && is_int($args['sortOrder']) === false) {
 			$refusal = $this->validator->refuse(code: 'invalid_arguments', message: 'Argument sortOrder must be an integer.');
 		}
@@ -282,30 +341,20 @@ class McpDashboardWriteTools {
 	 * Save an automatic version after an update, as the route does; a failed
 	 * snapshot is logged and does not fail the update.
 	 *
-	 * @param Dashboard $dashboard The updated dashboard.
+	 * @param Dashboard   $dashboard    The dashboard as it was before the update.
+	 * @param string|null $snapshotJson Its payload built before the update, or null to build it now.
 	 *
 	 * @return void
 	 */
-	private function snapshot(Dashboard $dashboard): void {
+	private function snapshot(Dashboard $dashboard, ?string $snapshotJson = null): void {
 		try {
-			$this->history->versionService->captureSnapshot(dashboard: $dashboard, createdBy: $this->gate->currentUserId());
+			$this->history->versionService->captureSnapshot(
+				dashboard: $dashboard,
+				createdBy: $this->gate->currentUserId(),
+				options: ['snapshotJson' => $snapshotJson]
+			);
 		} catch (Throwable $t) {
 			$this->history->logger->warning(message: 'launchpad: automatic version snapshot failed', context: ['exception' => $t]);
 		}
 	}//end snapshot()
-
-	/**
-	 * Run a service call, mapping its failures to the tools' envelopes.
-	 *
-	 * @param \Closure(): array<string, mixed> $operation The service call.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function run(\Closure $operation): array {
-		try {
-			return $operation();
-		} catch (Throwable $e) {
-			return $this->validator->failure(exception: $e);
-		}
-	}//end run()
 }//end class

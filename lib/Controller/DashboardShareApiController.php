@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\ShareGrant;
 use OCP\AppFramework\Controller;
@@ -43,6 +44,8 @@ use Throwable;
  * are delegated to DashboardShareService.
  *
  * @spec openspec/specs/dashboard-sharing/spec.md
+ *
+ * @psalm-import-type LaunchPadShare from ResponseDefinitions
  */
 class DashboardShareApiController extends Controller {
 	/**
@@ -69,6 +72,10 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @return DataResponse The list of shares.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadShare>, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -100,6 +107,10 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @return DataResponse The created/updated share.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_CREATED, LaunchPadShare, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -114,8 +125,8 @@ class DashboardShareApiController extends Controller {
 		}
 
 		return $this->respond(
-			operation: fn (): DataResponse => new DataResponse(
-				data: $this->shareService->addShare(
+			operation: function () use ($id, $shareType, $shareWith, $permissionLevel): DataResponse {
+				$share = $this->shareService->addShare(
 					dashboardId: $id,
 					grant: new ShareGrant(
 						shareType: (string)$shareType,
@@ -123,9 +134,10 @@ class DashboardShareApiController extends Controller {
 						permissionLevel: (string)$permissionLevel
 					),
 					callerId: $this->userId
-				)->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			),
+				);
+				$this->tools->audienceChanged(dashboardId: $id);
+				return new DataResponse(data: $share->jsonSerialize(), statusCode: Http::STATUS_CREATED);
+			},
 			notFound: 'Dashboard not found'
 		);
 	}//end create()
@@ -137,6 +149,10 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @return DataResponse Empty 204 on success.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_NO_CONTENT, array{}, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -151,6 +167,7 @@ class DashboardShareApiController extends Controller {
 					shareId: $shareId,
 					callerId: $this->userId
 				);
+				$this->tools->audienceChanged(ownerId: $this->userId);
 				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 			},
 			notFound: 'Share not found'
@@ -161,10 +178,14 @@ class DashboardShareApiController extends Controller {
 	 * Atomically replace all shares for a dashboard. REQ-SHARE-009.
 	 *
 	 * @param int $id The dashboard ID.
-	 * @param array|null $shares The new share list.
+	 * @param list<array{shareType: string, shareWith: string, permissionLevel?: string}>|null $shares The new share list.
 	 *
 	 * @return DataResponse The new full share list.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadShare>, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	#[NoAdminRequired]
@@ -178,15 +199,15 @@ class DashboardShareApiController extends Controller {
 		}
 
 		return $this->respond(
-			operation: fn (): DataResponse => new DataResponse(
-				data: $this->serializeShares(
-					shares: $this->shareService->replaceShares(
-						dashboardId: $id,
-						shares: $shares,
-						userId: $this->userId
-					)
-				)
-			),
+			operation: function () use ($id, $shares): DataResponse {
+				$replaced = $this->shareService->replaceShares(
+					dashboardId: $id,
+					shares: $shares,
+					userId: $this->userId
+				);
+				$this->tools->audienceChanged(dashboardId: $id);
+				return new DataResponse(data: $this->serializeShares(shares: $replaced));
+			},
 			notFound: 'Dashboard not found'
 		);
 	}//end replace()
@@ -217,6 +238,7 @@ class DashboardShareApiController extends Controller {
 				shareWith: $shareWith,
 				callerId: $this->userId
 			);
+			$this->tools->audienceChanged(ownerId: $this->userId);
 			return new DataResponse(data: ['deleted' => $count]);
 		} catch (InvalidArgumentException $e) {
 			return new DataResponse(

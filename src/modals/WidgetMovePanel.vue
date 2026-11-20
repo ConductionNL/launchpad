@@ -264,6 +264,7 @@ export default {
 		apply(action) {
 			const base = {
 				id: this.placement ? this.placement.id : undefined,
+				widgetId: this.placement ? this.placement.widgetId : undefined,
 				gridX: this.working.gridX,
 				gridY: this.working.gridY,
 				gridWidth: this.working.gridWidth,

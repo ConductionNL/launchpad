@@ -672,7 +672,13 @@ class FooterService implements FooterServiceInterface {
 	 * @return string The raw value.
 	 */
 	private function attributeValue(array $attr): string {
-		return ($attr[3] ?? ($attr[4] ?? ($attr[5] ?? '')));
+		$raw   = $attr[2];
+		$quote = substr(string: $raw, offset: 0, length: 1);
+		if ($quote === '"' || $quote === "'") {
+			return substr(string: $raw, offset: 1, length: -1);
+		}
+
+		return $raw;
 	}//end attributeValue()
 
 	/**

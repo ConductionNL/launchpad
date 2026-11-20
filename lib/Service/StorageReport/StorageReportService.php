@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ use OCP\IGroupManager;
  * removable total is named apart from the total in use: trash entries past
  * the trash retention, and launchpad uploads no launchpad row names.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-010-storage-use-per-workspace-and-service-over-time
  */
 class StorageReportService {
 
@@ -74,7 +74,7 @@ class StorageReportService {
 	 * @param IConfig        $config  The trash retention.
 	 * @param ITimeFactory   $time    Now.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public function __construct(
 		private readonly StorageFigures $figures,
@@ -94,7 +94,7 @@ class StorageReportService {
 	 *
 	 * @throws StorageReportRefusedException When the caller is not an administrator.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.4
 	 */
 	public function report(string $readerId): array {
 		if ($readerId === '' || $this->groups->isAdmin($readerId) === false) {
@@ -142,7 +142,7 @@ class StorageReportService {
 	 *
 	 * @return array<string,mixed> The snapshot.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public function recordToday(): array {
 		$snapshot = $this->snapshot();
@@ -155,7 +155,7 @@ class StorageReportService {
 	 *
 	 * @return array{total:int,workspaces:array<string,int>,services:array<string,int>}
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.1
 	 */
 	public function snapshot(): array {
 		$homes      = $this->figures->homeUsage();
@@ -188,7 +188,7 @@ class StorageReportService {
 	 *
 	 * @return array{total:int,pastRetention:array{count:int,bytes:int,retentionDays:int|null},orphanedUploads:array{count:int,bytes:int,names:list<string>,known:bool}}
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
 	public static function removable(array $trash, array $uploads, array $policy): array {
 		$now      = (int) $policy['now'];
@@ -264,7 +264,7 @@ class StorageReportService {
 	 *
 	 * @return int|null The days, or null when trash is never expired.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.3
 	 */
 	public static function retentionDays(string $setting): ?int {
 		$parts = array_map('trim', explode(',', strtolower($setting)));
@@ -287,7 +287,7 @@ class StorageReportService {
 	 *
 	 * @return string The CSV.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.4
 	 */
 	public static function csv(array $report): string {
 		$months = array_keys((array) ($report['series'] ?? []));
@@ -320,7 +320,7 @@ class StorageReportService {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public static function months(int $now): array {
 		$first  = (new DateTimeImmutable('@' . $now))->setTimezone(new DateTimeZone('UTC'))->modify('first day of this month');
@@ -342,7 +342,7 @@ class StorageReportService {
 	 *
 	 * @return array<string,int|null>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
 	 */
 	public static function monthly(array $series, ?string $section, string $key, array $months): array {
 		$values = array_fill_keys($months, null);

@@ -146,17 +146,33 @@ export async function ensureKnownPassword(
  * @param {Browser} browser Playwright `browser` fixture.
  * @param {string} username The account to log in as.
  * @param {string} password Its password.
+ * @param {object} [options] `{ tour: true }` to meet the product tour, which is marked seen otherwise.
  * @return {Promise<{context: BrowserContext, page: Page}>} the fresh, authenticated context + page.
  */
 export async function loginAs(
 	browser: Browser,
 	username: string,
 	password: string,
+	options: { tour?: boolean } = {},
 ): Promise<{ context: BrowserContext; page: Page }> {
 	const context = await browser.newContext({
 		baseURL: BASE,
 		storageState: undefined,
 	})
+
+	// A new account meets the product tour on its first visit, and its dim
+	// layer takes every click. Mark both tours seen, as global-setup does for
+	// the admin, unless the spec is about the tour.
+	if (options.tour !== true) {
+		await context.addInitScript(() => {
+			try {
+				window.localStorage.setItem('cn-walkthrough-seen:launchpad', '999.0.0')
+				window.localStorage.setItem('cn-walkthrough-seen:launchpad:admin-tour', '999.0.0')
+			} catch {
+				// No storage: the spec meets the tour.
+			}
+		})
+	}
 
 	// Before the first navigation, because Playwright routing only applies to
 	// requests a context makes after the route is installed. A no-op unless

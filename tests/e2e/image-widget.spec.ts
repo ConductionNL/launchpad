@@ -29,31 +29,47 @@
  * "element is outside of the viewport" retries that made the popup version red.
  */
 
-import type { Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import * as path from 'path'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
-import {
-	closeSidebar,
-	gotoLaunchPad,
-	openAddWidgetModal,
-} from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
+import {
+	clearSeededWidgets,
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { apiAs, openAddWidgetDialog } from './support/filesWidget.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 
 // A same-origin asset, so the cell renders without outbound internet.
 const LOGO = `${NEXTCLOUD_URL}/core/img/logo/logo.svg`
 
+let api: APIRequestContext
+let dashboard: SeededDashboard | null = null
+
+// Every widget goes on a dashboard this file seeds and makes active, so the
+// cells it looks for are its own and not whatever admin's dashboard holds.
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
+	api = await apiAs()
+	dashboard = await seedActiveDashboard(api, `E2E Image widget ${Date.now()}`)
+	await clearSeededWidgets(api, dashboard.id)
 })
 
-/** Open the Add Widget modal with the "Image" type already chosen. */
+test.afterAll(async () => {
+	await removeSeededDashboard(api, dashboard)
+	await api.dispose()
+})
+
+/** Open the Add Widget modal on the active dashboard with the "Image" type already chosen. */
 async function openImageForm(page: Page) {
-	await openAddWidgetModal(page)
-	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+	const dialog = await openAddWidgetDialog(page)
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 	return dialog
 }
@@ -129,7 +145,7 @@ test.describe('image widget', () => {
 
 		// Reload and verify persistence.
 		await page.reload()
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		await expect(
 			page
 				.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)

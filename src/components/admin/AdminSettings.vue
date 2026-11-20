@@ -569,7 +569,7 @@ export default {
 		 * office networks, so a wrong proxy setup shows at once.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 		 */
 		currentAddressLine() {
 			const address = this.settings.currentAddress || ''
@@ -811,7 +811,7 @@ export default {
 		 * refused by the server and nothing is stored.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
 		 */
 		async saveOfficeNetworks() {
 			this.officeNetworksError = ''

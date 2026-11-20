@@ -3,7 +3,7 @@
 /**
  * PublisherTools
  *
- * The debounce helper and the logger of the activity publisher.
+ * The debounce helper, the logger and the URL generator of the activity publisher.
  *
  * @category  Activity
  * @package   OCA\LaunchPad\Activity
@@ -23,10 +23,11 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Activity;
 
+use OCP\IURLGenerator;
 use Psr\Log\LoggerInterface;
 
 /**
- * The debounce helper and the logger of the activity publisher.
+ * The debounce helper, the logger and the URL generator of the activity publisher.
  *
  * @spec openspec/specs/activity-feed-integration/spec.md
  */
@@ -35,11 +36,13 @@ class PublisherTools {
 	 * Constructor.
 	 *
 	 * @param DebounceHelper  $debounce The debounce guard.
-	 * @param LoggerInterface $logger The logger.
+	 * @param LoggerInterface   $logger The logger.
+	 * @param IURLGenerator|null $urlGenerator Builds the dashboard links of activity rows.
 	 */
 	public function __construct(
 		public readonly DebounceHelper $debounce,
 		public readonly LoggerInterface $logger,
+		public readonly ?IURLGenerator $urlGenerator=null,
 	) {
 	}//end __construct()
 }//end class

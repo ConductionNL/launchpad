@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \OCA\LaunchPad\Service\TileLinkTarget
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 class TileLinkTargetTest extends TestCase {
 

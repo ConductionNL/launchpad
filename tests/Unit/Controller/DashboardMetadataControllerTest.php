@@ -146,7 +146,37 @@ class DashboardMetadataControllerTest extends TestCase {
 		$controller = $this->controller('alice');
 		$response = $controller->getMetadata('abc');
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame(['department' => 'marketing'], $response->getData());
+		$this->assertSame('{"department":"marketing"}', $response->render());
+	}
+
+	/**
+	 * No values is the empty object `{}`, not the empty list `[]` an empty
+	 * PHP array encodes to.
+	 */
+	public function testGetMetadataWithoutValuesIsAnEmptyObject(): void {
+		$dashboard = $this->makeDashboard('abc', userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->permissionService->method('canViewDashboard')->willReturn(true);
+		$this->metadataService->method('getMetadataForDashboard')->willReturn([]);
+
+		$response = $this->controller('alice')->getMetadata('abc');
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('{}', $response->render());
+	}
+
+	/**
+	 * Keys may be all digits; they stay object keys rather than turning the
+	 * answer into a list.
+	 */
+	public function testSetMetadataWithDigitKeysAnswersAnObject(): void {
+		$dashboard = $this->makeDashboard('abc', userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->permissionService->method('canEditDashboardMetadata')->willReturn(true);
+		$this->metadataService->method('setMetadataForDashboard')->willReturn(['0' => 'a', '1' => 'b']);
+
+		$response = $this->controller('alice')->setMetadata('abc', ['0' => 'a', '1' => 'b']);
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('{"0":"a","1":"b"}', $response->render());
 	}
 
 	public function testGetMetadataAllowsGroupMember(): void {
@@ -186,7 +216,7 @@ class DashboardMetadataControllerTest extends TestCase {
 		$controller = $this->controller('alice');
 		$response = $controller->setMetadata('abc', ['department' => 'marketing']);
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame(['department' => 'marketing'], $response->getData());
+		$this->assertSame('{"department":"marketing"}', $response->render());
 	}
 
 	/**

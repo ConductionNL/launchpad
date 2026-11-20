@@ -752,8 +752,11 @@ test.describe('weather widget', () => {
 		const browserCalls: string[] = []
 		page.on('request', (r) => browserCalls.push(r.url()))
 
-		const reading = page.waitForResponse((r) =>
-			r.url().includes(`/apps/launchpad/api/weather/${id}`),
+		// The read fires only once the shell has hydrated, which gotoLaunchPad
+		// allows up to 20s (twice), so the wait must outlast that.
+		const reading = page.waitForResponse(
+			(r) => r.url().includes(`/apps/launchpad/api/weather/${id}`),
+			{ timeout: 45_000 },
 		)
 		await gotoLaunchPad(page)
 		const res = await reading

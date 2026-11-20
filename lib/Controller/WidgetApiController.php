@@ -22,6 +22,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\ResponseDefinitions;
@@ -274,10 +275,29 @@ class WidgetApiController extends Controller {
 			// widget limit (tiles are placements too) — HTTP 409 with the
 			// structured body.
 			return $this->context->responseHelper->quotaExceeded(exception: $e);
+		} catch (InvalidWidgetContentException $e) {
+			return self::invalidContentResponse(exception: $e);
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end createPlacement()
+
+	/**
+	 * Answer content that breaks its widget type's rules with 400 and the
+	 * rule it broke (REQ-MENU-002), so the editor can say what to change.
+	 *
+	 * @param InvalidWidgetContentException $exception The validation failure.
+	 *
+	 * @return JSONResponse The 400 response.
+	 *
+	 * @spec openspec/specs/menu-widget/spec.md
+	 */
+	private static function invalidContentResponse(InvalidWidgetContentException $exception): JSONResponse {
+		return new JSONResponse(
+			data: ['error' => $exception->getMessage()],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end invalidContentResponse()
 
 	/**
 	 * Resolve the guard chain for {@see self::addWidget()}.
@@ -626,6 +646,8 @@ class WidgetApiController extends Controller {
 				],
 				\OCP\AppFramework\Http::STATUS_CONFLICT
 			);
+		} catch (InvalidWidgetContentException $e) {
+			return self::invalidContentResponse(exception: $e);
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}

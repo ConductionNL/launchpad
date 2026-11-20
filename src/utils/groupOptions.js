@@ -10,6 +10,22 @@
  */
 
 /**
+ * One group id or `{id, displayName}` group as a picker option.
+ *
+ * @param {string|object} group the group.
+ * @return {{id: string, displayName: string}} the option; its id is '' when the group has none.
+ * @spec openspec/specs/conditional-visibility-editor/spec.md
+ */
+function toOption(group) {
+	if (typeof group === 'string') {
+		return { id: group, displayName: group }
+	}
+	const id = String(group?.id ?? '')
+	const name = String(group?.displayName ?? '')
+	return { id, displayName: name !== '' ? name : id }
+}
+
+/**
  * Turn group ids or `{id, displayName}` groups into picker options.
  *
  * @param {Array<string|object>} groups the offered groups.
@@ -18,17 +34,11 @@
  * @spec openspec/specs/conditional-visibility-editor/spec.md
  */
 export function toGroupOptions(groups, selected = []) {
+	const chosen = (Array.isArray(selected) ? selected : []).filter((id) => typeof id === 'string')
 	const options = new Map()
-	for (const group of Array.isArray(groups) ? groups : []) {
-		const id = typeof group === 'string' ? group : String(group?.id ?? '')
-		if (id !== '' && !options.has(id)) {
-			const name = typeof group === 'string' ? '' : String(group?.displayName ?? '')
-			options.set(id, { id, displayName: name !== '' ? name : id })
-		}
-	}
-	for (const id of Array.isArray(selected) ? selected : []) {
-		if (typeof id === 'string' && id !== '' && !options.has(id)) {
-			options.set(id, { id, displayName: id })
+	for (const option of [...(Array.isArray(groups) ? groups : []), ...chosen].map(toOption)) {
+		if (option.id !== '' && !options.has(option.id)) {
+			options.set(option.id, option)
 		}
 	}
 	return [...options.values()]

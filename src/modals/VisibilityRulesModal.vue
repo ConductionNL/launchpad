@@ -83,6 +83,12 @@ export default {
 	watch: {
 		open: {
 			immediate: true,
+			/**
+			 * Read the groups on opening when none were passed.
+			 *
+			 * @param {boolean} isOpen whether the modal is shown.
+			 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-002-per-rule-row-editor-for-all-four-rule-types
+			 */
 			handler(isOpen) {
 				if (isOpen && this.availableGroups.length === 0) {
 					this.loadGroups()

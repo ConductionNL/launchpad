@@ -549,7 +549,7 @@ class ArchiveParser {
 		);
 		return (string)preg_replace_callback(
 			pattern: '/<!\[CDATA\[(.*?)\]\]>/s',
-			callback: static fn (array $m): string => '<!--cdata:' . base64_encode($m[1]) . '-->',
+			callback: static fn (array $match): string => '<!--cdata:' . base64_encode($match[1]) . '-->',
 			subject: $html
 		);
 	}//end shieldStorageMarkup()
@@ -565,7 +565,7 @@ class ArchiveParser {
 		$html = (string)preg_replace(pattern: '/<(\/?)(ac|ri)--/i', replacement: '<$1$2:', subject: $html);
 		return (string)preg_replace_callback(
 			pattern: '/<!--cdata:([A-Za-z0-9+\/=]*)-->/',
-			callback: static fn (array $m): string => '<![CDATA[' . base64_decode($m[1]) . ']]>',
+			callback: static fn (array $match): string => '<![CDATA[' . base64_decode($match[1]) . ']]>',
 			subject: $html
 		);
 	}//end restoreStorageMarkup()

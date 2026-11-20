@@ -3,9 +3,11 @@
 /**
  * SubjectTablesTest
  *
- * The tables behind a subject (REQ-SCH-003/004): one per dashboard widget
- * from its rows, a widget subject found among the creator's dashboards,
- * filter context applied, and an unknown filter field refused.
+ * The tables behind a subject (REQ-SCH-003/004), read from LaunchPad's own
+ * dashboards and widget placements: one per visible widget, from a text
+ * widget's table or the rows its content carries; a widget subject by its
+ * placement id; the creator must be able to see the subject; filter context
+ * applied, and an unknown filter field refused.
  *
  * @category  Test
  * @package   Unit\Service\ScheduledExport
@@ -23,10 +25,16 @@ declare(strict_types=1);
 
 namespace Unit\Service\ScheduledExport;
 
-use OCA\LaunchPad\Service\ScheduledExport\ExportObjectStore;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\ScheduledExport\InvalidFilterContextException;
 use OCA\LaunchPad\Service\ScheduledExport\RenderException;
 use OCA\LaunchPad\Service\ScheduledExport\SubjectTables;
+use OCP\AppFramework\Db\DoesNotExistException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -36,38 +44,135 @@ use PHPUnit\Framework\TestCase;
  */
 class SubjectTablesTest extends TestCase {
 
-	/**
-	 * A dashboard with a chart (props.rows) and a list (dataSource.rows).
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function dashboard(): array {
-		return ['id' => 'd1', 'owner' => 'alice', 'widgets' => [
-			['id' => 'w1', 'widgetKey' => 'chart', 'props' => ['title' => 'Bezwaren', 'rows' => [
-				['gemeenteCode' => 'GM0355', 'aantal' => 4],
-				['gemeenteCode' => 'GM0344', 'aantal' => 7, 'extra' => 'x'],
-			]]],
-			['id' => 'w2', 'widgetKey' => 'list', 'dataSource' => ['rows' => [['naam' => 'a']]]],
-			'not-a-widget',
-		]];
-	}//end dashboard()
+	private DashboardMapper&MockObject $dashboards;
+
+	private WidgetPlacementMapper&MockObject $placements;
+
+	private PermissionService&MockObject $permissions;
 
 	/**
-	 * A dashboard subject gives one table per widget, headers the union of the row keys.
+	 * Dashboard 7 (`d1`) holds placements 11 (a text widget's table), 12
+	 * (rows of objects) and 13 (hidden); alice may see it, mallory may not.
 	 *
 	 * @return void
 	 */
-	public function testDashboardGivesOneTablePerWidget(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->expects($this->once())->method('find')->with('dashboard', 'd1')->willReturn($this->dashboard());
+	protected function setUp(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setId(7);
+		$dashboard->setUuid('d1');
 
-		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'], filterContext: []);
+		$placements = [
+			self::placement(id: 11, title: 'Bezwaren', content: ['tableMode' => true, 'tableData' => ['headerRow' => true, 'columnAlignments' => ['left', 'left'], 'rows' => [
+				[['text' => 'gemeenteCode'], ['text' => 'aantal']],
+				[['text' => 'GM0355'], ['text' => '4']],
+				[['text' => 'GM0344'], ['text' => '7']],
+			]]]),
+			self::placement(id: 12, title: '', content: ['rows' => [['naam' => 'a'], ['naam' => 'b', 'extra' => 'x']]]),
+			self::placement(id: 13, title: 'Hidden', content: ['rows' => [['geheim' => 'ja']]], visible: 0),
+		];
 
+		$this->dashboards = $this->createMock(DashboardMapper::class);
+		$this->dashboards->method('findByUuid')->willReturnCallback(static function (string $uuid) use ($dashboard): Dashboard {
+			if ($uuid !== 'd1') {
+				throw new DoesNotExistException('gone');
+			}
+
+			return $dashboard;
+		});
+
+		$this->placements = $this->createMock(WidgetPlacementMapper::class);
+		$this->placements->method('findByDashboardId')->with(7)->willReturn($placements);
+		$this->placements->method('find')->willReturnCallback(static function (int $id) use ($placements): WidgetPlacement {
+			foreach ($placements as $placement) {
+				if ($placement->getId() === $id) {
+					return $placement;
+				}
+			}
+
+			throw new DoesNotExistException('gone');
+		});
+
+		$this->permissions = $this->createMock(PermissionService::class);
+		$this->permissions->method('canViewDashboard')->willReturnCallback(static fn (string $userId, int $dashboardId): bool => $userId === 'alice' && $dashboardId === 7);
+		$this->permissions->method('canViewPlacement')->willReturnCallback(static fn (string $userId, int $placementId): bool => $userId === 'alice');
+	}//end setUp()
+
+	/**
+	 * A stored widget placement on dashboard 7.
+	 *
+	 * @param int                  $id      The placement id.
+	 * @param string               $title   Its custom title.
+	 * @param array<string, mixed> $content Its content.
+	 * @param int                  $visible Whether it is shown.
+	 *
+	 * @return WidgetPlacement
+	 */
+	private static function placement(int $id, string $title, array $content, int $visible = 1): WidgetPlacement {
+		// Entity setters forward positional arguments through __call.
+		$placement = new WidgetPlacement();
+		$placement->setId($id);
+		$placement->setDashboardId(7);
+		$placement->setWidgetId('text');
+		$placement->setCustomTitle($title === '' ? null : $title);
+		$placement->setContent((string)json_encode($content));
+		$placement->setIsVisible($visible);
+
+		return $placement;
+	}//end placement()
+
+	/**
+	 * The tables of the given subject as the given creator.
+	 *
+	 * @param string               $type          dashboard or widget.
+	 * @param string               $id            The subject id.
+	 * @param string|null          $creator       The export's creator.
+	 * @param array<string, mixed> $filterContext The filter context.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private function tables(string $type, string $id, ?string $creator = 'alice', array $filterContext = []): array {
+		$export = ['subjectType' => $type, 'subjectId' => $id];
+		if ($creator !== null) {
+			$export['createdBy'] = $creator;
+		}
+
+		return (new SubjectTables($this->dashboards, $this->placements, $this->permissions))->tables(export: $export, filterContext: $filterContext);
+	}//end tables()
+
+	/**
+	 * A LaunchPad dashboard gives one table per visible widget: a text
+	 * widget's table with its header row as headers, and rows of objects
+	 * with the union of their keys; a placement without a title is named by
+	 * its widget.
+	 *
+	 * @return void
+	 */
+	public function testDashboardGivesOneTablePerVisibleWidget(): void {
 		$this->assertSame([
-			['title' => 'Bezwaren', 'headers' => ['gemeenteCode', 'aantal', 'extra'], 'rows' => [['GM0355', 4, null], ['GM0344', 7, 'x']]],
-			['title' => 'list', 'headers' => ['naam'], 'rows' => [['a']]],
-		], $tables);
-	}//end testDashboardGivesOneTablePerWidget()
+			['title' => 'Bezwaren', 'headers' => ['gemeenteCode', 'aantal'], 'rows' => [['GM0355', '4'], ['GM0344', '7']]],
+			['title' => 'text', 'headers' => ['naam', 'extra'], 'rows' => [['a', null], ['b', 'x']]],
+		], $this->tables(type: 'dashboard', id: 'd1'));
+	}//end testDashboardGivesOneTablePerVisibleWidget()
+
+	/**
+	 * A text table without a header row is headed `Column 1` and on, and
+	 * short rows are padded.
+	 *
+	 * @return void
+	 */
+	public function testATextTableWithoutHeaderRowGetsNumberedColumns(): void {
+		$placement = self::placement(id: 21, title: 'Los', content: ['tableMode' => true, 'tableData' => ['headerRow' => false, 'rows' => [
+			[['text' => 'a'], ['text' => 'b']],
+			[['text' => 'c']],
+		]]]);
+		$this->placements = $this->createMock(WidgetPlacementMapper::class);
+		$this->placements->method('find')->with(21)->willReturn($placement);
+
+		$this->assertSame(
+			[['title' => 'Los', 'headers' => ['Column 1', 'Column 2'], 'rows' => [['a', 'b'], ['c', '']]]],
+			$this->tables(type: 'widget', id: '21')
+		);
+	}//end testATextTableWithoutHeaderRowGetsNumberedColumns()
 
 	/**
 	 * A filter keeps the matching rows of the tables that have the field and leaves the others whole.
@@ -75,13 +180,10 @@ class SubjectTablesTest extends TestCase {
 	 * @return void
 	 */
 	public function testFilterContextKeepsMatchingRows(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('find')->willReturn($this->dashboard());
+		$tables = $this->tables(type: 'dashboard', id: 'd1', filterContext: ['gemeenteCode' => 'GM0355']);
 
-		$tables = (new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'], filterContext: ['gemeenteCode' => 'GM0355']);
-
-		$this->assertSame([['GM0355', 4, null]], $tables[0]['rows']);
-		$this->assertSame([['a']], $tables[1]['rows']);
+		$this->assertSame([['GM0355', '4']], $tables[0]['rows']);
+		$this->assertSame([['a', null], ['b', 'x']], $tables[1]['rows']);
 	}//end testFilterContextKeepsMatchingRows()
 
 	/**
@@ -90,31 +192,34 @@ class SubjectTablesTest extends TestCase {
 	 * @return void
 	 */
 	public function testUnknownFilterFieldIsRefused(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('find')->willReturn($this->dashboard());
-
 		$this->expectException(InvalidFilterContextException::class);
 		$this->expectExceptionMessage('Unknown filter field: provincie');
-		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'], filterContext: ['provincie' => 'NH']);
+		$this->tables(type: 'dashboard', id: 'd1', filterContext: ['provincie' => 'NH']);
 	}//end testUnknownFilterFieldIsRefused()
 
 	/**
-	 * A widget subject is found among the creator's dashboards; a missing one is refused.
+	 * A widget subject is a placement id the creator may see; an unknown one is refused.
 	 *
 	 * @return void
 	 */
-	public function testWidgetSubjectIsFoundInTheCreatorsDashboards(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('findAll')->with('dashboard', ['@self' => ['owner' => 'alice']])->willReturn([$this->dashboard()]);
-		$tables = new SubjectTables($store);
-
-		$found = $tables->tables(export: ['subjectType' => 'widget', 'subjectId' => 'w2', 'createdBy' => 'alice'], filterContext: []);
-		$this->assertSame('list', $found[0]['title']);
+	public function testWidgetSubjectIsAPlacementTheCreatorMaySee(): void {
+		$this->assertSame('Bezwaren', $this->tables(type: 'widget', id: '11')[0]['title']);
 
 		$this->expectException(RenderException::class);
 		$this->expectExceptionMessage('The widget of this export no longer exists');
-		$tables->tables(export: ['subjectType' => 'widget', 'subjectId' => 'w9', 'createdBy' => 'alice'], filterContext: []);
-	}//end testWidgetSubjectIsFoundInTheCreatorsDashboards()
+		$this->tables(type: 'widget', id: '99');
+	}//end testWidgetSubjectIsAPlacementTheCreatorMaySee()
+
+	/**
+	 * A widget the creator may not see reads as gone.
+	 *
+	 * @return void
+	 */
+	public function testWidgetTheCreatorMayNotSeeIsRefused(): void {
+		$this->expectException(RenderException::class);
+		$this->expectExceptionMessage('The widget of this export no longer exists');
+		$this->tables(type: 'widget', id: '11', creator: 'mallory');
+	}//end testWidgetTheCreatorMayNotSeeIsRefused()
 
 	/**
 	 * A dashboard that is gone is refused.
@@ -122,26 +227,21 @@ class SubjectTablesTest extends TestCase {
 	 * @return void
 	 */
 	public function testMissingDashboardIsRefused(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('find')->willReturn(null);
-
 		$this->expectExceptionMessage('The dashboard of this export no longer exists');
-		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'gone', 'createdBy' => 'alice'], filterContext: []);
+		$this->tables(type: 'dashboard', id: 'gone');
 	}//end testMissingDashboardIsRefused()
+
 	/**
-	 * A dashboard subject the creator does not own is not read: the render
-	 * runs under the creator's access (REQ-SCH-002).
+	 * A dashboard the creator may not see is not read: the render runs under
+	 * the creator's access (REQ-SCH-002).
 	 *
 	 * @return void
 	 */
-	public function testDashboardOfAnotherOwnerIsRefused(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('find')->with('dashboard', 'd1')->willReturn($this->dashboard());
-
+	public function testDashboardTheCreatorMayNotSeeIsRefused(): void {
 		$this->expectException(RenderException::class);
 		$this->expectExceptionMessage('The dashboard of this export no longer exists');
-		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'mallory'], filterContext: []);
-	}//end testDashboardOfAnotherOwnerIsRefused()
+		$this->tables(type: 'dashboard', id: 'd1', creator: 'mallory');
+	}//end testDashboardTheCreatorMayNotSeeIsRefused()
 
 	/**
 	 * An export without a creator reads no dashboard at all.
@@ -149,11 +249,8 @@ class SubjectTablesTest extends TestCase {
 	 * @return void
 	 */
 	public function testDashboardWithoutCreatorIsRefused(): void {
-		$store = $this->createMock(ExportObjectStore::class);
-		$store->method('find')->willReturn($this->dashboard());
-
 		$this->expectException(RenderException::class);
-		(new SubjectTables($store))->tables(export: ['subjectType' => 'dashboard', 'subjectId' => 'd1'], filterContext: []);
+		$this->tables(type: 'dashboard', id: 'd1', creator: null);
 	}//end testDashboardWithoutCreatorIsRefused()
 
 	/**
@@ -165,18 +262,14 @@ class SubjectTablesTest extends TestCase {
 	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-20
 	 */
 	public function testCalculatedFieldsFollowTheirWidgetEvaluatedOverTheFilteredRows(): void {
-		$dashboard = $this->dashboard();
 		$total     = ['type' => 'fieldRef', 'source' => 'self', 'path' => 'total'];
-		$dashboard['widgets'][0]['calculatedFields'] = [['name' => 'cases', 'label' => 'Cases shown', 'compiledExpression' => $total]];
-		$store = $this->createMock(originalClassName: ExportObjectStore::class);
-		$store->method('find')->willReturn($dashboard);
+		$placement = self::placement(id: 31, title: 'Bezwaren', content: ['rows' => [['gemeenteCode' => 'GM0355'], ['gemeenteCode' => 'GM0344']]]);
+		$placement->setCalculatedFields((string)json_encode([['name' => 'cases', 'label' => 'Cases shown', 'compiledExpression' => $total]]));
+		$this->placements = $this->createMock(WidgetPlacementMapper::class);
+		$this->placements->method('find')->with(31)->willReturn($placement);
 
-		$tables = (new SubjectTables(store: $store))->tables(
-			export: ['subjectType' => 'dashboard', 'subjectId' => 'd1', 'createdBy' => 'alice'],
-			filterContext: ['gemeenteCode' => 'GM0355']
-		);
+		$tables = $this->tables(type: 'widget', id: '31', filterContext: ['gemeenteCode' => 'GM0355']);
 
 		$this->assertSame(expected: ['title' => 'Bezwaren: calculated fields', 'headers' => ['Cases shown'], 'rows' => [[1]]], actual: $tables[1]);
-		$this->assertSame(expected: 'list', actual: $tables[2]['title']);
 	}//end testCalculatedFieldsFollowTheirWidgetEvaluatedOverTheFilteredRows()
 }//end class

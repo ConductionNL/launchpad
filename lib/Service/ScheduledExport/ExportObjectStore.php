@@ -54,6 +54,12 @@ class ExportObjectStore {
 	private const VALUE_NS = 'OCA\OpenRegister\Kernel\Contracts\Value\\';
 
 	/**
+	 * OpenRegister's scope for writes the app makes itself, under which the
+	 * schema's readOnly properties may be stamped. Absent before OpenRegister 2.2.
+	 */
+	private const SYSTEM_CONTEXT = 'OCA\OpenRegister\Service\SystemOperationContext';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ContainerInterface $container Resolves OpenRegister's ObjectService lazily.
@@ -162,6 +168,31 @@ class ExportObjectStore {
 
 		return $this->normalise(item: $saved);
 	}//end save()
+
+	/**
+	 * Create or update an object as the app itself, so the properties the
+	 * schema marks readOnly (`nextRunAt`, `lastRunAt`, `lastRunStatus`,
+	 * `createdBy`) can be stamped. Only for values the app computes: callers
+	 * strip those fields from user input first. On an OpenRegister without
+	 * the system scope this is a plain save.
+	 *
+	 * @param string               $schema The schema slug.
+	 * @param array<string, mixed> $data   The object's properties; an `id` updates that object.
+	 *
+	 * @return array<string, mixed> The saved object.
+	 *
+	 * @throws RuntimeException When OpenRegister is not available.
+	 *
+	 * @spec openspec/changes/scheduled-exports/tasks.md#task-8
+	 */
+	public function saveAsSystem(string $schema, array $data): array {
+		$save = fn (): array => $this->save(schema: $schema, data: $data);
+		if (class_exists(self::SYSTEM_CONTEXT) === false) {
+			return $save();
+		}
+
+		return call_user_func([self::SYSTEM_CONTEXT, 'run'], $save);
+	}//end saveAsSystem()
 
 	/**
 	 * Soft-delete an object (OpenRegister's standard delete).

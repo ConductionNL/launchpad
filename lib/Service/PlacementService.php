@@ -30,6 +30,7 @@ use Throwable;
  * Service for managing widget placement CRUD operations.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementService {
 	/**

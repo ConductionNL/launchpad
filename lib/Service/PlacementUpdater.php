@@ -24,6 +24,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
  * Service for applying grid and display updates to widget placements.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementUpdater {
 	/**

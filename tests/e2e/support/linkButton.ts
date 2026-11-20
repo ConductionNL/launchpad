@@ -30,6 +30,7 @@ import type { APIRequestContext, BrowserContext, Locator, Page } from '@playwrig
 
 import { expect } from '@playwright/test'
 import { gotoLaunchPad, openSidebar } from '../fixtures/widget-flow.ts'
+import { enterEditMode } from './dashboardSwitcher.ts'
 import { contextFor } from './principals.ts'
 
 export const ADMIN = {
@@ -210,7 +211,8 @@ export async function openAddLinkForm(page: Page, dashboardName: string): Promis
 }
 
 /**
- * Open the content editor of an existing placement: right-click, Edit.
+ * Open the content editor of an existing placement: edit mode, right-click,
+ * Edit. The widget context menu only opens in edit mode.
  *
  * The contextmenu event is dispatched rather than clicked, for the reason
  * `label-widget-content-edit.spec.ts` records: the real right-click is
@@ -222,6 +224,9 @@ export async function openAddLinkForm(page: Page, dashboardName: string): Promis
  * @return the Edit Widget dialog.
  */
 export async function openEditForm(page: Page, placementId: number): Promise<Locator> {
+	if ((await page.locator('.launchpad-edit-mode').count()) === 0) {
+		await enterEditMode(page)
+	}
 	await cell(page, placementId).dispatchEvent('contextmenu')
 	await expect(page.locator('[data-testid="widget-context-menu"]')).toBeVisible({ timeout: 5_000 })
 	await page.locator('[data-testid="ctx-edit"]').click()

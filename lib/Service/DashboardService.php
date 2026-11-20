@@ -519,9 +519,9 @@ class DashboardService {
 		// Default pin wins over last-used — same precedence as
 		// resolveActiveDashboard() steps 0 then 1.
 		foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
-			$candidate = $this->findVisibleByUuid(visible: $visible, uuid: $prefUuid);
-			if ($candidate !== null) {
-				return $this->buildResultWithPlacements(dashboard: $candidate);
+			$entry = $this->findVisibleByUuid(visible: $visible, uuid: $prefUuid);
+			if ($entry !== null) {
+				return $this->preferredResult(entry: $entry, userId: $userId);
 			}
 		}
 
@@ -545,27 +545,45 @@ class DashboardService {
 	}//end getLastUsedPreference()
 
 	/**
-	 * The visible dashboard with this UUID; null for an empty UUID or no match.
+	 * The visible entry with this UUID; null for an empty UUID or no match.
 	 *
 	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
 	 * @param string                                                  $uuid    The preferred UUID.
 	 *
-	 * @return Dashboard|null The first match.
+	 * @return array{dashboard: Dashboard, source: string}|null The first match.
 	 */
-	private function findVisibleByUuid(array $visible, string $uuid): ?Dashboard {
+	private function findVisibleByUuid(array $visible, string $uuid): ?array {
 		if ($uuid === '') {
 			return null;
 		}
 
 		foreach ($visible as $entry) {
-			$candidate = $entry['dashboard'];
-			if ((string)$candidate->getUuid() === $uuid) {
-				return $candidate;
+			if ((string)$entry['dashboard']->getUuid() === $uuid) {
+				return $entry;
 			}
 		}
 
 		return null;
 	}//end findVisibleByUuid()
+
+	/**
+	 * The result for a preferred dashboard. One reached through a share
+	 * reports the SHARE's level (REQ-SHARE-004), not the owner's row level,
+	 * which would tell a view-only recipient they may edit.
+	 *
+	 * @param array{dashboard: Dashboard, source: string} $entry  The visible entry.
+	 * @param string                                      $userId The user ID.
+	 *
+	 * @return array The built result.
+	 */
+	private function preferredResult(array $entry, string $userId): array {
+		$result = $this->buildResultWithPlacements(dashboard: $entry['dashboard']);
+		if ((string)$entry['source'] === Dashboard::SOURCE_SHARED) {
+			$result['permissionLevel'] = ($this->sharedPermissionLevel(dashboard: $entry['dashboard'], userId: $userId) ?? $result['permissionLevel']);
+		}
+
+		return $result;
+	}//end preferredResult()
 
 	/**
 	 * The resolver result for a dashboard with its placements loaded.

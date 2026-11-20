@@ -85,6 +85,13 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	private DashboardService $service;
 
 	/**
+	 * The user preferences the config double answers, by key.
+	 *
+	 * @var array<string, string>
+	 */
+	private array $prefs = [];
+
+	/**
 	 * Set up fresh mocks per test.
 	 *
 	 * @return void
@@ -101,7 +108,9 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 
 		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->config->method('getUserValue')->willReturn('');
+		$this->config->method('getUserValue')->willReturnCallback(
+			fn (string $userId, string $appName, string $key, mixed $default = ''): string => ($this->prefs[$key] ?? '')
+		);
 
 		$this->service = new DashboardService(
 			stores: new DashboardStores(
@@ -474,4 +483,42 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 			$result['permissionLevel']
 		);
 	}//end testGetDashboardForUserReportsTheSharePermissionLevel()
+	/**
+	 * REQ-SHARE-004: a shared dashboard the user made active reports the
+	 * SHARE's level on `GET /api/dashboard`, not the owner's row level, so a
+	 * view-only recipient is not offered editing.
+	 *
+	 * @return void
+	 */
+	public function testAnActiveSharedDashboardReportsTheSharePermissionLevel(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+		$this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY] = 'uuid-shared';
+
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedLevels')->willReturn(
+			[7 => Dashboard::PERMISSION_VIEW_ONLY]
+		);
+		$this->dashResolver->method('buildResult')->willReturnCallback(
+			static fn (Dashboard $dashboard, array $placements): array => [
+				'dashboard' => $dashboard,
+				'placements' => $placements,
+				'permissionLevel' => $dashboard->getPermissionLevel(),
+			]
+		);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+
+		$result = $this->service->getEffectiveDashboard(userId: 'recipient');
+
+		$this->assertNotNull($result);
+		$this->assertSame('uuid-shared', $result['dashboard']->getUuid());
+		$this->assertSame(Dashboard::PERMISSION_VIEW_ONLY, $result['permissionLevel']);
+	}//end testAnActiveSharedDashboardReportsTheSharePermissionLevel()
 }//end class

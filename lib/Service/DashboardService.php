@@ -2978,7 +2978,8 @@ class DashboardService {
 	 * chain.
 	 *
 	 * Personal, group-shared (matching), and default-group sentinel
-	 * dashboards are all eligible source candidates. A source UUID the
+	 * dashboards are all eligible source candidates, and so is every admin
+	 * template the gallery offers the user (REQ-TMPL-018). A source UUID the
 	 * caller cannot see MUST be reported as a 404 to avoid leaking
 	 * existence (REQ-DASH-020 scenario "Cannot fork a dashboard you
 	 * cannot read").
@@ -3000,6 +3001,15 @@ class DashboardService {
 			if ((string)$candidate->getUuid() === $sourceUuid) {
 				return $candidate;
 			}
+		}
+
+		// REQ-TMPL-018: a template the gallery offers the user is a source too.
+		$template = $this->builders->adminTemplateService->findOfferedTemplate(
+			userId: $userId,
+			uuid: $sourceUuid
+		);
+		if ($template !== null) {
+			return $template;
 		}
 
 		throw new DoesNotExistException(msg: 'Dashboard not found');

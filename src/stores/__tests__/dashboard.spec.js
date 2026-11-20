@@ -283,6 +283,28 @@ describe('useDashboardStore — forkDashboard (REQ-DASH-020)', () => {
 		expect(showError).toHaveBeenCalledWith('Dashboard not found')
 	})
 
+	it('names the dashboard limit and rereads the quota on a quota 409 (REQ-QUOTA-006)', async () => {
+		const { showError } = await import('@nextcloud/dialogs')
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		const err = new Error('Conflict')
+		err.response = {
+			status: 409,
+			data: { error: 'quota_exceeded', quota: 'dashboards', limit: 5, current: 5 },
+		}
+		mockApi.forkDashboard.mockRejectedValue(err)
+		mockApi.getVisibleDashboards.mockResolvedValue({
+			data: { items: [], quota: { maxDashboards: 5, dashboardsUsed: 5, maxWidgetsPerDashboard: 0 } },
+		})
+
+		await expect(store.forkDashboard('src-uuid')).rejects.toBe(err)
+		expect(showError).toHaveBeenCalledWith(
+			'You have reached the limit of {limit} dashboards',
+		)
+		expect(mockApi.getVisibleDashboards).toHaveBeenCalled()
+	})
+
 	it('shows the generic fork-failure toast on unrelated errors', async () => {
 		const { showError } = await import('@nextcloud/dialogs')
 		const { useDashboardStore } = await import('../dashboard.js')

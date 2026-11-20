@@ -55,6 +55,7 @@
  *   @e2e dashboard-language-content::only-one-variant-can-be-primary
  *   @e2e dashboard-language-content::cross-user-promotion-is-rejected
  *   @e2e dashboard-language-content::promote-non-existent-variant-returns-404
+ *   @e2e action-authorization::the-owner-may-manage-their-own-dashboards-language-versions
  *
  * @spec openspec/specs/dashboard-language-content/spec.md
  */
@@ -597,6 +598,7 @@ test.describe('REQ-DASH-040 create translation variant', () => {
 
 	test('a stranger cannot create a variant; the owner can', async () => {
 		// @e2e dashboard-language-content::cross-user-access-is-rejected
+		// @e2e action-authorization::the-owner-may-manage-their-own-dashboards-language-versions
 		const dash = await newDashboard('Cross create')
 		const url = `${API}/dashboards/${dash.uuid}/translations`
 

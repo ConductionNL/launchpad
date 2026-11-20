@@ -1508,8 +1508,19 @@ test.describe('REQ-KIOSKUI-001 the administrator manages kiosk playlists', () =>
 		const row = page.getByTestId('kiosk-row').filter({ hasText: name })
 		await expect(row).toHaveCount(1)
 		await expect(row.locator('td').nth(1), 'two dashboards').toHaveText('2')
-		const origin = new URL(page.url()).origin
-		const link = `${origin}${APP}/kiosk/${created.token}`
+		// The link is the instance's own URL for the kiosk route: with pretty
+		// URLs on, Nextcloud leaves `/index.php` out of it.
+		const link = await page.evaluate(
+			(token) =>
+				window.location.origin
+				+ (
+					window as unknown as {
+						OC: { generateUrl: (path: string) => string }
+					}
+				).OC.generateUrl(`/apps/launchpad/kiosk/${token}`),
+			created.token,
+		)
+		expect(link).toMatch(new RegExp(`/apps/launchpad/kiosk/${created.token}$`))
 		await expect(row.locator('.kiosk-tab__link')).toHaveText(link)
 
 		await row.getByTestId('kiosk-copy').click()

@@ -47,11 +47,17 @@ let dashboard: SeededDashboard | null = null
 
 // The widget goes on an empty dashboard this file seeds and makes active, so
 // the cell is in view and is the only image on the grid.
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	api = await apiAs()
 	dashboard = await seedActiveDashboard(api, `E2E Image click-through ${Date.now()}`)
 	await clearSeededWidgets(api, dashboard.id)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

@@ -34,8 +34,10 @@ let seeded: SeededDashboard | null = null
 
 // Install a restrictive `default` role-feature-permission; the admin
 // break-glass bypass lets the admin still add widgets (see fixtures helper).
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	/*
 	 * SEED A DASHBOARD. `gotoLaunchPad()` below waits for
@@ -54,6 +56,10 @@ test.beforeAll(async () => {
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 	})
 	seeded = await seedActiveDashboard(api, `E2E AddWidget ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

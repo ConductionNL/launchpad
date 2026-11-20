@@ -79,10 +79,16 @@ import {
 let api: APIRequestContext
 let dashboard: SeededDashboard | null = null
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	api = await adminApi()
 	dashboard = await seedActiveDashboard(api, `E2E Text Table Editor ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

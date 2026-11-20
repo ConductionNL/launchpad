@@ -55,8 +55,14 @@ const TS = `md-${Date.now()}`
 // Install a restrictive `default` role-feature-permission and rely on the
 // admin break-glass bypass so the admin can still add any widget during this
 // suite (see fixtures helper for the bypass it proves).
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 // Navigate to launchpad and wait for the app to hydrate.

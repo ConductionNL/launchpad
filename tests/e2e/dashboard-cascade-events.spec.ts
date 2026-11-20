@@ -244,6 +244,8 @@ async function deleteAccount(username: string): Promise<void> {
 test.describe.configure({ mode: 'serial' })
 
 test.describe('dashboard cascade events', () => {
+	let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 	test.beforeAll(async () => {
 		admin = await adminContext()
 		await assertActingAs(admin, ADMIN_USER)
@@ -253,12 +255,16 @@ test.describe('dashboard cascade events', () => {
 		priorAllowUserDash = (await before.json()).allowUserDashboards === true
 		const enable = await admin.put(SETTINGS, { data: { allowUserDash: true } })
 		expect(enable.status(), await enable.text()).toBeLessThan(300)
-		await ensureDefaultWidgetRestriction()
+		restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 		owner = await createPrincipal(admin, 'e2e-cascade-owner')
 		bob = await createPrincipal(admin, 'e2e-cascade-bob')
 		await assertActingAs(owner.api, owner.username)
 		await assertActingAs(bob.api, bob.username)
+	})
+
+	test.afterAll(async () => {
+		await restoreWidgetRestriction?.()
 	})
 
 	test.afterAll(async () => {

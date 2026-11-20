@@ -61,8 +61,10 @@ let api: APIRequestContext
 let seeded: SeededDashboard | null = null
 let sixFieldPlacementId = 0
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	/*
 	 * SEED A DASHBOARD. `gotoLaunchPad()` needs the workspace shell, which only
@@ -96,6 +98,10 @@ test.beforeAll(async () => {
 		sixFieldPlacementId,
 		`no placement id: ${JSON.stringify(body)}`,
 	).toBeTruthy()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

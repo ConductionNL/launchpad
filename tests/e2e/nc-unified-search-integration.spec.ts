@@ -90,8 +90,11 @@ const SEARCH = '/ocs/v2.php/search/providers'
 const PROVIDER = 'launchpad'
 /** A route outside LaunchPad, with the header's unified search on it. */
 const OFF_APP = '/index.php/settings/user'
-/** LaunchPad's own page route (`launchpad.page.index`). */
-const IN_APP = '/index.php/apps/launchpad/'
+/**
+ * LaunchPad's own page route (`launchpad.page.index`), as the router path:
+ * Nextcloud's route matcher does not resolve a `/index.php`-prefixed `from`.
+ */
+const IN_APP = '/apps/launchpad/'
 const L10N_DIR = path.resolve(__dirname, '../../l10n')
 
 type Entry = {
@@ -1055,7 +1058,11 @@ test.describe.serial('unified search: empty results (REQ-SRCH-009)', () => {
 		const { context, page } = await loginAs(browser, alice.username, alice.password)
 		try {
 			const dialog = await openUnifiedSearch(page, term)
-			await expect(dialog).toContainText(new RegExp(`No results for.*${escapeRe(term)}`), { timeout: 20_000 })
+			// The scenario allows "or equivalent": Nextcloud 34's dialog says "No matching results".
+			await expect(dialog).toContainText(
+				new RegExp(`No results for.*${escapeRe(term)}|No matching results`),
+				{ timeout: 20_000 },
+			)
 		} finally {
 			await context.close()
 		}
@@ -1099,7 +1106,7 @@ test.describe.serial('unified search: search UI (REQ-SRCH-011)', () => {
 		const provider = await launchpadProvider(alice)
 		const { context, page } = await loginAs(browser, alice.username, alice.password)
 		try {
-			const dialog = await openUnifiedSearch(page, `marketing ${RUN}`)
+			const dialog = await openUnifiedSearch(page, `marketing dashboard ${RUN}`)
 			const link = resultSection(dialog, provider.name).locator(`a[href*="${target.uuid}"]`)
 			await expect(link).toContainText(target.name, { timeout: 20_000 })
 			await link.click()

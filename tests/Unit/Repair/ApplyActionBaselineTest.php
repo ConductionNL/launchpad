@@ -308,7 +308,11 @@ class ApplyActionBaselineTest extends TestCase {
 			'dashboard-metadata.set-metadata',
 		];
 		foreach ($opened as $action) {
-			$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written[$action], message: $action . ' must be open to the owner after v3');
+			$this->assertContains(
+				needle: ActionAuthService::GROUP_ALL_USERS,
+				haystack: $written[$action],
+				message: $action . ' must be open to the owner after v3'
+			);
 		}
 
 		$this->assertSame(expected: ['admin', 'editors'], actual: $written['rule.get-rules'], message: 'an entry an admin changed is kept');

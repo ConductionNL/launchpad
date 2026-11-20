@@ -25,19 +25,14 @@
 
 import type { APIRequestContext, Browser, Locator, Page } from '@playwright/test'
 
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { BASE_URL } from './support/baseUrl.ts'
 import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
-
-const ADMIN = {
-	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
-	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
-}
+import { adminContext, contextFor } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
 const API = `${APP}/api`
@@ -56,19 +51,15 @@ let dashA: Dashboard
 let dashB: Dashboard
 
 /**
- * An API context as the administrator, or as the given account.
+ * An API context as the administrator, or as the given account. It never
+ * carries the admin session cookie, so a call made for the account is made
+ * as the account (see support/principals.ts).
  *
  * @param who the account; the administrator when omitted.
  * @return the context; the caller disposes it.
  */
 async function apiAs(who?: Account): Promise<APIRequestContext> {
-	return request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: who
-			? { username: who.username, password: who.password }
-			: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return who ? contextFor(who.username, who.password) : adminContext()
 }
 
 /**
@@ -92,13 +83,16 @@ async function createDashboard(
 }
 
 /**
- * The pathname of the page, without a trailing slash.
+ * The pathname of the page, without a trailing slash or the `/index.php`
+ * front controller, which the app leaves out of the address it writes.
  *
  * @param page the page.
  * @return the pathname.
  */
 function pathOf(page: Page): string {
-	return new URL(page.url()).pathname.replace(/\/+$/, '')
+	return new URL(page.url()).pathname
+		.replace(/\/+$/, '')
+		.replace(/^\/index\.php(?=\/)/, '')
 }
 
 /**
@@ -186,7 +180,7 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 			expect(response?.status()).toBe(200)
 			await openDashboardSwitcher(page)
 			await expect(row(page, NAME_B)).toHaveClass(/\bactive\b/)
-			expect(pathOf(page)).toBe(`${APP}/${SLUG_B}`)
+			expect(pathOf(page)).toBe(`/apps/launchpad/${SLUG_B}`)
 		} finally {
 			await context.close()
 		}
@@ -218,11 +212,11 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 			expect(await pushes(page)).toBe(0)
 
 			await row(page, NAME_B).click()
-			await expect.poll(() => pathOf(page)).toBe(`${APP}/${SLUG_B}`)
+			await expect.poll(() => pathOf(page)).toBe(`/apps/launchpad/${SLUG_B}`)
 			expect(await pushes(page)).toBe(1)
 
 			await page.goBack()
-			await expect.poll(() => pathOf(page)).toBe(`${APP}/${SLUG_A}`)
+			await expect.poll(() => pathOf(page)).toBe(`/apps/launchpad/${SLUG_A}`)
 			// Back is a same-document navigation: the sidebar may still be open.
 			if (!(await page.locator('.dashboard-switcher-sidebar.open').isVisible())) {
 				await openDashboardSwitcher(page)

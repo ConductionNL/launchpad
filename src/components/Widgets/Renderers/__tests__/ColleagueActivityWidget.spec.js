@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * ColleagueActivityWidget: the server's filtered list and totals, shown as
- * they come (openspec/changes/dashboards-and-who-may-see-them REQ-DWMS-007).
+ * they come (openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them REQ-DWMS-007).
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use OCP\Log\Audit\CriticalActionPerformedEvent;
  * figures are counts per activity type and per day (UTC), from the activity
  * events; nothing reports hours. The CSV carries the same numbers.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-005-activity-reporting-names-its-purpose
  */
 class ActivityReportService {
 
@@ -62,7 +62,7 @@ class ActivityReportService {
 	 * @param ActivityEventReader     $events     The activity events.
 	 * @param IEventDispatcher        $dispatcher Carries the read to the audit log.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.3
 	 */
 	public function __construct(
 		private readonly ActivityReportingPolicy $policy,
@@ -83,7 +83,7 @@ class ActivityReportService {
 	 *
 	 * @throws ActivityReportRefusedException When the reader may not have it, or the period is not one.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.4
 	 */
 	public function report(array $reader, array $query): array {
 		$readerId      = (string) ($reader['id'] ?? '');
@@ -137,7 +137,7 @@ class ActivityReportService {
 	 *
 	 * @return string The CSV.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.6
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.6
 	 */
 	public static function csv(array $report): string {
 		$out = fopen('php://temp', 'r+');
@@ -171,7 +171,7 @@ class ActivityReportService {
 	 *
 	 * @return array{counts:array<string,int>,days:array<string,int>,total:int} The figures.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.5
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.5
 	 */
 	public static function figures(array $events): array {
 		$counts = [];

@@ -103,3 +103,10 @@ On install, when the stored matrix is empty, the `InitializeActions` repair step
 - GIVEN an administrator set `dashboard.list` to `["admin", "medewerkers"]`
 - WHEN a later version runs `ApplyActionBaseline`
 - THEN the entry for `dashboard.list` MUST still be `["admin", "medewerkers"]`
+
+#### Scenario: The owner may use their own dashboard's versions, metadata and rules
+@e2e exclude the seed and the upgrade are repair steps; the owner's calls themselves are driven by tests/e2e/dashboard-versioning.spec.ts and tests/e2e/dashboard-metadata-fields.spec.ts. Pinned by ActionAuthBaselineTest and ApplyActionBaselineTest::testAnInstanceAtV2GainsTheOwnerActions
+- GIVEN the seed grants `dashboard-version.*`, `dashboard-metadata.set-metadata` and `rule.get-rules` to `@all` (baseline v3)
+- WHEN a non-admin owner lists, creates, fetches or restores versions of their own dashboard, writes its metadata values, or reads the rules of a widget on it
+- THEN the action check MUST let the call through, and the route's own ownership check MUST still refuse another user's dashboard
+- AND an instance that applied baseline v2 MUST receive exactly these six actions on upgrade, keeping any of them an administrator changed

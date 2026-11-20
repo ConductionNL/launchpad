@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use OCA\LaunchPad\Service\PlacementService;
 /**
  * Lists, runs and saves the shipped reports.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 class ReportLibrary {
 
@@ -67,7 +67,7 @@ class ReportLibrary {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function gallery(): array {
 		$entries = [];
@@ -92,7 +92,7 @@ class ReportLibrary {
 	 *
 	 * @throws InvalidArgumentException When a parameter value is not of its declared type.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function run(string $id, array $parameters=[]): ?array {
 		$definition = $this->definitions->find(id: $id);
@@ -125,7 +125,7 @@ class ReportLibrary {
 	 *
 	 * @throws InvalidArgumentException When the report is unknown or cannot run here.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function saveAsDashboard(string $id, array $parameters, string $userId): Dashboard {
 		return $this->dashboardFor(run: $this->runnable(id: $id, parameters: $parameters), userId: $userId);

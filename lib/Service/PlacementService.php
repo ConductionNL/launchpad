@@ -30,6 +30,7 @@ use Throwable;
  * Service for managing widget placement CRUD operations.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementService {
 	/**
@@ -113,7 +114,7 @@ class PlacementService {
 		$placement->setShowTitle(1);
 
 		if ($layout['content'] !== null) {
-			$placement->setContentArray($layout['content']);
+			$placement->setContentArray(VideoContent::forWidget(widgetId: $widgetId, content: $layout['content']));
 		}
 
 		$placement->setCreatedAt($now);

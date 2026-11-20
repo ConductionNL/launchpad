@@ -484,6 +484,23 @@ class InitialStateBuilder {
 	}//end setTalkEnabled()
 
 	/**
+	 * Set the viewer's Nextcloud timezone (workspace).
+	 *
+	 * Optional key; the JS reader defaults to '', which makes a clock without
+	 * its own zone follow the device (REQ-CLOCK-002).
+	 *
+	 * @param string $timezone The IANA timezone name, or ''.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	public function setUserTimezone(string $timezone): self {
+		$this->values['userTimezone'] = $timezone;
+		return $this;
+	}//end setUserTimezone()
+
+	/**
 	 * Set the Talk conversation tokens the organisation pinned (workspace).
 	 *
 	 * Optional key; the JS reader defaults to an empty list

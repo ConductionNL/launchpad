@@ -299,9 +299,10 @@ test.describe('the Add Widget modal', () => {
 		await expect(form.locator('.nc-select')).toHaveCount(2)
 		await expect(form.locator('.cn-color-picker')).toHaveCount(1)
 
-		// Nothing to manage children with.
+		// Nothing to manage children with. The colour picker's own "Remove
+		// color" button clears the background and is not about children.
 		await expect(
-			form.getByRole('button', { name: /child|widget|add|remove/i }),
+			form.getByRole('button', { name: /child|widget|add|remove(?! colou?r)/i }),
 		).toHaveCount(0)
 		await expect(form.getByRole('list')).toHaveCount(0)
 		await expect(form.getByRole('table')).toHaveCount(0)

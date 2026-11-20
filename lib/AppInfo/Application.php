@@ -22,8 +22,10 @@ use OCA\LaunchPad\Mcp\LaunchPadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
+use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
+use OCA\LaunchPad\Listener\DashboardDiscussionListener;
 use OCA\LaunchPad\Listener\DashboardSharesListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
@@ -283,6 +285,17 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: TreeListener::class
+		);
+
+		// The discussion object of a shared dashboard follows its audience and
+		// goes with the dashboard (openregister-leaf-integrations).
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: DashboardDiscussionListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardAudienceChangedEvent::class,
+			listener: DashboardDiscussionListener::class
 		);
 	}//end registerCascadeListeners()
 

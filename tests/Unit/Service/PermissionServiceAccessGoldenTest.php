@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use Exception;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\PermissionService;
@@ -224,7 +224,7 @@ class PermissionServiceAccessGoldenTest extends TestCase {
 		$this->assertSame($this->dashboards[1], $this->service->verifyDashboardOwnership(userId: 'alice', dashboardId: 1));
 		$this->assertSame(10, $this->service->verifyPlacementOwnership(userId: 'alice', placementId: 10)->getId());
 
-		$this->expectException(Exception::class);
+		$this->expectException(ForbiddenException::class);
 		$this->expectExceptionMessage('Access denied');
 		$this->service->verifyPlacementOwnership(userId: 'stranger', placementId: 10);
 	}

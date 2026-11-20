@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 2;
+	private const BASELINE_VERSION = 3;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -84,10 +84,24 @@ class ApplyActionBaseline implements IRepairStep {
 	 * it was seeded admin-only, so every user it exists for got HTTP 403. It
 	 * returns only the caller's own role, so opening it widens nothing.
 	 *
+	 * v3: the dashboard owner's own versions, metadata values and widget
+	 * visibility rules (REQ-VERS-002..005, REQ-MDFL-005, REQ-VIS-002). They were
+	 * seeded admin-only, so an owner got HTTP 403 on their own dashboard.
+	 * Each route still checks ownership per object, so opening the action
+	 * reaches no one else's dashboard.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
 		2 => ['admin.get-my-role'],
+		3 => [
+			'dashboard-metadata.set-metadata',
+			'dashboard-version.list-versions',
+			'dashboard-version.fetch-version',
+			'dashboard-version.create-version',
+			'dashboard-version.restore-version',
+			'rule.get-rules',
+		],
 	];
 
 	/**

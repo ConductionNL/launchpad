@@ -35,6 +35,7 @@ import type { Principal } from './support/principals.ts'
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import {
+	clearSeededWidgets,
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
@@ -352,6 +353,7 @@ test.describe('REQ-VERSUI-002 / REQ-VERSUI-003 saving and restoring from the dia
 	}) => {
 		// @e2e dashboard-versioning::restore-last-weeks-layout
 		dash = await seedActiveDashboard(admin, `${STAMP} restore`)
+		await clearSeededWidgets(admin, dash.id)
 		const friday = await addTextWidget(admin, dash.id, 'Friday layout')
 		expect(await snapshot(dash.uuid, 'Friday')).toBe(1)
 

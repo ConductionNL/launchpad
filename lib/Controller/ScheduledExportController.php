@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\RequestGuard;
@@ -61,6 +62,11 @@ class ScheduledExportController extends Controller {
 	private const ROUTE_KEYS = ['id', 'runId', '_route'];
 
 	private const SORTABLE = ['name', 'nextRunAt', 'lastRunAt'];
+
+	/**
+	 * OpenRegister's refusal of an object that breaks its schema (a soft dependency, matched by name).
+	 */
+	private const OR_VALIDATION_EXCEPTION = 'OCA\OpenRegister\Exception\ValidationException';
 
 	/**
 	 * Constructor.
@@ -364,12 +370,16 @@ class ScheduledExportController extends Controller {
 	}//end visibleRun()
 
 	/**
-	 * Run the work for a signed-in user granted the action, mapping the service's refusals onto HTTP.
+	 * Run the work for a signed-in user granted the action, mapping the
+	 * service's refusals, and OpenRegister's refusal of an invalid object
+	 * (422), onto HTTP.
 	 *
 	 * @param JSONResponse|null $refusal The action check's refusal, or null when granted.
 	 * @param callable          $work    Gets the user id, returns the response.
 	 *
 	 * @return Response
+	 *
+	 * @throws Exception Any other failure, unchanged.
 	 */
 	private function guarded(?JSONResponse $refusal, callable $work): Response {
 		if ($refusal !== null) {
@@ -391,6 +401,12 @@ class ScheduledExportController extends Controller {
 			return new JSONResponse(['error' => 'render_failed', 'message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		} catch (RuntimeException) {
 			return new JSONResponse(['error' => 'Scheduled exports are not available'], Http::STATUS_SERVICE_UNAVAILABLE);
+		} catch (Exception $e) {
+			if (is_a($e, self::OR_VALIDATION_EXCEPTION) === false) {
+				throw $e;
+			}
+
+			return new JSONResponse(['error' => 'invalid_object', 'message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		}
 	}//end guarded()
 

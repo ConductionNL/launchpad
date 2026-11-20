@@ -402,7 +402,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-001-a-personal-layer-over-a-shared-dashboard
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-001-a-personal-layer-over-a-shared-dashboard
 	 */
 	private function pruneLayers(Dashboard $copy, array $diff): void {
 		if ($diff['toRemove'] === []) {

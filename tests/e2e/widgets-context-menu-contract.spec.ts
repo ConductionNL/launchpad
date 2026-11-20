@@ -102,6 +102,20 @@ function recordApiCalls(page: Page): Request[] {
 	return seen
 }
 
+/**
+ * Make the viewport tall enough that a popover opened at a widget's centre
+ * fits below the cursor. The start page puts the grid low enough that, at
+ * 720 px, the centre of a three-row widget is within the popover's height
+ * of the bottom edge, where the popover is shifted up and no longer opens at
+ * the cursor.
+ *
+ * @param page the page.
+ * @return nothing.
+ */
+async function roomBelowTheWidgets(page: Page): Promise<void> {
+	await page.setViewportSize({ width: 1280, height: 1200 })
+}
+
 test.beforeAll(async () => {
 	seeds = new Seeds(await adminApi())
 })
@@ -117,6 +131,7 @@ test.describe('widget context menu (REQ-WDG-015..017)', () => {
 	test('in edit mode a right-click opens the popover at the cursor and suppresses the native menu', async ({
 		page,
 	}) => {
+		await roomBelowTheWidgets(page)
 		const { w1 } = await twoLabels('open')
 		await openInEditMode(page, w1.id)
 
@@ -282,6 +297,7 @@ test.describe('widget context menu (REQ-WDG-015..017)', () => {
 	test('right-clicking a second widget moves the one popover to it', async ({
 		page,
 	}) => {
+		await roomBelowTheWidgets(page)
 		const { w1, w2, text2 } = await twoLabels('switch')
 		await openInEditMode(page, w1.id)
 		const a = await contentCentre(page, w1.id)

@@ -766,7 +766,7 @@ test.describe.serial('admin view reports (REQ-ANLT-006..010)', () => {
 		expect(counts).toEqual(totals.slice(0, 10).map((t) => t.views))
 
 		// Our five, with their names and 7-day sums, in rank order.
-		const wide = await adminRead<TopRow[]>('/dashboards/top?period=7d&limit=1000')
+		const wide = await adminRead<TopRow[]>('/dashboards/top?period=7d&limit=500')
 		const ours = wide.filter((r) => ranked.some((x) => x.dash.uuid === r.dashboardUuid))
 		expect(ours.map((r) => r.dashboardUuid)).toEqual(ranked.map((x) => x.dash.uuid))
 		expect(ours.map((r) => r.name)).toEqual(ranked.map((x) => x.dash.name))
@@ -786,7 +786,7 @@ test.describe.serial('admin view reports (REQ-ANLT-006..010)', () => {
 	test('7d, 30d and 90d are accepted and each includes today', async () => {
 		const probe = ranked[0]
 		for (const period of ['7d', '30d', '90d']) {
-			const top = await adminRead<TopRow[]>(`/dashboards/top?period=${period}&limit=1000`)
+			const top = await adminRead<TopRow[]>(`/dashboards/top?period=${period}&limit=500`)
 			const row = top.find((r) => r.dashboardUuid === probe.dash.uuid)
 			expect(Number(row?.viewCount), `${period} includes today's views`).toBe(probe.views)
 			const daily = await dailyRows(probe.dash.uuid, period)
@@ -1096,7 +1096,7 @@ test.describe.serial('tile clicks (REQ-TANLT-001..005)', () => {
 		}
 		expect(counts).toEqual([...sums.values()].sort((a, b) => b - a).slice(0, 10))
 
-		const wide = await adminRead<TileRow[]>('/tiles/top?period=7d&limit=1000')
+		const wide = await adminRead<TileRow[]>('/tiles/top?period=7d&limit=500')
 		const ours = wide.filter((r) => tiles.some((t) => String(t.id) === String(r.placementUuid)))
 		expect(ours.map((r) => String(r.placementUuid))).toEqual(tiles.map((t) => String(t.id)))
 		expect(ours.map((r) => Number(r.clickCount))).toEqual([8, 6, 4, 2])

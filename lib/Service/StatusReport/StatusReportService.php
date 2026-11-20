@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -42,7 +42,7 @@ use OCP\IL10N;
  * or written by a person. The figures are always computed again when the
  * report is kept, so a person cannot write them.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-004-a-dated-status-report-with-a-health-rating
  */
 class StatusReportService {
 
@@ -79,7 +79,7 @@ class StatusReportService {
 	 * @param ITimeFactory      $time  Today.
 	 * @param IL10N             $l10n  The prefilled summary's language.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	public function __construct(
 		private readonly ObjectRows $rows,
@@ -98,7 +98,7 @@ class StatusReportService {
 	 *
 	 * @throws StatusReportRefusedException When the subject is incomplete or its objects cannot be read.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	public function draft(array $subject): array {
 		$subject = self::subject(input: $subject);
@@ -135,7 +135,7 @@ class StatusReportService {
 	 *
 	 * @throws StatusReportRefusedException When the input is not usable or the report cannot be stored.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.3
 	 */
 	public function keep(string $userId, array $input): array {
 		$health = ($input['health'] ?? null);
@@ -211,7 +211,7 @@ class StatusReportService {
 	 *
 	 * @return array{total:int,open:int,closed:int,overdue:int,percentClosed:int,daysToDeadline:int|null}
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	public static function figures(array $rows, array $subject, DateTimeImmutable $today): array {
 		$closedValues = array_map('mb_strtolower', $subject['closedValues']);
@@ -264,7 +264,7 @@ class StatusReportService {
 	 *
 	 * @return string One of HEALTH.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	public static function health(array $figures): string {
 		$days = $figures['daysToDeadline'];
@@ -289,7 +289,7 @@ class StatusReportService {
 	 *
 	 * @return array{date:string,health:string,summary:string,figures:array<string,string>}
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.1
 	 */
 	public static function provenance(array $figures, bool $healthWritten, bool $summaryWritten): array {
 		$origin = ['computed', 'written'];
@@ -311,7 +311,7 @@ class StatusReportService {
 	 *
 	 * @throws StatusReportRefusedException When the register, the schema or the deadline is not usable.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-3.2
 	 */
 	public static function subject(array $input): array {
 		$register = trim((string) ($input['register'] ?? ''));

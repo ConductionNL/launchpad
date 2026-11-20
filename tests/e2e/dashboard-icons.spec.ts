@@ -334,11 +334,16 @@ async function openIconPicker(page: Page, dashboard: Seeded): Promise<Locator> {
 	await expect(nameInput).toBeVisible({ timeout: 10_000 })
 	// CONTROL: the modal is editing THIS dashboard, not another one.
 	await expect(nameInput).toHaveValue(dashboard.name)
-	const picker = page.locator('.cn-icon-browser').filter({
-		has: page.locator('.cn-icon-browser__field-label', {
-			hasText: /^Icon$/,
-		}),
-	})
+	// The innermost visible browser: the modal keeps other tabs' pickers in
+	// the DOM, and a wrapper may carry the same class.
+	const picker = page
+		.locator('.cn-icon-browser:not(:has(.cn-icon-browser))')
+		.filter({ visible: true })
+		.filter({
+			has: page.locator('.cn-icon-browser__field-label', {
+				hasText: /^Icon$/,
+			}),
+		})
 	await expect(picker).toHaveCount(1)
 	return picker
 }

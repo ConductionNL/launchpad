@@ -49,6 +49,7 @@ import type { Principal } from './support/principals.ts'
 import { expect, test } from '@playwright/test'
 import {
 	activeDashboard,
+	addTitledTextWidget,
 	deleteTemplates,
 	getTemplate,
 	importTemplate,
@@ -176,13 +177,8 @@ async function memberRemoves(copy: Copy, title: string): Promise<void> {
 
 /** A member adds a widget of their own. */
 async function memberAdds(copy: Copy, title: string, gridY: number): Promise<void> {
-	const res = await copy.who.api.post(
-		`${API}/dashboard/${copy.dashboardId}/widgets`,
-		{
-			data: textWidget(title, { x: 0, y: gridY }),
-		},
-	)
-	expect(res.status(), `adding ${title} answered ${res.status()}`).toBe(201)
+	const res = await addTitledTextWidget(copy.who.api, copy.dashboardId, title, { x: 0, y: gridY })
+	expect(res, `adding ${title}`).toEqual({ created: 201, titled: 200 })
 }
 
 /** Ask for a re-sync as the admin. */

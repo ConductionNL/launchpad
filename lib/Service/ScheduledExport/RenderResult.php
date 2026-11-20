@@ -79,7 +79,7 @@ final class RenderResult {
 	/**
 	 * The artefact as the run-row records it.
 	 *
-	 * @return array{format: string, sizeBytes: int, sha256: string, storagePath: string|null}
+	 * @return array{format: string, sizeBytes: int, sha256: string, storagePath: string|null, filename: string}
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-008-audit-row-per-run-with-hash-and-delivery-outcome
 	 */
@@ -89,6 +89,7 @@ final class RenderResult {
 			'sizeBytes' => strlen($this->content),
 			'sha256' => $this->sha256(),
 			'storagePath' => $this->storagePath,
+			'filename'    => $this->filename,
 		];
 	}//end toAudit()
 }//end class

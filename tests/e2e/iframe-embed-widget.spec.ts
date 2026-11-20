@@ -50,6 +50,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const HOSTS_CONFIG =
@@ -949,7 +950,7 @@ test('a loading indicator shows first, and network or URL errors end in the fall
 		}
 		// The rest of the dashboard still renders.
 		await expect(page.getByText(marker)).toBeVisible()
-		await expect(page.locator('.launchpad-sidebar-toggle').first()).toBeVisible()
+		await expect(page.locator(MORE_MENU)).toBeVisible()
 		expect(
 			crashes.filter((m) => /iframe/i.test(m)),
 			'no iframe-widget error reached the page',

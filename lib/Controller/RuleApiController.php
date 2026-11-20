@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
@@ -87,6 +88,8 @@ class RuleApiController extends Controller {
 					'isVisible' => $isVisible,
 				]
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
@@ -154,6 +157,8 @@ class RuleApiController extends Controller {
 				data: $rule->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
@@ -213,6 +218,8 @@ class RuleApiController extends Controller {
 			return $this->context->responseHelper->success(
 				data: $rule->jsonSerialize()
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
@@ -253,6 +260,8 @@ class RuleApiController extends Controller {
 			$this->conditionalService->deleteRule(ruleId: $ruleId);
 
 			return $this->context->responseHelper->success(data: ['status' => 'ok']);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}

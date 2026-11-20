@@ -8,7 +8,9 @@
  * The account is new, so its dashboard is the only one it has and is active on
  * login; nothing another spec left behind lands on the grid it measures. The
  * admin flag that allows personal dashboards is read first and put back on
- * teardown.
+ * teardown, and so is the `default` widget rule: it governs an account in no
+ * group, and other specs leave a restrictive one behind, so it is lifted for
+ * the account's lifetime and restored afterwards.
  */
 
 import type {
@@ -17,10 +19,17 @@ import type {
 	BrowserContext,
 	Page,
 } from '@playwright/test'
+import type { RoleFeaturePermissionRow } from '../fixtures/role-feature-permissions.ts'
 import type { Principal } from './principals.ts'
 
 import { expect } from '@playwright/test'
+import {
+	deleteRoleFeaturePermission,
+	listRoleFeaturePermissions,
+	restoreRoleFeaturePermissions,
+} from '../fixtures/role-feature-permissions.ts'
 import { loginAs } from '../fixtures/secondary-user.ts'
+import { clearSeededWidgets } from './dashboardFixture.ts'
 import {
 	adminContext,
 	API,
@@ -34,6 +43,7 @@ export interface OwnDashboard {
 	id: number
 	uuid: string
 	allowBefore: boolean | null
+	defaultRuleBefore: RoleFeaturePermissionRow | null
 }
 
 export interface Rect {
@@ -59,6 +69,7 @@ export async function setUpOwnDashboard(
 	const admin = await adminContext()
 	let owner: Principal
 	let allowBefore: boolean | null
+	let defaultRuleBefore: RoleFeaturePermissionRow | null
 	try {
 		const settings = await admin.get(`${API}/admin/settings`)
 		expect(settings.status(), await settings.text()).toBe(200)
@@ -69,6 +80,11 @@ export async function setUpOwnDashboard(
 			data: { allowUserDash: true },
 		})
 		expect(allow.status(), await allow.text()).toBe(200)
+		defaultRuleBefore = (await listRoleFeaturePermissions(admin))
+			.find((row) => row.groupId === 'default') ?? null
+		if (defaultRuleBefore !== null) {
+			await deleteRoleFeaturePermission(admin, defaultRuleBefore.id)
+		}
 		owner = await createPrincipal(admin, prefix)
 	} finally {
 		await admin.dispose()
@@ -83,6 +99,8 @@ export async function setUpOwnDashboard(
 	const dash = json.dashboard ?? json.data?.dashboard ?? json
 	const id = Number(dash.id)
 	expect(id, JSON.stringify(json)).toBeGreaterThan(0)
+	// A new dashboard carries the default bundle; the grid starts empty.
+	await clearSeededWidgets(owner.api, id)
 	expect(
 		(await owner.api.post(`${API}/dashboard/${id}/activate`)).status(),
 	).toBeLessThan(300)
@@ -94,11 +112,12 @@ export async function setUpOwnDashboard(
 		).status(),
 	).toBeLessThan(300)
 
-	return { owner, id, uuid: String(dash.uuid), allowBefore }
+	return { owner, id, uuid: String(dash.uuid), allowBefore, defaultRuleBefore }
 }
 
 /**
- * Remove the account (and with it its dashboard) and put the admin flag back.
+ * Remove the account (and with it its dashboard) and put the admin flag and
+ * the `default` widget rule back.
  *
  * @param own The fixture, or undefined when set-up failed early.
  */
@@ -116,6 +135,9 @@ export async function tearDownOwnDashboard(
 			await admin.put(`${API}/admin/settings`, {
 				data: { allowUserDash: own.allowBefore },
 			})
+		}
+		if (own.defaultRuleBefore !== null) {
+			await restoreRoleFeaturePermissions(admin, [own.defaultRuleBefore])
 		}
 	} finally {
 		await admin.dispose()

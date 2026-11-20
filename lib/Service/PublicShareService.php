@@ -72,7 +72,16 @@ class PublicShareService {
 	 *
 	 * @var string
 	 */
-	public const ACTION_SHARE_PASSWORD = 'launchpad_share_password';
+	public const BRUTE_FORCE_ACTION_SHARE_UNLOCK = 'launchpad_share_password';
+
+	/**
+	 * Former name of BRUTE_FORCE_ACTION_SHARE_UNLOCK.
+	 *
+	 * @deprecated Use BRUTE_FORCE_ACTION_SHARE_UNLOCK.
+	 *
+	 * @var string
+	 */
+	public const ACTION_SHARE_PASSWORD = self::BRUTE_FORCE_ACTION_SHARE_UNLOCK;
 
 	/**
 	 * Constructor.
@@ -420,7 +429,7 @@ class PublicShareService {
 	 */
 	private function registerPasswordFailure(string $ipAddress): void {
 		$this->throttler->registerAttempt(
-			action: self::ACTION_SHARE_PASSWORD,
+			action: self::BRUTE_FORCE_ACTION_SHARE_UNLOCK,
 			ip: $ipAddress
 		);
 	}//end registerPasswordFailure()
@@ -474,7 +483,7 @@ class PublicShareService {
 		// Throttle check before any DB query to prevent enumeration timing attacks.
 		$this->throttler->sleepDelayOrThrowOnMax(
 			ip: $ipAddress,
-			action: self::ACTION_SHARE_PASSWORD
+			action: self::BRUTE_FORCE_ACTION_SHARE_UNLOCK
 		);
 
 		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);

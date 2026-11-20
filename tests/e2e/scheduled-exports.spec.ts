@@ -151,8 +151,13 @@ async function rowAction(page: Page, name: string, action: string): Promise<void
  * @return Resolves once it is chosen.
  */
 async function choose(page: Page, scope: Locator, label: string, option: string): Promise<void> {
-	await scope.getByRole('combobox', { name: label }).click()
-	await page.getByRole('option', { name: option }).click()
+	const combobox = scope.getByRole('combobox', { name: label })
+	await combobox.click()
+	// Typing narrows the list to the one option, which Enter then picks; clicking
+	// the option by role did not resolve for every select of this editor.
+	await page.keyboard.type(option)
+	await page.keyboard.press('Enter')
+	await expect(combobox.locator('xpath=ancestor::*[contains(@class, "v-select")][1]')).toContainText(option)
 }
 
 /**

@@ -264,7 +264,8 @@ test.describe('scheduled exports: failed webhook and retry (task 29)', () => {
 		expect(delivery.attemptCount).toBe(1)
 		expect(delivery.error).toBe('HTTP 404')
 		const wait = secondsBetween(run.startedAt, delivery.nextAttemptAt)
-		expect(wait, 'the first retry waits initialBackoffSeconds').toBeGreaterThanOrEqual(HOUR)
+		// Both stamps have whole-second resolution and are taken a moment apart, so one second of slack.
+		expect(wait, 'the first retry waits initialBackoffSeconds').toBeGreaterThanOrEqual(HOUR - 1)
 		expect(wait).toBeLessThan(HOUR + 120)
 		expect(run.status, 'a run with a retry pending is still running').toBe('running')
 		expect(received.map((r) => r.path)).toEqual(['/wrong-hook'])

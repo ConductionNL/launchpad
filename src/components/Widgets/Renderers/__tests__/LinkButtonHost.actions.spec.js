@@ -79,6 +79,22 @@ afterEach(() => {
 	openSpy.mockRestore()
 })
 
+describe('LinkButtonHost — edit mode', () => {
+	it('hands the edit-mode flags to the widget, which suppresses clicks on them', () => {
+		const editing = mount(LinkButtonHost, {
+			props: { content: {}, placement: { id: 1 }, isAdmin: true, canEdit: true },
+		})
+		expect(editing.findComponent({ name: 'CnLinkButtonWidget' }).vm.$attrs)
+			.toMatchObject({ isAdmin: true, canEdit: true })
+
+		const viewing = mount(LinkButtonHost, {
+			props: { content: {}, placement: { id: 1 } },
+		})
+		expect(viewing.findComponent({ name: 'CnLinkButtonWidget' }).vm.$attrs)
+			.toMatchObject({ isAdmin: false, canEdit: false })
+	})
+})
+
 describe('LinkButtonHost — internal actions', () => {
 	it('invokes the registered internal action named by the widget', () => {
 		const action = vi.fn()

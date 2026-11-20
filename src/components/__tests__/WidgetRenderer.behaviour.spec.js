@@ -86,6 +86,13 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.rendererProps.call({ placement: { widgetId: 'label' }, editMode: true })).toEqual({})
 	})
 
+	it('tells the link button when the dashboard is in edit mode', () => {
+		expect(computed.rendererProps.call({ placement: { widgetId: 'link' }, editMode: true }))
+			.toEqual({ isAdmin: true, canEdit: true })
+		expect(computed.rendererProps.call({ placement: { widgetId: 'link' }, editMode: false }))
+			.toEqual({ isAdmin: false, canEdit: false })
+	})
+
 	it('treats a tile- widget id or a tileType as a tile', () => {
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'tile-3' } })).toBe(true)
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'mydash-tile', tileType: 'link' } })).toBe(true)

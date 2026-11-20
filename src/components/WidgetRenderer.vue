@@ -242,8 +242,9 @@ export default {
 		 */
 		rendererProps() {
 			const props = buildRendererExtraProps(this.placement?.widgetId)
-			if (this.placement?.widgetId === 'menu') {
-				// The menu's empty-state gear asks for the editor only when both are set.
+			if (this.placement?.widgetId === 'menu' || this.placement?.widgetId === 'link') {
+				// Both read edit mode from these two flags: the menu's empty-state
+				// gear asks for the editor, the link button suppresses its clicks.
 				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
 			}
 			return props

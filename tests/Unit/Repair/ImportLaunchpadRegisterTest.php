@@ -127,7 +127,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 			['get OCA\OpenRegister\Service\ConfigurationService', 'info LaunchPad register imported (launchpad register + dashboard schema)'],
 			$this->runStep($importer)
 		);
-		$this->assertSame(expected: ['launchpad {"a":1} 1.0.7 false'], actual: $importer->calls);
+		$this->assertSame(expected: ['launchpad {"a":1} 1.0.8 false'], actual: $importer->calls);
 
 		$this->assertSame(
 			['get OCA\OpenRegister\Service\ConfigurationService', 'log [ImportLaunchpadRegister] import failed: bad schema', 'warning LaunchPad register import skipped: bad schema'],
@@ -158,7 +158,7 @@ class ImportLaunchpadRegisterTest extends TestCase {
 		$this->assertSame(
 			[
 				'launchpad {"components":{"schemas":{"Dashboard":{"slug":"dashboard","required":["name","owner"],'
-				. '"configuration":{"linkedTypes":["talk"]}}}}} 1.0.7 false',
+				. '"configuration":{"linkedTypes":["talk"]}}}}} 1.0.8 false',
 			],
 			$importer->calls
 		);

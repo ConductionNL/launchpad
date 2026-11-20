@@ -348,42 +348,27 @@ class MetadataServiceTest extends TestCase {
 	}
 
 	/**
-	 * PHP turns the dots of `?metadata.<key>=` into underscores, so the
-	 * filters are read from the raw query string (REQ-MDFL-007).
-	 */
-	public function testFiltersFromQueryStringReadsTheDotForm(): void {
-		$this->assertSame(
-			[
-				'department' => 'sales team',
-				'priority' => ['min' => '5', 'max' => '7'],
-				'go_live' => ['after' => '2026-01-01'],
-			],
-			MetadataService::filtersFromQueryString(
-				'metadata.department=sales+team&metadata.priority.min=5&metadata.priority.max=7'
-				.'&other=1&metadata%2Ego_live.after=2026-01-01&metadata.=x&metadata.bad.key.deep=1&page'
-			)
-		);
-		$this->assertSame([], MetadataService::filtersFromQueryString(''));
-	}
-
-	/**
 	 * The controllers pass Dashboard entities, whose getUuid() is a magic
 	 * Entity getter, not serialised rows.
+	 *
+	 * @return void
 	 */
 	public function testFilterDashboardsKeepsMatchingEntities(): void {
-		$this->fieldMapper->method('findByKey')->willReturn($this->makeField(1, 'department', MetadataField::TYPE_SELECT));
+		$this->fieldMapper->method('findByKey')->willReturn($this->makeField(id: 1, key: 'department', type: MetadataField::TYPE_SELECT));
 		$this->valueMapper->method('findByField')->willReturn([
-			$this->makeValue(1, 'Finance', 'payroll'),
-			$this->makeValue(1, 'HR', 'onboarding'),
+			$this->makeValue(fieldId: 1, value: 'Finance', uuid: 'payroll'),
+			$this->makeValue(fieldId: 1, value: 'HR', uuid: 'onboarding'),
 		]);
 		$payroll = new Dashboard();
-		$payroll->setUuid('payroll');
 		$onboarding = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$payroll->setUuid('payroll');
 		$onboarding->setUuid('onboarding');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
-		$result = $this->service->filterDashboards([$payroll, $onboarding], ['department' => 'Finance']);
+		$result = $this->service->filterDashboards(dashboards: [$payroll, $onboarding], metadataFilters: ['department' => 'Finance']);
 
-		$this->assertSame([$payroll], $result);
+		$this->assertSame(expected: [$payroll], actual: $result);
 	}
 
 	public function testFilterDashboardsNumberRange(): void {

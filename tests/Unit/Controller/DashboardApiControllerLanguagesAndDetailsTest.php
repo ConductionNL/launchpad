@@ -133,9 +133,15 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 		$this->assertSame(['Payroll'], array_column($data, 'name'));
 	}
 
+	/**
+	 * GET /api/dashboards keeps only the dashboards matching
+	 * `?metadata.<key>=` (REQ-MDFL-007).
+	 *
+	 * @return void
+	 */
 	public function testThePersonalListFiltersOnTheDotForm(): void {
-		$payroll = $this->dashboard('payroll', 'Payroll');
-		$onboarding = $this->dashboard('onb', 'Onboarding');
+		$payroll = $this->dashboard(uuid: 'payroll', name: 'Payroll');
+		$onboarding = $this->dashboard(uuid: 'onb', name: 'Onboarding');
 		$this->dashboardService->method('getUserDashboards')->willReturn([$payroll, $onboarding]);
 		$this->request->method('getRequestUri')
 			->willReturn('/index.php/apps/launchpad/api/dashboards?metadata.department=Finance&metadata.priority.min=5');
@@ -146,7 +152,35 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 
 		$data = $this->controller()->list()->getData();
 
-		$this->assertSame(['Payroll'], array_column($data, 'name'));
+		$this->assertSame(expected: ['Payroll'], actual: array_column($data, 'name'));
+	}
+
+	/**
+	 * PHP turns the dots of `?metadata.<key>=` into underscores, so the
+	 * filters are read from the raw query string (REQ-MDFL-007).
+	 *
+	 * @return void
+	 */
+	public function testTheDotFormIsDecodedAndOtherParametersIgnored(): void {
+		$payroll = $this->dashboard(uuid: 'payroll', name: 'Payroll');
+		$this->dashboardService->method('getUserDashboards')->willReturn([$payroll]);
+		$this->request->method('getRequestUri')->willReturn(
+			'/index.php/apps/launchpad/api/dashboards?metadata.department=sales+team&metadata.priority.min=5'
+			.'&metadata.priority.max=7&other=1&metadata%2Ego_live.after=2026-01-01&metadata.=x&metadata.bad.key.deep=1&page'
+		);
+		$this->metadata->expects($this->once())
+			->method('filterDashboards')
+			->with(
+				[$payroll],
+				[
+					'department' => 'sales team',
+					'priority' => ['min' => '5', 'max' => '7'],
+					'go_live' => ['after' => '2026-01-01'],
+				]
+			)
+			->willReturn([$payroll]);
+
+		$this->controller()->list();
 	}
 
 	public function testNoFilterLeavesTheListAlone(): void {

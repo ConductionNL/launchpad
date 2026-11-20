@@ -551,7 +551,8 @@ class DashboardVersionServiceTest extends TestCase {
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$target->setDashboardUuid('d-uuid-1');
 		$target->setVersionNumber(6);
-		$target->setSnapshotJson(json_encode(['placements' => [['id' => 9, 'dashboardId' => 1, 'widgetId' => 'text', 'content' => ['text' => 'state-5']]]]));
+		$stored = ['id' => 9, 'dashboardId' => 1, 'widgetId' => 'text', 'content' => ['text' => 'state-5']];
+		$target->setSnapshotJson(json_encode(['placements' => [$stored]]));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		$this->versionMapper->method('findByDashboardAndVersion')->willReturn($target);

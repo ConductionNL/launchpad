@@ -259,7 +259,9 @@ async function placements(
 }
 
 /**
- * Top a dashboard up to exactly `target` placements with text widgets.
+ * Bring a dashboard to exactly `target` placements: surplus ones (a new
+ * dashboard carries the default bundle) are removed, missing ones are
+ * added as text widgets.
  *
  * @param ctx the owner.
  * @param id the dashboard.
@@ -271,11 +273,12 @@ async function fillTo(
 	id: number,
 	target: number,
 ): Promise<void> {
-	const have = (await placements(ctx, id)).length
-	expect(have, 'a new dashboard must start under the target').toBeLessThanOrEqual(
-		target,
-	)
-	for (let i = have; i < target; i++) {
+	const existing = await placements(ctx, id)
+	for (const surplus of existing.slice(target)) {
+		const res = await ctx.delete(`${API}/widgets/${surplus.id}`)
+		expect(res.status(), await res.text()).toBeLessThan(300)
+	}
+	for (let i = Math.min(existing.length, target); i < target; i++) {
 		const res = await postWidget(ctx, id)
 		expect(res.status(), await res.text()).toBe(201)
 	}
@@ -573,7 +576,11 @@ test.describe('dashboard count (REQ-QUOTA-002, REQ-QUOTA-004)', () => {
 					{ data: { name: `Group ${i + 1} ${RUN}` } },
 				)
 				expect(res.status(), await res.text()).toBe(201)
-				groupDashes.push((await res.json()).dashboard.uuid)
+				const uuid = (await res.json()).dashboard.uuid
+				groupDashes.push(uuid)
+				// A new dashboard is a draft, hidden from members until published.
+				const published = await admin.post(`${API}/dashboards/${uuid}/publish`)
+				expect(published.status(), await published.text()).toBe(200)
 			}
 			await setQuotas(5, 0)
 

@@ -102,6 +102,37 @@ export function textWidget(
 	}
 }
 
+/**
+ * Add a titled text widget to a dashboard the caller may edit, the way the
+ * workspace does: `POST /api/dashboard/{id}/widgets` creates the placement
+ * (it takes no title), then `PUT /api/widgets/{id}` sets `customTitle`.
+ *
+ * @param api the caller's context.
+ * @param dashboardId the dashboard.
+ * @param text the widget's title and body.
+ * @param at the grid position.
+ * @return the status of the create and of the title update.
+ */
+export async function addTitledTextWidget(
+	api: APIRequestContext,
+	dashboardId: number,
+	text: string,
+	at: { x: number; y: number },
+): Promise<{ created: number; titled: number }> {
+	const res = await api.post(`${API}/dashboard/${dashboardId}/widgets`, {
+		data: textWidget(text, at),
+	})
+	if (res.status() !== 201) {
+		return { created: res.status(), titled: 0 }
+	}
+	const body = await res.json()
+	const placement = (body.data ?? body) as PlacementRow
+	const titled = await api.put(`${API}/widgets/${placement.id}`, {
+		data: { customTitle: text, version: placement.version },
+	})
+	return { created: res.status(), titled: titled.status() }
+}
+
 /** Every template on the instance. */
 export async function listTemplates(api: APIRequestContext): Promise<TemplateRow[]> {
 	const res = await api.get(`${API}/admin/templates`)

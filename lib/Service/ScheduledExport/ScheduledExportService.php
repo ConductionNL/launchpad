@@ -150,7 +150,8 @@ class ScheduledExportService {
 		}
 
 		$merged = self::withDefaults(export: array_merge($existing ?? [], $export));
-		$merged['createdBy'] = $existing['createdBy'] ?? $userId;
+		// An export stored before `createdBy` was a schema property lost it; its owner made it.
+		$merged['createdBy'] = $existing['createdBy'] ?? $existing['owner'] ?? $userId;
 
 		$errors = $this->validate(export: $merged);
 		if ($errors !== []) {
@@ -158,8 +159,16 @@ class ScheduledExportService {
 		}
 
 		$merged['recipients'] = $this->sealSecrets(recipients: $merged['recipients'], stored: $existing['recipients'] ?? []);
+		// The runner fields were stripped from the input above, so the only
+		// readOnly values this save can change are the ones stamped here.
+		$stamps = ($existing['createdBy'] ?? null) !== $merged['createdBy'];
 		if (self::needsReschedule(existing: $existing, merged: $merged) === true) {
 			$merged['nextRunAt'] = $this->nextRunAfter(export: $merged, after: $this->time->now());
+			$stamps = true;
+		}
+
+		if ($stamps === true) {
+			return $this->redact(export: $this->store->saveAsSystem(schema: ExportObjectStore::SCHEMA_EXPORT, data: $merged));
 		}
 
 		return $this->redact(export: $this->store->save(schema: ExportObjectStore::SCHEMA_EXPORT, data: $merged));
@@ -289,7 +298,7 @@ class ScheduledExportService {
 		$stored = $this->store->find(schema: ExportObjectStore::SCHEMA_EXPORT, uuid: (string)($export['id'] ?? '')) ?? $export;
 		$keep   = array_intersect_key($fields, array_flip(['lastRunAt', 'lastRunStatus', 'nextRunAt']));
 
-		return $this->store->save(schema: ExportObjectStore::SCHEMA_EXPORT, data: array_merge($stored, $keep));
+		return $this->store->saveAsSystem(schema: ExportObjectStore::SCHEMA_EXPORT, data: array_merge($stored, $keep));
 	}//end recordFire()
 
 	/**

@@ -54,7 +54,9 @@ export async function openSidebar(page: Page): Promise<void> {
 
 /** Close the sidebar so the grid is not occluded. */
 export async function closeSidebar(page: Page): Promise<void> {
-	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
+	// A closed sidebar stays in the DOM, slid out of the viewport, so its
+	// close button still counts as visible; only an open one needs closing.
+	const closeBtn = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
 	if (await closeBtn.isVisible().catch(() => false)) {
 		await closeBtn.click()
 		await page

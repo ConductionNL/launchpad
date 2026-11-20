@@ -10,20 +10,25 @@
 
 ## Frontend Wiring
 
-- [ ] Task 4: REQ-LEAF-002 — Mount the talk leaf's render surface on the dashboard view for collaborative dashboards only: `type === 'group_shared'` OR the dashboard has active shares (via the existing shares data from `GET /api/dashboard/{id}/shares`) OR `sharedWith` is non-empty
-  - Blocked: the talk leaf (`CnTalkTab`) keys on the dashboard's OpenRegister object id, but dashboards are stored in launchpad's own table and reach OpenRegister only through the one-time `Version002000Date20260519000000` copy (slug = dashboard uuid). A dashboard made since has no OpenRegister object to discuss. Tasks 4-8 need dashboards kept in OpenRegister, or a mapping from a dashboard to its object, decided first.
-- [ ] Task 5: REQ-LEAF-002 — Ensure no discussion affordance renders for unshared personal dashboards (no hidden mount, no room creation side effect)
-- [ ] Task 6: REQ-LEAF-004 — Feature-detect the leaf/Talk availability; when absent, skip the mount without console errors or server log noise
+- [x] Task 4: REQ-LEAF-002 — Mount the talk leaf's render surface on the dashboard view for collaborative dashboards only: `type === 'group_shared'` OR the dashboard has active shares (via the existing shares data from `GET /api/dashboard/{id}/shares`) OR `sharedWith` is non-empty
+  - Built on Ruben's decision of 19 Nov (design D5): `lib/Service/Discussion/DashboardDiscussionMirror.php` keeps a shared or group dashboard's object in OpenRegister, `DashboardAudienceChangedEvent` (share create, replace, delete, revoke-for-recipient, group dashboard creation) and `DashboardDiscussionListener` keep it in step, and the repair step `MirrorSharedDashboards` mirrors dashboards shared before. `src/components/Workspace/DashboardDiscussion.vue` mounts the talk leaf (`CnIntegrationTab`, `integrationId: talk`) under the reactions for a group dashboard, a dashboard shared with the user, or the user's own dashboard with shares. Tests: `DashboardDiscussionMirrorTest`, `DashboardDiscussion.spec.js`, `dashboardDiscussion.spec.js`.
+- [x] Task 5: REQ-LEAF-002 — Ensure no discussion affordance renders for unshared personal dashboards (no hidden mount, no room creation side effect)
+  - `isCollaborative()` is false for an unshared personal dashboard, so nothing renders and no request is made; the mirror writes no object for it, so no room can be made either. Tests: `dashboardDiscussion.spec.js`, `DashboardDiscussionMirrorTest::testAnUnsharedDashboardGetsNoObject`.
+- [x] Task 6: REQ-LEAF-004 — Feature-detect the leaf/Talk availability; when absent, skip the mount without console errors or server log noise
+  - `discussionAvailable()` needs `openregister` and `spreed` in `OC.appswebroots`; without either nothing mounts and nothing is requested. On the server, `ExportObjectStore::isAvailable()` stops the mirror before any read, write or log line. Tests: `DashboardDiscussion.spec.js`, `DashboardDiscussionMirrorTest::testWithoutOpenRegisterNothingHappens`.
 
 ## Authorization
 
-- [ ] Task 7: REQ-LEAF-003 — Confirm the leaf's access path resolves through `PermissionService::canViewDashboard()` (directly or via the object-level guard OpenRegister applies); document the resolved chain in the code comment at the mount point
-- [ ] Task 8: REQ-LEAF-003 — Verify share revocation (`dashboardShareApi#destroy`, `dashboardShareApi#revokeForRecipient`) ends discussion access for the revoked user
+- [x] Task 7: REQ-LEAF-003 — Confirm the leaf's access path resolves through `PermissionService::canViewDashboard()` (directly or via the object-level guard OpenRegister applies); document the resolved chain in the code comment at the mount point
+  - The chain is documented at the mount point (`DashboardDiscussion.vue`): the leaf reads the dashboard's object under the Dashboard schema's read rule, which admits only `audienceUsers`, `audienceGroups` and `audienceEveryone`, and those are `DashboardAudienceDeriver::derive()`, derived as `PermissionService::resolveAccessLevel()` does. Tests: `DashboardAudienceDeriverTest`, `ImportLaunchpadRegisterTest::testTheShippedDashboardSchemaReadsFollowTheAudience`.
+- [x] Task 8: REQ-LEAF-003 — Verify share revocation (`dashboardShareApi#destroy`, `dashboardShareApi#revokeForRecipient`) ends discussion access for the revoked user
+  - `destroy` and `revokeForRecipient` dispatch `DashboardAudienceChangedEvent` for the owner, whose dashboards' objects are rewritten in the same request, so the revoked user drops out of `audienceUsers`/`audienceGroups` and OpenRegister refuses them. Tests: `DashboardShareAudienceEventTest`, `DashboardDiscussionMirrorTest::testARevokedShareNarrowsTheObjectToTheOwner`, `DashboardDiscussionListenerTest`.
 
 ## Guardrails
 
 - [x] Task 9: REQ-LEAF-005 — Verify no new routes, controllers, or services were added: `appinfo/routes.php` and `lib/Controller/` diff must be empty for this change
   - Done. The change's commit (892a823d) touches `lib/Repair/ImportLaunchpadRegister.php`, `lib/Settings/register.d/` and its test only; `appinfo/routes.php` and `lib/Controller/` are untouched, and no service class was added.
+  - 19 Nov: tasks 4 to 8 add a service, an event, a listener and a repair step for the mirror (design D5, Ruben's decision); `appinfo/routes.php` still has no new route and `lib/Controller/` no new controller.
 - [x] Task 10: Run `composer check:strict` and the hydra gates; the change must not introduce findings
   - Done. On `ImportLaunchpadRegister.php` before and after the change: phpcs 0 errors and the same 2 warnings, phpmd, phpstan and psalm clean. The hydra gates fail the same five gates before and after (reports-one-page, app-chrome, manifest-validation without Ajv, or-abstraction-anti-patterns, composer-audit), so the change introduces no finding.
 

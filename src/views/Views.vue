@@ -226,6 +226,14 @@
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
 				:dashboardUuid="activeDashboard.uuid" />
+			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
+			     discussion of a shared or group dashboard; the access chain
+			     is documented in DashboardDiscussion. -->
+			<DashboardDiscussion
+				v-if="activeDashboard?.uuid && !isEditMode"
+				:dashboard="activeDashboard"
+				:sharedWithMe="sharedWithMeDashboards"
+				:currentUserId="currentUserId" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -376,6 +384,7 @@
 			:show="isCustomWidgetModalOpen"
 			:preselectedType="customWidgetPreselectedType"
 			:editingWidget="customWidgetEditing"
+			:notices="customWidgetNotices"
 			:uploadFn="iconUploadFn"
 			:fileUploadFn="imageFileUpload"
 			:calendarsFetcher="fetchCalendars"
@@ -501,6 +510,7 @@ import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
+import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
@@ -549,6 +559,7 @@ import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
+import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -577,6 +588,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardMoreMenu,
 		SidebarBackdrop,
+		DashboardDiscussion,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
@@ -831,6 +843,19 @@ export default {
 		 * @return {object[]}
 		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 		 */
+		/**
+		 * What the widget dialog says about the edited widget's filter
+		 * declarations on this dashboard (REQ-CWF-008).
+		 *
+		 * @return {Array<{id: string, type: string, text: string}>}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
+		customWidgetNotices() {
+			const content = this.customWidgetEditing?.content ?? null
+			const bus = this.filterSession ? this.filterSession.bus : null
+			return busNotices(content, bus ? bus.hierarchies : [])
+		},
+
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
 		},

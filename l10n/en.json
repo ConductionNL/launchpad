@@ -1599,6 +1599,10 @@
         "Active filters": "Active filters",
         "Pinned filter": "Pinned filter",
         "Remove filter: {label}": "Remove filter: {label}",
-        "Reset filters": "Reset filters"
+        "Reset filters": "Reset filters",
+        "Discussion": "Discussion",
+        "No conversation linked to this dashboard yet": "No conversation linked to this dashboard yet",
+        "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.": "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.",
+        "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered.": "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered."
     }
 }

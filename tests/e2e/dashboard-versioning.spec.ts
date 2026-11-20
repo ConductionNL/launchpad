@@ -56,6 +56,7 @@ import type { APIRequestContext } from '@playwright/test'
 import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
+import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import {
 	adminContext,
 	API,
@@ -111,6 +112,7 @@ async function createDashboard(api: APIRequestContext, name: string): Promise<Da
 	const id = Number(dash.id)
 	expect(id, JSON.stringify(body)).toBeGreaterThan(0)
 	created.push({ api, id })
+	await clearSeededWidgets(api, id)
 	return { id, uuid: String(dash.uuid) }
 }
 

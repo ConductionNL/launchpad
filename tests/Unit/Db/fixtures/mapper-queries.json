@@ -2416,6 +2416,24 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\DashboardShare {\\\"id\\\":5,\\\"dashboardId\\\":null,\\\"shareType\\\":null,\\\"shareWith\\\":null,\\\"permissionLevel\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\DashboardShare {\\\"id\\\":6,\\\"dashboardId\\\":null,\\\"shareType\\\":null,\\\"shareWith\\\":null,\\\"permissionLevel\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
+        "findSharedDashboardIds all": {
+            "calls": [
+                "qb1 new",
+                "qb1.selectDistinct(\"dashboard_id\")",
+                "qb1.from(\"launchpad_dashboard_shares\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findSharedDashboardIds rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.selectDistinct(\"dashboard_id\")",
+                "qb1.from(\"launchpad_dashboard_shares\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
         "findByDashboardAndLevel all": {
             "calls": [
                 "qb1 new",

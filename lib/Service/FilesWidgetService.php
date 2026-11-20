@@ -58,6 +58,7 @@ use Throwable;
  *                                                 unavoidable for this
  *                                                 capability.
  * @spec                                           openspec/specs/files-widget/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength) The listing, paths and previews of one widget belong together.
  */
 class FilesWidgetService {
 	/**

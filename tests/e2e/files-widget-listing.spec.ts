@@ -54,6 +54,8 @@ import {
 const RUN = Date.now()
 const ROOT = `E2E-FW-listing-${RUN}`
 const PNG = fs.readFileSync(path.join(__dirname, 'fixtures', 'tiny.png'))
+/** 64x64: Nextcloud makes no preview of a 1x1 image, so the thumbnail test needs a larger one. */
+const PREVIEWABLE_PNG = fs.readFileSync(path.join(__dirname, 'fixtures', 'preview.png'))
 const ISO_8601 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/
 
 let admin: APIRequestContext
@@ -303,7 +305,7 @@ test('an application/pdf filter returns both PDFs and not the docx', async ({ pa
 // @e2e files-widget::list-mode-renders-rows
 test('list mode draws a row per item with icon or thumbnail, name, date and size, and rows act on click', async ({ page }) => {
 	const folder = await seedFolder('list-mode', {
-		'picture.png': PNG,
+		'picture.png': PREVIEWABLE_PNG,
 		'notes.txt': 'hello',
 		'sub/': '',
 	})

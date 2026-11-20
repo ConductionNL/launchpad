@@ -9,7 +9,10 @@
 	     Both halves are silent failures: the compiler drops the unknown `.sync`
 	     modifier and Vue never warns about the missing prop, so the field
 	     renders empty and never writes back. Use `v-model` throughout. -->
+	<!-- Mounted only while open: a hidden NcModal still arms its focus trap,
+	     which then swallows every Tab on the page. -->
 	<NcModal
+		v-if="open"
 		v-model:show="isOpen"
 		class="launchpad-modal"
 		:name="tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile')"

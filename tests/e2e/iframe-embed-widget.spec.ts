@@ -266,7 +266,7 @@ test.beforeAll(async () => {
 	admin = await request.newContext({
 		baseURL: BASE_URL,
 		storageState: { cookies: [], origins: [] },
-		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass, send: 'always' },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
 	})
 	previousHosts = await readHosts()

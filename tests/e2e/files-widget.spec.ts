@@ -165,10 +165,14 @@ test('picking a folder in the dialog stores it by its persistent file id', async
 	await openOnWidget(page, Number(placement.id))
 	expect(await rowNames(filesWidget(page, Number(placement.id)))).toEqual(['inside-picked.txt'])
 
-	// Exactly one of folderPath / fileId: the two are mutually exclusive.
-	const present = [placement.content.folderPath, placement.content.fileId]
-		.filter((v) => v !== undefined && v !== null && v !== '')
-	expect(present, JSON.stringify(placement.content)).toHaveLength(1)
+	// At least one of folderPath / fileId (the spec's data model). The form
+	// keeps the path beside the id to show it; when both are stored they name
+	// the same folder, and fileId is the one the widget resolves.
+	const content = placement.content
+	expect(content.fileId ?? content.folderPath, JSON.stringify(content)).toBeTruthy()
+	if (content.folderPath) {
+		expect(content.folderPath, 'the path names the picked folder').toBe(`/${picked}`)
+	}
 })
 
 // @e2e files-widget::config-for-view-mode

@@ -43,3 +43,13 @@ describe('DashboardRowActions embed entry', () => {
 		expect(assign).toHaveBeenCalledWith('/index.php/settings/admin/launchpad?tab=embeds&embedType=dashboard&embedId=dash-uuid&embedDashboard=7')
 	})
 })
+
+describe('embedAdminHref', () => {
+	it('pre-selects one widget of the dashboard when given a placement', async () => {
+		const { embedAdminHref } = await import('../DashboardRowActions.vue')
+		expect(embedAdminHref(dashboard, { id: 12 }))
+			.toBe('/index.php/settings/admin/launchpad?tab=embeds&embedType=widget&embedId=12&embedDashboard=7')
+		expect(embedAdminHref(dashboard))
+			.toBe('/index.php/settings/admin/launchpad?tab=embeds&embedType=dashboard&embedId=dash-uuid&embedDashboard=7')
+	})
+})

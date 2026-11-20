@@ -210,22 +210,22 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
+import { embedAdminSearch } from '../../utils/embedToken.js'
 
 /**
- * The address of Beheer ▸ Embeds with a dashboard pre-selected.
+ * The address of Beheer ▸ Embeds with a dashboard pre-selected, or one
+ * widget placement of it when `placement` is given.
  *
  * @param {object|null} dashboard The dashboard.
+ * @param {object|null} placement A widget placement on the dashboard.
  * @return {string}
  * @spec openspec/changes/embedded-analytics/tasks.md#task-40
  */
-export function embedAdminHref(dashboard) {
-	const query = new URLSearchParams({
-		tab: 'embeds',
-		embedType: 'dashboard',
-		embedId: String(dashboard?.uuid ?? ''),
-		embedDashboard: String(dashboard?.id ?? ''),
-	})
-	return `${generateUrl('/settings/admin/launchpad')}?${query.toString()}`
+export function embedAdminHref(dashboard, placement = null) {
+	const search = placement
+		? embedAdminSearch('widget', placement.id ?? '', dashboard?.id ?? null)
+		: embedAdminSearch('dashboard', dashboard?.uuid ?? '', dashboard?.id ?? null)
+	return `${generateUrl('/settings/admin/launchpad')}?${search}`
 }
 
 /**

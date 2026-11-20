@@ -64,9 +64,12 @@
 		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
 		     on a shared dashboard can be hidden for this person only. Not
 		     offered for a compulsory widget (the server refuses it anyway). -->
-		<div v-if="showHideForMe" class="launchpad-widget__cog">
+		<!-- embedded-analytics task 40: an administrator can create an embed
+		     token for this one widget, in Beheer ▸ Embeds with it pre-selected. -->
+		<div v-if="showHideForMe || showEmbed" class="launchpad-widget__cog">
 			<NcActions :aria-label="t('launchpad', 'Widget options')">
 				<NcActionButton
+					v-if="showHideForMe"
 					:closeAfterClick="true"
 					data-testid="widget-hide-for-me"
 					@click="$emit('hideForMe', placement)">
@@ -75,6 +78,15 @@
 					</template>
 					{{ t('launchpad', 'Hide for me') }}
 				</NcActionButton>
+				<NcActionLink
+					v-if="showEmbed"
+					:href="embedHref"
+					data-testid="widget-create-embed-token">
+					<template #icon>
+						<CodeTags :size="20" />
+					</template>
+					{{ t('launchpad', 'Create embed token') }}
+				</NcActionLink>
 			</NcActions>
 		</div>
 		<div v-if="editMode" class="launchpad-widget__cog">
@@ -95,6 +107,8 @@ import {
 	NcActionButton,
 	NcActions,
 } from '@conduction/nextcloud-vue'
+import { NcActionLink } from '@nextcloud/vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
@@ -103,6 +117,7 @@ import {
 	LIST_PROP,
 	NULLABLE_OBJECT_PROP,
 	REQUIRED_OBJECT_PROP,
+	TEXT_PROP,
 } from '../constants/propDefinitions.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -129,8 +144,10 @@ export default {
 	components: {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
+		CodeTags,
 		EyeOff,
 		NcActionButton,
+		NcActionLink,
 		NcActions,
 		WidgetRenderer,
 		AcknowledgementPrompt,
@@ -162,6 +179,10 @@ export default {
 		// dashboards-personal-hide-ui: the host allows "Hide for me" here
 		// (a shared dashboard the viewer does not own).
 		canHideForMe: FLAG_PROP,
+
+		// embedded-analytics task 40: the Beheer ▸ Embeds link that creates an
+		// embed token for this widget; '' when the viewer may not create one.
+		embedHref: TEXT_PROP,
 	},
 
 	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
@@ -180,6 +201,17 @@ export default {
 				&& !this.editMode
 				&& Number(this.placement?.isCompulsory) !== 1
 			)
+		},
+
+		/**
+		 * Whether "Create embed token" is offered: view mode, with a link
+		 * from the host (only an administrator gets one).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		showEmbed() {
+			return this.embedHref !== '' && !this.editMode
 		},
 
 		/**

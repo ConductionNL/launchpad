@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest'
 import {
 	createPayload,
 	cspPreview,
+	embedAdminSearch,
 	embedDefaultsFrom,
 	formFromToken,
 	onlyRootRules,
@@ -132,5 +133,20 @@ describe('embed token helpers', () => {
 		expect(embedDefaultsFrom('?embedType=widget&embedId=42')).toEqual({ subjectType: 'widget', subjectId: '42', dashboardId: null })
 		expect(embedDefaultsFrom('?embedType=page&embedId=1')).toEqual({})
 		expect(embedDefaultsFrom('?tab=embeds')).toEqual({})
+	})
+})
+
+describe('embedAdminSearch', () => {
+	it('builds the link embedDefaultsFrom reads back', () => {
+		const search = embedAdminSearch('widget', 42, 7)
+		expect(search).toBe('tab=embeds&embedType=widget&embedId=42&embedDashboard=7')
+		expect(embedDefaultsFrom(`?${search}`)).toEqual({ subjectType: 'widget', subjectId: '42', dashboardId: 7 })
+		expect(embedAdminSearch('dashboard', 'dash-uuid')).toBe('tab=embeds&embedType=dashboard&embedId=dash-uuid&embedDashboard=')
+	})
+
+	it('gives nothing without a valid subject', () => {
+		expect(embedAdminSearch('page', 1, 7)).toBe('')
+		expect(embedAdminSearch('widget', '', 7)).toBe('')
+		expect(embedAdminSearch('widget', null, 7)).toBe('')
 	})
 })

@@ -323,6 +323,7 @@
 								isPlacementOutstanding(item)
 							"
 							:canHideForMe="canHideForMe"
+							:embedHref="placementEmbedHref(item)"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -514,6 +515,7 @@ import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
+import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
@@ -1511,6 +1513,22 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The Beheer ▸ Embeds link that creates an embed token for one widget
+		 * of the active dashboard; '' for a non-administrator, or without a
+		 * saved dashboard and placement.
+		 *
+		 * @param {object} placement The widget placement.
+		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		placementEmbedHref(placement) {
+			if (this.isAdmin !== true || !this.activeDashboard?.id || !placement?.id) {
+				return ''
+			}
+			return embedAdminHref(this.activeDashboard, placement)
+		},
+
 		/**
 		 * Dock the top-right controls into the greeting row when the page
 		 * has one and is not being edited; float them otherwise.

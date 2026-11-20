@@ -29,6 +29,7 @@ use OCA\LaunchPad\Service\WidgetPlatform;
 use OCA\LaunchPad\Service\WidgetRendering;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\InvalidWidgetContentException;
+use OCA\LaunchPad\Service\HealthPingService;
 use OCA\LaunchPad\Service\MenuService;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\WidgetFormatter;
@@ -203,4 +204,66 @@ class WidgetServiceUpdateValidationTest extends TestCase {
 
 		$this->assertSame($updated, $result);
 	}//end testUpdateWithoutContentSkipsContentValidation()
+
+	/**
+	 * A text placement in table mode with ragged rows is refused on update
+	 * (REQ-TBLE-008) and never reaches the persistence layer.
+	 *
+	 * @return void
+	 */
+	public function testUpdateRejectsARaggedTextTable(): void {
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('text');
+		$this->placementService->method('getPlacement')->willReturn($placement);
+		$this->placementService->expects($this->never())->method('updatePlacement');
+
+		$cell = ['text' => 'a', 'rowSpan' => 1, 'colSpan' => 1];
+		$this->expectException(InvalidWidgetContentException::class);
+		$this->expectExceptionMessage('Grid is not rectangular');
+
+		$this->service->updatePlacement(
+			placementId: 7,
+			data: [
+				'content' => [
+					'tableMode' => true,
+					'tableData' => ['columnAlignments' => ['left', 'left'], 'rows' => [[$cell, $cell], [$cell]]],
+				],
+			]
+		);
+	}//end testUpdateRejectsARaggedTextTable()
+
+	/**
+	 * A health-ping config the allow-list refuses is refused on update
+	 * (REQ-HPING-001), whatever the widget type.
+	 *
+	 * @return void
+	 */
+	public function testUpdateRejectsARefusedHealthPing(): void {
+		$healthPing = $this->createMock(HealthPingService::class);
+		$healthPing->method('validateConfig')->willReturn(['host_not_allowed']);
+		$service = new WidgetService(
+			platform: new WidgetPlatform(
+				dashboardManager: $this->createMock(IManager::class),
+				userSession: $this->createMock(IUserSession::class)
+			),
+			placementService: $this->placementService,
+			rendering: new WidgetRendering(
+				widgetFormatter: $this->createMock(WidgetFormatter::class),
+				widgetItemLoader: $this->createMock(WidgetItemLoader::class)
+			),
+			healthPing: $healthPing
+		);
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('tile');
+		$this->placementService->method('getPlacement')->willReturn($placement);
+		$this->placementService->expects($this->never())->method('updatePlacement');
+
+		$this->expectException(InvalidWidgetContentException::class);
+		$this->expectExceptionMessage('host_not_allowed');
+
+		$service->updatePlacement(
+			placementId: 7,
+			data: ['content' => ['healthPingEnabled' => true, 'healthUrl' => 'https://elsewhere.invalid/health']]
+		);
+	}//end testUpdateRejectsARefusedHealthPing()
 }//end class

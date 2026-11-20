@@ -32,22 +32,25 @@ class WidgetService {
 	 * @param PlacementService $placementService Placement service for CRUD.
 	 * @param WidgetRendering  $rendering The formatter and item loader.
 	 * @param MenuService      $menuService Validator for `menu` widgets (REQ-MENU-002).
+	 * @param HealthPingService|null $healthPing Checks a health-ping config against the allow-list (REQ-HPING-001).
 	 */
 	public function __construct(
 		private readonly WidgetPlatform $platform,
 		private readonly PlacementService $placementService,
 		private readonly WidgetRendering $rendering,
 		private readonly MenuService $menuService = new MenuService(),
+		private readonly ?HealthPingService $healthPing = null,
 	) {
 	}//end __construct()
 
 	/**
 	 * Validate the `content` blob of a widget placement before save.
 	 *
-	 * REQ-MENU-002 server-side hook. The `menu` and `map` widget types have a
-	 * server-side validator; any future widget that needs save-time
-	 * validation should add its own branch here so the dispatcher stays
-	 * single-responsibility.
+	 * REQ-MENU-002 server-side hook. The `menu`, `map` and `text` widget
+	 * types have a server-side validator; any future widget that needs
+	 * save-time validation should add its own branch here so the dispatcher
+	 * stays single-responsibility. A health-ping config is checked on every
+	 * type, since any tile may carry one (REQ-HPING-001).
 	 *
 	 * @param string $widgetType Widget type identifier (e.g. `menu`).
 	 * @param array $content Widget content blob.
@@ -77,8 +80,18 @@ class WidgetService {
 	 * @spec openspec/specs/widgets/spec.md
 	 */
 	private function validateContentOfType(string $widgetType, array $content): void {
+		$pingErrors = ($this->healthPing?->validateConfig(config: $content) ?? []);
+		if ($pingErrors !== []) {
+			throw new \InvalidArgumentException(message: 'Invalid health check: ' . implode(separator: ', ', array: $pingErrors));
+		}
+
 		if ($widgetType === 'map') {
 			(new MapContentValidator())->validate(content: $content);
+			return;
+		}
+
+		if ($widgetType === 'text') {
+			(new TextTableValidator())->validate(content: $content);
 			return;
 		}
 

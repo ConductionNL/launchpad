@@ -313,6 +313,8 @@ let carol: { user: string; pass: string }
 let dave: { user: string; pass: string }
 let salesGroup: string
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
 	const admin = await apiAs(ADMIN)
 	const before = await admin.get(SETTINGS)
@@ -324,13 +326,17 @@ test.beforeAll(async () => {
 
 	// Pin the role-feature widget allow-list instead of inheriting whatever
 	// the previously-run specs left behind — see the ALLOWED_WIDGET note.
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	bob = await makeUser('bob')
 	carol = await makeUser('carol')
 	dave = await makeUser('dave')
 	salesGroup = await makeGroup('sales')
 	await addToGroup(carol.user, salesGroup)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

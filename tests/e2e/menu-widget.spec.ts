@@ -67,9 +67,15 @@ const dashboards: number[] = []
 /** Placements the Add Widget modal created, removed after the test. */
 const placements: number[] = []
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	api = await adminContext()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterEach(async () => {

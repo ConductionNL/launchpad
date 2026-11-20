@@ -46,11 +46,11 @@ class WidgetService {
 	/**
 	 * Validate the `content` blob of a widget placement before save.
 	 *
-	 * REQ-MENU-002 server-side hook. The `menu`, `map` and `text` widget
-	 * types have a server-side validator; any future widget that needs
-	 * save-time validation should add its own branch here so the dispatcher
-	 * stays single-responsibility. A health-ping config is checked on every
-	 * type, since any tile may carry one (REQ-HPING-001).
+	 * REQ-MENU-002 server-side hook. The `menu`, `map`, `links` and `text`
+	 * widget types have a server-side validator; any future widget that
+	 * needs save-time validation should add its own branch here so the
+	 * dispatcher stays single-responsibility. A health-ping config is checked
+	 * on every type, since any tile may carry one (REQ-HPING-001).
 	 *
 	 * @param string $widgetType Widget type identifier (e.g. `menu`).
 	 * @param array $content Widget content blob.
@@ -87,6 +87,11 @@ class WidgetService {
 
 		if ($widgetType === 'map') {
 			(new MapContentValidator())->validate(content: $content);
+			return;
+		}
+
+		if ($widgetType === 'links') {
+			(new LinksContentValidator())->validate(content: $content);
 			return;
 		}
 

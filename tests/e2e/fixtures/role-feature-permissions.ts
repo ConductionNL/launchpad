@@ -25,13 +25,33 @@
 import type { APIRequestContext } from '@playwright/test'
 
 import { request as pwRequest } from '@playwright/test'
+import * as fs from 'fs'
+import * as path from 'path'
 import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const PERMS_URL = `${BASE}/index.php/apps/launchpad/api/role-feature-permissions`
+const RESTRICTION_NAME = 'Default (e2e restriction)'
+
+/**
+ * The `default` rule LaunchPad ships (`SeedRolePermissions`): the two
+ * Nextcloud dashboard widgets plus every type in `lib/widget-types.json`.
+ */
+function shippedDefaultRule(): Partial<RoleFeaturePermissionRow> & { groupId: string } {
+	const types = JSON.parse(
+		fs.readFileSync(path.resolve(__dirname, '../../../lib/widget-types.json'), 'utf8'),
+	).types as string[]
+	return {
+		groupId: 'default',
+		name: 'Standaard widget-rechten',
+		description: 'Basistoegang voor gebruikers zonder specifieke groepsindeling',
+		allowedWidgets: [...new Set(['activity', 'recommendations', ...types])],
+		deniedWidgets: [],
+		priorityWeights: { recommendations: 10, activity: 8 },
+	}
+}
 
 /** Build an admin API context (HTTP Basic auth + OCS header). */
 async function adminApi(): Promise<APIRequestContext> {
@@ -49,21 +69,48 @@ async function adminApi(): Promise<APIRequestContext> {
  * can still add ANY widget type to their own dashboard despite the
  * restriction — exercising the real fix rather than side-stepping it.
  *
- * Idempotent: upserts the `default` row by groupId. Safe to call in
- * `beforeAll` of every widget-adding spec.
+ * The row is scoped to the calling spec: the returned function puts back the
+ * `default` row that was there before (or deletes the row when there was
+ * none). Call it in the matching `afterAll`, otherwise every later spec that
+ * adds other widgets as a plain user gets 403. A `default` row that is itself
+ * a restriction an earlier run left behind is put back as the shipped rule.
+ *
+ * @return a function that restores the previous `default` row.
  */
-export async function ensureDefaultWidgetRestriction(): Promise<void> {
+export async function ensureDefaultWidgetRestriction(): Promise<() => Promise<void>> {
 	const api = await adminApi()
+	let prior: RoleFeaturePermissionRow | null = null
 	try {
-		await api.post(PERMS_URL, {
-			data: {
-				groupId: 'default',
-				name: 'Default (e2e restriction)',
-				allowedWidgets: ['activity', 'recommendations'],
-			},
+		prior = (await listRoleFeaturePermissions(api))
+			.find((row) => row.groupId === 'default') ?? null
+		await saveRoleFeaturePermission(api, {
+			groupId: 'default',
+			name: RESTRICTION_NAME,
+			allowedWidgets: ['activity', 'recommendations'],
 		})
 	} finally {
 		await api.dispose()
+	}
+
+	return async () => {
+		const restoreApi = await adminApi()
+		try {
+			if (prior !== null && prior.name === RESTRICTION_NAME) {
+				await saveRoleFeaturePermission(restoreApi, shippedDefaultRule())
+				return
+			}
+			if (prior !== null) {
+				await restoreRoleFeaturePermissions(restoreApi, [prior])
+				return
+			}
+			const current = (await listRoleFeaturePermissions(restoreApi))
+				.find((row) => row.groupId === 'default')
+			if (current !== undefined) {
+				await deleteRoleFeaturePermission(restoreApi, current.id)
+			}
+		} finally {
+			await restoreApi.dispose()
+		}
 	}
 }
 

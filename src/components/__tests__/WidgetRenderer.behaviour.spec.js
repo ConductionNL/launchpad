@@ -86,11 +86,13 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.rendererProps.call({ placement: { widgetId: 'label' }, editMode: true })).toEqual({})
 	})
 
-	it('tells quicklinks whether the dashboard is in edit mode', () => {
-		expect(computed.rendererProps.call({ placement: { widgetId: 'quicklinks' }, editMode: true }))
-			.toEqual({ isAdmin: true, canEdit: true })
-		expect(computed.rendererProps.call({ placement: { widgetId: 'quicklinks' }, editMode: false }))
-			.toEqual({ isAdmin: false, canEdit: false })
+	it('tells the link, links, quicklinks and tile widgets when the dashboard is in edit mode', () => {
+		for (const widgetId of ['link', 'links', 'quicklinks', 'tile']) {
+			expect(computed.rendererProps.call({ placement: { widgetId }, editMode: true }))
+				.toEqual({ isAdmin: true, canEdit: true })
+			expect(computed.rendererProps.call({ placement: { widgetId }, editMode: false }))
+				.toEqual({ isAdmin: false, canEdit: false })
+		}
 	})
 
 	it('treats a tile- widget id or a tileType as a tile', () => {

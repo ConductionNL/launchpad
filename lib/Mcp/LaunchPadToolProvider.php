@@ -37,6 +37,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Mcp;
 
+use OCA\LaunchPad\Exception\McpToolRefusedException;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
@@ -808,29 +809,40 @@ class LaunchPadToolProvider implements IMcpToolProvider {
 	 * @param string               $toolId    The tool id.
 	 * @param array<string, mixed> $arguments The arguments.
 	 *
-	 * @return array<string, mixed> The result, or a structured error.
+	 * @return array<string, mixed> The result.
+	 *
+	 * @throws McpToolRefusedException When the tool refuses: an unknown tool, no
+	 *                                 permission, a missing target or invalid input.
+	 *                                 OpenRegister answers it with `isError: true`.
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-29
 	 */
 	public function invokeTool(string $toolId, array $arguments): array {
 		$handler = (self::TOOL_HANDLERS[$toolId] ?? null);
 		if ($handler === null) {
-			return [
-				'isError' => true,
-				'error' => 'unknown_tool',
-				'message' => "Unknown tool id '{$toolId}'. Available tools: "
-					. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.',
-			];
+			throw new McpToolRefusedException(
+				result: [
+					'isError' => true,
+					'error' => 'unknown_tool',
+					'message' => "Unknown tool id '{$toolId}'. Available tools: "
+						. implode(', ', array_column(self::TOOL_DESCRIPTORS, 'id')) . '.',
+				]
+			);
 		}
 
 		[$class, $method] = $handler;
 		$result = $this->container->get($class)->$method($arguments);
-		if ((array_column(self::TOOL_DESCRIPTORS, 'scope', 'id')[$toolId] ?? 'read') === 'read') {
-			return $result;
+		if ((array_column(self::TOOL_DESCRIPTORS, 'scope', 'id')[$toolId] ?? 'read') !== 'read') {
+			$result += ['audit' => $this->auditRecord(toolId: $toolId, arguments: $arguments) + ['outcome' => self::outcomeOf(result: $result)]];
 		}
 
-		return $result + ['audit' => $this->auditRecord(toolId: $toolId, arguments: $arguments) + ['outcome' => self::outcomeOf(result: $result)]];
+		if (($result['isError'] ?? false) === true) {
+			throw new McpToolRefusedException(result: $result);
+		}
+
+		return $result;
 	}//end invokeTool()
 
 	/**

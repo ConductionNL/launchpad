@@ -22,6 +22,8 @@
  *   @e2e admin-templates::default-sort-order
  *   @e2e admin-templates::sort-by-recency
  *   @e2e admin-templates::gallery-includes-category-null-templates
+ *   @e2e admin-templates::the-gallery-lists-the-templates-for-the-users-groups
+ *   @e2e admin-templates::a-fork-accepts-exactly-what-the-gallery-offers
  *   @e2e admin-templates::template-metadata-in-gallery-response
  *   @e2e admin-templates::metadata-persists-across-updates
  *   @e2e admin-templates::metadata-fields-are-nullable
@@ -50,10 +52,14 @@ import {
 	textWidget,
 } from './support/adminTemplates.ts'
 import {
+	addToGroup,
 	adminContext,
+	allowPersonalDashboards,
 	API,
 	assertActingAs,
+	createGroup,
 	createPrincipal,
+	removeGroup,
 	removePrincipal,
 } from './support/principals.ts'
 
@@ -342,6 +348,51 @@ test.describe('metadata fields (REQ-TMPL-016)', () => {
 		expect(entry).toHaveProperty('category', null)
 		expect(entry).toHaveProperty('previewImage', null)
 		expect(entry).toHaveProperty('description', null)
+	})
+})
+
+test.describe('the gallery offers a template to the groups it names (REQ-TMPL-018)', () => {
+	const GROUP = `e2e-gallery-${RUN}`
+	const OTHER = `e2e-gallery-other-${RUN}`
+
+	test.beforeAll(async () => {
+		await createGroup(admin, GROUP)
+		await addToGroup(admin, alice!.username, GROUP)
+		await allowPersonalDashboards(admin, true)
+	})
+
+	test.afterAll(async () => {
+		await removeGroup(admin, GROUP)
+	})
+
+	// @e2e admin-templates::the-gallery-lists-the-templates-for-the-users-groups
+	test('an account sees templates without groups, for the default group and for its own groups, and no other', async () => {
+		const everyone = await seed('Offered to everyone')
+		const byDefault = await seed('Offered to the default group', { targetGroups: ['default'] })
+		const mine = await seed('Offered to my group', { targetGroups: [GROUP] })
+		const theirs = await seed('Offered to another group', { targetGroups: [OTHER] })
+
+		const { status, entries } = await gallery()
+		expect(status).toBe(200)
+		const uuids = entries.map((e) => e.uuid)
+		expect(uuids).toEqual(expect.arrayContaining([everyone.uuid, byDefault.uuid, mine.uuid]))
+		expect(uuids).not.toContain(theirs.uuid)
+	})
+
+	// @e2e admin-templates::a-fork-accepts-exactly-what-the-gallery-offers
+	test('an account copies a template the gallery offers it, and gets 404 for one it does not', async () => {
+		const mine = await seed('Fork offered', { targetGroups: [GROUP], widgets: [textWidget('fork-offered', { x: 0, y: 0 })] })
+		const theirs = await seed('Fork not offered', { targetGroups: [OTHER] })
+
+		const fork = await alice!.api.post(`${API}/dashboards/${mine.uuid}/fork`, {
+			data: { name: `${STAMP} my copy` },
+		})
+		expect(fork.status(), await fork.text()).toBeLessThan(300)
+
+		const refused = await alice!.api.post(`${API}/dashboards/${theirs.uuid}/fork`, {
+			data: { name: `${STAMP} not my copy` },
+		})
+		expect(refused.status(), await refused.text()).toBe(404)
 	})
 })
 

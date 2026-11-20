@@ -150,18 +150,18 @@ class McpCatalogueToolsTest extends TestCase {
 	}//end testARefusedCallerGetsNoTree()
 
 	/**
-	 * The templates are the gallery for the category and sort asked.
+	 * The templates are the caller's gallery for the category and sort asked.
 	 *
 	 * @return void
 	 */
 	public function testListTemplatesIsTheGallery(): void {
 		$this->gate->method('requireAction')->willReturn(null);
 		$this->templates->expects($this->once())->method('getGallery')->willReturnCallback(
-			callback: static fn (?string $category, string $sortBy): array => [['category' => $category, 'sort' => $sortBy]]
+			callback: static fn (string $userId, ?string $category, string $sortBy): array => [['user' => $userId, 'category' => $category, 'sort' => $sortBy]]
 		);
 
 		$this->assertSame(
-			expected: ['templates' => [['category' => 'sprint', 'sort' => 'updatedAt']]],
+			expected: ['templates' => [['user' => 'alice', 'category' => 'sprint', 'sort' => 'updatedAt']]],
 			actual: $this->tools()->listTemplates(args: ['category' => 'sprint', 'sort' => 'updatedAt'])
 		);
 	}//end testListTemplatesIsTheGallery()

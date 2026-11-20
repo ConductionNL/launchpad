@@ -12786,8 +12786,8 @@
             "get": {
                 "operationId": "template-gallery",
                 "x-launchpad-stability": "internal",
-                "summary": "`GET /api/templates/gallery` — list all admin templates with the gallery metadata (REQ-TMPL-014)",
-                "description": "`GET /api/templates/gallery` — list all admin templates with the gallery metadata (REQ-TMPL-014). Query parameters: - `category` (string, optional): exact-match category filter. - `sort` (string, optional): `name` (default) or `updatedAt`. Available to every logged-in user. Returns a `{status: 'success', templates: [...]}` envelope with no widget bodies — gallery is a list view, not a render. Needs a signed-in Nextcloud user.",
+                "summary": "`GET /api/templates/gallery`: list the admin templates offered to the caller's groups, with the gallery metadata (REQ-TMPL-014, REQ-TMPL-018)",
+                "description": "`GET /api/templates/gallery`: list the admin templates offered to the caller's groups, with the gallery metadata (REQ-TMPL-014, REQ-TMPL-018). Query parameters: - `category` (string, optional): exact-match category filter. - `sort` (string, optional): `name` (default) or `updatedAt`. Available to every logged-in user. Returns a `{status: 'success', templates: [...]}` envelope with no widget bodies — gallery is a list view, not a render. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "template"
                 ],

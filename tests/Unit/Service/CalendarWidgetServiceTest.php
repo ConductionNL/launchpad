@@ -339,6 +339,49 @@ class CalendarWidgetServiceTest extends TestCase {
 	}//end testFetchInternalEventsGuardsAndFiltersByPrincipal()
 
 	/**
+	 * Every instance NC's search expands a recurring event into is an event,
+	 * a DATE start makes it all-day, and the calendar's name and colour come
+	 * from the calendar the match names by key.
+	 *
+	 * @return void
+	 */
+	public function testInternalInstancesAreEventsWithTheirCalendar(): void {
+		$day = static fn (string $date): array => [
+			'SUMMARY' => ['Office closed', []],
+			'UID' => ['closed-1', []],
+			'DTSTART' => [new \DateTimeImmutable($date), ['VALUE' => 'DATE']],
+		];
+		$calendar = $this->createMock(\OCP\Calendar\ICalendar::class);
+		$calendar->method('getKey')->willReturn('work');
+		$calendar->method('getDisplayName')->willReturn('Work');
+		$calendar->method('getDisplayColor')->willReturn('#e9322d');
+		$calendars = $this->createMock(\OCP\Calendar\IManager::class);
+		$calendars->method('getCalendars')->willReturn([$calendar]);
+		$calendars->method('search')->willReturn([
+			['calendar-key' => 'work', 'objects' => [$day('2026-05-04'), $day('2026-05-05'), $day('2026-05-06')]],
+		]);
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $this->urlValidator),
+			logger: $this->logger,
+			calendarMgr: $calendars
+		);
+
+		$events = $service->fetchInternalEvents(['work'], '2026-05-01', '2026-05-31')['events'];
+
+		$this->assertSame(
+			['2026-05-04', '2026-05-05', '2026-05-06'],
+			array_map(static fn (array $event): string => substr($event['start'], 0, 10), $events)
+		);
+		foreach ($events as $event) {
+			$this->assertTrue($event['allDay']);
+			$this->assertSame('Work', $event['calendarName']);
+			$this->assertSame('#e9322d', $event['color']);
+			$this->assertSame('work', $event['calendarId']);
+		}
+	}//end testInternalInstancesAreEventsWithTheirCalendar()
+
+	/**
 	 * A cache miss re-validates the URL before any request; a refused URL is never fetched.
 	 *
 	 * @return void

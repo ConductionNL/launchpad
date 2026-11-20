@@ -413,7 +413,9 @@ test.describe('activity-feed-integration', () => {
 		expect(rows[0].app).toBe('launchpad')
 		expect(rows[0].type).toBe('dashboard_updated')
 		expect(rows[0].object_type).toBe('launchpad_dashboard')
-		expect(String(rows[0].object_id)).toBe(dash.uuid)
+		// Nextcloud's object_id is an integer column, so the UUID the spec puts
+		// there can only travel in object_name.
+		expect(rows[0].object_name).toBe(dash.uuid)
 		expect(rows[0].link).toContain('/apps/launchpad')
 		expect(rows[0].link).toContain(dash.uuid)
 	})
@@ -724,7 +726,7 @@ test.describe('activity-feed-integration', () => {
 
 		const rows = await rowsAbout(pieter.api, dash, 'dashboard_updated')
 		expect(rows).toHaveLength(1)
-		expect(rows[0].subject).toBe(`${ADMIN.user} updated the dashboard ${dash.name}`)
+		expect(rows[0].subject).toBe(`${ADMIN.user} updated dashboard ${dash.name}`)
 	})
 })
 

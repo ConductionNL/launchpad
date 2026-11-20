@@ -112,7 +112,6 @@ On install, when the stored matrix is empty, the `InitializeActions` repair step
 - AND an instance that applied baseline v2 MUST receive exactly these six actions on upgrade, keeping any of them an administrator changed
 
 #### Scenario: The owner may manage their own dashboard's language versions
-@e2e exclude the seed and the upgrade are repair steps; the owner's calls themselves are driven by tests/e2e/dashboard-language-content.spec.ts and tests/e2e/dashboard-language-content-ui.spec.ts. Pinned by ActionAuthBaselineTest and ApplyActionBaselineTest::testAnInstanceAtV3GainsTheOwnersTranslationWrites
 - GIVEN the seed grants `dashboard-translation.create`, `.update`, `.destroy` and `.set-primary` to `@all` (baseline v4)
 - WHEN a non-admin owner adds, edits, deletes or promotes a language version of their own dashboard
 - THEN the action check MUST let the call through, and the route's own ownership check MUST still refuse another user's dashboard

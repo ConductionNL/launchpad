@@ -892,6 +892,11 @@ class WidgetApiController extends Controller {
 	 * @param integer|null $limit Optional caller cap (default 10,
 	 *                            rejected when outside [1, 50]).
 	 *
+	 * @psalm-param int<min, max>|null $limit Unbounded for Nextcloud's
+	 *                            dispatcher, which otherwise answers a
+	 *                            `limit` below 1 with a 500 before the
+	 *                            controller can answer 400.
+	 *
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/widgets/spec.md

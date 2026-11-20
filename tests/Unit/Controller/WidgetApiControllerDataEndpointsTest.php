@@ -272,6 +272,29 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 	}//end testNewsItemsEnforcesTheLimitRange()
 
 	/**
+	 * Nextcloud's dispatcher refuses an int parameter named `limit` outside
+	 * 1..500 with an unhandled exception (a 500) unless the method declares a
+	 * psalm int range for it. The declared range must be unbounded, so a
+	 * limit of 0 or below reaches the controller and is answered 400. The
+	 * pattern is the one Nextcloud's ControllerMethodReflector reads.
+	 *
+	 * @return void
+	 */
+	public function testNewsItemsLeavesTheLimitRangeToTheController(): void {
+		$docs = (string)(new \ReflectionMethod(WidgetApiController::class, 'newsItems'))->getDocComment();
+		$found = preg_match(
+			'/@(?:psalm-)?param\h+(\?)?int<(?P<min>-?\d+|min),\h*(?P<max>-?\d+|max)>(\|null)?\h+\$limit/',
+			$docs,
+			$range
+		);
+
+		$this->assertSame(expected: 1, actual: $found);
+		$this->assertSame(expected: 'min', actual: $range['min']);
+		$this->assertSame(expected: 'max', actual: $range['max']);
+
+	}//end testNewsItemsLeavesTheLimitRangeToTheController()
+
+	/**
 	 * Boundary cases for the news `limit` parameter.
 	 *
 	 * @return array<string, array{0: int, 1: bool}>

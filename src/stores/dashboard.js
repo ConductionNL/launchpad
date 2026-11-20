@@ -967,12 +967,11 @@ export const useDashboardStore = defineStore('dashboard', {
 						sharedBy: null,
 					})
 					this.activeDashboard = { ...fork, isOwner: true, sharedBy: null }
-					// Placements come back via the next switchDashboard /
-					// loadDashboards round-trip — fork is a brand-new
-					// active dashboard but the by-id endpoint is the
-					// canonical source of truth for placements.
 					this.widgetPlacements = []
 					this.permissionLevel = 'full'
+					// The fork carries the source's widgets; the by-id
+					// endpoint is the canonical source of its placements.
+					await this.switchDashboard(fork.id)
 				}
 				return fork
 			} catch (error) {

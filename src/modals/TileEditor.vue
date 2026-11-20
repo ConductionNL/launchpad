@@ -346,7 +346,7 @@ const DEFAULT_EXPECTED_STATUS = 200
  * The admin's allowed program schemes and the sign-on template names.
  *
  * @return {{schemes: string[], templates: Array<{key: string, name: string}>}}
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
  */
 function tileLaunchOptions() {
 	const state = loadInitialState('workspace')
@@ -413,7 +413,7 @@ export default {
 		 * address whose host is not on the embed allow-list.
 		 *
 		 * @return {Array<{value: string, label: string, disabled: boolean}>}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		linkTargetOptions() {
 			return [
@@ -482,7 +482,7 @@ export default {
 		 * `app` or `internal` tile) stays selectable so editing keeps it.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		linkTypeOptions() {
 			const options = [
@@ -505,7 +505,7 @@ export default {
 		 * The sign-on templates an author picks from.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		ssoTemplateOptions() {
 			return this.launchOptions.templates.map((template) => ({ value: template.key, label: template.name }))
@@ -515,7 +515,7 @@ export default {
 		 * The helper line under a program address: which schemes work.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		programHelp() {
 			if (this.launchOptions.schemes.length === 0) {
@@ -529,7 +529,7 @@ export default {
 		 * same server answer every viewer gets (launcher-tile-internal-address D3).
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 		 */
 		addressInEffect() {
 			if (this.onOfficeNetwork) {
@@ -544,7 +544,7 @@ export default {
 		 * Re-check whether the address may open in the panel whenever it changes.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		'form.linkValue': function() {
 			this.checkPanelAllowed()
@@ -598,7 +598,7 @@ export default {
 		 *
 		 * @param {string} value The new link type.
 		 * @return {void}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		onLinkType(value) {
 			if (value === this.form.linkType) {
@@ -712,7 +712,7 @@ export default {
 		 * keep the panel as its choice.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		async checkPanelAllowed() {
 			const value = String(this.form.linkValue || '').trim()

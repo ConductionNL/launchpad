@@ -235,7 +235,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
 	 */
 	public function testTileLaunchSettingsArePassedThrough(): void {
 		$templates = [['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];

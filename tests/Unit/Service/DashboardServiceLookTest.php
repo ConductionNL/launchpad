@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 
 declare(strict_types=1);
@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\DashboardBuilders;
 use OCA\LaunchPad\Service\DashboardStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Exception\ContrastTooLowException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -207,6 +208,7 @@ class DashboardServiceLookTest extends TestCase {
 			$this->update(dashboard: $dashboard, data: ['customCss' => 'body { display: none }']);
 			$this->fail('A non-administrator stored custom CSS.');
 		} catch (\Exception $refusal) {
+			$this->assertInstanceOf(ForbiddenException::class, $refusal);
 			$this->assertSame('Access denied', $refusal->getMessage());
 		}
 

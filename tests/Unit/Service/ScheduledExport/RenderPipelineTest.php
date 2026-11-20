@@ -111,7 +111,7 @@ class RenderPipelineTest extends TestCase {
 		$this->assertCount(4, array_unique(array_map(static fn (RenderResult $r): string => $r->sha256(), $results)));
 		$this->assertSame('Weekly-2026-11-16.pdf', $results[0]->filename);
 		$this->assertNull($results[0]->storagePath);
-		$this->assertSame(['format' => 'csv', 'sizeBytes' => 4, 'sha256' => hash('sha256', "a\n1\n"), 'storagePath' => null], $results[2]->toAudit());
+		$this->assertSame(['format' => 'csv', 'sizeBytes' => 4, 'sha256' => hash('sha256', "a\n1\n"), 'storagePath' => null, 'filename' => $results[2]->filename], $results[2]->toAudit());
 		$this->assertSame('text/csv', $results[2]->mimeType());
 	}//end testPreviewRendersEveryTarget()
 
@@ -167,7 +167,8 @@ class RenderPipelineTest extends TestCase {
 
 		$this->assertSame(['Apps', 'LaunchPad', 'Exports', 'e1'], $created);
 		$this->assertSame('/alice/files/Apps/LaunchPad/Exports/e1/Weekly-2026-11-16 (2).csv', $results[0]->storagePath);
-		$this->assertSame('Weekly-2026-11-16 (2).csv', $results[0]->filename);
+		$this->assertSame('Weekly-2026-11-16.csv', $results[0]->filename, 'recipients get the name the pattern makes, not the archive copy\'s');
+		$this->assertSame('Weekly-2026-11-16.csv', $results[0]->toAudit()['filename']);
 	}//end testRenderStoresInTheCreatorsExportFolder()
 
 	/**

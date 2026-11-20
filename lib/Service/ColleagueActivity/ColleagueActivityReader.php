@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use Throwable;
  * activity app already scoped to them. This reads those rows, newest first,
  * and leaves out the reader's own actions. It does not build a second feed.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-007-recent-colleague-activity-filtered-by-what-you-may-see
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-007-recent-colleague-activity-filtered-by-what-you-may-see
  */
 class ColleagueActivityReader {
 
@@ -55,7 +55,7 @@ class ColleagueActivityReader {
 	 *
 	 * @param IDBConnection $db The database.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 	 */
 	public function __construct(
 		private readonly IDBConnection $db,
@@ -71,7 +71,7 @@ class ColleagueActivityReader {
 	 *
 	 * @return list<array<string,mixed>>|null The rows.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 	 */
 	public function rows(string $readerId, int $since, int $limit=self::MAX_ROWS): ?array {
 		try {

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use InvalidArgumentException;
+use LogicException;
 use OCA\LaunchPad\Controller\ScheduledExportController;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\ScheduledExport\AuditLog;
@@ -35,6 +36,7 @@ use OCA\LaunchPad\Service\ScheduledExport\RenderException;
 use OCA\LaunchPad\Service\ScheduledExport\RenderPipeline;
 use OCA\LaunchPad\Service\ScheduledExport\RenderResult;
 use OCA\LaunchPad\Service\ScheduledExport\ScheduledExportService;
+use OCA\OpenRegister\Exception\ValidationException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
@@ -43,6 +45,8 @@ use OCP\IUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+
+require_once __DIR__ . '/../../Stubs/OpenRegisterSystemStubs.php';
 
 /**
  * @covers \OCA\LaunchPad\Controller\ScheduledExportController
@@ -244,6 +248,31 @@ class ScheduledExportControllerTest extends TestCase {
 		$this->assertSame(422, $response->getStatus());
 		$this->assertSame('No headless browser is configured for PDF and PNG exports', $response->getData()['message']);
 	}//end testPreviewRenderFailure()
+
+	/**
+	 * OpenRegister refusing an object answers 422 with its reason as JSON, not
+	 * an HTML 500; any other exception is not swallowed.
+	 *
+	 * @return void
+	 */
+	public function testAnObjectOpenRegisterRefusesIsA422(): void {
+		$this->exports->method('findOne')->willReturn(['id' => 'e1']);
+		$this->fire->method('fire')->willReturnOnConsecutiveCalls(
+			$this->throwException(new ValidationException('Cannot modify readOnly properties: lastRunAt, lastRunStatus')),
+			$this->throwException(new LogicException('boom'))
+		);
+
+		$response = $this->controller->run(id: 'e1');
+		$this->assertInstanceOf(JSONResponse::class, $response);
+		$this->assertSame(422, $response->getStatus());
+		$this->assertSame(
+			['error' => 'invalid_object', 'message' => 'Cannot modify readOnly properties: lastRunAt, lastRunStatus'],
+			$response->getData()
+		);
+
+		$this->expectException(LogicException::class);
+		$this->controller->run(id: 'e1');
+	}//end testAnObjectOpenRegisterRefusesIsA422()
 
 	/**
 	 * Runs are listed and read only through a visible export; a run of another export is 404; retry goes through ExportFire.

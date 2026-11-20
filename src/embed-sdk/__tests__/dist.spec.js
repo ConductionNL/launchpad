@@ -2,10 +2,12 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @conduction/launchpad-embed builds into an ES module and a UMD bundle, and both
- * expose render() (embedded-analytics task 19).
+ * The embed SDK builds into an ES module and a UMD bundle under the app's
+ * js/embed-sdk/, the names EmbedSdkController serves, and both expose render()
+ * (embedded-analytics tasks 19 and 24).
  *
  * @spec openspec/changes/embedded-analytics/tasks.md#task-19
+ * @spec openspec/changes/embedded-analytics/tasks.md#task-24
  */
 
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
@@ -47,14 +49,22 @@ describe('embed-sdk distribution', () => {
 		rmSync(out, { recursive: true, force: true })
 	})
 
-	it('declares one ESM and one UMD build at the paths package.json exports', () => {
-		const pkg = JSON.parse(readFileSync(resolve(__dirname, '../package.json'), 'utf8'))
+	it('builds one ESM and one UMD bundle into the app\'s js/embed-sdk/, the names the app serves', () => {
 		expect(configs.map((config) => config.output.filename)).toEqual(['embed-sdk.esm.js', 'embed-sdk.umd.js'])
-		expect(pkg.exports['.'].import).toBe('./dist/embed-sdk.esm.js')
-		expect(pkg.exports['.'].require).toBe('./dist/embed-sdk.umd.js')
-		expect(pkg.name).toBe('@conduction/launchpad-embed')
-		expect(pkg.repository.directory).toBe('src/embed-sdk')
-		expect(pkg.publishConfig).toEqual({ access: 'public', provenance: true })
+		for (const config of configs) {
+			expect(config.output.path).toBe(resolve(__dirname, '../../../js/embed-sdk'))
+		}
+		const controller = readFileSync(resolve(__dirname, '../../../lib/Controller/EmbedSdkController.php'), 'utf8')
+		expect(controller).toContain("'embed-sdk.esm.js'")
+		expect(controller).toContain("'embed-sdk.umd.js'")
+	})
+
+	it('is not an npm package: private, and the app build builds it', () => {
+		const pkg = JSON.parse(readFileSync(resolve(__dirname, '../package.json'), 'utf8'))
+		const app = JSON.parse(readFileSync(resolve(__dirname, '../../../package.json'), 'utf8'))
+		expect(pkg.private).toBe(true)
+		expect(pkg.publishConfig).toBeUndefined()
+		expect(app.scripts.build).toContain('npm run build:embed-sdk')
 	})
 
 	it('the ES module exports render and LaunchPadEmbed', async () => {

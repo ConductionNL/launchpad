@@ -19,7 +19,7 @@ Thumbs.db
 
 # Dependencies
 /vendor/
-/node_modules/
+/node_modules
 
 # Build artifacts
 /js/
@@ -82,5 +82,4 @@ bom-npm.cdx.json
 .phpunit.cache
 
 # embed-sdk build output (npm run build:embed-sdk) and its test builds
-/src/embed-sdk/dist/
 /src/embed-sdk/__tests__/.dist-*/

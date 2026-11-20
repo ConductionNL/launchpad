@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \OCA\LaunchPad\Migration\Version002014Date20261114100000
  *
- * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 class Version002014Date20261114100000Test extends TestCase {
 

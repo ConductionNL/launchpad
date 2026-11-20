@@ -84,13 +84,13 @@ class McpDashboardGate {
 	public function requireAction(string $action): ?array {
 		$user = $this->userSession->getUser();
 		if ($user instanceof IUser === false) {
-			return McpArgumentValidator::error(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
+			return $this->deny(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
 		}
 
 		try {
 			$this->actionAuth->requireAction($user, $action);
 		} catch (Throwable) {
-			return McpArgumentValidator::error(code: 'forbidden', message: "You may not perform {$action}.");
+			return $this->deny(code: 'forbidden', message: "You may not perform {$action}.");
 		}
 
 		return null;
@@ -106,7 +106,7 @@ class McpDashboardGate {
 	public function requireAdmin(): ?array {
 		$userId = $this->currentUserId();
 		if ($userId === '') {
-			return McpArgumentValidator::error(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
+			return $this->deny(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
 		}
 
 		try {
@@ -116,7 +116,7 @@ class McpDashboardGate {
 		}
 
 		if ($isAdmin === false) {
-			return McpArgumentValidator::error(code: 'forbidden', message: 'Only an administrator may use this tool.');
+			return $this->deny(code: 'forbidden', message: 'Only an administrator may use this tool.');
 		}
 
 		return null;
@@ -132,7 +132,7 @@ class McpDashboardGate {
 	 */
 	public function requireUser(): ?array {
 		if ($this->currentUserId() === '') {
-			return (new McpArgumentValidator())->refuse(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
+			return $this->deny(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
 		}
 
 		return null;
@@ -232,9 +232,21 @@ class McpDashboardGate {
 		}
 
 		if ($allowed === false) {
-			return (new McpArgumentValidator())->refuse(code: 'forbidden', message: $message);
+			return $this->deny(code: 'forbidden', message: $message);
 		}
 
 		return null;
 	}//end refuseUnless()
+
+	/**
+	 * The refusal envelope every tool answers with, as McpArgumentValidator::error() builds it.
+	 *
+	 * @param string $code    The machine code.
+	 * @param string $message A sentence for the agent.
+	 *
+	 * @return array{isError: true, error: string, message: string}
+	 */
+	private function deny(string $code, string $message): array {
+		return ['isError' => true, 'error' => $code, 'message' => $message];
+	}//end deny()
 }//end class

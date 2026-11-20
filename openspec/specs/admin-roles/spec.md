@@ -26,9 +26,6 @@ Each role assignment is stored in the `oc_launchpad_role_assignments` table with
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-ROLE-001 Dashboard Admin Role Definition
 
 A Dashboard Admin MUST have full administrative access to LaunchPad, equivalent to Nextcloud admin status but scoped to LaunchPad only. A Dashboard Admin MUST be able to manage all dashboards, install demo data, edit organization-level navigation, and define new metadata fields.

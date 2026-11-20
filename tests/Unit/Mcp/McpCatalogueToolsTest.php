@@ -27,6 +27,8 @@ use OCA\LaunchPad\Service\DashboardVersionService;
 use Psr\Log\NullLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Mcp\McpCatalogueSources;
+use OCA\LaunchPad\Service\TileService;
 
 /**
  * getDashboardTree is the tree filtered to the caller's visible set, and
@@ -85,7 +87,7 @@ class McpCatalogueToolsTest extends TestCase {
 				analyticsService: $this->createMock(originalClassName: AnalyticsServiceInterface::class),
 				logger: new NullLogger()
 			),
-			templates: $this->templates
+			sources: new McpCatalogueSources(templates: $this->templates, tiles: $this->createMock(originalClassName: TileService::class))
 		);
 	}//end tools()
 
@@ -148,18 +150,18 @@ class McpCatalogueToolsTest extends TestCase {
 	}//end testARefusedCallerGetsNoTree()
 
 	/**
-	 * The templates are the gallery for the category and sort asked.
+	 * The templates are the caller's gallery for the category and sort asked.
 	 *
 	 * @return void
 	 */
 	public function testListTemplatesIsTheGallery(): void {
 		$this->gate->method('requireAction')->willReturn(null);
 		$this->templates->expects($this->once())->method('getGallery')->willReturnCallback(
-			callback: static fn (?string $category, string $sortBy): array => [['category' => $category, 'sort' => $sortBy]]
+			callback: static fn (string $userId, ?string $category, string $sortBy): array => [['user' => $userId, 'category' => $category, 'sort' => $sortBy]]
 		);
 
 		$this->assertSame(
-			expected: ['templates' => [['category' => 'sprint', 'sort' => 'updatedAt']]],
+			expected: ['templates' => [['user' => 'alice', 'category' => 'sprint', 'sort' => 'updatedAt']]],
 			actual: $this->tools()->listTemplates(args: ['category' => 'sprint', 'sort' => 'updatedAt'])
 		);
 	}//end testListTemplatesIsTheGallery()

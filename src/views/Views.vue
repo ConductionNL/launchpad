@@ -226,6 +226,14 @@
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
 				:dashboardUuid="activeDashboard.uuid" />
+			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
+			     discussion of a shared or group dashboard; the access chain
+			     is documented in DashboardDiscussion. -->
+			<DashboardDiscussion
+				v-if="activeDashboard?.uuid && !isEditMode"
+				:dashboard="activeDashboard"
+				:sharedWithMe="sharedWithMeDashboards"
+				:currentUserId="currentUserId" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -376,6 +384,7 @@
 			:show="isCustomWidgetModalOpen"
 			:preselectedType="customWidgetPreselectedType"
 			:editingWidget="customWidgetEditing"
+			:notices="customWidgetNotices"
 			:uploadFn="iconUploadFn"
 			:fileUploadFn="imageFileUpload"
 			:calendarsFetcher="fetchCalendars"
@@ -501,6 +510,7 @@ import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
+import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
@@ -535,6 +545,7 @@ import {
 	sourceKey,
 } from '../services/sourceAvailability.js'
 // Stores
+import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
@@ -546,9 +557,14 @@ import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredAp
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
+import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
+import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/** The workspace grid's row height in pixels; matches `:cellHeight` above. */
+const GRID_ROW_HEIGHT = 60
 
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
@@ -576,6 +592,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardMoreMenu,
 		SidebarBackdrop,
+		DashboardDiscussion,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
@@ -818,7 +835,7 @@ export default {
 		 * for a dashboard that follows the theme (REQ-THM-001).
 		 *
 		 * @return {object} the inline style for the dashboard region.
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 */
 		dashboardLookStyle() {
 			return lookStyle(this.activeDashboard)
@@ -830,6 +847,19 @@ export default {
 		 * @return {object[]}
 		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 		 */
+		/**
+		 * What the widget dialog says about the edited widget's filter
+		 * declarations on this dashboard (REQ-CWF-008).
+		 *
+		 * @return {Array<{id: string, type: string, text: string}>}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
+		customWidgetNotices() {
+			const content = this.customWidgetEditing?.content ?? null
+			const bus = this.filterSession ? this.filterSession.bus : null
+			return busNotices(content, bus ? bus.hierarchies : [])
+		},
+
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
 		},
@@ -1146,7 +1176,7 @@ export default {
 			return this.widgetPlacements.map((p) => p.widgetId)
 		},
 
-		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
 		placedDiscoveredAppIds() {
 			return discoveredAppIdsOnDashboard(this.widgetPlacements, this.discoveredApps)
 		},
@@ -1242,16 +1272,32 @@ export default {
 
 	watch: {
 		/**
+		 * The calculated fields re-evaluate when the dashboard's filters change (REQ-CALC-003).
+		 *
+		 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+		 */
+		filterClauses: {
+			immediate: true,
+			/**
+			 * @param {object[]} clauses The active filter clauses.
+			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+			 */
+			handler(clauses) {
+				useCalculatedFieldsStore().setFilters(clauses || [])
+			},
+		},
+
+		/**
 		 * The administrator CSS of the dashboard on screen, already scoped to
 		 * its region by the server, inserted as text (REQ-THM-003, D4).
 		 *
-		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 		 */
 		'activeDashboard.customCss': {
 			immediate: true,
 			/**
 			 * @param {string|null} css The scoped CSS of the dashboard on screen.
-			 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+			 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 			 */
 			handler(css) {
 				applyCustomCss(DASHBOARD_STYLE_ID, css)
@@ -1270,17 +1316,21 @@ export default {
 
 		/**
 		 * Ask, once per source, whether the registers the hideable lists read
-		 * are on this instance (REQ-TMPL-022).
+		 * are on this instance (REQ-TMPL-022), and hand the placements to the
+		 * calculated fields (widget-calculated-fields REQ-CALC-003).
 		 *
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 		 */
 		widgetPlacements: {
 			immediate: true,
 			/**
+			 * @param {object[]} placements The open dashboard's placements.
 			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
 			 */
-			handler() {
+			handler(placements) {
 				this.probeHideableSources()
+				useCalculatedFieldsStore().setWidgets(placements || [])
 			},
 		},
 
@@ -2209,7 +2259,7 @@ export default {
 		 * "Discovered on this server" section. A failure leaves the section
 		 * out; the rest of the picker works as before.
 		 *
-		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+		 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 		 */
 		async loadDiscoveredApps() {
 			try {
@@ -2225,7 +2275,7 @@ export default {
 		 * Place a discovered app as a tile through the normal tile path.
 		 *
 		 * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
-		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+		 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
 		 */
 		/**
 		 * Place the office tile pack as one container titled "Office" at the
@@ -2267,7 +2317,7 @@ export default {
 		 * picker's "From the app catalogue" section. A failure leaves the
 		 * section out; the rest of the picker works as before.
 		 *
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
 		 */
 		async loadCatalogueApps() {
 			try {
@@ -2283,7 +2333,7 @@ export default {
 		 * Place a catalogue entry as an ordinary tile through the normal tile path.
 		 *
 		 * @param {object} app The catalogue entry.
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
 		 */
 		async addCatalogueApp(app) {
 			try {
@@ -2298,7 +2348,7 @@ export default {
 		 *
 		 * @param {{appName: string, purpose: string}} request The request.
 		 * @return {Promise} The API call.
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 		 */
 		requestCatalogueApp(request) {
 			return api.requestCatalogueApp(request)
@@ -2375,10 +2425,13 @@ export default {
 					// Create the placement, then apply the chrome (title /
 					// background / icon) from the same modal as a follow-up
 					// patch against the new id.
-					const created = await this.addWidgetToDashboard({
-						type: payload.type,
-						content: payload.content,
-					})
+					const created = await this.addWidgetToDashboard(
+						{
+							type: payload.type,
+							content: payload.content,
+						},
+						newWidgetSize(payload, this.activeDashboard?.gridColumns, GRID_ROW_HEIGHT),
+					)
 					if (created?.id) {
 						await this.updateWidgetPlacement(
 							created.id,
@@ -2691,7 +2744,7 @@ export default {
 		 * @param {object} tileData Assembled tile fields.
 		 * @param {object} content The placement's content blob.
 		 * @spec openspec/specs/service-health-ping/spec.md
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		async createTile(tileData, content) {
 			// A launch tile is checked on create, so it carries its content.
@@ -2715,7 +2768,7 @@ export default {
 		 *
 		 * @param {object} tileData Assembled tile fields.
 		 * @param {Error} error The failure.
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		reportTileSaveError(tileData, error) {
 			logger.error('[Views] Failed to save tile:', error)

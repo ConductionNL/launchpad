@@ -20,7 +20,7 @@ export const INSTANCE_BACKGROUND = '#ffffff'
  *
  * @param {string} colour The colour as entered.
  * @return {string|null}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
  */
 export function normaliseHex(colour) {
 	let value = String(colour ?? '').trim().toLowerCase()
@@ -36,7 +36,7 @@ export function normaliseHex(colour) {
  *
  * @param {string} colour The colour.
  * @return {number}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 export function relativeLuminance(colour) {
 	const [r, g, b] = [1, 3, 5].map((offset) => {
@@ -52,7 +52,7 @@ export function relativeLuminance(colour) {
  * @param {string} first One colour.
  * @param {string} second The other.
  * @return {number}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 export function contrast(first, second) {
 	const a = relativeLuminance(first)
@@ -65,7 +65,7 @@ export function contrast(first, second) {
  *
  * @param {string} background The background colour.
  * @return {string}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 export function textColorFor(background) {
 	return contrast('#000000', background) >= contrast('#ffffff', background) ? '#000000' : '#ffffff'
@@ -77,7 +77,7 @@ export function textColorFor(background) {
  * @param {string|null} accent The accent, or null for none.
  * @param {string|null} background The background, or null for the instance's.
  * @return {{ratio: number|null, readable: boolean}}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 export function accentCheck(accent, background) {
 	if (!accent) {
@@ -96,7 +96,7 @@ export function accentCheck(accent, background) {
  *
  * @param {object|null} dashboard The dashboard.
  * @return {object}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
  */
 export function lookStyle(dashboard) {
 	return {
@@ -111,7 +111,7 @@ export function lookStyle(dashboard) {
  *
  * @param {string|null} accent The accent.
  * @return {object}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
  */
 function accentStyle(accent) {
 	if (!accent) {
@@ -125,7 +125,7 @@ function accentStyle(accent) {
  *
  * @param {string|null} background The background colour.
  * @return {object}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
  */
 function backgroundColorStyle(background) {
 	if (!background) {
@@ -140,7 +140,7 @@ function backgroundColorStyle(background) {
  *
  * @param {string} resource The resource file name.
  * @return {object}
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
  */
 function backgroundImageStyle(resource) {
 	if (!/^[A-Za-z0-9][A-Za-z0-9._-]*\.(png|jpe?g|gif|webp|svg)$/i.test(resource) || resource.includes('..')) {

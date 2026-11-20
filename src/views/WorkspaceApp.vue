@@ -387,6 +387,10 @@ export default {
 
 	mounted() {
 		document.addEventListener('keydown', this.onDocumentKeydown)
+		// The rail mounts only once a position and a non-empty tree are in
+		// the store, so the shell loads both rather than the rail itself.
+		this.orgNavStore.fetchPosition()
+		this.orgNavStore.fetchTree()
 	},
 
 	beforeUnmount() {

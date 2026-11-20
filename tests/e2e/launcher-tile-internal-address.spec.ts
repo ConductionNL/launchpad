@@ -17,7 +17,7 @@
  * Every non-admin context starts from an empty storage state, so a viewer is
  * never silently the admin session from `use.storageState`.
  *
- * @e2e openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md
+ * @e2e openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Page } from '@playwright/test'
@@ -27,6 +27,7 @@ import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -77,23 +78,6 @@ async function openDashboardAsViewer(browser: Browser): Promise<{ context: Brows
 	const session = await loginAs(browser, viewer.username, viewer.password)
 	await session.page.goto('/index.php/apps/launchpad/')
 	return session
-}
-
-/** Enter dashboard edit mode through the sidebar row menu, then close the sidebar. */
-async function enterEditMode(page: Page): Promise<void> {
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
-	await page.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.first()
-		.locator('.dashboard-row-actions button')
-		.first()
-		.click()
-	await page.locator('[data-testid="cog-edit-dashboard"]').click()
-	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-	const close = page.locator('.dashboard-switcher-sidebar__close').first()
-	if (await close.isVisible().catch(() => false)) {
-		await close.click()
-	}
 }
 
 test.describe.configure({ mode: 'serial' })

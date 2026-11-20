@@ -367,7 +367,14 @@ class EmbedTokenService {
 	private function issue(EmbedToken $token): array {
 		$keys   = $this->keys->keysWithActive();
 		$active = $this->jwt->activeKey(keys: $keys);
-		$stored = EmbedToken::fromObject(object: $this->store->save(schema: EmbedObjectStore::TOKENS, object: $token->toObject()));
+		// The JWT needs the stored id, so the first write carries a random hash
+		// that no token matches and that the schema's pattern accepts.
+		$stored = EmbedToken::fromObject(
+			object: $this->store->save(
+				schema: EmbedObjectStore::TOKENS,
+				object: ['tokenHash' => bin2hex(random_bytes(32))] + $token->toObject()
+			)
+		);
 
 		$claims = [
 			'iss'         => self::ISSUER,

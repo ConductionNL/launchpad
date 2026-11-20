@@ -63,9 +63,9 @@ import { useOrgNavigationStore } from '../stores/orgNavigation.js'
  *   - the position setting is 'hidden' (REQ-ONAV-004), OR
  *   - the filtered tree is empty (REQ-ONAV-008).
  *
- * On mount the component:
- *   - subscribes to the store and triggers `fetchTree()` + `fetchPosition()`
- *   - reads `window.location.pathname` to seed the active-item detection
+ * The workspace shell loads the tree and position into the store; on mount
+ * the component reads `window.location.pathname` to seed the active-item
+ * detection.
  *
  * Mobile/desktop affordances are CSS-driven (REQ-ONAV-010): a hamburger
  * button is visible below 800px and toggles `openDrawer`; the rail is
@@ -114,9 +114,6 @@ export default {
 			typeof window !== 'undefined' && window.location
 				? window.location.pathname
 				: ''
-		// Fire-and-forget — errors are surfaced via store.error.
-		this.store.fetchPosition()
-		this.store.fetchTree()
 	},
 
 	methods: {

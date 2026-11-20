@@ -59,8 +59,8 @@ class DefaultAppSettingTest extends TestCase {
 	 */
 	private function service(): DefaultAppSetting {
 		$config = $this->createMock(IConfig::class);
-		$config->method('getSystemValueString')->willReturnCallback(
-			fn (string $key, string $default = ''): string => (string)($this->system[$key] ?? $default)
+		$config->method('getSystemValue')->willReturnCallback(
+			fn (string $key, mixed $default = ''): mixed => ($this->system[$key] ?? $default)
 		);
 		$config->method('setSystemValue')->willReturnCallback(
 			function (string $key, mixed $value): void {
@@ -98,16 +98,32 @@ class DefaultAppSettingTest extends TestCase {
 	}//end testClaimSetsLaunchpadWhenNoDefaultAppIsSet()
 
 	/**
-	 * A blank value counts as no choice made.
+	 * An empty value is the administrator's "reset to default" in the theming
+	 * settings, a choice like any other, so it is kept.
 	 *
 	 * @return void
 	 */
-	public function testClaimTreatsABlankValueAsUnset(): void {
-		$this->system['defaultapp'] = '  ';
+	public function testClaimKeepsAnEmptyValueTheAdministratorSet(): void {
+		$this->system['defaultapp'] = '';
 
-		$this->assertSame(DefaultAppSetting::SET, $this->service()->claim());
-		$this->assertSame('launchpad', $this->system['defaultapp']);
-	}//end testClaimTreatsABlankValueAsUnset()
+		$this->assertSame(expected: DefaultAppSetting::KEPT, actual: $this->service()->claim());
+		$this->assertSame(expected: '', actual: $this->system['defaultapp']);
+	}//end testClaimKeepsAnEmptyValueTheAdministratorSet()
+
+	/**
+	 * The claim runs on every upgrade, and an administrator's later choice
+	 * survives each of them.
+	 *
+	 * @return void
+	 */
+	public function testARepeatedClaimNeverOverwritesALaterChoice(): void {
+		$service = $this->service();
+		$this->assertSame(expected: DefaultAppSetting::SET, actual: $service->claim());
+
+		$this->system['defaultapp'] = 'files';
+		$this->assertSame(expected: DefaultAppSetting::KEPT, actual: $service->claim());
+		$this->assertSame(expected: 'files', actual: $this->system['defaultapp']);
+	}//end testARepeatedClaimNeverOverwritesALaterChoice()
 
 	/**
 	 * A default app the administrator chose is kept.

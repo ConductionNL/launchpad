@@ -208,7 +208,7 @@ const BASE = '/apps/launchpad/api/admin/catalogue'
  *
  * @param {string} name The name to start with.
  * @return {object} The form fields.
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
  */
 function emptyForm(name = '') {
 	return {
@@ -228,7 +228,7 @@ function emptyForm(name = '') {
  * name; saving it creates the entry and links the request to it.
  * Declining asks for a note first.
  *
- * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md
  */
 export default {
 	name: 'AppCatalogueTab',
@@ -267,7 +267,7 @@ export default {
 		 * Group picker options; plain group ids are accepted too.
 		 *
 		 * @return {Array<{id: string, displayName: string}>}
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		groupOptions() {
 			return this.groups.map((group) =>
@@ -281,7 +281,7 @@ export default {
 		 * The two kinds of address an entry can have.
 		 *
 		 * @return {Array<{id: string, label: string}>}
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		linkTypeOptions() {
 			return [
@@ -294,7 +294,7 @@ export default {
 		 * The heading of the open form.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		formTitle() {
 			if (this.formMode === 'approve') {
@@ -306,13 +306,13 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8 */
+	/** @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8 */
 	async mounted() {
 		await this.load()
 	},
 
 	methods: {
-		/** @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8 */
 		async load() {
 			this.loading = true
 			try {
@@ -332,7 +332,7 @@ export default {
 		 *
 		 * @param {Array<string>} ids Group ids.
 		 * @return {string}
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		groupNames(ids) {
 			if (!Array.isArray(ids) || ids.length === 0) {
@@ -348,13 +348,13 @@ export default {
 		 *
 		 * @param {object} request The open request.
 		 * @return {string}
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		askedBy(request) {
 			return t('launchpad', 'Asked by {user}', { user: request.requestedBy })
 		},
 
-		/** @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8 */
 		startCreate() {
 			this.openForm('create', '', emptyForm())
 		},
@@ -363,7 +363,7 @@ export default {
 		 * Open the form on an existing entry.
 		 *
 		 * @param {object} app The entry.
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		startEdit(app) {
 			this.openForm('edit', app.uuid, {
@@ -380,7 +380,7 @@ export default {
 		 * Approving opens the form prefilled with the requested name.
 		 *
 		 * @param {object} request The open request.
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 		 */
 		startApprove(request) {
 			this.cancelDecline()
@@ -391,7 +391,7 @@ export default {
 		 * @param {string} mode create, edit or approve.
 		 * @param {string} uuid The entry or request it saves to.
 		 * @param {object} fields The starting fields.
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		openForm(mode, uuid, fields) {
 			this.formMode = mode
@@ -401,14 +401,14 @@ export default {
 			this.notice = ''
 		},
 
-		/** @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8 */
 		closeForm() {
 			this.form = null
 			this.formUuid = ''
 			this.formMode = 'create'
 		},
 
-		/** @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001 */
 		async save() {
 			if (!this.form) {
 				return
@@ -460,7 +460,7 @@ export default {
 
 		/**
 		 * @param {object} app The entry to remove.
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-keep-a-catalogue-of-approved-apps-req-acat-001
 		 */
 		async remove(app) {
 			this.busy = true
@@ -481,7 +481,7 @@ export default {
 
 		/**
 		 * @param {object} request The request to decline.
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		startDecline(request) {
 			if (this.formMode === 'approve') {
@@ -491,7 +491,7 @@ export default {
 			this.declineNote = ''
 		},
 
-		/** @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8 */
 		cancelDecline() {
 			this.declining = ''
 			this.declineNote = ''
@@ -501,7 +501,7 @@ export default {
 		 * Decline a request; the note is required and goes to the requester.
 		 *
 		 * @param {object} request The open request.
-		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
 		 */
 		async decline(request) {
 			const note = this.declineNote.trim()
@@ -527,7 +527,7 @@ export default {
 		 * Store the optional manager group; clearing it stores none.
 		 *
 		 * @param {string|null} groupId The group, or null.
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		async saveManagerGroup(groupId) {
 			this.error = ''
@@ -547,7 +547,7 @@ export default {
 		 * @param {object} err The axios error.
 		 * @param {string} fallback The translated fallback.
 		 * @return {string}
-		 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-8
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-8
 		 */
 		failure(err, fallback) {
 			if (err?.response?.status === 409) {

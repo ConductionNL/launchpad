@@ -25,14 +25,13 @@
  */
 
 import { expect, test } from '@playwright/test'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
 const APP_URL = '/index.php/apps/launchpad'
 const MANIFEST_GLOB = '**/apps/launchpad/api/manifest*'
 
-// The first stable landmark the Vue bootstrap injects. Neighbouring CI-run
-// specs (`spec-coverage/spec-coverage.spec.ts`) wait on the same element, so
-// "the app rendered" means the same thing here as it does there.
-const APP_LANDMARK = '.launchpad-sidebar-toggle'
+// The start page's More menu: the first stable landmark of a rendered shell.
+const APP_LANDMARK = MORE_MENU
 
 test.describe('runtime manifest boot', () => {
 	test('boot issues the runtime-manifest fetch and renders the app', async ({

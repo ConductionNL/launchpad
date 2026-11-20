@@ -28,6 +28,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
@@ -852,6 +853,8 @@ class DashboardApiController extends Controller {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations
 			// surface as HTTP 400 with the validation message verbatim.
 			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
@@ -906,6 +909,8 @@ class DashboardApiController extends Controller {
 				],
 				statusCode: Http::STATUS_CONFLICT
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try

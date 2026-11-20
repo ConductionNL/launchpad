@@ -99,6 +99,12 @@ import { logger } from '../utils/logger.js'
 /** How many times a legacy widget mount is retried before giving up. */
 const LEGACY_MOUNT_ATTEMPTS = 20
 
+/*
+ * Shared widgets that read edit mode from `isAdmin` + `canEdit`: they suppress
+ * their clicks then, and the menu's empty-state gear asks for the editor.
+ */
+const EDIT_FLAG_WIDGETS = ['menu', 'link', 'links', 'quicklinks', 'tile']
+
 /**
  * The first truthy value among an item's fields, or ''.
  *
@@ -242,9 +248,7 @@ export default {
 		 */
 		rendererProps() {
 			const props = buildRendererExtraProps(this.placement?.widgetId)
-			if (this.placement?.widgetId === 'menu' || this.placement?.widgetId === 'link') {
-				// Both read edit mode from these two flags: the menu's empty-state
-				// gear asks for the editor, the link button suppresses its clicks.
+			if (EDIT_FLAG_WIDGETS.includes(this.placement?.widgetId)) {
 				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
 			}
 			return props

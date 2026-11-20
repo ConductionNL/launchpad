@@ -125,8 +125,8 @@ class DashboardShareApiController extends Controller {
 		}
 
 		return $this->respond(
-			operation: fn (): DataResponse => new DataResponse(
-				data: $this->shareService->addShare(
+			operation: function () use ($id, $shareType, $shareWith, $permissionLevel): DataResponse {
+				$share = $this->shareService->addShare(
 					dashboardId: $id,
 					grant: new ShareGrant(
 						shareType: (string)$shareType,
@@ -134,9 +134,10 @@ class DashboardShareApiController extends Controller {
 						permissionLevel: (string)$permissionLevel
 					),
 					callerId: $this->userId
-				)->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			),
+				);
+				$this->tools->audienceChanged(dashboardId: $id);
+				return new DataResponse(data: $share->jsonSerialize(), statusCode: Http::STATUS_CREATED);
+			},
 			notFound: 'Dashboard not found'
 		);
 	}//end create()
@@ -166,6 +167,7 @@ class DashboardShareApiController extends Controller {
 					shareId: $shareId,
 					callerId: $this->userId
 				);
+				$this->tools->audienceChanged(ownerId: $this->userId);
 				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 			},
 			notFound: 'Share not found'
@@ -197,15 +199,15 @@ class DashboardShareApiController extends Controller {
 		}
 
 		return $this->respond(
-			operation: fn (): DataResponse => new DataResponse(
-				data: $this->serializeShares(
-					shares: $this->shareService->replaceShares(
-						dashboardId: $id,
-						shares: $shares,
-						userId: $this->userId
-					)
-				)
-			),
+			operation: function () use ($id, $shares): DataResponse {
+				$replaced = $this->shareService->replaceShares(
+					dashboardId: $id,
+					shares: $shares,
+					userId: $this->userId
+				);
+				$this->tools->audienceChanged(dashboardId: $id);
+				return new DataResponse(data: $this->serializeShares(shares: $replaced));
+			},
 			notFound: 'Dashboard not found'
 		);
 	}//end replace()
@@ -236,6 +238,7 @@ class DashboardShareApiController extends Controller {
 				shareWith: $shareWith,
 				callerId: $this->userId
 			);
+			$this->tools->audienceChanged(ownerId: $this->userId);
 			return new DataResponse(data: ['deleted' => $count]);
 		} catch (InvalidArgumentException $e) {
 			return new DataResponse(

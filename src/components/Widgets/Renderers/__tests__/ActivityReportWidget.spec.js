@@ -4,7 +4,7 @@
  *
  * ActivityReportWidget: the purpose on a report about a named person, the
  * refusal said in words, counts and a calendar from the server's figures
- * (openspec/changes/dashboards-and-who-may-see-them REQ-DWMS-005/006).
+ * (openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them REQ-DWMS-005/006).
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

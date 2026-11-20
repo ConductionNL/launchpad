@@ -143,9 +143,9 @@ class ActivityPublisher {
 	/**
 	 * Emit activity rows to every member of `$groupId` (REQ-ACT-006).
 	 *
-	 * Returns 0 (without raising) when the group is unknown or empty.
-	 * The actor is included exactly once even when they are also a
-	 * member of the group.
+	 * Returns 0 (without raising) when the group is unknown or empty; an
+	 * empty group writes no row, not even the actor's. The actor is
+	 * included exactly once even when they are also a member of the group.
 	 *
 	 * @param ActivityRow $row     The activity to write.
 	 * @param string      $groupId The target group ID.
@@ -165,8 +165,31 @@ class ActivityPublisher {
 			$userIds[] = $user->getUID();
 		}
 
+		if ($userIds === []) {
+			return 0;
+		}
+
 		return $this->publishToRecipients(row: $row, recipientUserIds: $userIds);
 	}//end publishToGroup()
+
+	/**
+	 * The absolute link that opens a dashboard in LaunchPad, or '' when no
+	 * URL generator is available.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return string The link.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function dashboardLink(string $uuid): string {
+		if ($this->tools->urlGenerator === null || $uuid === '') {
+			return '';
+		}
+
+		return $this->tools->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.page.index')
+			. '?dashboard=' . urlencode(string: $uuid);
+	}//end dashboardLink()
 
 	/**
 	 * Emit activity rows to every authenticated NC user (REQ-ACT-008).

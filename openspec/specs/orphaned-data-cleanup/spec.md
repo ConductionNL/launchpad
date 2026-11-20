@@ -159,7 +159,9 @@ Administrators MUST be able to call an HTTP API endpoint to retrieve scan result
 
 - GIVEN an unauthenticated or non-admin user
 - WHEN they send `GET /api/admin/cleanup/scan`
-- THEN the system MUST return HTTP 403 Forbidden
+- THEN Nextcloud's admin-setting check MUST refuse the call before LaunchPad runs, in Nextcloud's own shape
+- AND a signed-in non-admin MUST receive HTTP 403 with `{"message": "Logged in account must be an admin, a sub admin or gotten special right to access this setting"}`
+- AND a request without a session MUST receive HTTP 401 with `{"message": "Current user is not logged in"}`
 
 ### Requirement: REQ-CLN-005 Purge API Endpoint
 
@@ -193,7 +195,7 @@ Administrators MUST be able to POST to an API endpoint to trigger purge with per
 
 - GIVEN a non-admin user
 - WHEN they send `POST /api/admin/cleanup/purge`
-- THEN the system MUST return HTTP 403 Forbidden
+- THEN the system MUST return Nextcloud's HTTP 403 with `{"message": "Logged in account must be an admin, a sub admin or gotten special right to access this setting"}` and purge nothing
 
 ### Requirement: REQ-CLN-006 Per-Category Breakdown
 

@@ -67,6 +67,16 @@ class UserAttributeResolverTest extends TestCase {
 		$this->assertSame('nl', $this->resolver->getUserAttributeValue(userId: 'alice', attribute: 'locale'));
 	}
 
+	public function testLanguageReadsTheCoreLangPreference(): void {
+		$this->givenUser();
+		$this->config->expects($this->once())
+			->method('getUserValue')
+			->with('alice', 'core', 'lang', 'en')
+			->willReturn('nl');
+
+		$this->assertSame('nl', $this->resolver->getUserAttributeValue(userId: 'alice', attribute: 'language'));
+	}
+
 	public function testEmailComesFromTheUser(): void {
 		$this->givenUser()->method('getEMailAddress')->willReturn('alice@example.org');
 

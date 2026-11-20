@@ -36,6 +36,7 @@ import type { Placement } from './support/widgets.ts'
 
 import { expect, test } from '@playwright/test'
 import {
+	clearSeededWidgets,
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
@@ -119,6 +120,8 @@ test.beforeEach(async () => {
 		admin,
 		`${STAMP} ${test.info().title.slice(0, 40)}`,
 	)
+	// A new dashboard comes with the default bundle; each test places its own.
+	await clearSeededWidgets(admin, dashboard.id)
 })
 
 test.afterEach(async () => {

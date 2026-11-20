@@ -454,7 +454,7 @@ All workspace-rendering and dashboard-resolution code paths (REQ-DASH-013, REQ-D
 
 ### Requirement: Template Gallery Endpoint (REQ-TMPL-014)
 
-The system MUST expose a read-only gallery endpoint that lists all `admin_template` dashboards with metadata suitable for discovery and instantiation.
+The system MUST expose a read-only gallery endpoint that lists the `admin_template` dashboards offered to the calling user (REQ-TMPL-018) with metadata suitable for discovery and instantiation.
 
 > NOTE (D2 — Index): The `WHERE type='admin_template' AND templateCategory=?` filter path MUST be backed by a composite index on `(type, templateCategory)`. The migration adding the three new metadata columns MUST also add this composite index to keep the optional category-filter query indexed at scale. The base `WHERE type='admin_template'` path already benefits from the existing index on `type`.
 
@@ -493,6 +493,25 @@ The system MUST expose a read-only gallery endpoint that lists all `admin_templa
 - WHEN a user calls `GET /api/templates/gallery` without category filter
 - THEN the template MUST be included
 - AND when calling `GET /api/templates/gallery?category=marketing`, the template with `null` category MUST NOT be included
+
+### Requirement: The gallery offers a template to the groups it names (REQ-TMPL-018)
+
+The gallery (`GET /api/templates/gallery` and the MCP tool `launchpad.listTemplates`) MUST list only the admin templates offered to the calling user. A template is offered to a user when its `targetGroups` is empty, contains the `default` group, or contains one of the user's groups. Forking (`POST /api/dashboards/{uuid}/fork` and the MCP tool `launchpad.forkDashboard`) MUST accept exactly the templates the gallery offers the user, as well as the dashboards the user can see, and MUST answer any other template as not found.
+
+#### Scenario: The gallery lists the templates for the user's groups
+
+- GIVEN admin templates for no group, for the `default` group, for group `sales` and for group `finance`
+- AND user "alice" is a member of `sales` only
+- WHEN alice sends `GET /api/templates/gallery`
+- THEN the response MUST list the first three templates
+- AND it MUST NOT list the template for `finance`
+
+#### Scenario: A fork accepts exactly what the gallery offers
+
+- GIVEN the templates of the previous scenario
+- WHEN alice forks the template for `sales`
+- THEN she MUST get a personal copy of it
+- AND forking the template for `finance` MUST answer HTTP 404, as for a dashboard she cannot see
 
 ### Requirement: Template Metadata Fields (REQ-TMPL-016)
 

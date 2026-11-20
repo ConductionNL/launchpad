@@ -28,6 +28,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
@@ -134,6 +135,13 @@ class DashboardApiController extends Controller {
 		$dashboards = $this->services->dashboardService->getUserDashboards(
 			userId: $this->context->userId
 		);
+		$filters    = $this->metadataFilters();
+		if ($filters !== [] && $this->services->metadataService !== null) {
+			$dashboards = $this->services->metadataService->filterDashboards(
+				dashboards: $dashboards,
+				metadataFilters: $filters
+			);
+		}
 
 		$serialized = $this->context->responseHelper->serializeList(entities: $dashboards);
 
@@ -349,8 +357,8 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	private function filterByMetadata(array $items): array {
-		$filters = $this->request->getParam('metadata');
-		if ($this->services->metadataService === null || is_array($filters) === false || $filters === []) {
+		$filters = $this->metadataFilters();
+		if ($this->services->metadataService === null || $filters === []) {
 			return $items;
 		}
 
@@ -366,6 +374,71 @@ class DashboardApiController extends Controller {
 			)
 		);
 	}//end filterByMetadata()
+
+	/**
+	 * The metadata filters of the request, sent as `metadata[<key>]=` or as
+	 * `metadata.<key>=` (REQ-MDFL-007, REQ-MDUI-003).
+	 *
+	 * @return array<string, mixed> The filters by field key, empty without any.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private function metadataFilters(): array {
+		$filters = $this->request->getParam('metadata');
+		if (is_array($filters) === false) {
+			$filters = [];
+		}
+
+		$query = (string)parse_url($this->request->getRequestUri(), PHP_URL_QUERY);
+
+		return array_replace($filters, self::filtersFromQueryString(query: $query));
+	}//end metadataFilters()
+
+	/**
+	 * The `metadata.<key>=` and `metadata.<key>.<bound>=` filters of a raw
+	 * query string, in the shape MetadataService::filterDashboards() takes
+	 * (REQ-MDFL-007).
+	 *
+	 * PHP rewrites the dots of query parameter names to underscores, so
+	 * these cannot be read from the parsed parameters.
+	 *
+	 * @param string $query The query string, without the leading `?`.
+	 *
+	 * @return array<string, string|array<string, string>> The filters by field key.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private static function filtersFromQueryString(string $query): array {
+		$filters = [];
+		foreach (explode('&', $query) as $pair) {
+			$parts = explode('=', $pair, 2);
+			$name  = urldecode($parts[0]);
+			if (count($parts) !== 2 || str_starts_with($name, 'metadata.') === false) {
+				continue;
+			}
+
+			$path  = explode('.', substr($name, strlen('metadata.')));
+			$value = urldecode($parts[1]);
+			if ($path[0] === '' || count($path) > 2) {
+				continue;
+			}
+
+			if (count($path) === 1) {
+				$filters[$path[0]] = $value;
+				continue;
+			}
+
+			$bounds = [];
+			if (is_array($filters[$path[0]] ?? null) === true) {
+				$bounds = $filters[$path[0]];
+			}
+
+			$bounds[$path[1]]   = $value;
+			$filters[$path[0]] = $bounds;
+		}//end foreach
+
+		return $filters;
+	}//end filtersFromQueryString()
 
 	/**
 	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the
@@ -595,6 +668,11 @@ class DashboardApiController extends Controller {
 			return $refusal;
 		}
 
+		// REQ-ASET-003: the switch never restricts a Nextcloud administrator.
+		if ($this->services->dashboardService->isAdmin(userId: (string)$this->context->userId) === true) {
+			return null;
+		}
+
 		try {
 			$this->services->dashboardService->assertPersonalDashboardsAllowed();
 		} catch (PersonalDashboardsDisabledException $e) {
@@ -807,8 +885,8 @@ class DashboardApiController extends Controller {
 	/**
 	 * Apply an allowed update and answer with the saved dashboard.
 	 *
-	 * Captures an automatic version snapshot after a successful save
-	 * (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
+	 * Captures an automatic version snapshot of the state before the save,
+	 * once the save succeeded (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
 	 * (REQ-DASH-023..029).
 	 *
 	 * @param int                  $dashboardId The dashboard ID.
@@ -820,7 +898,8 @@ class DashboardApiController extends Controller {
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		try {
-			$data = $this->buildUpdateData(fields: $fields);
+			$data   = $this->buildUpdateData(fields: $fields);
+			$before = $this->access->history->versionService->stateBeforeUpdate(dashboardId: $dashboardId);
 
 			$dashboard = $this->services->dashboardService->updateDashboard(
 				dashboardId: $dashboardId,
@@ -828,12 +907,15 @@ class DashboardApiController extends Controller {
 				data: $data
 			);
 
-			// REQ-VERS-001: capture an automatic snapshot after the
-			// PUT succeeds. The version service enforces its own
-			// debounce window (60 s) so rapid drag-and-drop edits do
-			// not flood the table. Failures are swallowed so they do
-			// not surface to the dashboard PUT response.
-			$this->captureAutomaticSnapshot(dashboard: $dashboard);
+			// REQ-VERS-001: once the PUT succeeded, snapshot the state it
+			// replaced. The version service enforces its own debounce
+			// window (60 s) so rapid drag-and-drop edits do not flood the
+			// table. Failures are swallowed so they do not surface to the
+			// dashboard PUT response.
+			$this->captureAutomaticSnapshot(
+				dashboard: ($before['dashboard'] ?? $dashboard),
+				snapshotJson: ($before['snapshotJson'] ?? null)
+			);
 
 			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
@@ -848,6 +930,8 @@ class DashboardApiController extends Controller {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations
 			// surface as HTTP 400 with the validation message verbatim.
 			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
@@ -902,6 +986,8 @@ class DashboardApiController extends Controller {
 				],
 				statusCode: Http::STATUS_CONFLICT
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
@@ -2195,8 +2281,8 @@ class DashboardApiController extends Controller {
 	 * the user's edit succeeded; missing one snapshot is a quality of
 	 * life regression, not a data-integrity bug. We log + swallow.
 	 *
-	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard The dashboard that was
-	 *                                               just updated.
+	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard    The dashboard as it was before the update.
+	 * @param string|null                 $snapshotJson Its payload built before the update, or null to build it now.
 	 *
 	 * @return void
 	 *
@@ -2204,6 +2290,7 @@ class DashboardApiController extends Controller {
 	 */
 	private function captureAutomaticSnapshot(
 		\OCA\LaunchPad\Db\Dashboard $dashboard,
+		?string $snapshotJson = null,
 	): void {
 		if ($this->context->userId === null) {
 			return;
@@ -2212,7 +2299,8 @@ class DashboardApiController extends Controller {
 		try {
 			$this->access->history->versionService->captureSnapshot(
 				dashboard: $dashboard,
-				createdBy: $this->context->userId
+				createdBy: $this->context->userId,
+				options: ['snapshotJson' => $snapshotJson]
 			);
 		} catch (\Throwable $t) {
 			$this->access->history->logger->warning(

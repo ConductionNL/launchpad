@@ -52,7 +52,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.1.7-unstable.20261119100000</version>
+	<version>1.1.7-unstable.20261120090000</version>
 	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -128,6 +128,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     no default template. Idempotent, so an instance that already
 			     has dashboards is untouched. -->
 			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
+			<!-- openregister-leaf-integrations: shared and group dashboards get
+			     their discussion object in OpenRegister. Idempotent; nothing
+			     without OpenRegister. Must run AFTER ImportLaunchpadRegister. -->
+			<step>OCA\LaunchPad\Repair\MirrorSharedDashboards</step>
+			<!-- REQ-RFP-011: an untouched shipped `default` widget rule lets
+			     every user add LaunchPad's own widgets. An edited rule is kept. -->
+			<step>OCA\LaunchPad\Repair\BroadenDefaultWidgetRule</step>
+			<!-- REQ-PSP-003: instances installed before the install step existed
+			     get LaunchPad as default app too, but only when no default app
+			     is configured at all. -->
+			<step>OCA\LaunchPad\Repair\SetDefaultApp</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
@@ -150,7 +161,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     empty state. -->
 			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
 			<!-- REQ-PSP-003: sign-in lands on the Workspace page. Only fills an
-			     unset default app; the admin toggle (on by default) gives it back. -->
+			     absent default app; the admin toggle (on by default) gives it back. -->
 			<step>OCA\LaunchPad\Repair\SetDefaultApp</step>
 		</install>
 	</repair-steps>

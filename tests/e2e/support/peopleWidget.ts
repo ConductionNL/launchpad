@@ -126,9 +126,11 @@ export async function provisionPerson(
 	spec: PersonSpec,
 ): Promise<Person> {
 	const principal = await createPrincipal(admin, prefix)
-	await mustEditAccount(admin, principal.username, 'displayname', spec.displayName)
+	// Nextcloud rate-limits account edits per acting user (50 per 10 min),
+	// so the account edits itself instead of spending the admin's budget.
+	await mustEditAccount(principal.api, principal.username, 'displayname', spec.displayName)
 	if (spec.email) {
-		await mustEditAccount(admin, principal.username, 'email', spec.email)
+		await mustEditAccount(principal.api, principal.username, 'email', spec.email)
 	}
 	for (const group of spec.groups ?? []) {
 		await addToGroup(admin, principal.username, group)

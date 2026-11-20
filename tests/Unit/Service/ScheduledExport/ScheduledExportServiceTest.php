@@ -90,13 +90,16 @@ class ScheduledExportServiceTest extends TestCase {
 	}//end export()
 
 	/**
-	 * A create stamps the creator, encrypts the secret, schedules the next Monday 09:00 and redacts on the way out.
+	 * A create stamps the creator, encrypts the secret, schedules the next
+	 * Monday 09:00 and redacts on the way out. The stamps are readOnly in the
+	 * schema, so the write goes through the store's system save.
 	 *
 	 * @return void
 	 */
 	public function testCreateSchedulesEncryptsAndRedacts(): void {
 		$saved = null;
-		$this->store->expects($this->once())->method('save')
+		$this->store->expects($this->never())->method('save');
+		$this->store->expects($this->once())->method('saveAsSystem')
 			->with(ExportObjectStore::SCHEMA_EXPORT, $this->anything())
 			->willReturnCallback(static function (string $schema, array $data) use (&$saved): array {
 				$saved = $data;
@@ -215,6 +218,7 @@ class ScheduledExportServiceTest extends TestCase {
 		$stored['recipients'][0]['channelConfig']['signingSecret'] = 'enc:' . base64_encode('s3cret');
 		$stored += ['id' => 'e1', 'owner' => 'alice', 'createdBy' => 'alice', 'nextRunAt' => '2026-11-16T09:00:00+01:00', 'runTimezone' => 'Europe/Amsterdam'];
 		$this->store->method('find')->willReturn($stored);
+		$this->store->expects($this->never())->method('saveAsSystem');
 
 		$saved = null;
 		$this->store->method('save')->willReturnCallback(static function (string $schema, array $data) use (&$saved): array {
@@ -232,13 +236,15 @@ class ScheduledExportServiceTest extends TestCase {
 	}//end testUpdateKeepsRedactedSecretAndSchedule()
 
 	/**
-	 * A changed recurrence is rescheduled from now.
+	 * A changed recurrence is rescheduled from now, through the system save
+	 * because `nextRunAt` is readOnly in the schema.
 	 *
 	 * @return void
 	 */
 	public function testChangedRecurrenceIsRescheduled(): void {
-		$this->store->method('find')->willReturn($this->export() + ['id' => 'e1', 'owner' => 'alice', 'nextRunAt' => '2026-11-16T09:00:00+01:00']);
-		$this->store->method('save')->willReturnArgument(1);
+		$this->store->method('find')->willReturn($this->export() + ['id' => 'e1', 'owner' => 'alice', 'createdBy' => 'alice', 'nextRunAt' => '2026-11-16T09:00:00+01:00']);
+		$this->store->expects($this->never())->method('save');
+		$this->store->expects($this->once())->method('saveAsSystem')->willReturnArgument(1);
 
 		$result = $this->service->save(export: ['id' => 'e1', 'recurrence' => ['type' => 'daily', 'timeOfDay' => '17:30']], userId: 'alice');
 		$this->assertSame('2026-11-13T17:30:00+01:00', $result['nextRunAt']);
@@ -250,7 +256,7 @@ class ScheduledExportServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testSetEnabledAndDelete(): void {
-		$this->store->method('find')->willReturn($this->export() + ['id' => 'e1', 'owner' => 'alice', 'nextRunAt' => '2026-11-16T09:00:00+01:00']);
+		$this->store->method('find')->willReturn($this->export() + ['id' => 'e1', 'owner' => 'alice', 'createdBy' => 'alice', 'runTimezone' => 'Europe/Amsterdam', 'nextRunAt' => '2026-11-16T09:00:00+01:00']);
 		$this->store->method('save')->willReturnArgument(1);
 		$this->store->expects($this->once())->method('delete')->with('e1')->willReturn(true);
 
@@ -293,16 +299,73 @@ class ScheduledExportServiceTest extends TestCase {
 	}//end testDueSelectsPassedEnabledExports()
 
 	/**
-	 * Recording a fire writes only the runner fields onto the stored export.
+	 * Recording a fire writes only the runner fields onto the stored export,
+	 * through the system save because they are readOnly in the schema.
 	 *
 	 * @return void
 	 */
 	public function testRecordFireWritesOnlyRunnerFields(): void {
 		$this->store->method('find')->willReturn(['id' => 'e1', 'name' => 'Stored']);
-		$this->store->expects($this->once())->method('save')
+		$this->store->expects($this->never())->method('save');
+		$this->store->expects($this->once())->method('saveAsSystem')
 			->with(ExportObjectStore::SCHEMA_EXPORT, ['id' => 'e1', 'name' => 'Stored', 'lastRunAt' => 'T', 'lastRunStatus' => 'success'])
 			->willReturnArgument(1);
 
 		$this->service->recordFire(export: ['id' => 'e1'], fields: ['lastRunAt' => 'T', 'lastRunStatus' => 'success', 'name' => 'Hacked']);
 	}//end testRecordFireWritesOnlyRunnerFields()
+
+	/**
+	 * A user's update cannot write the runner fields or the creator: they keep
+	 * their stored values, and the write is not elevated.
+	 *
+	 * @return void
+	 */
+	public function testAnUpdateCannotWriteTheRunnerFields(): void {
+		$stored = $this->export() + [
+			'id' => 'e1',
+			'owner' => 'alice',
+			'createdBy' => 'alice',
+			'nextRunAt' => '2026-11-16T09:00:00+01:00',
+			'lastRunAt' => '2026-11-09T09:00:00+01:00',
+			'lastRunStatus' => 'success',
+			'runTimezone' => 'Europe/Amsterdam',
+		];
+		$this->store->method('find')->willReturn($stored);
+		$this->store->expects($this->never())->method('saveAsSystem');
+		$saved = null;
+		$this->store->expects($this->once())->method('save')->willReturnCallback(static function (string $schema, array $data) use (&$saved): array {
+			$saved = $data;
+			return $data;
+		});
+
+		$this->service->save(export: [
+			'id' => 'e1',
+			'name' => 'Renamed',
+			'nextRunAt' => '2000-01-01T00:00:00+00:00',
+			'lastRunAt' => '2000-01-01T00:00:00+00:00',
+			'lastRunStatus' => 'failed',
+			'createdBy' => 'mallory',
+		], userId: 'admin');
+
+		$this->assertSame('Renamed', $saved['name']);
+		$this->assertSame('2026-11-16T09:00:00+01:00', $saved['nextRunAt']);
+		$this->assertSame('2026-11-09T09:00:00+01:00', $saved['lastRunAt']);
+		$this->assertSame('success', $saved['lastRunStatus']);
+		$this->assertSame('alice', $saved['createdBy']);
+	}//end testAnUpdateCannotWriteTheRunnerFields()
+
+	/**
+	 * An export stored without `createdBy` gets its owner stamped as creator
+	 * on its next save, even when an administrator saves it.
+	 *
+	 * @return void
+	 */
+	public function testAnExportWithoutCreatorGetsItsOwnerStamped(): void {
+		$this->store->method('find')->willReturn($this->export() + ['id' => 'e1', 'owner' => 'alice', 'nextRunAt' => '2026-11-16T09:00:00+01:00']);
+		$this->store->expects($this->never())->method('save');
+		$this->store->expects($this->once())->method('saveAsSystem')->willReturnArgument(1);
+
+		$result = $this->service->save(export: ['id' => 'e1', 'name' => 'Renamed'], userId: 'admin');
+		$this->assertSame('alice', $result['createdBy']);
+	}//end testAnExportWithoutCreatorGetsItsOwnerStamped()
 }//end class

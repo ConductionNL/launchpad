@@ -109,6 +109,12 @@ class HtmlSanitizerTest extends TestCase {
 		$this->assertStringContainsString(needle: 'href="mailto:info@example.com"', haystack: $result);
 	}
 
+	public function testTelUrlIsPreserved(): void {
+		$html = '<a href="tel:+31201234567">call</a>';
+		$result = $this->sanitizer->sanitize(html: $html);
+		$this->assertStringContainsString(needle: 'href="tel:+31201234567"', haystack: $result);
+	}
+
 	public function testTablesAndPreformattedBlocksAreKept(): void {
 		$html = '<table><thead><tr><th>H</th></tr></thead><tbody><tr><td>cell</td></tr></tbody></table><pre><code class="language-php">echo 1;</code></pre>';
 		$result = $this->sanitizer->sanitize(html: $html);

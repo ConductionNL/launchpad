@@ -51,7 +51,7 @@ interface PersonalLayerServiceInterface {
 	 * @return array{saved: true}|array{error: string, placementId: int} The
 	 *         refusal names the placement, so the message can say which widget.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function save(string $userId, int $dashboardId, array $overrides, array $hide, array $placements): array;
 
@@ -64,7 +64,7 @@ interface PersonalLayerServiceInterface {
 	 * @return bool True when a layer was there and is now gone. False means
 	 *         there was nothing to reset, which is not a failure.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function reset(string $userId, int $dashboardId): bool;
 }//end interface

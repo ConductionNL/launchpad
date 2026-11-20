@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
+use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use PHPUnit\Framework\TestCase;
 
@@ -53,6 +54,18 @@ class ConditionalRuleMapperTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	public function testAnExcludeRuleIsInsertedAsAnInteger(): void {
+		$recorder = new QueryRecorder(test: $this);
+		$rule = new ConditionalRule();
+		$rule->setWidgetPlacementId(9);
+		$rule->setRuleType('group');
+		$rule->setIsInclude(false);
+
+		(new ConditionalRuleMapper($recorder->connection()))->insert($rule);
+
+		$this->assertContains('qb1.createNamedParameter(false, 1, null)', $recorder->calls);
+	}//end testAnExcludeRuleIsInsertedAsAnInteger()
+
 	public function testFindByPlacementIdIsOrderedByCreation(): void {
 		$recorder = new QueryRecorder(test: $this);
 		$recorder->rows = [['id' => 1, 'widget_placement_id' => 9], ['id' => 2, 'widget_placement_id' => 9]];

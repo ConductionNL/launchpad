@@ -32,8 +32,10 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -411,7 +413,7 @@ class DashboardService {
 	 *
 	 * @return array The placements the caller sees.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	private function withPersonalLayer(
 		array $placements,
@@ -444,7 +446,7 @@ class DashboardService {
 	 * @return array|null The effective dashboard data or null.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function getEffectiveDashboard(string $userId): ?array {
 		$result = $this->resolveEffectiveDashboard(userId: $userId);
@@ -970,12 +972,12 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		// REQ-THM-003: only administrators set custom CSS.
 		if (array_key_exists('customCss', $data) === true && $this->isAdmin(userId: $userId) === false) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$this->applyDashboardUpdates(
@@ -1018,7 +1020,7 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$uuid = (string)$dashboard->getUuid();
@@ -1372,7 +1374,10 @@ class DashboardService {
 		// POST /api/dashboards/group/{groupId}/default endpoint.
 		$dashboard->setIsDefault(0);
 
-		return $this->stores->dashboardMapper->insert(entity: $dashboard);
+		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
+		$this->announceAudience(dashboard: $persisted);
+
+		return $persisted;
 	}//end createGroupShared()
 
 	/**
@@ -2974,7 +2979,8 @@ class DashboardService {
 	 * chain.
 	 *
 	 * Personal, group-shared (matching), and default-group sentinel
-	 * dashboards are all eligible source candidates. A source UUID the
+	 * dashboards are all eligible source candidates, and so is every admin
+	 * template the gallery offers the user (REQ-TMPL-018). A source UUID the
 	 * caller cannot see MUST be reported as a 404 to avoid leaking
 	 * existence (REQ-DASH-020 scenario "Cannot fork a dashboard you
 	 * cannot read").
@@ -2996,6 +3002,15 @@ class DashboardService {
 			if ((string)$candidate->getUuid() === $sourceUuid) {
 				return $candidate;
 			}
+		}
+
+		// REQ-TMPL-018: a template the gallery offers the user is a source too.
+		$template = $this->builders->adminTemplateService->findOfferedTemplate(
+			userId: $userId,
+			uuid: $sourceUuid
+		);
+		if ($template !== null) {
+			return $template;
 		}
 
 		throw new DoesNotExistException(msg: 'Dashboard not found');
@@ -3505,9 +3520,24 @@ class DashboardService {
 
 		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
 		$this->seedDefaultWidgets(dashboardId: $persisted->getId());
+		$this->announceAudience(dashboard: $persisted);
 
 		return $persisted;
 	}//end ensureDefaultDashboard()
+
+	/**
+	 * Announce a new group dashboard's audience, so its discussion object is
+	 * written (openregister-leaf-integrations).
+	 *
+	 * @param Dashboard $dashboard The persisted group dashboard.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-4
+	 */
+	private function announceAudience(Dashboard $dashboard): void {
+		$this->outlets->eventDispatcher?->dispatchTyped(new DashboardAudienceChangedEvent(dashboardId: (int)$dashboard->getId()));
+	}//end announceAudience()
 
 	/**
 	 * Seed the default widget bundle on a freshly-created dashboard.

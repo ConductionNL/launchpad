@@ -88,6 +88,30 @@ class DashboardShareMapper extends QBMapper {
 	}//end findByDashboardId()
 
 	/**
+	 * The ids of every dashboard that has at least one share.
+	 *
+	 * @return list<int> The dashboard ids.
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-4
+	 */
+	public function findSharedDashboardIds(): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->selectDistinct('dashboard_id')->from(from: $this->getTableName());
+		$result = $qb->executeQuery();
+		$ids    = [];
+		while (($row = $result->fetch()) !== false) {
+			$id = (int)($row['dashboard_id'] ?? 0);
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+
+		$result->closeCursor();
+
+		return $ids;
+	}//end findSharedDashboardIds()
+
+	/**
 	 * Find shares for a dashboard with a specific permission level.
 	 *
 	 * @param int $dashboardId The dashboard ID.

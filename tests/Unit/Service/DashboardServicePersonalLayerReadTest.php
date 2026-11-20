@@ -208,7 +208,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testASavedLayerChangesWhatTheReaderGetsBack(): void {
 		$this->shareWithReader();
@@ -260,7 +260,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheLayerIsAppliedOnTheNonShareReadPathToo(): void {
 		$dashboard = $this->dashboard();
@@ -303,7 +303,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testAnotherReadersLayerIsInvisible(): void {
 		$this->shareWithReader();
@@ -337,7 +337,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheOwnersOwnReadIsNeverLayered(): void {
 		$dashboard = $this->dashboard();
@@ -380,7 +380,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testResetPutsTheOwnersArrangementBackOnTheRead(): void {
 		$this->shareWithReader();
@@ -420,7 +420,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheLandingReadAppliesTheLayerToo(): void {
 		$dashboard = $this->dashboard();

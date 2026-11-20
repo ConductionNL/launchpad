@@ -63,6 +63,14 @@ OpenRegister's integration leaves are adopted declaratively (`configuration.link
 
 **Rationale**: LaunchPad must keep booting and rendering dashboards on instances without Talk (ADR-083-style boot safety); an integration leaf is an enhancement, never a prerequisite.
 
+### D5: A shared dashboard is mirrored as an OpenRegister object (Ruben, 19 Nov 2026)
+
+**Decision**: When a dashboard is shared or is a group dashboard, launchpad keeps an object of the Dashboard schema for it in OpenRegister (`DashboardDiscussionMirror`), slug and, for a new object, uuid equal to the dashboard's uuid (the mapping `Version002000Date20260519000000` used). The object carries `audienceUsers`, `audienceGroups` and `audienceEveryone`, derived the way `PermissionService::resolveAccessLevel()` derives view access, and the overlay gives the Dashboard schema a read rule that admits a reader only through them (`$contains`, as OpenRegister's shared credentials do). A share change dispatches `DashboardAudienceChangedEvent`, whose listener rewrites the object, so a revoked user is refused by OpenRegister. A dashboard that stops being shared keeps its object, narrowed to its owner; a deleted dashboard loses it. A repair step mirrors dashboards shared before this existed. Without OpenRegister nothing is written.
+
+**Why**: dashboards live in launchpad's own table, so the talk leaf had no object to attach to. Alternatives were moving dashboards into OpenRegister (too large) or a Talk room owned by launchpad (a parallel ACL, rejected in D3).
+
+**Trade-off**: LaunchPad Admins who are not Nextcloud administrators reach a group dashboard through launchpad's role, which OpenRegister does not know; they see the dashboard but not its discussion unless they are in its group.
+
 ## Risks / Trade-offs
 
 - **Risk**: The leaf's render contract may evolve in OpenRegister; launchpad's wiring is intentionally thin so the blast radius is the overlay file plus one mount point.

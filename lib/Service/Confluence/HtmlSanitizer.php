@@ -276,7 +276,7 @@ class HtmlSanitizer {
 	 * Only `href` and `src` are URL-bearing in the allow-list.  For those,
 	 * the value is accepted only when it is:
 	 *   - a relative path (no scheme), OR
-	 *   - begins with `http://`, `https://`, or `mailto:`.
+	 *   - begins with `http://`, `https://`, `mailto:` or `tel:`.
 	 *
 	 * Everything else — including `javascript:`, `data:`, `vbscript:`,
 	 * `blob:`, and `file:` — is blocked (REQ-CFLI-012-SEC).
@@ -303,7 +303,7 @@ class HtmlSanitizer {
 		}
 
 		// Allow only the safe explicit schemes.
-		if (preg_match(pattern: '/^(?:https?|mailto):/iu', subject: $needle) === 1) {
+		if (preg_match(pattern: '/^(?:https?|mailto|tel):/iu', subject: $needle) === 1) {
 			return false;
 		}
 

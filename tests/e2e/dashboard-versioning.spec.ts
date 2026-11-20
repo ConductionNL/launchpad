@@ -56,6 +56,7 @@ import type { APIRequestContext } from '@playwright/test'
 import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
+import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import {
 	adminContext,
 	API,
@@ -111,6 +112,7 @@ async function createDashboard(api: APIRequestContext, name: string): Promise<Da
 	const id = Number(dash.id)
 	expect(id, JSON.stringify(body)).toBeGreaterThan(0)
 	created.push({ api, id })
+	await clearSeededWidgets(api, id)
 	return { id, uuid: String(dash.uuid) }
 }
 
@@ -397,13 +399,28 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
 	})
 
-	test('the snapshot holds all four widgets and the new metadata, and restores to that state', async () => {
+	test('the snapshot holds all four widgets and every field as they were before the PUT, and restores to that state', async () => {
 		// @e2e dashboard-versioning::snapshot-captures-full-state
 		const dash = await createDashboard(admin, `${STAMP} full state`)
 		const ids: number[] = []
 		for (let i = 0; i < 4; i++) {
 			ids.push(await addTextWidget(admin, dash.id, `full-${i}`, i * 2))
 		}
+
+		const grid = (list: Placement[]): string[] =>
+			list
+				.map(
+					(p) =>
+						`${p.content.text}@${p.gridX},${p.gridY},${p.gridWidth},${p.gridHeight}`,
+				)
+				.sort()
+		const before = await readDashboard(admin, dash.id)
+		expect(grid(before.placements)).toEqual([
+			'full-0@0,0,2,2',
+			'full-1@2,0,2,2',
+			'full-2@4,0,2,2',
+			'full-3@6,0,2,2',
+		])
 
 		const moved = ids.map((id, i) => ({
 			id,
@@ -425,47 +442,23 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		expect(numbers(versions)).toEqual([1])
 		const { snapshot: snap } = await fetchVersion(admin, dash.uuid, 1)
 
-		// THEN all four widgets and the new metadata, exactly as persisted.
-		const persisted = await readDashboard(admin, dash.id)
-		expect(snap.dashboard.name).toBe(`${STAMP} full state renamed`)
-		expect(snap.dashboard.description).toBe('described by the save')
+		// THEN all four widgets and every dashboard field as they were before
+		// the PUT: the old name and description, the widgets at their old places.
+		expect(snap.dashboard.uuid).toBe(dash.uuid)
+		expect(snap.dashboard.name).toBe(before.dashboard.name)
+		expect(snap.dashboard.description ?? null).toBe(before.dashboard.description ?? null)
 		expect(snap.placements).toHaveLength(4)
-		const grid = (list: Placement[]): string[] =>
-			list
-				.map(
-					(p) =>
-						`${p.content.text}@${p.gridX},${p.gridY},${p.gridWidth},${p.gridHeight}`,
-				)
-				.sort()
-		expect(grid(snap.placements)).toEqual(grid(persisted.placements))
-		expect(grid(snap.placements)).toEqual([
-			'full-0@0,0,3,2',
-			'full-1@0,2,3,2',
-			'full-2@0,4,3,2',
-			'full-3@0,6,3,2',
-		])
+		expect(grid(snap.placements)).toEqual(grid(before.placements))
 
-		// AND it is complete and restorable: move everything again, save a
-		// later version so version 1 is not the newest, restore version 1.
-		const again = ids.map((id) => ({
-			id,
-			gridX: 6,
-			gridY: 0,
-			gridWidth: 1,
-			gridHeight: 1,
-		}))
-		const put2 = await admin.put(`${API}/dashboard/${dash.id}`, {
-			data: { placements: again },
-		})
-		expect(put2.status(), await put2.text()).toBe(200)
-		await snapshot(admin, dash.uuid, 'moved away')
-
+		// AND it is complete and restorable: save a later version so version 1
+		// is not the newest, then restore version 1.
+		await snapshot(admin, dash.uuid, 'after the move')
 		const restore = await admin.post(
 			`${API}/dashboards/${dash.uuid}/versions/1/restore`,
 		)
 		expect(restore.status(), await restore.text()).toBe(200)
 		expect(grid((await readDashboard(admin, dash.id)).placements)).toEqual(
-			grid(snap.placements),
+			grid(before.placements),
 		)
 	})
 })

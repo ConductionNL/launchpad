@@ -28,7 +28,7 @@ Each upload produces:
 
 ### Requirement: Admin-only base64 upload endpoint (REQ-RES-001)
 
-The system MUST expose `POST /api/resources` accepting a raw JSON body of the shape `{base64: 'data:image/<type>;base64,...'}`. The endpoint MUST be admin-only — non-admin requests MUST receive HTTP 403 with `{status: 'error', error: 'forbidden'}`. The endpoint MUST NOT accept multipart form data — only a base64-encoded data URL.
+The system MUST expose `POST /api/resources` accepting a raw JSON body of the shape `{base64: 'data:image/<type>;base64,...'}`. The endpoint MUST be admin-only, through Nextcloud's `AuthorizedAdminSetting` attribute: Nextcloud refuses a non-admin with HTTP 403 and a request without a session with HTTP 401, each with Nextcloud's own `{message}` body, before LaunchPad runs. The defensive `assertAdmin()` check behind it answers HTTP 403 with `{status: 'error', error: 'forbidden'}` should the attribute ever be removed. The endpoint MUST NOT accept multipart form data — only a base64-encoded data URL.
 
 #### Scenario: Admin uploads a PNG
 
@@ -41,7 +41,7 @@ The system MUST expose `POST /api/resources` accepting a raw JSON body of the sh
 
 - GIVEN an authenticated non-admin user
 - WHEN they POST any body to `/api/resources`
-- THEN the system MUST return HTTP 403 with `{status: 'error', error: 'forbidden'}`
+- THEN the system MUST return Nextcloud's HTTP 403 with `{"message": "Logged in account must be an admin, a sub admin or gotten special right to access this setting"}`
 - AND no file MUST be written
 
 #### Scenario: Multipart upload rejected
@@ -128,7 +128,7 @@ Every successful response MUST conform to `{status: 'success', url: <string>, na
 #### Scenario: Stable error enum
 
 - GIVEN the documented error codes are `forbidden`, `unsupported_media_type`, `invalid_data_url`, `invalid_image_format`, `file_too_large`, `mime_mismatch`, `corrupt_image`, `invalid_svg`, `storage_failure`
-- WHEN any rejection scenario above triggers
+- WHEN any rejection scenario above that LaunchPad answers itself triggers (Nextcloud answers the non-admin and no-session refusals in its own shape)
 - THEN the `error` field MUST equal exactly one of those strings (no synonyms, no extras)
 
 ### Requirement: Public resource serving endpoint (REQ-RES-006)
@@ -390,7 +390,7 @@ The sanitiser MUST parse SVG via `DOMDocument::loadXML($bytes, LIBXML_NONET | LI
 
 The system MUST expose `POST /api/resources/upload` accepting `multipart/form-data` with a single `file` field carrying the raw image bytes (NOT base64). This is the path used by the dashboard image widget so a large image or GIF never has to be base64-encoded in the browser (which can freeze the tab) nor embedded inline in dashboard content.
 
-The endpoint MUST enforce the SAME security as the base64 endpoint (REQ-RES-001): admin-only, via the `AuthorizedAdminSetting` attribute plus a defensive `assertAdmin()` check. A non-admin or unauthenticated request MUST receive HTTP 403 with `{status: 'error', error: 'forbidden'}` and MUST NOT write a file.
+The endpoint MUST enforce the SAME security as the base64 endpoint (REQ-RES-001): admin-only, via the `AuthorizedAdminSetting` attribute plus a defensive `assertAdmin()` check. Nextcloud refuses a non-admin with HTTP 403 and an unauthenticated request with HTTP 401, each with its own `{message}` body, and no file MUST be written.
 
 The declared image type MUST be derived from the uploaded filename's extension and validated against the same allow-list, size cap (5 MB), raster MIME cross-check, and SVG sanitisation as the base64 endpoint (REQ-RES-002, REQ-RES-003, REQ-RES-009). On success the response MUST be HTTP 200 with the same `{status: 'success', url, name, size}` envelope and URL form (`/apps/launchpad/resource/<filename>`) as REQ-RES-001. A missing/failed `file` field MUST return HTTP 400 with `{status: 'error', error: 'no_file'}` (a multipart-specific code, distinct from the base64 endpoint's `invalid_data_url`).
 
@@ -408,14 +408,14 @@ Uploaded resources are served by REQ-RES-006, which requires an authenticated us
 
 - GIVEN an authenticated non-admin user
 - WHEN they POST a file to `/api/resources/upload`
-- THEN the system MUST return HTTP 403 with `{status: 'error', error: 'forbidden'}`
+- THEN the system MUST return Nextcloud's HTTP 403 with `{"message": "Logged in account must be an admin, a sub admin or gotten special right to access this setting"}`
 - AND no file MUST be written
 
 #### Scenario: Unauthenticated request rejected
 
 - GIVEN no authenticated user
 - WHEN a request is POSTed to `/api/resources/upload`
-- THEN the system MUST return HTTP 403 with `{status: 'error', error: 'forbidden'}`
+- THEN the system MUST return Nextcloud's HTTP 401 with `{"message": "Current user is not logged in"}`
 - AND no file MUST be written
 
 #### Scenario: Missing file field rejected

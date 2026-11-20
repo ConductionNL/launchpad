@@ -13,8 +13,15 @@
  *   3. "template to default": listTemplates, forkDashboard,
  *      setDefaultDashboard; `GET /api/dashboards/default` answers the fork.
  *
+ * A refused tool reaches the client as `isError: true` (REQ-MCP-010).
+ *
  * Skipped when the instance has no OpenRegister MCP endpoint, or when it does
  * not list LaunchPad's tools.
+ *
+ * Gate-19 @e2e traceability:
+ *   @e2e mcp-tools::tool-denial-equals-endpoint-denial
+ *   @e2e mcp-tools::start-me-a-dashboard-from-the-sprint-template-and-make-it-my-default
+ *   @e2e mcp-tools::a-refused-tool-answers-iserror-true
  *
  * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
  */
@@ -72,10 +79,21 @@ async function tool(name: string, args: Json = {}): Promise<Json> {
 	const result = answer.result as { content: Array<{ text: string }>, isError?: boolean }
 	expect(result, JSON.stringify(answer)).toBeDefined()
 	expect(result.isError ?? false, result.content?.[0]?.text).toBe(false)
-	const payload = JSON.parse(result.content[0].text) as Json
-	// A LaunchPad refusal is a payload with `isError`, not a protocol error.
-	expect(payload.isError ?? false, result.content[0].text).toBe(false)
-	return payload
+	return JSON.parse(result.content[0].text) as Json
+}
+
+/**
+ * Call a LaunchPad tool that must refuse, and return the refusal text.
+ * @param name The tool id.
+ * @param args The arguments.
+ * @return The text OpenRegister answers with `isError: true`.
+ */
+async function refusal(name: string, args: Json = {}): Promise<string> {
+	const answer = await rpc('tools/call', { name, arguments: args })
+	const result = answer.result as { content: Array<{ text: string }>, isError?: boolean }
+	expect(result, JSON.stringify(answer)).toBeDefined()
+	expect(result.isError, JSON.stringify(result)).toBe(true)
+	return result.content?.[0]?.text ?? ''
 }
 
 /**
@@ -172,19 +190,25 @@ test.describe('mcp-tool-surface chat flows (REQ-MCP-008)', () => {
 		expect(made.id).toBe(share!.id)
 	})
 
-	// forkDashboard only copies a dashboard the caller can see, and a gallery
-	// template from listTemplates is not one: the tool answers not_found.
-	// Which templates a user may copy is open (mcp-tool-surface task 25).
-	test.fixme('template to default: the fork becomes the default the REST read answers', async () => {
+	// @e2e mcp-tools::start-me-a-dashboard-from-the-sprint-template-and-make-it-my-default
+	test('template to default: the fork becomes the default the REST read answers', async () => {
 		const template = await admin.post(`${API}/admin/templates`, {
 			data: { name: `E2E MCP template ${STAMP}`, targetGroups: [], permissionLevel: 'full' },
 		})
 		expect(template.status(), await template.text()).toBeLessThan(300)
 		const made = dashboardOf((await template.json()) as Json)
+		const hidden = await admin.post(`${API}/admin/templates`, {
+			data: { name: `E2E MCP hidden template ${STAMP}`, targetGroups: [`e2e-mcp-nobody-${STAMP}`], permissionLevel: 'full' },
+		})
+		expect(hidden.status(), await hidden.text()).toBeLessThan(300)
+		const notOffered = dashboardOf((await hidden.json()) as Json)
 		try {
 			const templates = ((await tool('launchpad.listTemplates')).templates ?? []) as Json[]
 			const offered = templates.find((t) => t.uuid === made.uuid)
 			expect(offered, JSON.stringify(templates)).toBeDefined()
+			// A template for a group the user is not in is neither listed nor copied.
+			expect(templates.some((t) => t.uuid === notOffered.uuid), JSON.stringify(templates)).toBe(false)
+			expect(await refusal('launchpad.forkDashboard', { dashboardUuid: String(notOffered.uuid) })).toContain('not_found')
 
 			const fork = dashboardOf(await tool('launchpad.forkDashboard', { dashboardUuid: String(offered!.uuid), name: `E2E MCP fork ${STAMP}` }))
 			expect(fork.uuid).not.toBe(made.uuid)
@@ -195,6 +219,26 @@ test.describe('mcp-tool-surface chat flows (REQ-MCP-008)', () => {
 			expect(String(((await read.json()) as Json).uuid)).toBe(String(fork.uuid))
 		} finally {
 			await admin.delete(`${API}/admin/templates/${made.id}`)
+			await admin.delete(`${API}/admin/templates/${notOffered.id}`)
+		}
+	})
+
+	// @e2e mcp-tools::tool-denial-equals-endpoint-denial
+	// @e2e mcp-tools::a-refused-tool-answers-iserror-true
+	test('a refused tool answers isError true with its refusal code', async () => {
+		// Invalid input.
+		expect(await refusal('launchpad.getDashboard', { dashboardUuid: '../../etc' })).toContain('invalid_arguments')
+
+		// No permission: the REST route refuses the same caller the same dashboard.
+		const theirs = await admin.post(`${API}/dashboard`, { data: { name: `E2E MCP not yours ${STAMP}` } })
+		expect(theirs.status(), await theirs.text()).toBeLessThan(300)
+		const dashboard = dashboardOf((await theirs.json()) as Json)
+		try {
+			const rest = await user.put(`${API}/dashboard/${dashboard.id}`, { data: { name: 'taken over' } })
+			expect([403, 404], await rest.text()).toContain(rest.status())
+			expect(await refusal('launchpad.updateDashboard', { dashboardId: Number(dashboard.id), name: 'taken over' })).toMatch(/forbidden|not_found/)
+		} finally {
+			await admin.delete(`${API}/dashboard/${dashboard.id}`)
 		}
 	})
 })

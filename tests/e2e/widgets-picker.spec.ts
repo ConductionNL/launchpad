@@ -47,6 +47,7 @@ import type { Placement } from './support/widgets.ts'
 
 import { expect, test } from '@playwright/test'
 import {
+	clearSeededWidgets,
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
@@ -208,6 +209,8 @@ test.beforeEach(async () => {
 		admin,
 		`${STAMP} ${test.info().title.slice(0, 40)}`,
 	)
+	// A new dashboard comes with the default bundle; each test places its own.
+	await clearSeededWidgets(admin, dashboard.id)
 })
 
 test.afterEach(async () => {
@@ -523,7 +526,7 @@ test.describe('REQ-WDG-011 the style editor', () => {
 		const editor = page.locator('[data-testid="cn-widget-style-editor"]')
 		await expect(editor).toBeVisible({ timeout: 10_000 })
 		await expect(
-			editor.locator('[data-testid="cn-widget-style-custom-title"] input'),
+			editor.getByRole('textbox', { name: 'Custom title' }),
 		).toHaveValue(`${STAMP} styled`)
 		await expect(
 			editor.locator('[data-testid="cn-widget-style-color"]'),

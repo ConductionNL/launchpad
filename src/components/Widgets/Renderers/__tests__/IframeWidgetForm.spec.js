@@ -179,6 +179,36 @@ describe('IframeWidgetForm — REQ-IFRAME-002 URL + title validation', () => {
 		expect(wrapper.vm.urlAllowListError).toBe('')
 	})
 
+	it('marks the host allow-listed when only the still-empty title is missing', async () => {
+		// The URL field is left before the title is typed, so the check sees
+		// an empty title; that says nothing about the host.
+		validateIframeUrl.mockResolvedValue({ valid: false, errors: ['title_required'] })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: {
+				value: { url: 'https://status.example.com/board', title: '' },
+			},
+		})
+		await wrapper.vm.checkUrlAllowed()
+		expect(wrapper.vm.allowListChecked).toBe(true)
+		expect(wrapper.vm.urlAllowListError).toBe('')
+	})
+
+	it.each([
+		['host_not_allowed'],
+		['invalid_url'],
+		['url_required'],
+		['validation_unavailable'],
+	])('does not mark the host allow-listed on %s', async (code) => {
+		validateIframeUrl.mockResolvedValue({ valid: false, errors: [code, 'title_required'] })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: {
+				value: { url: 'https://status.example.com/board', title: '' },
+			},
+		})
+		await wrapper.vm.checkUrlAllowed()
+		expect(wrapper.vm.allowListChecked).toBe(false)
+	})
+
 	it('resets allowListChecked when the URL is edited again', async () => {
 		validateIframeUrl.mockResolvedValue({ valid: true, errors: [] })
 		const wrapper = mount(IframeWidgetForm, {

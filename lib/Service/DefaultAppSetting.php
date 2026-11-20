@@ -7,13 +7,15 @@
  * after signing in — when the administrator has not chosen one, and gives
  * that choice back when the administrator switches it off.
  *
- * Nextcloud keeps the default app in the `defaultapp` system value. An empty
- * value means "no choice made", and Nextcloud then falls back to its own
- * default (dashboard, then files). LaunchPad only ever fills an empty value:
- * a default the administrator set is kept as it is.
+ * Nextcloud keeps the default app in the `defaultapp` system value. When the
+ * value is absent no choice was made, and Nextcloud falls back to its own
+ * default (dashboard, then files). LaunchPad only ever fills an absent value:
+ * a default the administrator set is kept as it is, and so is an empty value,
+ * which is what Nextcloud's own "reset to default" in the theming settings
+ * writes.
  *
- * Because LaunchPad only fills an empty value, the previous default was always
- * "no choice made": switching the toggle off clears the value again, so
+ * Because LaunchPad only fills an absent value, the previous default was always
+ * "no choice made": switching the toggle off removes the value again, so
  * Nextcloud's own fallback applies as before. When the administrator changed
  * the default app themselves after LaunchPad set it, switching the toggle off
  * leaves their choice alone.
@@ -113,7 +115,10 @@ class DefaultAppSetting {
 	}//end isEnabled()
 
 	/**
-	 * Make LaunchPad the default app when the toggle is on and no default app is set.
+	 * Make LaunchPad the default app when the toggle is on and no default app is configured.
+	 *
+	 * Runs on install and on every upgrade, so it must never overwrite a choice:
+	 * only an absent `defaultapp` value is filled.
 	 *
 	 * @return string One of {@see self::SET}, {@see self::KEPT}, {@see self::DISABLED}
 	 *                or {@see self::UNCHANGED} (LaunchPad already is the default).
@@ -130,7 +135,7 @@ class DefaultAppSetting {
 			return self::UNCHANGED;
 		}
 
-		if ($current !== '') {
+		if ($current !== null) {
 			return self::KEPT;
 		}
 
@@ -175,11 +180,20 @@ class DefaultAppSetting {
 	}//end release()
 
 	/**
-	 * The default app as configured, trimmed; empty when none is set.
+	 * The default app as configured, trimmed; null when no value is configured.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	private function current(): string {
-		return trim($this->config->getSystemValueString(self::SYSTEM_KEY, ''));
+	private function current(): ?string {
+		$value = $this->config->getSystemValue(self::SYSTEM_KEY, null);
+		if ($value === null) {
+			return null;
+		}
+
+		if (is_string($value) === false) {
+			return '';
+		}
+
+		return trim($value);
 	}//end current()
 }//end class

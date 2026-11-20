@@ -41,6 +41,7 @@ use OCP\ICacheFactory;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use PHPUnit\Framework\MockObject\MockObject;
+use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -750,4 +751,28 @@ class DashboardVersionServiceTest extends TestCase {
 		$this->assertFalse($envelope['modeSupported']);
 		$this->assertSame([], $envelope['versions']);
 	}//end testGroupfolderBackedDashboardReturnsSoftFail()
+
+	/**
+	 * The state before an update is the stored dashboard, or null for one that is gone.
+	 *
+	 * @return void
+	 */
+	public function testStateBeforeUpdateReadsTheStoredDashboard(): void {
+		$stored = $this->makeDashboard();
+		$this->dashboardMapper->method('find')->willReturnCallback(
+			static function (int $id) use ($stored): Dashboard {
+				if ($id === 7) {
+					return $stored;
+				}
+
+				throw new DoesNotExistException(msg: 'gone');
+			}
+		);
+
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$state = $this->service->stateBeforeUpdate(dashboardId: 7);
+		$this->assertSame(expected: $stored, actual: $state['dashboard']);
+		$this->assertSame(expected: $stored->getName(), actual: json_decode(json: $state['snapshotJson'], associative: true)['dashboard']['name']);
+		$this->assertNull(actual: $this->service->stateBeforeUpdate(dashboardId: 8));
+	}//end testStateBeforeUpdateReadsTheStoredDashboard()
 }//end class

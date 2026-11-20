@@ -126,12 +126,16 @@ class McpDashboardWriteTools {
 
 		return $this->validator->attempt(
 			operation: function () use ($args, $data): array {
+				$before    = $this->history->versionService->stateBeforeUpdate(dashboardId: (int)$args['dashboardId']);
 				$dashboard = $this->services->dashboardService->updateDashboard(
 					dashboardId: (int)$args['dashboardId'],
 					userId: $this->gate->currentUserId(),
 					data: $data
 				);
-				$this->snapshot(dashboard: $dashboard);
+				$this->snapshot(
+					dashboard: ($before['dashboard'] ?? $dashboard),
+					snapshotJson: ($before['snapshotJson'] ?? null)
+				);
 				return ['dashboard' => $dashboard->jsonSerialize()];
 			}
 		);
@@ -337,13 +341,18 @@ class McpDashboardWriteTools {
 	 * Save an automatic version after an update, as the route does; a failed
 	 * snapshot is logged and does not fail the update.
 	 *
-	 * @param Dashboard $dashboard The updated dashboard.
+	 * @param Dashboard   $dashboard    The dashboard as it was before the update.
+	 * @param string|null $snapshotJson Its payload built before the update, or null to build it now.
 	 *
 	 * @return void
 	 */
-	private function snapshot(Dashboard $dashboard): void {
+	private function snapshot(Dashboard $dashboard, ?string $snapshotJson = null): void {
 		try {
-			$this->history->versionService->captureSnapshot(dashboard: $dashboard, createdBy: $this->gate->currentUserId());
+			$this->history->versionService->captureSnapshot(
+				dashboard: $dashboard,
+				createdBy: $this->gate->currentUserId(),
+				options: ['snapshotJson' => $snapshotJson]
+			);
 		} catch (Throwable $t) {
 			$this->history->logger->warning(message: 'launchpad: automatic version snapshot failed', context: ['exception' => $t]);
 		}

@@ -807,8 +807,8 @@ class DashboardApiController extends Controller {
 	/**
 	 * Apply an allowed update and answer with the saved dashboard.
 	 *
-	 * Captures an automatic version snapshot after a successful save
-	 * (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
+	 * Captures an automatic version snapshot of the state before the save,
+	 * once the save succeeded (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
 	 * (REQ-DASH-023..029).
 	 *
 	 * @param int                  $dashboardId The dashboard ID.
@@ -820,7 +820,8 @@ class DashboardApiController extends Controller {
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		try {
-			$data = $this->buildUpdateData(fields: $fields);
+			$data   = $this->buildUpdateData(fields: $fields);
+			$before = $this->access->history->versionService->stateBeforeUpdate(dashboardId: $dashboardId);
 
 			$dashboard = $this->services->dashboardService->updateDashboard(
 				dashboardId: $dashboardId,
@@ -828,12 +829,15 @@ class DashboardApiController extends Controller {
 				data: $data
 			);
 
-			// REQ-VERS-001: capture an automatic snapshot after the
-			// PUT succeeds. The version service enforces its own
-			// debounce window (60 s) so rapid drag-and-drop edits do
-			// not flood the table. Failures are swallowed so they do
-			// not surface to the dashboard PUT response.
-			$this->captureAutomaticSnapshot(dashboard: $dashboard);
+			// REQ-VERS-001: once the PUT succeeded, snapshot the state it
+			// replaced. The version service enforces its own debounce
+			// window (60 s) so rapid drag-and-drop edits do not flood the
+			// table. Failures are swallowed so they do not surface to the
+			// dashboard PUT response.
+			$this->captureAutomaticSnapshot(
+				dashboard: ($before['dashboard'] ?? $dashboard),
+				snapshotJson: ($before['snapshotJson'] ?? null)
+			);
 
 			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
@@ -2195,8 +2199,8 @@ class DashboardApiController extends Controller {
 	 * the user's edit succeeded; missing one snapshot is a quality of
 	 * life regression, not a data-integrity bug. We log + swallow.
 	 *
-	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard The dashboard that was
-	 *                                               just updated.
+	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard    The dashboard as it was before the update.
+	 * @param string|null                 $snapshotJson Its payload built before the update, or null to build it now.
 	 *
 	 * @return void
 	 *
@@ -2204,6 +2208,7 @@ class DashboardApiController extends Controller {
 	 */
 	private function captureAutomaticSnapshot(
 		\OCA\LaunchPad\Db\Dashboard $dashboard,
+		?string $snapshotJson = null,
 	): void {
 		if ($this->context->userId === null) {
 			return;
@@ -2212,7 +2217,8 @@ class DashboardApiController extends Controller {
 		try {
 			$this->access->history->versionService->captureSnapshot(
 				dashboard: $dashboard,
-				createdBy: $this->context->userId
+				createdBy: $this->context->userId,
+				options: ['snapshotJson' => $snapshotJson]
 			);
 		} catch (\Throwable $t) {
 			$this->access->history->logger->warning(

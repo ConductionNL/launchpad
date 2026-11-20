@@ -408,7 +408,7 @@ Every bulk endpoint MUST enforce an all-or-nothing permission model: if the call
 #### Scenario: Non-admin user cannot call bulk endpoints
 - GIVEN user "bob" with no admin privileges
 - WHEN he sends POST /api/admin/dashboards/bulk-delete
-- THEN the system MUST return HTTP 403 with `Administrator privileges required.`
+- THEN the system MUST return HTTP 403 and change nothing (Nextcloud's admin-setting check refuses the call before LaunchPad's own `Administrator privileges required.` is reached)
 
 #### Scenario: Permission check happens before size validation
 - GIVEN admin user with permission denied on one dashboard in a batch of 501 dashboards

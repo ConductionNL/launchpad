@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * A person's activity as counts per type and per day, with the purpose the
- * administrator recorded (openspec/changes/dashboards-and-who-may-see-them
+ * administrator recorded (openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them
  * REQ-DWMS-005 and REQ-DWMS-006).
  */
 
@@ -20,7 +20,7 @@ const REPORT_URL = '/apps/launchpad/api/activity-report'
  * @param {string} request.from first day, YYYY-MM-DD
  * @param {string} request.to last day, YYYY-MM-DD
  * @return {object} the query parameters
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
  */
 function queryOf({ user, from, to }) {
 	const params = {}
@@ -42,7 +42,7 @@ function queryOf({ user, from, to }) {
  *
  * @param {object} request the request, as for queryOf
  * @return {Promise<object>} the report, or the refusal
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.2
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.2
  */
 export async function loadActivityReport(request) {
 	try {
@@ -78,7 +78,7 @@ export async function loadActivityReport(request) {
  *
  * @param {object} request the request, as for queryOf
  * @return {string} the URL
- * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-4.6
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-4.6
  */
 export function activityReportCsvUrl(request) {
 	const query = new URLSearchParams(queryOf(request)).toString()

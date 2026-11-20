@@ -42,6 +42,7 @@ import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import {
 	activeDashboard,
+	addTitledTextWidget,
 	deleteTemplates,
 	getTemplate,
 	importTemplate,
@@ -378,13 +379,8 @@ test.describe('updating the installed template in place (REQ-TMPL-020)', () => {
 		await addToGroup(admin, pieter.username, group)
 		const copy = await activeDashboard(pieter.api)
 		expect(copy.dashboard.basedOnTemplate).toBe(installed.id)
-		const own = await pieter.api.post(
-			`${API}/dashboard/${copy.dashboard.id}/widgets`,
-			{
-				data: textWidget(OWN, { x: 0, y: 20 }),
-			},
-		)
-		expect(own.status()).toBe(201)
+		const own = await addTitledTextWidget(pieter.api, copy.dashboard.id, OWN, { x: 0, y: 20 })
+		expect(own).toEqual({ created: 201, titled: 200 })
 	})
 
 	// @e2e admin-templates::an-administrator-updates-the-installed-template-from-the-templates-page

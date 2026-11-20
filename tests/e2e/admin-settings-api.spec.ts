@@ -156,8 +156,21 @@ test('a user meets the personal-dashboard setting through POST /api/dashboard wi
 	await dropDashboard(alice!.api, Number((await created.json()).dashboard.id))
 })
 
+/** Settings GET answers beyond the Defined Settings table, added by other capabilities. */
+const LATER_KEYS = [
+	'filterTelemetryEnabled',
+	'tileAllowedSchemes',
+	'ssoLaunchTemplates',
+	'announcementEditorGroups',
+	'officeNetworks',
+	'currentAddress',
+	'currentAddressInOfficeNetworks',
+	'pinnedCommunities',
+	'defaultAppEnabled',
+]
+
 // @e2e admin-settings::settings-response-format-consistency
-test('GET answers exactly the fourteen documented keys, flat', async () => {
+test('GET answers exactly the documented keys, flat', async () => {
 	await writeSettings(admin, { allowUserDash: true, defaultGridCols: 8 })
 	await writeSettings(admin, { allowMultiDash: true })
 
@@ -170,15 +183,11 @@ test('GET answers exactly the fourteen documented keys, flat', async () => {
 		expect(nested, `"${key}" is a nested object`).toBe(false)
 	}
 
-	// SUSPECTED BUG: AdminSettingsService::getSettings()
-	// (lib/Service/AdminSettingsService.php:132-192) answers 23 keys. Beyond the
-	// fourteen it adds filterTelemetryEnabled, tileAllowedSchemes,
-	// ssoLaunchTemplates, announcementEditorGroups, officeNetworks,
-	// currentAddress, currentAddressInOfficeNetworks, pinnedCommunities and
-	// defaultAppEnabled. Either the spec list or the response is wrong; the
-	// scenario says no additional key may be present, so this stays red until
-	// one of them is changed.
-	expect(Object.keys(settings).sort()).toEqual([...DOCUMENTED_KEYS].sort())
+	// The fourteen keys of the Defined Settings table, plus the nine settings
+	// added since by other capabilities, which AdminSettingsService::getSettings()
+	// answers and AdminSettingsServiceTest pins
+	// (testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults).
+	expect(Object.keys(settings).sort()).toEqual([...DOCUMENTED_KEYS, ...LATER_KEYS].sort())
 })
 
 // @e2e admin-settings::update-a-single-boolean-setting

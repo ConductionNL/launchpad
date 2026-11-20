@@ -103,17 +103,11 @@ async function addThroughDialog(
 }
 
 // @e2e files-widget::widget-appears-in-picker
-test('the picker offers a Files widget with a title and an icon, and it can be placed', async ({ page }) => {
+test('the picker offers a Files widget by its title, and it can be placed', async ({ page }) => {
 	const dialog = await openAddWidgetDialog(page)
 	const option = dialog.getByTestId('widget-type-option-files')
 	await expect(option).toHaveCount(1)
 	await expect(option).toHaveText('Files')
-
-	// An icon accompanies the entry in the picker. The type list is a native
-	// <select>, which cannot draw one; the registry entry declares `Folder`.
-	await expect.soft(
-		dialog.locator('.cn-add-widget-modal__type').locator('svg, img, [class*="icon"]').first(),
-	).toBeVisible()
 
 	await dialog.getByTestId('widget-type-select').selectOption('files')
 	await expect(dialog.getByText('Folder', { exact: true })).toBeVisible()
@@ -327,4 +321,16 @@ test('a stored configuration comes back as a clean object, whitespace and non-AS
 	// The non-ASCII path resolves to the real folder on the server.
 	await openOnWidget(page, seeded)
 	expect(await rowNames(filesWidget(page, seeded))).toEqual(['café.txt'])
+})
+
+// @e2e files-widget::widget-appears-in-picker
+// Last in this serial file: the picker's native <select> draws no icon yet
+// (CnAddWidgetModal in nextcloud-vue), and that gap must not skip the rest.
+test('the Files entry in the picker shows an icon', async ({ page }) => {
+	const dialog = await openAddWidgetDialog(page)
+	await expect(dialog.getByTestId('widget-type-option-files')).toHaveText('Files')
+	// The registry entry declares `Folder`; the picker has to draw it.
+	await expect(
+		dialog.locator('.cn-add-widget-modal__type').locator('svg, img, [class*="icon"]').first(),
+	).toBeVisible()
 })

@@ -36,6 +36,7 @@ use Exception;
 use OCA\LaunchPad\Controller\RuleApiController;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\ConditionalService;
 use OCA\LaunchPad\Service\PermissionService;
@@ -227,6 +228,20 @@ class RuleApiControllerGetRulesTest extends TestCase {
 		$this->assertSame(expected: 'Operation failed', actual: $response->getData()['error']);
 
 	}//end testGetRulesRefusesANonOwnerWithoutReadingTheRules()
+
+	/**
+	 * A non-owner's refusal answers 403, not the generic 400.
+	 *
+	 * @return void
+	 */
+	public function testGetRulesAnswersANonOwnerWith403(): void {
+		$this->permissionService->method('verifyPlacementOwnership')
+			->willThrowException(new ForbiddenException(message: 'Access denied'));
+
+		$response = $this->makeController('mallory')->getRules(placementId: 7);
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testGetRulesAnswersANonOwnerWith403()
 
 	/**
 	 * The owner gets 200 with the serialised rule list and the evaluated

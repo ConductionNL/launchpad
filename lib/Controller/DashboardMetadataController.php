@@ -102,7 +102,7 @@ class DashboardMetadataController extends Controller {
 			dashboardUuid: $uuid
 		);
 
-		return $this->context->responseHelper->success(data: $metadata);
+		return $this->metadataResponse(metadata: $metadata);
 	}//end getMetadata()
 
 	/**
@@ -182,8 +182,20 @@ class DashboardMetadataController extends Controller {
 			);
 		}
 
-		return $this->context->responseHelper->success(data: $updated);
+		return $this->metadataResponse(metadata: $updated);
 	}//end setMetadata()
+
+	/**
+	 * Answer a dashboard's values as a JSON object, `{}` when there are none
+	 * and with all-digit keys kept as keys (REQ-MDFL-004).
+	 *
+	 * @param array<string, string> $metadata The values by field key.
+	 *
+	 * @return JSONResponse 200 with the object.
+	 */
+	private function metadataResponse(array $metadata): JSONResponse {
+		return new JSONResponse(data: (object)$metadata);
+	}//end metadataResponse()
 
 	/**
 	 * Resolve a UUID to a dashboard or null.

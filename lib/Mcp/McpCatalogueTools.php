@@ -81,13 +81,15 @@ class McpCatalogueTools {
 	}//end getDashboardTree()
 
 	/**
-	 * The template gallery, optionally for one category.
+	 * The template gallery offered to the caller, optionally for one category.
+	 * forkDashboard accepts exactly these templates.
 	 *
 	 * @param array<string, mixed> $args The tool arguments: category, sort.
 	 *
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-7
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-25
 	 */
 	public function listTemplates(array $args): array {
 		$validator = new McpArgumentValidator();
@@ -100,6 +102,7 @@ class McpCatalogueTools {
 
 		return [
 			'templates' => $this->sources->templates->getGallery(
+				userId: $this->gate->currentUserId(),
 				category: ($args['category'] ?? null),
 				sortBy: ($args['sort'] ?? 'name')
 			),

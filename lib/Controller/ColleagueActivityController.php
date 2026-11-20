@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 declare(strict_types=1);
@@ -38,7 +38,7 @@ use OCP\IRequest;
  * The reader is taken from the session; no parameter names another person,
  * so nobody reads somebody else's stream through it.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-007-recent-colleague-activity-filtered-by-what-you-may-see
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-007-recent-colleague-activity-filtered-by-what-you-may-see
  */
 class ColleagueActivityController extends Controller {
 	use RespondsWithErrors;
@@ -50,7 +50,7 @@ class ColleagueActivityController extends Controller {
 	 * @param ColleagueActivityService $activity The filtered activity.
 	 * @param string|null              $userId   The signed-in user.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 	 */
 	public function __construct(
 		IRequest $request,
@@ -68,7 +68,7 @@ class ColleagueActivityController extends Controller {
 	 *
 	 * @return JSONResponse {available, days, entries, total, counts, actors}, or 401.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-5.1
 	 */
 	#[NoAdminRequired]
 	public function index(int $limit=ColleagueActivityService::DEFAULT_LIMIT, int $days=ColleagueActivityService::DEFAULT_DAYS): JSONResponse {

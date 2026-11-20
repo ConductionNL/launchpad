@@ -263,7 +263,7 @@ export default {
 		 * and the widget's settings are never touched.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
 		 */
 		shownItems() {
 			return filterRows(this.items, this.rowFilter, ['title', 'summary', 'sourceTitle'])
@@ -476,20 +476,20 @@ export default {
 			}
 			const diffMinutes = Math.floor(diffSeconds / 60)
 			if (diffMinutes < 60) {
-				return t('launchpad', '{n} minutes ago').replace(
-					'{n}',
-					String(diffMinutes),
-				)
+				return diffMinutes === 1
+					? t('launchpad', '1 minute ago')
+					: t('launchpad', '{n} minutes ago').replace('{n}', String(diffMinutes))
 			}
 			const diffHours = Math.floor(diffMinutes / 60)
 			if (diffHours < 24) {
-				return t('launchpad', '{n} hours ago').replace(
-					'{n}',
-					String(diffHours),
-				)
+				return diffHours === 1
+					? t('launchpad', '1 hour ago')
+					: t('launchpad', '{n} hours ago').replace('{n}', String(diffHours))
 			}
 			const diffDays = Math.floor(diffHours / 24)
-			return t('launchpad', '{n} days ago').replace('{n}', String(diffDays))
+			return diffDays === 1
+				? t('launchpad', '1 day ago')
+				: t('launchpad', '{n} days ago').replace('{n}', String(diffDays))
 		},
 	},
 }

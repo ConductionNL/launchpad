@@ -191,6 +191,7 @@ class PageController extends Controller {
 			)
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isTalkEnabled())
+			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
 
@@ -302,6 +303,24 @@ class PageController extends Controller {
 			'name' => $primaryGroupName,
 		];
 	}//end resolveRoutingGroup()
+
+	/**
+	 * The viewer's Nextcloud timezone, which a clock without its own zone
+	 * shows (REQ-CLOCK-002), or '' when it is unknown.
+	 *
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return string The IANA timezone name, or ''.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	private function userTimezone(string $userId): string {
+		if ($userId === '' || $this->settings->config === null) {
+			return '';
+		}
+
+		return $this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'timezone', default: '');
+	}//end userTimezone()
 
 	/**
 	 * Whether Nextcloud Talk is enabled for the signed-in user. Talk is optional:

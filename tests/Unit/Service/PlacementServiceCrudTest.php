@@ -35,6 +35,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Service\PlacementUpdater
  * @uses   \OCA\LaunchPad\Service\PlacementUpdaters
  * @uses   \OCA\LaunchPad\Service\TileUpdater
+ * @uses   \OCA\LaunchPad\Service\VideoContent
  * @uses   \OCA\LaunchPad\Service\PublicShareContext
  * @uses   \OCA\LaunchPad\Exception\ShareReadOnlyException
  * @uses   \OCA\LaunchPad\Exception\ResourceException
@@ -61,6 +62,38 @@ class PlacementServiceCrudTest extends TestCase {
 		$this->mapper->expects($this->once())
 			->method('insert')
 			->willReturnArgument(0);
+	}
+
+	public function testAddVideoWidgetStoresThePlaybackDefaults(): void {
+		$this->insertReturnsArgument();
+
+		$placement = $this->service->addWidget(
+			dashboardId: 7,
+			widgetId: 'video',
+			layout: ['content' => ['sourceType' => 'youtube', 'videoUrl' => 'https://www.youtube.com/embed/ABC123']]
+		);
+
+		$this->assertSame(
+			[
+				'sourceType'  => 'youtube',
+				'videoUrl'    => 'https://www.youtube.com/embed/ABC123',
+				'autoplay'    => false,
+				'muted'       => true,
+				'loop'        => false,
+				'controls'    => true,
+				'aspectRatio' => '16:9',
+				'posterUrl'   => null,
+			],
+			$placement->getContentArray()
+		);
+	}
+
+	public function testAddOtherWidgetStoresItsContentUnchanged(): void {
+		$this->insertReturnsArgument();
+
+		$placement = $this->service->addWidget(dashboardId: 7, widgetId: 'label', layout: ['content' => ['text' => 'hi']]);
+
+		$this->assertSame(['text' => 'hi'], $placement->getContentArray());
 	}
 
 	public function testAddWidgetUsesTheDefaultLayout(): void {

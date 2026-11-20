@@ -60,6 +60,7 @@ import { loginAs } from './fixtures/secondary-user.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import { installBundleOverride } from './support/bundleOverride.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -80,7 +81,8 @@ const LOGGED_OUT = { cookies: [], origins: [] }
 const NC_HEADER = '#header'
 const APP_NAVIGATION = '.app-navigation, #app-navigation'
 const SWITCHER = '.dashboard-switcher-sidebar'
-const SIDEBAR_TOGGLE = '.launchpad-sidebar-toggle'
+/** The workspace's More menu, which holds the dashboard switcher. */
+const SIDEBAR_TOGGLE = MORE_MENU
 const FLOATING_CONTROLS = '.launchpad-floating-controls'
 const CONTEXT_MENU = '.widget-context-menu'
 const RESIZE_HANDLE = '.ui-resizable-handle'

@@ -325,12 +325,13 @@ The start page MUST show a "Sign in" button that opens the login form with `dire
 - **AND** after signing in he lands on his Workspace page
 
 #### Scenario: LaunchPad is the default app after install
-@e2e exclude happens once, when the app is installed, before any test runs, and the second clause needs Nextcloud's `defaultapp` system value preset to another app, which only `occ config:system:set` or config.php can write; re-installing LaunchPad mid-suite would reset the state every other spec relies on. Pinned by SetDefaultAppTest::testRunClaimsAndReports and DefaultAppSettingTest::testClaimSetsLaunchpadWhenNoDefaultAppIsSet / testClaimKeepsTheAdministratorsDefaultApp
+@e2e exclude happens once, when the app is installed or upgraded, before any test runs, and the other clauses need Nextcloud's `defaultapp` system value preset, which only `occ config:system:set` or config.php can write; re-installing LaunchPad mid-suite would reset the state every other spec relies on. Pinned by SetDefaultAppTest::testRunClaimsAndReports and DefaultAppSettingTest::testClaimSetsLaunchpadWhenNoDefaultAppIsSet / testClaimKeepsTheAdministratorsDefaultApp / testClaimKeepsAnEmptyValueTheAdministratorSet / testARepeatedClaimNeverOverwritesALaterChoice
 
-- **GIVEN** the administrator has not set a default app (`defaultapp` is empty)
-- **WHEN** LaunchPad is installed
-- **THEN** LaunchPad sets Nextcloud's `defaultapp` to `launchpad`, so signing in lands on the Workspace page
-- **AND** when a default app is already set, LaunchPad keeps it
+- **GIVEN** no default app is configured (Nextcloud's `defaultapp` system value is absent)
+- **WHEN** LaunchPad is installed or upgraded
+- **THEN** LaunchPad sets `defaultapp` to `launchpad`, so signing in lands on the Workspace page
+- **AND** when a default app is configured, LaunchPad keeps it, including an empty value, which is what Nextcloud's own "reset to default" writes
+- **AND** an upgrade never overwrites a default app the administrator chose after the install
 
 #### Scenario: The administrator switches it off
 @e2e exclude two of its three clauses need Nextcloud's `defaultapp` system value set to another app, which no HTTP route writes (only `occ config:system:set` or config.php), and flipping the instance default app mid-suite changes where every later login in the job lands (tests/e2e/public-start-page.spec.ts relies on it). Pinned by DefaultAppSettingTest::testSwitchingOffUnsetsTheDefaultAppLaunchpadSet, testSwitchingOffKeepsADefaultAppChosenLater and testSwitchingBackOnSetsLaunchpadAgain

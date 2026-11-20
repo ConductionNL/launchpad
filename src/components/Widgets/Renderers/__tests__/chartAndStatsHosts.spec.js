@@ -22,13 +22,14 @@ const ChartStub = {
 	name: 'CnChartWidget',
 	inheritAttrs: false,
 	props: ['type', 'dataSource', 'widgetId', 'selectable'],
-	emits: ['select'],
+	emits: ['select', 'data'],
 	template: '<div class="chart-stub" />',
 }
 
 const StatsStub = {
 	name: 'CnStatsBlockWidget',
 	props: ['title', 'dataSource', 'countLabel', 'variant', 'showZeroCount', 'horizontal', 'route', 'iconClass'],
+	emits: ['data'],
 	template: '<div class="stats-stub" />',
 }
 
@@ -223,6 +224,18 @@ describe('ChartHost publishing a pick (REQ-CWF-001, REQ-CWF-005)', () => {
 
 		expect(bus.clauses.value).toEqual([])
 		expect(dialogs.showWarning).toHaveBeenCalledWith('You have no access to this scope: Gemeente')
+	})
+})
+
+describe('hosts forward what the library widget shows (widget-calculated-fields task 19)', () => {
+	it('ChartHost and StatsBlockHost re-emit the library widget\'s data', () => {
+		const chart = mount(ChartHost, { props: { content: {}, placement: { id: 1 } }, global: { stubs: { CnChartWidget: ChartStub } } })
+		chart.findComponent(ChartStub).vm.$emit('data', { total: 5 })
+		expect(chart.emitted('data')).toEqual([[{ total: 5 }]])
+
+		const stats = mount(StatsBlockHost, { props: { content: {}, placement: {} }, global: { stubs: { CnStatsBlockWidget: StatsStub } } })
+		stats.findComponent(StatsStub).vm.$emit('data', { count: 3 })
+		expect(stats.emitted('data')).toEqual([[{ count: 3 }]])
 	})
 })
 

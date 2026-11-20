@@ -28,6 +28,32 @@ use ZipArchive;
 
 class ArchiveParserTest extends TestCase {
 
+	/**
+	 * Storage-format markup survives body extraction: the HTML parser drops
+	 * the `ac:`/`ri:` prefix of element names and escapes CDATA, which left
+	 * the macro renderer nothing to match.
+	 *
+	 * @return void
+	 */
+	public function testStorageMarkupKeepsItsNamespacesAndCdata(): void {
+		$index = '<html><body><ul><li><a href="SPACE/page-1.html">P1</a></li></ul></body></html>';
+		$page  = '<html><head><title>SPACE : Code</title></head><body><div id="main-content">'
+			. '<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">java</ac:parameter>'
+			. '<ac:plain-text-body><![CDATA[int x = 1;]]></ac:plain-text-body></ac:structured-macro>'
+			. '<ac:link><ri:page ri:content-title="Other"/><ac:link-body>see</ac:link-body></ac:link>'
+			. '</div></body></html>';
+
+		$archive = (new ArchiveParser())->parse(zipPath: $this->makeZip(entries: ['index.html' => $index, 'SPACE/page-1.html' => $page]));
+		$body    = $archive->pages[0]->body;
+
+		$this->assertStringContainsString(needle: '<ac:structured-macro ac:name="code">', haystack: $body);
+		$this->assertStringContainsString(needle: '<ac:plain-text-body><![CDATA[int x = 1;]]></ac:plain-text-body>', haystack: $body);
+		$this->assertStringContainsString(
+			needle: '<ac:link><ri:page ri:content-title="Other"></ri:page><ac:link-body>see</ac:link-body></ac:link>',
+			haystack: $body
+		);
+	}//end testStorageMarkupKeepsItsNamespacesAndCdata()
+
 	/** @var array<int, string> Temporary files created by the tests. */
 	private array $temp = [];
 

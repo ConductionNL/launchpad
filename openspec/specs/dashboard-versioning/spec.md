@@ -58,9 +58,9 @@ The system MUST automatically capture a snapshot whenever a dashboard's content 
 #### Scenario: Snapshot captures full state
 
 - GIVEN a dashboard with 4 widgets at specific grid positions
-- WHEN a PUT updates widget positions and adds metadata
-- THEN the snapshot MUST include all 4 widgets and the new metadata exactly as persisted
-- AND the snapshot MUST be complete and restorable to the exact prior state
+- WHEN a PUT updates widget positions and changes its name and description
+- THEN the snapshot MUST hold the state before the PUT, with all of its fields: the dashboard's name, description and other fields as they were stored, and all 4 widgets at their prior grid positions with their content
+- AND restoring the snapshot MUST bring the 4 widgets back to those prior positions
 
 ### Requirement: REQ-VERS-002 Explicit Snapshot Creation
 
@@ -433,7 +433,7 @@ Restore MUST ask for confirmation naming the version date, restore through the r
 - REQ-VERS-002 (Explicit snapshot): `POST /api/dashboards/{uuid}/versions` → `DashboardVersionApiController::createVersion()` → `DashboardVersionService::createExplicitSnapshot()`. Calls `captureSnapshot(... explicit: true)` which bypasses the debounce.
 - REQ-VERS-003 (List versions): `GET /api/dashboards/{uuid}/versions` → `DashboardVersionApiController::listVersions()` → `DashboardVersionService::listVersions()`. Returns the `{versions: [...], modeSupported: bool}` envelope ordered newest-first; `DashboardVersion::jsonSerialize()` deliberately omits `snapshotJson` so list responses stay light.
 - REQ-VERS-004 (Fetch snapshot): `GET /api/dashboards/{uuid}/versions/{versionNumber}` → `DashboardVersionApiController::fetchVersion()` → `DashboardVersionService::fetchSnapshot()`. Surfaces the full body alongside the metadata.
-- REQ-VERS-005 (Restore + reversibility): `POST /api/dashboards/{uuid}/versions/{versionNumber}/restore` → `DashboardVersionApiController::restoreVersion()` → `DashboardVersionService::restoreVersion()`. Captures pre-restore state as a new snapshot before applying the historical body and stamps the dashboard's `updatedAt`. Restoring to the latest version is idempotent (no new snapshot, no DB update).
+- REQ-VERS-005 (Restore + reversibility): `POST /api/dashboards/{uuid}/versions/{versionNumber}/restore` → `DashboardVersionApiController::restoreVersion()` → `DashboardVersionService::restoreVersion()`. Captures pre-restore state as a new snapshot before applying the historical body and stamps the dashboard's `updatedAt`. Restoring the latest version while it holds the current placements is idempotent (no new snapshot, no DB update); a latest version that differs, such as a pre-restore snapshot, is restored.
 - REQ-VERS-006 (Retention 50 / monotonic): `DashboardVersionService::captureSnapshot()` allocates `max(version_number) + 1` and calls `DashboardVersionMapper::pruneOldVersions()` inline. Pruning uses a Postgres-safe two-step (cutoff lookup + DELETE WHERE version_number < cutoff) so survivors keep their numbering.
 - REQ-VERS-008 (Mode-aware backend dispatch): `DashboardVersionService::isGroupfolderBacked()` is the dispatch hook. Until the sibling `groupfolder-storage-backend` change adds the `contentBackend` column, it defensively returns `false` and every dashboard is treated as DB-backed.
 - REQ-VERS-009 (Soft-failure tolerance): `listVersions()` returns `{versions: [], modeSupported: false}` for groupfolder-backed dashboards today (the dispatch hook always misses); `fetchSnapshot()` and `restoreVersion()` raise the canonical sentinel `ERR_VERSIONING_UNAVAILABLE` so the controller can map to the soft-fail envelope.

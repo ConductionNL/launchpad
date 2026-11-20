@@ -6457,6 +6457,16 @@
                 "tags": [
                     "dashboard-api"
                 ],
+                "parameters": [
+                    {
+                        "name": "metadata",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "The request succeeded.",

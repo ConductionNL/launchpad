@@ -1642,6 +1642,7 @@ class DashboardService {
 	 * single source of truth for `IGroupManager::getUserGroupIds`) and
 	 * wires the result into the mapper's union query. Returns the
 	 * deduplicated list with `source` set per row. REQ-DASH-013.
+	 * Due scheduled dashboards are stored as published first.
 	 *
 	 * @param string $userId The user ID.
 	 *
@@ -1651,6 +1652,8 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function getVisibleToUser(string $userId): array {
+		$this->materialiseScheduledDashboards();
+
 		$userGroupIds = $this->builders->adminTemplateService->getUserGroupIdsFor(
 			userId: $userId
 		);
@@ -2677,12 +2680,13 @@ class DashboardService {
 	 *
 	 * Iterates every row with `publication_status = 'scheduled'` and
 	 * `publish_at <= now()`, flips it to `'published'`, and stamps
-	 * `publishedAt = now()`. Lazy materialisation in the visibility
-	 * filter still runs at read time (correctness guarantee); this
-	 * method exists only to keep the database row consistent with the
-	 * effective state for cleaner audit queries.
+	 * `publishedAt = now()`. It runs at the start of every visibility
+	 * read, so the first read after the go-live flips the row and
+	 * announces the dashboard to its audience once (REQ-DIGE-002). Lazy
+	 * materialisation in the visibility filter still covers the read
+	 * itself (correctness guarantee).
 	 *
-	 * @return int The number of dashboards materialised.
+	 * @return int The number of dashboards this call flipped.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
@@ -2693,6 +2697,7 @@ class DashboardService {
 		}
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$claimed = 0;
 		foreach ($dueRows as $dashboard) {
 			$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
 			if ($dashboard->getPublishedAt() === null) {
@@ -2701,13 +2706,17 @@ class DashboardService {
 
 			$dashboard->setPublishAt(null);
 			$dashboard->setUpdatedAt($now);
-			$saved = $this->stores->dashboardMapper->update(entity: $dashboard);
-			// A scheduled dashboard is announced once, when its row flips
-			// to published here; the owner is the actor (#713).
-			$this->outlets->activity?->published(dashboard: $saved, actor: (string) $saved->getUserId());
+			if ($this->stores->dashboardMapper->setPublishedIfScheduled(dashboard: $dashboard) === false) {
+				continue;
+			}
+
+			// Announced once, by the request that flipped the row, and not
+			// to the owner who scheduled it (REQ-DIGE-002).
+			$this->outlets->activity?->surfaced(dashboard: $dashboard);
+			$claimed++;
 		}
 
-		return count($dueRows);
+		return $claimed;
 	}//end materialiseScheduledDashboards()
 
 	/**

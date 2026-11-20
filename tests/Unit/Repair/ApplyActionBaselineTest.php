@@ -318,4 +318,48 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->assertSame(expected: ['admin', 'editors'], actual: $written['rule.get-rules'], message: 'an entry an admin changed is kept');
 		$this->assertSame(expected: ['admin'], actual: $written['dashboard.create'], message: 'v3 adds only its own actions');
 	}//end testAnInstanceAtV2GainsTheOwnerActions()
+
+	/**
+	 * An instance at v3 gains the owner's own translation writes from v4, and
+	 * nothing else: an action an admin narrowed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV3GainsTheOwnersTranslationWrites(): void {
+		$this->appConfig->method('getValueInt')->willReturn(3);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.create' => ['admin'],
+			'dashboard-translation.create' => ['admin'],
+			'dashboard-translation.set-primary' => ['admin', 'editors'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$opened = [
+			'dashboard-translation.create',
+			'dashboard-translation.update',
+			'dashboard-translation.destroy',
+		];
+		foreach ($opened as $action) {
+			$this->assertContains(
+				needle: ActionAuthService::GROUP_ALL_USERS,
+				haystack: $written[$action],
+				message: $action . ' must be open to the owner after v4'
+			);
+		}
+
+		$this->assertSame(
+			expected: ['admin', 'editors'],
+			actual: $written['dashboard-translation.set-primary'],
+			message: 'an entry an admin changed is kept'
+		);
+		$this->assertSame(expected: ['admin'], actual: $written['dashboard.create'], message: 'v4 adds only its own actions');
+	}//end testAnInstanceAtV3GainsTheOwnersTranslationWrites()
 }//end class

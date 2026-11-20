@@ -639,6 +639,13 @@ export default {
 			from: 'deepLinkPath',
 			default: '',
 		},
+
+		// UUID of the dashboard the server resolved for this request; for a
+		// slug address, the dashboard that address names (REQ-DDL-002).
+		injectedActiveDashboardId: {
+			from: 'activeDashboardId',
+			default: '',
+		},
 	},
 
 	// Inject the typed initial-state snapshot pushed from `src/main.js`
@@ -1431,6 +1438,7 @@ export default {
 		// Read now, because mounted() rewrites the address.
 		const editFromAddress =
 			new URLSearchParams(window.location.search).get('edit') === '1'
+		const bootPath = window.location.pathname
 
 		const dashboardStore = useDashboardStore()
 		const widgetStore = useWidgetStore()
@@ -1441,6 +1449,7 @@ export default {
 			widgetStore.loadAvailableWidgets(),
 			tileStore.loadTiles(),
 		])
+		await this.openDeepLinkedDashboard(bootPath)
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding
@@ -2967,6 +2976,34 @@ export default {
 			const prefix = generateUrl('/apps/launchpad')
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
+		},
+
+		/**
+		 * Open the dashboard a slug address names. The store loads the
+		 * stored active dashboard, so without this a slug address showed
+		 * whichever dashboard was open last. Only an address the server
+		 * resolved to its canonical path counts: any other address (a stale
+		 * slug, a router path) keeps what the store chose.
+		 *
+		 * @param {string} bootPath `window.location.pathname` at boot.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-deeplinking/spec.md
+		 */
+		async openDeepLinkedDashboard(bootPath) {
+			const uuid = this.injectedActiveDashboardId
+			const canonical = this.buildDeepLinkUrl(this.injectedDeepLinkPath)
+			if (!uuid || !canonical || this.activeDashboard?.uuid === uuid) {
+				return
+			}
+			const bare = (path) =>
+				path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+			if (bare(bootPath) !== bare(canonical)) {
+				return
+			}
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.switchDashboard(target.id)
+			}
 		},
 
 		/**

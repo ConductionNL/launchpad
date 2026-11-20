@@ -106,6 +106,26 @@ class DashboardActivityEmitter {
 	}//end published()
 
 	/**
+	 * A scheduled dashboard surfaced as published: tell its audience once,
+	 * and not the owner who scheduled it (REQ-DIGE-002).
+	 *
+	 * @param Dashboard $dashboard The dashboard that went live.
+	 *
+	 * @return int The number of activity rows written.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function surfaced(Dashboard $dashboard): int {
+		$row = new ActivityRow(
+			type: Extension::EVENT_PUBLISHED,
+			actorUserId: (string) $dashboard->getUserId(),
+			dashboard: $this->subjectOf(dashboard: $dashboard)
+		);
+
+		return $this->rowToAudience(row: $row->withoutActor(), dashboard: $dashboard, shares: $this->shares(dashboard: $dashboard));
+	}//end surfaced()
+
+	/**
 	 * A shared or group dashboard was saved: tell its audience, at most
 	 * once per dashboard per day. A personal dashboard that nobody else
 	 * can see sends nothing.
@@ -143,9 +163,22 @@ class DashboardActivityEmitter {
 	private function toAudience(string $type, Dashboard $dashboard, string $actor, ?array $shares=null): int {
 		$row = new ActivityRow(type: $type, actorUserId: $actor, dashboard: $this->subjectOf(dashboard: $dashboard));
 
-		return $this->toGroups(row: $row, dashboard: $dashboard)
-			+ $this->toShares(row: $row, shares: ($shares ?? $this->shares(dashboard: $dashboard)));
+		return $this->rowToAudience(row: $row, dashboard: $dashboard, shares: ($shares ?? $this->shares(dashboard: $dashboard)));
 	}//end toAudience()
+
+	/**
+	 * Send one row to the groups and share recipients of a dashboard.
+	 *
+	 * @param ActivityRow      $row       The activity row.
+	 * @param Dashboard        $dashboard The dashboard.
+	 * @param DashboardShare[] $shares    The dashboard's shares.
+	 *
+	 * @return int The number of activity rows written.
+	 */
+	private function rowToAudience(ActivityRow $row, Dashboard $dashboard, array $shares): int {
+		return $this->toGroups(row: $row, dashboard: $dashboard)
+			+ $this->toShares(row: $row, shares: $shares);
+	}//end rowToAudience()
 
 	/**
 	 * Publish a row to every group the dashboard is assigned to; the

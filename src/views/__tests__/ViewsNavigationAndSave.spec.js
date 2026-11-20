@@ -99,6 +99,38 @@ describe('Views deep-link history', () => {
 		expect(replace).not.toHaveBeenCalled()
 	})
 
+	it('opens the dashboard a slug address names, not the stored active one', async () => {
+		const switchDashboard = vi.fn()
+		const dashboards = [{ id: 1, uuid: 'u-a' }, { id: 2, uuid: 'u-b' }]
+		const host = makeHost({
+			injectedActiveDashboardId: 'u-a',
+			injectedDeepLinkPath: '/team/a',
+			activeDashboard: { id: 2, uuid: 'u-b' },
+			dashboards,
+			switchDashboard,
+		})
+
+		await host.openDeepLinkedDashboard('/apps/launchpad/team/a/')
+		expect(switchDashboard).toHaveBeenCalledWith(1)
+	})
+
+	it('keeps the stored dashboard for an address the server did not resolve', async () => {
+		const switchDashboard = vi.fn()
+		const state = {
+			injectedActiveDashboardId: 'u-a',
+			injectedDeepLinkPath: '/team/a',
+			activeDashboard: { id: 2, uuid: 'u-b' },
+			dashboards: [{ id: 1, uuid: 'u-a' }, { id: 2, uuid: 'u-b' }],
+			switchDashboard,
+		}
+
+		await makeHost(state).openDeepLinkedDashboard('/index.php/apps/launchpad/dashboards/2')
+		await makeHost(state).openDeepLinkedDashboard('/index.php/apps/launchpad')
+		await makeHost({ ...state, activeDashboard: { id: 1, uuid: 'u-a' } })
+			.openDeepLinkedDashboard('/index.php/apps/launchpad/team/a')
+		expect(switchDashboard).not.toHaveBeenCalled()
+	})
+
 	it('logs instead of failing when the history refuses the replacement', () => {
 		const error = new Error('refused')
 		vi.spyOn(window.history, 'replaceState').mockImplementation(() => {

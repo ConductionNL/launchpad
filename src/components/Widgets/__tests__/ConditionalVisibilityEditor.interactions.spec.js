@@ -51,7 +51,7 @@ const stubs = {
 		props: ['modelValue', 'options'],
 		emits: ['update:modelValue'],
 		template:
-			'<div class="nc-selecttags-stub"><button class="pick-all" @click="$emit(\'update:modelValue\', options.slice())">all</button></div>',
+			'<div class="nc-selecttags-stub"><button class="pick-all" @click="$emit(\'update:modelValue\', options.map((o) => o.id))">all</button></div>',
 	},
 	NcTextField: {
 		props: ['modelValue'],

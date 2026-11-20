@@ -68,8 +68,13 @@ import type { APIRequestContext, Locator, Page, Route } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import * as fs from 'fs'
 import * as path from 'path'
+import {
+	deprovisionUser,
+	loginAs,
+	provisionThrowawayUser,
+} from './fixtures/secondary-user.ts'
 import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
-import { adminContext } from './support/principals.ts'
+import { adminContext, contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const SETTINGS = `${API}/admin/settings`
@@ -495,46 +500,80 @@ test.describe('dashboard-icons: the icon convention as rendered', () => {
 
 	// @e2e dashboard-icons::default-icon-is-viewdashboard
 	test('a dashboard created through the UI stores DEFAULT_ICON, which is "ViewDashboard" and renders', async ({
-		page,
+		browser,
 	}) => {
-		const host = await createDashboard('Host Create')
-		await activate(host)
-		const name = `E2E Icon Created ${RUN}`
-
-		await page.goto('/index.php/apps/launchpad')
-		await openDashboardSwitcher(page)
-		await page.locator('[data-testid="add-dashboard-button"]').click()
-		const nameInput = page.locator(NAME_INPUT).first()
-		await expect(nameInput).toBeVisible({ timeout: 10_000 })
-		await nameInput.fill(name)
-
-		// The create form seeds `form.icon = DEFAULT_ICON`
-		// (src/modals/DashboardConfigModal.vue, the isCreate branch of the open
-		// watcher), so the POST carries the constant's value verbatim.
-		const post = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'POST'
-				&& new URL(res.url()).pathname.endsWith(
-					'/apps/launchpad/api/dashboard',
-				),
+		// The create form is the empty state's "Create dashboard" (Views.vue
+		// handleCreateDashboard); the switcher's "Add dashboard" forks the
+		// active dashboard instead (REQ-DASH-020) and never opens it. A fresh
+		// account still lands on the shared default dashboard, so its first
+		// load is answered as "nothing to show" to reach the empty state.
+		const account = await provisionThrowawayUser('e2e-icon-create')
+		const own = await contextFor(account.username, account.password)
+		const { context, page } = await loginAs(
+			browser,
+			account.username,
+			account.password,
 		)
-		await page.locator('[data-testid="dashboard-save-button"]').click()
-		const response = await post
-		const sent = response.request().postDataJSON() as Record<string, unknown>
-		const body = await response.json()
-		const dash = body.dashboard ?? body.data?.dashboard
-		created.push(Number(dash.id))
+		const name = `E2E Icon Created ${RUN}`
+		try {
+			const visible = (url: URL): boolean =>
+				url.pathname.endsWith('/apps/launchpad/api/dashboards/visible')
+			const active = (url: URL): boolean =>
+				url.pathname.endsWith('/apps/launchpad/api/dashboard')
+			await page.route(visible, (route) =>
+				route.fulfill({ json: { items: [], quota: { maxDashboards: 0, dashboardsUsed: 0 } } }),
+			)
+			await page.route(active, (route) =>
+				route.request().method() === 'GET'
+					? route.fulfill({ json: null })
+					: route.continue(),
+			)
 
-		expect(sent.icon).toBe('ViewDashboard')
-		const seeded = { id: Number(dash.id), uuid: String(dash.uuid), name }
-		expect(await storedIcon(seeded)).toBe('ViewDashboard')
+			await page.goto('/index.php/apps/launchpad')
+			await expect(page.getByText('No dashboard yet')).toBeVisible({
+				timeout: 30_000,
+			})
+			await page.getByRole('button', { name: 'Create dashboard' }).click()
+			const nameInput = page.locator(NAME_INPUT).first()
+			await expect(nameInput).toBeVisible({ timeout: 10_000 })
+			await nameInput.fill(name)
 
-		// DASHBOARD_ICONS[DEFAULT_ICON] is defined: the stored name resolves to a
-		// real component in the row, not to an empty slot.
-		await expect(page.locator(NAME_INPUT)).toHaveCount(0, { timeout: 10_000 })
-		await page.reload()
-		await openDashboardSwitcher(page)
-		await expectMdi(rowIcon(page, name), 'ViewDashboard')
+			// The create form seeds `form.icon = DEFAULT_ICON`
+			// (src/modals/DashboardConfigModal.vue, the isCreate branch of the open
+			// watcher), so the POST carries the constant's value verbatim.
+			const post = page.waitForResponse(
+				(res) =>
+					res.request().method() === 'POST'
+					&& new URL(res.url()).pathname.endsWith(
+						'/apps/launchpad/api/dashboard',
+					),
+			)
+			await page.locator('[data-testid="dashboard-save-button"]').click()
+			const response = await post
+			expect(response.status(), await response.text()).toBeLessThan(300)
+			const sent = response.request().postDataJSON() as Record<string, unknown>
+			const body = await response.json()
+			const dash = body.dashboard ?? body.data?.dashboard
+
+			expect(sent.icon).toBe('ViewDashboard')
+			const read = await own.get(`${API}/dashboard/${Number(dash.id)}`)
+			expect(read.status(), await read.text()).toBe(200)
+			const stored = await read.json()
+			expect((stored.data ?? stored).dashboard.icon).toBe('ViewDashboard')
+
+			// DASHBOARD_ICONS[DEFAULT_ICON] is defined: the stored name resolves
+			// to a real component in the row, not to an empty slot.
+			await expect(page.locator(NAME_INPUT)).toHaveCount(0, { timeout: 10_000 })
+			await page.unroute(visible)
+			await page.unroute(active)
+			await page.reload()
+			await openDashboardSwitcher(page)
+			await expectMdi(rowIcon(page, name), 'ViewDashboard')
+		} finally {
+			await context.close()
+			await own.dispose()
+			await deprovisionUser(account.username)
+		}
 	})
 
 	// @e2e dashboard-icons::registry-contains-all-15-named-icons

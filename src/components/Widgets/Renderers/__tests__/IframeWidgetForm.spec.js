@@ -154,7 +154,7 @@ describe('IframeWidgetForm — REQ-IFRAME-002 URL + title validation', () => {
 		})
 		await wrapper.vm.checkUrlAllowed()
 		expect(wrapper.vm.validate()).toContain(
-			'This host is not on the allow-list.',
+			'The host blocked.example.com is not on the allow-list.',
 		)
 	})
 

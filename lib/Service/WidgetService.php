@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\InvalidWidgetContentException;
+use InvalidArgumentException;
 
 /**
  * Service for discovering and querying Nextcloud dashboard widgets.
@@ -32,12 +33,14 @@ class WidgetService {
 	 * @param PlacementService $placementService Placement service for CRUD.
 	 * @param WidgetRendering  $rendering The formatter and item loader.
 	 * @param MenuService      $menuService Validator for `menu` widgets (REQ-MENU-002).
+	 * @param IframeService|null $iframeService Allow-list check for `iframe` widgets (REQ-IFRAME-002).
 	 */
 	public function __construct(
 		private readonly WidgetPlatform $platform,
 		private readonly PlacementService $placementService,
 		private readonly WidgetRendering $rendering,
 		private readonly MenuService $menuService = new MenuService(),
+		private readonly ?IframeService $iframeService = null,
 	) {
 	}//end __construct()
 
@@ -82,6 +85,11 @@ class WidgetService {
 			return;
 		}
 
+		if ($widgetType === 'iframe') {
+			$this->validateIframeHost(content: $content);
+			return;
+		}
+
 		if ($widgetType !== 'menu') {
 			return;
 		}
@@ -94,6 +102,29 @@ class WidgetService {
 		$this->menuService->validateMenuConfig(content: $content);
 		$this->menuService->validateMenuItems(items: $items);
 	}//end validateContentOfType()
+
+	/**
+	 * Refuse an `iframe` placement whose URL host is not on the allow-list,
+	 * naming the host (REQ-IFRAME-002 "rejected at save time").
+	 *
+	 * @param array $content Widget content blob.
+	 *
+	 * @return void
+	 * @throws \InvalidArgumentException When the host is not allow-listed.
+	 *
+	 * @spec openspec/specs/iframe-embed-widget/spec.md
+	 */
+	private function validateIframeHost(array $content): void {
+		$url = trim(string: (string)($content['url'] ?? ''));
+		if ($this->iframeService === null
+			|| in_array(needle: 'host_not_allowed', haystack: $this->iframeService->validateConfig(config: $content), strict: true) === false
+		) {
+			return;
+		}
+
+		$host = (string)parse_url(url: $url, component: PHP_URL_HOST);
+		throw new InvalidArgumentException(message: sprintf('The host %s is not on the allow-list.', $host));
+	}//end validateIframeHost()
 
 	/**
 	 * Get all available widgets from Nextcloud.

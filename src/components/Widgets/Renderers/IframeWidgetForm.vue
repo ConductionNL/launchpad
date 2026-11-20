@@ -332,8 +332,28 @@ export default {
 			this.allowListChecked = result.valid === true
 				|| (Array.isArray(result.errors)
 					&& !result.errors.some((code) => URL_CHECK_FAILURES.includes(code)))
-			this.urlAllowListError = allowListMessage(result)
+			this.urlAllowListError = this.hostRefusal(result) || allowListMessage(result)
 			this.emitUpdate()
+		},
+
+		/**
+		 * The refusal naming the host when the server says it is not on the
+		 * allow-list (REQ-IFRAME-002), or `''`.
+		 *
+		 * @param {{valid: boolean, errors?: string[]}} result The server's validation answer.
+		 * @return {string}
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
+		hostRefusal(result) {
+			if (!Array.isArray(result.errors) || !result.errors.includes('host_not_allowed')) {
+				return ''
+			}
+			try {
+				const host = new URL(this.url.trim()).hostname
+				return t('launchpad', 'The host {host} is not on the allow-list.', { host })
+			} catch {
+				return ''
+			}
 		},
 
 		/**

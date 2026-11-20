@@ -393,14 +393,14 @@ test('with no allow-list configured every URL is refused', async ({ page }) => {
 		await form.getByLabel('Title', { exact: true }).fill('Status')
 
 		await expect(form.locator('.iframe-widget-form__warning')).toHaveText(
-			'This host is not on the allow-list.',
+			`The host ${STATUS_HOST} is not on the allow-list.`,
 			{ timeout: 10_000 },
 		)
 		const add = dialog.getByRole('button', { name: /^add$/i })
 		await expect(add).toBeDisabled()
 		await expect(add).toHaveAttribute(
 			'title',
-			'This host is not on the allow-list.',
+			`The host ${STATUS_HOST} is not on the allow-list.`,
 		)
 
 		await dialog.getByRole('button', { name: /^cancel$/i }).click()
@@ -411,12 +411,6 @@ test('with no allow-list configured every URL is refused', async ({ page }) => {
 	}
 })
 
-// SUSPECTED BUG: Two defects. (1) The refusal does not name the host:
-// allowListMessage() in src/utils/urlAllowList.js:26 returns the fixed text "This host
-// is not on the allow-list.". (2) The save is not refused server-side:
-// WidgetApiController::addWidget() (:193) and updatePlacement() (:595) never call
-// IframeService::validateConfig() (only IframeController::validateUrl does), so a
-// placement with any host is stored.
 // @e2e iframe-embed-widget::disallowed-host-rejected-at-save
 test('a host off the allow-list is refused at save, naming the host, and nothing is stored', async ({
 	page,

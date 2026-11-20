@@ -82,14 +82,17 @@ let previousHosts: string | null = null
 let fixture: Server
 let fixtureOrigin = ''
 
-/** The current app value of the allow-list, or null when unset. */
+/**
+ * The current app value of the allow-list, or null when unset. Nextcloud
+ * answers a missing key with an empty string, which this suite never writes.
+ */
 async function readHosts(): Promise<string | null> {
 	const res = await admin.get(`${HOSTS_CONFIG}?format=json`)
 	if (!res.ok()) {
 		return null
 	}
 	const data = (await res.json())?.ocs?.data
-	return typeof data?.data === 'string' ? data.data : null
+	return typeof data?.data === 'string' && data.data !== '' ? data.data : null
 }
 
 /**

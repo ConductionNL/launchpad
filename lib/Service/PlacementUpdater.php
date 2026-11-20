@@ -101,7 +101,7 @@ class PlacementUpdater {
 
 		if (isset($data['content']) === true && is_array($data['content']) === true) {
 			$placement->setContentArray(
-				$data['content']
+				VideoContent::forWidget(widgetId: (string)$placement->getWidgetId(), content: $data['content'])
 			);
 		}
 

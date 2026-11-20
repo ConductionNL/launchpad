@@ -113,7 +113,7 @@ class PlacementService {
 		$placement->setShowTitle(1);
 
 		if ($layout['content'] !== null) {
-			$placement->setContentArray($layout['content']);
+			$placement->setContentArray(VideoContent::forWidget(widgetId: $widgetId, content: $layout['content']));
 		}
 
 		$placement->setCreatedAt($now);

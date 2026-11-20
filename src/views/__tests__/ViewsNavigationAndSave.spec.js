@@ -382,10 +382,25 @@ describe('Views saving tiles and custom widgets', () => {
 			closeCustomWidgetModal: vi.fn(),
 		})
 		await creating.saveCustomWidget({ type: 'text', content: { text: 'Hi' } })
-		expect(creating.addWidgetToDashboard).toHaveBeenCalledWith({ type: 'text', content: { text: 'Hi' } })
+		expect(creating.addWidgetToDashboard).toHaveBeenCalledWith({ type: 'text', content: { text: 'Hi' } }, null)
 		expect(creating.updateWidgetPlacement).toHaveBeenCalledWith(11, expect.any(Object))
 		expect(creating.updateWidgetPlacement.mock.calls[0][1]).not.toHaveProperty('content')
 		expect(creating.closeCustomWidgetModal).toHaveBeenCalledTimes(1)
+	})
+
+	it('starts a new header at the full grid width and as tall as its preset', async () => {
+		const host = makeHost({
+			activeDashboard: { id: 1, gridColumns: 12 },
+			customWidgetEditing: null,
+			updateWidgetPlacement: vi.fn(),
+			addWidgetToDashboard: vi.fn(async () => ({ id: 12, styleConfig: {} })),
+			closeCustomWidgetModal: vi.fn(),
+		})
+		await host.saveCustomWidget({ type: 'header', content: { title: 'Hi', height: 'large' } })
+		expect(host.addWidgetToDashboard).toHaveBeenCalledWith(
+			{ type: 'header', content: { title: 'Hi', height: 'large' } },
+			{ w: 12, h: 6 },
+		)
 	})
 
 	it('skips the chrome patch when nothing was created, and logs a failed save', async () => {

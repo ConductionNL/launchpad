@@ -30,7 +30,7 @@ import type { SeededDashboard } from './dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { deflateSync } from 'zlib'
 import { BASE_URL } from './baseUrl.ts'
-import { removeSeededDashboard, seedActiveDashboard } from './dashboardFixture.ts'
+import { clearSeededWidgets, removeSeededDashboard, seedActiveDashboard } from './dashboardFixture.ts'
 
 export const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -454,6 +454,8 @@ export function headerSuite(options: { withFile?: boolean } = {}): HeaderSuite {
 	test.beforeEach(async () => {
 		seeded++
 		dash = await seedActiveDashboard(api!, `E2E Header ${run} #${seeded}`)
+		// Start from an empty grid: only the headers the test places.
+		await clearSeededWidgets(api!, dash.id)
 	})
 
 	test.afterEach(async () => {

@@ -14,9 +14,14 @@
  * its own `close`.
  */
 
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import VisibilityRulesModal from '../VisibilityRulesModal.vue'
+import { api } from '../../services/api.js'
+
+vi.mock('../../services/api.js', () => ({
+	api: { getAdminGroups: vi.fn() },
+}))
 
 const ConditionalVisibilityEditorStub = {
 	props: ['placementId', 'availableGroups'],
@@ -37,6 +42,8 @@ function mountModal(props = {}) {
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
+	vi.clearAllMocks()
+	api.getAdminGroups.mockResolvedValue({ data: { active: [], inactive: [], allKnown: [] } })
 })
 
 describe('VisibilityRulesModal', () => {
@@ -68,5 +75,31 @@ describe('VisibilityRulesModal', () => {
 		expect(wrapper.emitted('ruleAdded')).toBeTruthy()
 		expect(wrapper.emitted('ruleUpdated')).toBeTruthy()
 		expect(wrapper.emitted('ruleRemoved')).toBeTruthy()
+	})
+
+	it('offers the instance\'s groups when none are passed (launchpad#97)', async () => {
+		const groups = [{ id: 'mkt', displayName: 'Marketing' }]
+		api.getAdminGroups.mockResolvedValue({ data: { active: [], inactive: groups, allKnown: groups } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		expect(api.getAdminGroups).toHaveBeenCalledTimes(1)
+		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('availableGroups')).toEqual(groups)
+	})
+
+	it('does not read the groups when a list is passed or the modal is closed', async () => {
+		mountModal({ availableGroups: ['marketing'] })
+		mountModal({ open: false })
+		await flushPromises()
+
+		expect(api.getAdminGroups).not.toHaveBeenCalled()
+	})
+
+	it('offers no groups when the list is refused', async () => {
+		api.getAdminGroups.mockRejectedValue(new Error('403'))
+		const wrapper = mountModal()
+		await flushPromises()
+
+		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('availableGroups')).toEqual([])
 	})
 })

@@ -91,10 +91,12 @@ import type {
 	Page,
 } from '@playwright/test'
 import type { Principal } from './support/principals.ts'
+import type { ActionMatrix } from './support/visibilityRules.ts'
 
 import { expect, request, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { BASE_URL } from './support/baseUrl.ts'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
 import {
 	addToGroup,
 	assertActingAs,
@@ -103,6 +105,7 @@ import {
 	removeGroup,
 	removePrincipal,
 } from './support/principals.ts'
+import { grantRuleActionsToAll, writeActionMatrix } from './support/visibilityRules.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -490,46 +493,7 @@ async function openWorkspaceInEditMode(page: Page): Promise<void> {
 	 * opened — which reads like a context-menu bug and is not one.
 	 */
 	if ((await page.locator('.launchpad-edit-mode').count()) === 0) {
-		await page.locator('.launchpad-sidebar-toggle').first().click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 10_000,
-		})
-		/*
-		 * `.active`, NOT `.first()`. The sidebar lists every personal
-		 * dashboard, and the first one is whichever sorts first — not
-		 * necessarily this suite's. Opening a different row's cog menu and
-		 * choosing "Edit dashboard" SWITCHES the active dashboard, so the
-		 * grid then holds someone else's tiles and the right-click below
-		 * cannot find the stamped one.
-		 *
-		 * Measured: with `.first()` the suite entered edit mode on a stale
-		 * dashboard left behind by an earlier run, and failed at the
-		 * right-click with "locator not found" — three steps from the cause,
-		 * and reading as a context-menu defect.
-		 */
-		const activeRow = page
-			.locator('[data-source="user"].dashboard-switcher-sidebar__item.active')
-			.first()
-		await expect(
-			activeRow,
-			'the active dashboard must be a personal one this suite owns before edit mode is entered',
-		).toBeVisible({ timeout: 10_000 })
-		await activeRow.locator('.dashboard-row-actions button').first().click()
-		await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
-		await page.waitForSelector('.launchpad-edit-mode', { timeout: 10_000 })
-
-		// Close the sidebar so it cannot occlude the grid for the right-click.
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) {
-			await closeBtn.click()
-			await page
-				.waitForFunction(
-					() =>
-						!document.querySelector('.dashboard-switcher-sidebar.open'),
-					{ timeout: 5_000 },
-				)
-				.catch(() => null)
-		}
+		await enterEditMode(page)
 	}
 
 	await expect(
@@ -1972,6 +1936,12 @@ test.describe('conditional-visibility editor — preview equals render for a rea
 
 	let member: Audience | null = null
 	let outsider: Audience | null = null
+	/*
+	 * Rule writes ship admin-only, and each audience must write rules on its
+	 * own placement, so the rule actions are opened to every user for this
+	 * block and the stored matrix is put back afterwards.
+	 */
+	let priorMatrix: ActionMatrix | null = null
 
 	/** Seed a dashboard the principal owns, with a subject and an anchor tile. */
 	async function seedAudience(
@@ -2112,6 +2082,7 @@ test.describe('conditional-visibility editor — preview equals render for a rea
 
 	test.beforeAll(async () => {
 		const admin = await adminApi()
+		priorMatrix = await grantRuleActionsToAll(admin)
 		for (const id of [AUDIENCE_GROUP, OTHER_GROUP]) {
 			await createGroup(admin, id)
 			groupsCreated.push(id)
@@ -2143,6 +2114,10 @@ test.describe('conditional-visibility editor — preview equals render for a rea
 		}
 		member = null
 		outsider = null
+		if (priorMatrix !== null) {
+			await writeActionMatrix(admin, priorMatrix)
+			priorMatrix = null
+		}
 		await admin.dispose()
 	})
 

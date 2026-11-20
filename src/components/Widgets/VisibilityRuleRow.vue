@@ -40,7 +40,8 @@
 				class="visibility-rule-row__field">
 				<NcSelectTags
 					v-model="local.ruleConfig.groups"
-					:options="availableGroups"
+					:options="groupOptions"
+					:fetchTags="false"
 					:multiple="true"
 					:aria-label-combobox="t('launchpad', 'Groups')"
 					:placeholder="t('launchpad', 'Select groups')"
@@ -238,6 +239,7 @@ import {
 	LIST_PROP,
 	REQUIRED_OBJECT_PROP,
 } from '../../constants/propDefinitions.js'
+import { toGroupOptions } from '../../utils/groupOptions.js'
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
@@ -355,6 +357,15 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The group picker's options: the offered groups plus any already chosen.
+		 *
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
+		groupOptions() {
+			return toGroupOptions(this.availableGroups, this.local.ruleConfig?.groups)
+		},
+
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		rowKey() {
 			return this.rule.id ?? this.rule._localKey ?? 'draft'

@@ -102,7 +102,8 @@
 					<div class="conditional-visibility-editor__preview-field">
 						<NcSelectTags
 							v-model="previewGroups"
-							:options="availableGroups"
+							:options="previewGroupOptions"
+							:fetchTags="false"
 							:multiple="true"
 							:aria-label-combobox="
 								t('launchpad', 'Preview as groups')
@@ -204,6 +205,7 @@ import VisibilityRuleRow from './VisibilityRuleRow.vue'
 import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
 import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
+import { toGroupOptions } from '../../utils/groupOptions.js'
 import { logger } from '../../utils/logger.js'
 
 /**
@@ -299,6 +301,15 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The preview group picker's options: the offered groups plus any already chosen.
+		 *
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
+		 */
+		previewGroupOptions() {
+			return toGroupOptions(this.availableGroups, this.previewGroups)
+		},
+
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-003-legible-include-exclude-semantics */
 		includeRules() {
 			return this.rules.filter((r) => r.isInclude !== false)

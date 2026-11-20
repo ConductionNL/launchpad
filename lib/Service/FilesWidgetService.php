@@ -316,10 +316,16 @@ class FilesWidgetService {
 	 * @param FilesWidgetUploadTarget $target The destination.
 	 * @param array                   $entry  One screened `$_FILES` entry.
 	 *
-	 * @return array<string,mixed>|string The stored file's metadata, or
+	 * @return array<string,mixed>|string The stored file's metadata,
+	 *                                    `insufficient_storage` or
 	 *                                    `storage_failed`.
 	 */
 	private function writeUpload(FilesWidgetUploadTarget $target, array $entry): array|string {
+		$free = $target->folder->getFreeSpace();
+		if (is_numeric(value: $free) === true && $free >= 0 && (int)$entry['size'] > $free) {
+			return 'insufficient_storage';
+		}
+
 		$safeName = (new UploadNamePicker())->availableName(folder: $target->folder, desired: (string)$entry['name']);
 		try {
 			$file = $this->streamToNewFile(
@@ -432,9 +438,16 @@ class FilesWidgetService {
 			throw new RuntimeException('Cannot open destination file');
 		}
 
-		stream_copy_to_stream(from: $handle, to: $outHandle);
+		$copied = stream_copy_to_stream(from: $handle, to: $outHandle);
 		fclose($handle);
 		fclose($outHandle);
+
+		// A quota or storage limit can cut the write short without an error:
+		// a partly written file is removed rather than listed.
+		if ($copied !== filesize(filename: $tmp)) {
+			$file->delete();
+			throw new RuntimeException('Short write to destination file');
+		}
 
 		return $file;
 	}//end streamToNewFile()

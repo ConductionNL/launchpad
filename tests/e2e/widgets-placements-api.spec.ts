@@ -63,6 +63,7 @@ import {
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
+import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -113,6 +114,20 @@ let alice: Principal | null = null
 let bob: Principal | null = null
 let aliceDash: OwnDashboard
 let allowBefore: boolean | null = null
+
+/**
+ * A new dashboard with no widgets: creating one places the default bundle,
+ * which these tests would otherwise count and collide with.
+ *
+ * @param api the owner's context.
+ * @param name the dashboard name.
+ * @return the dashboard.
+ */
+async function emptyDashboard(api: APIRequestContext, name: string): Promise<OwnDashboard> {
+	const dash = await createOwnDashboard(api, name)
+	await clearSeededWidgets(api, dash.id)
+	return dash
+}
 
 /**
  * Nextcloud's own widget catalogue for the admin, keyed by id.
@@ -170,7 +185,7 @@ test.beforeAll(async () => {
 	bob = await createPrincipal(admin, 'e2e-wdg-bob')
 	await assertActingAs(alice.api, alice.username)
 	await assertActingAs(bob.api, bob.username)
-	aliceDash = await createOwnDashboard(alice.api, `${STAMP} alice`)
+	aliceDash = await emptyDashboard(alice.api, `${STAMP} alice`)
 })
 
 test.afterAll(async () => {
@@ -224,10 +239,11 @@ test.describe('REQ-WDG-001 discover available widgets', () => {
 
 	// @e2e widgets::widget-list-updates-when-apps-are-installed
 	test('an app that comes up adds its widget and every earlier widget stays', async () => {
-		// `weather_status` ships with Nextcloud and registers one widget. Taking
-		// it down and bringing it back up is the installable event a shared CI
-		// instance can perform without the app store.
-		const app = 'weather_status'
+		// `recommendations` ships with Nextcloud and registers one widget under
+		// its own id (`weather_status` no longer registers any). Taking it down
+		// and bringing it back up is the installable event a shared CI instance
+		// can perform without the app store.
+		const app = 'recommendations'
 		const wasEnabled = (await enabledApps()).includes(app)
 		try {
 			await setAppEnabled(app, false)
@@ -421,7 +437,7 @@ test.describe('REQ-WDG-002 fetch widget items', () => {
 test.describe('REQ-WDG-003 add a widget to a dashboard', () => {
 	// @e2e widgets::add-a-widget-to-a-dashboard
 	test('POST creates a placement at the given cell with the documented defaults', async () => {
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} add`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} add`)
 		const res = await alice!.api.post(`${API}/dashboard/${dash.id}/widgets`, {
 			data: {
 				widgetId: ALLOWED_WIDGET,
@@ -552,7 +568,7 @@ test.describe('REQ-WDG-003 add a widget to a dashboard', () => {
 		// (lib/Controller/WidgetApiController.php:179) passes the coordinates
 		// to PlacementService::addWidget, whose freeSpot()
 		// (lib/Service/PlacementService.php:262) relocates rather than refuses.
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} bounds`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} bounds`)
 		const res = await alice!.api.post(`${API}/dashboard/${dash.id}/widgets`, {
 			data: {
 				widgetId: ALLOWED_WIDGET,
@@ -571,7 +587,7 @@ test.describe('REQ-WDG-003 add a widget to a dashboard', () => {
 	test('an unregistered widget id is accepted and stored as given', async () => {
 		// As the admin, who is exempt from role-feature restrictions: the
 		// scenario is about registration, not about an allow-list.
-		const dash = await createOwnDashboard(admin, `${STAMP} fake`)
+		const dash = await emptyDashboard(admin, `${STAMP} fake`)
 		try {
 			const res = await admin.post(`${API}/dashboard/${dash.id}/widgets`, {
 				data: {
@@ -596,7 +612,7 @@ test.describe('REQ-WDG-003 add a widget to a dashboard', () => {
 test.describe('REQ-WDG-004 update a widget placement', () => {
 	// @e2e widgets::update-widget-position-and-size
 	test('PUT moves and resizes the placement and answers 200 with it', async () => {
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} move`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} move`)
 		const placement = await seedPlacement(alice!.api, dash.id, {
 			widgetId: ALLOWED_WIDGET,
 			gridX: 0,
@@ -1021,7 +1037,7 @@ test.describe('REQ-WDG-007 sort order', () => {
 		// PUT fields in lib/Controller/RequestDataExtractor.php:60), so the
 		// three existing placements are what the API can make; the clause
 		// under test is the new one's default, which the NOTE pins at 0.
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} sort`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} sort`)
 		for (const gridY of [0, 4, 8]) {
 			await seedPlacement(alice!.api, dash.id, {
 				widgetId: ALLOWED_WIDGET,
@@ -1057,7 +1073,7 @@ test.describe('REQ-WDG-007 sort order', () => {
 		// lib/Db/WidgetPlacementMapper.php:220) writes only the four grid
 		// columns, and `sortOrder` is not an accepted PUT field
 		// (lib/Controller/RequestDataExtractor.php:60).
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} reorder`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} reorder`)
 		const weather = await seedPlacement(alice!.api, dash.id, {
 			widgetId: ALLOWED_WIDGET,
 			gridX: 0,
@@ -1120,7 +1136,7 @@ test.describe('REQ-WDG-007 sort order', () => {
 test.describe('REQ-WDG-008 batch update placements', () => {
 	// @e2e widgets::batch-update-after-grid-rearrangement
 	test('PUT /api/dashboard/{id} with a placements array moves all four', async () => {
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} batch`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} batch`)
 		const seeded: Placement[] = []
 		for (const gridX of [0, 4, 8]) {
 			seeded.push(
@@ -1165,7 +1181,7 @@ test.describe('REQ-WDG-008 batch update placements', () => {
 
 	// @e2e widgets::batch-update-with-mixed-placement-types
 	test('the batch moves three widgets and two tiles and leaves the tile fields alone', async () => {
-		const dash = await createOwnDashboard(alice!.api, `${STAMP} mixed`)
+		const dash = await emptyDashboard(alice!.api, `${STAMP} mixed`)
 		const widgets: Placement[] = []
 		for (const gridX of [0, 4, 8]) {
 			widgets.push(

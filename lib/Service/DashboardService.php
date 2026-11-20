@@ -35,6 +35,7 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -971,12 +972,12 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		// REQ-THM-003: only administrators set custom CSS.
 		if (array_key_exists('customCss', $data) === true && $this->isAdmin(userId: $userId) === false) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$this->applyDashboardUpdates(
@@ -1019,7 +1020,7 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$uuid = (string)$dashboard->getUuid();

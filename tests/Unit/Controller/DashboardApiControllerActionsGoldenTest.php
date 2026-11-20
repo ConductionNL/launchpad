@@ -130,6 +130,18 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$this->assertSame([403, 'error', 'personal_dashboards_disabled'], [$status, $data['status'], $data['error']]);
 	}
 
+	public function testCreateWithPersonalDashboardsOffIsAllowedForAnAdministrator(): void {
+		$this->allowCreate();
+		$this->dashboardService->method('isAdmin')->with('alice')->willReturn(true);
+		$this->dashboardService->method('assertPersonalDashboardsAllowed')->willThrowException(new PersonalDashboardsDisabledException());
+		$this->dashboardService->expects($this->once())->method('createDashboard')->willReturn($this->dashboard());
+		$this->dashboardService->method('findPlacements')->willReturn([]);
+
+		[$status] = $this->outcome($this->controller()->create(name: 'Admin Dashboard'));
+
+		$this->assertSame(201, $status);
+	}
+
 	public function testCreateNotAllowedIsForbidden(): void {
 		$this->permissionService->method('canCreateDashboard')->willReturn(false);
 		$this->dashboardService->expects($this->never())->method('getUserDashboards');

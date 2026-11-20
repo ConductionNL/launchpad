@@ -372,13 +372,14 @@ test.describe('video widget: URL normalisation (REQ-VID-003, REQ-VID-005)', () =
 test.describe('video widget: iframe embedding (REQ-VID-007)', () => {
 	// @e2e video-widget::youtube-iframe-uses-proper-sandbox
 	test('a YouTube placement renders a sandboxed, fullscreen-capable iframe on the canonical URL', async ({ page }) => {
-		const id = await seed({ sourceType: 'youtube', videoUrl: YT_EMBED })
+		const id = await seed({ sourceType: 'youtube', videoUrl: YT_EMBED, muted: false })
 		await openWorkspace(page)
 		const { iframe, src } = await iframeOf(page, id)
 
 		await expectStrictSandbox(iframe)
-		// The scenario's markup is `src="https://www.youtube.com/embed/ABC123"`
-		// for a placement that does not autoplay.
+		// The scenario's markup is `src="https://www.youtube.com/embed/ABC123"`.
+		// Playback options are query parameters (muted, the stored default,
+		// adds `mute=1`), so the bare URL belongs to a placement with none on.
 		expect.soft(src.toString(), 'the iframe src is the canonical embed URL').toBe(YT_EMBED)
 	})
 

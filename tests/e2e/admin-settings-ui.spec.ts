@@ -41,6 +41,7 @@ import {
 } from './support/adminSettings.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -95,19 +96,7 @@ function nextSettingsPut(page: Page) {
  */
 async function openWorkspaceSidebar(page: Page): Promise<void> {
 	await page.goto(WORKSPACE, { waitUntil: 'domcontentloaded' })
-	const toggle = page.locator('.launchpad-sidebar-toggle').first()
-	await expect(toggle).toBeVisible({ timeout: 60_000 })
-	if (
-		!(await page
-			.locator('.dashboard-switcher-sidebar.open')
-			.isVisible()
-			.catch(() => false))
-	) {
-		await toggle.click()
-	}
-	await expect(page.locator('.dashboard-switcher-sidebar.open')).toBeVisible({
-		timeout: 10_000,
-	})
+	await openDashboardSwitcher(page)
 }
 
 test.describe.configure({ mode: 'serial' })
@@ -169,7 +158,8 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		page,
 	}) => {
 		await page.goto(`${BASE}/index.php/settings/admin`)
-		const entry = page.locator('a[href*="/settings/admin/launchpad"]').first()
+		// The navigation entry; a LaunchPad notification links the same page.
+		const entry = page.locator('a[href*="/settings/admin/launchpad"]:visible').first()
 		await expect(entry).toBeVisible({ timeout: 30_000 })
 		await expect(entry).toContainText('LaunchPad')
 

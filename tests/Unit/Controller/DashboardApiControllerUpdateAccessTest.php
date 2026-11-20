@@ -26,6 +26,7 @@ use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
@@ -97,7 +98,8 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		string $allowed='alice',
 		bool $denyAction=false,
 		array $body=[],
-		?DashboardVersionService $versions=null
+		?DashboardVersionService $versions=null,
+		?\Exception $serviceRefusal=null
 	): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
@@ -130,11 +132,18 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		$service = $this->createMock(DashboardService::class);
 		$service->method('updateDashboard')->willReturnCallback(
-			function (int $dashboardId, string $userId, array $data): Dashboard {
+			function (int $dashboardId, string $userId, array $data) use ($serviceRefusal): Dashboard {
+				if ($serviceRefusal !== null) {
+					throw $serviceRefusal;
+				}
+
 				$this->saved[] = [$dashboardId, $userId];
 				return new Dashboard();
 			}
 		);
+		if ($serviceRefusal !== null) {
+			$service->method('deleteDashboard')->willThrowException($serviceRefusal);
+		}
 
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key) => $key === 'userId' ? 'alice' : ($body[$key] ?? null));
@@ -322,4 +331,28 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}//end testARefusedUpdateRecordsNoSnapshot()
+
+	/**
+	 * The service refusing a non-owner's save answers 403, not 400.
+	 *
+	 * @return void
+	 */
+	public function testAServiceRefusalOfAnUpdateIsForbidden(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', serviceRefusal: new ForbiddenException(message: 'Access denied'))
+			->update(7, name: 'x');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testAServiceRefusalOfAnUpdateIsForbidden()
+
+	/**
+	 * The service refusing a non-owner's delete answers 403, not 400.
+	 *
+	 * @return void
+	 */
+	public function testAServiceRefusalOfADeleteIsForbidden(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', serviceRefusal: new ForbiddenException(message: 'Access denied'))
+			->delete(7);
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testAServiceRefusalOfADeleteIsForbidden()
 }//end class

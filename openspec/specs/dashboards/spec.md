@@ -1203,7 +1203,7 @@ The system MUST expose `POST /api/dashboards/{uuid}/schedule` accepting `{publis
 - AND `published_at` MUST be set to the current time when previously null
 - AND the method MUST return the number of dashboards materialised
 - NOTE: Lazy read-time materialisation remains the correctness contract (REQ-DASH-034 scenario "lazy materialisation"); this method is a cosmetic optimisation for cleaner audit data.
-@e2e exclude DashboardService::materialiseScheduledDashboards() has no route, command or background job calling it, so nothing in a browser or over HTTP reaches it; pinned by tests/Unit/Activity/DashboardActivityEmissionTest.php and tests/Unit/Db/DashboardMapperCoverageTest.php::testFindDueScheduled
+@e2e exclude every read materialises lazily, so no HTTP response shows whether the stored row flipped; getVisibleToUser() runs the flip, whose one announcement is the e2e for activity-feed-integration::group-dashboard-published; pinned by tests/Unit/Activity/DashboardActivityEmissionTest.php and tests/Unit/Db/DashboardMapperCoverageTest.php::testFindDueScheduled
 
 ### Requirement: REQ-DASH-035 Migration backfill to published state
 

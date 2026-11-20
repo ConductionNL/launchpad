@@ -30,6 +30,13 @@ namespace OCA\LaunchPad\Activity;
  */
 class ActivityRow {
 	/**
+	 * Whether the actor receives a row of their own.
+	 *
+	 * @var boolean
+	 */
+	private bool $tellsActor = true;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string               $type        The event-type constant value.
@@ -58,11 +65,44 @@ class ActivityRow {
 		$params         = $this->extraParams;
 		$params['self'] = ($recipientUserId === $this->actorUserId);
 
-		return new self(
+		$row = new self(
 			type: $this->type,
 			actorUserId: $this->actorUserId,
 			dashboard: $this->dashboard,
 			extraParams: $params
 		);
+		$row->tellsActor = $this->tellsActor;
+
+		return $row;
 	}//end forRecipient()
+
+	/**
+	 * The same row, written to its audience but not to its actor.
+	 *
+	 * @return self The row that skips its actor.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function withoutActor(): self {
+		$row = new self(
+			type: $this->type,
+			actorUserId: $this->actorUserId,
+			dashboard: $this->dashboard,
+			extraParams: $this->extraParams
+		);
+		$row->tellsActor = false;
+
+		return $row;
+	}//end withoutActor()
+
+	/**
+	 * Whether the actor receives a row of their own.
+	 *
+	 * @return bool True unless the row was made with withoutActor().
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function tellsActor(): bool {
+		return $this->tellsActor;
+	}//end tellsActor()
 }//end class

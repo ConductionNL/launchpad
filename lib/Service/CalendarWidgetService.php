@@ -61,6 +61,7 @@ use Throwable;
  *                                                   guard naturally pushes
  *                                                   total complexity past
  *                                                   the project default.
+ * @SuppressWarnings(PHPMD.TooManyMethods) One small method per calendar source and recurrence step.
  */
 class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	/**

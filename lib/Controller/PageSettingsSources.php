@@ -38,6 +38,7 @@ use Psr\Log\LoggerInterface;
  * The role features, tree, log and admin settings the main page reads.
  *
  * @spec openspec/specs/dashboards/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList) Each source is one injected service the page settings read.
  */
 class PageSettingsSources {
 	/**

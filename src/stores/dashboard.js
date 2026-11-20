@@ -196,15 +196,33 @@ function reportCreateFailure(store, error) {
 			),
 		)
 	}
-	if (status === 409 && code === 'quota_exceeded') {
-		const limit = error.response.data.limit
-		showError(
-			t('launchpad', 'You have reached the limit of {limit} dashboards', {
-				limit,
-			}),
-		)
-		store.loadDashboards().catch(() => {})
+	reportDashboardQuota(store, error)
+}
+
+/**
+ * On the structured 409 `quota_exceeded` of a create or fork, name the
+ * dashboard limit and reread the quota envelope so the button disables
+ * (REQ-QUOTA-006, race case).
+ *
+ * @param {object} store The dashboard store.
+ * @param {object} error The axios error.
+ * @return {boolean} Whether the error was a quota refusal.
+ */
+function reportDashboardQuota(store, error) {
+	if (
+		error?.response?.status !== 409
+		|| error?.response?.data?.error !== 'quota_exceeded'
+	) {
+		return false
 	}
+	const limit = error.response.data.limit
+	showError(
+		t('launchpad', 'You have reached the limit of {limit} dashboards', {
+			limit,
+		}),
+	)
+	store.loadDashboards().catch(() => {})
+	return true
 }
 
 /**
@@ -977,7 +995,9 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return fork
 			} catch (error) {
-				showError(forkFailureText(error))
+				if (!reportDashboardQuota(this, error)) {
+					showError(forkFailureText(error))
+				}
 				logger.error('Failed to fork dashboard:', error)
 				throw error
 			} finally {

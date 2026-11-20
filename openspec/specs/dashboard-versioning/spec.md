@@ -58,9 +58,9 @@ The system MUST automatically capture a snapshot whenever a dashboard's content 
 #### Scenario: Snapshot captures full state
 
 - GIVEN a dashboard with 4 widgets at specific grid positions
-- WHEN a PUT updates widget positions and adds metadata
-- THEN the snapshot MUST include all 4 widgets and the new metadata exactly as persisted
-- AND the snapshot MUST be complete and restorable to the exact prior state
+- WHEN a PUT updates widget positions and changes its name and description
+- THEN the snapshot MUST hold the state before the PUT, with all of its fields: the dashboard's name, description and other fields as they were stored, and all 4 widgets at their prior grid positions with their content
+- AND restoring the snapshot MUST bring the 4 widgets back to those prior positions
 
 ### Requirement: REQ-VERS-002 Explicit Snapshot Creation
 

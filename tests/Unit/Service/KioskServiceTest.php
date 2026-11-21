@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Db\KioskPlaylistMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskPlaylistDraft;
 use OCA\LaunchPad\Service\KioskService;
@@ -453,5 +454,45 @@ class KioskServiceTest extends TestCase {
 
 		$this->assertCount(1, $result['entries'][0]['placements']);
 		$this->assertSame('text', $result['entries'][0]['placements'][0]['widgetId']);
+	}
+
+	/**
+	 * A screen has no viewer who can edit: its placements go through the
+	 * visibility rules for a visitor without an account (REQ-VIS-013).
+	 *
+	 * @return void
+	 */
+	public function testRenderPlaylistAppliesTheVisibilityRulesForAVisitor(): void {
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok');
+		$playlist->setName('Lobby');
+		$playlist->setEntries((string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30]]));
+		$this->playlistMapper->method('findByToken')->willReturn($playlist);
+		$dashboard = $this->dashboard(owner: 'alice');
+		$dashboard->setId(42);
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$placement = new WidgetPlacement();
+		$placement->setId(5);
+		$this->placementMapper->method('findByDashboardId')->willReturn([$placement]);
+
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
+		$visibility->expects($this->once())
+			->method('visiblePlacements')
+			->with($this->callback(callback: static fn (array $placements): bool => $placements[0]['id'] === 5), '', false)
+			->willReturn([]);
+		$service = new KioskService(
+			stores: new KioskStores(
+				playlistMapper: $this->playlistMapper,
+				dashMapper: $this->dashMapper,
+				shareService: $this->shareService,
+				placementMapper: $this->placementMapper
+			),
+			groupManager: $this->groupManager,
+			secureRandom: $this->secureRandom,
+			logger: $this->logger,
+			visibility: $visibility
+		);
+
+		$this->assertSame(expected: [], actual: $service->renderPlaylist(token: 'tok')['entries'][0]['placements']);
 	}
 }//end class

@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Kad atspējots, esošie vadības paneļi, kas iegulst pārtiltotus Nextcloud sīkrīkus, attēlo \"Nav pieejams\" stāvokli, līdz tilts tiek atkārtoti iespējots.",
     "Visibility rules" : "Redzamības noteikumi",
     "Visibility rules…" : "Redzamības noteikumi…",
+    "Hidden for viewers" : "Paslēpts skatītājiem",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Rādīt vai slēpt šo sīkrīku, pamatojoties uz grupas dalību, diennakts laiku, datumu diapazonu vai lietotāja atribūtu. Iekļaušanas noteikumi izmanto VAI loģiku; izslēgšanas noteikumi izmanto UN loģiku.",
     "Remove rule" : "Noņemt noteikumu",
     "No visibility rules yet — this widget is always shown." : "Vēl nav neviena redzamības noteikuma — šis sīkrīks vienmēr tiek rādīts.",

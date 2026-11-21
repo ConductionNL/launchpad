@@ -173,10 +173,8 @@ test.describe('REQ-VIS-001 create a conditional rule', () => {
 
 	// @e2e conditional-visibility::create-a-group-based-inclusion-rule
 	test('with the action matrix as shipped, an ordinary owner may still add a rule to her own placement', async () => {
-		// SUSPECTED BUG: lib/actions.seed.json:84 ships `rule.add-rule` as
-		// ["admin"], so ActionCaller::refusal() answers 403 to every owner who
-		// is not an administrator. REQ-VIS-001 says users MUST be able to add
-		// rules to placements on dashboards they own.
+		// lib/actions.seed.json ships `rule.add-rule` open to every user; the
+		// route checks placement ownership (REQ-VIS-001).
 		const pid = await alicePlacement('shipped matrix')
 		const granted = await readActionMatrix(admin)
 		await writeActionMatrix(admin, { ...granted, ...shippedRuleActions() })

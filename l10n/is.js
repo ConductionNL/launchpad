@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Þegar slökkt er á þessu birta núverandi stjórnborð sem fella inn brúaðar Nextcloud-græjur „Ekki tiltækt“-stöðu þar til brúin er virkjuð aftur.",
     "Visibility rules" : "Sýnileikareglur",
     "Visibility rules…" : "Sýnileikareglur…",
+    "Hidden for viewers" : "Falið fyrir áhorfendum",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Sýna eða fela þessa græju eftir hópaaðild, tíma dags, dagsetningarbili eða notandaeigind. Hafa-með-reglur nota EÐA-rökvísi; útiloka-reglur nota OG-rökvísi.",
     "Remove rule" : "Fjarlægja reglu",
     "No visibility rules yet — this widget is always shown." : "Engar sýnileikareglur enn — þessi græja er alltaf sýnd.",

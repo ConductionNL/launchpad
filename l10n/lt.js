@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Kai išjungta, esami valdymo skydai, įterpiantys per tiltą perduotus Nextcloud valdiklius, rodo būseną „Neprieinama“, kol tiltas vėl bus įjungtas.",
     "Visibility rules" : "Matomumo taisyklės",
     "Visibility rules…" : "Matomumo taisyklės…",
+    "Hidden for viewers" : "Paslėpta žiūrovams",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Rodyti arba slėpti šį valdiklį pagal narystę grupėje, paros laiką, datų intervalą arba naudotojo atributą. Įtraukimo taisyklės naudoja ARBA logiką; išskyrimo taisyklės naudoja IR logiką.",
     "Remove rule" : "Pašalinti taisyklę",
     "No visibility rules yet — this widget is always shown." : "Kol kas nėra matomumo taisyklių — šis valdiklis visada rodomas.",

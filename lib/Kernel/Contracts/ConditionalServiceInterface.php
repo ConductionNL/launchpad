@@ -41,6 +41,21 @@ use OCA\LaunchPad\Db\ConditionalRule;
  */
 interface ConditionalServiceInterface {
 	/**
+	 * Apply the visibility rules to the placements a dashboard renders: a
+	 * hidden placement is left out, or kept with `hiddenForViewers: true`
+	 * for a viewer who may edit the dashboard.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The viewing user, '' for a visitor without an account.
+	 * @param bool                             $canEdit    Whether the viewer may edit the dashboard.
+	 *
+	 * @return array<int, array<string, mixed>> The placements to render, in order.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array;
+
+	/**
 	 * Check whether all rules for a placement allow visibility for a user.
 	 *
 	 * Fetches the rules for the placement and delegates to

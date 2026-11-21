@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Quan està desactivat, els taulers existents que incrusten ginys de Nextcloud connectats mostren un estat «No disponible» fins que es torni a activar el pont.",
     "Visibility rules" : "Regles de visibilitat",
     "Visibility rules…" : "Regles de visibilitat…",
+    "Hidden for viewers" : "Amagat per als lectors",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Mostreu o amagueu aquest giny en funció de la pertinença a un grup, l'hora del dia, l'interval de dates o un atribut d'usuari. Les regles d'inclusió utilitzen lògica OR; les regles d'exclusió utilitzen lògica AND.",
     "Remove rule" : "Elimina la regla",
     "No visibility rules yet — this widget is always shown." : "Encara no hi ha regles de visibilitat — aquest giny es mostra sempre.",

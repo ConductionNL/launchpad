@@ -748,6 +748,34 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\ConditionalRule {\\\"id\\\":5,\\\"widgetPlacementId\\\":0,\\\"ruleType\\\":\\\"\\\",\\\"ruleConfig\\\":[],\\\"isInclude\\\":true,\\\"createdAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\ConditionalRule {\\\"id\\\":6,\\\"widgetPlacementId\\\":0,\\\"ruleType\\\":\\\"\\\",\\\"ruleConfig\\\":[],\\\"isInclude\\\":true,\\\"createdAt\\\":null}\"]"
         },
+        "findByPlacementIds all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_conditional_rules\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 101, null)",
+                "qb1.expr.in(\"widget_placement_id\", \":p1\", null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByPlacementIds rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_conditional_rules\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 101, null)",
+                "qb1.expr.in(\"widget_placement_id\", \":p1\", null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\ConditionalRule {\\\"id\\\":5,\\\"widgetPlacementId\\\":0,\\\"ruleType\\\":\\\"\\\",\\\"ruleConfig\\\":[],\\\"isInclude\\\":true,\\\"createdAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\ConditionalRule {\\\"id\\\":6,\\\"widgetPlacementId\\\":0,\\\"ruleType\\\":\\\"\\\",\\\"ruleConfig\\\":[],\\\"isInclude\\\":true,\\\"createdAt\\\":null}\"]"
+        },
         "findAll all": {
             "calls": [
                 "qb1 new",

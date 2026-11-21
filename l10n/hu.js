@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Letiltáskor a hidalt Nextcloud modulokat beágyazó meglévő irányítópultok „Nem érhető el” állapotot jelenítenek meg, amíg a hidat újra nem engedélyezik.",
     "Visibility rules" : "Láthatósági szabályok",
     "Visibility rules…" : "Láthatósági szabályok…",
+    "Hidden for viewers" : "Rejtett a megtekintők elől",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Jelenítse meg vagy rejtse el ezt a modult csoporttagság, napszak, dátumtartomány vagy felhasználói attribútum alapján. A belevételi szabályok VAGY logikát, a kizárási szabályok ÉS logikát használnak.",
     "Remove rule" : "Szabály eltávolítása",
     "No visibility rules yet — this widget is always shown." : "Még nincsenek láthatósági szabályok — ez a modul mindig megjelenik.",

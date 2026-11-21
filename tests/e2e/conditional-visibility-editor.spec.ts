@@ -50,14 +50,10 @@
  *    endpoint-delegates-to-the-shared-evaluation-service. Both fail inside
  *    `seedRule()`, with the server's body in the message.
  *
- * 3. Visibility is never enforced at render time (launchpad#98).
- *    `ConditionalService::checkRulesForPlacement()` has exactly one
- *    production caller, `RuleApiController::getRules()` (the editor's own
- *    read), and no `isWidgetVisible()` exists in `lib/`. A placement whose
- *    rules do not match keeps rendering.
- *    Red on: editor-does-not-change-evaluation-semantics,
- *    endpoint-delegates-to-the-shared-evaluation-service,
- *    preview-verdict-matches-render-time-verdict-for-identical-inputs.
+ * 3. Visibility is enforced at render time (launchpad#98, REQ-VIS-013).
+ *    A viewer does not get a placement whose rules hide it. The owner and
+ *    editors still get it, dimmed and marked "Hidden for viewers", so the
+ *    rendered verdict below counts a marked placement as hidden.
  *
  * `includeexclude-toggle` asserts only what the ROW emits and where it moves,
  * both observable before the server sees the request, so #96 does not turn
@@ -445,10 +441,14 @@ async function runPreviewAndWait(page: Page): Promise<void> {
  * screen the grid has rendered this dashboard's placements, and the subject's
  * absence is a verdict rather than a page that has not loaded yet.
  *
+ * The owner of the dashboard still sees a hidden placement, dimmed and
+ * marked "Hidden for viewers" (REQ-VIS-013), so a marked placement counts as
+ * hidden.
+ *
  * @param page the page, as whoever is viewing.
  * @param subject text unique to the subject tile.
  * @param anchor text unique to the anchor tile.
- * @return whether the subject is rendered.
+ * @return whether the subject is rendered for viewers.
  */
 async function renderedVerdict(
 	page: Page,
@@ -460,11 +460,14 @@ async function renderedVerdict(
 		page.locator('.launchpad-grid-item').filter({ hasText: anchor }).first(),
 		`CONTROL: the rule-free anchor tile "${anchor}" must render, or the subject's absence below means nothing`,
 	).toBeVisible({ timeout: 30_000 })
+	const items = page.locator('.launchpad-grid-item').filter({ hasText: subject })
+	if ((await items.count()) === 0) {
+		return false
+	}
 	return (
-		(await page
-			.locator('.launchpad-grid-item')
-			.filter({ hasText: subject })
-			.count()) > 0
+		(await items
+			.first()
+			.evaluate((el) => el.classList.contains('launchpad-grid-item--hidden-for-viewers'))) === false
 	)
 }
 
@@ -894,10 +897,6 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		page,
 	}) => {
 		/*
-		 * Expected RED until launchpad#98 is fixed: nothing at render time
-		 * evaluates the rules, so the subject keeps rendering after the edit
-		 * below closes its window.
-		 *
 		 * The render-time verdict is read two ways and both must agree with
 		 * the rules: the pipeline's own verdict (`isVisible` from
 		 * `GET /api/widgets/{id}/rules`, which is
@@ -977,7 +976,7 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 				'the pipeline must judge an include rule whose window has closed hidden',
 			).toBe(false)
 
-			// The render must follow the pipeline. Red today (launchpad#98).
+			// The render must follow the pipeline (launchpad#98).
 			expect(
 				await renderedVerdict(page, STAMP, ANCHOR_TITLE),
 				'the dashboard must render what the pipeline decided: a placement whose only include rule has closed must not render (launchpad#98)',
@@ -1911,8 +1910,6 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
  * same user, with the context set to that user's ACTUAL groups (read back
  * from Nextcloud, not assumed) and the current instant.
  *
- * Expected RED until launchpad#98 is fixed: the browser renders the subject
- * whatever the verdict, so every shape whose verdict is Hidden disagrees.
  */
 test.describe('conditional-visibility editor — preview equals render for a real audience (REQ-CVUI-005)', () => {
 	const API = '/index.php/apps/launchpad/api'

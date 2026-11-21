@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\QuotaServiceInterface;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTranslationService;
@@ -45,12 +46,14 @@ class DashboardApiServices {
 	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one
 	 *                                                             language.
 	 * @param MetadataService|null             $metadataService Filters the visible list by detail fields.
+	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules when a dashboard renders.
 	 */
 	public function __construct(
 		public readonly DashboardService $dashboardService,
 		public readonly ?QuotaServiceInterface $quotaService=null,
 		public readonly ?DashboardTranslationService $translationService=null,
 		public readonly ?MetadataService $metadataService=null,
+		public readonly ?ConditionalServiceInterface $visibility=null,
 	) {
 	}//end __construct()
 }//end class

@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Devre dışı bırakıldığında, köprülenmiş Nextcloud araçlarını gömen mevcut panolar, köprü yeniden etkinleştirilene kadar bir \"Kullanılamıyor\" durumu görüntüler.",
     "Visibility rules" : "Görünürlük kuralları",
     "Visibility rules…" : "Görünürlük kuralları…",
+    "Hidden for viewers" : "Görüntüleyenlerden gizlendi",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Bu aracı grup üyeliğine, günün saatine, tarih aralığına veya bir kullanıcı özniteliğine göre gösterin ya da gizleyin. Dahil etme kuralları VEYA mantığı kullanır; dışlama kuralları VE mantığı kullanır.",
     "Remove rule" : "Kuralı kaldır",
     "No visibility rules yet — this widget is always shown." : "Henüz görünürlük kuralı yok — bu araç her zaman gösterilir.",

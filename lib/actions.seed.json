@@ -81,7 +81,7 @@
     "resource-serve.get-resource": ["admin", "@all"],
     "resource-serve.list-resources": ["admin", "@all"],
     "rule.get-rules": ["admin", "@all"],
-    "rule.add-rule": ["admin"],
+    "rule.add-rule": ["admin", "@all"],
     "rule.update-rule": ["admin"],
     "rule.delete-rule": ["admin"],
     "template.gallery": ["admin", "@all"],

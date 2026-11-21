@@ -1,5 +1,5 @@
 <template>
-	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight }">
+	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight, 'launchpad-app--kiosk': kiosk }">
 		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
 		     `isOpen` prop / `update:open` event pair mandated by the spec.
 		     Vue 3 removed the component-level `model: { prop, event }`
@@ -27,7 +27,8 @@
 		     again would not have helped. Teleporting makes the sidebar a
 		     sibling of the navigation rather than a descendant of the content,
 		     which is the only place its z-index means what it says. -->
-		<Teleport to="body">
+		<!-- REQ-KIOSK-001: a kiosk view has no switcher and no top controls. -->
+		<Teleport v-if="!kiosk" to="body">
 			<DashboardSwitcherSidebar
 				:isOpen="sidebarOpen"
 				:groupName="primaryGroupName"
@@ -76,7 +77,7 @@
 		     dock into that row (headerActionsDock.js), right of "Startpagina
 		     aanpassen" as LpStart draws the page's actions. Floating there,
 		     they covered that button. -->
-		<Teleport :to="headerActionsTarget || 'body'">
+		<Teleport v-if="!kiosk" :to="headerActionsTarget || 'body'">
 			<div
 				class="launchpad-floating-controls"
 				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
@@ -293,9 +294,18 @@
 						class="launchpad-grid-item"
 						:class="{
 							'launchpad-grid-item--dimmed': isTileDimmed(item),
+							'launchpad-grid-item--hidden-for-viewers': item.hiddenForViewers === true,
 						}"
 						:data-placement-id="item.id"
 						@contextmenu="onWidgetRightClick($event, item)">
+						<!-- REQ-VIS-013: the visibility rules hide this widget for its
+						     viewers; the owner and editors still see it, dimmed. -->
+						<span
+							v-if="item.hiddenForViewers === true"
+							class="launchpad-grid-item__hidden-badge"
+							data-testid="hidden-for-viewers-badge">
+							{{ t('launchpad', 'Hidden for viewers') }}
+						</span>
 						<!-- Tile placements render the launcher tile directly. -->
 						<TileWidget
 							v-if="isTilePlacement(item)"
@@ -559,6 +569,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
+import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
@@ -570,6 +581,22 @@ import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 /** The workspace grid's row height in pixels; matches `:cellHeight` above. */
 const GRID_ROW_HEIGHT = 60
+
+/**
+ * A placement with the minimum height its widget type registers, so the grid
+ * lets a divider be one row while other widgets keep the grid's minimum.
+ *
+ * @param {object} placement The placement.
+ * @return {object} The placement, or a copy carrying `minHeight`.
+ * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
+ */
+function withTypeMinHeight(placement) {
+	const minHeight = getWidgetTypeEntry(placement?.widgetId)?.minHeight
+	if (!Number.isFinite(minHeight) || placement.minHeight !== undefined) {
+		return placement
+	}
+	return { ...placement, minHeight }
+}
 
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
@@ -744,6 +771,10 @@ export default {
 
 	data() {
 		return {
+			/** REQ-KIOSK-001: opened with `?kiosk=1`. */
+			kiosk: isKioskMode(),
+			stopKiosk: null,
+			kioskRefresh: null,
 			isEditMode: false,
 			/**
 			 * The greeting row's actions element the top-right controls are
@@ -959,18 +990,21 @@ export default {
 		},
 
 		/**
-		 * The layout the grid draws: the shown placements, and outside edit
-		 * mode a placement with `content.fitRows: true` marked so its rows
-		 * take its content's height on a filled grid.
+		 * The layout the grid draws: the shown placements, each carrying the
+		 * minimum height its widget type registers (a divider may be one row),
+		 * and outside edit mode a placement with `content.fitRows: true`
+		 * marked so its rows take its content's height on a filled grid.
 		 *
 		 * @return {Array<object>}
 		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
 		 */
 		gridLayout() {
+			const placements = this.shownPlacements.map(withTypeMinHeight)
 			if (this.isEditMode || !this.fillsHeight) {
-				return this.shownPlacements
+				return placements
 			}
-			return this.shownPlacements.map((p) =>
+			return placements.map((p) =>
 				p?.content?.fitRows === true ? { ...p, fitRows: true } : p,
 			)
 		},
@@ -1480,6 +1514,14 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
+		if (this.kiosk) {
+			this.stopKiosk = startKioskView(window)
+			// REQ-KIOSK-004: a kiosk view re-reads its widgets in place.
+			this.kioskRefresh = setInterval(
+				() => useDashboardStore().reloadPlacements(),
+				KIOSK_REFRESH_MS,
+			)
+		}
 		// dashboard-language-and-details-tabs: fields for "Filter by detail".
 		this.loadDetailFields()
 		// Attach the document-level click listener (REQ-WDG-016 outside-
@@ -1510,6 +1552,8 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		this.stopKiosk?.()
+		clearInterval(this.kioskRefresh)
 		applyCustomCss(DASHBOARD_STYLE_ID, '')
 		this.filterSession?.stop()
 		this.grid.detach()
@@ -2032,6 +2076,9 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async enterEditMode() {
+			if (this.kiosk) {
+				return false
+			}
 			if (this.isEditMode) {
 				return true
 			}
@@ -2098,6 +2145,9 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onWidgetRightClick(event, placement) {
+			if (this.kiosk) {
+				return
+			}
 			this.grid.onWidgetRightClick(event, placement)
 		},
 
@@ -2271,8 +2321,9 @@ export default {
 
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRulesChanged() {
-			// Rules are evaluated server-side at render; nothing to refetch
-			// here. Hook kept so future live-preview can refresh placements.
+			// Rules are applied server-side when the dashboard renders, so
+			// ask again which widgets they hide for viewers.
+			useDashboardStore().refreshPlacementVisibility()
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -3517,6 +3568,29 @@ export default {
    (see `isTileDimmed`) — no other component reaches in to set it. */
 .launchpad-grid-item--dimmed {
 	opacity: 0.35;
+}
+
+.launchpad-grid-item--hidden-for-viewers {
+	position: relative;
+}
+
+.launchpad-grid-item--hidden-for-viewers > :not(.launchpad-grid-item__hidden-badge) {
+	opacity: 0.5;
+}
+
+.launchpad-grid-item__hidden-badge {
+	position: absolute;
+	top: calc(var(--default-grid-baseline) * 2);
+	inset-inline-start: calc(var(--default-grid-baseline) * 2);
+	z-index: 2;
+	padding: 0 calc(var(--default-grid-baseline) * 2);
+	border-radius: var(--border-radius-pill);
+	background-color: var(--color-main-background);
+	color: var(--color-main-text);
+	border: 1px solid var(--color-border-dark);
+	font-size: var(--font-size-small, 13px);
+	line-height: 24px;
+	pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

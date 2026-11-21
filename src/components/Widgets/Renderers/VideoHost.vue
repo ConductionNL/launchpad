@@ -7,7 +7,11 @@
 	<div v-if="resolving" class="video-host__loading">
 		<NcLoadingIcon :size="32" />
 	</div>
-	<CnVideoWidget v-else :content="resolvedContent" />
+	<CnVideoWidget
+		v-else
+		:content="resolvedContent"
+		:canEdit="canEdit"
+		@edit="$emit('edit')" />
 </template>
 
 <script>
@@ -37,7 +41,15 @@ export default {
 
 		/** The placement record; its id addresses the file endpoint. */
 		placement: OBJECT_PROP,
+
+		/** Edit mode: the empty widget then offers "Configure now". */
+		canEdit: {
+			type: Boolean,
+			default: false,
+		},
 	},
+
+	emits: ['edit'],
 
 	data() {
 		return {

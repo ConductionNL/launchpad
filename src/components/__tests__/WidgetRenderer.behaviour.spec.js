@@ -86,8 +86,8 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.rendererProps.call({ placement: { widgetId: 'label' }, editMode: true })).toEqual({})
 	})
 
-	it('tells the link, links, quicklinks and tile widgets when the dashboard is in edit mode', () => {
-		for (const widgetId of ['link', 'links', 'quicklinks', 'tile']) {
+	it('tells the link, links, quicklinks, tile and video widgets when the dashboard is in edit mode', () => {
+		for (const widgetId of ['link', 'links', 'quicklinks', 'tile', 'video']) {
 			expect(computed.rendererProps.call({ placement: { widgetId }, editMode: true }))
 				.toEqual({ isAdmin: true, canEdit: true })
 			expect(computed.rendererProps.call({ placement: { widgetId }, editMode: false }))

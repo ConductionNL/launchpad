@@ -104,7 +104,7 @@ const LEGACY_MOUNT_ATTEMPTS = 20
  * Shared widgets that read edit mode from `isAdmin` + `canEdit`: they suppress
  * their clicks then, and the menu's empty-state gear asks for the editor.
  */
-const EDIT_FLAG_WIDGETS = ['menu', 'link', 'links', 'quicklinks', 'tile']
+const EDIT_FLAG_WIDGETS = ['menu', 'link', 'links', 'quicklinks', 'tile', 'video']
 
 /**
  * The first truthy value among an item's fields, or ''.

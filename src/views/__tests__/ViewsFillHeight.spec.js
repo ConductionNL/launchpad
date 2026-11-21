@@ -59,13 +59,22 @@ describe('Views: a dashboard that fills the height', () => {
 
 	it('hands the placements over unchanged while editing', () => {
 		const host = makeHost([header, counter, tiles], true)
-		expect(host.gridLayout).toBe(host.shownPlacements)
+		expect(host.gridLayout).toEqual(host.shownPlacements)
+		host.gridLayout.forEach((p, i) => expect(p).toBe(host.shownPlacements[i]))
 		expect(host.gridLayout[0].fitRows).toBeUndefined()
+	})
+
+	it('gives a divider the one-row minimum its type registers, and other widgets none', () => {
+		const divider = { id: 4, widgetId: 'divider', gridHeight: 1, content: {} }
+		const host = makeHost([divider, tiles], true)
+		expect(host.gridLayout[0].minHeight).toBe(1)
+		expect(host.gridLayout[1]).toBe(tiles)
 	})
 
 	it('does not fill a dashboard that does not ask', () => {
 		const host = makeHost([counter, tiles])
 		expect(host.fillsHeight).toBe(false)
-		expect(host.gridLayout).toBe(host.shownPlacements)
+		expect(host.gridLayout).toEqual(host.shownPlacements)
+		host.gridLayout.forEach((p, i) => expect(p).toBe(host.shownPlacements[i]))
 	})
 })

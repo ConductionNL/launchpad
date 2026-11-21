@@ -41,6 +41,8 @@
  *   @e2e video-widget::portrait-video-916
  *   @e2e video-widget::empty-state-no-video-configured
  *   @e2e video-widget::invalid-url-error
+ *   @e2e video-widget::url-parsing-endpoint-is-available
+ *   @e2e video-widget::invalid-url-format-is-rejected-early
  *
  * @spec openspec/specs/video-widget/spec.md
  */
@@ -586,6 +588,8 @@ test.describe('video widget: empty and invalid states (REQ-VID-011)', () => {
 	})
 
 	// @e2e video-widget::invalid-url-error
+	// @e2e video-widget::url-parsing-endpoint-is-available
+	// @e2e video-widget::invalid-url-format-is-rejected-early
 	test('"not a valid URL" is refused by the parse endpoint, shown under the field, and blocks saving', async ({ page }) => {
 		await openWorkspace(page)
 		const dialog = await openVideoForm(page)

@@ -371,6 +371,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['placementId' => '\d+']],
 		// REQ-CAL-002: list the user's calendars for the config-form picker.
 		['name' => 'widgetApi#calendars', 'url' => '/api/widgets/calendar/calendars', 'verb' => 'GET'],
+		// REQ-VID-005: parse and validate a video URL typed into the widget form.
+		['name' => 'videoParse#parse', 'url' => '/api/widgets/video/parse', 'verb' => 'POST'],
 		// REQ-VID-006: the streaming address of a video placement's Nextcloud file, for its viewer.
 		['name' => 'videoWidget#file',
 		 'url' => '/api/widgets/video/{placementId}/file', 'verb' => 'GET',

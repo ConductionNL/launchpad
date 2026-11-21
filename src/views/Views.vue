@@ -580,6 +580,22 @@ import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 /** The workspace grid's row height in pixels; matches `:cellHeight` above. */
 const GRID_ROW_HEIGHT = 60
 
+/**
+ * A placement with the minimum height its widget type registers, so the grid
+ * lets a divider be one row while other widgets keep the grid's minimum.
+ *
+ * @param {object} placement The placement.
+ * @return {object} The placement, or a copy carrying `minHeight`.
+ * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
+ */
+function withTypeMinHeight(placement) {
+	const minHeight = getWidgetTypeEntry(placement?.widgetId)?.minHeight
+	if (!Number.isFinite(minHeight) || placement.minHeight !== undefined) {
+		return placement
+	}
+	return { ...placement, minHeight }
+}
+
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
 	// (devtools / findComponent), NOT the registration key — parents still
@@ -968,18 +984,21 @@ export default {
 		},
 
 		/**
-		 * The layout the grid draws: the shown placements, and outside edit
-		 * mode a placement with `content.fitRows: true` marked so its rows
-		 * take its content's height on a filled grid.
+		 * The layout the grid draws: the shown placements, each carrying the
+		 * minimum height its widget type registers (a divider may be one row),
+		 * and outside edit mode a placement with `content.fitRows: true`
+		 * marked so its rows take its content's height on a filled grid.
 		 *
 		 * @return {Array<object>}
 		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
 		 */
 		gridLayout() {
+			const placements = this.shownPlacements.map(withTypeMinHeight)
 			if (this.isEditMode || !this.fillsHeight) {
-				return this.shownPlacements
+				return placements
 			}
-			return this.shownPlacements.map((p) =>
+			return placements.map((p) =>
 				p?.content?.fitRows === true ? { ...p, fitRows: true } : p,
 			)
 		},

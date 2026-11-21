@@ -18,7 +18,7 @@ vi.mock('@nextcloud/router', () => ({
 		'/index.php' + path.replace(/\{(\w+)\}/g, (_m, k) => String(params[k])),
 }))
 vi.mock('@conduction/nextcloud-vue', () => ({
-	CnVideoWidget: { name: 'CnVideoWidget', props: ['content'], template: '<div class="cn-video" />' },
+	CnVideoWidget: { name: 'CnVideoWidget', props: ['content', 'canEdit'], emits: ['edit'], template: '<div class="cn-video" />' },
 	NcLoadingIcon: { name: 'NcLoadingIcon', template: '<span class="loading" />' },
 }))
 
@@ -84,5 +84,14 @@ describe('VideoHost', () => {
 
 		expect(await renderedContent(youtube)).toEqual(youtube)
 		expect(axios.get).not.toHaveBeenCalled()
+	})
+
+	it('passes edit mode to the widget and relays its "Configure now" as edit', async () => {
+		const wrapper = mount(VideoHost, { props: { content: { sourceType: null }, placement: { id: 7 }, canEdit: true } })
+		await flushPromises()
+		const widget = wrapper.findComponent({ name: 'CnVideoWidget' })
+		expect(widget.props('canEdit')).toBe(true)
+		widget.vm.$emit('edit')
+		expect(wrapper.emitted('edit')).toHaveLength(1)
 	})
 })

@@ -291,6 +291,13 @@ When `allowUpload = true` AND the viewer has write permission on the folder, an 
 - WHEN the widget renders
 - THEN the "Upload" button MUST NOT appear
 
+#### Scenario: Upload is off by default
+
+- GIVEN a placement whose content has no `allowUpload` at all
+- AND the viewer can write to the folder
+- WHEN the widget renders
+- THEN the "Upload" button MUST NOT appear, because upload is off until the author switches it on (Ruben, 21 Nov 2026)
+
 #### Scenario: Drag-drop upload multiple files
 
 - GIVEN the upload zone is visible

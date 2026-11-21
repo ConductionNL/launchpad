@@ -22,6 +22,7 @@
  *   @e2e files-widget::user-loses-permission-after-widget-creation
  *   @e2e files-widget::uploaddelete-checks-at-action-time
  *   @e2e files-widget::upload-button-hidden-when-not-allowed
+ *   @e2e files-widget::upload-is-off-by-default
  *   @e2e files-widget::delete-button-hidden-when-not-allowed
  *   @e2e files-widget::delete-on-permission-denied-folder
  *   @e2e files-widget::folder-deleted
@@ -339,6 +340,18 @@ test('the Upload button is absent when allowUpload is false, and when the viewer
 	await openOnWidget(readerView, id)
 	await expect(filesWidget(readerView, id).locator('.cn-files-widget__row')).toHaveCount(1)
 	await expect(filesWidget(readerView, id).getByRole('button', { name: 'Upload File' })).toHaveCount(0)
+})
+
+// @e2e files-widget::upload-is-off-by-default
+test('a placement without allowUpload shows no Upload button to a viewer who can write', async ({ page }) => {
+	await activate(admin, adminDash)
+	const own = await adminFolder('upload-unset', ['mine.txt'])
+	const unset = await seedFilesPlacement(admin, adminDash.id, { folderPath: `/${own}` })
+	adminPlacements.push(unset)
+	const response = await openOnWidget(page, unset)
+	expect((await response.json()).items[0].canEdit, 'CONTROL: the viewer can write').toBe(true)
+	await expect(filesWidget(page, unset).locator('.cn-files-widget__row')).toHaveCount(1)
+	await expect(filesWidget(page, unset).getByRole('button', { name: 'Upload File' })).toHaveCount(0)
 })
 
 // @e2e files-widget::delete-button-hidden-when-not-allowed

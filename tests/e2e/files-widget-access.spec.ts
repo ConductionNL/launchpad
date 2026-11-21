@@ -284,7 +284,11 @@ test('when the owner revokes read access, the next load answers 403 no_access an
 	const name = `revoked-path-${RUN}`
 	const dir = await adminFolder(name, ['was-visible.txt'])
 	const shareId = await shareToReader(dir, PERM.READ)
-	const id = await readerWidget({ folderPath: `/${name}` })
+	// Configured as the folder picker stores it: by file id, path beside it.
+	// A path alone names nothing once the share is gone, so the server could
+	// not tell a revoked folder from a deleted one.
+	const folderId = await fileIdOf(readerApi, reader!.username, name)
+	const id = await readerWidget({ fileId: folderId, folderPath: `/${name}` })
 
 	const page = await readerPage(browser)
 	await openOnWidget(page, id)

@@ -121,8 +121,10 @@ async function dragBy(
 		.locator('.grid-stack-item-content')
 		.boundingBox()
 	expect(box).not.toBeNull()
+	// Low in the body: on a narrow widget the header's Actions button sits
+	// at the middle of the card, and GridStack starts no drag on a button.
 	const startX = box!.x + box!.width / 2
-	const startY = box!.y + box!.height / 2
+	const startY = box!.y + box!.height * 0.8
 	await page.mouse.move(startX, startY)
 	await page.mouse.down()
 	await page.mouse.move(startX + 6, startY + 6, { steps: 3 })
@@ -182,9 +184,14 @@ async function openEditing(browser: Browser, count: number) {
 test('a dragged widget snaps to its new cell and the widget in the way is pushed down', async ({
 	browser,
 }) => {
+	// notes holds the drop target. GridStack pushes a widget aside only once
+	// the dragged one covers more than half of it, and swaps two widgets of
+	// one size, so notes is taller than weather and covered past half only at
+	// the drop target: an equal-size notes a row lower was covered by exactly
+	// half there, kept its place and blocked the drop at 3,1.
 	const [weather, notes] = await seed([
 		{ x: 0, y: 0, w: 4, h: 2 },
-		{ x: 4, y: 3, w: 4, h: 2 },
+		{ x: 4, y: 2, w: 4, h: 3 },
 	])
 	const { context, page } = await openEditing(browser, 2)
 	try {
@@ -194,7 +201,7 @@ test('a dragged widget snaps to its new cell and the widget in the way is pushed
 
 		const rendered = await renderedRects(page)
 		expect(rendered.get(weather)).toEqual({ x: 4, y: 2, w: 4, h: 2 })
-		// notes sat on row 3 of columns 4-7, under the drop target: pushed down.
+		// notes sat on the drop target: pushed down below it.
 		expect(rendered.get(notes)!.y).toBeGreaterThanOrEqual(4)
 		expect(anyOverlap([...rendered.values()])).toBe(false)
 
@@ -285,9 +292,11 @@ test('a widget dragged past the right edge stops at the last column that fits it
 test('dragging a widget onto another pushes the other one down', async ({
 	browser,
 }) => {
+	// b is taller than a for the reason given in the first drag test: an
+	// equal-size b is pushed early and then covered by exactly half.
 	const [a, b] = await seed([
 		{ x: 0, y: 0, w: 4, h: 2 },
-		{ x: 0, y: 2, w: 4, h: 2 },
+		{ x: 0, y: 2, w: 4, h: 3 },
 	])
 	const { context, page } = await openEditing(browser, 2)
 	try {
@@ -297,12 +306,12 @@ test('dragging a widget onto another pushes the other one down', async ({
 
 		const rendered = await renderedRects(page)
 		expect(rendered.get(a)).toEqual({ x: 0, y: 2, w: 4, h: 2 })
-		expect(rendered.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 2 })
+		expect(rendered.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 3 })
 		expect(anyOverlap([...rendered.values()])).toBe(false)
 
 		const stored = await placementRects(own!.owner.api, own!.id)
 		expect(stored.get(a)).toEqual({ x: 0, y: 2, w: 4, h: 2 })
-		expect(stored.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 2 })
+		expect(stored.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 3 })
 	} finally {
 		await context.close()
 	}
@@ -558,8 +567,13 @@ test('a widget cannot be resized below two columns by two rows', async ({
 	const [shrinking] = await seed([{ x: 0, y: 0, w: 4, h: 3 }])
 	const { context, page } = await openEditing(browser, 1)
 	try {
-		await expect(item(page, shrinking)).toHaveAttribute('gs-min-w', '2')
-		await expect(item(page, shrinking)).toHaveAttribute('gs-min-h', '2')
+		// GridStack reads gs-min-w / gs-min-h into the item's node and then
+		// drops the attributes, so the node is where the minimum lives.
+		const minimum = await item(page, shrinking).evaluate((el) => {
+			const node = (el as HTMLElement & { gridstackNode?: { minW?: number, minH?: number } }).gridstackNode
+			return { minW: node?.minW, minH: node?.minH }
+		})
+		expect(minimum).toEqual({ minW: 2, minH: 2 })
 
 		const saved = nextLayoutSave(page, own!.id)
 		await resizeBy(page, shrinking, -3, -2)

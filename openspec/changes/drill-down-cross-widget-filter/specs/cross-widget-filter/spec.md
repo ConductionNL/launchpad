@@ -227,6 +227,42 @@ When org-level telemetry is enabled, the system SHALL persist `filter_event` row
 
 ---
 
+### Requirement: REQ-CWF-011 A dashboard stores its hierarchies
+
+A dashboard SHALL store its `hierarchies` (a list of hierarchy_descriptor objects) and return them on every read of the dashboard, so the filter bus of every viewer joins widgets on them without any per-page configuration. An owner or editor SHALL pick the hierarchies in the dashboard settings from the shipped presets; the `nl-administrative` preset (province > municipality > district: `provincieCode` > `gemeenteCode` > `wijkCode`) SHALL be one of them. The dashboard API SHALL validate every descriptor before it stores it.
+
+#### Scenario: An owner picks the nl-administrative preset
+
+- **GIVEN** a dashboard without hierarchies and its owner in the dashboard settings
+- **WHEN** the owner picks the "Dutch administrative areas" preset and saves
+- **THEN** the dashboard SHALL store the `nl-administrative` descriptor with the levels `provincieCode`, `gemeenteCode` and `wijkCode`, every later read of the dashboard SHALL return it, and the dashboard's filter bus SHALL be rebuilt on it
+
+#### Scenario: Stored hierarchies put consuming widgets on the bus
+
+- **GIVEN** a dashboard that stores the `nl-administrative` hierarchy, a chart that publishes `gemeenteCode` and a chart that consumes `gemeenteCode`
+- **WHEN** a viewer opens the dashboard and clicks a gemeente on the publishing chart
+- **THEN** the consuming chart SHALL refetch with the clicked gemeente as its filter, with no hierarchy added to the dashboard anywhere but in its stored settings
+
+#### Scenario: A malformed descriptor is refused
+
+- **GIVEN** an update whose `hierarchies` is not a list, or holds a descriptor without an `id`, without levels, with a level without a `dimension`, with a dimension used twice, or with a `parentDimension` that is not the level above
+- **WHEN** the update is sent to the dashboard API
+- **THEN** the API SHALL answer 400 with a message naming the problem and SHALL store nothing of the update
+
+#### Scenario: A viewer cannot change the hierarchies
+
+- **GIVEN** a user who may view but not edit a dashboard
+- **WHEN** that user sends an update with `hierarchies`
+- **THEN** the API SHALL refuse it as it refuses a layout change, and the stored hierarchies SHALL stay as they were
+
+#### Scenario: Clearing the hierarchies
+
+- **GIVEN** a dashboard that stores the `nl-administrative` hierarchy
+- **WHEN** the owner removes it in the settings and saves (an update with `hierarchies: []`)
+- **THEN** the dashboard SHALL store no hierarchies, reads SHALL return `hierarchies: []`, and widgets that consume a hierarchy dimension SHALL leave the bus with the REQ-CWF-008 warning
+
+---
+
 ## Data Model
 
 ### dashboard_filter_state

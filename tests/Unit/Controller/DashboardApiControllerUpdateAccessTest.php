@@ -267,6 +267,56 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	}//end testNonStringLinkTargetKeepsTheUpdateMetadataOnly()
 
 	/**
+	 * Changing the hierarchies is a dashboard edit: it asks the full edit
+	 * permission and hands them to the service.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function testHierarchiesUpdateAsksTheFullEditPermission(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['hierarchies' => []])->update(id: 7);
+
+		$this->assertSame(expected: 200, actual: $response->getStatus());
+		$this->assertSame(expected: [['canEditDashboard', 'alice', 7]], actual: $this->asked);
+		$this->assertSame(expected: [[7, 'alice']], actual: $this->saved);
+	}//end testHierarchiesUpdateAsksTheFullEditPermission()
+
+	/**
+	 * A viewer who sends hierarchies is refused with 403 and nothing is saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function testHierarchiesUpdateWithoutEditPermissionIsForbidden(): void {
+		$body     = ['hierarchies' => [['id' => 'x', 'levels' => [['dimension' => 'a']]]]];
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', allowed: 'bob', body: $body)->update(id: 7);
+
+		$this->assertSame(expected: 403, actual: $response->getStatus());
+		$this->assertSame(expected: [], actual: $this->saved);
+	}//end testHierarchiesUpdateWithoutEditPermissionIsForbidden()
+
+	/**
+	 * A malformed hierarchies value refused by the service answers 400.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function testAMalformedHierarchiesValueIsABadRequest(): void {
+		$response = $this->controller(
+			sessionUid: 'alice',
+			userId: 'alice',
+			body: ['hierarchies' => 'nl-administrative'],
+			serviceRefusal: new \InvalidArgumentException('hierarchies must be a list')
+		)->update(id: 7);
+
+		$this->assertSame(expected: 400, actual: $response->getStatus());
+		$this->assertSame(expected: [['canEditDashboard', 'alice', 7]], actual: $this->asked);
+	}//end testAMalformedHierarchiesValueIsABadRequest()
+
+	/**
 	 * A placement update asks the full edit permission for the acting user.
 	 *
 	 * @return void

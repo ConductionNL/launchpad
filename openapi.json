@@ -6069,7 +6069,53 @@
                                             "integer",
                                             "null"
                                         ],
-                                        "description": "Optional new sort order (REQ-DASH-029). The optional `defaultLinkTarget` body field sets the default tile link target; an empty string clears it (`self::requestedLinkTarget()`). The look travels in the same body and is read by `self::lookParams()`: `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the theme, REQ-THM-001), `themeBackgroundResource` (a resource file name, empty for none) and `customCss` (administrator CSS, empty to clear, REQ-THM-003)."
+                                        "description": "Optional new sort order (REQ-DASH-029). The optional `defaultLinkTarget` body field sets the default tile link target; an empty string clears it (`self::requestedLinkTarget()`). The optional `hierarchies` body field sets the hierarchy descriptors of the filter bus; an empty list clears them (REQ-CWF-011). The look travels in the same body and is read by `self::lookParams()`: `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the theme, REQ-THM-001), `themeBackgroundResource` (a resource file name, empty for none) and `customCss` (administrator CSS, empty to clear, REQ-THM-003)."
+                                    },
+                                    "hierarchies": {
+                                        "type": "array",
+                                        "description": "The hierarchy descriptors the filter bus joins widgets on (REQ-CWF-011), broadest level first; an empty list clears them. A malformed descriptor is refused with 400.",
+                                        "maxItems": 8,
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "id",
+                                                "levels"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+                                                },
+                                                "levels": {
+                                                    "type": "array",
+                                                    "minItems": 1,
+                                                    "maxItems": 8,
+                                                    "items": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "dimension"
+                                                        ],
+                                                        "properties": {
+                                                            "dimension": {
+                                                                "type": "string",
+                                                                "pattern": "^[A-Za-z][A-Za-z0-9_.]{0,63}$"
+                                                            },
+                                                            "label": {
+                                                                "type": "string",
+                                                                "maxLength": 128
+                                                            },
+                                                            "parentDimension": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ],
+                                                                "description": "The dimension of the level above; derived when left out."
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     },
                                     "defaultLinkTarget": {
                                         "type": [

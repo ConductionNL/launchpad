@@ -20,7 +20,7 @@
  *   @e2e dashboard-switcher::click-a-default-group-dashboard
  *   @e2e dashboard-switcher::active-highlight-follows-prop
  *   @e2e dashboard-switcher::active-highlight-updates-on-prop-change
- *   @e2e dashboard-switcher::hover-reveals-delete-button
+ *   @e2e dashboard-switcher::delete-lives-in-the-row-options-menu
  *   @e2e dashboard-switcher::delete-click-does-not-trigger-switch
  *   @e2e dashboard-switcher::create-button-hidden-when-feature-disabled
  *   @e2e dashboard-switcher::create-button-click
@@ -476,35 +476,37 @@ test('switching moves the active class from the old row to the new one', async (
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * The row's own delete button: a button inside the row other than the row's
- * cog menu ("Dashboard menu"), named for deleting.
+ * Open a row's options menu ("Dashboard menu") and return its Delete item.
  *
+ * @param page the page.
  * @param target the row.
- * @return the button.
+ * @return the Delete item.
  */
-function inlineDelete(target: Locator): Locator {
-	return target.getByRole('button', { name: /delete|remove/i })
+async function menuDelete(page: Page, target: Locator): Promise<Locator> {
+	await target.getByRole('button', { name: 'Dashboard menu' }).click()
+	return page.getByTestId('cog-delete')
 }
 
-// @e2e dashboard-switcher::hover-reveals-delete-button
-test('hovering a personal row reveals its delete button', async ({ browser }) => {
+// @e2e dashboard-switcher::delete-lives-in-the-row-options-menu
+test('a personal row has no hover delete button; Delete is in its options menu', async ({ browser }) => {
 	const { context, page } = await open(browser, maria)
 	try {
 		await openDashboardSwitcher(page)
 		const target = row(page, personalB.name)
 		await expect(target).toBeVisible()
-		// Away from the row first: the button is hidden until hover.
-		await page.locator('.dashboard-switcher-sidebar__title').hover()
-		await expect(inlineDelete(target)).toBeHidden()
 		await target.hover()
-		await expect(inlineDelete(target)).toBeVisible({ timeout: 5_000 })
+		await expect(
+			target.getByRole('button', { name: /^(delete|remove)/i }),
+			'no inline delete button appears on hover',
+		).toHaveCount(0)
+		await expect(await menuDelete(page, target)).toBeVisible({ timeout: 5_000 })
 	} finally {
 		await context.close()
 	}
 })
 
 // @e2e dashboard-switcher::delete-click-does-not-trigger-switch
-test('clicking the delete button asks to delete and does not switch or close', async ({
+test('choosing Delete in the options menu asks to delete and does not switch or close', async ({
 	browser,
 }) => {
 	const { context, page } = await open(browser, maria)
@@ -515,10 +517,9 @@ test('clicking the delete button asks to delete and does not switch or close', a
 			requests.push(`${req.method()} ${new URL(req.url()).pathname}`),
 		)
 		const target = row(page, personalB.name)
-		await target.hover()
-		await inlineDelete(target).click({ timeout: 5_000 })
+		await (await menuDelete(page, target)).click({ timeout: 5_000 })
 
-		// delete-dashboard(id) reached the host: its confirmation opens.
+		// deleteDashboard(id) reached the host: its confirmation opens.
 		const dialog = page.getByRole('dialog', { name: /delete dashboard/i })
 		await expect(dialog.first()).toBeVisible()
 		await expect(dialog.first()).toContainText(personalB.name)
@@ -527,7 +528,7 @@ test('clicking the delete button asks to delete and does not switch or close', a
 			requests.filter((r) => r.includes(`/api/dashboard/${personalB.id}`)),
 		).toEqual([])
 		expect(await activeIdOf(maria)).toBe(personalA.id)
-		// No update:open(false): the sidebar is still open.
+		// The sidebar is still open.
 		await expect(sidebar(page)).toHaveClass(/\bopen\b/)
 		await dialog
 			.first()

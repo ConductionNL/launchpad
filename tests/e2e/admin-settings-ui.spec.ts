@@ -227,14 +227,15 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 			.filter({ hasText: 'Default grid columns' })
 		await expect(grid).toContainText('8')
 
-		// SUSPECTED BUG: the spec asks for a number input from 1 to 24 and a
-		// Save button. AdminSettings.vue (src/components/admin/AdminSettings.vue:221-228)
-		// draws the grid columns as a select of 6, 8 and 12, and saves every
-		// change at once, with no Save button. Soft, so the checks above still report.
-		const columns = grid.locator('input[type="number"]')
-		await expect.soft(columns).toHaveCount(1)
-		await expect.soft(columns).toHaveAttribute('min', '1')
-		await expect.soft(columns).toHaveAttribute('max', '24')
+		// The grid columns are a select of 6, 8 and 12 (REQ-ASET-006).
+		await grid.locator('.vs__dropdown-toggle').click()
+		const options = page.locator('.vs__dropdown-menu [role="option"]')
+		await expect(options).toHaveText(['6', '8', '12'])
+		await page.keyboard.press('Escape')
+
+		// SUSPECTED BUG: the spec asks for a Save button. AdminSettings.vue
+		// saves every change at once, with no Save button. Soft, so the checks
+		// above still report.
 		await expect.soft(form.getByRole('button', { name: /^Save$/ })).toBeVisible()
 	})
 

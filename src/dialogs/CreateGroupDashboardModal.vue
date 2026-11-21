@@ -82,7 +82,7 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@nextcloud/vue'
-import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
+import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { useGroupDashboardsStore } from '../stores/groupDashboards.js'
 
 /**
@@ -139,7 +139,7 @@ export default {
 		 * @return {object} the frozen icon catalogue.
 		 */
 		iconCatalogue() {
-			return ICON_CATALOGUE
+			return DASHBOARD_ICON_CATALOGUE
 		},
 
 		layoutTemplates() {

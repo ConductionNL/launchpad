@@ -96,6 +96,7 @@ import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { logger } from '../utils/logger.js'
+import { placementContent } from '../utils/placementContent.js'
 
 /** How many times a legacy widget mount is retried before giving up. */
 const LEGACY_MOUNT_ATTEMPTS = 20
@@ -199,9 +200,10 @@ export default {
 		 * @return {object} the content object (empty when unset).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/specs/files-widget/spec.md
 		 */
 		normalizedContent() {
-			return this.placement?.content || {}
+			return placementContent(this.placement)
 		},
 
 		/**

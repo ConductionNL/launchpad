@@ -13,7 +13,7 @@ import { hierarchyPresets, NL_ADMINISTRATIVE, presetLevelLabels } from '../hiera
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, key) => `nl:${key}` }))
 
 describe('hierarchyPresets', () => {
-	it('ships nl-administrative as province > municipality > district, each level under the one above', () => {
+	it('ships nl-administrative as province > municipality > district > neighbourhood, each level under the one above', () => {
 		const preset = hierarchyPresets().find((entry) => entry.id === NL_ADMINISTRATIVE)
 
 		expect(preset.name).toBe('nl:Dutch administrative areas')
@@ -23,6 +23,7 @@ describe('hierarchyPresets', () => {
 				{ dimension: 'provincieCode', label: 'Province', parentDimension: null },
 				{ dimension: 'gemeenteCode', label: 'Municipality', parentDimension: 'provincieCode' },
 				{ dimension: 'wijkCode', label: 'District', parentDimension: 'gemeenteCode' },
+				{ dimension: 'buurtCode', label: 'Neighbourhood', parentDimension: 'wijkCode' },
 			],
 		})
 	})
@@ -32,6 +33,7 @@ describe('hierarchyPresets', () => {
 			provincieCode: 'nl:Province',
 			gemeenteCode: 'nl:Municipality',
 			wijkCode: 'nl:District',
+			buurtCode: 'nl:Neighbourhood',
 		})
 		expect(presetLevelLabels('own-taxonomy')).toBeNull()
 	})

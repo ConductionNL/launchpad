@@ -31,7 +31,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\RoleAssignment;
 use OCA\LaunchPad\Db\RoleAssignmentMapper;
 use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
@@ -391,36 +390,6 @@ class RoleService {
 		return $role === RoleAssignment::ROLE_EDITOR
 			|| $role === RoleAssignment::ROLE_ADMIN;
 	}//end isEditorOrHigher()
-
-	/**
-	 * Whether a user may create a group dashboard for a group: an Admin
-	 * (a Nextcloud administrator is one) for any group, an Editor for a
-	 * group they belong to (REQ-DASH-014). The default group means everyone,
-	 * so an Editor cannot aim a dashboard at it.
-	 *
-	 * @param string $userId  The user ID.
-	 * @param string $groupId The group the dashboard is for.
-	 *
-	 * @return bool Whether the user may create it.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function mayCreateGroupDashboard(string $userId, string $groupId): bool {
-		$role = $this->getEffectiveRole(userId: $userId);
-		if ($role === RoleAssignment::ROLE_ADMIN) {
-			return true;
-		}
-
-		if ($role !== RoleAssignment::ROLE_EDITOR || $groupId === Dashboard::DEFAULT_GROUP_ID) {
-			return false;
-		}
-
-		return in_array(
-			needle: $groupId,
-			haystack: $this->adminTemplateService->getUserGroupIdsFor(userId: $userId),
-			strict: true
-		);
-	}//end mayCreateGroupDashboard()
 
 	/**
 	 * Whether the user is explicitly Viewer (REQ-ROLE-008 mutation guard).

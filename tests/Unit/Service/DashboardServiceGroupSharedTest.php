@@ -36,7 +36,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\RoleService;
+use OCA\LaunchPad\Service\GroupDashboardCreation;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -117,17 +117,17 @@ class DashboardServiceGroupSharedTest extends TestCase {
 		$this->l10nFactory = $this->createMock(IFactory::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
-		$this->service = $this->buildService(roles: null);
+		$this->service = $this->buildService(groupCreation: null);
 	}//end setUp()
 
 	/**
 	 * The service over the test doubles.
 	 *
-	 * @param RoleService|null $roles Decides who may create a group dashboard.
+	 * @param GroupDashboardCreation|null $groupCreation Decides who may create a group dashboard.
 	 *
 	 * @return DashboardService The service.
 	 */
-	private function buildService(?RoleService $roles): DashboardService {
+	private function buildService(?GroupDashboardCreation $groupCreation): DashboardService {
 		return new DashboardService(
 			stores: new DashboardStores(
 				dashboardMapper: $this->dashboardMapper,
@@ -150,7 +150,7 @@ class DashboardServiceGroupSharedTest extends TestCase {
 				db: $this->db,
 				config: $this->config,
 				l10nFactory: $this->l10nFactory,
-				roles: $roles
+				groupCreation: $groupCreation
 			),
 			outlets: new DashboardOutlets(
 				logger: $this->logger
@@ -159,21 +159,21 @@ class DashboardServiceGroupSharedTest extends TestCase {
 	}//end buildService()
 
 	/**
-	 * REQ-DASH-014: an Editor the role service lets create a dashboard
+	 * REQ-DASH-014: an Editor the creation rule lets create a dashboard
 	 * for the group gets one, still owned by nobody.
 	 *
 	 * @return void
 	 */
 	public function testCreateGroupSharedLetsAnEditorInTheGroupCreate(): void {
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$roles = $this->createMock(originalClassName: RoleService::class);
-		$roles->expects($this->once())
-			->method('mayCreateGroupDashboard')
+		$creation = $this->createMock(originalClassName: GroupDashboardCreation::class);
+		$creation->expects($this->once())
+			->method('allows')
 			->with('bob', 'engineering')
 			->willReturn(true);
 		$this->dashboardMapper->expects($this->once())->method('insert')->willReturnArgument(0);
 
-		$created = $this->buildService(roles: $roles)->createGroupShared(
+		$created = $this->buildService(groupCreation: $creation)->createGroupShared(
 			actorUserId: 'bob',
 			groupId: 'engineering',
 			fields: ['name' => 'Engineering']
@@ -184,19 +184,19 @@ class DashboardServiceGroupSharedTest extends TestCase {
 	}//end testCreateGroupSharedLetsAnEditorInTheGroupCreate()
 
 	/**
-	 * REQ-DASH-014: a refusal from the role service still throws.
+	 * REQ-DASH-014: a refusal from the creation rule still throws.
 	 *
 	 * @return void
 	 */
 	public function testCreateGroupSharedRefusesWhomTheRoleServiceRefuses(): void {
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$roles = $this->createMock(originalClassName: RoleService::class);
-		$roles->method('mayCreateGroupDashboard')->willReturn(false);
+		$creation = $this->createMock(originalClassName: GroupDashboardCreation::class);
+		$creation->method('allows')->willReturn(false);
 		$this->dashboardMapper->expects($this->never())->method('insert');
 
 		$this->expectExceptionMessage(message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN);
 
-		$this->buildService(roles: $roles)->createGroupShared(
+		$this->buildService(groupCreation: $creation)->createGroupShared(
 			actorUserId: 'bob',
 			groupId: 'finance',
 			fields: ['name' => 'Finance']

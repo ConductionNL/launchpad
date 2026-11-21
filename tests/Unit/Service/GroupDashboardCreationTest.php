@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RoleServiceGroupCreateTest
+ * GroupDashboardCreationTest
  *
  * Who may create a group dashboard for a group (REQ-DASH-014): a Nextcloud
  * administrator or a LaunchPad Admin for any group, an Editor only for a
@@ -19,6 +19,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\RoleAssignment;
 use OCA\LaunchPad\Db\RoleAssignmentMapper;
 use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\GroupDashboardCreation;
 use OCA\LaunchPad\Service\RoleService;
 use OCP\IGroupManager;
 use OCP\IUserManager;
@@ -26,28 +27,30 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \OCA\LaunchPad\Service\RoleService
+ * @covers \OCA\LaunchPad\Service\GroupDashboardCreation
+ *
+ * @uses \OCA\LaunchPad\Service\RoleService
  */
-class RoleServiceGroupCreateTest extends TestCase {
+class GroupDashboardCreationTest extends TestCase {
 
 	/**
-	 * A RoleService for bob, who is in group "engineering".
+	 * The rule for bob, who is in group "engineering", over the real RoleService.
 	 *
 	 * @param string $kind `nc-admin`, `lp-admin`, `editor`, `viewer` or `user`.
 	 *
-	 * @return RoleService The service.
+	 * @return GroupDashboardCreation The rule.
 	 */
-	private function serviceFor(string $kind): RoleService {
-		$roles = [
+	private function ruleFor(string $kind): GroupDashboardCreation {
+		$assigned = [
 			'lp-admin' => RoleAssignment::ROLE_ADMIN,
 			'editor'   => RoleAssignment::ROLE_EDITOR,
 			'viewer'   => RoleAssignment::ROLE_VIEWER,
 		];
 		$direct = [];
-		if (isset($roles[$kind]) === true) {
+		if (isset($assigned[$kind]) === true) {
 			$assignment = new RoleAssignment();
 			$assignment->setUserId('bob');
-			$assignment->setRole($roles[$kind]);
+			$assignment->setRole($assigned[$kind]);
 			$direct[] = $assignment;
 		}
 
@@ -61,13 +64,15 @@ class RoleServiceGroupCreateTest extends TestCase {
 		$templates = $this->createMock(originalClassName: AdminTemplateService::class);
 		$templates->method('getUserGroupIdsFor')->willReturn(['engineering']);
 
-		return new RoleService(
+		$roles = new RoleService(
 			mapper: $mapper,
 			userManager: $this->createMock(originalClassName: IUserManager::class),
 			groupManager: $groups,
 			adminTemplateService: $templates,
 		);
-	}//end serviceFor()
+
+		return new GroupDashboardCreation(roles: $roles, templates: $templates);
+	}//end ruleFor()
 
 	/**
 	 * Each kind of user against their own group, another group and the default group.
@@ -103,7 +108,7 @@ class RoleServiceGroupCreateTest extends TestCase {
 	public function testWhoMayCreateAGroupDashboard(string $kind, string $groupId, bool $allowed): void {
 		$this->assertSame(
 			expected: $allowed,
-			actual: $this->serviceFor(kind: $kind)->mayCreateGroupDashboard(userId: 'bob', groupId: $groupId)
+			actual: $this->ruleFor(kind: $kind)->allows(userId: 'bob', groupId: $groupId)
 		);
 	}//end testWhoMayCreateAGroupDashboard()
 }//end class

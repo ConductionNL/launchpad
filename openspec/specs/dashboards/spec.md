@@ -1429,7 +1429,7 @@ attribute-level declaration is enforced by Nextcloud's own middleware
 before the controller method body runs, and is the mechanically
 verifiable form per ADR-005's auth-attribute contract.
 
-`createGroup` is the exception (Ruben, 21 Nov 2026): an Editor may create a group dashboard for a group they belong to, so it carries `#[NoAdminRequired]` and checks `RoleService::mayCreateGroupDashboard()` before it reads the body.
+`createGroup` is the exception (Ruben, 21 Nov 2026): an Editor may create a group dashboard for a group they belong to, so it carries `#[NoAdminRequired]` and checks `GroupDashboardCreation::allows()` before it reads the body.
 
 #### Scenario: Non-admin cannot create a group-shared dashboard
 

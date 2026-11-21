@@ -171,6 +171,11 @@ class DashboardActivityEmissionTest extends TestCase {
 		);
 	}
 
+	/**
+	 * One user share tells the sharer once and the recipient once.
+	 *
+	 * @return void
+	 */
 	public function testSharingWithAUserTellsTheSharerAndThatUser(): void {
 		$named = static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_SHARED
 			&& $row->actorUserId === 'alice'
@@ -178,31 +183,36 @@ class DashboardActivityEmissionTest extends TestCase {
 			&& ($row->extraParams['recipient'] ?? '') === 'bob'
 			&& ($row->extraParams['role'] ?? '') === Dashboard::PERMISSION_VIEW_ONLY;
 		$this->publisher->expects($this->once())->method('publish')
-			->with($this->callback(static fn (ActivityRow $row): bool => $named($row) && $row->extraParams['self'] === true), 'alice')
+			->with($this->callback(callback: static fn (ActivityRow $row): bool => $named($row) && $row->extraParams['self'] === true), 'alice')
 			->willReturn(true);
 		$this->publisher->expects($this->once())->method('publishToRecipients')
-			->with($this->callback(static fn (ActivityRow $row): bool => $named($row) && $row->tellsActor() === false), ['bob'])
+			->with($this->callback(callback: static fn (ActivityRow $row): bool => $named($row) && $row->tellsActor() === false), ['bob'])
 			->willReturn(1);
 
-		$this->shareService($this->dashboard())->addShare(
+		$this->shareService(dashboard: $this->dashboard())->addShare(
 			dashboardId: 7,
 			grant: new ShareGrant(shareType: DashboardShare::SHARE_TYPE_USER, shareWith: 'bob', permissionLevel: Dashboard::PERMISSION_VIEW_ONLY),
 			callerId: 'alice'
 		);
 	}
 
+	/**
+	 * Replacing the share list tells the sharer once, naming every recipient.
+	 *
+	 * @return void
+	 */
 	public function testReplacingSharesTellsTheSharerOnceNamingEveryRecipient(): void {
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 		$this->shareMapper->method('findShare')->willReturn(null);
 		$this->shareMapper->method('insert')->willReturnArgument(0);
 		$this->publisher->expects($this->once())->method('publish')
-			->with($this->callback(static fn (ActivityRow $row): bool => $row->extraParams['recipient'] === 'bob, carol'), 'alice')
+			->with($this->callback(callback: static fn (ActivityRow $row): bool => $row->extraParams['recipient'] === 'bob, carol'), 'alice')
 			->willReturn(true);
 		$this->publisher->expects($this->once())->method('publishToRecipients')
 			->with($this->anything(), ['bob', 'carol'])
 			->willReturn(2);
 
-		$this->shareService($this->dashboard())->replaceShares(
+		$this->shareService(dashboard: $this->dashboard())->replaceShares(
 			dashboardId: 7,
 			shares: [
 				['shareType' => DashboardShare::SHARE_TYPE_USER, 'shareWith' => 'bob', 'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY],

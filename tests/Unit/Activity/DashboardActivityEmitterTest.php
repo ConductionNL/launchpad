@@ -181,7 +181,7 @@ class DashboardActivityEmitterTest extends TestCase {
 			->method('publishToRecipients')
 			->with(
 				$this->callback(
-					static fn (ActivityRow $row): bool => $row->tellsActor() === false
+					callback: static fn (ActivityRow $row): bool => $row->tellsActor() === false
 						&& $row->extraParams === $expected->extraParams
 				),
 				['bob', 'carol']
@@ -210,7 +210,9 @@ class DashboardActivityEmitterTest extends TestCase {
 		$this->publisher->expects($this->once())
 			->method('publish')
 			->with(
-				$this->callback(static fn (ActivityRow $row): bool => $row->extraParams['role'] === Dashboard::PERMISSION_VIEW_ONLY.', '.Dashboard::PERMISSION_FULL),
+				$this->callback(
+					callback: static fn (ActivityRow $row): bool => $row->extraParams['role'] === Dashboard::PERMISSION_VIEW_ONLY.', '.Dashboard::PERMISSION_FULL
+				),
 				'alice'
 			)
 			->willReturn(true);
@@ -237,7 +239,7 @@ class DashboardActivityEmitterTest extends TestCase {
 	public function testSharedSwallowsAndLogsAPublisherFailure(): void {
 		$this->publisher->method('publish')->willThrowException(new RuntimeException('activity down'));
 		$this->publisher->method('publishToRecipients')->willThrowException(new RuntimeException('activity down'));
-		$this->logger->expects($this->exactly(2))
+		$this->logger->expects($this->exactly(count: 2))
 			->method('warning')
 			->with('LaunchPad dashboard activity could not be emitted', ['exception' => 'activity down']);
 

@@ -1,0 +1,25 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Kiosk mode (REQ-KIOSK-001): the dashboard fills the screen with no
+ * scrollbars, and the cursor hides while the pointer is idle.
+ */
+
+html.launchpad-kiosk,
+html.launchpad-kiosk body {
+	overflow: hidden;
+}
+
+html.launchpad-kiosk #launchpad-app.launchpad-app--kiosk {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	overflow: hidden;
+	background-color: var(--color-main-background);
+}
+
+html.launchpad-kiosk--idle,
+html.launchpad-kiosk--idle * {
+	cursor: none !important;
+}

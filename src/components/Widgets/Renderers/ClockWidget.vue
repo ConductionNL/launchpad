@@ -49,12 +49,13 @@
 
 <script>
 import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 /**
  * Persisted-content field defaults (REQ-CLOCK-002). `timezone: ''` means
- * "follow the browser/device timezone" — the widget never fetches the
- * server-held Nextcloud user timezone, keeping the clock fully
- * client-side (REQ-CLOCK-001: no backend endpoint, no data fetch).
+ * "the viewer's Nextcloud timezone", which the page hands over in its
+ * initial state; where there is none (a public page) the device zone is used.
+ * The clock itself never fetches anything (REQ-CLOCK-001).
  */
 const DEFAULT_CONTENT = Object.freeze({
 	style: 'digital',
@@ -78,16 +79,18 @@ const DEFAULT_CONTENT = Object.freeze({
 export default {
 	name: 'ClockWidget',
 
+	inject: {
+		/** The viewer's Nextcloud timezone, from the initial state, or ''. */
+		userTimezone: { from: 'userTimezone', default: '' },
+	},
+
 	props: {
 		/**
 		 * Persisted widget content blob.
 		 *
 		 * @type {{style?: string, hourFormat?: string, timezone?: string, showDate?: boolean}}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 	},
 
 	data() {
@@ -145,15 +148,20 @@ export default {
 		},
 
 		/**
-		 * Resolved IANA timezone, or '' to use the browser/device timezone.
+		 * Resolved IANA timezone: the configured one, else the viewer's
+		 * Nextcloud timezone, else '' for the browser/device timezone.
 		 *
 		 * @return {string} the IANA timezone name, or the empty string.
 		 * @spec openspec/specs/clock-weather-widgets/spec.md
 		 */
 		timezone() {
-			return typeof this.content?.timezone === 'string'
+			const configured = typeof this.content?.timezone === 'string'
 				? this.content.timezone
 				: DEFAULT_CONTENT.timezone
+			if (configured !== '') {
+				return configured
+			}
+			return typeof this.userTimezone === 'string' ? this.userTimezone : ''
 		},
 
 		/**

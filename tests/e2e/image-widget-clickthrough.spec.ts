@@ -28,17 +28,41 @@
  * version for whoever fixes the viewport problem.
  */
 
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
 import { expect, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
-import {
-	closeSidebar,
-	gotoLaunchPad,
-	openAddWidgetModal,
-} from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
+import {
+	clearSeededWidgets,
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { apiAs, openAddWidgetDialog } from './support/filesWidget.ts'
+
+let api: APIRequestContext
+let dashboard: SeededDashboard | null = null
+
+// The widget goes on an empty dashboard this file seeds and makes active, so
+// the cell is in view and is the only image on the grid.
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
 
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+	api = await apiAs()
+	dashboard = await seedActiveDashboard(api, `E2E Image click-through ${Date.now()}`)
+	await clearSeededWidgets(api, dashboard.id)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, dashboard)
+	await api.dispose()
 })
 
 test.describe('image widget — real popup click-through', () => {
@@ -50,8 +74,7 @@ test.describe('image widget — real popup click-through', () => {
 		context,
 		page,
 	}) => {
-		await openAddWidgetModal(page)
-		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		const dialog = await openAddWidgetDialog(page)
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
 		// Default source is "URL/Link". Use a SAME-ORIGIN image asset so the

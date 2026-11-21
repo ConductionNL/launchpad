@@ -152,6 +152,11 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 					'cn-walkthrough-seen:launchpad',
 					'999.0.0',
 				)
+				// The admin settings page has its own tour under its own key.
+				window.localStorage.setItem(
+					'cn-walkthrough-seen:launchpad:admin-tour',
+					'999.0.0',
+				)
 			} catch {
 				// localStorage unavailable — specs fall back to dismissing by hand.
 			}

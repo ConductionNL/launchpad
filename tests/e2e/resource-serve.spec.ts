@@ -33,8 +33,14 @@ import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.describe('resource-serving', () => {

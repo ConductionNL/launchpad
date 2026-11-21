@@ -154,19 +154,8 @@ class DashboardTranslationService {
 	public function resolveForLocale(
 		string $dashboardUuid,
 		string $preferredLanguage,
-	): ?array {
-		$normalised = DashboardTranslationMapper::normaliseLanguageCode(
-			raw: $preferredLanguage
-		);
-
-		$exact = null;
-		if ($normalised !== '') {
-			$exact = $this->translationMapper->findByDashboardUuidAndLanguage(
-				dashboardUuid: $dashboardUuid,
-				languageCode: $normalised
-			);
-		}
-
+	): array|null {
+		$exact = $this->exactVariant(dashboardUuid: $dashboardUuid, preferredLanguage: $preferredLanguage);
 		if ($exact !== null) {
 			return [
 				'translation' => $exact,
@@ -186,6 +175,29 @@ class DashboardTranslationService {
 			'isFallback' => true,
 		];
 	}//end resolveForLocale()
+
+	/**
+	 * The variant in exactly the preferred language; null when the
+	 * language normalises to nothing or has no variant.
+	 *
+	 * @param string $dashboardUuid     The dashboard UUID.
+	 * @param string $preferredLanguage The caller's raw language preference.
+	 *
+	 * @return DashboardTranslation|null The variant, or null.
+	 */
+	private function exactVariant(string $dashboardUuid, string $preferredLanguage): DashboardTranslation|null {
+		$normalised = DashboardTranslationMapper::normaliseLanguageCode(
+			raw: $preferredLanguage
+		);
+		if ($normalised === '') {
+			return null;
+		}
+
+		return $this->translationMapper->findByDashboardUuidAndLanguage(
+			dashboardUuid: $dashboardUuid,
+			languageCode: $normalised
+		);
+	}//end exactVariant()
 
 	/**
 	 * Auto-seed a primary translation for a freshly-created dashboard.
@@ -223,23 +235,24 @@ class DashboardTranslationService {
 			return $existing;
 		}
 
-		$language = $this->resolveOwnerLocale(
-			userId: $dashboard->getUserId()
-		);
-
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-		$translation = new DashboardTranslation();
-		$translation->setDashboardUuid($uuid);
-		$translation->setLanguageCode($language);
-		$translation->setName($dashboard->getName());
-		$translation->setDescription($dashboard->getDescription());
-		$translation->setWidgetTreeJson(null);
-		$translation->setIsPrimary(1);
-		$translation->setCreatedAt($now);
-		$translation->setUpdatedAt($now);
+		$translation = $this->materialiseLegacyVariant(dashboard: $dashboard);
+		self::stampCreated(translation: $translation);
 
 		return $this->translationMapper->insert(entity: $translation);
 	}//end seedPrimaryFor()
+
+	/**
+	 * Stamp a new translation's created and updated time with now.
+	 *
+	 * @param DashboardTranslation $translation The new translation.
+	 *
+	 * @return void
+	 */
+	private static function stampCreated(DashboardTranslation $translation): void {
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$translation->setCreatedAt($now);
+		$translation->setUpdatedAt($now);
+	}//end stampCreated()
 
 	/**
 	 * Create a new translation variant for a dashboard, optionally
@@ -248,13 +261,11 @@ class DashboardTranslationService {
 	 * @param string $dashboardUuid The dashboard UUID.
 	 * @param string $languageCode The (raw) language code; will
 	 *                             be normalised before storage.
-	 * @param string|null $name Optional explicit name.
-	 * @param string|null $description Optional explicit description.
-	 * @param string|null $widgetTreeJson Optional explicit tree JSON.
-	 * @param string|null $copyFromLanguage Optional language code to seed
-	 *                                      from (`'primary'` or another
-	 *                                      language); defaults to the
-	 *                                      primary variant when null.
+	 * @param array $content Optional `name`, `description` and
+	 *                       `widgetTreeJson` (explicit values win over the
+	 *                       seed) and `copyFromLanguage`, the language code
+	 *                       to seed from (`'primary'` or another language;
+	 *                       the primary variant when null).
 	 *
 	 * @return DashboardTranslation The created variant.
 	 *
@@ -265,14 +276,31 @@ class DashboardTranslationService {
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
-	public function createVariant(
-		string $dashboardUuid,
-		string $languageCode,
-		?string $name = null,
-		?string $description = null,
-		?string $widgetTreeJson = null,
-		?string $copyFromLanguage = null,
-	): DashboardTranslation {
+	public function createVariant(string $dashboardUuid, string $languageCode, array $content=[]): DashboardTranslation {
+		$content += ['name' => null, 'description' => null, 'widgetTreeJson' => null, 'copyFromLanguage' => null];
+
+		$translation = new DashboardTranslation();
+		$translation->setDashboardUuid($dashboardUuid);
+		$translation->setLanguageCode($this->unusedLanguageCode(dashboardUuid: $dashboardUuid, languageCode: $languageCode));
+		$this->fillVariantContent(translation: $translation, content: $content);
+		$translation->setIsPrimary(0);
+		self::stampCreated(translation: $translation);
+
+		return $this->translationMapper->insert(entity: $translation);
+	}//end createVariant()
+
+	/**
+	 * The normalised language code of a new variant.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $languageCode  The requested language code.
+	 *
+	 * @return string The normalised code.
+	 *
+	 * @throws InvalidArgumentException When the code normalises to nothing.
+	 * @throws Exception               When the dashboard already has that language.
+	 */
+	private function unusedLanguageCode(string $dashboardUuid, string $languageCode): string {
 		$normalised = DashboardTranslationMapper::normaliseLanguageCode(
 			raw: $languageCode
 		);
@@ -290,36 +318,40 @@ class DashboardTranslationService {
 			throw new Exception(message: self::ERR_LANGUAGE_EXISTS);
 		}
 
+		return $normalised;
+	}//end unusedLanguageCode()
+
+	/**
+	 * Fill a new variant's name, description and widget tree: each given
+	 * value, else the seed's (the primary or the `copyFromLanguage` variant).
+	 *
+	 * @param DashboardTranslation $translation The new variant.
+	 * @param array<string, mixed> $content     The given content and `copyFromLanguage`.
+	 *
+	 * @return void
+	 */
+	private function fillVariantContent(DashboardTranslation $translation, array $content): void {
 		$seed = $this->resolveSeed(
-			dashboardUuid: $dashboardUuid,
-			copyFromLanguage: $copyFromLanguage
+			dashboardUuid: (string)$translation->getDashboardUuid(),
+			copyFromLanguage: $content['copyFromLanguage']
 		);
 
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-		$translation = new DashboardTranslation();
-		$translation->setDashboardUuid($dashboardUuid);
-		$translation->setLanguageCode($normalised);
 		$translation->setName(
-			$this->coalesce(value: $name, fallback: $seed?->getName())
+			$this->coalesce(value: $content['name'], fallback: $seed?->getName())
 		);
 		$translation->setDescription(
 			$this->coalesce(
-				value: $description,
+				value: $content['description'],
 				fallback: $seed?->getDescription()
 			)
 		);
 		$translation->setWidgetTreeJson(
 			$this->coalesce(
-				value: $widgetTreeJson,
+				value: $content['widgetTreeJson'],
 				fallback: $seed?->getWidgetTreeJson()
 			)
 		);
-		$translation->setIsPrimary(0);
-		$translation->setCreatedAt($now);
-		$translation->setUpdatedAt($now);
-
-		return $this->translationMapper->insert(entity: $translation);
-	}//end createVariant()
+	}//end fillVariantContent()
 
 	/**
 	 * Update an existing translation variant.
@@ -436,17 +468,7 @@ class DashboardTranslationService {
 
 		$this->db->beginTransaction();
 		try {
-			$this->translationMapper->clearPrimary(
-				dashboardUuid: $dashboardUuid,
-				exceptId: $translation->getId()
-			);
-			$translation->setIsPrimary(1);
-			$translation->setUpdatedAt(
-				(new DateTime())->format(format: 'Y-m-d H:i:s')
-			);
-			$updated = $this->translationMapper->update(
-				entity: $translation
-			);
+			$updated = $this->makePrimary(translation: $translation, dashboardUuid: $dashboardUuid);
 			$this->db->commit();
 			return $updated;
 		} catch (Throwable $t) {
@@ -454,6 +476,29 @@ class DashboardTranslationService {
 			throw $t;
 		}
 	}//end promoteVariantToPrimary()
+
+	/**
+	 * Clear the other primary rows of the dashboard and flag this one.
+	 *
+	 * @param DashboardTranslation $translation   The variant to promote.
+	 * @param string               $dashboardUuid The dashboard UUID.
+	 *
+	 * @return DashboardTranslation The updated variant.
+	 */
+	private function makePrimary(DashboardTranslation $translation, string $dashboardUuid): DashboardTranslation {
+		$this->translationMapper->clearPrimary(
+			dashboardUuid: $dashboardUuid,
+			exceptId: $translation->getId()
+		);
+		$translation->setIsPrimary(1);
+		$translation->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+
+		return $this->translationMapper->update(
+			entity: $translation
+		);
+	}//end makePrimary()
 
 	/**
 	 * Cascade-delete every translation variant for a dashboard. Called
@@ -510,7 +555,7 @@ class DashboardTranslationService {
 	 *
 	 * @return string The normalised language code.
 	 */
-	private function resolveOwnerLocale(?string $userId): string {
+	private function resolveOwnerLocale(string|null $userId): string {
 		if ($userId === null || $userId === '') {
 			return DashboardTranslation::DEFAULT_LANGUAGE;
 		}
@@ -545,8 +590,8 @@ class DashboardTranslationService {
 	 */
 	private function resolveSeed(
 		string $dashboardUuid,
-		?string $copyFromLanguage,
-	): ?DashboardTranslation {
+		string|null $copyFromLanguage,
+	): DashboardTranslation|null {
 		if ($copyFromLanguage === null
 			|| $copyFromLanguage === ''
 			|| strtolower($copyFromLanguage) === 'primary'

@@ -74,6 +74,8 @@ use stdClass;
  * @method void setTileLinkValue(?string $tileLinkValue)
  * @method string|null getCustomIcon()
  * @method void setCustomIcon(?string $customIcon)
+ * @method string|null getCalculatedFields()
+ * @method void setCalculatedFields(?string $calculatedFields)
  * @method string|null getContent()
  * @method void setContent(?string $content)
  * @method int getRequiresAcknowledgement()
@@ -89,6 +91,8 @@ use stdClass;
  * @method string|null getAnnouncementKey()
  * @method void setAnnouncementKey(?string $announcementKey)
  * @method int|null getTemplatePlacementId()
+ * @method int getVersion()
+ * @method void setVersion(int $version)
  * @method void setTemplatePlacementId(?int $templatePlacementId)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
@@ -173,6 +177,15 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * @var string|null
 	 */
 	protected ?string $customIcon = null;
+
+	/**
+	 * The calculated fields of the widget, a JSON list of field definitions
+	 * (id, name, label, expression, compiledExpression, returnType,
+	 * evaluationMode, ...). Null on rows saved before the column existed.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $calculatedFields = null;
 
 	/**
 	 * Whether to show the title (SMALLINT 0/1).
@@ -340,6 +353,14 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	protected ?int $templatePlacementId = null;
 
 	/**
+	 * The per-widget version, raised by one on every save
+	 * (building-edit-a-dashboard-together, task 1.2).
+	 *
+	 * @var integer
+	 */
+	protected int $version = 0;
+
+	/**
 	 * The creation timestamp as string.
 	 *
 	 * @var string|null
@@ -381,6 +402,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 		// SMALLINT in DB (0/1).
 		$this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
 		$this->addType(fieldName: 'templatePlacementId', type: 'integer');
+		$this->addType(fieldName: 'version', type: 'integer');
 	}//end __construct()
 
 	/**
@@ -449,6 +471,44 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end setContentArray()
 
 	/**
+	 * The calculated fields of the widget as a list of field definitions.
+	 *
+	 * @return list<array<string, mixed>> The fields, [] when the column is null,
+	 *                                    unparseable or not a list.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-21
+	 */
+	public function getCalculatedFieldsArray(): array {
+		if (empty($this->calculatedFields) === true) {
+			return [];
+		}
+
+		$decoded = json_decode(json: $this->calculatedFields, associative: true);
+		if (is_array($decoded) === false || array_is_list($decoded) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($decoded, static fn (mixed $field): bool => is_array($field) === true));
+	}//end getCalculatedFieldsArray()
+
+	/**
+	 * Store the calculated fields of the widget.
+	 *
+	 * @param array<array-key, mixed> $fields The field definitions; keys are dropped, non-array entries skipped.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-21
+	 */
+	public function setCalculatedFieldsArray(array $fields): void {
+		$list = array_values(array_filter($fields, static fn (mixed $field): bool => is_array($field) === true));
+		// Entity setters resolve via __call which uses $args[0]; named args
+		// would break the magic forwarding (see project memory).
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setCalculatedFields(json_encode($list));
+	}//end setCalculatedFieldsArray()
+
+	/**
 	 * Properties whose DB column deliberately differs from the derived name.
 	 *
 	 * Nextcloud rejects any identifier longer than 30 characters during app
@@ -511,25 +571,28 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * @return array The serialized widget placement.
 	 */
 	public function jsonSerialize(): array {
-		// The styleConfig and content are associative JSON blobs. An empty
-		// blob decodes to a PHP `[]`, which json_encodes to a JSON array
-		// (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
-		// so the wire format is always an object — clients type these fields
-		// as objects and a stray `[]` is truthy-but-wrong on the frontend.
-		$styleConfig = $this->getStyleConfigArray();
-		$content = $this->getContentArray();
+		$data = $this->placementFields() + $this->acknowledgementFields() + [
+			'templatePlacementId' => $this->templatePlacementId,
+			'version' => $this->version,
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
 
-		$styleConfigOut = new stdClass();
-		if (empty($styleConfig) === false) {
-			$styleConfigOut = $styleConfig;
+		// Include tile configuration if this is a tile.
+		if ($this->tileType !== null) {
+			$data += $this->tileFields();
 		}
 
-		$contentOut = new stdClass();
-		if (empty($content) === false) {
-			$contentOut = $content;
-		}
+		return $data;
+	}//end jsonSerialize()
 
-		$data = [
+	/**
+	 * The widget, grid, style and content fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function placementFields(): array {
+		return [
 			'id' => $this->getId(),
 			'dashboardId' => $this->dashboardId,
 			'widgetId' => $this->widgetId,
@@ -539,35 +602,68 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 			'gridHeight' => $this->gridHeight,
 			'isCompulsory' => $this->isCompulsory,
 			'isVisible' => $this->isVisible,
-			'styleConfig' => $styleConfigOut,
+			'styleConfig' => self::wireObject(blob: $this->getStyleConfigArray()),
 			'customTitle' => $this->customTitle,
 			'customIcon' => $this->customIcon,
-			'content' => $contentOut,
+			'content' => self::wireObject(blob: $this->getContentArray()),
+			'calculatedFields' => $this->getCalculatedFieldsArray(),
 			'showTitle' => $this->showTitle,
 			'sortOrder' => $this->sortOrder,
+		];
+	}//end placementFields()
+
+	/**
+	 * An associative JSON blob for the wire.
+	 *
+	 * The styleConfig and content are associative JSON blobs. An empty
+	 * blob decodes to a PHP `[]`, which json_encodes to a JSON array
+	 * (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
+	 * so the wire format is always an object — clients type these fields
+	 * as objects and a stray `[]` is truthy-but-wrong on the frontend.
+	 *
+	 * @param array<string, mixed> $blob The decoded blob.
+	 *
+	 * @return array<string, mixed>|stdClass The blob, or an empty object.
+	 */
+	private static function wireObject(array $blob): array|stdClass {
+		if (empty($blob) === false) {
+			return $blob;
+		}
+
+		return new stdClass();
+	}//end wireObject()
+
+	/**
+	 * The acknowledgement fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function acknowledgementFields(): array {
+		return [
 			'requiresAcknowledgement' => $this->requiresAcknowledgement,
 			'acknowledgementPrompt' => $this->acknowledgementPrompt,
 			'acknowledgementDeadline' => $this->acknowledgementDeadline,
 			'reacknowledgeOnChange' => $this->reacknowledgeOnChange,
 			'acknowledgementContentVersion' => $this->acknowledgementContentVersion,
 			'announcementKey' => $this->announcementKey,
-			'templatePlacementId' => $this->templatePlacementId,
-			'createdAt' => $this->createdAt,
-			'updatedAt' => $this->updatedAt,
 		];
+	}//end acknowledgementFields()
 
-		// Include tile configuration if this is a tile.
-		if ($this->tileType !== null) {
-			$data['tileType'] = $this->tileType;
-			$data['tileTitle'] = $this->tileTitle;
-			$data['tileIcon'] = $this->tileIcon;
-			$data['tileIconType'] = $this->tileIconType;
-			$data['tileBackgroundColor'] = $this->tileBackgroundColor;
-			$data['tileTextColor'] = $this->tileTextColor;
-			$data['tileLinkType'] = $this->tileLinkType;
-			$data['tileLinkValue'] = $this->tileLinkValue;
-		}
-
-		return $data;
-	}//end jsonSerialize()
+	/**
+	 * The tile configuration fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function tileFields(): array {
+		return [
+			'tileType' => $this->tileType,
+			'tileTitle' => $this->tileTitle,
+			'tileIcon' => $this->tileIcon,
+			'tileIconType' => $this->tileIconType,
+			'tileBackgroundColor' => $this->tileBackgroundColor,
+			'tileTextColor' => $this->tileTextColor,
+			'tileLinkType' => $this->tileLinkType,
+			'tileLinkValue' => $this->tileLinkValue,
+		];
+	}//end tileFields()
 }//end class

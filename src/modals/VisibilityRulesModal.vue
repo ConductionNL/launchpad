@@ -6,6 +6,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="normal"
 		:name="t('launchpad', 'Visibility rules')"
 		@close="$emit('close')">
@@ -16,7 +17,7 @@
 
 			<ConditionalVisibilityEditor
 				:placementId="placementId"
-				:availableGroups="availableGroups"
+				:availableGroups="offeredGroups"
 				data-test="conditional-visibility-editor"
 				@ruleAdded="$emit('ruleAdded')"
 				@ruleUpdated="$emit('ruleUpdated')"
@@ -29,6 +30,8 @@
 import { NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import ConditionalVisibilityEditor from '../components/Widgets/ConditionalVisibilityEditor.vue'
+import { FLAG_PROP, LIST_PROP } from '../constants/propDefinitions.js'
+import { api } from '../services/api.js'
 
 /**
  * VisibilityRulesModal — the placement's "Visibility" settings surface
@@ -52,22 +55,67 @@ export default {
 		},
 
 		/** Whether the modal is shown. */
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
 		/** Optional group-id list for the group-rule picker. */
-		availableGroups: {
-			type: Array,
-			default: () => [],
-		},
+		availableGroups: LIST_PROP,
 	},
 
 	emits: ['close', 'ruleAdded', 'ruleUpdated', 'ruleRemoved'],
 
+	data() {
+		return {
+			loadedGroups: [],
+		}
+	},
+
+	computed: {
+		/**
+		 * The groups the pickers offer: the passed list, else the instance's groups.
+		 *
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-002-per-rule-row-editor-for-all-four-rule-types
+		 */
+		offeredGroups() {
+			return this.availableGroups.length > 0 ? this.availableGroups : this.loadedGroups
+		},
+	},
+
+	watch: {
+		open: {
+			immediate: true,
+			/**
+			 * Read the groups on opening when none were passed.
+			 *
+			 * @param {boolean} isOpen whether the modal is shown.
+			 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-002-per-rule-row-editor-for-all-four-rule-types
+			 */
+			handler(isOpen) {
+				if (isOpen && this.availableGroups.length === 0) {
+					this.loadGroups()
+				}
+			},
+		},
+	},
+
 	methods: {
 		t,
+
+		/**
+		 * Read every Nextcloud group as `{id, displayName}`. The list is
+		 * admin-only; anyone else keeps an empty list, and a stored rule
+		 * still shows the groups it names.
+		 *
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-002-per-rule-row-editor-for-all-four-rule-types
+		 */
+		async loadGroups() {
+			try {
+				const res = await api.getAdminGroups()
+				const allKnown = res?.data?.allKnown
+				this.loadedGroups = Array.isArray(allKnown) ? allKnown : []
+			} catch {
+				this.loadedGroups = []
+			}
+		},
 	},
 }
 </script>

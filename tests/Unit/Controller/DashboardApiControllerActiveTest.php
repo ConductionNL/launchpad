@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
@@ -34,6 +37,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Unit tests for the setActiveDashboard controller action (REQ-DASH-019).
@@ -84,15 +92,19 @@ class DashboardApiControllerActiveTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->dashboardService,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
-			versionService: $this->versionService,
-			analyticsService: $this->analyticsService,
-			logger: $this->logger,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			userId: $userId,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService
+			),
+			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
+				treeService: $this->treeService,
+				versionService: $this->versionService,
+				analyticsService: $this->analyticsService,
+				logger: $this->logger
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 

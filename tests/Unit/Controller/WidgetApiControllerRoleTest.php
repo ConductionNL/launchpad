@@ -28,6 +28,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\WidgetApiPolicy;
+use OCA\LaunchPad\Controller\WidgetApiSources;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\WidgetApiController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\CalendarWidgetService;
@@ -43,6 +46,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Tests for role-permission filtering in WidgetApiController.
@@ -121,16 +129,20 @@ class WidgetApiControllerRoleTest extends TestCase {
 
 		return new WidgetApiController(
 			request: $this->request,
-			widgetService: $this->widgetService,
-			permissionService: $this->createMock(originalClassName: PermissionService::class),
-			newsWidgetService: $this->createMock(originalClassName: NewsWidgetService::class),
-			calendarService: $this->createMock(originalClassName: CalendarWidgetService::class),
-			placementService: $this->createMock(originalClassName: WidgetPlacementService::class),
-			roleFeaturePerm: $this->roleFeaturePerm,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			logger: $this->logger,
-			userId: 'jan',
+			sources: new WidgetApiSources(
+				widgetService: $this->widgetService,
+				newsWidgetService: $this->createMock(originalClassName: NewsWidgetService::class),
+				calendarService: $this->createMock(originalClassName: CalendarWidgetService::class),
+				placementService: $this->createMock(originalClassName: WidgetPlacementService::class)
+			),
+			access: new WidgetApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), policy: new WidgetApiPolicy(
+				roleFeaturePerm: $this->roleFeaturePerm,
+				logger: $this->logger
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: 'jan', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 

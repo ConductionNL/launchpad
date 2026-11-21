@@ -67,7 +67,6 @@ The grid MUST initialize with the correct configuration when a dashboard is load
 ### Requirement: Drag to Reposition (REQ-GRID-002)
 
 Users MUST be able to drag widgets to new positions on the grid in edit mode.
-@e2e exclude drag-to-reposition requires live GridStack drag events — fragile in headless Playwright; composite regression covered by wave3 runtime-shell tests
 
 #### Scenario: Drag a widget to a new position
 - GIVEN the dashboard is in edit mode
@@ -107,7 +106,6 @@ Users MUST be able to drag widgets to new positions on the grid in edit mode.
 ### Requirement: Resize by Edge Dragging (REQ-GRID-003)
 
 Users MUST be able to resize widgets by dragging their edges or corners in edit mode.
-@e2e exclude resize-by-edge requires live GridStack resize events — same fragility as REQ-GRID-002
 
 #### Scenario: Resize a widget horizontally
 - GIVEN the dashboard is in edit mode
@@ -182,7 +180,6 @@ The grid MUST support two distinct interaction modes controlled by the `editMode
 ### Requirement: Position Persistence (REQ-GRID-005)
 
 Grid position changes MUST be communicated to the parent component for API persistence.
-@e2e exclude position persistence tested via Vue composable event-emit — not directly observable in Playwright without mock
 
 #### Scenario: Save after grid change
 - GIVEN the user drags a widget to a new position
@@ -217,50 +214,60 @@ Grid position changes MUST be communicated to the parent component for API persi
 - THEN each grid item's `id` MUST be matched to a placement's `id` via string comparison
 - AND the placement's gridX, gridY, gridWidth, gridHeight MUST be updated from the grid item's x, y, w, h values
 
-### Requirement: Widget Auto-Layout — collision placement algorithm (REQ-GRID-006)
+### Requirement: REQ-GRID-006 Widget Auto-Layout (bottom-append placement)
 
-When a new widget is added to an existing dashboard, the system MUST place it without overlapping any existing widget and without leaving it outside the visible grid region. The algorithm MUST be:
-@e2e exclude auto-layout collision algorithm tests composable internal math — Vitest unit scope; browser outcome covered by REQ-GRID-001 init test
+When a new widget is added to a dashboard, the system MUST place it in a fresh row directly below all existing widgets, without overlapping any existing widget and without moving any existing widget. The algorithm MUST be:
 
-1. **Try GridStack auto-position** — call `grid.addWidget({x: 0, y: 0, w: newW, h: newH, autoPosition: true, ...})`. GridStack scans for the first empty rectangle that fits and uses it.
-2. **Fallback: top-left with push-down** — if step 1 fails (GridStack returns no slot, or the picked slot is below `viewportRows`), place the new widget at `(x: 0, y: 0)` with size `(newW, newH)` AND for every existing widget whose rectangle overlaps `[0..newW] × [0..newH]`, set its `gridY` to `newH` (pushing it just below the new one). Existing widgets that do not overlap MUST NOT be moved.
+1. **Compute the bottom edge** — for every existing placement compute `gridY + gridHeight`; the new widget's `y` MUST be the maximum of these values (the lowest occupied bottom edge). A placement missing `gridY` contributes `0`; a placement missing `gridHeight` contributes height `1`.
+2. **Anchor to the left** — the new widget's `x` MUST be `0`.
+3. **Empty dashboard** — when there are no existing placements, the new widget MUST be placed at `(x: 0, y: 0)`.
 
-Default size when the caller omits `w`/`h` MUST be `w=4, h=4`. Position writes MUST trigger the persistence path of REQ-GRID-005.
+Existing widgets MUST NOT be moved — there is no push-down — and the helper's `pushed` array MUST always be empty. Default size when the caller omits `w`/`h` MUST be `w=4, h=4`. Position writes MUST trigger the persistence path of REQ-GRID-005.
 
-#### Scenario: Auto-position into empty space
+This requirement deliberately replaces the former "GridStack auto-position + top-left/push-down fallback" rule, which reordered the user's existing layout on every add once the visible rows filled up. The shipped `placeNewWidget(spec, placements, options?)` helper implements bottom-append; this requirement is the authoritative description of that behaviour.
+
+#### Scenario: Append below the only existing widget
 
 - **GIVEN** a dashboard with one widget at `(x:0, y:0, w:6, h:4)`
 - **WHEN** a new 4×4 widget is added
-- **THEN** GridStack MUST place it at `(x:6, y:0)` (the empty right-half)
+- **THEN** it MUST be placed at `(x:0, y:4)` (a fresh row below the existing widget)
+- **AND** the existing widget MUST NOT be moved
+- **AND** the returned `pushed` array MUST be empty
+
+#### Scenario: Append below the lowest widget regardless of array order
+
+- **GIVEN** a dashboard with widgets at `(x:0, y:5, w:6, h:3)` (bottom edge `8`) and `(x:6, y:0, w:6, h:2)` (bottom edge `2`)
+- **WHEN** a new 6×3 widget is added
+- **THEN** it MUST be placed at `(x:0, y:8)` (below the lowest bottom edge, not below the last array entry)
 - **AND** no existing widget MUST be moved
 
-#### Scenario: Push-down fallback when grid is full at top
+#### Scenario: First widget on an empty dashboard
 
-- **GIVEN** a dashboard with widgets occupying the entire `[0..12] × [0..4]` region
+- **GIVEN** a dashboard with no widgets
 - **WHEN** a new 4×4 widget is added
-- **THEN** it MUST be placed at `(x:0, y:0, w:4, h:4)`
-- **AND** every previously-overlapping widget MUST have `gridY = 4` (just below the new one)
-- **AND** non-overlapping widgets (already at `y >= 4`) MUST NOT have their `gridY` changed
+- **THEN** it MUST be placed at `(x:0, y:0)`
+
+#### Scenario: Existing widgets are never pushed when the top region is full
+
+- **GIVEN** a dashboard whose `[0..12] × [0..4]` region is fully occupied
+- **WHEN** a new 4×4 widget is added
+- **THEN** it MUST be placed at `(x:0, y:4)`, below the occupied region
+- **AND** every existing widget MUST retain its original `gridX`, `gridY`, `gridWidth`, and `gridHeight`
+- **AND** the returned `pushed` array MUST be empty
 
 #### Scenario: Default size on omitted dimensions
 
 - **GIVEN** a caller invokes `placeNewWidget({type: 'text'})` with no `w` or `h`
 - **WHEN** the placement runs
 - **THEN** the placement MUST use `w=4, h=4`
+- **AND** the `y` coordinate MUST still be the lowest occupied bottom edge (`0` on an empty dashboard)
 
 #### Scenario: Persistence after placement
 
-- **GIVEN** a new widget has been placed (via either step 1 or step 2)
+- **GIVEN** a new widget has been placed
 - **WHEN** the placement completes
-- **THEN** the new widget AND any pushed-down widgets MUST be persisted via the standard placement-update API (REQ-WDG-008 batch update or per-placement PUT)
-- **AND** a single network round-trip SHOULD be used for the batch (debounce 300 ms per the design rule in `openspec/config.yaml`)
-
-#### Scenario: Pushed widgets remain within their column lane
-
-- **GIVEN** existing widget at `(x:8, y:0, w:4, h:2)` overlaps a new 6×3 widget being placed at top-left
-- **WHEN** the push-down fallback runs
-- **THEN** the existing widget's `gridX` and `gridW` MUST remain `8` and `4` respectively
-- **AND** only `gridY` MUST be increased to `3`
+- **THEN** the new widget MUST be persisted via the standard placement-update API (REQ-WDG-008 batch update or per-placement PUT)
+- **AND** because no existing widget is moved, only the new widget's position needs to be written
 
 #### Scenario: Add widget to partially filled grid (incremental render)
 - GIVEN the grid has widgets occupying rows 0-2 in columns 0-8
@@ -333,7 +340,6 @@ The grid MUST also adapt to the container width while maintaining the active col
 ### Requirement: Grid Accessibility (REQ-GRID-008)
 
 The grid MUST support keyboard navigation and screen reader compatibility.
-@e2e exclude grid accessibility (Tab focus ordering, ARIA roles) requires pre-seeded placements and screen reader emulation — Vitest axe scope
 
 #### Scenario: Keyboard navigation between widgets
 - GIVEN the dashboard is in view mode
@@ -358,7 +364,6 @@ The grid MUST support keyboard navigation and screen reader compatibility.
 ### Requirement: Tile vs Widget Rendering (REQ-GRID-009)
 
 The grid MUST distinguish between tile placements and widget placements for rendering.
-@e2e exclude tile vs widget rendering dispatch tests WidgetWrapper prop-threading — Vitest component scope; browser manifestation covered by tiles and widgets specs
 
 #### Scenario: Tile placement renders TileWidget
 - GIVEN a placement with `tileType: "custom"` and inline tile data (tileTitle, tileIcon, etc.)
@@ -390,27 +395,28 @@ The grid MUST distinguish between tile placements and widget placements for rend
 ### Requirement: Grid Styling (REQ-GRID-010)
 
 The grid MUST apply consistent visual styling to all grid items.
-@e2e exclude grid CSS styling (backdrop-filter, border-radius, placeholder colours) tests computed styles at pixel level — visual regression / Vitest snapshot scope
 
 #### Scenario: Grid item content styling
 - GIVEN a grid item is rendered
 - WHEN the item is displayed
 - THEN `.grid-stack-item-content` MUST have: background blur via `backdrop-filter`, large border radius via `--border-radius-large`, and `overflow: hidden`
+@e2e exclude pixel-level CSS (backdrop-filter, border-radius) — visual styling, no unit test pins it; the scoped rule is in src/views/Views.vue `.launchpad-container :deep(.grid-stack-item-content)`
 
 #### Scenario: Placeholder styling during drag
 - GIVEN the user is dragging a widget in edit mode
 - WHEN a placeholder appears showing the drop target
 - THEN `.grid-stack-placeholder > .placeholder-content` MUST have: a primary element light background and a 2px dashed border in primary color with large border radius
+@e2e exclude pixel-level CSS of GridStack's drag placeholder — visual styling only; no unit test pins it
 
 #### Scenario: Placement key regeneration
 - GIVEN a widget placement is updated (e.g., style change)
 - WHEN the grid re-renders
 - THEN the placement key MUST include the `updatedAt` timestamp and `styleConfig` hash to force re-rendering via `getPlacementKey()`
+@e2e exclude Vue render key, not observable in the browser; the shipped key is the bare id (src/views/Views.vue placementItemKey, pinned by src/views/__tests__/ViewsPlacementActions.spec.js "keys a placement by its id as text") so this scenario's updatedAt/styleConfig key is stale
 
 ### Requirement: Grid Synchronization (REQ-GRID-011)
 
 The grid MUST stay synchronized with the placements prop when items are added or removed externally.
-@e2e exclude grid sync uses Vue watcher + nextTick internals — observable as DOM behaviour but requires complex timing; covered by Vitest
 
 #### Scenario: New placement added to props
 - GIVEN the placements array receives a new placement via the parent component
@@ -427,11 +433,11 @@ The grid MUST stay synchronized with the placements prop when items are added or
 - GIVEN the DashboardGrid component is about to be destroyed
 - WHEN `beforeDestroy` lifecycle hook fires
 - THEN `grid.destroy(false)` MUST be called (false = do not remove DOM elements)
+@e2e exclude component lifecycle internal to nextcloud-vue CnDashboardGrid (unmount calls grid.destroy(false)); nothing to observe in the browser and no LaunchPad test pins it
 
 ### Requirement: Cell geometry constants (REQ-GRID-012)
 
 The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). These constants MUST live in a single shared module exported from the grid composable, not duplicated in component templates.
-@e2e exclude cell geometry constants are source-code assertions; grep + import checks cannot be driven from Playwright
 
 #### Scenario: Cell height read from constant
 
@@ -439,6 +445,7 @@ The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). Th
 - WHEN any other module needs the cell height (e.g. for collision math or CSS calc)
 - THEN it MUST import the constant
 - AND grep for hardcoded `60` in grid contexts MUST return only the composable definition
+@e2e exclude source-code import/grep assertion; pinned by src/composables/__tests__/useGridManager.spec.js ("CELL_HEIGHT is 60 px")
 
 #### Scenario: 12-col, 60px, 8px margin renders predictable height
 
@@ -461,7 +468,7 @@ The system MUST pin `gridstack` to a major version that supports `columnOpts.bre
 ### Requirement: Placement helper is the single placement authority (REQ-GRID-014)
 
 All "add widget" code paths (toolbar dropdown, keyboard shortcut, drag-from-picker) MUST go through a single `placeNewWidget(spec)` helper exported from the grid composable. Inline calls to `grid.addWidget` outside this helper are forbidden.
-@e2e exclude single placement authority is a source-code grep assertion — cannot be driven from Playwright
+@e2e exclude source-code structure (which module calls grid.addWidget / placeNewWidget), not browser behaviour; pinned by the grep guard in src/composables/__tests__/useGridManager.spec.js and by src/stores/__tests__/dashboard.golden.spec.js; the placement outcome is cited under REQ-GRID-006
 
 #### Scenario: Single source of truth
 
@@ -476,6 +483,76 @@ All "add widget" code paths (toolbar dropdown, keyboard shortcut, drag-from-pick
 - **WHEN** the submit handler runs
 - **THEN** it MUST call `placeNewWidget(spec)` exported from `useGridManager.js`
 - **AND** MUST NOT call `grid.addWidget(...)` directly
+
+### Requirement: REQ-GRID-KBD-001 Grid items expose an accessible role and name
+
+Every rendered grid item MUST carry `role="group"`, a computed
+`aria-label` describing the widget (e.g. "Widget: {title}"), and
+`tabindex="0"` so it is reachable via sequential keyboard navigation
+(`Tab`/`Shift+Tab`) and announced by assistive technology as a distinct,
+named unit.
+
+#### Scenario: Grid item is keyboard-focusable
+
+- **GIVEN** a dashboard with 3 widget placements in edit mode
+- **WHEN** a keyboard user presses `Tab` repeatedly from the canvas
+- **THEN** focus MUST land on each grid item in turn
+- **AND** each focused item MUST have a visible focus indicator
+
+#### Scenario: Screen reader announces the widget
+
+- **GIVEN** a grid item wrapping a widget titled "Team Announcements"
+- **WHEN** a screen reader user focuses the item
+- **THEN** it MUST announce a group with the accessible name "Widget:
+  Team Announcements" (or the tile-equivalent label for tile placements)
+
+### Requirement: REQ-GRID-KBD-002 Keyboard-operable move and resize
+
+Any user MUST be able to reposition or resize a focused widget placement
+using only the keyboard, producing the same `gridX`/`gridY`/`gridWidth`/
+`gridHeight` outcome a mouse drag would produce, including respecting the
+existing minimum size (`gs-min-w`/`gs-min-h` = 2) and existing collision/
+push behaviour.
+
+#### Scenario: Opening the move panel via keyboard
+
+- **GIVEN** a grid item has keyboard focus
+- **WHEN** the user presses `Enter` or `Space`
+- **THEN** the same panel/menu reachable via right-click MUST open
+- **AND** a "Move" action MUST be present in that panel/menu
+
+#### Scenario: Nudging position with arrow keys
+
+- **GIVEN** the move panel is open for a widget at `gridX=2, gridY=3`
+- **WHEN** the user presses `ArrowRight`
+- **THEN** the pending position MUST become `gridX=3, gridY=3`
+- **AND** the change MUST NOT be persisted until the user confirms
+
+#### Scenario: Resizing with Shift+arrow keys
+
+- **GIVEN** the move panel is open for a widget at `gridWidth=3,
+  gridHeight=2`
+- **WHEN** the user presses `Shift+ArrowRight`
+- **THEN** the pending size MUST become `gridWidth=4, gridHeight=2`
+- **AND** the size MUST NOT shrink below the existing 2-cell minimum in
+  either dimension
+
+#### Scenario: Confirming and cancelling
+
+- **GIVEN** the move panel is open with a pending position/size change
+- **WHEN** the user presses `Enter`
+- **THEN** the placement MUST be updated via the same persistence path
+  drag-and-drop already uses
+- **WHEN** instead the user presses `Escape`
+- **THEN** no change MUST be persisted and the panel MUST close
+
+#### Scenario: Collisions are resolved the same way as drag
+
+- **GIVEN** a keyboard-driven move would overlap an existing placement
+- **WHEN** the user confirms the move
+- **THEN** the system MUST apply the same collision/push resolution
+  `placeNewWidget()` already applies for drag-and-drop moves — no widget
+  MUST silently overlap another after confirmation
 
 ## Non-Functional Requirements
 
@@ -493,7 +570,7 @@ All "add widget" code paths (toolbar dropdown, keyboard shortcut, drag-from-pick
 - REQ-GRID-003 (Resize by Edge Dragging): Resize controlled via `disableResize: !this.editMode`. Min sizes via `gs-min-w="2"`, `gs-min-h="2"`.
 - REQ-GRID-004 (View Mode vs Edit Mode): `editMode` prop controls grid state.
 - REQ-GRID-005 (Position Persistence): `handleGridChange()` emits `update:placements` on every change event.
-- REQ-GRID-006 (Widget Auto-Layout — collision placement algorithm): `placeNewWidget()` in `src/composables/useGridManager.js` computes the position via the autoPosition primary path and the top-left + push-down fallback; `syncGridItems()` then renders the new placement via `grid.makeWidget()`. Push-down side effects flow through the existing `updatePlacements` batch path.
+- REQ-GRID-006 (Widget Auto-Layout — collision placement algorithm): `placeNewWidget()` in `src/composables/useGridManager.js` appends the new widget at the bottom: `x = 0`, `y = max(gridY + gridHeight)` over the existing placements, `(0, 0)` on an empty dashboard, and no existing widget moves (`pushed` is always empty); `syncGridItems()` then renders the new placement via `grid.makeWidget()`.
 - REQ-GRID-009 (Tile vs Widget Rendering): `isTilePlacement()`, `getTileData()` handle rendering distinction.
 - REQ-GRID-010 (Grid Styling): CSS applied via scoped styles with deep selectors.
 - REQ-GRID-011 (Grid Synchronization): `placements` watcher triggers `syncGridItems()`.

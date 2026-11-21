@@ -8,7 +8,6 @@
  * covered by the dedicated per-widget test files:
  *
  *   @e2e dashboard-switcher::all-three-sections-present
- *   @e2e dashboard-switcher::only-personal-dashboards-section-visible
  *   @e2e dashboard-switcher::personal-section-visible-when-allowed-even-with-empty-list
  *   @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
  *   @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
@@ -56,8 +55,14 @@ const TS = `md-${Date.now()}`
 // Install a restrictive `default` role-feature-permission and rely on the
 // admin break-glass bypass so the admin can still add any widget during this
 // suite (see fixtures helper for the bypass it proves).
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 // Navigate to launchpad and wait for the app to hydrate.
@@ -149,7 +154,6 @@ test.describe('dashboard-switcher sidebar', () => {
 	})
 
 	// @e2e dashboard-switcher::all-three-sections-present
-	// @e2e dashboard-switcher::only-personal-dashboards-section-visible
 	test('sidebar opens and shows at least one dashboard section', async ({
 		page,
 	}) => {

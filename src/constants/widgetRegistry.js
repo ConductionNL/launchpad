@@ -19,6 +19,10 @@
  *                         CnChartWidget's apexcharts props)
  *       - `stats-block` → StatsBlockHost  (maps `content` onto CnStatsBlockWidget's
  *                         separate props)
+ *       - `tile`        → TileHost        (a `create` office tile opens the new-file
+ *                         dialog; every other tile renders through CnDashTileWidget)
+ *       - `video`       → VideoHost       (resolves a Nextcloud-file source's streaming
+ *                         URL for the viewer, REQ-VID-006)
  *     `files` keeps the communal CnFilesWidget renderer — its launchpad backend
  *     `apiBase` is injected by WidgetRenderer.rendererProps, not the registry.
  *
@@ -53,6 +57,10 @@ import {
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
+import ActivityReportWidget from '../components/Widgets/Renderers/ActivityReportWidget.vue'
+import ActivityReportWidgetForm from '../components/Widgets/Renderers/ActivityReportWidgetForm.vue'
+import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
+import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
 // communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
@@ -62,12 +70,22 @@ import {
 // `ai-assistant` — ask Hermiq about the dashboard (search-ai-dashboard-assistant,
 // openspec/specs/launchpad-ai-dashboard-assistant). Same LaunchPad-only
 // registration pattern as `clock`/`weather`.
-import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
-import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
+import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
+import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
+import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
+import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
+import ColleagueActivityWidgetForm from '../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'
+// `communities` — the open Talk conversations the viewer may join
+// (openspec/changes/engagement-communities). Same LaunchPad-only registration
+// pattern as `clock`/`weather`.
+import CommunitiesWidget from '../components/Widgets/Renderers/CommunitiesWidget.vue'
+import CommunitiesWidgetForm from '../components/Widgets/Renderers/CommunitiesWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+import ContainerWidgetForm from '../components/Widgets/Renderers/ContainerWidgetForm.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
 // refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
@@ -92,6 +110,11 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
+import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
+import TileHost from '../components/Widgets/Renderers/TileHost.vue'
+import VideoHost from '../components/Widgets/Renderers/VideoHost.vue'
+import VideoWidgetForm from '../components/Widgets/Renderers/VideoWidgetForm.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
@@ -116,6 +139,11 @@ const RENDERER_OVERRIDES = {
 	container: ContainerWidget,
 	chart: ChartHost,
 	'stats-block': StatsBlockHost,
+	// integrations-office-tiles: a `create` tile opens the new-file dialog;
+	// every other tile still renders through CnDashTileWidget.
+	tile: TileHost,
+	// REQ-VID-006: a Nextcloud-file video is resolved for its viewer first.
+	video: VideoHost,
 }
 
 /**
@@ -130,6 +158,10 @@ const FORM_OVERRIDES = {
 	people: PeopleForm,
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,
+	// launcher-tile-sorting: the communal fields plus "Sort tiles".
+	container: ContainerWidgetForm,
+	// REQ-VID-005: the URL is checked by the parse endpoint.
+	video: VideoWidgetForm,
 }
 
 // The shared bundle (beta.155) exports CnNcWidgetWidget but its self-
@@ -168,6 +200,56 @@ registerDashboardWidget('ai-assistant', {
 	icon: 'RobotOutline',
 })
 
+// `attention`: "First today", the ranked list of what the user's apps say
+// needs attention (openspec/specs/attention-feed). LaunchPad-only: it reads
+// LaunchPad's own sources endpoint. Same registration pattern as `clock`.
+registerDashboardWidget('attention', {
+	renderer: AttentionWidget,
+	form: AttentionWidgetForm,
+	defaultContent: {
+		limit: 5,
+	},
+	displayName: 'First today',
+	icon: 'AlertCircleOutline',
+})
+
+// `colleague-activity`: what colleagues did recently, filtered server-side to
+// what the reader may see (dashboards-and-who-may-see-them REQ-DWMS-007).
+registerDashboardWidget('colleague-activity', {
+	renderer: ColleagueActivityWidget,
+	form: ColleagueActivityWidgetForm,
+	defaultContent: {
+		limit: 10,
+		days: 7,
+	},
+	displayName: 'Colleague activity',
+	icon: 'AccountMultipleOutline',
+})
+
+// `activity-report`: a person's activity per type and per day, with the purpose
+// shown whenever it is about a named person; the server gates who may read whom
+// and logs every such read (dashboards-and-who-may-see-them REQ-DWMS-005/006).
+registerDashboardWidget('activity-report', {
+	renderer: ActivityReportWidget,
+	form: ActivityReportWidgetForm,
+	defaultContent: {
+		days: 30,
+	},
+	displayName: 'Activity report',
+	icon: 'CalendarMonthOutline',
+})
+
+// `status-report`: a dated status report on one body of work, prefilled by the
+// product and kept with the person's rating and summary; the kept report says
+// which values were computed and which were written (REQ-DWMS-004).
+registerDashboardWidget('status-report', {
+	renderer: StatusReportWidget,
+	form: StatusReportWidgetForm,
+	defaultContent: {},
+	displayName: 'Status report',
+	icon: 'ClipboardTextOutline',
+})
+
 registerDashboardWidget('clock', {
 	renderer: ClockWidget,
 	form: ClockWidgetForm,
@@ -183,6 +265,17 @@ registerDashboardWidget('clock', {
 
 // `weather` — server-fetched, ICache-cached ambient tile (REQ-WEATHER-
 // 001..003). Same LaunchPad-only registration pattern as `clock`.
+registerDashboardWidget('communities', {
+	renderer: CommunitiesWidget,
+	form: CommunitiesWidgetForm,
+	defaultContent: {
+		title: '',
+		onlyPinned: false,
+	},
+	displayName: 'Communities',
+	icon: 'AccountGroupOutline',
+})
+
 registerDashboardWidget('weather', {
 	renderer: WeatherWidget,
 	form: WeatherWidgetForm,
@@ -251,6 +344,19 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// engagement-announcements REQ-ANN-001..003: targeted news with likes,
+// comments and follow per category; notices show as banners instead.
+registerDashboardWidget('announcements', {
+	renderer: AnnouncementsWidget,
+	form: AnnouncementsWidgetForm,
+	defaultContent: {
+		category: '',
+		limit: 10,
+	},
+	displayName: 'Announcements',
+	icon: 'BullhornOutline',
 })
 
 // `news` — RSS/Atom headlines fetched server-side

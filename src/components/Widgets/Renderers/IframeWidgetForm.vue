@@ -90,7 +90,12 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 import { validateIframeUrl } from '../../../services/iframeClient.js'
+import { allowListMessage, urlFieldErrors } from '../../../utils/urlAllowList.js'
 
 const DEFAULT_HEIGHT = 400
 
@@ -129,6 +134,9 @@ function sandboxTokenOptions() {
  * blur so authors get fast feedback, surfaced through the synchronous
  * `validate()` the modal's submit gate calls.
  */
+/** Validation codes that mean the URL itself was not confirmed allow-listed. */
+const URL_CHECK_FAILURES = ['url_required', 'invalid_url', 'host_not_allowed', 'validation_unavailable']
+
 export default {
 	name: 'IframeWidgetForm',
 
@@ -144,20 +152,14 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values — used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: ['update:content'],
@@ -325,24 +327,33 @@ export default {
 				return
 			}
 			const result = await validateIframeUrl(this.assembledContent)
+			// The check runs on leaving the URL field, often before a title is
+			// typed: only errors about the URL itself decide the host's status.
 			this.allowListChecked = result.valid === true
-			if (
-				result.valid === false
-				&& result.errors.includes('host_not_allowed')
-			) {
-				this.urlAllowListError = t(
-					'launchpad',
-					'This host is not on the allow-list.',
-				)
-			} else if (
-				result.valid === false
-				&& result.errors.includes('invalid_url')
-			) {
-				this.urlAllowListError = t('launchpad', 'Enter a valid http(s) URL.')
-			} else {
-				this.urlAllowListError = ''
-			}
+				|| (Array.isArray(result.errors)
+					&& !result.errors.some((code) => URL_CHECK_FAILURES.includes(code)))
+			this.urlAllowListError = this.hostRefusal(result) || allowListMessage(result)
 			this.emitUpdate()
+		},
+
+		/**
+		 * The refusal naming the host when the server says it is not on the
+		 * allow-list (REQ-IFRAME-002), or `''`.
+		 *
+		 * @param {{valid: boolean, errors?: string[]}} result The server's validation answer.
+		 * @return {string}
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
+		hostRefusal(result) {
+			if (!Array.isArray(result.errors) || !result.errors.includes('host_not_allowed')) {
+				return ''
+			}
+			try {
+				const host = new URL(this.url.trim()).hostname
+				return t('launchpad', 'The host {host} is not on the allow-list.', { host })
+			} catch {
+				return ''
+			}
 		},
 
 		/**
@@ -355,16 +366,7 @@ export default {
 		 * @spec openspec/specs/iframe-embed-widget/spec.md
 		 */
 		validate() {
-			const errors = []
-
-			if (typeof this.url !== 'string' || this.url.trim() === '') {
-				errors.push(t('launchpad', 'URL is required'))
-			} else if (!/^https?:\/\/.+/i.test(this.url.trim())) {
-				errors.push(t('launchpad', 'Enter a valid http(s) URL.'))
-			}
-			if (this.urlAllowListError) {
-				errors.push(this.urlAllowListError)
-			}
+			const errors = urlFieldErrors(this.url, this.urlAllowListError)
 
 			if (typeof this.title !== 'string' || this.title.trim() === '') {
 				errors.push(t('launchpad', 'Title is required'))

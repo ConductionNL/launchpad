@@ -23,6 +23,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
@@ -108,21 +113,31 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->settingMapper,
-			templateService: $this->templateService,
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $this->dashResolver,
-			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-			groupManager: $this->groupManager,
-			adminTemplateService: $this->adminTemplateService,
-			db: $this->db,
-			config: $this->config,
-			l10nFactory: $this->l10nFactory,
-			logger: $this->logger,
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->settingMapper
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->templateService,
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->dashResolver,
+				adminTemplateService: $this->adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->db,
+				config: $this->config,
+				l10nFactory: $this->l10nFactory
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->logger
+			)
 		);
 	}//end setUp()
 
@@ -652,5 +667,108 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 
 		$this->assertSame($expected, $result);
 	}//end testGetEffectiveDashboardHonoursActivePrefForGroupDashboard()
+
+	/**
+	 * Wire both preference keys.
+	 *
+	 * @param string $default The pinned default UUID.
+	 * @param string $active  The last-used UUID.
+	 *
+	 * @return void
+	 */
+	private function stubPrefs(string $default, string $active): void {
+		$this->config
+			->method('getUserValue')
+			->willReturnCallback(function ($uid, $app, $key, $fallback) use ($default, $active) {
+				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+					return $default;
+				}
+				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+					return $active;
+				}
+				return $fallback;
+			});
+	}//end stubPrefs()
+
+	/**
+	 * Run the private effective-dashboard chain.
+	 *
+	 * @return array|null
+	 */
+	private function resolveEffective(): ?array {
+		return (new \ReflectionMethod(DashboardService::class, 'resolveEffectiveDashboard'))->invoke($this->service, 'alice');
+	}//end resolveEffective()
+
+	/**
+	 * The pinned default beats the last-used preference when both are visible.
+	 *
+	 * @return void
+	 */
+	public function testEffectiveDashboardPinnedDefaultBeatsLastUsed(): void {
+		$pinned = $this->makeDashboard(uuid: 'uuid-pin', type: Dashboard::TYPE_USER, groupId: null, userId: 'alice');
+		$pinned->setId(1);
+		$last = $this->makeDashboard(uuid: 'uuid-last', type: Dashboard::TYPE_USER, groupId: null, userId: 'alice');
+		$last->setId(2);
+		$this->stubVisible('alice', [
+			['dashboard' => $last, 'source' => Dashboard::SOURCE_USER],
+			['dashboard' => $pinned, 'source' => Dashboard::SOURCE_USER],
+		]);
+		$this->stubPrefs(default: 'uuid-pin', active: 'uuid-last');
+		$this->placementMapper->expects($this->once())->method('findByDashboardId')->with(1)->willReturn([]);
+		$this->dashResolver->method('buildResult')->willReturnCallback(
+			static fn (Dashboard $dashboard, array $placements): array => ['built' => $dashboard->getUuid()]
+		);
+		$this->dashResolver->expects($this->never())->method('tryGetActiveDashboard');
+
+		$this->assertSame(['built' => 'uuid-pin'], $this->resolveEffective());
+	}//end testEffectiveDashboardPinnedDefaultBeatsLastUsed()
+
+	/**
+	 * An invisible pin falls through to a visible last-used preference.
+	 *
+	 * @return void
+	 */
+	public function testEffectiveDashboardInvisiblePinFallsToLastUsed(): void {
+		$last = $this->makeDashboard(uuid: 'uuid-last', type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
+		$last->setId(2);
+		$this->stubVisible('alice', [['dashboard' => $last, 'source' => Dashboard::SOURCE_GROUP]]);
+		$this->stubPrefs(default: 'uuid-gone', active: 'uuid-last');
+		$this->placementMapper->method('findByDashboardId')->with(2)->willReturn([]);
+		$this->dashResolver->method('buildResult')->willReturnCallback(
+			static fn (Dashboard $dashboard, array $placements): array => ['built' => $dashboard->getUuid()]
+		);
+
+		$this->assertSame(['built' => 'uuid-last'], $this->resolveEffective());
+	}//end testEffectiveDashboardInvisiblePinFallsToLastUsed()
+
+	/**
+	 * Invisible preferences fall through to the legacy active row, without clearing anything.
+	 *
+	 * @return void
+	 */
+	public function testEffectiveDashboardInvisiblePrefsFallThroughToActiveRow(): void {
+		$this->stubVisible('alice', []);
+		$this->stubPrefs(default: 'uuid-gone', active: 'uuid-also-gone');
+		$this->config->expects($this->never())->method('deleteUserValue');
+		$this->dashResolver->method('tryGetActiveDashboard')->with(userId: 'alice')->willReturn(['legacy' => true]);
+		$this->dashResolver->expects($this->never())->method('tryActivateExistingDashboard');
+
+		$this->assertSame(['legacy' => true], $this->resolveEffective());
+	}//end testEffectiveDashboardInvisiblePrefsFallThroughToActiveRow()
+
+	/**
+	 * Without preferences the visible set is not read; an existing dashboard is activated next.
+	 *
+	 * @return void
+	 */
+	public function testEffectiveDashboardWithoutPrefsActivatesAnExistingDashboard(): void {
+		$this->stubPrefs(default: '', active: '');
+		$this->dashboardMapper->expects($this->never())->method('findVisibleToUser');
+		$this->dashResolver->method('tryGetActiveDashboard')->willReturn(null);
+		$this->dashResolver->method('tryActivateExistingDashboard')->with(userId: 'alice')->willReturn(['activated' => true]);
+		$this->adminTemplateService->expects($this->never())->method('getUserGroupIdsFor');
+
+		$this->assertSame(['activated' => true], $this->resolveEffective());
+	}//end testEffectiveDashboardWithoutPrefsActivatesAnExistingDashboard()
 
 }//end class

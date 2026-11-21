@@ -10,9 +10,6 @@ Conditional visibility allows widget placements to be shown or hidden based on d
 
 ## Data Model
 
-
-@e2e exclude all scenarios test PHP service layer and DB — visibility evaluation is backend-only; no UI surface for rule editing in v1.0.5
-
 ### Conditional Rules (oc_launchpad_conditional_rules)
 - **id**: Auto-increment integer primary key
 - **widgetPlacementId**: Foreign key to oc_launchpad_widget_placements (INTEGER)
@@ -51,7 +48,7 @@ NOTE: Date rules use camelCase keys (`startDate`, `endDate`). Both fields are op
 
 ### Requirement: Create Conditional Rule (REQ-VIS-001)
 
-Users MUST be able to add conditional visibility rules to widget placements on dashboards they own.
+Users MUST be able to add conditional visibility rules to widget placements on dashboards they own. The owner needs no administrator role: the shipped action matrix opens `rule.add-rule` to every user, and the route checks placement ownership before it writes (Ruben, 21 Nov 2026). An existing instance gets this from the action baseline repair step (revision 5).
 
 #### Scenario: Create a group-based inclusion rule
 - GIVEN user "alice" has widget placement id 10 on her dashboard
@@ -142,7 +139,7 @@ Users MUST be able to retrieve all conditional rules for a widget placement they
 
 ### Requirement: Update Conditional Rule (REQ-VIS-003)
 
-Users MUST be able to modify existing conditional rules on placements they own.
+Users MUST be able to modify existing conditional rules on placements they own, without an administrator role, and a Nextcloud administrator on every placement (Ruben, 21 Nov 2026). The shipped action matrix opens `rule.update-rule` to every user; the route checks placement ownership before it writes, and the action baseline repair step (revision 7) opens it on an existing instance where the entry is still the pristine admin-only default.
 
 #### Scenario: Update rule configuration
 - GIVEN conditional rule id 5 with `ruleConfig: {"groups": ["marketing"]}`
@@ -182,7 +179,7 @@ Users MUST be able to modify existing conditional rules on placements they own.
 
 ### Requirement: Delete Conditional Rule (REQ-VIS-004)
 
-Users MUST be able to remove conditional rules from their widget placements.
+Users MUST be able to remove conditional rules from their widget placements, without an administrator role, and a Nextcloud administrator on every placement (Ruben, 21 Nov 2026). `rule.delete-rule` is opened the same way as `rule.update-rule` (REQ-VIS-003).
 
 #### Scenario: Delete a rule
 - GIVEN widget placement id 10 has 3 conditional rules, including rule id 5
@@ -419,6 +416,28 @@ The ConditionalService MUST evaluate visibility through a defined pipeline: isVi
 - THEN the system MUST return true without calling VisibilityChecker
 - AND the widget MUST always be displayed
 
+### Requirement: Rules apply when a dashboard renders (REQ-VIS-013)
+
+The visibility rules MUST be applied every time a dashboard renders, for everyone who opens it: the dashboard reads (`GET /api/dashboards/active`, `GET /api/dashboard/{id}`), the public share page, the kiosk screen and an embed (launchpad#98, Ruben 21 Nov 2026). The rules are evaluated for the person viewing; a visitor without an account matches no group or attribute rule. A viewer MUST NOT receive a placement the rules hide for them. The owner and editors (any permission level other than `view_only`) MUST still receive it, marked `hiddenForViewers: true`, and the dashboard MUST show it dimmed with a "Hidden for viewers" badge so they can still edit it. Every other placement carries `hiddenForViewers: false`.
+
+#### Scenario: A viewer does not get a hidden widget
+- GIVEN alice shares her dashboard with bob at `view_only`
+- AND one of its widgets has an include rule for group "staff", which bob is not in
+- WHEN bob opens the dashboard
+- THEN the response MUST NOT contain that placement
+- AND the dashboard MUST NOT render it
+
+#### Scenario: The owner sees a hidden widget dimmed
+- GIVEN the same widget on alice's dashboard, and alice is not in group "staff"
+- WHEN alice opens her dashboard
+- THEN the placement MUST be in the response with `hiddenForViewers: true`
+- AND the dashboard MUST render it dimmed with the badge "Hidden for viewers"
+
+#### Scenario: A public share leaves a hidden widget out
+- GIVEN alice made a public link for the dashboard
+- WHEN a visitor without an account opens the link
+- THEN the placement with the group rule MUST NOT be in the rendered payload
+
 ### Requirement: Rule Cascade Deletion (REQ-VIS-011)
 
 When a widget placement is deleted, all its associated conditional rules MUST also be deleted.
@@ -436,12 +455,33 @@ When a widget placement is deleted, all its associated conditional rules MUST al
 - THEN all 3 placements and all 6 conditional rules MUST be deleted
 - NOTE: `DashboardService::deleteDashboard()` deletes placements via `placementMapper->deleteByDashboardId()` but does not explicitly handle conditional rules.
 
+### Requirement: Admin overview of widgets with visibility rules (REQ-VIS-012)
+
+The admin settings tab "Versioning and audit" MUST list every widget placement, across all dashboards, that has at least one conditional visibility rule. Each row MUST show the dashboard name, the widget type, the number of rules and the split into include and exclude rules. The list MUST come from `GET /api/admin/widgets/with-rules` (`AdminWidgetRulesController::index`), which only an administrator of the LaunchPad admin settings may call. Synced from the archived change `2026-06-14-refactor-launchpad-ia-alignment` ("Admin Versioning & Audit Tab"); board LpBeheerAnalyse.
+
+#### Scenario: The overview lists rule-bearing widgets
+- GIVEN dashboards in the system hold 12 widget placements with at least one conditional rule
+- WHEN an administrator opens the "Versioning and audit" tab in the LaunchPad admin settings
+- THEN all 12 placements MUST be listed under "Widgets with visibility rules"
+- AND each row MUST show the dashboard name, widget type, rule count, include count and exclude count
+
+#### Scenario: No rules yet
+- GIVEN no widget placement has a conditional rule
+- WHEN an administrator opens the tab
+- THEN the overview MUST show the empty state "No visibility rules yet"
+
+#### Scenario: A non-administrator cannot read the overview
+- GIVEN Pieter is not an administrator
+- WHEN he calls `GET /api/admin/widgets/with-rules`
+- THEN the request MUST be refused with HTTP 403
+- AND no rule data MUST be returned
+
 ## Non-Functional Requirements
 
 - **Performance**: Rule evaluation for a single placement with up to 10 rules MUST complete within 50ms. Total evaluation for a dashboard with 30 placements and 100 rules MUST complete within 500ms.
 - **Timezone handling**: Time-based rules currently use the server's default timezone (`new DateTime()`). A `timezone` config field is NOT currently supported. Future versions SHOULD add timezone support via PHP's DateTimeZone.
 - **Data integrity**: Deleting a widget placement MUST cascade-delete all its conditional rules. Rules MUST NOT reference non-existent placements.
-- **Accessibility**: Conditional visibility MUST NOT affect the accessibility tree for visible widgets. Hidden widgets MUST be fully removed from the DOM, not just hidden via CSS.
+- **Accessibility**: Conditional visibility MUST NOT affect the accessibility tree for visible widgets. For a viewer, hidden widgets MUST be fully removed from the DOM, not just hidden via CSS. For the owner and editors a hidden widget stays in the DOM, dimmed, and its "Hidden for viewers" badge is text, so a screen reader announces it (REQ-VIS-013).
 - **Localization**: Rule type labels and validation messages MUST support English and Dutch.
 
 ### Current Implementation Status
@@ -451,16 +491,17 @@ When a widget placement is deleted, all its associated conditional rules MUST al
 - REQ-VIS-002 (List Conditional Rules): `ConditionalService::getRules()` returns rules by placement ID with ownership check.
 - REQ-VIS-003 (Update Conditional Rule): `ConditionalService::updateRule()` handles partial updates. `RuleApiController::updateRule()` exposes PUT /api/rules/{ruleId}.
 - REQ-VIS-004 (Delete Conditional Rule): `ConditionalService::deleteRule()` removes rules. `RuleApiController::deleteRule()` exposes DELETE /api/rules/{ruleId}.
+- REQ-VIS-001..004 access: `PermissionService::verifyPlacementOwnership()` lets the dashboard owner and a Nextcloud administrator through, before any rule is read or written.
 - REQ-VIS-005 (Group-Based Rule Evaluation): `RuleEvaluatorService::evaluateGroupRule()` uses `IGroupManager::getUserGroupIds()` and `array_intersect()`.
 - REQ-VIS-006 (Time-Based Rule Evaluation): `RuleEvaluatorService::evaluateTimeRule()` checks day-of-week filter and time range. Uses `strtolower($now->format('D'))` for day abbreviations.
 - REQ-VIS-007 (Date-Based Rule Evaluation): `RuleEvaluatorService::evaluateDateRule()` supports optional `startDate` and `endDate`.
 - REQ-VIS-008 (Attribute-Based Rule Evaluation): `RuleEvaluatorService::evaluateAttributeRule()` delegates to `UserAttributeResolver`. Supports operators: `equals`, `not_equals`, `contains`, `starts_with`, `ends_with`.
 - REQ-VIS-009 (Multiple Rule Combination): `VisibilityChecker::checkRules()` separates include/exclude rules. Include uses OR, exclude uses AND.
 - REQ-VIS-010 (Visibility Evaluation Pipeline): `ConditionalService::isWidgetVisible()` checks `isVisible` flag first, then loads rules, then delegates to `VisibilityChecker`.
+- REQ-VIS-013 (Rules apply when a dashboard renders): `ConditionalService::visiblePlacements()` filters or marks the placements of `DashboardApiController::getActive()` / `show()`, `PublicShareController::show()`, `KioskService::renderPlaylist()` and `EmbedRenderService`.
 
 **Not yet implemented:**
 - REQ-VIS-001 ruleType validation: No server-side validation for ruleType values.
-- REQ-VIS-003/004 ownership verification: `updateRule()` and `deleteRule()` in `RuleApiController` do NOT verify placement ownership.
 - REQ-VIS-006 midnight-spanning windows: Simple string comparison does not handle time windows spanning midnight.
 - REQ-VIS-006 timezone support: No `timezone` field support.
 - REQ-VIS-011 cascade delete: `PlacementService::removePlacement()` does not explicitly cascade-delete conditional rules.

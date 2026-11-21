@@ -40,7 +40,8 @@
 				class="visibility-rule-row__field">
 				<NcSelectTags
 					v-model="local.ruleConfig.groups"
-					:options="availableGroups"
+					:options="groupOptions"
+					:fetchTags="false"
 					:multiple="true"
 					:aria-label-combobox="t('launchpad', 'Groups')"
 					:placeholder="t('launchpad', 'Select groups')"
@@ -233,9 +234,66 @@ import {
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Delete from 'vue-material-design-icons/Delete.vue'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	REQUIRED_OBJECT_PROP,
+} from '../../constants/propDefinitions.js'
+import { toGroupOptions } from '../../utils/groupOptions.js'
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/**
+ * The canonical `time` ruleConfig: the window, plus the days when any.
+ *
+ * @param {object} ruleConfig The draft config.
+ * @return {object} the canonical config.
+ */
+function timeRuleConfig(ruleConfig) {
+	const config = {
+		startTime: ruleConfig.startTime,
+		endTime: ruleConfig.endTime,
+	}
+	if (
+		Array.isArray(ruleConfig.days)
+		&& ruleConfig.days.length > 0
+	) {
+		config.days = [...ruleConfig.days]
+	}
+	return config
+}
+
+/**
+ * The canonical `date` ruleConfig, without empty optional keys.
+ *
+ * @param {object} ruleConfig The draft config.
+ * @return {object} the canonical config.
+ */
+function dateRuleConfig(ruleConfig) {
+	const config = {}
+	if (ruleConfig.startDate) {
+		config.startDate = ruleConfig.startDate
+	}
+	if (ruleConfig.endDate) {
+		config.endDate = ruleConfig.endDate
+	}
+	return config
+}
+
+/**
+ * The builder of the canonical ruleConfig per rule type.
+ */
+const RULE_CONFIG_BUILDERS = Object.freeze({
+	group: (ruleConfig) => ({ groups: [...(ruleConfig.groups || [])] }),
+	time: timeRuleConfig,
+	date: dateRuleConfig,
+	attribute: (ruleConfig) => ({
+		attribute: ruleConfig.attribute,
+		operator: ruleConfig.operator || 'equals',
+		value: ruleConfig.value,
+	}),
+})
 
 /**
  * Build a pristine, type-correct `ruleConfig` for a given ruleType. Used
@@ -274,28 +332,16 @@ export default {
 
 	props: {
 		/** The rule this row edits: `{id?, ruleType, ruleConfig, isInclude}`. */
-		rule: {
-			type: Object,
-			required: true,
-		},
+		rule: REQUIRED_OBJECT_PROP,
 
 		/** Group-id options for the group-rule multi-select. */
-		availableGroups: {
-			type: Array,
-			default: () => [],
-		},
+		availableGroups: LIST_PROP,
 
 		/** Disables Save/Remove while a request for this row is in flight. */
-		busy: {
-			type: Boolean,
-			default: false,
-		},
+		busy: FLAG_PROP,
 
 		/** True for a not-yet-persisted draft row (no `id` yet). */
-		isNew: {
-			type: Boolean,
-			default: false,
-		},
+		isNew: FLAG_PROP,
 	},
 
 	emits: ['update:rule', 'save', 'remove'],
@@ -311,6 +357,15 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The group picker's options: the offered groups plus any already chosen.
+		 *
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
+		groupOptions() {
+			return toGroupOptions(this.availableGroups, this.local.ruleConfig?.groups)
+		},
+
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		rowKey() {
 			return this.rule.id ?? this.rule._localKey ?? 'draft'
@@ -467,18 +522,20 @@ export default {
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		hasAtLeastOneValidDate() {
 			const { startDate, endDate } = this.local.ruleConfig
-			const hasStart = !!startDate
-			const hasEnd = !!endDate
-			if (!hasStart && !hasEnd) {
+			if (!startDate && !endDate) {
 				return false
 			}
-			if (hasStart && !this.isValidDate(startDate)) {
-				return false
-			}
-			if (hasEnd && !this.isValidDate(endDate)) {
-				return false
-			}
-			return true
+			return this.isBlankOrValidDate(startDate) && this.isBlankOrValidDate(endDate)
+		},
+
+		/**
+		 * Whether an optional date bound is unset or a valid YYYY-MM-DD.
+		 *
+		 * @param {unknown} value The date bound.
+		 * @return {boolean} true when it does not block saving.
+		 */
+		isBlankOrValidDate(value) {
+			return !value || this.isValidDate(value)
 		},
 
 		/**
@@ -575,41 +632,11 @@ export default {
 		 * @return {object} the canonical ruleConfig blob.
 		 */
 		buildRuleConfig() {
-			switch (this.local.ruleType) {
-				case 'group':
-					return { groups: [...(this.local.ruleConfig.groups || [])] }
-				case 'time': {
-					const config = {
-						startTime: this.local.ruleConfig.startTime,
-						endTime: this.local.ruleConfig.endTime,
-					}
-					if (
-						Array.isArray(this.local.ruleConfig.days)
-						&& this.local.ruleConfig.days.length > 0
-					) {
-						config.days = [...this.local.ruleConfig.days]
-					}
-					return config
-				}
-				case 'date': {
-					const config = {}
-					if (this.local.ruleConfig.startDate) {
-						config.startDate = this.local.ruleConfig.startDate
-					}
-					if (this.local.ruleConfig.endDate) {
-						config.endDate = this.local.ruleConfig.endDate
-					}
-					return config
-				}
-				case 'attribute':
-					return {
-						attribute: this.local.ruleConfig.attribute,
-						operator: this.local.ruleConfig.operator || 'equals',
-						value: this.local.ruleConfig.value,
-					}
-				default:
-					return {}
+			const ruleType = this.local.ruleType
+			if (!Object.hasOwn(RULE_CONFIG_BUILDERS, ruleType)) {
+				return {}
 			}
+			return RULE_CONFIG_BUILDERS[ruleType](this.local.ruleConfig)
 		},
 
 		/**

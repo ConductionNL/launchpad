@@ -24,14 +24,28 @@ import {
  * launchpad's `/apps/launchpad/api/people` and returns `{ users, total, hasMore }`.
  * Axios is lazy-imported (keeps it out of the vitest css-no-op transform path).
  *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays }`.
  * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
+ * @spec openspec/specs/people-widget/spec.md
  */
 export async function fetchPeoplePage(args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
 		import('@nextcloud/axios'),
 		import('@nextcloud/router'),
 	])
+	const url = `${genUrl('/apps/launchpad/api/people')}?${peopleQuery(args)}`
+	const response = await axios.get(url)
+	return peoplePageOf(response)
+}
+
+/**
+ * The people endpoint's query string: the filters, the disabled-account
+ * switch and the sort key only when given, then the page size and offset.
+ *
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays }`.
+ * @return {string} The query string.
+ */
+function peopleQuery(args) {
 	const params = new URLSearchParams()
 	if (args.filters !== undefined) {
 		params.append('filters', JSON.stringify(args.filters || []))
@@ -42,10 +56,21 @@ export async function fetchPeoplePage(args = {}) {
 	if (args.sortBy) {
 		params.append('sortBy', String(args.sortBy))
 	}
+	if (args.showBirthdays !== undefined) {
+		params.append('showBirthdays', args.showBirthdays ? '1' : '0')
+	}
 	params.append('limit', String(args.limit ?? 50))
 	params.append('offset', String(args.offset ?? 0))
-	const url = `${genUrl('/apps/launchpad/api/people')}?${params.toString()}`
-	const response = await axios.get(url)
+	return params.toString()
+}
+
+/**
+ * The page of people in a people endpoint response, with empty defaults.
+ *
+ * @param {object} response The axios response.
+ * @return {{users: object[], total: number, hasMore: boolean}} The page.
+ */
+function peoplePageOf(response) {
 	const data = response?.data || {}
 	return {
 		users: Array.isArray(data.users) ? data.users : [],
@@ -87,12 +112,18 @@ export async function fetchCalendarEvents(placementId, args = {}) {
  * current placement id.
  *
  * @param {() => (string|number|undefined)} getPlacementId returns the placement id.
+ * @param {() => (object|undefined)} [getContent] returns the placement content; the people adapter sends its `showBirthdays` switch.
  * @return {object} the injected `cn*Source` adapters.
- * @spec exclude wiring-only assembly — returns a literal map of the adapter functions defined in this file, each of which carries its own @spec; it encodes no behaviour of its own beyond naming the injection keys the nc-vue widgets expect.
+ * @spec openspec/specs/people-widget/spec.md
  */
-export function buildWidgetDataProvide(getPlacementId) {
+export function buildWidgetDataProvide(getPlacementId, getContent = () => ({})) {
 	return {
-		cnPeopleSource: { fetchPeople: fetchPeoplePage },
+		cnPeopleSource: {
+			fetchPeople: (args) => fetchPeoplePage({
+				...args,
+				showBirthdays: (getContent() || {}).showBirthdays !== false,
+			}),
+		},
 		cnCalendarSource: {
 			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),
 		},

@@ -11,8 +11,6 @@ Dashboard Metadata Fields allow administrators to define custom, queryable attri
 ## Data Model
 
 
-@e2e exclude all scenarios test REST CRUD for admin-defined fields — admin metadata UI not present in v1.0.5
-
 ### Metadata Field Definition (oc_launchpad_meta_fields)
 
 Stores the global registry of field definitions:
@@ -150,6 +148,8 @@ Administrators MUST be able to delete field definitions. Deletion has two modes:
 - AND cascade-delete all 3 value rows
 - AND return HTTP 200
 
+@e2e exclude the cascade clause cannot be observed over HTTP: once the field is gone, `GET /api/dashboards/{uuid}/metadata` hides an orphaned value row exactly as it hides a deleted one, and no endpoint reads value rows by a deleted field id; pinned by tests/Unit/Db/MetadataFieldMapperTest.php::testDeleteWithCascadeDeletesValuesFirst, tests/Unit/Service/MetadataServiceTest.php::testDeleteFieldDefinitionCascadeWipesValues and tests/Unit/Controller/MetadataAdminControllerTest.php::testDeleteFieldCascadeSucceeds
+
 #### Scenario: Delete field without cascade rejected when values exist
 
 - GIVEN a field id=5 with 3 corresponding value rows
@@ -187,6 +187,8 @@ Users MUST be able to read all metadata values for a given dashboard as a flat k
 - THEN the system MUST NOT include that orphaned value in the response
 - AND MUST log a warning describing the orphan
 - AND MUST NOT crash
+
+@e2e exclude an orphaned value row cannot be made over HTTP (a plain delete of a field with values is refused with 409 and a cascade delete removes the rows), so it needs a direct database insert, and the warning is only visible in nextcloud.log; pinned by tests/Unit/Service/MetadataServiceTest.php::testGetMetadataForDashboardSkipsOrphans
 
 ### Requirement: Dashboard Metadata Write (REQ-MDFL-005)
 
@@ -293,8 +295,6 @@ Reading and writing metadata MUST be scoped to the dashboard's owner (for person
 
 ### Requirement: An administrator defines detail fields (REQ-MDUI-001)
 
-@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
-
 The administration settings MUST let an administrator create, edit and delete detail fields of type text, number, date, select and multi-select, with options for the two select types, and MUST refuse a select field without options with the service message.
 
 #### Scenario: Department field
@@ -311,8 +311,6 @@ The administration settings MUST let an administrator create, edit and delete de
 
 ### Requirement: A dashboard owner fills in the details (REQ-MDUI-002)
 
-@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
-
 The dashboard settings dialog MUST have a "Details" tab showing one control per defined field and saving the values for that dashboard.
 
 #### Scenario: Set the owning department
@@ -322,8 +320,6 @@ The dashboard settings dialog MUST have a "Details" tab showing one control per 
 - **THEN** reopening the dialog shows "Finance"
 
 ### Requirement: Dashboards can be filtered by a detail (REQ-MDUI-003)
-
-@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
 
 The dashboards list endpoint MUST pass `metadata.<key>` query parameters to the metadata filter, and the switcher MUST offer "Filter by detail" when at least one field can be filtered.
 

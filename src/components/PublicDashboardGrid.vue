@@ -4,7 +4,10 @@
 -->
 
 <template>
-	<div class="public-dashboard-grid">
+	<div
+		class="public-dashboard-grid"
+		:class="{ 'public-dashboard-grid--embed': embedContext !== null }"
+		:data-embed-mode="embedContext ? embedMode : undefined">
 		<div v-if="items.length > 0" class="public-share-view__grid">
 			<div
 				v-for="item in items"
@@ -15,11 +18,14 @@
 				<a
 					v-if="item.kind === 'tile'"
 					class="public-share-view__tile"
-					:href="item.tileLink || '#'"
+					:href="tileHref(item)"
+					:target="embedContext ? '_blank' : undefined"
+					:rel="embedContext ? 'noopener noreferrer' : undefined"
 					:style="{
 						backgroundColor: item.tileBackgroundColor || undefined,
 						color: item.tileTextColor || undefined,
-					}">
+					}"
+					@click="drillDown(item, $event)">
 					<img
 						v-if="
 							item.tileIcon
@@ -85,6 +91,85 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import { LIST_PROP } from '../constants/propDefinitions.js'
+
+const STATIC_WIDGET_KINDS = ['label', 'header', 'text', 'image', 'link', 'divider']
+
+/**
+ * A placement's content when it is an object, else an empty object.
+ *
+ * @param {object} p The placement.
+ * @return {object} The content.
+ */
+function placementContent(p) {
+	return p.content && typeof p.content === 'object' ? p.content : {}
+}
+
+/**
+ * How a placement renders: a tile, one of the static widget kinds, or
+ * restricted (only visible to signed-in users).
+ *
+ * @param {object} p The placement.
+ * @return {string} The display kind.
+ */
+function placementKind(p) {
+	const widgetId = p.widgetId || ''
+	if (widgetId.startsWith('tile-') || p.tileType) {
+		return 'tile'
+	}
+	return STATIC_WIDGET_KINDS.includes(widgetId) ? widgetId : 'restricted'
+}
+
+/**
+ * The first non-empty value, else an empty string.
+ *
+ * @param {Array<string|undefined>} values The candidates, in order of preference.
+ * @return {string} The first non-empty value or ''.
+ */
+function firstFilled(values) {
+	return values.find(Boolean) || ''
+}
+
+/**
+ * The tile look and link of a placement, with empty strings for unset values.
+ *
+ * @param {object} p The placement.
+ * @return {object} Icon, background and text colour, and link.
+ */
+function tileFields(p) {
+	return {
+		tileIcon: p.tileIcon || '',
+		tileBackgroundColor: p.tileBackgroundColor || '',
+		tileTextColor: p.tileTextColor || '',
+		tileLink: p.tileLinkValue || '',
+	}
+}
+
+/**
+ * A placement normalised for display.
+ *
+ * @param {object} p The placement.
+ * @return {object} The display item.
+ */
+function displayItem(p) {
+	const content = placementContent(p)
+	return {
+		id: p.id,
+		kind: placementKind(p),
+		gridWidth: p.gridWidth || 4,
+		gridHeight: p.gridHeight || 4,
+		title: firstFilled([
+			p.customTitle,
+			p.tileTitle,
+			content.label,
+			content.title,
+		]),
+		showTitle: p.showTitle !== 0 && p.showTitle !== false,
+		...tileFields(p),
+		text: firstFilled([content.text, content.body]),
+		url: content.url || '',
+	}
+}
 
 /**
  * PublicDashboardGrid: the read-only, anonymous-safe rendering of a
@@ -99,13 +184,32 @@ export default {
 	name: 'PublicDashboardGrid',
 
 	props: {
-		placements: {
-			type: Array,
-			default: () => [],
+		placements: LIST_PROP,
+
+		/**
+		 * embedded-analytics task 13: set when the grid renders inside an embed,
+		 * `{scope: {mode, allowedActions}, filters}`. The tenant theme's `--c-*`
+		 * variables then colour the tiles and widgets, a tile link opens outside
+		 * the embed and only when the scope allows `interact`. Null (the
+		 * default) is the normal public-share rendering, unchanged.
+		 */
+		embedContext: {
+			type: Object,
+			default: null,
 		},
 	},
 
+	emits: ['drillDown'],
+
 	computed: {
+		/**
+		 * @return {string} The embed's scope mode, read when unknown.
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		embedMode() {
+			return this.embedContext?.scope?.mode === 'read-with-interactions' ? 'read-with-interactions' : 'read'
+		},
+
 		/**
 		 * @return {Array<object>} Visible placements in reading order, normalised for display.
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
@@ -115,51 +219,81 @@ export default {
 				(p) => p.isVisible !== 0 && p.isVisible !== false,
 			)
 			list.sort((a, b) => a.gridY - b.gridY || a.gridX - b.gridX)
-			return list.map((p) => {
-				const content =
-					p.content && typeof p.content === 'object' ? p.content : {}
-				const widgetId = p.widgetId || ''
-				const isTile = widgetId.startsWith('tile-') || !!p.tileType
-				let kind = 'restricted'
-				if (isTile) {
-					kind = 'tile'
-				} else if (
-					['label', 'header', 'text', 'image', 'link', 'divider'].includes(
-						widgetId,
-					)
-				) {
-					kind = widgetId
-				}
-				return {
-					id: p.id,
-					kind,
-					gridWidth: p.gridWidth || 4,
-					gridHeight: p.gridHeight || 4,
-					title:
-						p.customTitle
-						|| p.tileTitle
-						|| content.label
-						|| content.title
-						|| '',
-					showTitle: p.showTitle !== 0 && p.showTitle !== false,
-					tileIcon: p.tileIcon || '',
-					tileBackgroundColor: p.tileBackgroundColor || '',
-					tileTextColor: p.tileTextColor || '',
-					tileLink: p.tileLinkValue || '',
-					text: content.text || content.body || '',
-					url: content.url || '',
-				}
-			})
+			return list.map(displayItem)
 		},
 	},
 
 	methods: {
 		t,
+
+		/**
+		 * Where a tile links to: its target, '#' without one; inside an embed
+		 * nowhere (no href) unless the scope allows `interact`, and '#' when it
+		 * allows only `drillDown`, so the tile stays a focusable control.
+		 *
+		 * @param {object} item The display item.
+		 * @return {string|undefined}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		tileHref(item) {
+			if (this.embedContext !== null && !this.embedAllows('interact')) {
+				return this.embedAllows('drillDown') ? '#' : undefined
+			}
+			return item.tileLink || '#'
+		},
+
+		/**
+		 * Inside an embed whose scope allows `drillDown`, emit `drillDown` with
+		 * what the visitor opened; without `interact` the link is not followed.
+		 *
+		 * @param {object} item The display item.
+		 * @param {MouseEvent} event The click.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-006--js-sdk-exposes-render-event-and-resize-apis
+		 */
+		drillDown(item, event) {
+			if (this.embedContext === null || !this.embedAllows('drillDown')) {
+				return
+			}
+			if (!this.embedAllows('interact')) {
+				event.preventDefault()
+			}
+			this.$emit('drillDown', {
+				placementId: item.id,
+				title: item.title,
+				link: item.tileLink || null,
+				source: 'user-interaction',
+			})
+		},
+
+		/**
+		 * Whether the embed's scope allows an action.
+		 *
+		 * @param {string} action The action.
+		 * @return {boolean}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		embedAllows(action) {
+			const scope = this.embedContext?.scope ?? {}
+			return scope.mode === 'read-with-interactions' && (scope.allowedActions ?? []).includes(action)
+		},
 	},
 }
 </script>
 
 <style scoped>
+/* embedded-analytics task 13: inside an embed the tenant theme's variables,
+   injected on :root by the embed page, colour the grid; without a theme
+   they fall back to the Nextcloud ones. */
+.public-dashboard-grid--embed .public-share-view__tile {
+	background: var(--c-primary, var(--color-primary-element));
+}
+
+.public-dashboard-grid--embed .public-share-view__widget {
+	border-color: var(--c-border, var(--color-border));
+	background: var(--c-surface, var(--color-main-background));
+	color: var(--c-text, var(--color-main-text));
+}
+
 .public-share-view__grid {
 	display: grid;
 	grid-template-columns: repeat(12, 1fr);

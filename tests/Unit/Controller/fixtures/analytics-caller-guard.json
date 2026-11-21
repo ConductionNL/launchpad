@@ -1,0 +1,257 @@
+{
+    "AnalyticsController::topDashboards / anonymous": {
+        "status": 200,
+        "body": [],
+        "asked": [
+            "analytics.top-dashboards"
+        ]
+    },
+    "AnalyticsController::topDashboards / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "AnalyticsController::topDashboards / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "analytics.top-dashboards"
+        ]
+    },
+    "AnalyticsController::topDashboards / allowed": {
+        "status": 200,
+        "asked": [
+            "analytics.top-dashboards"
+        ]
+    },
+    "AnalyticsController::dashboardDetail / anonymous": {
+        "status": 200,
+        "body": [],
+        "asked": [
+            "analytics.dashboard-detail"
+        ]
+    },
+    "AnalyticsController::dashboardDetail / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "AnalyticsController::dashboardDetail / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "analytics.dashboard-detail"
+        ]
+    },
+    "AnalyticsController::dashboardDetail / allowed": {
+        "status": 200,
+        "asked": [
+            "analytics.dashboard-detail"
+        ]
+    },
+    "AnalyticsController::instanceSummary / anonymous": {
+        "status": 200,
+        "body": [],
+        "asked": [
+            "analytics.instance-summary"
+        ]
+    },
+    "AnalyticsController::instanceSummary / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "AnalyticsController::instanceSummary / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "analytics.instance-summary"
+        ]
+    },
+    "AnalyticsController::instanceSummary / allowed": {
+        "status": 200,
+        "asked": [
+            "analytics.instance-summary"
+        ]
+    },
+    "AnalyticsController::exportCsv / anonymous": {
+        "thrown": "Error",
+        "asked": [
+            "analytics.export-csv"
+        ]
+    },
+    "AnalyticsController::exportCsv / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "AnalyticsController::exportCsv / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "analytics.export-csv"
+        ]
+    },
+    "AnalyticsController::exportCsv / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "analytics.export-csv"
+        ]
+    },
+    "TileAnalyticsController::recordClick / anonymous": {
+        "status": 204,
+        "body": [],
+        "asked": [
+            "tile-analytics.record-click"
+        ]
+    },
+    "TileAnalyticsController::recordClick / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::recordClick / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile-analytics.record-click"
+        ]
+    },
+    "TileAnalyticsController::recordClick / allowed": {
+        "status": 204,
+        "asked": [
+            "tile-analytics.record-click"
+        ]
+    },
+    "TileAnalyticsController::config / anonymous": {
+        "status": 200,
+        "body": {
+            "enabled": false
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::config / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::config / action denied": {
+        "status": 200,
+        "body": {
+            "enabled": false
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::config / allowed": {
+        "status": 200,
+        "asked": []
+    },
+    "TileAnalyticsController::topTiles / anonymous": {
+        "status": 200,
+        "body": [],
+        "asked": [
+            "tile-analytics.top-tiles"
+        ]
+    },
+    "TileAnalyticsController::topTiles / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::topTiles / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile-analytics.top-tiles"
+        ]
+    },
+    "TileAnalyticsController::topTiles / allowed": {
+        "status": 200,
+        "asked": [
+            "tile-analytics.top-tiles"
+        ]
+    },
+    "TileAnalyticsController::dashboardBreakdown / anonymous": {
+        "status": 200,
+        "body": [],
+        "asked": [
+            "tile-analytics.dashboard-breakdown"
+        ]
+    },
+    "TileAnalyticsController::dashboardBreakdown / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::dashboardBreakdown / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile-analytics.dashboard-breakdown"
+        ]
+    },
+    "TileAnalyticsController::dashboardBreakdown / allowed": {
+        "status": 200,
+        "asked": [
+            "tile-analytics.dashboard-breakdown"
+        ]
+    },
+    "TileAnalyticsController::exportCsv / anonymous": {
+        "thrown": "Error",
+        "asked": [
+            "tile-analytics.export-csv"
+        ]
+    },
+    "TileAnalyticsController::exportCsv / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileAnalyticsController::exportCsv / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile-analytics.export-csv"
+        ]
+    },
+    "TileAnalyticsController::exportCsv / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile-analytics.export-csv"
+        ]
+    }
+}

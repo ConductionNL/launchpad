@@ -1,0 +1,4599 @@
+{
+    "status \"draft\" at null dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at null dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"  \" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"  \" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"2000-01-01 00:00:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"2000-01-01 00:00:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"2099-01-01 10:00:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"2099-01-01 10:00:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"garbage\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \"garbage\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "draft",
+                null,
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "draft",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"draft\" at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at null dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at null dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"  \" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"  \" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"2000-01-01 00:00:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"2000-01-01 00:00:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"2099-01-01 10:00:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"2099-01-01 10:00:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"garbage\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \"garbage\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"published\" at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 4,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"scheduled\" at null dry false": {
+        "status": 400,
+        "body": {
+            "error": "publishAt is required when publicationStatus is \"scheduled\""
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at null dry true": {
+        "status": 400,
+        "body": {
+            "error": "publishAt is required when publicationStatus is \"scheduled\""
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publishAt is required when publicationStatus is \"scheduled\""
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publishAt is required when publicationStatus is \"scheduled\""
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"  \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publishAt is required when publicationStatus is \"scheduled\""
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"  \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publishAt is required when publicationStatus is \"scheduled\""
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"2000-01-01 00:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publishAt must be a future timestamp"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"2000-01-01 00:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publishAt must be a future timestamp"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"2099-01-01 10:00:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-sched",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pub",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "scheduled"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"scheduled\" at \"2099-01-01 10:00:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 5,
+            "wouldSkipCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-sched",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "scheduled"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"scheduled\" at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-sched",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pub",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "scheduled"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"scheduled\" at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 5,
+            "wouldSkipCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-sched",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "scheduled"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"scheduled\" at \"garbage\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publishAt must be a future timestamp"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \"garbage\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publishAt must be a future timestamp"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"scheduled\" at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 200,
+        "body": {
+            "updatedCount": 4,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-sched",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pub",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-pubnull",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                null,
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "scheduled",
+                "2099-01-01 10:00:00",
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "scheduled"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"scheduled\" at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 5,
+            "wouldSkipCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-sched",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "scheduled"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "status \"archived\" at null dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at null dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"  \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"  \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"2000-01-01 00:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"2000-01-01 00:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"2099-01-01 10:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"2099-01-01 10:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"garbage\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \"garbage\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"archived\" at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at null dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at null dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"  \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"  \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"2000-01-01 00:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"2000-01-01 00:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"2099-01-01 10:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"2099-01-01 10:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"garbage\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \"garbage\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \" published\" at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus must be one of: draft, published, scheduled"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail"
+        ]
+    },
+    "status \"\" at null dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at null dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"  \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"  \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"2000-01-01 00:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"2000-01-01 00:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"2099-01-01 10:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"2099-01-01 10:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"garbage\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \"garbage\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status \"\" at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at null dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at null dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"  \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"  \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"2000-01-01 00:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"2000-01-01 00:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"2099-01-01 10:00:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"2099-01-01 10:00:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"2099-01-01T10:00:00+02:00\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"2099-01-01T10:00:00+02:00\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"garbage\" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \"garbage\" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \" 2099-01-01 10:00:00 \" dry false": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "status null at \" 2099-01-01 10:00:00 \" dry true": {
+        "status": 400,
+        "body": {
+            "error": "publicationStatus is required"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "set all caller \"alice\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 3,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-pubnull",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "d-missing",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "d-fail",
+                    "reason": "transaction_failed",
+                    "detail": "disk full"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-pubnull",
+            "resolveAccessLevel alice d-sched",
+            "resolveAccessLevel alice d-sched2",
+            "resolveAccessLevel alice d-fail",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched2",
+                "published",
+                null,
+                "2019-02-02 00:00:00",
+                "<now>"
+            ],
+            [
+                "error",
+                "BulkOperationService::bulkStatus failed for uuid",
+                "d-fail",
+                "disk full"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (7 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 7,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "set all caller \"carol\"": {
+        "status": 403,
+        "body": {
+            "error": "Insufficient permissions on one or more dashboards.",
+            "deniedUuids": [
+                "d-sched2"
+            ]
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            "resolveAccessLevel carol d-draft",
+            "resolveAccessLevel carol d-pub",
+            "resolveAccessLevel carol d-pubnull",
+            "resolveAccessLevel carol d-sched",
+            "resolveAccessLevel carol d-sched2",
+            "resolveAccessLevel carol d-fail"
+        ]
+    },
+    "set all caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set all caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set locked caller \"alice\"": {
+        "status": 403,
+        "body": {
+            "error": "Insufficient permissions on one or more dashboards.",
+            "deniedUuids": [
+                "d-locked"
+            ]
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-locked"
+        ]
+    },
+    "set locked caller \"carol\"": {
+        "status": 403,
+        "body": {
+            "error": "Insufficient permissions on one or more dashboards.",
+            "deniedUuids": [
+                "d-locked"
+            ]
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            "resolveAccessLevel carol d-draft",
+            "resolveAccessLevel carol d-locked"
+        ]
+    },
+    "set locked caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set locked caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set locked missing caller \"alice\"": {
+        "status": 403,
+        "body": {
+            "error": "Insufficient permissions on one or more dashboards.",
+            "deniedUuids": [
+                "d-locked"
+            ]
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-locked"
+        ]
+    },
+    "set locked missing caller \"carol\"": {
+        "status": 403,
+        "body": {
+            "error": "Insufficient permissions on one or more dashboards.",
+            "deniedUuids": [
+                "d-locked"
+            ]
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            "resolveAccessLevel carol d-locked"
+        ]
+    },
+    "set locked missing caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set locked missing caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set own caller \"alice\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 2,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            "resolveAccessLevel alice d-sched",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (3 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 3,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "set own caller \"carol\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 2,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-pub",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            "resolveAccessLevel carol d-draft",
+            "resolveAccessLevel carol d-pub",
+            "resolveAccessLevel carol d-sched",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "update",
+                "d-sched",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "carol",
+                "bulk-status",
+                "Bulk status (3 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 3,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "carol"
+            ]
+        ]
+    },
+    "set own caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set own caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set empty caller \"alice\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 0,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (0 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 0,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "set empty caller \"carol\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 0,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            [
+                "publish",
+                "dashboard_updated",
+                "carol",
+                "bulk-status",
+                "Bulk status (0 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 0,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "carol"
+            ]
+        ]
+    },
+    "set empty caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set empty caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set duplicate caller \"alice\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (2 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 2,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "set duplicate caller \"carol\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            "resolveAccessLevel carol d-draft",
+            "resolveAccessLevel carol d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "carol",
+                "bulk-status",
+                "Bulk status (2 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 2,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "carol"
+            ]
+        ]
+    },
+    "set duplicate caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set duplicate caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set padded caller \"alice\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "set padded caller \"carol\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin carol",
+            "isAdmin carol",
+            "resolveAccessLevel carol d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "carol",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "carol"
+            ]
+        ]
+    },
+    "set padded caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set padded caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set blank caller \"alice\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "set blank caller \"carol\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin carol"
+        ]
+    },
+    "set blank caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set blank caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set int caller \"alice\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "set int caller \"carol\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin carol"
+        ]
+    },
+    "set int caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set int caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set not an array caller \"alice\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "set not an array caller \"carol\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin carol"
+        ]
+    },
+    "set not an array caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set not an array caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "set null caller \"alice\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin alice"
+        ]
+    },
+    "set null caller \"carol\"": {
+        "status": 400,
+        "body": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "log": [
+            "isAdmin carol"
+        ]
+    },
+    "set null caller \"bob\"": {
+        "status": 403,
+        "body": {
+            "error": "Admin required"
+        },
+        "log": [
+            "isAdmin bob"
+        ]
+    },
+    "set null caller null": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "log": []
+    },
+    "dry query \"true\"": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 1,
+            "wouldSkipCount": 0,
+            "errors": [],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"1\"": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 1,
+            "wouldSkipCount": 0,
+            "errors": [],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"yes\"": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 1,
+            "wouldSkipCount": 0,
+            "errors": [],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"on\"": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 1,
+            "wouldSkipCount": 0,
+            "errors": [],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"TRUE\"": {
+        "status": 200,
+        "body": {
+            "wouldUpdateCount": 1,
+            "wouldSkipCount": 0,
+            "errors": [],
+            "dryRun": true
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": true,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"no\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"0\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query \"\"": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "dry query null": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "body false wins over query": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 0,
+            "errors": [],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            [
+                "update",
+                "d-draft",
+                "published",
+                null,
+                "<now>",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (1 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 1,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "published"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "cap 1": {
+        "status": 400,
+        "body": {
+            "error": "Request contains 2 dashboards; maximum is 1 (configured by admin)"
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub"
+        ]
+    },
+    "cap 2": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (2 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 2,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "cap 0": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            [
+                "warning",
+                "Invalid bulk operation cap; falling back to default",
+                null,
+                null
+            ],
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (2 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 2,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    },
+    "cap -5": {
+        "status": 200,
+        "body": {
+            "updatedCount": 1,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "d-draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "log": [
+            "isAdmin alice",
+            "isAdmin alice",
+            "resolveAccessLevel alice d-draft",
+            "resolveAccessLevel alice d-pub",
+            [
+                "warning",
+                "Invalid bulk operation cap; falling back to default",
+                null,
+                null
+            ],
+            [
+                "update",
+                "d-pub",
+                "draft",
+                null,
+                "2020-01-01 00:00:00",
+                "<now>"
+            ],
+            [
+                "publish",
+                "dashboard_updated",
+                "alice",
+                "bulk-status",
+                "Bulk status (2 dashboards)",
+                {
+                    "bulkOperation": "status",
+                    "dashboardCount": 2,
+                    "durationMs": "<ms>",
+                    "dryRun": false,
+                    "publicationStatus": "draft"
+                },
+                "alice"
+            ]
+        ]
+    }
+}

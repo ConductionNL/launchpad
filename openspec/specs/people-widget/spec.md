@@ -6,7 +6,7 @@ status: done
 
 ## Purpose
 
-The `people-widget` capability registers a dashboard widget that displays a discoverable directory of Nextcloud users with customizable layout (card/grid/list), profile field visibility control, group filtering, and birthday tracking. The widget integrates with Nextcloud's Dashboard Widget API via `OCP\Dashboard\IManager`, stores configuration in the widget placement's JSON config, and provides a paginated API endpoint for user lookup. Results expose each user's profile fields as returned by `OCP\Accounts\IAccountManager`; scope-based visibility filtering is a planned follow-up (see REQ-PPL-004).
+The `people-widget` capability registers a dashboard widget that displays a discoverable directory of Nextcloud users with customizable layout (card/grid/list), profile field visibility control, group filtering, and birthday tracking. The widget integrates with Nextcloud's Dashboard Widget API via `OCP\Dashboard\IManager`, stores configuration in the widget placement's JSON config, and provides a paginated API endpoint for user lookup. Results expose each user's profile fields as returned by `OCP\Accounts\IAccountManager`; a field whose Nextcloud scope is private shows to its owner only (REQ-PEX-004).
 
 ## Data Model
 
@@ -62,9 +62,6 @@ Widget configuration is stored in the placement's `widgetContent` JSON:
 
 ## Requirements
 
-
-@e2e exclude all scenarios test PHP /api/people endpoint / IAccountManager — user-directory data not present in test fixture
-
 ### Requirement: Widget registration via dashboard API (REQ-PPL-001)
 
 The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\IManager::registerWidget()` in `appinfo/dashboard.php`. The widget MUST have:
@@ -74,6 +71,7 @@ The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\
 - Widget MUST be discoverable via Nextcloud's Dashboard widget discovery mechanism
 
 #### Scenario: Widget is registered on app load
+@e2e exclude feature never built: nothing in lib/ or appinfo/ calls IManager::registerWidget for `launchpad_people` (`git log --all -S launchpad_people -- lib appinfo src` finds no code; there is no appinfo/dashboard.php). The People widget is LaunchPad's own grid type `people`, registered by nc-vue's dashboardWidgetRegistry. No unit test exists.
 - **GIVEN** LaunchPad is installed and enabled
 - **WHEN** Nextcloud boots and calls `IManager::getWidgets()`
 - **THEN** widget `launchpad_people` MUST appear in the list
@@ -83,9 +81,10 @@ The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\
 - **GIVEN** a user wants to add a widget
 - **WHEN** they open the widget picker
 - **THEN** "People" (or localized variant) MUST be available
-- **AND** clicking "Add" MUST create a placement with `widgetId: "launchpad_people"`
+- **AND** clicking "Add" MUST create a placement with `widgetId: "people"`
 
 #### Scenario: Widget icon is valid SVG
+@e2e exclude feature never built: there is no Nextcloud dashboard widget and so no `icon_url` (the LaunchPad type picker uses the MDI name `AccountMultiple`); the brand-guideline half is a matter of taste no test can judge. No unit test exists.
 - **GIVEN** the widget's icon_url
 - **WHEN** the dashboard renders
 - **THEN** the SVG MUST load without errors
@@ -192,17 +191,18 @@ Response shape:
 
 The system MUST NOT return empty or null field values — all returned fields MUST have a non-empty value. The system SHOULD only return profile fields the requesting viewer is allowed to see, per Nextcloud's `IAccountManager` field-level visibility settings. Hidden fields SHOULD be omitted entirely from the response (not included with null value).
 
-**NOTE (v1 limitation)**: The current implementation reads `IAccountManager` properties unconditionally via `$account->getProperty($property)->getValue()` without checking `$prop->getScope()`. All non-empty profile fields are returned to any authenticated viewer regardless of the user's privacy settings. Enforcing NC scope-based visibility is a planned follow-up (see Open Follow-Ups).
+**NOTE (2026-09-30, widgets-people-expertise-and-fields)**: `buildAccountFields()` checks `$prop->getScope()`: a private (`v2-private`) field shows only when the viewer is its owner; the local, federated and published scopes reach every signed-in user of the instance (REQ-PEX-004).
 
-**NOTE (caching risk)**: The non-group-filter path uses a 1-hour shared APCu cache keyed only on filter + sort parameters, not on the requesting user. If scope-based visibility is enforced in a future revision, this cache MUST be made per-viewer or disabled to prevent data leakage.
+**NOTE (caching)**: The service keeps no server-side cache; the widget's own 60-second cache lives in the viewer's browser, and search results are never cached (REQ-PEX-004).
 
 #### Scenario: Viewer cannot see hidden email (future)
+@e2e exclude the GIVEN cannot be produced: Nextcloud's AccountManager refuses the v2-private scope for display name and email, so no account can hold a private email. No unit test pins email omission (PeopleWidgetService takes the email from IUser::getEMailAddress without a scope check).
 - **GIVEN** user "alice" has set her email visibility to "private" (not visible to others)
 - **AND** user "bob" is viewing the people widget
 - **WHEN** bob fetches the user list
 - **THEN** alice's entry SHOULD NOT have an `email` field
 - **AND** the `email` key SHOULD NOT appear in the response object (not `email: null`)
-- **NOTE**: This scenario describes the target state; scope-based filtering is not enforced in v1.
+- **NOTE**: Enforced since widgets-people-expertise-and-fields for the private scope (REQ-PEX-004).
 
 #### Scenario: Viewer can see visible email (future)
 - **GIVEN** user "alice" has set her email visibility to "public" or "organization"
@@ -237,6 +237,7 @@ Days-to-birthday display logic MUST be computed client-side from the returned `b
 - **THEN** `birthdate` MUST be `"1990-06-10"` (ISO 8601 normalized)
 
 #### Scenario: Birthday filter within_next_days
+@e2e exclude feature never built: no `within_next_days` predicate exists in lib/ or src/ (`git log --all -S within_next_days -- lib src` finds none; PeopleWidgetService ignores every non-group filter). No unit test exists; tests/Unit/Service/PeopleWidgetBirthdateTest.php pins only the days-to-birthday count no filter uses.
 - **GIVEN** placement config requests birthday filter `within_next_days: 7`
 - **AND** today is 2026-05-15
 - **WHEN** system fetches user list
@@ -244,6 +245,7 @@ Days-to-birthday display logic MUST be computed client-side from the returned `b
 - **AND** each included user's `birthdate` MUST be the ISO date string of their birthday
 
 #### Scenario: Birthday today is included
+@e2e exclude feature never built: the `within_next_days` filter this applies does not exist in lib/ or src/ (see the scenario above). No unit test of the filter exists; PeopleWidgetBirthdateTest.php::testBirthdayTodayIsZeroDays pins only the count.
 - **GIVEN** today is 2026-06-10
 - **AND** user "charlie" has birthdate 1990-06-10
 - **WHEN** system applies `within_next_days: 7` filter
@@ -475,10 +477,104 @@ The widget MUST cache results in memory for 60 seconds per placement. A force-re
 - **AND** results MUST update to latest state
 
 #### Scenario: Tab/browser focus refreshes cache
+@e2e exclude optional behaviour (MAY / SHOULD) that was never built: neither CnPeopleWidget nor src/components/Widgets/Renderers/PeopleWidget.vue listens for focus or visibilitychange. No unit test exists.
 - **GIVEN** user switches away from browser tab and back
 - **WHEN** user returns to the tab
 - **THEN** cache MAY be invalidated (optional)
 - **AND** widget SHOULD refetch on re-focus (recommended UX)
+
+### Requirement: Administrators define custom profile fields (REQ-PEX-001)
+
+An administrator MUST be able to define up to 10 custom profile fields, each with a label, a type (text or tags), a source (filled by the person, or read from an LDAP attribute), whether it is searchable, whether it shows in the people widget, and who may see it (everyone, or members of the person's groups).
+
+#### Scenario: Office location from LDAP
+@e2e exclude needs an LDAP directory server and the user_ldap app, which the CI fixture does not provide; pinned by tests/Unit/Service/ProfileFieldServiceTest.php::testLdapFieldsSyncForLdapAccountsOnly and ::testPieterAddsHisSubjectsAndLdapFieldsStayReadOnly
+
+- **GIVEN** Noor is an administrator and accounts come from LDAP
+- **WHEN** she adds the field "Kantoorlocatie" of type text, source LDAP attribute `physicalDeliveryOfficeName`, shown in the widget
+- **THEN** after Pieter next signs in, his people card shows "Kantoorlocatie: Stadhuis, 3e verdieping"
+- **AND** Pieter sees the field read-only on his LaunchPad personal settings
+
+### Requirement: People list their own expertise (REQ-PEX-002)
+
+A person MUST be able to fill the fields sourced from themselves on their LaunchPad personal settings, including tags for expertise.
+
+#### Scenario: Pieter adds his subjects
+
+- **GIVEN** the field "Expertise" of type tags, filled by the person, searchable
+- **WHEN** Pieter adds the tags "subsidies" and "Omgevingswet" on his personal settings and saves
+- **THEN** his people card shows the two tags
+
+### Requirement: Search finds people across the directory by profile and expertise (REQ-PEX-003)
+
+With a query of 2 or more characters, the people widget MUST ask the server, which MUST match display name, email, role, headline, biography and every searchable custom field across the whole directory and return the matches a page at a time. Shorter queries MUST keep the current-page filter of REQ-PPL-011.
+
+#### Scenario: Sanne finds the subsidies expert
+
+- **GIVEN** Pieter has the tag "subsidies" and is not on the first page of the people widget
+- **WHEN** Sanne types "subsidie" in the widget's search box
+- **THEN** Pieter is in the results with the tag highlighted
+
+#### Scenario: Clicking a tag searches for it
+
+- **GIVEN** Pieter's card shows the tag "Omgevingswet"
+- **WHEN** Sanne clicks the tag
+- **THEN** the widget shows everyone tagged "Omgevingswet"
+
+### Requirement: Search and display respect profile visibility (REQ-PEX-004)
+
+A standard profile field MUST be matched and shown only when the person's Nextcloud visibility setting lets the viewer see it. A custom field MUST be matched and shown only to the audience its definition allows. Search results MUST NOT be served from a cache shared between viewers.
+
+#### Scenario: Private biography is not searchable
+
+- **GIVEN** Karin's biography mentions "subsidies" and its visibility is private
+- **WHEN** Sanne searches "subsidies"
+- **THEN** Karin is not in the results on the strength of her biography
+- **AND** her card does not show the biography
+
+#### Scenario: Group-only field
+
+- **GIVEN** the field "Kostenplaats" is visible to members of the person's groups only, and Sanne shares no group with Pieter
+- **WHEN** Sanne views Pieter's card or searches his cost centre
+- **THEN** the field is not shown and does not match
+
+### Requirement: Candidate resolution is bounded by the requested page (REQ-PPL-013)
+
+`PeopleWidgetService::listUsers()` MUST NOT materialize the full Nextcloud
+user directory for a request that has no `group` filter and uses the default
+`displayName` sort. The number of `IUser` objects instantiated from
+`IUserManager` MUST scale with the requested `limit`/`offset` window (capped
+at `PeopleWidgetService::MAX_LIMIT`), not with the total number of accounts on
+the instance. Only the admin-selected `group` sort without a group filter
+reads the whole directory, because ordering by group membership needs it.
+
+#### Scenario: Unfiltered People widget on a large instance fetches a bounded set
+@e2e exclude which IUserManager call runs, and with what bound, is not visible in a browser or an API response; pinned by tests/Unit/Service/PeopleWidgetServiceTest.php::testDisplayNameSortUsesBoundedSearchNotFullScan and tests/Unit/Service/PeopleWidgetVisibilityGoldenTest.php::testDirectoryPageStreamsChunksUntilFullOrExhausted
+
+- **GIVEN** a Nextcloud instance with 5,000 user accounts
+- **AND** a People widget configured with no `group` filter and
+  `limit=10`, `offset=0`
+- **WHEN** `GET /api/people?limit=10&offset=0` is called
+- **THEN** `IUserManager::searchDisplayName()` MUST be invoked with a
+  bounded `$limit`/`$offset`, not an unbounded full-table search
+- **AND** the response MUST still contain the correct `users`, `total`,
+  and `hasMore` fields
+
+#### Scenario: Pagination still returns correct total and hasMore
+
+- **GIVEN** the same 5,000-user instance and no `group` filter
+- **WHEN** the caller requests successive pages (`offset=0,10,20,...`)
+- **THEN** `total` MUST reflect the true count of matching (enabled, per
+  `excludeDisabled`) users
+- **AND** `hasMore` MUST correctly indicate whether further pages exist
+
+#### Scenario: Group-filtered resolution is unaffected
+
+- **GIVEN** a People widget configured with a `group` filter
+- **WHEN** candidates are resolved
+- **THEN** behaviour MUST be unchanged from before this change —
+  `IGroupManager::get($gid)->getUsers()` per group value, deduplicated by
+  UID
 
 ## Non-Functional Requirements
 
@@ -487,12 +583,10 @@ The widget MUST cache results in memory for 60 seconds per placement. A force-re
 - **Data integrity**: User list MUST reflect real-time group membership (no stale cache on backend for group-filtered paths).
 - **Accessibility**: Widget MUST support keyboard navigation (Tab through users, Enter to open profile). All fields MUST have accessible labels. Avatar images MUST have alt text.
 - **Localization**: All user-facing strings MUST support English and Dutch (nl/en). Birthday display formatting MUST work with any user's locale.
-- **Privacy**: Scope-based field filtering is a planned follow-up. The shared backend APCu cache (keyed on filter + sort only) MUST be made per-viewer before scope-based visibility is enforced to prevent data leakage.
+- **Privacy**: A private standard field shows and matches for its owner only; custom fields follow their definition's audience (REQ-PEX-004).
 
 ## Open Follow-Ups
 
-- **Privacy — scope enforcement**: Implement `IAccountManager` scope-based visibility (`$prop->getScope()` check against viewer) before the shared filter cache is safe to retain.
-- **Privacy — per-viewer cache**: The 1-hour shared APCu cache ignores the requesting user. When scope-based visibility is enforced, the cache key MUST include the viewer's uid (or the cache must be disabled).
 - **Feb-29 birthday guard**: The `within_next_days` filter operator constructs dates with `new \DateTime($currentYear . '-' . $date->format('m-d'))` — this throws on Feb 29 in non-leap years. A guard (substitute Feb 28 in non-leap years) must be added.
 - **Click-through to `/u/{uid}`**: Not present in the reference implementation; must be added to the frontend card/list components.
 - **Birthday badge overlay**: "🎂 in N days" badge rendering is not in the reference source; to be added if desired.

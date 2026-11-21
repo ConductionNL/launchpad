@@ -4,11 +4,24 @@
 -->
 
 <template>
-	<NcModal v-if="open" size="normal" :name="modalTitle" @close="$emit('close')">
+	<NcModal
+		v-if="open"
+		class="launchpad-modal launchpad-modal--wide"
+		size="normal"
+		:name="modalTitle"
+		@close="$emit('close')">
 		<div class="dashboard-config">
-			<h2 class="dashboard-config__title">
-				{{ modalTitle }}
-			</h2>
+			<header class="dashboard-config__head">
+				<p
+					v-if="!isCreate && dashboard?.name"
+					class="launchpad-modal__kicker"
+					data-testid="dashboard-config-kicker">
+					{{ dashboard.name }}
+				</p>
+				<h2 class="dashboard-config__title launchpad-modal__title">
+					{{ modalTitle }}
+				</h2>
+			</header>
 
 			<!-- Tab strip (dashboard-sharing spec). Sharing is no longer a
 			     free-floating field set in the modal body — it lives in its
@@ -40,6 +53,12 @@
 						@click="currentTab = tab.id">
 						<component :is="tab.icon" v-if="tab.icon" :size="16" />
 						<span>{{ tab.label }}</span>
+						<span
+							v-if="tab.count"
+							class="dashboard-config__tab-count"
+							:data-test="`config-tab-count-${tab.id}`">
+							{{ tab.count }}
+						</span>
 					</button>
 				</li>
 			</ul>
@@ -107,6 +126,18 @@
 							data-testid="dashboard-slug-input"
 							@update:modelValue="form.slug = $event" />
 					</div>
+					<!-- launcher-tile-open-behaviour D2: how a tile without its
+					     own choice opens on this dashboard. -->
+					<div class="dashboard-config__field">
+						<NcSelect
+							v-model="form.defaultLinkTarget"
+							:inputLabel="t('launchpad', 'Opens in')"
+							:options="linkTargetChoices"
+							label="label"
+							trackBy="id"
+							:clearable="false"
+							data-testid="dashboard-link-target-select" />
+					</div>
 				</template>
 				<p
 					v-if="saveError"
@@ -125,21 +156,9 @@
 						:uploadFn="iconUploadFn"
 						@input="form.icon = $event" />
 				</div>
-			</div>
-			<!-- /general panel -->
-
-			<!--
-				Wave3.8 — explicit "default dashboard" pin. Lives in its own
-				Default tab now (dashboard-sharing spec tab split). Wrapped in
-				`v-if="!isCreate"` because pinning a not-yet-saved dashboard is
-				meaningless.
-			-->
-			<div
-				v-show="!isCreate && currentTab === 'default'"
-				id="config-panel-default"
-				role="tabpanel"
-				data-test="config-panel-default"
-				class="dashboard-config__panel">
+				<!-- The default switch and the detail fields live under Details,
+				     as board LpDashboardInstellingen draws them (three tabs:
+				     Details, Talen, Delen). -->
 				<div
 					v-if="!isCreate"
 					class="dashboard-config__field dashboard-config__field--toggle">
@@ -158,8 +177,12 @@
 						</span>
 					</NcCheckboxRadioSwitch>
 				</div>
+				<DetailsTab
+					v-if="!isCreate && canManageShares && dashboard?.uuid"
+					:dashboardUuid="dashboard.uuid" />
 			</div>
-			<!-- /default panel -->
+			<!-- /general panel -->
+
 
 			<div
 				v-if="!isCreate && currentTab === 'languages' && dashboard?.uuid"
@@ -170,13 +193,82 @@
 				<LanguagesTab :dashboardUuid="dashboard.uuid" />
 			</div>
 
+
+			<!-- Look panel (platform-dashboard-theme-and-css REQ-THM-001/002):
+			     accent, background colour and background image of THIS
+			     dashboard, with the same contrast check the server applies. -->
 			<div
-				v-if="!isCreate && currentTab === 'details' && dashboard?.uuid"
-				id="config-panel-details"
+				v-if="!isCreate && currentTab === 'look'"
+				id="config-panel-look"
 				role="tabpanel"
-				data-test="config-panel-details"
+				data-test="config-panel-look"
 				class="dashboard-config__panel">
-				<DetailsTab :dashboardUuid="dashboard.uuid" />
+				<p class="dashboard-config__hint">
+					{{ t('launchpad', 'Give this dashboard its own colors. Leave a field empty to follow the theme.') }}
+				</p>
+				<div class="dashboard-config__field dashboard-config__look-row">
+					<NcTextField
+						:modelValue="look.accent"
+						:label="t('launchpad', 'Accent color')"
+						placeholder="#1f5c3a"
+						data-testid="look-accent"
+						@update:modelValue="look.accent = $event" />
+					<input
+						type="color"
+						class="dashboard-config__swatch"
+						:value="lookAccentHex || '#000000'"
+						:aria-label="t('launchpad', 'Accent color')"
+						@input="look.accent = $event.target.value">
+				</div>
+				<div class="dashboard-config__field dashboard-config__look-row">
+					<NcTextField
+						:modelValue="look.background"
+						:label="t('launchpad', 'Background color')"
+						placeholder="#ffffff"
+						data-testid="look-background"
+						@update:modelValue="look.background = $event" />
+					<input
+						type="color"
+						class="dashboard-config__swatch"
+						:value="lookBackgroundHex || '#ffffff'"
+						:aria-label="t('launchpad', 'Background color')"
+						@input="look.background = $event.target.value">
+				</div>
+				<p
+					v-if="lookFormatError"
+					class="dashboard-config__error"
+					role="alert"
+					data-testid="look-format-error">
+					{{ lookFormatError }}
+				</p>
+				<p
+					v-else-if="!lookAccentCheck.readable"
+					class="dashboard-config__error"
+					role="alert"
+					data-testid="look-contrast-error">
+					{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
+				</p>
+				<div class="dashboard-config__field">
+					<label class="dashboard-config__label" for="look-image-input">
+						{{ t('launchpad', 'Image') }}
+					</label>
+					<input
+						id="look-image-input"
+						type="file"
+						accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+						data-testid="look-image-input"
+						:disabled="lookUploading"
+						@change="onLookImage">
+					<p v-if="look.resource" class="dashboard-config__hint" data-testid="look-image-name">
+						{{ look.resource }}
+						<NcButton variant="tertiary" data-testid="look-image-clear" @click="look.resource = ''">
+							{{ t('launchpad', 'Remove') }}
+						</NcButton>
+					</p>
+					<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
+						{{ lookUploadError }}
+					</p>
+				</div>
 			</div>
 
 			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
@@ -433,18 +525,20 @@ import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import Lock from 'vue-material-design-icons/Lock.vue'
+import Palette from 'vue-material-design-icons/Palette.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
-import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
-import Tune from 'vue-material-design-icons/Tune.vue'
 import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
 import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
+import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
-import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
-import { uploadDataUrl } from '../services/resourceService.js'
+import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
+import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
 import { logger } from '../utils/logger.js'
+import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -469,30 +563,20 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
-		Tune,
 		ShareVariant,
-		StarOutline,
 		ContentCopy,
 		Check,
 		Lock,
 		CnIconBrowser,
+		Palette,
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		dashboard: {
-			type: Object,
-			default: null,
-		},
+		dashboard: NULLABLE_OBJECT_PROP,
 
-		canDelete: {
-			type: Boolean,
-			default: false,
-		},
+		canDelete: FLAG_PROP,
 
 		mode: {
 			type: String,
@@ -507,25 +591,16 @@ export default {
 		 * fetches it once via `GET /api/dashboards/default` and
 		 * passes it down both here and to `DashboardSwitcherSidebar`.
 		 */
-		defaultUuid: {
-			type: String,
-			default: '',
-		},
+		defaultUuid: TEXT_PROP,
 
 		/**
 		 * Dashboards that may be chosen as parent (dashboard-tree-navigation).
 		 * The server refuses a cycle; the host leaves the dashboard itself out.
 		 */
-		parentOptions: {
-			type: Array,
-			default: () => [],
-		},
+		parentOptions: LIST_PROP,
 
 		/** Why the last save was refused, shown in the General tab. */
-		saveError: {
-			type: String,
-			default: '',
-		},
+		saveError: TEXT_PROP,
 
 		/**
 		 * Tab to land on when the modal opens (dashboard-sharing spec). The
@@ -543,7 +618,9 @@ export default {
 
 	data() {
 		return {
-			currentTab: this.initialTab || 'general',
+			currentTab:
+				this.initialTab === 'default' ? 'general' : this.initialTab || 'general',
+
 			form: {
 				name: '',
 				description: '',
@@ -561,9 +638,17 @@ export default {
 				// (uuid '' for none) and the web address name.
 				parent: null,
 				slug: '',
+				// launcher-tile-open-behaviour D2: `{id, label}`, id '' for
+				// the link-type rule.
+				defaultLinkTarget: null,
 			},
 
 			saving: false,
+			// REQ-THM-001: the look being edited, and the stored one it started from.
+			look: { accent: '', background: '', resource: '' },
+			initialLook: { accent: '', background: '', resource: '' },
+			lookUploading: false,
+			lookUploadError: '',
 			// Server snapshot of shares as last loaded; used to compute dirty state.
 			serverShares: [],
 			// Local in-progress edit list; mutations buffer here until Save.
@@ -587,6 +672,21 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The dashboard default choices for how tiles open.
+		 *
+		 * @return {Array<{id: string, label: string}>}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		linkTargetChoices() {
+			return [
+				{ id: '', label: t('launchpad', 'Web addresses in a new tab, apps in the same tab') },
+				{ id: SAME_TAB, label: t('launchpad', 'Same tab') },
+				{ id: NEW_TAB, label: t('launchpad', 'New tab') },
+				{ id: SIDE_PANEL, label: t('launchpad', 'Panel beside the tiles') },
+			]
+		},
+
 		/**
 		 * Parent choices: "No parent" first, then the other dashboards.
 		 *
@@ -616,7 +716,7 @@ export default {
 		 * @return {object} the frozen icon catalogue.
 		 */
 		iconCatalogue() {
-			return ICON_CATALOGUE
+			return DASHBOARD_ICON_CATALOGUE
 		},
 
 		/**
@@ -644,36 +744,37 @@ export default {
 		 */
 		tabs() {
 			const list = [
-				{ id: 'general', label: t('launchpad', 'General'), icon: Tune },
+				{
+					id: 'general',
+					label: t('launchpad', 'Details'),
+					icon: FormatListBulleted,
+				},
 			]
+			// dashboard-language-and-details-tabs: language versions, for the
+			// owner (a dashboard needs a uuid first, so the strip is hidden
+			// while creating).
+			if (this.canManageShares && this.dashboard?.uuid) {
+				list.push({
+					id: 'languages',
+					label: t('launchpad', 'Languages'),
+					icon: Translate,
+				})
+			}
+			// REQ-THM-001: the look is the owner's, like sharing.
+			if (this.canManageShares) {
+				list.push({
+					id: 'look',
+					label: t('launchpad', 'Look'),
+					icon: Palette,
+				})
+			}
 			if (this.canManageShares) {
 				list.push({
 					id: 'sharing',
 					label: t('launchpad', 'Sharing'),
 					icon: ShareVariant,
+					count: this.localShares.length,
 				})
-			}
-			list.push({
-				id: 'default',
-				label: t('launchpad', 'Default'),
-				icon: StarOutline,
-			})
-			// dashboard-language-and-details-tabs: language versions and
-			// detail fields, for the owner (a dashboard needs a uuid first,
-			// so the strip is hidden while creating).
-			if (this.canManageShares && this.dashboard?.uuid) {
-				list.push(
-					{
-						id: 'languages',
-						label: t('launchpad', 'Languages'),
-						icon: Translate,
-					},
-					{
-						id: 'details',
-						label: t('launchpad', 'Details'),
-						icon: FormatListBulleted,
-					},
-				)
 			}
 			return list
 		},
@@ -730,7 +831,62 @@ export default {
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		canSave() {
-			return this.form.name.trim().length > 0
+			return this.form.name.trim().length > 0 && this.lookValid
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookAccentHex() {
+			return normaliseHex(this.look.accent)
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookBackgroundHex() {
+			return normaliseHex(this.look.background)
+		},
+
+		/**
+		 * A colour field that holds something other than a colour.
+		 *
+		 * @return {string} the message, or '' when both fields are empty or colours.
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		lookFormatError() {
+			const bad = [this.look.accent, this.look.background].some(
+				(value) => String(value).trim() !== '' && normaliseHex(value) === null,
+			)
+			return bad ? t('launchpad', 'Enter colors like #1f5c3a.') : ''
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		lookAccentCheck() {
+			return accentCheck(this.lookAccentHex, this.lookBackgroundHex)
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		lookValid() {
+			return this.lookFormatError === '' && this.lookAccentCheck.readable
+		},
+
+		/**
+		 * The look fields that changed, as the update route takes them ('' clears),
+		 * or null when nothing changed, so a rename stays a metadata edit.
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		lookPayload() {
+			const fields = {
+				themeAccent: ['accent', this.lookAccentHex ?? ''],
+				themeBackgroundColor: ['background', this.lookBackgroundHex ?? ''],
+				themeBackgroundResource: ['resource', this.look.resource || ''],
+			}
+			const payload = {}
+			for (const [field, [key, value]] of Object.entries(fields)) {
+				if (value !== (this.initialLook[key] || '')) {
+					payload[field] = value
+				}
+			}
+			return Object.keys(payload).length > 0 ? payload : null
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -770,7 +926,9 @@ export default {
 				// top-bar share action opens directly on Sharing). Fall back
 				// to General if the requested tab is the share tab but the
 				// user cannot manage shares.
-				const wanted = this.initialTab || 'general'
+				// `default` was its own tab; the switch now sits under Details.
+				const wanted
+					= this.initialTab === 'default' ? 'general' : this.initialTab || 'general'
 				this.currentTab =
 					wanted === 'sharing' && !this.canManageShares
 						? 'general'
@@ -784,6 +942,11 @@ export default {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
 					this.form.slug = this.dashboard.slug || ''
+					this.form.defaultLinkTarget =
+						this.linkTargetChoices.find(
+							(c) => c.id === (this.dashboard.defaultLinkTarget || ''),
+						) || this.linkTargetChoices[0]
+					this._initialLinkTarget = this.form.defaultLinkTarget.id
 					this.form.parent =
 						this.parentChoices.find(
 							(p) => p.uuid === (this.dashboard.parentUuid || ''),
@@ -794,6 +957,14 @@ export default {
 					// only null/empty falls back to DEFAULT_ICON
 					// (REQ-ICON-002 + REQ-ICON-009).
 					this.form.icon = this.dashboard.icon || DEFAULT_ICON
+					// REQ-THM-001: the stored look, and a snapshot to send only what changes.
+					this.initialLook = {
+						accent: this.dashboard.themeAccent || '',
+						background: this.dashboard.themeBackgroundColor || '',
+						resource: this.dashboard.themeBackgroundResource || '',
+					}
+					this.look = { ...this.initialLook }
+					this.lookUploadError = ''
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.
@@ -813,6 +984,33 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Upload a chosen background image through LaunchPad's resource
+		 * uploads and keep its file name (REQ-THM-001).
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		async onLookImage(event) {
+			const file = event?.target?.files?.[0]
+			if (!file) {
+				return
+			}
+			this.lookUploading = true
+			this.lookUploadError = ''
+			try {
+				const resource = await uploadFile(file)
+				this.look.resource = resource.name
+			} catch (error) {
+				logger.error('Failed to upload the background image:', error)
+				this.lookUploadError = t('launchpad', 'Failed to upload image')
+			} finally {
+				this.lookUploading = false
+			}
+		},
+
 		/**
 		 * Resolve a permission level to its select option, falling back to
 		 * the first option for unknown levels.
@@ -1105,6 +1303,12 @@ export default {
 						: {
 								parentUuid: this.form.parent?.uuid ?? '',
 								slug: this.form.slug.trim(),
+								...(this.lookPayload ? { look: this.lookPayload } : {}),
+								// Only when changed: it needs full edit rights, so a
+								// metadata-only editor's save must not carry it.
+								...((this.form.defaultLinkTarget?.id ?? '') !== this._initialLinkTarget
+									? { defaultLinkTarget: this.form.defaultLinkTarget?.id ?? '' }
+									: {}),
 							}),
 				})
 
@@ -1443,5 +1647,33 @@ export default {
 
 .dashboard-config__error {
 	color: var(--color-error-text);
+}
+
+/* The count on the Delen tab (board LpDashboardInstellingen). */
+.dashboard-config__tab-count {
+	min-width: 20px;
+	padding: 0 6px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-background-dark);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 20px;
+	text-align: center;
+}
+
+.dashboard-config__look-row {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+}
+
+.dashboard-config__swatch {
+	inline-size: 44px;
+	block-size: 44px;
+	padding: 2px;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	cursor: pointer;
 }
 </style>

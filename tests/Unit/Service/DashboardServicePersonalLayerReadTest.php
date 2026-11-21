@@ -31,6 +31,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -118,7 +123,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 
 		$this->dashboardMapper = $this->getMockBuilder(DashboardMapper::class)
 			->disableOriginalConstructor()
-			->onlyMethods(['findVisibleToUser'])
+			->onlyMethods(['findVisibleToUser', 'findDueScheduled'])
 			->getMock();
 		$this->placementMapper = $this->getMockBuilder(WidgetPlacementMapper::class)
 			->disableOriginalConstructor()
@@ -166,20 +171,30 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 		$this->layers = new PersonalLayerService($this->layerMapper());
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->createMock(AdminSettingMapper::class),
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $this->dashResolver,
-			treeService: $this->createMock(DashboardTreeService::class),
-			groupManager: $groupManager,
-			adminTemplateService: $adminTemplateService,
-			db: $this->createMock(IDBConnection::class),
-			config: $config,
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->layers,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->dashResolver,
+				adminTemplateService: $adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(DashboardTreeService::class),
+				personalLayers: $this->layers
+			),
+			platform: new DashboardPlatform(
+				groupManager: $groupManager,
+				db: $this->createMock(IDBConnection::class),
+				config: $config,
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 	}//end setUp()
 
@@ -193,7 +208,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testASavedLayerChangesWhatTheReaderGetsBack(): void {
 		$this->shareWithReader();
@@ -245,7 +260,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheLayerIsAppliedOnTheNonShareReadPathToo(): void {
 		$dashboard = $this->dashboard();
@@ -288,7 +303,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testAnotherReadersLayerIsInvisible(): void {
 		$this->shareWithReader();
@@ -322,7 +337,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheOwnersOwnReadIsNeverLayered(): void {
 		$dashboard = $this->dashboard();
@@ -365,7 +380,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testResetPutsTheOwnersArrangementBackOnTheRead(): void {
 		$this->shareWithReader();
@@ -405,7 +420,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheLandingReadAppliesTheLayerToo(): void {
 		$dashboard = $this->dashboard();

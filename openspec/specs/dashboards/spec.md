@@ -30,9 +30,8 @@ Each dashboard record is stored in the `oc_launchpad_dashboards` table with the 
 - **isActive**: SMALLINT (0/1) flag indicating if this is the user's currently active dashboard
 - **createdAt**: Timestamp string (Y-m-d H:i:s)
 - **updatedAt**: Timestamp string (Y-m-d H:i:s)
-## Requirements
 
-@e2e exclude all 163 scenarios test REST/service/factory/tree API — dashboard CRUD and tree ops have no dedicated UI flow in v1.0.5 (UI flows tested via runtime-shell, dashboard-switcher, tiles, widgets specs)
+## Requirements
 
 ### Requirement: Create Personal Dashboard (REQ-DASH-001)
 
@@ -76,6 +75,7 @@ Users MUST be able to create new personal dashboards with a name, optional descr
   - "recommendations" widget at (0, 0) with size 6x5
   - "activity" widget at (6, 0) with size 6x5
 - AND both placements MUST have `showTitle: 1`, `isVisible: 1`, and appropriate sortOrder values
+@e2e exclude GIVEN unreachable on the CI instance: SeedDefaultDashboard seeds a `default`-group dashboard that every new user resolves to before tryCreateFromTemplate() runs, and removing it would empty the shared instance; the product also seeds the tile and Files bundle now, not recommendations/activity (the scenario text is stale). Pinned by tests/Unit/Service/DashboardServiceCreateDefaultsTest.php::testSeedDefaultsInsertsThreeTilesAndFilesWidget and tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testProvisionedDashboardPlacements
 
 ### Requirement: List User Dashboards (REQ-DASH-002)
 
@@ -133,6 +133,7 @@ Users MUST be able to retrieve their currently active dashboard along with its p
 - WHEN he sends GET /api/dashboard
 - THEN the system MUST create a default "My Dashboard" with recommendations and activity widgets
 - AND the response MUST return the newly created dashboard
+@e2e exclude needs an instance without the seeded `default`-group dashboard (SeedDefaultDashboard), which getEffectiveDashboard() answers before it provisions a personal one; removing it would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testProvisionedDashboardPlacements
 
 #### Scenario: First-time user with dashboards disabled and no template
 - GIVEN user "eve" has no dashboards
@@ -141,6 +142,7 @@ Users MUST be able to retrieve their currently active dashboard along with its p
 - WHEN she sends GET /api/dashboard
 - THEN the system MUST return null (no dashboard available)
 - AND the response MUST return HTTP 404 or an empty result
+@e2e exclude needs an instance without the seeded `default`-group dashboard (SeedDefaultDashboard), which is answered first; removing it would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testNoTemplateAndNoPersonalDashboardsProvisionsNothing
 
 ### Requirement: Update Dashboard (REQ-DASH-004)
 
@@ -345,7 +347,7 @@ The system MUST support a third dashboard type `group_shared` in addition to `us
 
 #### Scenario: Non-admin cannot create a group-shared dashboard
 
-- GIVEN a logged-in user "alice" who is not an administrator
+- GIVEN a logged-in user "alice" who is not an administrator and has no LaunchPad Admin or Editor role
 - WHEN she sends `POST /api/dashboards/group/marketing` with any body
 - THEN the system MUST return HTTP 403
 
@@ -374,12 +376,14 @@ The system MUST support a third dashboard type `group_shared` in addition to `us
 - GIVEN any caller attempts to insert a dashboard row with `type='group_shared'` and `groupId IS NULL`
 - THEN the system MUST throw `\InvalidArgumentException` (enforced by `DashboardFactory::create()`)
 - AND no row MUST be persisted
+@e2e exclude no HTTP route can create a group_shared dashboard without a groupId (the group is a required path segment of POST /api/dashboards/group/{groupId}), so this is an internal factory invariant; pinned by tests/Unit/Service/DashboardFactoryGroupSharedTest.php::testCreateGroupSharedRequiresGroupId and ::testCreateGroupSharedRejectsEmptyGroupId
 
 #### Scenario: Invariant — non-`group_shared` types must not have a `groupId`
 
 - GIVEN any caller attempts to insert a dashboard with `type='user'` and `groupId='marketing'`
 - THEN the system MUST throw `\InvalidArgumentException`
 - AND no row MUST be persisted
+@e2e exclude no HTTP route passes a groupId to a user-type create (POST /api/dashboard takes none), so this is an internal factory invariant; pinned by tests/Unit/Service/DashboardFactoryGroupSharedTest.php::testCreateUserTypeRejectsGroupId
 
 ### Requirement: REQ-DASH-012 Default-group sentinel
 
@@ -430,6 +434,7 @@ Each returned dashboard MUST carry an additional `source` field with values `'us
 - GIVEN a group-shared dashboard exists where the user is a member of the targeted group AND that same dashboard's UUID also appears in another result set (rare edge case from a future multi-group support or a misconfigured fixture)
 - WHEN she calls `GET /api/dashboards/visible`
 - THEN it MUST appear only once in the response
+@e2e exclude the GIVEN cannot be built through the API: a group-shared row reaches a user through her groups or the `default` sentinel only, and it cannot be shared to her because DashboardShareService::assertOwner() needs an owner; the mapper's UUID dedup is pinned by tests/Unit/Db/DashboardMapperGroupSharedTest.php::testFindVisibleToUserDeduplicatesByUuid
 
 #### Scenario: User with no personal dashboards still gets visible result
 
@@ -446,6 +451,7 @@ Each returned dashboard MUST carry an additional `source` field with values `'us
 - AND no default-group dashboards exist
 - WHEN she calls `GET /api/dashboards/visible`
 - THEN the response MUST contain exactly 1 dashboard with `source='user'`
+@e2e exclude needs an instance with no `default`-group dashboard at all, and SeedDefaultDashboard seeds one; removing it would empty the shared instance. Pinned by tests/Unit/Db/DashboardMapperGroupSharedTest.php::testFindVisibleToUserZeroGroupsPersonalAndDefault and ::testFindVisibleToUserNothingReturnsEmpty
 
 #### Scenario: Admin gets group-shared dashboards as `source='group'` even though they own them
 
@@ -460,10 +466,24 @@ Each returned dashboard MUST carry an additional `source` field with values `'us
 The system MUST expose CRUD endpoints scoped to a group:
 
 - `GET /api/dashboards/group/{groupId}` — list group-shared dashboards in that group (any logged-in user can list)
-- `POST /api/dashboards/group/{groupId}` — create a new one (admin only)
+- `POST /api/dashboards/group/{groupId}` — create a new one: a Nextcloud administrator or a LaunchPad Admin for any group, an Editor for a group they belong to (Ruben, 21 Nov 2026). An Editor cannot create one for the `default` group, which means everyone. Anyone else gets HTTP 403. The new dashboard has no owner (`userId` null).
 - `GET /api/dashboards/group/{groupId}/{uuid}` — get one (any logged-in user)
 - `PUT /api/dashboards/group/{groupId}/{uuid}` — update name/layout/icon (admin only)
 - `DELETE /api/dashboards/group/{groupId}/{uuid}` — remove (admin only)
+
+#### Scenario: An Editor creates a group dashboard for their own group
+
+- GIVEN bob has the LaunchPad role "editor" and is in group "engineering"
+- WHEN he sends `POST /api/dashboards/group/engineering` with `{"name": "Engineering"}`
+- THEN the system MUST return HTTP 201 with a `group_shared` dashboard for "engineering"
+- AND its `userId` MUST be null
+
+#### Scenario: An Editor cannot create a group dashboard for another group
+
+- GIVEN bob has the LaunchPad role "editor" and is not in group "sales"
+- WHEN he sends `POST /api/dashboards/group/sales`
+- THEN the system MUST return HTTP 403
+- AND no dashboard MUST be created
 
 #### Scenario: Update propagates immediately
 
@@ -485,6 +505,7 @@ The system MUST expose CRUD endpoints scoped to a group:
 - THEN the system MUST delete the dashboard
 - AND return HTTP 200
 - NOTE: the default group is curated, not user-bound — admins can intentionally clear it
+@e2e exclude needs the `default` group to hold exactly one dashboard, but it holds the instance's seeded one, which other specs rely on; deleting one of two would pass without the exemption and prove nothing. Pinned by tests/Unit/Service/DashboardServiceGroupSharedTest.php::testDeleteGroupSharedAllowsLastInDefaultGroup
 
 #### Scenario: Update on a group-shared dashboard rejects userId field changes
 
@@ -605,6 +626,7 @@ Updates to a group-shared dashboard via `PUT /api/dashboards/group/{groupId}/{uu
 When the workspace page renders for a user, the system MUST resolve which dashboard is "active" by walking the following precedence and stopping at the first match:
 
 1. The dashboard whose UUID equals the user's `active_dashboard_uuid` preference, IF that dashboard is currently visible to the user (per REQ-DASH-013).
+1b. For a user who owns no personal dashboard: the admin template that applies to them (admin-templates REQ-TMPL-019, which also says when the default template waits for step 2).
 2. The `group_shared` dashboard with `isDefault = 1` in the user's primary group (per REQ-DASH-015).
 3. The `group_shared` dashboard with `isDefault = 1` in the synthetic `'default'` group.
 4. The first `group_shared` dashboard (by `sortOrder` ascending, then `createdAt`) in the user's primary group.
@@ -653,6 +675,7 @@ The resolver MUST attach a `source` field to the returned dashboard descriptor w
 - THEN the resolver MUST return `null`
 - AND the response MUST include `activeDashboardId: ''` in initial state
 - AND the page MUST render the empty-state UI
+@e2e exclude needs a brand-new install with no dashboard of any type, which would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceActiveResolutionTest.php::testStep7EmptyStateReturnsNull and tests/Unit/Controller/PageControllerHelpersTest.php::testNoActiveDashboardDescribesAnEmptyGroupWorkspace
 
 ### Requirement: REQ-DASH-019 Persist active-dashboard preference
 
@@ -727,6 +750,7 @@ The fork operation MUST execute inside a single database transaction. If any par
 - THEN the new dashboard row MUST also be removed (transaction rolled back)
 - AND `S`'s placements MUST remain visible to alice
 - AND alice's previously active dashboard (if any) MUST remain active
+@e2e exclude needs a database error injected while the cloned placements are inserted, which a live instance cannot be made to raise on demand; pinned by tests/Unit/Service/DashboardServiceForkTest.php::testForkRollsBackOnPlacementCloneFailure
 
 ### Requirement: REQ-DASH-022 Fork does not duplicate uploaded resources
 
@@ -906,6 +930,7 @@ The system MUST expose `GET /api/dashboards/tree` returning the full visible tre
 - GIVEN user "bob" has no dashboards
 - WHEN he sends GET /api/dashboards/tree
 - THEN the response MUST be an empty array (or `{children: []}` depending on schema)
+@e2e exclude a fresh account on the shared instance still sees the instance-wide default group dashboard that SeedDefaultDashboard provisions, so its tree is never empty without emptying the shared instance; the empty case is pinned by tests/Unit/Service/DashboardTreeServiceTest.php::testGetFilteredTreeWithEmptyUuidsReturnsEmpty
 
 ### Requirement: REQ-DASH-027 Path-based dashboard resolution
 
@@ -1070,6 +1095,7 @@ The system MUST track dashboard publication state via three new database columns
 - AND all existing dashboard rows MUST acquire `publication_status = 'published'` automatically via the column default (no explicit UPDATE statement is needed — design D1)
 - AND a composite index `launchpad_dash_user_pub` on `(user_id, publication_status)` MUST be created
 - NOTE: New dashboards created after the migration default to `'draft'` via application logic in `DashboardFactory::create()`, NOT via the column default. The column default exists only to backfill pre-existing rows safely.
+@e2e exclude needs an instance that held dashboards before Version001011Date20260502130000 ran; CI installs a fresh instance, so there are no pre-existing rows to backfill. No PHPUnit test exercises this migration (none in tests/Unit/Migration)
 
 #### Scenario: Timestamp formats
 
@@ -1086,7 +1112,7 @@ The system MUST track dashboard publication state via three new database columns
 
 ### Requirement: REQ-DASH-032 Publish action
 
-The system MUST expose `POST /api/dashboards/{uuid}/publish` that transitions a dashboard to `published` and stamps `publishedAt = now()` the first time the transition occurs. The action MUST be idempotent and gated to the dashboard owner or a Nextcloud administrator.
+The system MUST expose `POST /api/dashboards/{uuid}/publish` that transitions a dashboard to `published` and stamps `publishedAt = now()` the first time the transition occurs. The action MUST be idempotent and gated to the dashboard owner or a Nextcloud administrator: the owner publishes their own dashboard, and an administrator keeps the right for every dashboard (Ruben, 21 Nov 2026). The shipped action matrix (`lib/actions.seed.json`) therefore opens `dashboard.publish`, `dashboard.unpublish` and `dashboard.schedule` to every user, the route checks owner-or-admin per dashboard, and the action baseline repair step (revision 6) opens the three on an existing instance where the entry is still the pristine admin-only default.
 
 #### Scenario: Publish a draft dashboard
 
@@ -1191,6 +1217,7 @@ The system MUST expose `POST /api/dashboards/{uuid}/schedule` accepting `{publis
 - AND `published_at` MUST be set to the current time when previously null
 - AND the method MUST return the number of dashboards materialised
 - NOTE: Lazy read-time materialisation remains the correctness contract (REQ-DASH-034 scenario "lazy materialisation"); this method is a cosmetic optimisation for cleaner audit data.
+@e2e exclude every read materialises lazily, so no HTTP response shows whether the stored row flipped; getVisibleToUser() runs the flip, whose one announcement is the e2e for activity-feed-integration::group-dashboard-published; pinned by tests/Unit/Activity/DashboardActivityEmissionTest.php and tests/Unit/Db/DashboardMapperCoverageTest.php::testFindDueScheduled
 
 ### Requirement: REQ-DASH-035 Migration backfill to published state
 
@@ -1202,6 +1229,7 @@ The publication-state migration MUST preserve the visibility of every dashboard 
 - WHEN `Version001011Date20260502130000::changeSchema()` runs
 - THEN the `publication_status` column MUST be added with `DEFAULT 'published'`
 - AND every existing row MUST acquire `'published'` via the column default — no explicit `UPDATE` statement is required (design D1)
+@e2e exclude needs an instance that held dashboards before Version001011Date20260502130000 ran; CI installs a fresh instance. No PHPUnit test exercises this migration (none in tests/Unit/Migration)
 
 #### Scenario: New dashboards default to draft despite the column default
 
@@ -1241,6 +1269,7 @@ The Pinia dashboard store MUST track `publicationStatus`, `publishAt`, and `publ
 
 - GIVEN the dashboard store module is imported
 - THEN it MUST export `STATUS_DRAFT`, `STATUS_PUBLISHED`, and `STATUS_SCHEDULED` constants matching the PHP entity values
+@e2e exclude a JavaScript module export with no browser surface; no Vitest asserts the three constants (none in src/**/__tests__), the matching PHP values are pinned by tests/Unit/Db/DashboardTest.php
 
 #### Scenario: Client-side lazy materialisation hint
 
@@ -1248,6 +1277,7 @@ The Pinia dashboard store MUST track `publicationStatus`, `publishAt`, and `publ
 - WHEN any caller invokes `dashboardStore.effectivePublicationStatus(dashboard)`
 - THEN the method MUST return `'published'` even if the stored `publicationStatus` is still `'scheduled'`
 - NOTE: This is a UX hint only — the backend remains the source of truth and applies the same materialisation server-side.
+@e2e exclude the server already materialises a due scheduled dashboard before the browser reads it, so the client-side hint cannot be told apart in a browser; pinned by src/stores/__tests__/dashboardActions.golden.spec.js (effectivePublicationStatus cases)
 
 #### Scenario: Publish / unpublish / schedule actions patch local state
 
@@ -1297,8 +1327,6 @@ endpoints).
 
 ### Requirement: Dashboards with a parent nest in the switcher (REQ-TREEUI-001)
 
-@e2e exclude nesting needs seeded parent and child dashboards on a live instance; the switcher is asserted in src/components/Workspace/__tests__/DashboardSwitcherSidebar.tree.spec.js, the breadcrumb in src/components/Workspace/__tests__/DashboardBreadcrumb.spec.js and tests/Unit/Controller/DashboardApiControllerBreadcrumbsTest.php, the form and delete flow in src/views/__tests__/ViewsTree.spec.js
-
 When at least one visible dashboard has a parent, the switcher MUST show it nested under that parent with an expand control. When none has a parent it MUST render as it does today.
 
 #### Scenario: Nested onboarding pages
@@ -1315,8 +1343,6 @@ When at least one visible dashboard has a parent, the switcher MUST show it nest
 
 ### Requirement: A child page shows where it sits (REQ-TREEUI-002)
 
-@e2e exclude nesting needs seeded parent and child dashboards on a live instance; the switcher is asserted in src/components/Workspace/__tests__/DashboardSwitcherSidebar.tree.spec.js, the breadcrumb in src/components/Workspace/__tests__/DashboardBreadcrumb.spec.js and tests/Unit/Controller/DashboardApiControllerBreadcrumbsTest.php, the form and delete flow in src/views/__tests__/ViewsTree.spec.js
-
 A dashboard with a parent MUST show a breadcrumb of its ancestors above the grid, taken from the server, and MUST NOT show the name of an ancestor the viewer may not see.
 
 #### Scenario: Breadcrumb
@@ -1327,8 +1353,6 @@ A dashboard with a parent MUST show a breadcrumb of its ancestors above the grid
 
 ### Requirement: A parent is chosen in the form and validated (REQ-TREEUI-003)
 
-@e2e exclude nesting needs seeded parent and child dashboards on a live instance; the switcher is asserted in src/components/Workspace/__tests__/DashboardSwitcherSidebar.tree.spec.js, the breadcrumb in src/components/Workspace/__tests__/DashboardBreadcrumb.spec.js and tests/Unit/Controller/DashboardApiControllerBreadcrumbsTest.php, the form and delete flow in src/views/__tests__/ViewsTree.spec.js
-
 The create and rename dialogs MUST offer a "Parent dashboard" select and a slug field, and MUST show the service message when the parent would create a cycle or the slug is already used among siblings.
 
 #### Scenario: Cycle refused
@@ -1338,8 +1362,6 @@ The create and rename dialogs MUST offer a "Parent dashboard" select and a slug 
 - **THEN** the dialog shows the cycle message and nothing is saved
 
 ### Requirement: A person can hide a widget for themselves (REQ-PERSUI-001)
-
-@e2e exclude two people on one shared dashboard need a live instance; the page behaviour is asserted in src/views/__tests__/ViewsPersonalHide.spec.js, the menu in src/components/__tests__/WidgetWrapper.hide.spec.js, the list in src/components/Workspace/__tests__/HiddenWidgetsControl.spec.js, the store in src/stores/__tests__/personalLayer.spec.js
 
 In view mode every widget that is not compulsory MUST offer "Hide for me" in its menu. Hiding MUST save the personal layer and reload the dashboard, and MUST NOT change what any other person sees.
 
@@ -1354,10 +1376,9 @@ In view mode every widget that is not compulsory MUST offer "Hide for me" in its
 - **GIVEN** the administrator marked the "Safety notice" widget compulsory
 - **WHEN** Pieter opens its menu
 - **THEN** no "Hide for me" item is offered
+@e2e exclude no endpoint marks a placement on a shared dashboard compulsory: isCompulsory is carried only by admin-template import (lib/Service/PlacementPayloadHydrator.php:105) and role layout defaults; the menu is pinned by src/components/__tests__/WidgetWrapper.hide.spec.js and the server refusal by tests/Unit/Controller/PersonalLayerApiControllerAccessTest.php
 
 ### Requirement: A person can bring hidden widgets back (REQ-PERSUI-002)
-
-@e2e exclude two people on one shared dashboard need a live instance; the page behaviour is asserted in src/views/__tests__/ViewsPersonalHide.spec.js, the menu in src/components/__tests__/WidgetWrapper.hide.spec.js, the list in src/components/Workspace/__tests__/HiddenWidgetsControl.spec.js, the store in src/stores/__tests__/personalLayer.spec.js
 
 A "Hidden (n)" control MUST list the widgets the person hid, each with "Show again", and MUST be absent when nothing is hidden. "Reset my view" MUST delete the whole layer after confirmation.
 
@@ -1375,8 +1396,6 @@ A "Hidden (n)" control MUST list the widgets the person hid, each with "Show aga
 
 ### Requirement: A manager can publish, unpublish and schedule a dashboard (REQ-SCHEDUI-001)
 
-@e2e exclude go-live and take-down need real time to pass on a live instance; asserted in src/views/__tests__/ViewsSchedule.spec.js, src/dialogs/__tests__/ScheduleDashboardDialog.spec.js, tests/Unit/Service/DashboardServicePublicationTest.php and tests/Unit/Controller/DashboardApiControllerScheduleTest.php
-
 A person who may edit a dashboard MUST find "Publish", "Unpublish" and "Schedule..." in its menu. "Schedule..." MUST accept a go-live time, a take-down time or both, and MUST show the server's message when a time is in the past.
 
 #### Scenario: Schedule go-live
@@ -1393,8 +1412,6 @@ A person who may edit a dashboard MUST find "Publish", "Unpublish" and "Schedule
 
 ### Requirement: A dashboard can come down at a set time (REQ-SCHEDUI-002)
 
-@e2e exclude go-live and take-down need real time to pass on a live instance; asserted in src/views/__tests__/ViewsSchedule.spec.js, src/dialogs/__tests__/ScheduleDashboardDialog.spec.js, tests/Unit/Service/DashboardServicePublicationTest.php and tests/Unit/Controller/DashboardApiControllerScheduleTest.php
-
 A dashboard MAY carry `unpublishAt`. Once that time has passed, the dashboard MUST be treated as unpublished when read, and `unpublishAt` MUST NOT be earlier than `publishAt`.
 
 #### Scenario: Take-down passes
@@ -1402,6 +1419,103 @@ A dashboard MAY carry `unpublishAt`. Once that time has passed, the dashboard MU
 - **GIVEN** the dashboard "Open day" is published with a take-down time of yesterday
 - **WHEN** a colleague lists dashboards
 - **THEN** "Open day" is not among the published dashboards
+
+### Requirement: REQ-DASH-014 Group-shared dashboard CRUD is admin-only and declared as such
+
+The group-shared dashboard endpoints `updateGroup`, `deleteGroup` and `setGroupDefault` MUST be reachable only by Nextcloud global administrators, AND this restriction MUST be declared via the
+`#[AuthorizedAdminSetting]` PHP attribute rather than via an in-body
+`isAdmin()` check layered on a `#[NoAdminRequired]` attribute. The
+attribute-level declaration is enforced by Nextcloud's own middleware
+before the controller method body runs, and is the mechanically
+verifiable form per ADR-005's auth-attribute contract.
+
+`createGroup` is the exception (Ruben, 21 Nov 2026): an Editor may create a group dashboard for a group they belong to, so it carries `#[NoAdminRequired]` and checks `GroupDashboardCreation::allows()` before it reads the body.
+
+#### Scenario: Non-admin cannot create a group-shared dashboard
+
+- **GIVEN** an authenticated user "bob" who is not an administrator and has
+  no LaunchPad Admin or Editor role
+- **WHEN** bob sends `POST /api/dashboards/group/{groupId}`
+- **THEN** the controller MUST reject the request with HTTP 403 before it
+  reads the body or creates anything (REQ-DASH-014)
+- **AND** no dashboard MUST be created
+
+#### Scenario: Non-admin cannot update, delete, or set-default a group-shared dashboard
+
+- **GIVEN** an authenticated non-admin user "bob"
+- **WHEN** bob sends `PUT /api/dashboards/group/{groupId}/{uuid}`,
+  `DELETE /api/dashboards/group/{groupId}/{uuid}`, or
+  `POST /api/dashboards/group/{groupId}/default`
+- **THEN** each request MUST be rejected with HTTP 403 by the framework
+  attribute check
+- **AND** no mutation MUST occur
+
+#### Scenario: Admin can perform all four group-shared operations
+
+- **GIVEN** an authenticated Nextcloud global admin
+- **WHEN** the admin calls `createGroup`, `updateGroup`, `deleteGroup`, or
+  `setGroupDefault`
+- **THEN** each call MUST succeed exactly as it did before this change
+- **AND** the response payloads MUST be unchanged
+
+#### Scenario: Controller method carries the correct attribute
+
+- **GIVEN** `lib/Controller/DashboardApiController.php`
+- **WHEN** `createGroup()`, `updateGroup()`, `deleteGroup()`, and
+  `setGroupDefault()` are inspected
+- **THEN** each MUST carry `#[AuthorizedAdminSetting(Application::APP_ID)]`
+- **AND** none MUST carry `#[NoAdminRequired]`
+@e2e exclude a source-attribute check, not behaviour; pinned by tests/Unit/Controller/DashboardApiControllerGroupSharedTest.php::testGroupEndpointsCarryAuthorizedAdminSettingAttribute
+
+### Requirement: Each dashboard can have its own look (REQ-THM-001)
+
+A person with full permission on a dashboard MUST be able to set an accent colour, a background colour and a background image from LaunchPad's uploaded resources. The look MUST apply to that dashboard's region only; the Nextcloud header, the organisation navigation and other dashboards MUST keep the instance theme. A dashboard without a look MUST follow the theme.
+
+#### Scenario: A green team dashboard
+
+- **GIVEN** Ella has full permission on "Team Groen"
+- **WHEN** she opens the dashboard settings, tab "Look", sets the accent to `#1f5c3a` and a background image, and saves
+- **THEN** "Team Groen" shows the green accent and the image
+- **AND** her dashboard "Mijn werkplek" and the Nextcloud header look as before
+
+### Requirement: A look must stay readable (REQ-THM-002)
+
+Text on a dashboard with its own background MUST use black or white, whichever contrasts more with the background. The server MUST refuse an accent whose contrast against the background is below 3:1 and return the measured ratio. The editor MUST show the same check while choosing.
+
+#### Scenario: Pale accent on white refused
+
+- **GIVEN** "Team Groen" has no background colour of its own and the instance background is white
+- **WHEN** Ella sets the accent to `#f5f5dc` and saves
+- **THEN** saving fails with "Buttons in this colour are hard to see (contrast 1.1 to 1, needs 3 to 1)"
+
+#### Scenario: Dark background gets light text
+
+- **GIVEN** Ella sets the background colour of "Team Groen" to `#12301f`
+- **WHEN** Pieter opens "Team Groen"
+- **THEN** text drawn on the dashboard background is white
+
+### Requirement: Administrators add custom CSS, cleaned and scoped (REQ-THM-003)
+
+Administrators MUST be able to add CSS for all of LaunchPad and for one dashboard. The server MUST store only a cleaned version: no `@import`, no addresses to other sites, no `expression(`, `behavior`, `-moz-binding` or `javascript:`, every selector scoped to LaunchPad (or to that dashboard), at most 20 KB. The admin MUST see what was dropped. Non-administrators MUST NOT be able to set custom CSS.
+
+#### Scenario: Import dropped
+
+- **GIVEN** Noor is an administrator
+- **WHEN** she saves global CSS `@import url(https://evil.example/x.css); .tile-widget__title { font-weight: 700; }`
+- **THEN** the stored CSS keeps only the scoped `.tile-widget__title` rule
+- **AND** the admin section says "Removed: @import"
+
+#### Scenario: Non-administrator refused
+
+- **GIVEN** Ella has full permission on "Team Groen" but is not an administrator
+- **WHEN** a client sends her update of "Team Groen" with a `customCss` value
+- **THEN** the response is 403 and no CSS is stored
+
+#### Scenario: CSS cannot reach outside LaunchPad
+
+- **GIVEN** Noor saves the CSS `body { display: none; }` for the dashboard "Team Groen"
+- **WHEN** Pieter opens Nextcloud Files
+- **THEN** Files looks as always, because the stored rule is scoped to the "Team Groen" dashboard region
 
 ## Non-Functional Requirements
 
@@ -1463,12 +1577,14 @@ The system MUST centralise dashboard create + update permission checks in `Dashb
 - GIVEN a user with `canEditDashboardMetadata = true` but `canEditDashboard = false` on a dashboard
 - WHEN `checkUpdatePermissions(userId, dashboardId, placements: null)` is called
 - THEN it returns `null` (allowed) and the caller proceeds with the update
+@e2e exclude names a private controller check and its arguments (there is no DashboardRequestValidator class; the check is DashboardApiController::mayUpdate), and over HTTP a non-owner update is refused by DashboardService::updateDashboard anyway; pinned by tests/Unit/Controller/DashboardApiControllerActionsGoldenTest.php::testUpdateGuard and DashboardApiControllerUpdateAccessTest.php::testMetadataUpdateAsksTheMetadataPermission
 
 #### Scenario: Layout update blocked for users without full edit permission
 
 - GIVEN a user with `canEditDashboardMetadata = true` but `canEditDashboard = false`
 - WHEN `checkUpdatePermissions(userId, dashboardId, placements: [...])` is called with a non-null placements array
 - THEN it returns a `JSONResponse` with status 403 and body `{ "error": "Access denied" }`
+@e2e exclude names a private controller check and its arguments (DashboardApiController::mayUpdate); pinned by tests/Unit/Controller/DashboardApiControllerActionsGoldenTest.php::testUpdateGuard and DashboardApiControllerUpdateAccessTest.php::testPlacementUpdateAsksTheEditPermission
 
 #### Scenario: Multiple-dashboard creation blocked when admin setting is off
 
@@ -1501,56 +1617,62 @@ The system MUST accept dashboard creation parameters from EITHER a structured JS
 
 ### REQ-DASH-040: Dashboard response envelope shape and status codes
 
-The system MUST return every dashboard API response as a `JSONResponse` built through `ResponseHelper`. The envelope contract is:
+The system MUST return every dashboard API response as a `JSONResponse` built through an injected `ResponseHelper` instance (`$this->responseHelper`), which the DI container constructs with its own `LoggerInterface`. Controllers MUST NOT call `ResponseHelper` statically. The envelope contract is:
 
 - Success responses use `{...payload...}` with status 200 (default) or a caller-specified 2xx code
 - Unauthorized responses use `{ "error": "Not logged in" }` with status 401
 - Forbidden responses use `{ "error": <message> }` with status 403 (default message: `"Access denied"`)
 - Error responses use `{ "error": <generic-message> }` with status 400 (or caller-specified)
-- List responses MUST be serialized via `ResponseHelper::serializeList()` which calls `jsonSerialize()` on each element
+- List responses MUST be serialized via `$this->responseHelper->serializeList()` which calls `jsonSerialize()` on each element. `serializeList()` is an instance method like the others, so every controller uses one call shape.
 
 #### Scenario: Unauthorized helper returns canonical 401
 
 - GIVEN no authenticated user
-- WHEN a controller calls `ResponseHelper::unauthorized()`
+- WHEN a controller calls `$this->responseHelper->unauthorized()`
 - THEN the response body is `{ "error": "Not logged in" }` with HTTP status 401
+@e2e exclude a ResponseHelper call with chosen arguments; an anonymous request is refused by Nextcloud before any LaunchPad controller runs, so no request reaches this helper; pinned by tests/Unit/Controller/ResponseHelperTest.php::testUnauthorizedReturnsCanonical401
 
 #### Scenario: Forbidden helper accepts custom message
 
-- WHEN a controller calls `ResponseHelper::forbidden('Dashboard creation not allowed')`
+- WHEN a controller calls `$this->responseHelper->forbidden('Dashboard creation not allowed')`
 - THEN the response body is `{ "error": "Dashboard creation not allowed" }` with HTTP status 403
+@e2e exclude a ResponseHelper call with chosen arguments; pinned by tests/Unit/Controller/ResponseHelperTest.php::testForbiddenAcceptsCustomMessage
 
 #### Scenario: Success helper accepts custom status
 
-- WHEN a controller calls `ResponseHelper::success(['id' => 1], 201)`
+- WHEN a controller calls `$this->responseHelper->success(['id' => 1], 201)`
 - THEN the response body is `{ "id": 1 }` with HTTP status 201
+@e2e exclude a ResponseHelper call with chosen arguments; pinned by tests/Unit/Controller/ResponseHelperTest.php::testSuccessAcceptsCustomStatus
 
 #### Scenario: Serialize list of dashboards
 
 - GIVEN an array of three `Dashboard` entities (each implementing `JsonSerializable`)
-- WHEN a controller calls `ResponseHelper::serializeList($dashboards)`
+- WHEN a controller calls `$this->responseHelper->serializeList($dashboards)`
 - THEN it returns an array of three associative arrays, each the result of calling `jsonSerialize()` on the corresponding entity
+@e2e exclude a ResponseHelper call on in-memory entities; pinned by tests/Unit/Controller/ResponseHelperTest.php::testSerializeListCallsJsonSerializeOnEachEntity
 
 ### REQ-DASH-041: Exception-to-error response without message leak
 
-The system MUST translate caught exceptions into JSON error responses via `ResponseHelper::error()` without ever exposing the raw exception message to the client (ADR-005). Callers SHOULD pass a `LoggerInterface` so the real exception (message + stack) is recorded at ERROR level on the server; the client always receives a generic `$message` (default `"Operation failed"`) and the caller-specified HTTP status (default 400).
+The system MUST translate caught exceptions into JSON error responses via `$this->responseHelper->error()` without ever exposing the raw exception message to the client (ADR-005). The helper holds a non-optional `LoggerInterface` injected by the DI container, so every caught exception (message + stack) is recorded at ERROR level on the server; callers do not pass a logger. The client always receives a generic `$message` (default `"Operation failed"`) and the caller-specified HTTP status (default 400).
 
 #### Scenario: Caught exception is logged and a generic error is returned
 
 - GIVEN a controller catches `\RuntimeException('Database constraint X violated')`
-- AND the controller has an injected `LoggerInterface`
-- WHEN the controller calls `ResponseHelper::error($e, 500, $logger, 'Could not save dashboard')`
+- AND the controller has an injected `ResponseHelper`
+- WHEN the controller calls `$this->responseHelper->error($e, 500, 'Could not save dashboard')`
 - THEN the logger records the raw `'Database constraint X violated'` message at ERROR level with the exception in the context
 - AND the response body is `{ "error": "Could not save dashboard" }` with HTTP status 500
+@e2e exclude asserts what the server logger records for a thrown exception the test chooses; pinned by tests/Unit/Controller/ResponseHelperTest.php::testErrorLogsTheExceptionAndReturnsTheGenericMessage
 
-#### Scenario: Logger omitted — exception is silently swallowed
+#### Scenario: Default error is logged and stays generic
 
 - GIVEN a controller catches `\RuntimeException('secret')`
-- WHEN the controller calls `ResponseHelper::error($e, 400, null, 'Operation failed')`
+- WHEN the controller calls `$this->responseHelper->error($e)`
 - THEN the response body is `{ "error": "Operation failed" }` with HTTP status 400
-- AND no log entry is written (observed behaviour — see Notes)
+- AND the logger records `'secret'` at ERROR level, so no caught exception goes unlogged
+@e2e exclude asserts what the server logger records for a thrown exception the test chooses; pinned by tests/Unit/Controller/ResponseHelperTest.php::testDefaultErrorIsLoggedAndStaysGeneric
 
 #### Notes (REQ-DASH-038..041)
 
-- The "logger optional" path in `ResponseHelper::error()` is a latent risk: a caller that forgets to wire the logger gets silently dropped exceptions with no audit trail. Future-tightening TODO: make `LoggerInterface` non-nullable in a follow-up change once every call site is converted.
+- `ResponseHelper::error()` no longer has a "logger optional" path: the logger is a constructor dependency, so a caller cannot forget it (change `responsehelper-instance-api`).
 - `serializeList()` assumes every element implements `jsonSerialize()` — passing plain arrays results in a fatal `Error: Call to a member function jsonSerialize() on array`. This is a precondition, not a defensive check.

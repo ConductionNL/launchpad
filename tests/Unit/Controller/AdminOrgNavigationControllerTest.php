@@ -20,8 +20,10 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\OrgNavigationSources;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminOrgNavigationController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\OrgNavigationService;
@@ -32,6 +34,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 class AdminOrgNavigationControllerTest extends TestCase {
 
@@ -65,11 +69,12 @@ class AdminOrgNavigationControllerTest extends TestCase {
 
 		$this->controller = new AdminOrgNavigationController(
 			request: $this->request,
-			service: $this->service,
-			settings: $this->settings,
-			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			actionAuth: $this->actionAuth,
+			sources: new OrgNavigationSources(
+				service: $this->service,
+				settings: $this->settings
+			),
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->actionAuth),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 
 	}//end setUp()

@@ -1,0 +1,264 @@
+{
+	"templateId": "mijn-werkdag",
+	"templateVersion": 5,
+	"language": "nl",
+	"dashboard": {
+		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
+		"name": "Mijn werkdag",
+		"description": "Startpagina voor medewerkers in één scherm: wat vandaag eerst moet uit al uw apps, uw werk per app, al uw apps als tegels, uw agenda van vandaag en waar u gebleven was.",
+		"icon": null,
+		"type": "admin_template",
+		"userId": null,
+		"gridColumns": 12,
+		"permissionLevel": "add_only",
+		"targetGroups": [],
+		"slug": null,
+		"sortOrder": 0,
+		"publicationStatus": "published",
+		"templateCategory": "Werkplek",
+		"templateDescription": "Startpagina voor medewerkers van een gemeente, in één scherm zonder te scrollen. Begroet u met de datum en de week, toont wat vandaag aandacht vraagt uit alle apps, uw werk per app (dossiq-zaken, pipelinq-vragen, decidiq-besluiten die op uw stem wachten), al uw apps als tegels met een filter, uw agenda van vandaag en waar u gebleven was. Werkt zonder extra instellingen.",
+		"widgets": [
+			{
+				"widgetId": "header",
+				"gridX": 0,
+				"gridY": 0,
+				"gridWidth": 12,
+				"gridHeight": 3,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"title": "Vandaag",
+					"greeting": true,
+					"showDate": true,
+					"showWeek": true,
+					"greetingLine": true,
+					"emblem": true,
+					"ground": true,
+					"fillHeight": true,
+					"fitRows": true,
+					"cta": {
+						"label": "Startpagina aanpassen",
+						"url": "/index.php/apps/launchpad/?edit=1",
+						"style": "secondary"
+					}
+				},
+				"showTitle": 0,
+				"sortOrder": 0
+			},
+			{
+				"widgetId": "attention",
+				"gridX": 0,
+				"gridY": 3,
+				"gridWidth": 12,
+				"gridHeight": 3,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Vandaag eerst",
+				"customIcon": null,
+				"content": {
+					"title": "Vandaag eerst",
+					"layout": "columns",
+					"columns": 3,
+					"limit": 3,
+					"fitRows": true,
+					"showActions": false
+				},
+				"showTitle": 0,
+				"sortOrder": 1
+			},
+			{
+				"widgetId": "stat",
+				"gridX": 0,
+				"gridY": 6,
+				"gridWidth": 4,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"label": "dossiq · Zaken",
+					"caption": "open zaken",
+					"icon": "BriefcaseOutline",
+					"layout": "horizontal",
+					"format": {
+						"style": "decimal",
+						"decimals": 0
+					},
+					"source": {
+						"register": "dossiq",
+						"schema": "case",
+						"metric": "count",
+						"filter": {
+							"assignee": "@me",
+							"isFinalStatus": false,
+							"statusHiddenInLists": false,
+							"isDraft": false
+						}
+					},
+					"link": "/index.php/apps/dossiq/",
+					"hideWhenUnavailable": true,
+					"fitRows": true
+				},
+				"showTitle": 0,
+				"sortOrder": 2
+			},
+			{
+				"widgetId": "stat",
+				"gridX": 4,
+				"gridY": 6,
+				"gridWidth": 4,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"label": "pipelinq · Klantcontact",
+					"caption": "open vragen",
+					"icon": "MessageOutline",
+					"layout": "horizontal",
+					"format": {
+						"style": "decimal",
+						"decimals": 0
+					},
+					"source": {
+						"register": "pipelinq",
+						"schema": "ticket",
+						"metric": "count",
+						"filter": {
+							"assignee": "@me",
+							"status": [
+								"new",
+								"in_progress",
+								"awaiting_customer"
+							]
+						}
+					},
+					"link": "/index.php/apps/pipelinq/",
+					"hideWhenUnavailable": true,
+					"fitRows": true
+				},
+				"showTitle": 0,
+				"sortOrder": 3
+			},
+			{
+				"widgetId": "stat",
+				"gridX": 8,
+				"gridY": 6,
+				"gridWidth": 4,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"label": "decidiq · Besluitvorming",
+					"caption": "wachten op uw stem",
+					"icon": "Gavel",
+					"layout": "horizontal",
+					"format": {
+						"style": "decimal",
+						"decimals": 0
+					},
+					"source": {
+						"register": "decidiq",
+						"schema": "decision",
+						"metric": "count",
+						"filter": {
+							"lifecycle": "voting"
+						}
+					},
+					"link": "/index.php/apps/decidiq/",
+					"hideWhenUnavailable": true,
+					"fitRows": true
+				},
+				"showTitle": 0,
+				"sortOrder": 4
+			},
+			{
+				"widgetId": "app-tiles",
+				"gridX": 0,
+				"gridY": 8,
+				"gridWidth": 8,
+				"gridHeight": 8,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Apps",
+				"customIcon": null,
+				"content": {
+					"title": "Apps",
+					"pinned": [],
+					"exclude": [
+						"launchpad"
+					],
+					"showFilter": true,
+					"showMostUsed": true,
+					"mostUsedLimit": 4,
+					"showActions": false
+				},
+				"showTitle": 0,
+				"sortOrder": 5
+			},
+			{
+				"widgetId": "calendar",
+				"gridX": 8,
+				"gridY": 8,
+				"gridWidth": 4,
+				"gridHeight": 4,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Agenda vandaag",
+				"customIcon": null,
+				"content": {
+					"title": "Agenda vandaag",
+					"viewMode": "agenda",
+					"daysAhead": 1,
+					"internalCalendars": [
+						"personal"
+					],
+					"externalIcsUrls": [],
+					"showActions": false,
+					"showTitle": false,
+					"showViewModes": false,
+					"headerLink": {
+						"label": "Open agenda",
+						"href": "/index.php/apps/calendar/"
+					}
+				},
+				"showTitle": 1,
+				"sortOrder": 6
+			},
+			{
+				"widgetId": "nc-widget",
+				"gridX": 8,
+				"gridY": 12,
+				"gridWidth": 4,
+				"gridHeight": 4,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Verder waar u was",
+				"customIcon": null,
+				"content": {
+					"title": "Verder waar u was",
+					"widgetId": "activity",
+					"displayMode": "vertical",
+					"showActions": false,
+					"showHeader": false
+				},
+				"showTitle": 1,
+				"sortOrder": 7
+			}
+		]
+	}
+}

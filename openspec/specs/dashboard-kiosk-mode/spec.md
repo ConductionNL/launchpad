@@ -12,7 +12,10 @@ Turns LaunchPad dashboards into unattended signage by rendering them chrome-less
 The system MUST support a `kiosk=1` query flag on the authenticated single-dashboard
 route and on the public-share render route that renders the dashboard full-viewport
 with all Nextcloud and LaunchPad chrome suppressed (header, app navigation, switcher
-sidebar, edit and context-menu affordances, scrollbars).
+sidebar, edit and context-menu affordances, scrollbars). The server renders both pages
+without the Nextcloud layout when the flag is set; the flag changes no access check.
+Escape reloads the same route without the flag, so the chrome comes back (Ruben,
+21 Nov 2026).
 
 #### Scenario: Authenticated kiosk render hides all chrome
 - GIVEN a logged-in user "display-lobby" with access to dashboard uuid `550e8400-e29b-41d4-a716-446655440001`
@@ -118,11 +121,17 @@ HTTP 404 without leaking whether the token ever existed, and the route MUST shar
 - THEN the system MUST return HTTP 404 in both cases with an identical response shape
 
 #### Scenario: Playlist render is read-only
+
+@e2e exclude no request a browser can issue is both a playlist bearer and a mutation: the read-only marker is PublicShareContext, request-scoped and set only inside KioskController::render(), and every mutation endpoint sent with nothing but the token is refused as unauthenticated (401) before that marker matters, so a passing test would prove the wrong thing; the marker is asserted by KioskControllerTest::testRenderReturns200AndMarksBearer and its refusal by PublicShareContextTest::testRequireMutableThrowsAfterMarkBearer, the same split as dashboard-public-share's read-only scenarios
+
 - GIVEN a client rendering a playlist token
 - WHEN any mutation endpoint (placement create, dashboard update/delete) is attempted with the playlist bearer context
 - THEN the system MUST return HTTP 403, identically to public-share read-only enforcement (REQ-PSHR-006 of `dashboard-public-share`)
 
 #### Scenario: Token scanning shares the public-share throttle bucket
+
+@e2e exclude the `launchpad_share_access` bucket is IP-global, and playwright.config.ts runs every spec serially from one runner IP, so driving it to 429 would hand 429 to every later public-share and kiosk test in the job; that the kiosk 404 registers its attempt on the shared action is asserted by KioskControllerTest::testRenderReturns404WithThrottleOnUnknownToken (and the 429 path by PublicShareControllerTest::testUnlockReturns429WhenThrottled)
+
 - GIVEN an IP that has already accumulated failed `launchpad_share_access` attempts via the `/s/{token}` route
 - WHEN the same IP probes `/kiosk/{token}` with invalid tokens
 - THEN the attempts MUST count against the same `launchpad_share_access` throttle bucket
@@ -139,7 +148,12 @@ HTTP 404 without leaking whether the token ever existed, and the route MUST shar
 A kiosk view MUST re-fetch the visible dashboard's widget data every `refreshSeconds`
 (playlist setting, or default 300 for flag-based kiosk views) and update widgets in
 place without a full page reload. Rotation entries MUST be fetched just-in-time so each
-dwell slot shows data no older than one dwell cycle.
+dwell slot shows data no older than one dwell cycle: the player reads one entry from
+`GET /kiosk/{token}/dashboards/{uuid}` about 5 seconds before its turn. That route
+answers only for a dashboard that is an entry of the playlist; an unknown or revoked
+token answers 404 and counts against the `launchpad_share_access` throttle bucket, and
+a dashboard that is not an entry, or was deleted, answers the same 404 without a
+throttle attempt (Ruben, 21 Nov 2026).
 
 #### Scenario: Widget data refreshes without page reload
 - GIVEN a kiosk view displaying a dashboard with `refreshSeconds: 300`
@@ -154,6 +168,9 @@ dwell slot shows data no older than one dwell cycle.
 - AND the switch at dwell expiry MUST display the freshly fetched data without a visible loading state
 
 #### Scenario: Refresh interval respects the clamp
+
+@e2e exclude the flag-based view re-reads every 300 seconds (KIOSK_REFRESH_MS in src/utils/kioskMode.js), and neither the spec nor the product names any way to configure a refresh value for it, so the clamp clause has no input a test could drive; the 300-second constant is used by src/views/Views.vue and the in-place reload is pinned by src/stores/__tests__/dashboard.visibility.spec.js
+
 - GIVEN a flag-based kiosk view (`?kiosk=1`) with no playlist configuration
 - WHEN the view initializes
 - THEN the refresh interval MUST default to 300 seconds
@@ -186,6 +203,9 @@ trace), and a watchdog restarts a stalled rotation.
 - AND the client MUST continue polling and recover automatically once a fetch succeeds
 
 #### Scenario: Watchdog restarts a stalled rotation
+
+@e2e exclude never built: src/views/KioskPlayerView.vue has no watchdog, and the kioskRotationEngine.js the archived tasks.md (task 6) describes never existed in git history; a stall cannot be induced from outside a player whose dwell timers work, so there is nothing a browser test can trigger. No unit test pins it
+
 - GIVEN a playlist whose longest dwell is 90 seconds
 - WHEN no rotation advance has occurred within 180 seconds (2 × max dwell)
 - THEN the client MUST restart its rotation engine from the first available entry
@@ -194,8 +214,6 @@ trace), and a watchdog restarts a stalled rotation.
 ---
 
 ### Requirement: An administrator manages kiosk playlists (REQ-KIOSKUI-001)
-
-@e2e exclude the player needs a live playlist and a logged-out browser; rotation, refresh, revocation and the network blip are asserted in src/views/__tests__/KioskPlayerView.spec.js, the playlist form in src/dialogs/__tests__/KioskPlaylistDialog.spec.js and src/components/admin/tabs/__tests__/KioskTab.spec.js, the HTML route in tests/Unit/Controller/KioskControllerTest.php
 
 Administration MUST have a Kiosk section that lists playlists and creates, edits and revokes them, with a dwell time per dashboard within the service limits and a public link that can be copied.
 
@@ -212,8 +230,6 @@ Administration MUST have a Kiosk section that lists playlists and creates, edits
 - **THEN** the form shows the minimum of 10 seconds and does not save
 
 ### Requirement: The kiosk link plays the playlist without a login (REQ-KIOSKUI-002)
-
-@e2e exclude the player needs a live playlist and a logged-out browser; rotation, refresh, revocation and the network blip are asserted in src/views/__tests__/KioskPlayerView.spec.js, the playlist form in src/dialogs/__tests__/KioskPlaylistDialog.spec.js and src/components/admin/tabs/__tests__/KioskTab.spec.js, the HTML route in tests/Unit/Controller/KioskControllerTest.php
 
 Opening `/kiosk/{token}` in a browser MUST show each dashboard of the playlist full screen for its dwell time in order, repeat from the start, and re-read the playlist on the refresh interval, with no login and no controls.
 

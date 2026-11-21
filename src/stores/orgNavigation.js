@@ -26,6 +26,19 @@ import { api } from '../services/api.js'
  */
 export const ORG_NAV_POSITIONS = Object.freeze(['left', 'right', 'top', 'hidden'])
 
+/**
+ * The message for a failed tree save: the `error` string of the response
+ * body when the backend sent one, a generic message otherwise.
+ *
+ * @param {unknown} err The caught request error.
+ * @return {string} The message.
+ */
+function saveErrorOf(err) {
+	const responseError =
+		err && err.response && err.response.data ? err.response.data.error : null
+	return responseError || 'Failed to save navigation'
+}
+
 export const useOrgNavigationStore = defineStore('orgNavigation', {
 	state: () => ({
 		// Current filtered tree for the active language. Empty array
@@ -134,11 +147,7 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 				return true
 			} catch (err) {
-				const responseError =
-					err && err.response && err.response.data
-						? err.response.data.error
-						: null
-				this.error = responseError || 'Failed to save navigation'
+				this.error = saveErrorOf(err)
 				return false
 			} finally {
 				this.loading = false

@@ -18,6 +18,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -32,6 +35,11 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 class DashboardApiControllerScheduleTest extends TestCase {
 	private $dashboardService;
@@ -45,15 +53,19 @@ class DashboardApiControllerScheduleTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
-			dashboardService: $this->dashboardService,
-			permissionService: $this->createMock(PermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $session,
-			actionAuth: $this->createMock(ActionAuthService::class),
-			userId: 'sanne',
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService
+			),
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			), responses: new UserResponses(userId: 'sanne', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}
 

@@ -31,11 +31,17 @@
 			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
 			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
+			:headerLink="headerLink"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
-			:showRequestFeature="false">
-			<WidgetRenderer :widget="widget" :placement="placement" />
+			:showRequestFeature="false"
+			:showActions="showActionsMenu">
+			<WidgetRenderer
+				:widget="widget"
+				:placement="placement"
+				:editMode="editMode"
+				@editRequest="$emit('edit', placement)" />
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
@@ -58,9 +64,14 @@
 		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
 		     on a shared dashboard can be hidden for this person only. Not
 		     offered for a compulsory widget (the server refuses it anyway). -->
-		<div v-if="showHideForMe" class="launchpad-widget__cog">
-			<NcActions :aria-label="t('launchpad', 'Widget options')">
+		<!-- embedded-analytics task 40: an administrator can create an embed
+		     token for this one widget, in Beheer ▸ Embeds with it pre-selected. -->
+		<div v-if="showHideForMe || showEmbed" class="launchpad-widget__cog">
+			<NcActions
+				:aria-label="t('launchpad', 'Widget options')"
+				:forceMenu="true">
 				<NcActionButton
+					v-if="showHideForMe"
 					:closeAfterClick="true"
 					data-testid="widget-hide-for-me"
 					@click="$emit('hideForMe', placement)">
@@ -69,6 +80,15 @@
 					</template>
 					{{ t('launchpad', 'Hide for me') }}
 				</NcActionButton>
+				<NcActionLink
+					v-if="showEmbed"
+					:href="embedHref"
+					data-testid="widget-create-embed-token">
+					<template #icon>
+						<CodeTags :size="20" />
+					</template>
+					{{ t('launchpad', 'Create embed token') }}
+				</NcActionLink>
 			</NcActions>
 		</div>
 		<div v-if="editMode" class="launchpad-widget__cog">
@@ -89,10 +109,36 @@ import {
 	NcActionButton,
 	NcActions,
 } from '@conduction/nextcloud-vue'
+import { NcActionLink } from '@nextcloud/vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_OBJECT_PROP,
+	TEXT_PROP,
+} from '../constants/propDefinitions.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/**
+ * Whether two links lead to the same page, ignoring the host, `/index.php`
+ * and a trailing slash.
+ *
+ * @param {string} a A link.
+ * @param {string} b Another link.
+ * @return {boolean}
+ */
+export function sameDestination(a, b) {
+	const path = (link) =>
+		String(link ?? '')
+			.replace(/^[a-z]+:\/\/[^/]+/i, '')
+			.replace(/^\/index\.php/, '')
+			.replace(/\/+$/, '')
+	return a !== undefined && a !== null && path(a) === path(b)
+}
 
 export default {
 	name: 'WidgetWrapper',
@@ -100,23 +146,19 @@ export default {
 	components: {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
+		CodeTags,
 		EyeOff,
 		NcActionButton,
+		NcActionLink,
 		NcActions,
 		WidgetRenderer,
 		AcknowledgementPrompt,
 	},
 
 	props: {
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
 
-		widget: {
-			type: Object,
-			default: null,
-		},
+		widget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * The Nextcloud Dashboard widget catalog.
@@ -127,30 +169,22 @@ export default {
 		 * pre-resolved entry. Passed as a prop rather than read from the store
 		 * so this stays a presentational component that mounts without pinia.
 		 */
-		availableWidgets: {
-			type: Array,
-			default: () => [],
-		},
+		availableWidgets: LIST_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 
 		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
 		// item for the current user. Resolved by the parent from the pending
 		// set; defaults false so widgets without a requirement are unchanged.
-		outstandingAcknowledgement: {
-			type: Boolean,
-			default: false,
-		},
+		outstandingAcknowledgement: FLAG_PROP,
 
 		// dashboards-personal-hide-ui: the host allows "Hide for me" here
 		// (a shared dashboard the viewer does not own).
-		canHideForMe: {
-			type: Boolean,
-			default: false,
-		},
+		canHideForMe: FLAG_PROP,
+
+		// embedded-analytics task 40: the Beheer ▸ Embeds link that creates an
+		// embed token for this widget; '' when the viewer may not create one.
+		embedHref: TEXT_PROP,
 	},
 
 	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
@@ -169,6 +203,17 @@ export default {
 				&& !this.editMode
 				&& Number(this.placement?.isCompulsory) !== 1
 			)
+		},
+
+		/**
+		 * Whether "Create embed token" is offered: view mode, with a link
+		 * from the host (only an administrator gets one).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		showEmbed() {
+			return this.embedHref !== '' && !this.editMode
 		},
 
 		/**
@@ -229,7 +274,22 @@ export default {
 		 * @return {boolean} true when the renderer owns the header.
 		 */
 		rendersOwnHeader() {
-			return this.placement?.widgetId === 'nc-widget'
+			return (
+				this.placement?.widgetId === 'nc-widget'
+				&& this.placement?.content?.showHeader !== false
+			)
+		},
+
+		/**
+		 * Whether the card's overflow menu shows. On by default; a placement
+		 * whose content says `showActions: false` (Mijn werkdag 4, as LpStart
+		 * draws it) hides it outside edit mode. The cog stays for editing.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} false only for an opted-out placement in view mode.
+		 */
+		showActionsMenu() {
+			return this.editMode || this.placement?.content?.showActions !== false
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -295,7 +355,36 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetButtons() {
-			return this.widget?.buttons || []
+			const buttons = this.widget?.buttons || []
+			const headerHref = this.headerLink?.href
+			if (!headerHref) {
+				return buttons
+			}
+			return buttons.filter(
+				(button) => !sameDestination(button?.link, headerHref),
+			)
+		},
+
+		/**
+		 * The text link in the card's header (`content.headerLink`,
+		 * `{ label, href }`), as LpVandaag's "Open agenda". Null without a
+		 * label and a link.
+		 *
+		 * @return {{label: string, href: string}|null}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		headerLink() {
+			const link = this.placement?.content?.headerLink
+			if (
+				!link
+				|| typeof link.label !== 'string'
+				|| link.label === ''
+				|| typeof link.href !== 'string'
+				|| link.href === ''
+			) {
+				return null
+			}
+			return { label: link.label, href: link.href }
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

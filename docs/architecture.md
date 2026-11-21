@@ -217,24 +217,30 @@ is absent the delegation is silently skipped and the local level applies.
 The UI follows a router-free information architecture (no Vue Router; the
 runtime manifest stays `pages: []`).
 
-**Admin settings — Beheer tabs.** `AdminSettings.vue` is an orchestrator
-only: it renders the setup-wizard banner, the always-visible Default
-settings and Group-shared-dashboards sections, then mounts
-`BeheerTabs.vue` with seven named-slot tabs:
+**Admin settings — Beheer tabs.** `AdminSettings.vue` draws in the library's
+`CnAdminSettingsShell` and hands it twelve tabs (`tabs`, drawn as an
+underline strip, board LpBeheerAlgemeen). Each tab's content is the shell's
+`tab-<id>` slot:
 
 | Tab | Component | Hosts |
 | --- | --- | --- |
-| Templates (default) | `tabs/TemplatesPage.vue` | dashboard-template CRUD |
+| General (first) | `AdminSettings.vue` | setup-wizard banner, then the default settings, group-shared dashboards and default-app cards (the shell's default slot) |
+| Templates | `tabs/TemplatesPage.vue` | dashboard-template CRUD |
 | Operations | `tabs/OperationsTab.vue` | health badge, Prometheus metrics, legacy-widget-bridge toggle, export/import, bulk ops, Confluence import |
 | Roles & Permissions | `tabs/RolesPermissionsTab.vue` | role permissions, role layout defaults, action-auth matrix |
 | Versioning & Audit | `tabs/VersioningAuditTab.vue` | conditional-visibility overview, view-analytics |
-| Sharing | `tabs/SharingTab.vue` | org sharing policy, group priority order |
+| Sharing | `tabs/SharingTab.vue` | org sharing policy, group priority order, dashboard registry |
+| Kiosk | `tabs/KioskTab.vue` | kiosk settings |
 | Org navigation | `tabs/OrgNavigationTab.vue` | org-wide nav editor |
 | Demo data | `tabs/DemoDataTab.vue` | demo showcase installer |
+| Group dashboards | `tabs/GroupDashboardsTab.vue` | group dashboards |
+| Detail fields | `MetadataFieldsSettings.vue` | detail metadata fields |
+| Profile fields | `tabs/ProfileFieldsTab.vue` | profile fields |
 
-`BeheerTabs` resolves the active tab with the precedence `?tab=` query →
-`localStorage` (`launchpad.admin.activeTab`) → `defaultTab` (Templates). Only
-the active tab's slot is in the DOM.
+The shell opens the tab named by `?tab=`, else the one remembered in
+`localStorage` (`tabStorageKey`, `launchpad.admin.activeTab`), else General,
+and reports it with `tab-change`; the page's title, path line and General-only
+cards follow that event. A tab's content mounts only while the tab is open.
 
 **Workspace — sidebar mode switch.** `DashboardSwitcherSidebar.vue` gains a
 Dashboards / Catalog mode toggle. `Views.vue` switches its main region

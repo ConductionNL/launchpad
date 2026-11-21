@@ -33,7 +33,6 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 - The action menu's edit entries: "Add custom widget…", "Save dashboard", "Dashboard configuration…"
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
-@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
 
 #### Scenario: Non-edit user has no edit affordances visible
 
@@ -55,7 +54,8 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 
 #### Scenario: Add-widget dropdown lists all widget types
 
-@e2e exclude registry-driven dropdown contents — covered by Vitest component test
+@e2e exclude REQ-SHELL-003 was REMOVED by openspec/changes/archive/2026-05-03-runtime-shell-trim (the toolbar with its Add Widget dropdown and Save Layout button was deleted; layout edits save per placement), but this spec was never synced, so there is no control to drive. The toolbar's absence is pinned by src/views/__tests__/WorkspaceApp.spec.js "does not render an in-page edit toolbar even when canEdit=true".
+
 - GIVEN the widget-type registry contains 5 entries
 - WHEN the user opens the Add Widget dropdown
 - THEN it MUST display 5 menu items, one per registered type
@@ -63,7 +63,8 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 
 #### Scenario: Save sends layout to correct endpoint
 
-@e2e exclude PUT request shape/endpoint assertion — covered by Vitest + Newman
+@e2e exclude REQ-SHELL-003 was REMOVED by openspec/changes/archive/2026-05-03-runtime-shell-trim (the toolbar with its Add Widget dropdown and Save Layout button was deleted; layout edits save per placement), but this spec was never synced, so there is no control to drive. The toolbar's absence is pinned by src/views/__tests__/WorkspaceApp.spec.js "does not render an in-page edit toolbar even when canEdit=true".
+
 - GIVEN `dashboardSource: 'user'` and `activeDashboardId: 'abc'`
 - WHEN the user clicks Save
 - THEN the system MUST send `PUT /api/dashboards/abc` with body `{layout: <current widgets>}`
@@ -71,6 +72,8 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 - AND show an error toast on 4xx or 5xx
 
 #### Scenario: Save button disabled while in flight
+
+@e2e exclude REQ-SHELL-003 was REMOVED by openspec/changes/archive/2026-05-03-runtime-shell-trim (the toolbar with its Add Widget dropdown and Save Layout button was deleted; layout edits save per placement), but this spec was never synced, so there is no control to drive. The toolbar's absence is pinned by src/views/__tests__/WorkspaceApp.spec.js "does not render an in-page edit toolbar even when canEdit=true".
 
 - GIVEN a Save request is in flight
 - WHEN the user attempts to click Save again
@@ -118,9 +121,10 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 ### Requirement: Empty state (REQ-SHELL-005)
 
 When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
-@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
 
 #### Scenario: Empty state with creation enabled
+
+@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account resolves to, so no account gets the empty state without deleting the shipped default on a shared instance (runtime-shell-canEdit.spec.ts keeps its attempt as fixme for this reason). The branch is pinned by src/views/__tests__/WorkspaceApp.spec.js "empty state with allowUserDashboards renders Create CTA" and WorkspaceApp.behaviour.spec.js "creates a first dashboard from the empty state".
 
 - GIVEN no active dashboard is resolved
 - AND `allowUserDashboards` is `true`
@@ -129,6 +133,8 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 - AND clicking it MUST call `POST /api/dashboards` with a default name
 
 #### Scenario: Empty state with creation disabled
+
+@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account resolves to, so no account gets the empty state without deleting the shipped default on a shared instance (runtime-shell-canEdit.spec.ts keeps its attempt as fixme for this reason). The branch is pinned by src/views/__tests__/WorkspaceApp.spec.js "empty state without allowUserDashboards hides Create CTA".
 
 - GIVEN no active dashboard is resolved
 - AND `allowUserDashboards` is `false`
@@ -139,7 +145,6 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 ### Requirement: Sidebar backdrop (REQ-SHELL-006)
 
 When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop that intercepts clicks and closes the sidebar. The backdrop MUST start at the same `top` offset as the Nextcloud header (50 px) and span the rest of the viewport. Clicks on the sidebar itself MUST NOT close the sidebar.
-@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
 
 #### Scenario: Backdrop closes sidebar on click
 
@@ -156,9 +161,10 @@ When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop th
 ### Requirement: Lifecycle hooks (REQ-SHELL-007)
 
 The shell MUST register a global `document.click` listener on mount (delegated to the grid composable's `handleClickOutside`) and remove it on unmount. The GridStack instance MUST be initialised after `nextTick()` (so the grid container ref is non-null) and destroyed on unmount.
-@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
 
 #### Scenario: Listener and grid registered after mount
+
+@e2e exclude Internal mount/unmount wiring with no browser-observable outcome. The document listener the shell registers today is `keydown` (Escape closes the sidebar), not a `click`/`handleClickOutside` one, which no longer exists in src/; its add/remove is pinned by src/views/__tests__/WorkspaceApp.behaviour.spec.js "stops listening for Escape once unmounted". The grid is created and destroyed by the shared library's grid component inside Views.vue; no LaunchPad unit test pins that.
 
 - GIVEN the shell component is being mounted
 - WHEN the `onMounted` hook runs
@@ -167,7 +173,104 @@ The shell MUST register a global `document.click` listener on mount (delegated t
 
 #### Scenario: Listener cleanup on unmount
 
+@e2e exclude Internal mount/unmount wiring with no browser-observable outcome. The document listener the shell registers today is `keydown` (Escape closes the sidebar), not a `click`/`handleClickOutside` one, which no longer exists in src/; its add/remove is pinned by src/views/__tests__/WorkspaceApp.behaviour.spec.js "stops listening for Escape once unmounted". The grid is created and destroyed by the shared library's grid component inside Views.vue; no LaunchPad unit test pins that.
+
 - GIVEN the shell has mounted and registered the click listener
 - WHEN the shell unmounts (e.g. user navigates away)
 - THEN `document.removeEventListener('click', handleClickOutside)` MUST be called
 - AND the GridStack instance MUST be destroyed (no DOM leftover, no memory leak)
+
+### Requirement: REQ-SHELL-008 The first-open support note is for administrators
+
+The shared library's first-open support note (`CnSupportDialog`: donate, get support, suggest a feature, review) MUST be mounted for administrators only. `App.vue` passes `:supportDialog="false"` to `CnAppRoot` for every account without the `admin` permission (`utils/permissions.js`), so a member never sees it; for an administrator the library's own once-per-user behaviour applies.
+
+**Why.** Every new user got the note on top of the start page an administrator had just set for their group (#782, seen for three fresh users on 5 October 2026). The note asks for things only an administrator can act on.
+
+**What this does not change.** The first-visit tour ("Welcome to Launchpad") is the library's walkthrough and is declared in `src/manifest.json`. Its first step is `placement: center`, which dims the whole page, header included, on purpose; the library withholds the tour while the support note is open, so the two never stack.
+
+#### Scenario: A member's first visit shows no support note
+- GIVEN Pieter is not an administrator and has never opened LaunchPad
+- WHEN he opens LaunchPad
+- THEN no "Support LaunchPad" dialog MUST open
+
+#### Scenario: An administrator's first visit keeps the note
+- GIVEN Ruben is an administrator and has never opened LaunchPad
+- WHEN he opens LaunchPad
+- THEN the note MUST open once, as before
+
+### Requirement: REQ-SHELL-009 Start page without navigation panel
+
+An administrator MUST be able to turn on the option "Start page without navigation panel" (`start_page_without_navigation`, API key `startPageWithoutNavigation`, default `false`) on the admin settings page beside the other layout options. The option is stored with the other admin settings and pushed to the workspace initial state as the optional key `startPageWithoutNavigation`.
+
+When the option is on, the dashboard view (`/` and `/dashboards/:id`) MUST render without the left navigation panel: `App.vue` overrides `CnAppRoot`'s `#menu` slot with a hidden, empty node, so `CnAppNav` is not rendered and `NcAppContent` takes the full width. Every other page (Store, Reports, Flows, the admin pages) keeps the panel.
+
+Everything the panel offered MUST stay reachable on the dashboard view: the dashboards through the dashboard switcher that is already in the workspace's top-right controls, and the panel's other entries (`manifest.menu` in the sections main, footer and settings, after the same permission filter the panel applies; the personal settings dialog; for an administrator the link to Nextcloud's admin settings) through a "Menu" button (`StartPageMenu`) beside the switcher. A member without an active dashboard gets the same button in the empty state. The menu is keyboard reachable with visible focus and uses no colour of its own. An external destination opens in a new tab, as the panel's did.
+
+When the option is off, or the initial state does not carry the key, nothing changes: the panel renders as before and the menu button is not rendered.
+
+**Why.** The Zuiddrecht design (`LpStart`) is a full-width start page under the top bar; the shared library has no prop to leave the panel out (`CnAppRoot.vue`: the `#menu` slot is the override, and Vue renders the slot's default content when the override holds no real node), and hiding the panel with CSS keeps a landmark nobody can see and takes the footer destinations with it.
+
+#### Scenario: The option is off
+- GIVEN the option is off (the default)
+- WHEN a member opens the dashboard view
+- THEN the navigation panel MUST render with its dashboards, footer destinations and settings foldout, and no "Menu" button MUST be rendered
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: The option is on
+- GIVEN an administrator turned the option on
+- WHEN a member opens the dashboard view
+- THEN no navigation panel MUST be rendered, the content MUST take the full width, and the "Menu" button MUST offer Documentation, Store, Reports, Features & roadmap and the personal settings; the dashboard switcher MUST still be beside it
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: Other pages keep the panel
+- GIVEN the option is on
+- WHEN a member opens the Marketplace page
+- THEN the navigation panel MUST render
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: No destination is lost
+- GIVEN the option is on
+- WHEN the menu is built from the app's manifest for a member and for an administrator
+- THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+### Requirement: REQ-SHELL-010 First-visit tour
+
+LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`, lines 470-525), and the shell MUST hand that manifest to the shared library's `CnAppRoot` (`src/App.vue:16-17`), which draws the tour with `CnWalkthrough`. The tour SHALL be `launchpad:getting-started`, titled "Getting started", triggered on a user's first visit, with three steps in this order: "Welcome to Launchpad" centred on the Workspace page, "Open Dashboards from the menu" pointing at the `dashboards` menu item, and a step pointing at the Flows menu item that the user may skip. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
+
+Written on 2026-10-07 after the fact, from the code on `development`; covers parity row `d-tour`. The tour does not visit the admin settings.
+
+#### Scenario: A first visit starts the tour
+- GIVEN Pieter has never completed the LaunchPad tour
+- WHEN he opens LaunchPad
+- THEN the "Welcome to Launchpad" step MUST open in the centre of the Workspace page
+
+#### Scenario: Opening Dashboards advances the tour
+- GIVEN the tour shows the step "Open Dashboards from the menu"
+- WHEN Pieter clicks Dashboards in the menu and the Workspace route matches
+- THEN the tour MUST move on to the Flows step
+
+#### Scenario: A finished tour stays closed
+- GIVEN Pieter completed tour version 1
+- WHEN he opens LaunchPad again
+- THEN the tour MUST NOT start
+
+### Requirement: The admin area has its own first-visit tour (REQ-SHELL-011)
+
+LaunchPad MUST declare a second guided tour, `launchpad:admin-getting-started`, for the LaunchPad admin settings page. It MUST start on an administrator's first visit to that page and walk through its tabs: general settings, templates, roles, sharing and operations. Completion MUST be stored per user like the Workspace tour (REQ-SHELL-010). A person who is not an administrator never sees it.
+
+#### Scenario: An administrator's first visit to the admin page
+
+- **GIVEN** Noor is a Nextcloud administrator who never opened the LaunchPad admin page
+- **WHEN** she opens it
+- **THEN** the admin tour starts with a step on the general settings tab
+
+#### Scenario: A finished admin tour stays closed
+
+- **GIVEN** Noor completed the admin tour
+- **WHEN** she opens the admin page again
+- **THEN** the admin tour does not start

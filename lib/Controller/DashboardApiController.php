@@ -26,18 +26,16 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\DashboardTreeService;
-use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -46,8 +44,6 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * Controller for dashboard API endpoints.
@@ -82,73 +78,35 @@ use Psr\Log\LoggerInterface;
  *                                                  fragment the routing
  *                                                  surface.
  * @spec                                             openspec/specs/dashboards/spec.md
+ *
+ * @psalm-import-type LaunchPadDashboard from ResponseDefinitions
+ * @psalm-import-type LaunchPadDashboardList from ResponseDefinitions
+ * @psalm-import-type LaunchPadDashboardEnvelope from ResponseDefinitions
+ * @psalm-import-type LaunchPadCreatedDashboard from ResponseDefinitions
+ * @psalm-import-type LaunchPadPlacement from ResponseDefinitions
+ * @psalm-import-type LaunchPadStatusOk from ResponseDefinitions
  */
 class DashboardApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param DashboardService $dashboardService The dashboard service.
-	 * @param PermissionService $permissionService The permission service.
-	 * @param DashboardTreeService $treeService The tree service that
-	 *                                          owns hierarchy
-	 *                                          queries, cycle
-	 *                                          detection, slug
-	 *                                          uniqueness, path
-	 *                                          resolution, and the
-	 *                                          cascade-delete walker
-	 *                                          (REQ-DASH-023..030).
-	 * @param DashboardVersionService $versionService Snapshot service
-	 *                                                (REQ-VERS-001) —
-	 *                                                automatic
-	 *                                                snapshots fire
-	 *                                                after every
-	 *                                                successful PUT
-	 *                                                via the
-	 *                                                debounced
-	 *                                                `captureSnapshot`
-	 *                                                helper.
-	 * @param AnalyticsService $analyticsService The view-analytics
-	 *                                           service used by the
-	 *                                           `viewEvent` endpoint
-	 *                                           (REQ-ANLT-002).
-	 * @param LoggerInterface $logger PSR logger (used by
-	 *                                fork to report
-	 *                                unexpected errors
-	 *                                — REQ-DASH-021).
-	 * @param IUserSession $userSession The user session, used
-	 *                                  to resolve the
-	 *                                  authenticated IUser for
-	 *                                  ADR-023 action checks.
-	 * @param ActionAuthService $actionAuth The ADR-023 action
-	 *                                      authorization service.
-	 * @param string|null $userId The user ID.
-	 * @param QuotaService|null $quotaService The quota-enforcement
-	 *                                        service used to gate
-	 *                                        dashboard creation
-	 *                                        (dashboard-quota-limits).
-	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one language.
-	 * @param MetadataService|null $metadataService Filters the visible list by detail fields.
+	 * @param IRequest             $request The request.
+	 * @param DashboardApiServices $services The dashboard service and the optional quota, translation and
+	 *                                       metadata services.
+	 * @param DashboardApiAccess $access Holds the permissionService and history.
+	 * @param ActorResponses $context Holds the actor, userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardService $dashboardService,
-		private readonly PermissionService $permissionService,
-		private readonly DashboardTreeService $treeService,
-		private readonly DashboardVersionService $versionService,
-		private readonly AnalyticsService $analyticsService,
-		private readonly LoggerInterface $logger,
-		private readonly IUserSession $userSession,
-		private readonly ActionAuthService $actionAuth,
-		private readonly ?string $userId,
-		private readonly ?QuotaService $quotaService = null,
-		private readonly ?DashboardTranslationService $translationService = null,
-		private readonly ?MetadataService $metadataService = null,
+		private readonly DashboardApiServices $services,
+		private readonly DashboardApiAccess $access,
+		private readonly ActorResponses $context,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -160,43 +118,38 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The list of dashboards.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardList|list<LaunchPadDashboard>, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-17
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function list(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.list');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.list');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		$dashboards = $this->dashboardService->getUserDashboards(
-			userId: $this->userId
+		$dashboards = $this->services->dashboardService->getUserDashboards(
+			userId: $this->context->userId
 		);
+		$filters    = $this->metadataFilters();
+		if ($filters !== [] && $this->services->metadataService !== null) {
+			$dashboards = $this->services->metadataService->filterDashboards(
+				dashboards: $dashboards,
+				metadataFilters: $filters
+			);
+		}
 
-		$serialized = ResponseHelper::serializeList(entities: $dashboards);
+		$serialized = $this->context->responseHelper->serializeList(entities: $dashboards);
 
 		// Dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on
 		// the personal dashboards list. Response shape is
 		// `{items: [...], quota: {...}}`. When the quota service is absent
 		// (legacy test doubles) fall back to the bare-array contract.
-		if ($this->quotaService === null) {
-			return ResponseHelper::success(data: $serialized);
-		}
-
-		return ResponseHelper::success(
-			data: [
-				'items' => $serialized,
-				'quota' => $this->quotaService->getQuotaStatus(
-					userId: $this->userId
-				),
-			]
-		);
+		return $this->withQuota(serialized: $serialized);
 	}//end list()
 
 	/**
@@ -208,24 +161,23 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The visible dashboards.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardList|list<LaunchPadDashboard>, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.visible');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.visible');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$items = $this->filterByMetadata(
-			items: $this->dashboardService->getVisibleToUser(
-				userId: $this->userId
+			items: $this->services->dashboardService->getVisibleToUser(
+				userId: $this->context->userId
 			)
 		);
 
@@ -237,7 +189,7 @@ class DashboardApiController extends Controller {
 			// only personal `user`-type rows owned by the caller take the
 			// legacy id-based `is_active` path; group/default rows (user_id
 			// NULL) are activated via the UUID preference instead.
-			$row['isOwner'] = ($entry['dashboard']->getUserId() === $this->userId);
+			$row['isOwner'] = ($entry['dashboard']->getUserId() === $this->context->userId);
 			$serialized[] = $row;
 		}
 
@@ -249,18 +201,7 @@ class DashboardApiController extends Controller {
 		// are handled by the store's shape-tolerant unwrap. When the quota
 		// service is absent (legacy test doubles) fall back to the
 		// bare-array contract.
-		if ($this->quotaService === null) {
-			return ResponseHelper::success(data: $serialized);
-		}
-
-		return ResponseHelper::success(
-			data: [
-				'items' => $serialized,
-				'quota' => $this->quotaService->getQuotaStatus(
-					userId: $this->userId
-				),
-			]
-		);
+		return $this->withQuota(serialized: $serialized);
 	}//end visible()
 
 	/**
@@ -268,27 +209,26 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The active dashboard data.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardEnvelope, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.get-active');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.get-active');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		$result = $this->dashboardService->getEffectiveDashboard(
-			userId: $this->userId
+		$result = $this->services->dashboardService->getEffectiveDashboard(
+			userId: $this->context->userId
 		);
 
 		if ($result === null) {
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: ['error' => 'No dashboard available'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
@@ -299,18 +239,19 @@ class DashboardApiController extends Controller {
 		// preference), so tag ownership the same way show() does rather
 		// than letting the client assume the caller owns it.
 		$activeDashboard = $result['dashboard'];
-		$isOwner = ($activeDashboard->getUserId() === $this->userId);
+		$isOwner = ($activeDashboard->getUserId() === $this->context->userId);
 
 		$sharedBy = null;
 		if ($isOwner === false) {
 			$sharedBy = $activeDashboard->getUserId();
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
 				'dashboard' => $activeDashboard->jsonSerialize(),
-				'placements' => ResponseHelper::serializeList(
-					entities: $result['placements']
+				'placements' => $this->renderedPlacements(
+					placements: $result['placements'],
+					permissionLevel: (string)$result['permissionLevel']
 				),
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
@@ -339,54 +280,79 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The dashboard envelope (200) or
 	 *                      `{'error': 'Not found'}` (404).
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadDashboardEnvelope, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-21
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function show(int $id): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.show');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.show');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		$result = $this->dashboardService->getDashboardForUser(
+		$result = $this->services->dashboardService->getDashboardForUser(
 			dashboardId: $id,
-			userId: $this->userId
+			userId: $this->context->userId
 		);
 
 		if ($result === null) {
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: ['error' => 'Not found'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		}
 
 		$dashboard = $result['dashboard'];
-		$isOwner = ($dashboard->getUserId() === $this->userId);
+		$isOwner = ($dashboard->getUserId() === $this->context->userId);
 		$sharedBy = null;
 		if ($isOwner === false) {
 			$sharedBy = $dashboard->getUserId();
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
 				'dashboard' => $dashboard->jsonSerialize(),
-				'placements' => ResponseHelper::serializeList(
-					entities: $result['placements']
+				'placements' => $this->renderedPlacements(
+					placements: $result['placements'],
+					permissionLevel: (string)$result['permissionLevel']
 				),
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
 				'hasVariants' => $this->hasVariants(uuid: (string)$dashboard->getUuid()),
-				'breadcrumbs' => $this->visibleBreadcrumbs(dashboard: $dashboard, userId: $this->userId),
+				'breadcrumbs' => $this->visibleBreadcrumbs(dashboard: $dashboard, userId: $this->context->userId),
 			]
 		);
 	}//end show()
+
+	/**
+	 * The placements a dashboard renders for the caller, with the widget
+	 * visibility rules applied: a viewer does not get a hidden widget, the
+	 * owner and editors get it marked `hiddenForViewers` (REQ-VIS-013).
+	 *
+	 * @param array  $placements      The dashboard's placement entities.
+	 * @param string $permissionLevel The caller's permission level on the dashboard.
+	 *
+	 * @return array The serialised placements.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	private function renderedPlacements(array $placements, string $permissionLevel): array {
+		$serialized = $this->context->responseHelper->serializeList(entities: $placements);
+		if ($this->services->visibility === null) {
+			return $serialized;
+		}
+
+		return $this->services->visibility->visiblePlacements(
+			placements: $serialized,
+			userId: (string)$this->context->userId,
+			canEdit: $permissionLevel !== Dashboard::PERMISSION_VIEW_ONLY
+		);
+	}//end renderedPlacements()
 
 	/**
 	 * Whether a dashboard has more than one language version, so the page
@@ -399,11 +365,11 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	private function hasVariants(string $uuid): bool {
-		if ($this->translationService === null || $uuid === '') {
+		if ($this->services->translationService === null || $uuid === '') {
 			return false;
 		}
 
-		return count($this->translationService->listVariants(dashboardUuid: $uuid)) > 1;
+		return count($this->services->translationService->listVariants(dashboardUuid: $uuid)) > 1;
 	}//end hasVariants()
 
 	/**
@@ -418,12 +384,12 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	private function filterByMetadata(array $items): array {
-		$filters = $this->request->getParam('metadata');
-		if ($this->metadataService === null || is_array($filters) === false || $filters === []) {
+		$filters = $this->metadataFilters();
+		if ($this->services->metadataService === null || $filters === []) {
 			return $items;
 		}
 
-		$kept = $this->metadataService->filterDashboards(
+		$kept = $this->services->metadataService->filterDashboards(
 			dashboards: array_map(static fn (array $entry) => $entry['dashboard'], $items),
 			metadataFilters: $filters
 		);
@@ -437,6 +403,71 @@ class DashboardApiController extends Controller {
 	}//end filterByMetadata()
 
 	/**
+	 * The metadata filters of the request, sent as `metadata[<key>]=` or as
+	 * `metadata.<key>=` (REQ-MDFL-007, REQ-MDUI-003).
+	 *
+	 * @return array<string, mixed> The filters by field key, empty without any.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private function metadataFilters(): array {
+		$filters = $this->request->getParam('metadata');
+		if (is_array($filters) === false) {
+			$filters = [];
+		}
+
+		$query = (string)parse_url($this->request->getRequestUri(), PHP_URL_QUERY);
+
+		return array_replace($filters, self::filtersFromQueryString(query: $query));
+	}//end metadataFilters()
+
+	/**
+	 * The `metadata.<key>=` and `metadata.<key>.<bound>=` filters of a raw
+	 * query string, in the shape MetadataService::filterDashboards() takes
+	 * (REQ-MDFL-007).
+	 *
+	 * PHP rewrites the dots of query parameter names to underscores, so
+	 * these cannot be read from the parsed parameters.
+	 *
+	 * @param string $query The query string, without the leading `?`.
+	 *
+	 * @return array<string, string|array<string, string>> The filters by field key.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private static function filtersFromQueryString(string $query): array {
+		$filters = [];
+		foreach (explode('&', $query) as $pair) {
+			$parts = explode('=', $pair, 2);
+			$name  = urldecode($parts[0]);
+			if (count($parts) !== 2 || str_starts_with($name, 'metadata.') === false) {
+				continue;
+			}
+
+			$path  = explode('.', substr($name, strlen('metadata.')));
+			$value = urldecode($parts[1]);
+			if ($path[0] === '' || count($path) > 2) {
+				continue;
+			}
+
+			if (count($path) === 1) {
+				$filters[$path[0]] = $value;
+				continue;
+			}
+
+			$bounds = [];
+			if (is_array($filters[$path[0]] ?? null) === true) {
+				$bounds = $filters[$path[0]];
+			}
+
+			$bounds[$path[1]]   = $value;
+			$filters[$path[0]] = $bounds;
+		}//end foreach
+
+		return $filters;
+	}//end filtersFromQueryString()
+
+	/**
 	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the
 	 * viewer may not see keeps its place but loses its uuid, name and slug,
 	 * so the trail never leaks a hidden dashboard's name. A top-level
@@ -448,6 +479,7 @@ class DashboardApiController extends Controller {
 	 * @return array<int, array<string, mixed>> The crumbs.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function visibleBreadcrumbs(Dashboard $dashboard, string $userId): array {
 		$parent = $dashboard->getParentUuid();
@@ -455,28 +487,53 @@ class DashboardApiController extends Controller {
 			return [];
 		}
 
-		$visible = [];
-		foreach ($this->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
-			$visible[(string)$entry['dashboard']->getUuid()] = true;
-		}
+		$visible = $this->visibleUuids(userId: $userId);
 
 		$crumbs = [];
-		foreach ($this->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
-			if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
-				$crumbs[] = $crumb + ['hidden' => false];
-				continue;
-			}
-
-			$crumbs[] = ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+		foreach ($this->access->history->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
+			$crumbs[] = self::crumbFor(crumb: $crumb, visible: $visible);
 		}
 
 		return $crumbs;
 	}//end visibleBreadcrumbs()
 
 	/**
+	 * The UUIDs of every dashboard visible to a user, keyed for `isset()`.
+	 *
+	 * @param string $userId The viewing user.
+	 *
+	 * @return array<string, true> The visible UUIDs.
+	 */
+	private function visibleUuids(string $userId): array {
+		$visible = [];
+		foreach ($this->services->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
+			$visible[(string)$entry['dashboard']->getUuid()] = true;
+		}
+
+		return $visible;
+	}//end visibleUuids()
+
+	/**
+	 * One breadcrumb as the viewer may see it: as is when its dashboard is
+	 * visible, otherwise a hidden placeholder.
+	 *
+	 * @param array<string, mixed> $crumb   The breadcrumb.
+	 * @param array<string, true>  $visible The visible UUIDs.
+	 *
+	 * @return array<string, mixed> The breadcrumb to answer with.
+	 */
+	private static function crumbFor(array $crumb, array $visible): array {
+		if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
+			return $crumb + ['hidden' => false];
+		}
+
+		return ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+	}//end crumbFor()
+
+	/**
 	 * Create a new dashboard.
 	 *
-	 * @param mixed $name The dashboard name.
+	 * @param string|array<string, mixed>|null $name The dashboard name; a legacy client sends the whole body under it.
 	 * @param string|null $description The description.
 	 * @param string|null $icon The icon registry key (or NULL/empty to use the default).
 	 * @param string|null $parentUuid Optional parent dashboard UUID
@@ -489,6 +546,10 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The created dashboard.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_CREATED, LaunchPadCreatedDashboard, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
 	#[NoAdminRequired]
@@ -500,76 +561,118 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
-		$denial = $this->denyCreate();
+		$denial = $this->denyCreateRequest();
 		if ($denial !== null) {
 			return $denial;
 		}
 
 		$resolved = $this->resolveCreateParams(
 			name: $name,
-			description: $description,
-			icon: $icon,
-			parentUuid: $parentUuid,
-			slug: $slug,
-			sortOrder: $sortOrder
+			flat: [
+				'description' => $description,
+				'icon'        => $icon,
+				'parentUuid'  => $parentUuid,
+				'slug'        => $slug,
+				'sortOrder'   => $sortOrder,
+			]
 		);
 
-		$permError = $this->checkCreatePermissions(
-			userId: $this->userId
-		);
-		if ($permError !== null) {
-			return $permError;
+		return $this->createFromParams(resolved: $resolved);
+	}//end create()
+
+	/**
+	 * The refusal of a create request: the guard chain of
+	 * {@see self::denyCreate()}, then the create permissions.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function denyCreateRequest(): ?JSONResponse {
+		$denial = $this->denyCreate();
+		if ($denial !== null) {
+			return $denial;
 		}
 
+		return $this->checkCreatePermissions(
+			userId: $this->context->userId
+		);
+	}//end denyCreateRequest()
+
+	/**
+	 * Create the dashboard from resolved parameters and answer 201, or map
+	 * the service's refusal to its response.
+	 *
+	 * @param array<string, mixed> $resolved The resolved create parameters.
+	 *
+	 * @return JSONResponse The created dashboard, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function createFromParams(array $resolved): JSONResponse {
 		try {
-			$dashboard = $this->dashboardService->createDashboard(
-				userId: $this->userId,
-				name: $resolved['name'],
-				description: $resolved['description'],
-				icon: $resolved['icon'],
-				parentUuid: $resolved['parentUuid'],
-				slug: $resolved['slug'],
-				sortOrder: $resolved['sortOrder'],
-				seedDefaults: true
-			);
-
-			// The newly-created dashboard ships with a default widget
-			// bundle (Conduction + Sendent + Nextcloud tiles + a Files
-			// widget) seeded by the service. Returning the placements
-			// here matches the `getActive()` envelope so the store can
-			// populate `widgetPlacements` without an extra round-trip.
-			$placements = $this->dashboardService->findPlacements(
-				dashboardId: $dashboard->getId()
-			);
-
-			return ResponseHelper::success(
-				data: [
-					'dashboard' => $dashboard->jsonSerialize(),
-					'placements' => ResponseHelper::serializeList(
-						entities: $placements
-					),
-				],
-				statusCode: Http::STATUS_CREATED
-			);
+			return $this->createdResponse(dashboard: $this->createDashboardFrom(resolved: $resolved));
 		} catch (QuotaExceededException $e) {
 			// Dashboard-quota-limits REQ-QUOTA-002: the user is at their
 			// dashboard limit — HTTP 409 with the structured body.
-			return ResponseHelper::quotaExceeded(exception: $e);
+			return $this->context->responseHelper->quotaExceeded(exception: $e);
 		} catch (InvalidArgumentException $e) {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations
 			// surface as HTTP 400 with the validation message verbatim.
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
-	}//end create()
+	}//end createFromParams()
+
+	/**
+	 * Create the signed-in user's dashboard, seeded with the default
+	 * widgets, from resolved parameters.
+	 *
+	 * @param array<string, mixed> $resolved The resolved create parameters.
+	 *
+	 * @return Dashboard The created dashboard.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function createDashboardFrom(array $resolved): Dashboard {
+		return $this->services->dashboardService->createDashboard(
+			userId: $this->context->userId,
+			name: $resolved['name'],
+			options: ['seedDefaults' => true] + array_diff_key($resolved, ['name' => true])
+		);
+	}//end createDashboardFrom()
+
+	/**
+	 * Answer 201 with a newly-created dashboard and its placements.
+	 *
+	 * The newly-created dashboard ships with a default widget
+	 * bundle (Conduction + Sendent + Nextcloud tiles + a Files
+	 * widget) seeded by the service. Returning the placements
+	 * here matches the `getActive()` envelope so the store can
+	 * populate `widgetPlacements` without an extra round-trip.
+	 *
+	 * @param Dashboard $dashboard The created dashboard.
+	 *
+	 * @return JSONResponse The 201 response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function createdResponse(Dashboard $dashboard): JSONResponse {
+		$placements = $this->services->dashboardService->findPlacements(
+			dashboardId: $dashboard->getId()
+		);
+
+		return $this->context->responseHelper->success(
+			data: [
+				'dashboard' => $dashboard->jsonSerialize(),
+				'placements' => $this->context->responseHelper->serializeList(
+					entities: $placements
+				),
+			],
+			statusCode: Http::STATUS_CREATED
+		);
+	}//end createdResponse()
 
 	/**
 	 * Resolve the authentication / authorisation guard chain for
@@ -585,30 +688,22 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
 	private function denyCreate(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
 		// L3: wire the create action so the matrix entry is enforced —
 		// consistent with all other mutation endpoints (ADR-023).
-		$this->actionAuth->requireAction($user, 'dashboard.create');
+		$refusal = $this->actionRefusal(action: 'dashboard.create');
+		if ($refusal !== null) {
+			return $refusal;
+		}
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		// REQ-ASET-003: the switch never restricts a Nextcloud administrator.
+		if ($this->services->dashboardService->isAdmin(userId: (string)$this->context->userId) === true) {
+			return null;
 		}
 
 		try {
-			$this->dashboardService->assertPersonalDashboardsAllowed();
+			$this->services->dashboardService->assertPersonalDashboardsAllowed();
 		} catch (PersonalDashboardsDisabledException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => $e->getErrorCode(),
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->personalDashboardsDisabled(exception: $e);
 		}
 
 		return null;
@@ -620,7 +715,7 @@ class DashboardApiController extends Controller {
 	 * @param int $id The dashboard ID.
 	 * @param string|null $name The name.
 	 * @param string|null $description The description.
-	 * @param array|null $placements The placements.
+	 * @param list<array<string, mixed>>|null $placements The placements.
 	 * @param string|null $icon The icon registry key, URL, or NULL to leave unchanged.
 	 * @param string|null $parentUuid Optional new parent UUID (REQ-DASH-023);
 	 *                                explicit empty string clears the
@@ -628,9 +723,23 @@ class DashboardApiController extends Controller {
 	 * @param string|null $slug Optional new slug (REQ-DASH-024).
 	 * @param int|null $sortOrder Optional new sort order (REQ-DASH-029).
 	 *
+	 * The optional `defaultLinkTarget` body field sets the default tile link
+	 * target; an empty string clears it ({@see self::requestedLinkTarget()}).
+	 *
+	 * The look travels in the same body and is read by {@see self::lookParams()}:
+	 * `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the
+	 * theme, REQ-THM-001), `themeBackgroundResource` (a resource file name,
+	 * empty for none) and `customCss` (administrator CSS, empty to clear,
+	 * REQ-THM-003).
+	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, array{dashboard: LaunchPadDashboard}, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	#[NoAdminRequired]
 	public function update(
@@ -643,81 +752,226 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
+		$look = $this->lookParams();
+		$defaultLinkTarget = $this->requestedLinkTarget();
+		$metadataOnly = self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget)
+			&& array_filter($look, static fn ($value): bool => $value !== null) === [];
+		$touchesMetadata = array_filter(
+			[$name, $description, $icon, $parentUuid, $slug, $sortOrder],
+			static fn ($value): bool => $value !== null
+		) !== [];
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata)
+			?? $this->denyCustomCss(customCss: $look['customCss']);
+		if ($denial !== null) {
+			return $denial;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.update');
+		return $this->applyUpdate(
+			dashboardId: $id,
+			fields: [
+				'name'        => $name,
+				'description' => $description,
+				'placements'  => $placements,
+				'icon'        => $icon,
+				'parentUuid'  => $parentUuid,
+				'slug'        => $slug,
+				'sortOrder'   => $sortOrder,
+				'defaultLinkTarget' => $defaultLinkTarget,
+			] + $look
+		);
+	}//end update()
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+	/**
+	 * The look fields of an update body, by name, in patch order.
+	 *
+	 * A field that is absent, or that is not a string, is null and leaves the
+	 * dashboard's value alone; an empty string clears it (REQ-THM-001, REQ-THM-003).
+	 *
+	 * @return array{themeAccent: ?string, themeBackgroundColor: ?string, themeBackgroundResource: ?string, customCss: ?string}
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function lookParams(): array {
+		$look = [];
+		foreach (['themeAccent', 'themeBackgroundColor', 'themeBackgroundResource', 'customCss'] as $field) {
+			$value = $this->request->getParam(key: $field);
+			$look[$field] = null;
+			if (is_string($value) === true) {
+				$look[$field] = $value;
+			}
 		}
 
-		// REQ-PERM-007: Metadata-only updates (name, description, icon) are
-		// allowed for all permission levels. Widget/tile/layout changes
-		// require add_only or full permission.
-		$isMetadataOnly = $placements === null;
-		if ($isMetadataOnly === true
-			&& $this->permissionService->canEditDashboardMetadata(
-				userId: $this->userId,
-				dashboardId: $id
-			) === false
-		) {
-			return ResponseHelper::forbidden();
+		return $look;
+	}//end lookParams()
+
+	/**
+	 * The refusal of custom CSS from a user who is no administrator.
+	 *
+	 * REQ-THM-003: custom CSS is an administrator tool, even on a dashboard
+	 * the user may edit.
+	 *
+	 * @param string|null $customCss The CSS of the update, or null when it sends none.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function denyCustomCss(?string $customCss): ?JSONResponse {
+		if ($customCss === null || $this->services->dashboardService->isAdmin(userId: (string)$this->context->userId) === true) {
+			return null;
 		}
 
-		if ($isMetadataOnly === false
-			&& $this->permissionService->canEditDashboard(
-				userId: $this->userId,
-				dashboardId: $id
-			) === false
-		) {
-			return ResponseHelper::forbidden();
+		return $this->context->responseHelper->forbidden();
+	}//end denyCustomCss()
+
+	/**
+	 * The default tile link target the update body asks for.
+	 *
+	 * @return string|null The value, or null when absent or not a string.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 */
+	private function requestedLinkTarget(): ?string {
+		$raw = $this->request->getParam(key: 'defaultLinkTarget');
+		if (is_string($raw) === false) {
+			return null;
 		}
 
+		return $raw;
+	}//end requestedLinkTarget()
+
+	/**
+	 * Whether an update leaves the placements and the way tiles open alone.
+	 *
+	 * How tiles open is a dashboard edit, not metadata, so it needs the full
+	 * edit permission like a placement change.
+	 *
+	 * @param array|null  $placements        The placements, or null.
+	 * @param string|null $defaultLinkTarget The default tile link target, or null.
+	 *
+	 * @return bool True for a metadata-only update.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 */
+	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget): bool {
+		return $placements === null && $defaultLinkTarget === null;
+	}//end isMetadataOnly()
+
+	/**
+	 * Resolve the guard chain for {@see self::update()}.
+	 *
+	 * Order is load-bearing: the session, then the action check, then the
+	 * injected user id, then the permission for the kind of update.
+	 *
+	 * @param int  $dashboardId     The dashboard ID.
+	 * @param bool $metadataOnly    Whether the update leaves the placements alone.
+	 * @param bool $touchesMetadata Whether the update changes a metadata field.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function denyUpdate(int $dashboardId, bool $metadataOnly, bool $touchesMetadata): ?JSONResponse {
+		$refusal = $this->actionRefusal(action: 'dashboard.update');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		if ($this->mayUpdate(dashboardId: $dashboardId, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata) === false) {
+			return $this->context->responseHelper->forbidden();
+		}
+
+		return null;
+	}//end denyUpdate()
+
+	/**
+	 * Whether the user may make this kind of update.
+	 *
+	 * REQ-PERM-007: Metadata-only updates (name, description, icon) are
+	 * allowed for all permission levels. Widget/tile/layout changes
+	 * require add_only or full permission; an update that does both needs both.
+	 *
+	 * @param int  $dashboardId     The dashboard ID.
+	 * @param bool $metadataOnly    Whether the update leaves the placements alone.
+	 * @param bool $touchesMetadata Whether the update changes a metadata field.
+	 *
+	 * @return bool True when the update is allowed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/admin-roles/spec.md#requirement-req-role-002-dashboard-editor-role-definition
+	 */
+	private function mayUpdate(int $dashboardId, bool $metadataOnly, bool $touchesMetadata): bool {
+		$mayEditMetadata = fn (): bool => $this->access->permissionService->canEditDashboardMetadata(
+			userId: $this->context->userId,
+			dashboardId: $dashboardId
+		) !== false;
+
+		if ($metadataOnly === true) {
+			return $mayEditMetadata();
+		}
+
+		return $this->access->permissionService->canEditDashboard(
+			userId: $this->context->userId,
+			dashboardId: $dashboardId
+		) !== false && ($touchesMetadata === false || $mayEditMetadata());
+	}//end mayUpdate()
+
+	/**
+	 * Apply an allowed update and answer with the saved dashboard.
+	 *
+	 * Captures an automatic version snapshot of the state before the save,
+	 * once the save succeeded (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
+	 * (REQ-DASH-023..029).
+	 *
+	 * @param int                  $dashboardId The dashboard ID.
+	 * @param array<string, mixed> $fields      The nullable update fields by name, in patch order.
+	 *
+	 * @return JSONResponse The updated dashboard, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		try {
-			$data = $this->buildUpdateData(
-				name: $name,
-				description: $description,
-				placements: $placements,
-				icon: $icon,
-				parentUuid: $parentUuid,
-				slug: $slug,
-				sortOrder: $sortOrder
-			);
+			$data   = $this->buildUpdateData(fields: $fields);
+			$before = $this->access->history->versionService->stateBeforeUpdate(dashboardId: $dashboardId);
 
-			$dashboard = $this->dashboardService->updateDashboard(
-				dashboardId: $id,
-				userId: $this->userId,
+			$dashboard = $this->services->dashboardService->updateDashboard(
+				dashboardId: $dashboardId,
+				userId: $this->context->userId,
 				data: $data
 			);
 
-			// REQ-VERS-001: capture an automatic snapshot after the
-			// PUT succeeds. The version service enforces its own
-			// debounce window (60 s) so rapid drag-and-drop edits do
-			// not flood the table. Failures are swallowed so they do
-			// not surface to the dashboard PUT response.
-			$this->captureAutomaticSnapshot(dashboard: $dashboard);
+			// REQ-VERS-001: once the PUT succeeded, snapshot the state it
+			// replaced. The version service enforces its own debounce
+			// window (60 s) so rapid drag-and-drop edits do not flood the
+			// table. Failures are swallowed so they do not surface to the
+			// dashboard PUT response.
+			$this->captureAutomaticSnapshot(
+				dashboard: ($before['dashboard'] ?? $dashboard),
+				snapshotJson: ($before['snapshotJson'] ?? null)
+			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
+			);
+		} catch (ContrastTooLowException $e) {
+			// REQ-THM-002: the measured ratio travels with the refusal.
+			return new JSONResponse(
+				data: ['status' => 'error', 'error' => 'contrast_too_low', 'ratio' => $e->getRatio(), 'message' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		} catch (InvalidArgumentException $e) {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations
 			// surface as HTTP 400 with the validation message verbatim.
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
-	}//end update()
+	}//end applyUpdate()
 
 	/**
 	 * Delete a dashboard.
@@ -731,31 +985,34 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The deletion confirmation.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, LaunchPadStatusOk, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-20
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function delete(int $id): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.delete');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.delete');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->access->permissionService->canDeleteDashboards(userId: (string)$this->context->userId) === false) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		$cascade = $this->resolveCascadeFlag();
 
 		try {
-			$this->dashboardService->deleteDashboard(
+			$this->services->dashboardService->deleteDashboard(
 				dashboardId: $id,
-				userId: $this->userId,
+				userId: $this->context->userId,
 				cascade: $cascade
 			);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
 		} catch (DashboardHasChildrenException $e) {
 			// REQ-DASH-030: stable 409 envelope with the child count so
 			// the frontend can render "Delete N children?" before
@@ -769,8 +1026,10 @@ class DashboardApiController extends Controller {
 				],
 				statusCode: Http::STATUS_CONFLICT
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end delete()
 
@@ -786,25 +1045,20 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The nested tree.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function tree(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.tree');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.tree');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// C1 fix: build the visibility set for the calling user, then ask
 		// the tree service for the structural tree filtered to those UUIDs.
 		// This prevents cross-user IDOR via UUID enumeration through the tree.
-		$visible = $this->dashboardService->getVisibleToUser(
-			userId: $this->userId
+		$visible = $this->services->dashboardService->getVisibleToUser(
+			userId: $this->context->userId
 		);
 		$visibleUuids = [];
 		foreach ($visible as $entry) {
@@ -814,11 +1068,11 @@ class DashboardApiController extends Controller {
 			}
 		}
 
-		$tree = $this->treeService->getFilteredTree(
+		$tree = $this->access->history->treeService->getFilteredTree(
 			visibleUuids: $visibleUuids
 		);
 
-		return ResponseHelper::success(data: $tree);
+		return $this->context->responseHelper->success(data: $tree);
 	}//end tree()
 
 	/**
@@ -841,25 +1095,20 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The dashboard payload, or a 404 envelope.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function byPath(string $path = ''): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.by-path');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.by-path');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		if ($path === '') {
 			$path = (string)$this->request->getParam(key: 'path', default: '');
 		}
 
-		$dashboard = $this->treeService->resolvePath(path: $path);
+		$dashboard = $this->access->history->treeService->resolvePath(path: $path);
 		if ($dashboard === null) {
 			return new JSONResponse(
 				data: [
@@ -874,8 +1123,8 @@ class DashboardApiController extends Controller {
 		// C2 fix: verify the caller can see this dashboard. Return 404
 		// (not 403) to avoid leaking that the slug exists at all.
 		$dashboardId = (int)$dashboard->getId();
-		if ($this->permissionService->canViewDashboard(
-			userId: $this->userId,
+		if ($this->access->permissionService->canViewDashboard(
+			userId: $this->context->userId,
 			dashboardId: $dashboardId
 		) === false
 		) {
@@ -891,12 +1140,12 @@ class DashboardApiController extends Controller {
 
 		$uuid = (string)$dashboard->getUuid();
 		$serialised = $dashboard->jsonSerialize();
-		$serialised['path'] = $this->treeService->computePath(uuid: $uuid);
-		$serialised['breadcrumbs'] = $this->treeService->computeBreadcrumbs(
+		$serialised['path'] = $this->access->history->treeService->computePath(uuid: $uuid);
+		$serialised['breadcrumbs'] = $this->access->history->treeService->computeBreadcrumbs(
 			uuid: $uuid
 		);
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: ['dashboard' => $serialised]
 		);
 	}//end byPath()
@@ -921,33 +1170,21 @@ class DashboardApiController extends Controller {
 	 *                      client-side).
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function computePath(string $uuid = ''): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.compute-path');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.compute-path');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		if ($uuid === '') {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'missing_uuid',
-					'message' => 'UUID is required',
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'missing_uuid', message: 'UUID is required');
 		}
 
-		return ResponseHelper::success(
-			data: ['path' => $this->treeService->computePath(uuid: $uuid)]
+		return $this->context->responseHelper->success(
+			data: ['path' => $this->access->history->treeService->computePath(uuid: $uuid)]
 		);
 	}//end computePath()
 
@@ -959,31 +1196,26 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The activated dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function activate(int $id): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.activate');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.activate');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$dashboard = $this->dashboardService->activateDashboard(
+			$dashboard = $this->services->dashboardService->activateDashboard(
 				dashboardId: $id,
-				userId: $this->userId
+				userId: $this->context->userId
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end activate()
 
@@ -997,32 +1229,27 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The list of group-shared dashboards.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function listGroup(string $groupId): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.list-group');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.list-group');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H1: verify the caller is a member of the requested group (or
 		// admin) before returning its dashboards — mirrors the group-
 		// membership check in PermissionService::resolveAccessLevel.
-		if ($this->dashboardService->userCanAccessGroup(
-			userId: $this->userId,
+		if ($this->services->dashboardService->userCanAccessGroup(
+			userId: $this->context->userId,
 			groupId: $groupId
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
-		$dashboards = $this->dashboardService->listGroupDashboards(
+		$dashboards = $this->services->dashboardService->listGroupDashboards(
 			groupId: $groupId
 		);
 
@@ -1033,16 +1260,16 @@ class DashboardApiController extends Controller {
 			$dashboards
 		);
 
-		return ResponseHelper::success(data: $viewerData);
+		return $this->context->responseHelper->success(data: $viewerData);
 	}//end listGroup()
 
 	/**
 	 * Create a new group-shared dashboard.
 	 *
-	 * Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute
-	 * (gate-route-auth / gate-semantic-auth both pass since the
-	 * framework-level check is the actual authorization point).
-	 * REQ-DASH-014.
+	 * For a Nextcloud administrator, a LaunchPad Admin, or an Editor who is
+	 * in the group ({@see GroupDashboardCreation::allows()},
+	 * REQ-DASH-014); anyone else gets HTTP 403 before the request body is
+	 * read.
 	 *
 	 * @param string $groupId The group ID.
 	 * @param mixed $name The dashboard name (or {name,...}
@@ -1052,36 +1279,44 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The created dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
-	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	#[NoAdminRequired]
 	public function createGroup(
 		string $groupId,
 		$name = null,
 		?string $description = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
+		}
+
+		if ($this->access->groupCreation?->allows(
+			userId: $this->context->userId,
+			groupId: $groupId
+		) !== true
+		) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		$resolved = $this->resolveCreateParams(
 			name: $name,
-			description: $description
+			flat: ['description' => $description]
 		);
 
 		try {
-			$dashboard = $this->dashboardService->createGroupShared(
-				actorUserId: $this->userId,
+			$dashboard = $this->services->dashboardService->createGroupShared(
+				actorUserId: $this->context->userId,
 				groupId: $groupId,
-				name: $resolved['name'],
-				description: $resolved['description']
+				fields: ['name' => $resolved['name'], 'description' => $resolved['description']]
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()],
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end createGroup()
 
@@ -1094,48 +1329,40 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The dashboard payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getGroup(
 		string $groupId,
 		string $uuid,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.get-group');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.get-group');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H1: verify the caller is a member of the requested group (or
 		// admin) before fetching the dashboard payload.
-		if ($this->dashboardService->userCanAccessGroup(
-			userId: $this->userId,
+		if ($this->services->dashboardService->userCanAccessGroup(
+			userId: $this->context->userId,
 			groupId: $groupId
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
-			$dashboard = $this->dashboardService->findGroupDashboard(
+			$dashboard = $this->services->dashboardService->findGroupDashboard(
 				groupId: $groupId,
 				uuid: $uuid
 			);
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// M5: strip internal identity fields from viewer-facing payload.
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: ['dashboard' => $dashboard->toViewerArray()]
 		);
 	}//end getGroup()
@@ -1163,38 +1390,73 @@ class DashboardApiController extends Controller {
 		?int $gridColumns = null,
 		?array $placements = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$patch = $this->buildGroupUpdateData(name: $name, description: $description, gridColumns: $gridColumns, placements: $placements);
+
+		return $this->updateGroupDashboard(target: new GroupDashboardTarget(groupId: $groupId, uuid: $uuid), patch: $patch);
+	}//end updateGroup()
+
+	/**
+	 * Apply a group-shared patch for the signed-in user.
+	 *
+	 * @param GroupDashboardTarget $target The group and dashboard UUID.
+	 * @param array<string, mixed> $patch  The non-null patch fields.
+	 *
+	 * @return JSONResponse The updated dashboard, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function updateGroupDashboard(GroupDashboardTarget $target, array $patch): JSONResponse {
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
-		$patch = $this->buildGroupUpdateData(
-			name: $name,
-			description: $description,
-			gridColumns: $gridColumns,
-			placements: $placements
+		return $this->runGroupMutation(
+			mutation: fn (): JSONResponse => $this->dashboardResponse(
+				dashboard: $this->services->dashboardService->updateGroupShared(
+					actorUserId: $this->context->userId,
+					groupId: $target->groupId,
+					uuid: $target->uuid,
+					patch: $patch
+				)
+			)
 		);
+	}//end updateGroupDashboard()
 
+	/**
+	 * Run a group-shared mutation, answering an unknown dashboard with 404
+	 * and any other failure with the generic error.
+	 *
+	 * @param callable(): JSONResponse $mutation The mutation and its answer.
+	 *
+	 * @return JSONResponse The mutation's answer, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function runGroupMutation(callable $mutation): JSONResponse {
 		try {
-			$dashboard = $this->dashboardService->updateGroupShared(
-				actorUserId: $this->userId,
-				groupId: $groupId,
-				uuid: $uuid,
-				patch: $patch
-			);
-
-			return ResponseHelper::success(
-				data: ['dashboard' => $dashboard->jsonSerialize()]
-			);
+			return $mutation();
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
-	}//end updateGroup()
+	}//end runGroupMutation()
+
+	/**
+	 * Answer 200 with one dashboard.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function dashboardResponse(Dashboard $dashboard): JSONResponse {
+		return $this->context->responseHelper->success(
+			data: ['dashboard' => $dashboard->jsonSerialize()]
+		);
+	}//end dashboardResponse()
 
 	/**
 	 * Delete a group-shared dashboard. Admin-only.
@@ -1208,32 +1470,30 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The status payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteGroup(
 		string $groupId,
 		string $uuid,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
-			$this->dashboardService->deleteGroupShared(
-				actorUserId: $this->userId,
+			$this->services->dashboardService->deleteGroupShared(
+				actorUserId: $this->context->userId,
 				groupId: $groupId,
 				uuid: $uuid
 			);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end deleteGroup()
 
@@ -1250,49 +1510,66 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The status payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function setGroupDefault(
 		string $groupId,
 		?string $uuid = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		if ($uuid === null || $uuid === '') {
-			return ResponseHelper::error(
-				exception: new InvalidArgumentException(
-					'Missing required field: uuid'
-				),
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->missingUuid();
 		}
 
-		try {
-			$this->dashboardService->setGroupDefault(
-				actorUserId: $this->userId,
-				groupId: $groupId,
-				uuid: $uuid
-			);
-
-			return ResponseHelper::success(
-				data: [
-					'status' => 'ok',
-					'groupId' => $groupId,
-					'uuid' => $uuid,
-				]
-			);
-		} catch (DoesNotExistException) {
-			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
+		return $this->runGroupMutation(
+			mutation: fn (): JSONResponse => $this->markGroupDefault(target: new GroupDashboardTarget(groupId: $groupId, uuid: $uuid))
+		);
 	}//end setGroupDefault()
+
+	/**
+	 * The 400 answer for a group-default request without a UUID.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function missingUuid(): JSONResponse {
+		return $this->context->responseHelper->error(
+			exception: new InvalidArgumentException(
+				'Missing required field: uuid'
+			),
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end missingUuid()
+
+	/**
+	 * Make a group-shared dashboard its group's default and answer 200.
+	 *
+	 * @param GroupDashboardTarget $target The group and dashboard UUID.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function markGroupDefault(GroupDashboardTarget $target): JSONResponse {
+		$this->services->dashboardService->setGroupDefault(
+			actorUserId: $this->context->userId,
+			groupId: $target->groupId,
+			uuid: $target->uuid
+		);
+
+		return $this->context->responseHelper->success(
+			data: [
+				'status' => 'ok',
+				'groupId' => $target->groupId,
+				'uuid' => $target->uuid,
+			]
+		);
+	}//end markGroupDefault()
 
 	/**
 	 * Persist the user's active-dashboard preference.
@@ -1308,26 +1585,21 @@ class DashboardApiController extends Controller {
 	 *                      when the session has no user.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setActiveDashboard(?string $uuid = null): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.set-active-dashboard');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.set-active-dashboard');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		$this->dashboardService->setActivePreference(
-			userId: $this->userId,
+		$this->services->dashboardService->setActivePreference(
+			userId: $this->context->userId,
 			uuid: ($uuid ?? '')
 		);
 
-		return ResponseHelper::success(data: ['status' => 'success']);
+		return $this->context->responseHelper->success(data: ['status' => 'success']);
 	}//end setActiveDashboard()
 
 	/**
@@ -1348,26 +1620,21 @@ class DashboardApiController extends Controller {
 	 *                      when the session has no user.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setDefaultDashboard(?string $uuid = null): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.set-default-dashboard');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.set-default-dashboard');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		$this->dashboardService->setDefaultPreference(
-			userId: $this->userId,
+		$this->services->dashboardService->setDefaultPreference(
+			userId: $this->context->userId,
 			uuid: ($uuid ?? '')
 		);
 
-		return ResponseHelper::success(data: ['status' => 'success']);
+		return $this->context->responseHelper->success(data: ['status' => 'success']);
 	}//end setDefaultDashboard()
 
 	/**
@@ -1377,24 +1644,19 @@ class DashboardApiController extends Controller {
 	 *                      pin set; 401 when the session has no user.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getDefaultDashboard(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.get-default-dashboard');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.get-default-dashboard');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
-				'uuid' => $this->dashboardService->getDefaultPreference(
-					userId: $this->userId
+				'uuid' => $this->services->dashboardService->getDefaultPreference(
+					userId: $this->context->userId
 				),
 			]
 		);
@@ -1429,74 +1691,112 @@ class DashboardApiController extends Controller {
 	 *                      appropriate error envelope.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function fork(
 		string $uuid,
 		?string $name = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
+		return $this->forkFor(uuid: $uuid, name: $name);
+	}//end fork()
+
+	/**
+	 * Fork a dashboard for the signed-in user and answer 201, or map the
+	 * failure to its response.
+	 *
+	 * @param string      $uuid The source dashboard UUID.
+	 * @param string|null $name Optional name for the copy.
+	 *
+	 * @return JSONResponse The fork, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function forkFor(string $uuid, ?string $name): JSONResponse {
 		try {
-			$fork = $this->dashboardService->forkAsPersonal(
-				userId: $this->userId,
+			$fork = $this->services->dashboardService->forkAsPersonal(
+				userId: $this->context->userId,
 				sourceUuid: $uuid,
 				name: $name
 			);
 
-			return new JSONResponse(
-				data: [
-					'status' => 'success',
-					'dashboard' => $fork->jsonSerialize(),
-				],
-				statusCode: Http::STATUS_CREATED
-			);
-		} catch (PersonalDashboardsDisabledException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => $e->getErrorCode(),
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (QuotaExceededException $e) {
-			// Dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
-			// per-user dashboard quota — HTTP 409 with the structured body.
-			return ResponseHelper::quotaExceeded(exception: $e);
-		} catch (DoesNotExistException) {
-			// REQ-DASH-020: source not visible — 404 without leaking
-			// existence (use the canonical message rather than echoing
-			// the exception detail).
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return self::forkCreated(fork: $fork);
 		} catch (\Throwable $t) {
-			// REQ-DASH-021 + ADR-005: log the real cause, return a
-			// stable, generic envelope to the client.
-			$this->logger->error(
-				message: 'launchpad: fork failed for user {user}: {message}',
-				context: [
-					'user' => $this->userId,
-					'message' => $t->getMessage(),
-				]
-			);
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'internal_error',
-					'message' => 'An unexpected error occurred',
-				],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
-	}//end fork()
+			return $this->forkFailure(throwable: $t);
+		}
+	}//end forkFor()
+
+	/**
+	 * Answer 201 with a fork.
+	 *
+	 * @param Dashboard $fork The personal copy.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private static function forkCreated(Dashboard $fork): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'success',
+				'dashboard' => $fork->jsonSerialize(),
+			],
+			statusCode: Http::STATUS_CREATED
+		);
+	}//end forkCreated()
+
+	/**
+	 * Map a failed fork to its response.
+	 *
+	 * Personal dashboards switched off answer 403; dashboard-quota-limits
+	 * REQ-QUOTA-002: a fork is bound by the per-user dashboard quota —
+	 * HTTP 409 with the structured body; REQ-DASH-020: a source that is
+	 * not visible answers 404 without leaking existence (the canonical
+	 * message rather than the exception detail); anything else is
+	 * logged and answered with a stable, generic envelope (REQ-DASH-021
+	 * + ADR-005).
+	 *
+	 * @param \Throwable $throwable What the fork threw.
+	 *
+	 * @return JSONResponse The error response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function forkFailure(\Throwable $throwable): JSONResponse {
+		return match (true) {
+			$throwable instanceof PersonalDashboardsDisabledException => $this->personalDashboardsDisabled(exception: $throwable),
+			$throwable instanceof QuotaExceededException => $this->context->responseHelper->quotaExceeded(exception: $throwable),
+			$throwable instanceof DoesNotExistException => $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND),
+			default => $this->internalForkError(throwable: $throwable),
+		};
+	}//end forkFailure()
+
+	/**
+	 * Log the real cause of a failed fork and answer 500 with the generic
+	 * envelope.
+	 *
+	 * @param \Throwable $throwable What the fork threw.
+	 *
+	 * @return JSONResponse The 500 response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function internalForkError(\Throwable $throwable): JSONResponse {
+		$this->access->history->logger->error(
+			message: 'launchpad: fork failed for user {user}: {message}',
+			context: [
+				'user' => $this->context->userId,
+				'message' => $throwable->getMessage(),
+			]
+		);
+
+		return new JSONResponse(
+			data: ['status' => 'error', 'error' => 'internal_error', 'message' => 'An unexpected error occurred'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end internalForkError()
 
 	/**
 	 * Publish a dashboard. REQ-DASH-032.
@@ -1510,40 +1810,21 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The updated dashboard payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.publish');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.publish');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		try {
-			$dashboard = $this->dashboardService->publishDashboard(
+		return $this->publicationResponse(
+			operation: fn (): Dashboard => $this->services->dashboardService->publishDashboard(
 				uuid: $uuid,
-				userId: $this->userId
-			);
-
-			return ResponseHelper::success(
-				data: ['dashboard' => $dashboard->jsonSerialize()]
-			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (\Exception $e) {
-			return $this->mapPublicationError(exception: $e);
-		}//end try
+				userId: $this->context->userId
+			)
+		);
 	}//end publish()
 
 	/**
@@ -1554,41 +1835,108 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The updated dashboard payload.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function unpublish(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.unpublish');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.unpublish');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		try {
-			$dashboard = $this->dashboardService->unpublish(
+		return $this->publicationResponse(
+			operation: fn (): Dashboard => $this->services->dashboardService->unpublish(
 				uuid: $uuid,
-				userId: $this->userId
-			);
+				userId: $this->context->userId
+			)
+		);
+	}//end unpublish()
 
-			return ResponseHelper::success(
+	/**
+	 * The serialised dashboards, with the user's quota status when the quota service is wired.
+	 *
+	 * Dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on the
+	 * personal dashboards list. Response shape is `{items: [...], quota: {...}}`.
+	 * When the quota service is absent (legacy test doubles) fall back to the
+	 * bare-array contract.
+	 *
+	 * @param array<int, mixed> $serialized The serialised dashboards.
+	 *
+	 * @return JSONResponse The success response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function withQuota(array $serialized): JSONResponse {
+		if ($this->services->quotaService === null) {
+			return $this->context->responseHelper->success(data: $serialized);
+		}
+
+		return $this->context->responseHelper->success(
+			data: [
+				'items' => $serialized,
+				'quota' => $this->services->quotaService->getQuotaStatus(
+					userId: $this->context->userId
+				),
+			]
+		);
+	}//end withQuota()
+
+	/**
+	 * The 403 answer when personal dashboards are switched off.
+	 *
+	 * @param PersonalDashboardsDisabledException $exception The refusal.
+	 *
+	 * @return JSONResponse The error envelope.
+	 */
+	private function personalDashboardsDisabled(PersonalDashboardsDisabledException $exception): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'error',
+				'error' => $exception->getErrorCode(),
+				'message' => $exception->getMessage(),
+			],
+			statusCode: Http::STATUS_FORBIDDEN
+		);
+	}//end personalDashboardsDisabled()
+
+	/**
+	 * Run a publication change and answer with the dashboard, 404 when unknown,
+	 * or the mapped publication error.
+	 *
+	 * @param \Closure $operation Runs the change and returns the updated dashboard.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function publicationResponse(\Closure $operation): JSONResponse {
+		try {
+			$dashboard = $operation();
+
+			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
-	}//end unpublish()
+	}//end publicationResponse()
+
+	/**
+	 * The caller guard: the refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see RequestActor::refusal()
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->context->actor->refusal(userId: $this->context->userId, action: $action);
+	}//end actionRefusal()
 
 	/**
 	 * Schedule a dashboard for automatic publication. REQ-DASH-034.
@@ -1613,61 +1961,73 @@ class DashboardApiController extends Controller {
 		?string $publishAt = null,
 		?string $unpublishAt = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard.schedule');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.schedule');
+		return $this->scheduleDated(
+			request: new DashboardScheduleRequest(uuid: $uuid, publishAt: $publishAt, unpublishAt: $unpublishAt)
+		);
+	}//end schedule()
 
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
+	/**
+	 * Refuse a schedule without any time, then schedule.
+	 *
+	 * @param DashboardScheduleRequest $request The dashboard and its times.
+	 *
+	 * @return JSONResponse The updated dashboard payload, or the refusal.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function scheduleDated(DashboardScheduleRequest $request): JSONResponse {
 		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
-		if ($this->isBlank(value: $publishAt) === true && $this->isBlank(value: $unpublishAt) === true) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => DashboardService::ERR_SCHEDULE_PAST_DATE,
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+		if ($this->isBlank(value: $request->publishAt) === true && $this->isBlank(value: $request->unpublishAt) === true) {
+			return $this->context->responseHelper->invalidArgument(message: DashboardService::ERR_SCHEDULE_PAST_DATE);
 		}
 
-		try {
-			$dashboard = $this->dashboardService->schedule(
-				uuid: $uuid,
-				publishAt: $publishAt,
-				userId: $this->userId,
-				unpublishAt: $unpublishAt
-			);
+		return $this->scheduled(request: $request);
+	}//end scheduleDated()
 
-			return ResponseHelper::success(
-				data: ['dashboard' => $dashboard->jsonSerialize()]
-			);
+	/**
+	 * Schedule the dashboard and answer with it, mapping the service's
+	 * refusals to their responses.
+	 *
+	 * @param DashboardScheduleRequest $request The dashboard and its times.
+	 *
+	 * @return JSONResponse The updated dashboard payload, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function scheduled(DashboardScheduleRequest $request): JSONResponse {
+		try {
+			return $this->dashboardResponse(dashboard: $this->scheduleFor(request: $request));
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
-	}//end schedule()
+	}//end scheduled()
+
+	/**
+	 * Schedule the dashboard on behalf of the signed-in user.
+	 *
+	 * @param DashboardScheduleRequest $request The dashboard and its times.
+	 *
+	 * @return Dashboard The scheduled dashboard.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function scheduleFor(DashboardScheduleRequest $request): Dashboard {
+		return $this->services->dashboardService->schedule(
+			uuid: $request->uuid,
+			publishAt: $request->publishAt,
+			userId: $this->context->userId,
+			unpublishAt: $request->unpublishAt
+		);
+	}//end scheduleFor()
 
 	/**
 	 * Whether a request value is missing or empty.
@@ -1698,55 +2058,38 @@ class DashboardApiController extends Controller {
 	 *                      dashboard does not exist.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function viewEvent(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actionAuth->requireAction($user, 'dashboard.view-event');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actionRefusal(action: 'dashboard.view-event');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H4: resolve the dashboard and assert the caller can view it
 		// before recording any counter increment (REQ-ANLT-002).
 		try {
-			$dashboard = $this->dashboardService->findByUuid(uuid: $uuid);
+			$dashboard = $this->services->dashboardService->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
-		if ($this->permissionService->canViewDashboard(
-			userId: $this->userId,
+		if ($this->access->permissionService->canViewDashboard(
+			userId: $this->context->userId,
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
-			$this->analyticsService->recordViewEvent(
+			$this->access->history->analyticsService->recordViewEvent(
 				dashboardUuid: $uuid,
-				userId: $this->userId
+				userId: $this->context->userId
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse(
@@ -1762,21 +2105,23 @@ class DashboardApiController extends Controller {
 	 * The service raises `Exception` with the sentinel message
 	 * {@see DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN} when
 	 * the actor is not allowed; everything else falls through to the
-	 * generic ResponseHelper::error path.
+	 * generic $this->context->responseHelper->error path.
 	 *
 	 * @param \Exception $exception The thrown exception.
 	 *
 	 * @return JSONResponse The mapped error envelope.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mapPublicationError(\Exception $exception): JSONResponse {
 		if ($exception->getMessage() === DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
 		) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
 			);
 		}
 
-		return ResponseHelper::error(exception: $exception);
+		return $this->context->responseHelper->error(exception: $exception);
 	}//end mapPublicationError()
 
 	/**
@@ -1789,67 +2134,75 @@ class DashboardApiController extends Controller {
 	 * falls back to those.
 	 *
 	 * @param mixed $name The name parameter.
-	 * @param string|null $description The description parameter.
-	 * @param string|null $icon The icon parameter.
-	 * @param string|null $parentUuid Optional parent UUID.
-	 * @param string|null $slug Optional caller-supplied slug.
-	 * @param int|null $sortOrder Optional sort order.
+	 * @param array $flat The flat-form `description`, `icon`, `parentUuid`,
+	 *                    `slug` and `sortOrder` parameters, each optional.
 	 *
 	 * @return array{name: string, description: ?string, icon: ?string, parentUuid: ?string, slug: ?string, sortOrder: int}
 	 *                                                                                                                      The resolved values.
 	 */
-	private function resolveCreateParams(
-		$name,
-		?string $description,
-		?string $icon = null,
-		?string $parentUuid = null,
-		?string $slug = null,
-		?int $sortOrder = null,
-	): array {
+	private function resolveCreateParams($name, array $flat=[]): array {
 		if (is_array($name) === true) {
-			$bodyIcon = ($name['icon'] ?? null);
-			$resolvedIcon = null;
-			if (is_string($bodyIcon) === true) {
-				$resolvedIcon = $bodyIcon;
-			}
-
-			$bodyParent = ($name['parentUuid'] ?? null);
-			$bodySlug = ($name['slug'] ?? null);
-			$bodySort = ($name['sortOrder'] ?? null);
-			$resolvedParent = null;
-			if (is_string($bodyParent) === true) {
-				$resolvedParent = $bodyParent;
-			}
-
-			$resolvedSlug = null;
-			if (is_string($bodySlug) === true) {
-				$resolvedSlug = $bodySlug;
-			}
-
-			$resolvedSort = 0;
-			if (is_numeric($bodySort) === true) {
-				$resolvedSort = (int)$bodySort;
-			}
-
-			return [
-				'name' => $name['name'] ?? 'My Dashboard',
-				'description' => $name['description'] ?? null,
-				'icon' => $resolvedIcon,
-				'parentUuid' => $resolvedParent,
-				'slug' => $resolvedSlug,
-				'sortOrder' => $resolvedSort,
-			];
-		}//end if
+			return self::resolveCreateBody(body: $name);
+		}
 
 		return [
 			'name' => $name ?? 'My Dashboard',
-			'description' => $description,
-			'icon' => $icon,
-			'parentUuid' => $parentUuid,
-			'slug' => $slug,
-			'sortOrder' => ($sortOrder ?? 0),
+			'description' => ($flat['description'] ?? null),
+			'icon' => ($flat['icon'] ?? null),
+			'parentUuid' => ($flat['parentUuid'] ?? null),
+			'slug' => ($flat['slug'] ?? null),
+			'sortOrder' => ($flat['sortOrder'] ?? 0),
 		];
 	}//end resolveCreateParams()
+
+	/**
+	 * Resolve create parameters from a JSON body: string fields keep only
+	 * strings, the sort order only numbers.
+	 *
+	 * @param array<string, mixed> $body The decoded request body.
+	 *
+	 * @return array<string, mixed> The resolved parameters.
+	 */
+	private static function resolveCreateBody(array $body): array {
+		return [
+			'name' => $body['name'] ?? 'My Dashboard',
+			'description' => $body['description'] ?? null,
+			'icon' => self::stringOrNull(value: ($body['icon'] ?? null)),
+			'parentUuid' => self::stringOrNull(value: ($body['parentUuid'] ?? null)),
+			'slug' => self::stringOrNull(value: ($body['slug'] ?? null)),
+			'sortOrder' => self::intOrZero(value: ($body['sortOrder'] ?? null)),
+		];
+	}//end resolveCreateBody()
+
+	/**
+	 * A string value as is, anything else as null.
+	 *
+	 * @param mixed $value The body value.
+	 *
+	 * @return string|null The string, or null.
+	 */
+	private static function stringOrNull(mixed $value): ?string {
+		if (is_string($value) === true) {
+			return $value;
+		}
+
+		return null;
+	}//end stringOrNull()
+
+	/**
+	 * A numeric value as an integer, anything else as 0.
+	 *
+	 * @param mixed $value The body value.
+	 *
+	 * @return int The integer.
+	 */
+	private static function intOrZero(mixed $value): int {
+		if (is_numeric($value) === true) {
+			return (int)$value;
+		}
+
+		return 0;
+	}//end intOrZero()
 
 	/**
 	 * Read the case-insensitive `cascade` query param (REQ-DASH-030).
@@ -1879,24 +2232,26 @@ class DashboardApiController extends Controller {
 	 * @param string $userId The user ID.
 	 *
 	 * @return JSONResponse|null Error response or null if allowed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function checkCreatePermissions(string $userId): ?JSONResponse {
-		if ($this->permissionService->canCreateDashboard(
+		if ($this->access->permissionService->canCreateDashboard(
 			userId: $userId
 		) === false
 		) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Dashboard creation not allowed'
 			);
 		}
 
-		$existing = $this->dashboardService->getUserDashboards(
+		$existing = $this->services->dashboardService->getUserDashboards(
 			userId: $userId
 		);
 		if (empty($existing) === false
-			&& $this->permissionService->canHaveMultipleDashboards() === false
+			&& $this->access->permissionService->canHaveMultipleDashboards() === false
 		) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Multiple dashboards not allowed'
 			);
 		}
@@ -1905,41 +2260,18 @@ class DashboardApiController extends Controller {
 	}//end checkCreatePermissions()
 
 	/**
-	 * Build update data from nullable parameters.
+	 * Build update data from the nullable update fields.
 	 *
-	 * @param string|null $name The name.
-	 * @param string|null $description The description.
-	 * @param array|null $placements The placements.
-	 * @param string|null $icon The icon registry key, URL, or NULL/empty.
-	 * @param string|null $parentUuid Optional new parent UUID
-	 *                                (REQ-DASH-023). The literal sentinel
-	 *                                `__null__` clears the parent
-	 *                                (re-roots the dashboard) — needed
-	 *                                because the framework cannot
-	 *                                distinguish "not in payload" from
-	 *                                "explicit NULL" with typed-string
-	 *                                binding.
-	 * @param string|null $slug Optional new slug (REQ-DASH-024).
-	 * @param int|null $sortOrder Optional new sort order
-	 *                            (REQ-DASH-029).
+	 * A null field is "not in the payload" and is left out. The parent
+	 * UUID sentinel `__null__` and the empty string both clear the parent
+	 * (re-root the dashboard, REQ-DASH-023), because the framework's typed
+	 * string binding cannot represent an explicit NULL.
 	 *
-	 * @return array The non-null update data.
+	 * @param array<string, mixed> $fields The update fields by name, in patch order.
+	 *
+	 * @return array<string, mixed> The non-null update data.
 	 */
-	private function buildUpdateData(
-		?string $name,
-		?string $description,
-		?array $placements,
-		?string $icon = null,
-		?string $parentUuid = null,
-		?string $slug = null,
-		?int $sortOrder = null,
-	): array {
-		$fields = [
-			'name' => $name,
-			'description' => $description,
-			'placements' => $placements,
-		];
-
+	private function buildUpdateData(array $fields): array {
 		$data = array_filter(
 			array: $fields,
 			callback: function ($value) {
@@ -1947,32 +2279,10 @@ class DashboardApiController extends Controller {
 			}
 		);
 
-		// Icon explicitly supports NULL/empty (resets to the default
-		// glyph), so it must be merged separately from the array_filter
-		// above. Caller distinguishes "not in payload" via the default
-		// null sentinel.
-		if ($icon !== null) {
-			$data['icon'] = $icon;
-		}
-
-		// REQ-DASH-023: `parentUuid = '__null__'` is the agreed sentinel
-		// for "re-root this dashboard" because the framework's typed
-		// string binding cannot represent an explicit NULL. Anything
-		// else (non-null string) is forwarded verbatim — including the
-		// empty string, which the service treats as a NULL parent.
-		if ($parentUuid !== null) {
-			$data['parentUuid'] = $parentUuid;
-			if ($parentUuid === '__null__' || $parentUuid === '') {
-				$data['parentUuid'] = null;
-			}
-		}
-
-		if ($slug !== null) {
-			$data['slug'] = $slug;
-		}
-
-		if ($sortOrder !== null) {
-			$data['sortOrder'] = $sortOrder;
+		if (isset($data['parentUuid']) === true
+			&& ($data['parentUuid'] === '__null__' || $data['parentUuid'] === '')
+		) {
+			$data['parentUuid'] = null;
 		}
 
 		return $data;
@@ -2019,28 +2329,29 @@ class DashboardApiController extends Controller {
 	 * the user's edit succeeded; missing one snapshot is a quality of
 	 * life regression, not a data-integrity bug. We log + swallow.
 	 *
-	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard The dashboard that was
-	 *                                               just updated.
+	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard    The dashboard as it was before the update.
+	 * @param string|null                 $snapshotJson Its payload built before the update, or null to build it now.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function captureAutomaticSnapshot(
 		\OCA\LaunchPad\Db\Dashboard $dashboard,
+		?string $snapshotJson = null,
 	): void {
-		if ($this->userId === null) {
+		if ($this->context->userId === null) {
 			return;
 		}
 
 		try {
-			$this->versionService->captureSnapshot(
+			$this->access->history->versionService->captureSnapshot(
 				dashboard: $dashboard,
-				snapshotJson: null,
-				createdBy: $this->userId,
-				note: null,
-				explicit: false
+				createdBy: $this->context->userId,
+				options: ['snapshotJson' => $snapshotJson]
 			);
 		} catch (\Throwable $t) {
-			$this->logger->warning(
+			$this->access->history->logger->warning(
 				message: 'launchpad: automatic version snapshot failed',
 				context: ['exception' => $t]
 			);

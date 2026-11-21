@@ -9,6 +9,7 @@
 			:items="searchableTiles"
 			:placeholder="content.placeholder || ''"
 			:fallbackTarget="effectiveFallbackTarget"
+			:shortcuts="injectedSearchShortcuts"
 			@open="onSearchOpen"
 			@filter="onSearchFilter"
 			@fallback="onSearchFallback"
@@ -25,6 +26,7 @@ import {
 	focusGrid,
 	performFallback,
 } from '../../../composables/useTileSearchHost.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { useDashboardStore } from '../../../stores/dashboard.js'
 import { useTileSearchStore } from '../../../stores/tileSearch.js'
 import { useWidgetStore } from '../../../stores/widgets.js'
@@ -64,6 +66,15 @@ export default {
 			from: 'quicksearchFallbackTarget',
 			default: 'none',
 		},
+
+		/**
+		 * The admin's search shortcuts (REQ-SPX-002). An empty list keeps
+		 * the box as it was.
+		 */
+		injectedSearchShortcuts: {
+			from: 'searchShortcuts',
+			default: () => [],
+		},
 	},
 
 	props: {
@@ -72,10 +83,7 @@ export default {
 		 *
 		 * @type {{placeholder?: string, fallbackTarget?: string}}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The placement row this widget renders as. Deliberately declared and
@@ -86,10 +94,7 @@ export default {
 		 * Declaring it absorbs the binding instead.
 		 */
 		// eslint-disable-next-line vue/no-unused-properties
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
 	},
 
 	computed: {

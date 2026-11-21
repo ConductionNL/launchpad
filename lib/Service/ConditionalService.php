@@ -26,7 +26,9 @@ use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -34,7 +36,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *
  * @spec openspec/specs/conditional-visibility/spec.md
  */
-class ConditionalService {
+class ConditionalService implements ConditionalServiceInterface {
 	/**
 	 * Constructor
 	 *
@@ -102,6 +104,63 @@ class ConditionalService {
 			userId: $userId
 		);
 	}//end checkRulesForPlacement()
+
+	/**
+	 * Apply the visibility rules to the placements a dashboard renders.
+	 *
+	 * A placement whose rules hide it for this user is left out, unless the
+	 * user may edit the dashboard: then it stays, marked `hiddenForViewers`,
+	 * so the owner and editors still see and edit it. Every other placement
+	 * carries `hiddenForViewers: false`.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The viewing user, '' for a visitor without an account.
+	 * @param bool                             $canEdit    Whether the viewer may edit the dashboard.
+	 *
+	 * @return array<int, array<string, mixed>> The placements to render, in order.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
+		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
+
+		$visible = [];
+		foreach ($placements as $placement) {
+			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
+			$hidden = $rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false;
+			if ($hidden === true && $canEdit === false) {
+				continue;
+			}
+
+			$placement['hiddenForViewers'] = $hidden;
+			$visible[] = $placement;
+		}
+
+		return $visible;
+	}//end visiblePlacements()
+
+	/**
+	 * The rules of the given placements, keyed by placement ID.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 *
+	 * @return array<int, ConditionalRule[]> The rules per placement ID.
+	 */
+	private function rulesByPlacement(array $placements): array {
+		$ids = [];
+		foreach ($placements as $placement) {
+			if (isset($placement['id']) === true) {
+				$ids[] = (int)$placement['id'];
+			}
+		}
+
+		$grouped = [];
+		foreach ($this->ruleMapper->findByPlacementIds(placementIds: $ids) as $rule) {
+			$grouped[(int)$rule->getWidgetPlacementId()][] = $rule;
+		}
+
+		return $grouped;
+	}//end rulesByPlacement()
 
 	/**
 	 * Evaluate an in-memory (not persisted) rule set against a supplied
@@ -182,9 +241,28 @@ class ConditionalService {
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function listAllRules(): array {
-		$rules = $this->ruleMapper->findAll();
+		$counts = self::countsByPlacement(rules: $this->ruleMapper->findAll());
 
-		// Aggregate per placement id.
+		$rows = [];
+		foreach ($counts as $placementId => $agg) {
+			$row = $this->overviewRow(placementId: $placementId, counts: $agg);
+			if ($row !== null) {
+				$rows[] = $row;
+			}
+		}
+
+		return $rows;
+	}//end listAllRules()
+
+	/**
+	 * Aggregate the rules per placement id: the rule count and the
+	 * include / exclude breakdown, in first-seen order.
+	 *
+	 * @param ConditionalRule[] $rules Every rule.
+	 *
+	 * @return array<int, array{placementId: int, ruleCount: int, includeCount: int, excludeCount: int}>
+	 */
+	private static function countsByPlacement(array $rules): array {
 		$byPlacement = [];
 		foreach ($rules as $rule) {
 			$placementId = $rule->getWidgetPlacementId();
@@ -206,40 +284,52 @@ class ConditionalService {
 			$byPlacement[$placementId][$counterKey]++;
 		}
 
-		$rows = [];
-		foreach ($byPlacement as $placementId => $agg) {
-			try {
-				$placement = $this->placementMapper->find(id: $placementId);
-			} catch (DoesNotExistException) {
-				// Orphaned rule — placement gone. Skip so the overview only
-				// lists live placements.
-				continue;
-			}
+		return $byPlacement;
+	}//end countsByPlacement()
 
-			$dashboardId = $placement->getDashboardId();
-			$dashboardName = null;
-			try {
-				$dashboard = $this->dashboardMapper->find(id: $dashboardId);
-				$dashboardName = $dashboard->getName();
-			} catch (DoesNotExistException) {
-				// Dashboard gone but placement somehow remains — still list
-				// the placement, just without a resolved name.
-				$dashboardId = null;
-			}
+	/**
+	 * The overview row of one rule-bearing placement; null for an
+	 * orphaned rule whose placement is gone, so the overview only lists
+	 * live placements.
+	 *
+	 * @param int                $placementId The placement id.
+	 * @param array<string, int> $counts      The placement's rule counts.
+	 *
+	 * @return array<string, mixed>|null The row, or null.
+	 */
+	private function overviewRow(int $placementId, array $counts): array|null {
+		try {
+			$placement = $this->placementMapper->find(id: $placementId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
 
-			$rows[] = [
-				'placementId' => $placementId,
-				'dashboardId' => $dashboardId,
-				'dashboardName' => $dashboardName,
-				'widgetType' => $placement->getWidgetId(),
-				'ruleCount' => $agg['ruleCount'],
-				'includeCount' => $agg['includeCount'],
-				'excludeCount' => $agg['excludeCount'],
-			];
-		}//end foreach
+		return ['placementId' => $placementId] + $this->owningDashboard(placement: $placement) + [
+			'widgetType' => $placement->getWidgetId(),
+			'ruleCount' => $counts['ruleCount'],
+			'includeCount' => $counts['includeCount'],
+			'excludeCount' => $counts['excludeCount'],
+		];
+	}//end overviewRow()
 
-		return $rows;
-	}//end listAllRules()
+	/**
+	 * The id and name of a placement's dashboard. When the dashboard is
+	 * gone but the placement somehow remains, the placement is still
+	 * listed, just without a resolved dashboard.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array{dashboardId: int|null, dashboardName: string|null}
+	 */
+	private function owningDashboard(WidgetPlacement $placement): array {
+		try {
+			$dashboard = $this->dashboardMapper->find(id: $placement->getDashboardId());
+		} catch (DoesNotExistException) {
+			return ['dashboardId' => null, 'dashboardName' => null];
+		}
+
+		return ['dashboardId' => $placement->getDashboardId(), 'dashboardName' => $dashboard->getName()];
+	}//end owningDashboard()
 
 	/**
 	 * Fetch a single rule by its primary key.

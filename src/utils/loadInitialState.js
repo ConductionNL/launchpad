@@ -22,7 +22,7 @@ import { logger } from './logger.js'
  * server-pushed `_schemaVersion`; mismatch logs a console warning so
  * deploy-skew between PHP and JS surfaces (REQ-INIT-002).
  */
-export const INITIAL_STATE_SCHEMA_VERSION = 2
+export const INITIAL_STATE_SCHEMA_VERSION = 3
 
 /**
  * Reserved key carrying the schema version on the wire.
@@ -63,6 +63,39 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
+		// search-ai-prefix-shortcuts REQ-SPX-002: the admin's search
+		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
+		// list keeps every search box as it was.
+		searchShortcuts: [],
+		// runtime-shell REQ-SHELL-009: the dashboard view without the left
+		// navigation panel. Optional key, same rationale as `deepLinkPath`:
+		// a server without the setter keeps the panel.
+		startPageWithoutNavigation: false,
+		// platform-dashboard-theme-and-css REQ-THM-003: the administrator CSS
+		// for all of LaunchPad, cleaned and scoped by the server. Optional key.
+		customCss: '',
+		// drill-down-cross-widget-filter REQ-CWF-010: whether the dashboard's
+		// filter bus records filter_event rows. Optional key; off by default.
+		filterTelemetryEnabled: false,
+		// launcher-tile-launch-types: what the tile editor offers for program
+		// and single sign-on tiles. Optional keys; empty lists offer nothing.
+		tileAllowedSchemes: [],
+		ssoLaunchTemplates: [],
+		// launcher-tile-internal-address REQ-TIA-003: whether the server saw
+		// this request come from an office network. Optional key: a server
+		// without the setter leaves every tile on its main address.
+		onOfficeNetwork: false,
+		// engagement-communities REQ-COMM-004: whether Talk is enabled for the
+		// viewer. Optional key; `false` makes the Communities widget explain
+		// that Talk is needed instead of calling it.
+		talkEnabled: false,
+		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
+		// organisation pinned, in the order pinned. Optional key.
+		pinnedCommunities: [],
+		// clock-weather-widgets REQ-CLOCK-002: the viewer's Nextcloud timezone,
+		// which a clock without its own zone shows. Optional key; '' follows
+		// the device.
+		userTimezone: '',
 	},
 	admin: {
 		allGroups: [],
@@ -71,13 +104,19 @@ const PAGE_KEYS = {
 		allowUserDashboards: false,
 		linkCreateFileExtensions: ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 	},
+	// sharing-public-start-page D3 (version 3): the public link the start
+	// page at /apps/launchpad/start shows. Absent on /s/{token}, where the
+	// token is the URL's last segment.
+	'public-start': {
+		publicStartToken: '',
+	},
 }
 
 /**
  * Read every initial-state key declared for the given page, fill defaults
  * for any missing keys, and validate the schema version stamp.
  *
- * @param {('workspace'|'admin')} page Destination page identifier.
+ * @param {('workspace'|'admin'|'public-start')} page Destination page identifier.
  * @return {object} Typed snapshot — never carries `undefined` values.
  * @throws {Error} When `page` is not a known page identifier.
  * @spec openspec/specs/initial-state-contract/spec.md
@@ -103,6 +142,16 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * Whether the server saw this request come from inside the office networks.
+ *
+ * @return {boolean} True only when the server said so.
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ */
+export function isOnOfficeNetwork() {
+	return readKey('onOfficeNetwork', false) === true
 }
 
 /**

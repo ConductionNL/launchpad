@@ -28,6 +28,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -35,12 +36,12 @@ import {
 
 /**
  * Navigate to the app and wait for the Vue app to hydrate past bootstrap.
- * The sidebar toggle is the first stable landmark the app injects.
+ * The More menu is the first stable landmark the shell renders.
  * @param {any} page Playwright page object
  */
 async function gotoApp(page: any) {
 	await page.goto('/index.php/apps/launchpad')
-	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+	await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ const seeded: SeededDashboard[] = []
  * SEED TWO DASHBOARDS FOR THE ADMIN.
  *
  * The switching test needs at least two rows in the sidebar, and every test
- * outside the empty-state block reaches `.launchpad-sidebar-toggle`, which
+ * outside the empty-state block reaches the More menu, which
  * only renders once a dashboard is ACTIVE. `tests/e2e/seed.sh` creates only
  * the `e2e-grantee` user — never a dashboard — so on a fresh instance the
  * shell renders its empty state and those waits time out. Measured in CI run
@@ -142,10 +143,7 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 		await gotoApp(page)
 
 		// Open the sidebar so the dashboard rows are visible.
-		await page.locator('.launchpad-sidebar-toggle').first().click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 8_000,
-		})
+		await openDashboardSwitcher(page)
 
 		const rows = page.locator('.dashboard-switcher-sidebar__item')
 		const rowCount = await rows.count()

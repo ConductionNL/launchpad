@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 2;
+	private const BASELINE_VERSION = 7;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -84,10 +84,59 @@ class ApplyActionBaseline implements IRepairStep {
 	 * it was seeded admin-only, so every user it exists for got HTTP 403. It
 	 * returns only the caller's own role, so opening it widens nothing.
 	 *
+	 * v3: the dashboard owner's own versions, metadata values and widget
+	 * visibility rules (REQ-VERS-002..005, REQ-MDFL-005, REQ-VIS-002). They were
+	 * seeded admin-only, so an owner got HTTP 403 on their own dashboard.
+	 * Each route still checks ownership per object, so opening the action
+	 * reaches no one else's dashboard.
+	 *
+	 * v4: the owner's own language versions (REQ-LANGUI-001, REQ-DASH-040..043).
+	 * They were seeded admin-only, so an owner got HTTP 403 adding, editing,
+	 * deleting or promoting a variant of their own dashboard. Every translation
+	 * write still checks ownership per dashboard.
+	 *
+	 * v5: the owner adds visibility rules to the widgets of their own
+	 * dashboard (REQ-VIS-001, Ruben 21 Nov 2026). The route checks placement
+	 * ownership before it writes, so the action reaches no one else's widget.
+	 *
+	 * v6: the owner publishes, unpublishes and schedules their own dashboard
+	 * (REQ-DASH-032..034, REQ-SCHEDUI-001, Ruben 21 Nov 2026). Each route
+	 * still checks owner-or-admin per dashboard, so admins keep the right
+	 * for every dashboard and an owner reaches only their own.
+	 *
+	 * v7: the owner changes and removes the visibility rules of their own
+	 * dashboard's widgets (REQ-VIS-003, REQ-VIS-004, Ruben 21 Nov 2026).
+	 * Each route checks placement ownership first; a Nextcloud administrator
+	 * keeps the right for every dashboard.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
 		2 => ['admin.get-my-role'],
+		3 => [
+			'dashboard-metadata.set-metadata',
+			'dashboard-version.list-versions',
+			'dashboard-version.fetch-version',
+			'dashboard-version.create-version',
+			'dashboard-version.restore-version',
+			'rule.get-rules',
+		],
+		4 => [
+			'dashboard-translation.create',
+			'dashboard-translation.update',
+			'dashboard-translation.destroy',
+			'dashboard-translation.set-primary',
+		],
+		5 => ['rule.add-rule'],
+		6 => [
+			'dashboard.publish',
+			'dashboard.unpublish',
+			'dashboard.schedule',
+		],
+		7 => [
+			'rule.update-rule',
+			'rule.delete-rule',
+		],
 	];
 
 	/**
@@ -131,55 +180,19 @@ class ApplyActionBaseline implements IRepairStep {
 			0
 		);
 		if ($applied >= self::BASELINE_VERSION) {
-			$output->info(
-				sprintf(
-					'Action baseline v%d already applied — nothing to do.',
-					$applied
-				)
-			);
+			$output->info($this->alreadyAppliedLine(applied: $applied));
 			return;
 		}
 
 		$baseline = $this->baselineSince(applied: $applied, baseline: $this->readBaseline());
 		if (count($baseline) === 0) {
-			$output->warning(
-				'actions.seed.json unreadable or declares no baseline actions — matrix left unchanged.'
-			);
-			$this->logger->warning(
-				'[launchpad] ADR-023 baseline seed unreadable at ' . self::SEED_PATH
-			);
+			$this->reportUnreadableSeed(output: $output);
 			return;
 		}
 
-		$matrix = $this->actionAuth->getMatrix();
-		$broadened = 0;
-		$preserved = 0;
-
-		foreach ($baseline as $action => $groups) {
-			$current = ($matrix[$action] ?? null);
-
-			// Only touch entries that still hold the pristine admin-only
-			// default (or that predate this action existing at all).
-			// Anything else is an admin decision and stays put.
-			if ($current !== null && $current !== ['admin']) {
-				$preserved++;
-				continue;
-			}
-
-			$matrix[$action] = $groups;
-			$broadened++;
-		}
-
-		if ($broadened > 0) {
-			try {
-				$this->actionAuth->setMatrix(matrix: $matrix);
-			} catch (\JsonException $e) {
-				$output->warning('Failed to write matrix: ' . $e->getMessage());
-				$this->logger->error(
-					'[launchpad] ADR-023 baseline write failed: ' . $e->getMessage()
-				);
-				return;
-			}
+		$merge = $this->mergeBaseline(matrix: $this->actionAuth->getMatrix(), baseline: $baseline);
+		if ($merge['broadened'] > 0 && $this->writeMatrix(output: $output, matrix: $merge['matrix']) === false) {
+			return;
 		}
 
 		// Write the marker LAST and only on a successful pass, so a failed
@@ -191,22 +204,113 @@ class ApplyActionBaseline implements IRepairStep {
 			self::BASELINE_VERSION
 		);
 
+		$output->info($this->summaryLine(broadened: $merge['broadened'], preserved: $merge['preserved']));
+	}//end run()
+
+	/**
+	 * The line reported when the baseline was applied before.
+	 *
+	 * @param int $applied The stored baseline version.
+	 *
+	 * @return string
+	 */
+	private function alreadyAppliedLine(int $applied): string {
+		return sprintf(
+			'Action baseline v%d already applied — nothing to do.',
+			$applied
+		);
+	}//end alreadyAppliedLine()
+
+	/**
+	 * Report and log a seed file that is unreadable or declares no baseline.
+	 *
+	 * @param IOutput $output The repair output.
+	 *
+	 * @return void
+	 */
+	private function reportUnreadableSeed(IOutput $output): void {
+		$output->warning(
+			'actions.seed.json unreadable or declares no baseline actions — matrix left unchanged.'
+		);
+		$this->logger->warning(
+			'[launchpad] ADR-023 baseline seed unreadable at ' . self::SEED_PATH
+		);
+	}//end reportUnreadableSeed()
+
+	/**
+	 * Lay the baseline over the matrix.
+	 *
+	 * Only entries that still hold the pristine admin-only default (or that
+	 * predate this action existing at all) are broadened. Anything else is
+	 * an admin decision and stays put.
+	 *
+	 * @param array<string, string[]> $matrix   The current matrix.
+	 * @param array<string, string[]> $baseline The baseline actions to apply.
+	 *
+	 * @return array{matrix: array<string, string[]>, broadened: int, preserved: int}
+	 */
+	private function mergeBaseline(array $matrix, array $baseline): array {
+		$broadened = 0;
+		$preserved = 0;
+
+		foreach ($baseline as $action => $groups) {
+			$current = ($matrix[$action] ?? null);
+			if ($current !== null && $current !== ['admin']) {
+				$preserved++;
+				continue;
+			}
+
+			$matrix[$action] = $groups;
+			$broadened++;
+		}
+
+		return ['matrix' => $matrix, 'broadened' => $broadened, 'preserved' => $preserved];
+	}//end mergeBaseline()
+
+	/**
+	 * Store the merged matrix; a failed write is reported and logged.
+	 *
+	 * @param IOutput                 $output The repair output.
+	 * @param array<string, string[]> $matrix The merged matrix.
+	 *
+	 * @return bool Whether the matrix was written.
+	 */
+	private function writeMatrix(IOutput $output, array $matrix): bool {
+		try {
+			$this->actionAuth->setMatrix(matrix: $matrix);
+		} catch (\JsonException $e) {
+			$output->warning('Failed to write matrix: ' . $e->getMessage());
+			$this->logger->error(
+				'[launchpad] ADR-023 baseline write failed: ' . $e->getMessage()
+			);
+			return false;
+		}
+
+		return true;
+	}//end writeMatrix()
+
+	/**
+	 * The line reported after a successful pass.
+	 *
+	 * @param int $broadened Actions broadened to the baseline.
+	 * @param int $preserved Admin-customized entries left as they were.
+	 *
+	 * @return string
+	 */
+	private function summaryLine(int $broadened, int $preserved): string {
 		$preservedSuffix = 'ies';
 		if ($preserved === 1) {
 			$preservedSuffix = 'y';
 		}
 
-		$output->info(
-			sprintf(
-				'Action baseline v%d applied: %d action(s) broadened to the non-admin baseline, %d admin-customized entr%s preserved.',
-				self::BASELINE_VERSION,
-				$broadened,
-				$preserved,
-				$preservedSuffix
-			)
+		return sprintf(
+			'Action baseline v%d applied: %d action(s) broadened to the non-admin baseline, %d admin-customized entr%s preserved.',
+			self::BASELINE_VERSION,
+			$broadened,
+			$preserved,
+			$preservedSuffix
 		);
-
-	}//end run()
+	}//end summaryLine()
 
 	/**
 	 * Narrow the baseline to what an instance at `$applied` has not had yet.

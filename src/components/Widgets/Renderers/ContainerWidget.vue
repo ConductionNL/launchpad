@@ -5,19 +5,37 @@
 
 <template>
 	<div class="container-widget" :style="wrapperStyle">
-		<h4 v-if="hasTitle" class="container-widget__title">
-			{{ titleText }}
-		</h4>
+		<div v-if="hasTitle || canForgetUsage" class="container-widget__header">
+			<h4 v-if="hasTitle" class="container-widget__title">
+				{{ titleText }}
+			</h4>
+			<NcButton
+				v-if="canForgetUsage"
+				class="container-widget__forget"
+				variant="tertiary"
+				data-testid="container-forget-usage"
+				@click="forgetUsage">
+				{{ t('launchpad', 'Forget my usage') }}
+			</NcButton>
+		</div>
 
-		<div ref="innerGrid" class="grid-stack launchpad-container-grid">
+		<p v-if="sortDescription" :id="descriptionId" class="hidden-visually">
+			{{ sortDescription }}
+		</p>
+
+		<div
+			ref="innerGrid"
+			class="grid-stack launchpad-container-grid"
+			:aria-describedby="sortDescription ? descriptionId : null">
 			<div
-				v-for="(child, index) in children"
+				v-for="(child, index) in displayedChildren"
 				:key="childKey(child, index)"
 				class="grid-stack-item container-widget__child"
 				:gs-x="child.gridX || 0"
 				:gs-y="child.gridY || 0"
 				:gs-w="child.gridWidth || 2"
-				:gs-h="child.gridHeight || 2">
+				:gs-h="child.gridHeight || 2"
+				@click.capture="countUse(child)">
 				<div class="grid-stack-item-content">
 					<ContainerChild :placement="child" :editMode="editMode" />
 				</div>
@@ -27,11 +45,29 @@
 </template>
 
 <script>
+import { getLanguage, translate as t } from '@nextcloud/l10n'
+import { NcButton } from '@nextcloud/vue'
 import ContainerChild from './ContainerChild.vue'
 import {
 	getNestedGridOptions,
+	NESTED_COLUMNS,
 	useNestedGridManager,
 } from '../../../composables/useNestedGridManager.js'
+import { useTileClickTracking } from '../../../composables/useTileClickTracking.js'
+import { FLAG_PROP, OBJECT_PROP } from '../../../constants/propDefinitions.js'
+import {
+	childUseKey,
+	forgetTileUse,
+	normaliseSortMode,
+	readTileUse,
+	reflowChildren,
+	sortChildren,
+	USAGE_MODES,
+} from '../../../utils/tileSort.js'
+
+const { recordTileUse } = useTileClickTracking()
+
+let descriptionCounter = 0
 
 const PADDING_TOKENS = Object.freeze({
 	none: '0',
@@ -62,33 +98,91 @@ export default {
 
 	components: {
 		ContainerChild,
+		NcButton,
 	},
 
 	props: {
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		/** The container's own placement; its id keys children that have none. */
+		placement: OBJECT_PROP,
+
+		editMode: FLAG_PROP,
 	},
 
 	emits: ['update:content'],
 
 	data() {
+		descriptionCounter += 1
 		return {
 			gridInstance: null,
+			// The viewer's usage as it was when the page loaded: the order
+			// changes on the next load, not while tiles are being clicked.
+			tileUse: readTileUse(),
+			descriptionId: `container-sort-${descriptionCounter}`,
 		}
 	},
 
 	computed: {
-		/** @spec openspec/specs/container-widget/spec.md */
+		/**
+		 * The stored children. A child without an id or uuid of its own (a
+		 * bookmark import writes them that way) gets `<container id>-<index>`
+		 * as its uuid, so its use can be counted and it keeps one key.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
 		children() {
 			const list = this.content?.placements
-			return Array.isArray(list) ? list : []
+			if (!Array.isArray(list)) {
+				return []
+			}
+			const owner = this.placement?.id
+			if (owner === undefined || owner === null) {
+				return list
+			}
+			return list.map((child, index) => (childUseKey(child) === ''
+				? { ...child, uuid: `${owner}-${index}` }
+				: child))
+		},
+
+		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
+		sortMode() {
+			return normaliseSortMode(this.content?.sortBy)
+		},
+
+		/**
+		 * The children as shown: the stored layout in edit mode or when sorted
+		 * by hand, otherwise sorted and reflowed row by row (REQ-TSO-001).
+		 * Nothing here is written back.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		displayedChildren() {
+			if (this.editMode || this.sortMode === 'manual') {
+				return this.children
+			}
+			const ordered = sortChildren(this.children, this.sortMode, { use: this.tileUse, locale: getLanguage() })
+			return reflowChildren(ordered, NESTED_COLUMNS)
+		},
+
+		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
+		canForgetUsage() {
+			return !this.editMode && USAGE_MODES.includes(this.sortMode)
+		},
+
+		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
+		sortDescription() {
+			if (this.editMode) {
+				return ''
+			}
+			return {
+				alphabetical: t('launchpad', 'Sorted alphabetically'),
+				'most-used': t('launchpad', 'Sorted by most used'),
+				'last-used': t('launchpad', 'Sorted by last used'),
+				random: t('launchpad', 'Sorted at random'),
+			}[this.sortMode] ?? ''
 		},
 
 		/** @spec openspec/specs/container-widget/spec.md */
@@ -146,6 +240,61 @@ export default {
 	},
 
 	methods: {
+		t,
+
+		/**
+		 * Count a use of a child in this browser; only in view mode.
+		 *
+		 * @param {object} child The child placement.
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		countUse(child) {
+			if (this.editMode) {
+				return
+			}
+			recordTileUse(childUseKey(child))
+		},
+
+		/**
+		 * Forget this browser's usage of this container's tiles (REQ-TSO-003).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		async forgetUsage() {
+			forgetTileUse(this.children.map(childUseKey).filter((key) => key !== ''))
+			this.tileUse = readTileUse()
+			await this.$nextTick()
+			this.moveGridItemsToAttributes()
+		},
+
+		/**
+		 * Move every inner grid item to the position its `gs-*` attributes now
+		 * name. GridStack keeps its own copy of each item's position, so a
+		 * re-sorted view only shows its new order once the grid is told.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		moveGridItemsToAttributes() {
+			const grid = this.gridInstance
+			if (!grid || typeof grid.update !== 'function' || !this.$refs.innerGrid) {
+				return
+			}
+			const items = this.$refs.innerGrid.querySelectorAll(':scope > .grid-stack-item')
+			grid.batchUpdate?.()
+			for (const el of items) {
+				grid.update(el, {
+					x: Number(el.getAttribute('gs-x') ?? 0),
+					y: Number(el.getAttribute('gs-y') ?? 0),
+					w: Number(el.getAttribute('gs-w') ?? 2),
+					h: Number(el.getAttribute('gs-h') ?? 2),
+				})
+			}
+			grid.batchUpdate?.(false)
+		},
+
 		/**
 		 * Stable key for v-for over child placements. Falls back to the
 		 * loop index when a child has neither id nor uuid, which keeps
@@ -222,6 +371,11 @@ export default {
 		 * @spec openspec/specs/container-widget/spec.md
 		 */
 		onGridChange(_event, nodes) {
+			// A sorted view reflows the tiles; that order must never be
+			// written back (REQ-TSO-001). The stored layout persists as before.
+			if (this.displayedChildren !== this.children) {
+				return
+			}
 			if (!Array.isArray(nodes) || nodes.length === 0) {
 				return
 			}
@@ -294,6 +448,14 @@ export default {
 	flex-direction: column;
 	gap: 4px;
 	overflow: hidden;
+}
+
+.container-widget__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	pointer-events: auto;
 }
 
 .container-widget__title {

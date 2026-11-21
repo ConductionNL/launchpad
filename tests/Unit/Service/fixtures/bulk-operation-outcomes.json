@@ -1,0 +1,367 @@
+{
+    "delete / real / cascade off": {
+        "payload": {
+            "deletedCount": 4,
+            "skippedCount": 2,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "already_deleted"
+                },
+                {
+                    "uuid": "parent",
+                    "reason": "dashboard_has_children",
+                    "childCount": 2
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "transaction_failed",
+                    "detail": "delete failed"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "placements 2",
+            "delete leaf",
+            "placements 4",
+            "delete same-parent",
+            "placements 5",
+            "delete cycle",
+            "placements 6",
+            "delete boom",
+            "log BulkOperationService::bulkDelete failed for uuid boom delete failed",
+            "placements 7",
+            "delete draft"
+        ]
+    },
+    "delete / real / cascade on": {
+        "payload": {
+            "deletedCount": 7,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "already_deleted"
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "transaction_failed",
+                    "detail": "delete failed"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "placements 2",
+            "delete leaf",
+            "subtree parent",
+            "placements 4",
+            "delete same-parent",
+            "placements 5",
+            "delete cycle",
+            "placements 6",
+            "delete boom",
+            "log BulkOperationService::bulkDelete failed for uuid boom delete failed",
+            "placements 7",
+            "delete draft"
+        ]
+    },
+    "move / real": {
+        "payload": {
+            "movedCount": 3,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "same-parent",
+                    "reason": "parent_already_matches"
+                },
+                {
+                    "uuid": "cycle",
+                    "reason": "cycle_detected",
+                    "detail": "cycle via p-new"
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "transaction_failed",
+                    "detail": "write failed"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "update leaf parent=p-new status=published",
+            "update parent parent=p-new status=published",
+            "update boom parent=p-new status=published",
+            "log BulkOperationService::bulkMove failed for uuid boom write failed",
+            "update draft parent=p-new status=draft"
+        ]
+    },
+    "move to root / real": {
+        "payload": {
+            "movedCount": 4,
+            "skippedCount": 0,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "cycle",
+                    "reason": "cycle_detected",
+                    "detail": "cycle via "
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "transaction_failed",
+                    "detail": "write failed"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "update leaf parent= status=published",
+            "update parent parent= status=published",
+            "update same-parent parent= status=published",
+            "update boom parent= status=published",
+            "log BulkOperationService::bulkMove failed for uuid boom write failed",
+            "update draft parent= status=draft"
+        ]
+    },
+    "publish / real": {
+        "payload": {
+            "updatedCount": 1,
+            "skippedCount": 5,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "leaf",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "parent",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "same-parent",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "cycle",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "update draft parent=p-old status=published"
+        ]
+    },
+    "draft / real": {
+        "payload": {
+            "updatedCount": 4,
+            "skippedCount": 1,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "transaction_failed",
+                    "detail": "write failed"
+                },
+                {
+                    "uuid": "draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "update leaf parent=p-old status=draft",
+            "update parent parent=p-old status=draft",
+            "update same-parent parent=p-new status=draft",
+            "update cycle parent=p-old status=draft",
+            "update boom parent=p-old status=draft",
+            "log BulkOperationService::bulkStatus failed for uuid boom write failed"
+        ]
+    },
+    "reindex / real": {
+        "payload": {
+            "reindexedCount": 5,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "reindex_failed",
+                    "detail": "write failed"
+                }
+            ],
+            "dryRun": false
+        },
+        "trace": [
+            "update leaf parent=p-old status=published",
+            "update parent parent=p-old status=published",
+            "update same-parent parent=p-new status=published",
+            "update cycle parent=p-old status=published",
+            "update boom parent=p-old status=published",
+            "log BulkOperationService::bulkReindex failed for uuid boom write failed",
+            "update draft parent=p-old status=draft"
+        ]
+    },
+    "delete / dry run / cascade off": {
+        "payload": {
+            "wouldDeleteCount": 5,
+            "wouldSkipCount": 2,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "already_deleted"
+                },
+                {
+                    "uuid": "parent",
+                    "reason": "dashboard_has_children",
+                    "childCount": 2
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    },
+    "delete / dry run / cascade on": {
+        "payload": {
+            "wouldDeleteCount": 8,
+            "wouldSkipCount": 1,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "already_deleted"
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    },
+    "move / dry run": {
+        "payload": {
+            "wouldMoveCount": 4,
+            "wouldSkipCount": 1,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "same-parent",
+                    "reason": "parent_already_matches"
+                },
+                {
+                    "uuid": "cycle",
+                    "reason": "cycle_detected",
+                    "detail": "cycle via p-new"
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    },
+    "move to root / dry run": {
+        "payload": {
+            "wouldMoveCount": 5,
+            "wouldSkipCount": 0,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "cycle",
+                    "reason": "cycle_detected",
+                    "detail": "cycle via "
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    },
+    "publish / dry run": {
+        "payload": {
+            "wouldUpdateCount": 1,
+            "wouldSkipCount": 5,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "leaf",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "parent",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "same-parent",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "cycle",
+                    "reason": "status_already_matches"
+                },
+                {
+                    "uuid": "boom",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    },
+    "draft / dry run": {
+        "payload": {
+            "wouldUpdateCount": 5,
+            "wouldSkipCount": 1,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                },
+                {
+                    "uuid": "draft",
+                    "reason": "status_already_matches"
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    },
+    "reindex / dry run": {
+        "payload": {
+            "wouldReindexCount": 6,
+            "errors": [
+                {
+                    "uuid": "gone",
+                    "reason": "not_found"
+                }
+            ],
+            "dryRun": true
+        },
+        "trace": []
+    }
+}

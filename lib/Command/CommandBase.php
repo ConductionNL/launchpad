@@ -33,7 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IUserSession;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,13 +49,13 @@ abstract class CommandBase extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared exit-code, JSON and
+	 * @param CommandServiceInterface $commandService Shared exit-code, JSON and
 	 *                                       audit-log helper.
 	 * @param IUserSession $userSession Caller resolution for the
 	 *                                  audit log (REQ-CLI-010).
 	 */
 	public function __construct(
-		protected readonly CommandService $commandService,
+		protected readonly CommandServiceInterface $commandService,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct();
@@ -135,16 +135,13 @@ abstract class CommandBase extends Command {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	final protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	final protected function execute(InputInterface $input, OutputInterface $output): int {
 		$started = (int)round(num: (microtime(as_float: true) * 1000));
-		$exitCode = CommandService::EXIT_ERROR;
+		$exitCode = CommandServiceInterface::EXIT_ERROR;
 		try {
 			$exitCode = $this->handle(input: $input, output: $output);
 		} catch (Throwable $e) {
-			$exitCode = CommandService::EXIT_ERROR;
+			$exitCode = CommandServiceInterface::EXIT_ERROR;
 			$envelope = $this->commandService->envelopeError(
 				exitCode: $exitCode,
 				code: 'INTERNAL_ERROR',
@@ -161,11 +158,13 @@ abstract class CommandBase extends Command {
 		} finally {
 			$finished = (int)round(num: (microtime(as_float: true) * 1000));
 			$this->commandService->audit(
-				command: $this->stripPrefix(name: (string)$this->getName()),
-				args: $this->collectArgsForAudit(input: $input),
-				exitCode: $exitCode,
-				durationMs: ($finished - $started),
-				byUser: $this->resolveByUser()
+				run: [
+					'command'    => $this->stripPrefix(name: (string)$this->getName()),
+					'args'       => $this->collectArgsForAudit(input: $input),
+					'exitCode'   => $exitCode,
+					'durationMs' => ($finished - $started),
+					'byUser'     => $this->resolveByUser(),
+				]
 			);
 		}//end try
 
@@ -239,29 +238,54 @@ abstract class CommandBase extends Command {
 	}//end emitSuccess()
 
 	/**
+	 * Emit a payload as the JSON envelope (when `--json`) or as
+	 * pretty-printed JSON (skipped when `--quiet`), and answer success.
+	 *
+	 * @param CommandStreams      $streams The input and output of the run.
+	 * @param array<string,mixed> $payload The payload.
+	 *
+	 * @return int The success exit code.
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	final protected function emitPrettyPayload(CommandStreams $streams, array $payload): int {
+		if ($this->isJson(input: $streams->input) === true) {
+			$this->emitSuccess(input: $streams->input, output: $streams->output, data: $payload);
+			return CommandServiceInterface::EXIT_SUCCESS;
+		}
+
+		if ($this->isQuiet(input: $streams->input) === false) {
+			$streams->output->writeln(
+				messages: (string)json_encode(
+					value: $payload,
+					flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+				)
+			);
+		}
+
+		return CommandServiceInterface::EXIT_SUCCESS;
+	}//end emitPrettyPayload()
+
+	/**
 	 * Emit an error envelope to stdout (when `--json`) or a `<error>`
 	 * line on stderr (always; `--quiet` does NOT mute errors per
 	 * REQ-CLI-002).
 	 *
-	 * @param InputInterface $input CLI input.
-	 * @param OutputInterface $output CLI output.
-	 * @param int $exitCode Exit code constant.
-	 * @param string $code Stable error identifier.
-	 * @param string $message Human-readable text.
-	 * @param array<string,mixed>|null $context Optional metadata.
+	 * @param InputInterface       $input  CLI input.
+	 * @param OutputInterface      $output CLI output.
+	 * @param array<string, mixed> $error  `exitCode` (exit code constant), `code` (stable error
+	 *                                     identifier), `message` (human-readable text) and optional
+	 *                                     `context` (metadata).
 	 *
 	 * @return int Echoes back the exit code for caller convenience.
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	final protected function emitError(
-		InputInterface $input,
-		OutputInterface $output,
-		int $exitCode,
-		string $code,
-		string $message,
-		?array $context = null,
-	): int {
+	final protected function emitError(InputInterface $input, OutputInterface $output, array $error): int {
+		$exitCode = (int)$error['exitCode'];
+		$code     = (string)$error['code'];
+		$message  = (string)$error['message'];
+		$context  = $error['context'] ?? null;
 		if ($this->isJson(input: $input) === true) {
 			$output->writeln(
 				messages: $this->commandService->encodeEnvelope(
@@ -281,6 +305,27 @@ abstract class CommandBase extends Command {
 
 		return $exitCode;
 	}//end emitError()
+
+	/**
+	 * Emit the not-found error for a dashboard UUID.
+	 *
+	 * @param InputInterface  $input  CLI input.
+	 * @param OutputInterface $output CLI output.
+	 * @param string          $uuid   The UUID that matched no dashboard.
+	 *
+	 * @return int The not-found exit code.
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	final protected function emitDashboardNotFound(InputInterface $input, OutputInterface $output, string $uuid): int {
+		$error = [
+			'exitCode' => CommandServiceInterface::EXIT_NOT_FOUND,
+			'code' => 'NOT_FOUND',
+			'message' => 'Dashboard not found',
+			'context' => ['uuid' => $uuid],
+		];
+		return $this->emitError(input: $input, output: $output, error: $error);
+	}//end emitDashboardNotFound()
 
 	/**
 	 * Write a line to the dedicated stderr stream when the runtime
@@ -312,7 +357,7 @@ abstract class CommandBase extends Command {
 	 */
 	private function stripPrefix(string $name): string {
 		if (str_starts_with(haystack: $name, needle: 'launchpad:') === true) {
-			return substr(string: $name, offset: 7);
+			return substr(string: $name, offset: strlen(string: 'launchpad:'));
 		}
 
 		return $name;

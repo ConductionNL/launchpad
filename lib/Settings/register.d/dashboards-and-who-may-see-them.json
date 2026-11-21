@@ -1,0 +1,211 @@
+{
+  "components": {
+    "registers": {
+      "launchpad": {
+        "schemas": [
+          "status_report"
+        ]
+      }
+    },
+    "schemas": {
+      "status_report": {
+        "slug": "status_report",
+        "icon": "ClipboardCheckOutline",
+        "version": "1.0.0",
+        "title": "Status report",
+        "description": "A dated status report on a body of work: the figures the product computed, the health rating and the summary, and per value whether it was computed or written by a person (dashboards-and-who-may-see-them REQ-DWMS-004).",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "date",
+          "subject",
+          "health",
+          "summary",
+          "figures",
+          "provenance",
+          "author"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The day the report describes.",
+            "format": "date",
+            "title": "Date"
+          },
+          "subject": {
+            "type": "object",
+            "title": "Body of work",
+            "description": "The register and schema of its items, its title and deadline, and how status and due date are read.",
+            "properties": {
+              "register": {
+                "type": "string",
+                "title": "Register",
+                "description": "The register that holds the items of this body of work."
+              },
+              "schema": {
+                "type": "string",
+                "title": "Schema",
+                "description": "The schema of the items of this body of work."
+              },
+              "title": {
+                "type": "string",
+                "title": "Title",
+                "description": "The name of the body of work."
+              },
+              "deadline": {
+                "type": "string",
+                "title": "Deadline",
+                "description": "The date the body of work is due, if it has one.",
+                "format": "date"
+              },
+              "filters": {
+                "type": "object",
+                "title": "Filters",
+                "description": "The filters that select the items of this body of work."
+              },
+              "statusProperty": {
+                "type": "string",
+                "title": "Status property",
+                "description": "The item property that holds its status."
+              },
+              "closedValues": {
+                "type": "array",
+                "title": "Closed values",
+                "description": "The status values that count an item as closed.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "dueProperty": {
+                "type": "string",
+                "title": "Due date property",
+                "description": "The item property that holds its due date."
+              }
+            }
+          },
+          "health": {
+            "type": "string",
+            "description": "How the body of work is doing: on track, at risk or off track.",
+            "enum": [
+              "on-track",
+              "at-risk",
+              "off-track"
+            ],
+            "title": "Health"
+          },
+          "summary": {
+            "type": "string",
+            "description": "A short written account of the state of the work.",
+            "maxLength": 5000,
+            "title": "Summary"
+          },
+          "figures": {
+            "type": "object",
+            "description": "The counts the product computed over the items.",
+            "title": "Figures",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "title": "Total",
+                "description": "The number of items.",
+                "minimum": 0
+              },
+              "open": {
+                "type": "integer",
+                "title": "Open",
+                "description": "The number of items not yet closed.",
+                "minimum": 0
+              },
+              "closed": {
+                "type": "integer",
+                "title": "Closed",
+                "description": "The number of closed items.",
+                "minimum": 0
+              },
+              "overdue": {
+                "type": "integer",
+                "title": "Overdue",
+                "description": "The number of open items past their due date.",
+                "minimum": 0
+              },
+              "percentClosed": {
+                "type": "integer",
+                "title": "Percent closed",
+                "description": "The share of items that are closed, as a percentage.",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "daysToDeadline": {
+                "type": "integer",
+                "title": "Days to deadline",
+                "description": "The number of days until the deadline, if there is one."
+              }
+            }
+          },
+          "provenance": {
+            "type": "object",
+            "title": "Computed or written",
+            "description": "Per value: computed by the product or written by a person.",
+            "properties": {
+              "date": {
+                "type": "string",
+                "title": "Date source",
+                "description": "Whether the date was computed or written.",
+                "enum": [
+                  "computed",
+                  "written"
+                ]
+              },
+              "health": {
+                "type": "string",
+                "title": "Health source",
+                "description": "Whether the health rating was computed or written.",
+                "enum": [
+                  "computed",
+                  "written"
+                ]
+              },
+              "summary": {
+                "type": "string",
+                "title": "Summary source",
+                "description": "Whether the summary was computed or written.",
+                "enum": [
+                  "computed",
+                  "written"
+                ]
+              },
+              "figures": {
+                "type": "object",
+                "title": "Figures source",
+                "description": "Per figure, whether it was computed or written.",
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "computed",
+                    "written"
+                  ]
+                }
+              }
+            }
+          },
+          "author": {
+            "type": "string",
+            "description": "The person who kept this report.",
+            "title": "Kept by"
+          },
+          "keptAt": {
+            "type": "string",
+            "description": "When this report was kept.",
+            "format": "date-time",
+            "title": "Kept at"
+          }
+        }
+      }
+    }
+  }
+}

@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
+use OCA\LaunchPad\Service\DashboardLook;
 use OCP\AppFramework\Db\Entity;
 
 /**
@@ -77,6 +78,14 @@ use OCP\AppFramework\Db\Entity;
  * @method void setReactionsEnabled(?int $reactionsEnabled)
  * @method string getDashboardFooterMode()
  * @method void setDashboardFooterMode(string $dashboardFooterMode)
+ * @method string|null getThemeAccent()
+ * @method void setThemeAccent(?string $themeAccent)
+ * @method string|null getThemeBackgroundColor()
+ * @method void setThemeBackgroundColor(?string $themeBackgroundColor)
+ * @method string|null getThemeBackgroundResource()
+ * @method void setThemeBackgroundResource(?string $themeBackgroundResource)
+ * @method string|null getCustomCss()
+ * @method void setCustomCss(?string $customCss)
  * @method string|null getDashboardFooterHtml()
  * @method void setDashboardFooterHtml(?string $dashboardFooterHtml)
  * @method string|null getTemplateCategory()
@@ -85,6 +94,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplateDescription(?string $templateDescription)
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
+ * @method string|null getDefaultLinkTarget()
+ * @method void setDefaultLinkTarget(?string $defaultLinkTarget)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
  *                                        column on `oc_launchpad_dashboards`
@@ -550,6 +561,15 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected string $dashboardFooterMode = self::FOOTER_MODE_INHERIT;
 
 	/**
+	 * How a tile on this dashboard opens when the tile has no choice of its
+	 * own: `same-tab`, `new-tab` or `side-panel`. NULL keeps the rule from
+	 * before the setting existed (launcher-tile-open-behaviour D2).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $defaultLinkTarget = null;
+
+	/**
 	 * Per-dashboard footer HTML (REQ-FTR-006).
 	 *
 	 * Sanitised server-side via the same allow-list as the global
@@ -596,6 +616,34 @@ class Dashboard extends Entity implements JsonSerializable {
 	 * @var string|null
 	 */
 	protected ?string $templatePreviewImage = null;
+
+	/**
+	 * The dashboard's accent colour, `#rrggbb` (REQ-THM-001). NULL follows the theme.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeAccent = null;
+
+	/**
+	 * The dashboard's background colour, `#rrggbb` (REQ-THM-001). NULL follows the theme.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeBackgroundColor = null;
+
+	/**
+	 * The dashboard's background image: the file name of a LaunchPad resource upload (REQ-THM-001).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeBackgroundResource = null;
+
+	/**
+	 * Administrator CSS for this dashboard, stored cleaned and scoped (REQ-THM-003). NULL when none.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $customCss = null;
 
 	/**
 	 * Constructor
@@ -661,6 +709,38 @@ class Dashboard extends Entity implements JsonSerializable {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
+		return $this->identityFields() + $this->treeAndPublicationFields() + $this->footerAndTemplateFields() + $this->lookFields();
+	}//end jsonSerialize()
+
+	/**
+	 * The look of the dashboard (REQ-THM-001): accent, background and the
+	 * derived text colour, all NULL when the dashboard follows the theme.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 */
+	private function lookFields(): array {
+		$textColor = null;
+		if ($this->themeBackgroundColor !== null) {
+			$textColor = DashboardLook::textColorFor(background: $this->themeBackgroundColor);
+		}
+
+		return [
+			'themeAccent' => $this->themeAccent,
+			'themeBackgroundColor' => $this->themeBackgroundColor,
+			'themeBackgroundResource' => $this->themeBackgroundResource,
+			'themeTextColor' => $textColor,
+			'customCss' => $this->customCss,
+		];
+	}//end lookFields()
+
+	/**
+	 * The identity, ownership and behaviour fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function identityFields(): array {
 		return [
 			'id' => $this->getId(),
 			'uuid' => $this->uuid,
@@ -679,6 +759,16 @@ class Dashboard extends Entity implements JsonSerializable {
 			'commentsEnabled' => $this->commentsEnabled,
 			// REQ-RXN-006 — null/1/0 tri-state.
 			'reactionsEnabled' => $this->reactionsEnabled,
+		];
+	}//end identityFields()
+
+	/**
+	 * The timestamps, tree position and publication fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function treeAndPublicationFields(): array {
+		return [
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'parentUuid' => $this->parentUuid,
@@ -688,17 +778,28 @@ class Dashboard extends Entity implements JsonSerializable {
 			'publishAt' => $this->publishAt,
 			'publishedAt' => $this->publishedAt,
 			'unpublishAt' => $this->unpublishAt,
-			// REQ-FTR-006 — surface the per-dashboard footer override
-			// fields on every API payload so frontend renderers can
-			// decide whether to draw an instance footer, hide it, or
-			// render the dashboard-specific HTML.
+		];
+	}//end treeAndPublicationFields()
+
+	/**
+	 * The footer override and template fields of the wire format.
+	 *
+	 * REQ-FTR-006 — surface the per-dashboard footer override fields on
+	 * every API payload so frontend renderers can decide whether to draw
+	 * an instance footer, hide it, or render the dashboard-specific HTML.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function footerAndTemplateFields(): array {
+		return [
 			'dashboardFooterMode' => $this->dashboardFooterMode,
 			'dashboardFooterHtml' => $this->dashboardFooterHtml,
+			'defaultLinkTarget' => $this->defaultLinkTarget,
 			'templateCategory' => $this->templateCategory,
 			'templateDescription' => $this->templateDescription,
 			'templatePreviewImage' => $this->templatePreviewImage,
 		];
-	}//end jsonSerialize()
+	}//end footerAndTemplateFields()
 
 	/**
 	 * Serialize for a non-owner viewer (M5 — strips internal identity

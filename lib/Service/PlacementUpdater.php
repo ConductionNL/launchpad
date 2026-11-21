@@ -24,6 +24,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
  * Service for applying grid and display updates to widget placements.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementUpdater {
 	/**
@@ -101,8 +102,13 @@ class PlacementUpdater {
 
 		if (isset($data['content']) === true && is_array($data['content']) === true) {
 			$placement->setContentArray(
-				$data['content']
+				VideoContent::forWidget(widgetId: (string)$placement->getWidgetId(), content: $data['content'])
 			);
+		}
+
+		// The calculated fields replace the stored list as a whole (widget-calculated-fields, task 21).
+		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
+			$placement->setCalculatedFieldsArray(fields: $data['calculatedFields']);
 		}
 	}//end applyDisplayUpdates()
 
@@ -240,23 +246,7 @@ class PlacementUpdater {
 			&& ($placement->getAnnouncementKey() === null
 			|| $placement->getAnnouncementKey() === '')
 		) {
-			$placement->setAnnouncementKey($this->generateUuid());
+			$placement->setAnnouncementKey(UuidV4::generate());
 		}
 	}//end mintAnnouncementKey()
-
-	/**
-	 * Generate a v4 UUID using random_bytes (no external dependency).
-	 * Mirrors `TemplateService::generateUuid()`.
-	 *
-	 * @return string A v4 UUID.
-	 */
-	private function generateUuid(): string {
-		$data = random_bytes(length: 16);
-		$data[6] = chr((ord($data[6]) & 0x0F) | 0x40);
-		$data[8] = chr((ord($data[8]) & 0x3F) | 0x80);
-		return vsprintf(
-			format: '%s%s-%s-%s-%s-%s%s%s',
-			values: str_split(string: bin2hex(string: $data), length: 4)
-		);
-	}//end generateUuid()
 }//end class

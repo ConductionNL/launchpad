@@ -63,6 +63,12 @@ export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
 export const CnIconBrowser = stub('CnIconBrowser')
+// The admin page's own tour (runtime-shell REQ-SHELL-011): the overlay and
+// the seen-version persistence. A spec that needs the real behaviour mocks
+// the module with the library's own composable (see adminWalkthrough.spec.js).
+export const CnWalkthrough = stub('CnWalkthrough')
+export const loadWalkthroughSeenVersion = async () => ''
+export const persistWalkthroughSeenVersion = async () => false
 // Bundled NL-government icon catalogues (self-contained data URIs in the real
 // library). A small grouped stand-in is enough for the pickers to build a
 // non-empty list; `NL_DESIGN_ICONS` is the flat combined list.
@@ -267,6 +273,9 @@ export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
 export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 // Analytics widgets (OpenBuild parity) — renderers + config forms.
 export const CnStatWidget = stub('CnStatWidget')
+export const CnAppTilesWidget = stub('CnAppTilesWidget')
+export const CnAppTilesWidgetForm = stub('CnAppTilesWidgetForm')
+export const CnGroupedMenu = stub('CnGroupedMenu')
 export const CnStatWidgetForm = stub('CnStatWidgetForm')
 export const CnDeltaWidget = stub('CnDeltaWidget')
 export const CnDeltaWidgetForm = stub('CnDeltaWidgetForm')
@@ -379,6 +388,11 @@ const _DASH = {
 		defaultContent: { folderPath: '/' },
 	},
 	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
+	'app-tiles': {
+		renderer: CnAppTilesWidget,
+		form: CnAppTilesWidgetForm,
+		defaultContent: {},
+	},
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
 	'object-list': {
@@ -495,6 +509,9 @@ export default {
 	CnSpendAnalyticsWidgetForm,
 	CnStatWidget,
 	CnStatWidgetForm,
+	CnAppTilesWidget,
+	CnAppTilesWidgetForm,
+	CnGroupedMenu,
 	CnDeltaWidget,
 	CnDeltaWidgetForm,
 	CnGaugeWidget,

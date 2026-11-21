@@ -14,8 +14,6 @@ Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad integr
 
 ## Data Model
 
-@e2e exclude all 89 scenarios test REST widget-discovery/placement/update/batch API — widget add/edit UI flows are covered by the widget-specific specs (label-widget, text-display-widget, image-widget etc.)
-
 ### Widget Discovery
 Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Each widget provides:
 - **id**: Widget identifier (e.g., `weather_status`, `recommendations`)
@@ -43,7 +41,9 @@ Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Eac
 - **tileTitle**, **tileIcon**, **tileIconType**, **tileBackgroundColor**, **tileTextColor**, **tileLinkType**, **tileLinkValue**: Tile-specific fields stored directly on the placement (nullable STRING)
 - **createdAt**: Timestamp string (DATETIME)
 - **updatedAt**: Timestamp string (DATETIME)
+
 ## Requirements
+
 ### Requirement: Discover Available Widgets (REQ-WDG-001)
 
 The system MUST provide an API to list all Nextcloud dashboard widgets available for placement.
@@ -263,6 +263,7 @@ Widget placements MUST maintain a sort order for consistent rendering and tab na
 - GIVEN a dashboard with multiple placements ordered by sortOrder
 - WHEN the user presses Tab in view mode
 - THEN focus MUST move through widgets in sortOrder sequence
+@e2e exclude no write path sets a placement's sortOrder (not a PUT field in lib/Controller/RequestDataExtractor.php, not written by WidgetPlacementMapper::updatePositions), so a dashboard ordered by sortOrder cannot be arranged; never built (see widgets::reorder-widgets, test.fixme), and no unit test pins tab order
 
 ### Requirement: Batch Update Placements (REQ-WDG-008)
 
@@ -319,6 +320,15 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - AND render `TileWidget` directly instead of `WidgetWrapper`
 - AND WidgetWrapper applies transparent background and no padding for tile-type widgetIds
 
+#### Scenario: Chart, stat and table widgets pass through to the nextcloud-vue renderers
+- GIVEN OpenRegister is installed and an author places a `chart`, `stats-block`, `stat`, `gauge`, `delta` or `table` widget whose content names an OpenRegister data source
+- WHEN the widget is rendered
+- THEN `chart` MUST render through `ChartHost.vue` onto nextcloud-vue's `CnChartWidget`, and `stats-block` through `StatsBlockHost.vue` onto `CnStatsBlockWidget` (`RENDERER_OVERRIDES` in `src/constants/widgetRegistry.js`)
+- AND `stat`, `gauge`, `delta` and `table` MUST use the nextcloud-vue registry renderer unchanged
+- AND the figures MUST come from the OpenRegister data source through nextcloud-vue (specs `nextcloud-vue/widget-renderer` and `openregister/aggregation-api`), not from a LaunchPad endpoint
+- AND each of these types MUST be listed in `lib/widget-types.json` so it appears in the widget picker
+@e2e exclude needs an OpenRegister register, schema and objects seeded as a data source, and the clauses name internal component wiring (ChartHost/StatsBlockHost onto CnChartWidget/CnStatsBlockWidget, RENDERER_OVERRIDES) and a source file; pinned by src/components/Widgets/Renderers/__tests__/chartAndStatsHosts.spec.js and src/constants/__tests__/widgetRegistry.completeness.spec.js
+
 ### Requirement: Widget Picker (REQ-WDG-010)
 
 The widget picker MUST be implemented as a single modal that handles both creation and editing flows. The modal MUST present a type selector at the top (unless a type was preselected by the caller) followed by the per-type configuration sub-form for the currently selected type. Submit MUST emit `{type, content}` where `content` carries only the fields relevant to the selected type — fields belonging to other types MUST NOT be included.
@@ -338,6 +348,7 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - THEN the type `<select>` MUST NOT be visible
 - AND the form area MUST render the text sub-form
 - AND the action button MUST read `t('Add')`
+@e2e exclude no LaunchPad control opens the modal with a preselected type: the toolbar dropdown is gone and Views.vue openCustomWidgetModal() is only ever called without one (Views.vue:3109); pinned by src/views/__tests__/ViewsEditorsAndRowActions.spec.js ("opens in create mode with the preselected type")
 
 #### Scenario: Open in edit mode
 
@@ -469,6 +480,7 @@ The set of supported widget types MUST come from a single in-frontend registry t
 - AND the modal type selector MUST list it
 - AND the grid renderer MUST render placements of the new type
 - AND no other UI code MUST need to be changed to support the new type
+@e2e exclude a developer adding a registry entry is a source change, not a runtime action; pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js and src/constants/__tests__/widgetRegistry.spec.js
 
 #### Scenario: Registry is the single source of truth
 
@@ -476,6 +488,7 @@ The set of supported widget types MUST come from a single in-frontend registry t
 - WHEN any consumer (toolbar, modal, renderer) enumerates widget types
 - THEN it MUST list those 5 types
 - AND MUST NOT hard-code any type name elsewhere in the codebase
+@e2e exclude a claim about the source (no hard-coded type names) checked by grep, not by a browser; the registry no longer has 5 entries (lib/widget-types.json lists 38); pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js
 
 ### Requirement: Right-click context menu in edit mode (REQ-WDG-015)
 
@@ -542,6 +555,7 @@ The popover MUST close when the user clicks anywhere outside its bounding box (i
 - WHEN the unmount lifecycle runs
 - THEN the document-level `click` listener MUST be removed
 - AND no popover state MUST leak into a subsequent mount
+@e2e exclude a document-level listener's removal on unmount is not observable from a browser test; pinned by src/composables/__tests__/useGridManager.spec.js ("REQ-WDG-016: detach removes the document click listener (no leaks across mounts)")
 
 ### Requirement: Position constraints (REQ-WDG-017)
 
@@ -702,6 +716,8 @@ The tile widget type MUST be selectable from the unified "Add custom widget" pic
 - **AND** no console errors MUST occur from the missing `placement.content` field
 
 ### Requirement: REQ-WDG-023 Widget registry completeness verifiable in CI
+
+@e2e exclude these scenarios are about the Vitest suite failing on a broken registry, not about runtime behaviour; pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js itself (EXPECTED_TYPES set equality, listWidgetTypes surfacing, required-field checks)
 
 The widget registry (`src/constants/widgetRegistry.js`) MUST be covered by an explicit completeness test (`src/constants/__tests__/widgetRegistry.completeness.spec.js`) that asserts a canonical EXPECTED_TYPES set:
 
@@ -899,6 +915,7 @@ The popover MUST close when the user clicks anywhere outside its bounding box (i
 - WHEN the unmount lifecycle runs
 - THEN the document-level `click` listener MUST be removed
 - AND no popover state MUST leak into a subsequent mount
+@e2e exclude a document-level listener's removal on unmount is not observable from a browser test; pinned by src/composables/__tests__/useGridManager.spec.js ("REQ-WDG-016: detach removes the document click listener (no leaks across mounts)")
 
 ### Requirement: REQ-WDG-017 Position constraints
 
@@ -944,6 +961,78 @@ The workspace MUST render the dashboard canvas as its only content region. There
 - **WHEN** they open the Add-widget flow (`WidgetPickerModal`)
 - **THEN** every available widget MUST be listed there
 - **AND** selecting one MUST place it on the active dashboard
+
+### Requirement: The widget picker narrows its list as you type (REQ-WDG-028)
+
+The widget picker MUST show a search box above the list of widgets and apps you may add. Typing MUST narrow both lists to the entries whose title contains the typed text, ignoring case. Clearing the box MUST bring back the full lists. When nothing matches, the picker MUST say so instead of showing empty lists.
+
+#### Scenario: Typing narrows the list
+
+- **GIVEN** Pieter opens "Add widget" on his dashboard
+- **WHEN** he types "cal" in "Search widgets"
+- **THEN** the picker lists only the widgets and apps whose title contains "cal", such as "Calendar"
+
+#### Scenario: Clearing the search
+
+- **GIVEN** Pieter typed "cal" in "Search widgets"
+- **WHEN** he clears the search box
+- **THEN** the picker lists every widget and app again
+
+#### Scenario: Nothing matches
+
+- **GIVEN** Pieter opens "Add widget"
+- **WHEN** he types "zzz"
+- **THEN** the picker says that no widget matches
+- **AND** it shows no empty list
+
+### Requirement: A Nextcloud widget with a reload interval refreshes itself (REQ-WDG-029)
+
+When a Nextcloud dashboard widget declares a reload interval above zero, LaunchPad MUST fetch its items again at that interval while the widget is on the page. The page MUST NOT reload. The timer MUST stop when the widget leaves the page. A widget without a reload interval MUST load its items once.
+
+#### Scenario: Items refresh on the widget's interval
+
+- **GIVEN** a widget on Pieter's dashboard declares a reload interval of 60 seconds
+- **WHEN** 60 seconds pass with the dashboard open
+- **THEN** the widget shows its items fetched again
+- **AND** the page itself does not reload
+
+#### Scenario: No interval, no refresh
+
+- **GIVEN** a widget declares a reload interval of 0
+- **WHEN** Pieter keeps the dashboard open
+- **THEN** the widget loads its items once and does not fetch them again
+
+#### Scenario: Leaving the dashboard stops the timer
+
+- **GIVEN** a widget with a reload interval is on the page
+- **WHEN** Pieter switches to another dashboard
+- **THEN** the widget's refresh timer stops
+
+### Requirement: Another app's widget shows that app's items for the viewer (REQ-WDG-030)
+
+@e2e exclude needs the Mail and Deck apps, which the CI instance (NC 32 + openregister) does not have; no Mail- or Deck-specific test exists — the generic item path is pinned by tests/Unit/Service/WidgetItemLoaderTest.php and the nc-widget list rendering by tests/e2e/widgets-nc-widget.spec.ts
+
+When a person places a widget that another Nextcloud app registers, such as the Mail app's mailbox widget or Deck's upcoming cards, LaunchPad MUST ask that app for the items it holds for the viewer and list them with their title, subtitle and icon. Each item MUST link to the item in its own app. When the app returns no items, the widget MUST show the app's own empty message.
+
+#### Scenario: A mailbox preview
+
+- **GIVEN** the Mail app is enabled and Pieter placed its mailbox widget on "Mijn werkplek"
+- **WHEN** he opens the Workspace page
+- **THEN** the widget lists his latest messages with sender and subject
+- **AND** clicking a message opens it in Mail
+
+#### Scenario: Open tasks from a planning app
+
+- **GIVEN** Deck is enabled and Sanne placed its upcoming cards widget on her dashboard
+- **WHEN** she opens the Workspace page
+- **THEN** the widget lists the cards assigned to her with their due dates
+- **AND** clicking a card opens it in Deck
+
+#### Scenario: Nothing to show
+
+- **GIVEN** Pieter's mailbox has no messages the Mail widget returns
+- **WHEN** he opens the Workspace page
+- **THEN** the widget shows the empty message the Mail app supplies
 
 ## Non-Functional Requirements
 
@@ -1003,18 +1092,21 @@ Widgets that implement none of the optional capability interfaces MUST receive t
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN the result has `itemApiVersions: []`, `buttons: []`, `reloadInterval: 0`, `iconUrl: null`, `itemIconsRound: false`
 - AND the result still includes the base `id`, `title`, `order`, `iconClass`, `widgetUrl` from the widget
+@e2e exclude a PHP formatter contract over mock IWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testPlainWidgetGetsTheBaseShapeWithDefaults
 
 #### Scenario: Format a widget that implements both API versions
 
 - GIVEN an `IWidget` that implements both `IAPIWidget` and `IAPIWidgetV2`
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN the result has `itemApiVersions: [1, 2]` (in declaration order, V1 first)
+@e2e exclude a PHP formatter contract over mock IWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testApiVersionsListV1ThenV2
 
 #### Scenario: Format a button widget includes per-button serialization
 
 - GIVEN an `IButtonWidget` whose `getWidgetButtons($userId)` returns two buttons (Add: `link=/add`, Settings: `link=/settings`)
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN `result.buttons` is `[{type: 'Add', text: '...', link: '/add'}, {type: 'Settings', text: '...', link: '/settings'}]`
+@e2e exclude a PHP formatter contract over mock IButtonWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testButtonsAreAskedForTheUserAndFlattened
 
 ### REQ-WDG-025: Widget item loader strategy
 
@@ -1032,18 +1124,21 @@ The result MUST be keyed by widget ID and MUST contain one entry per non-skipped
 - GIVEN a registered-widgets map containing only `widget-a`
 - WHEN `loadItems($widgets, $userId, ['widget-a', 'widget-unknown'], 7)` is called
 - THEN the result contains exactly one key `'widget-a'` (no entry for `'widget-unknown'`)
+@e2e exclude a PHP loader contract over mock widgets, no browser surface; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testUnknownIdsAreSkippedAndOnlyRequestedWidgetsLoad
 
 #### Scenario: V2-capable widget uses V2 API
 
 - GIVEN a widget that implements both `IAPIWidget` and `IAPIWidgetV2`
 - WHEN the loader processes that widget
 - THEN `getItemsV2()` is called (V1 API is NOT called)
+@e2e exclude which PHP interface method the loader calls is not observable over HTTP; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV2IsPreferredWhenTheWidgetImplementsBoth
 
 #### Scenario: Non-API widget gets empty-default envelope
 
 - GIVEN a widget that implements neither `IAPIWidget` nor `IAPIWidgetV2`
 - WHEN the loader processes that widget
 - THEN the entry for that widget ID is `{items: [], emptyContentMessage: '', halfEmptyContentMessage: ''}`
+@e2e exclude needs a registered widget implementing neither item API, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testWidgetWithoutItemApiGetsAnEmptyEntry
 
 ### REQ-WDG-026: Widget item serialization and empty-content messaging
 
@@ -1054,12 +1149,14 @@ The system MUST serialize widget items via `WidgetItem::jsonSerialize()` (both V
 - GIVEN a V2 widget returning two items + empty message `'No items'` + half-empty message `'Almost empty'`
 - WHEN the loader processes that widget
 - THEN the entry has `items: [<2 serialized items>], emptyContentMessage: 'No items', halfEmptyContentMessage: 'Almost empty'`
+@e2e exclude needs a V2 widget with fixed items and messages, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV2WidgetReturnsSerializedItemsAndMessages
 
 #### Scenario: V1 serializes items and returns empty messages
 
 - GIVEN a V1 widget returning three items
 - WHEN the loader processes that widget
 - THEN the entry has `items: [<3 serialized items>], emptyContentMessage: '', halfEmptyContentMessage: ''`
+@e2e exclude needs a V1 widget with fixed items, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV1WidgetReturnsSerializedItemsWithEmptyMessages
 
 #### Notes (REQ-WDG-024..026)
 

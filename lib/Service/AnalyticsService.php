@@ -38,14 +38,13 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardView;
 use OCA\LaunchPad\Db\DashboardViewMapper;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\IAppConfig;
-use OCP\IConfig;
 
 /**
  * Reporting service for the dashboard view-analytics capability.
  */
-class AnalyticsService {
+class AnalyticsService implements AnalyticsServiceInterface {
 	/**
 	 * App-config key for the global instance-wide enable/disable
 	 * toggle (REQ-ANLT-005). Default `'true'`.
@@ -95,19 +94,15 @@ class AnalyticsService {
 	 * Constructor.
 	 *
 	 * @param DashboardViewMapper $viewMapper Aggregate-row mapper.
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper for
-	 *                                         name lookups.
-	 * @param UniqueViewerDedup $dedup Unique-viewer dedup
-	 *                                 service.
-	 * @param IAppConfig $appConfig App config for admin settings.
-	 * @param IConfig $config Nextcloud config for user values.
+	 * @param DashboardMapper     $dashboardMapper Dashboard mapper for name lookups.
+	 * @param UniqueViewerDedup   $dedup Unique-viewer dedup service.
+	 * @param AnalyticsConfig     $settings The app and system config.
 	 */
 	public function __construct(
 		private readonly DashboardViewMapper $viewMapper,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly UniqueViewerDedup $dedup,
-		private readonly IAppConfig $appConfig,
-		private readonly IConfig $config,
+		private readonly AnalyticsConfig $settings,
 	) {
 	}//end __construct()
 
@@ -120,7 +115,7 @@ class AnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function isGloballyEnabled(): bool {
-		return $this->appConfig->getValueBool(
+		return $this->settings->appConfig->getValueBool(
 			'launchpad',
 			self::CONFIG_KEY_ENABLED,
 			true
@@ -138,7 +133,7 @@ class AnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function isUserOptedOut(string $userId): bool {
-		$value = $this->config->getUserValue(
+		$value = $this->settings->config->getUserValue(
 			$userId,
 			'launchpad',
 			self::USER_PREF_KEY_OPTOUT,
@@ -147,6 +142,33 @@ class AnalyticsService {
 
 		return ($value === 'true' || $value === '1');
 	}//end isUserOptedOut()
+
+	/**
+	 * Store whether the supplied user is opted out of analytics tracking
+	 * (REQ-ANLT-004, set from the person's own settings, REQ-ANLT-UI-001).
+	 *
+	 * @param string $userId   The user identifier.
+	 * @param bool   $optedOut `true` to stop counting this user's visits.
+	 *
+	 * @return bool The stored value.
+	 *
+	 * @spec openspec/changes/analytics-personal-opt-out/specs/dashboard-view-analytics/spec.md#requirement-a-person-turns-view-counting-off-in-their-own-settings-req-anlt-ui-001
+	 */
+	public function setUserOptedOut(string $userId, bool $optedOut): bool {
+		$value = 'false';
+		if ($optedOut === true) {
+			$value = 'true';
+		}
+
+		$this->settings->config->setUserValue(
+			$userId,
+			'launchpad',
+			self::USER_PREF_KEY_OPTOUT,
+			$value
+		);
+
+		return $optedOut;
+	}//end setUserOptedOut()
 
 	/**
 	 * Resolve the retention window in days, clamped to the
@@ -158,7 +180,7 @@ class AnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function getRetentionDays(): int {
-		$days = $this->appConfig->getValueInt(
+		$days = $this->settings->appConfig->getValueInt(
 			'launchpad',
 			self::CONFIG_KEY_RETENTION_DAYS,
 			self::DEFAULT_RETENTION_DAYS
@@ -195,7 +217,7 @@ class AnalyticsService {
 			$clamped = self::MAX_RETENTION_DAYS;
 		}
 
-		$this->appConfig->setValueInt(
+		$this->settings->appConfig->setValueInt(
 			'launchpad',
 			self::CONFIG_KEY_RETENTION_DAYS,
 			$clamped
@@ -423,19 +445,7 @@ class AnalyticsService {
 
 		foreach ($rows as $row) {
 			$uuid = (string)$row->getDashboardUuid();
-			if (array_key_exists(key: $uuid, array: $nameByUuid) === false) {
-				$name = '';
-				try {
-					$dashboard = $this->dashboardMapper->findByUuid(
-						uuid: $uuid
-					);
-					$name = (string)$dashboard->getName();
-				} catch (DoesNotExistException) {
-					$name = '';
-				}
-
-				$nameByUuid[$uuid] = $name;
-			}
+			$nameByUuid[$uuid] ??= $this->dashboardName(uuid: $uuid);
 
 			$output[] = self::csvLine(
 				cells: [
@@ -446,10 +456,28 @@ class AnalyticsService {
 					(string)$row->getUniqueViewerCount(),
 				]
 			);
-		}//end foreach
+		}
 
 		return implode(separator: "\r\n", array: $output) . "\r\n";
 	}//end generateCsvExport()
+
+	/**
+	 * The name of a dashboard; empty when it no longer exists.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return string The name.
+	 */
+	private function dashboardName(string $uuid): string {
+		try {
+			$dashboard = $this->dashboardMapper->findByUuid(
+				uuid: $uuid
+			);
+			return (string)$dashboard->getName();
+		} catch (DoesNotExistException) {
+			return '';
+		}
+	}//end dashboardName()
 
 	/**
 	 * Compute a filename suitable for the CSV export attachment

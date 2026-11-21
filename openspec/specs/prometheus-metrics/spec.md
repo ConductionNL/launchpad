@@ -12,14 +12,14 @@ Expose application metrics in Prometheus text exposition format at `GET /api/met
 
 Metrics are collected at request time from database queries and system information. No persistent metrics storage is used -- all values are computed on-demand.
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Metrics Architecture
 - **MetricsController**: Handles HTTP request, formats output as Prometheus text exposition
 - **MetricsCollector**: Orchestrates metric collection, delegates to MetricsQueryService
 - **MetricsQueryService**: Executes database queries for entity counts
 - **HealthController**: Handles health check requests, performs database connectivity test
+
 ## Requirements
+
 ### Requirement: Metrics Endpoint (REQ-PROM-001)
 
 The system MUST expose a Prometheus-compatible metrics endpoint accessible to
@@ -78,6 +78,7 @@ The system MUST expose an info metric with version labels.
 - AND Nextcloud version from `IConfig::getSystemValueString('version', '0.0.0')`
 
 #### Scenario: Info metric with missing version
+@e2e exclude needs launchpad's installed version unset on the shared instance, which no test may do; the engine's fallback is pinned by OpenRegister tests/Unit/AppHost/Observability/ManifestLoaderStoreTest.php::testABlankOrUnreadableVersionIsUnknown, which shows the default is "unknown", not the "0.0.0" this scenario names
 - GIVEN the app version is not set in config
 - WHEN the info metric is collected
 - THEN the version MUST default to "0.0.0"
@@ -118,6 +119,7 @@ The system MUST expose dashboard count metrics grouped by type.
   ```
 
 #### Scenario: Dashboard counts with no dashboards
+@e2e exclude needs an empty launchpad_dashboards table, and a shared instance always holds other specs' dashboards and shipped templates; OpenRegister tests/Unit/AppHost/Observability/Source/TableMetricSourceBehaviourTest.php::testGroupedQueryWithNoRowsYieldsAnEmptyFamily pins what the engine does instead: an empty family with no `personal`/`template` 0 samples
 - GIVEN no dashboards exist in the database
 - WHEN the metrics endpoint is called
 - THEN the response MUST include both types with count 0:
@@ -128,6 +130,7 @@ The system MUST expose dashboard count metrics grouped by type.
 - NOTE: The fallback labels use "personal" and "template" when no data exists, while actual data uses the DB type values ("user", "admin_template").
 
 #### Scenario: Dashboard count query failure
+@e2e exclude needs one database query to fail on a live instance; OpenRegister tests/Unit/AppHost/Observability/Source/TableMetricSourceBehaviourTest.php::testAQueryFailureIsLoggedAndYieldsNoSamples pins the warning and that the response survives, and shows the family gets no samples rather than the `personal`/`template` 0 fallback this scenario names
 - GIVEN the database query for dashboards fails
 - WHEN the metrics endpoint is called
 - THEN the system MUST log a warning
@@ -153,6 +156,7 @@ The system MUST expose the total number of widget placements.
   ```
 
 #### Scenario: Widget count query failure
+@e2e exclude needs one database query to fail on a live instance; OpenRegister tests/Unit/AppHost/Observability/Source/TableMetricSourceBehaviourTest.php::testAQueryFailureIsLoggedAndYieldsNoSamples pins the warning, and shows the family gets no sample rather than the 0 this scenario names
 - GIVEN the database query for widget placements fails
 - WHEN the metrics endpoint is called
 - THEN the system MUST return 0 for the widget count
@@ -163,6 +167,7 @@ The system MUST expose the total number of widget placements.
 The system MUST expose the total number of tile definitions.
 
 #### Scenario: Tile count
+@e2e exclude nothing can seed launchpad_tiles: TileApiController::create answers 410 Gone and TileService only reads, so a known tile count cannot be arranged; launcher tiles are widget placements and move launchpad_widgets_total instead. The HELP/TYPE lines are asserted by metric-names-types-and-labels-are-preserved; no test pins the tiles_total value
 - GIVEN 25 tile definitions exist
 - WHEN the metrics endpoint is called
 - THEN the response MUST include:
@@ -173,6 +178,7 @@ The system MUST expose the total number of tile definitions.
   ```
 
 #### Scenario: Tile count query failure
+@e2e exclude needs one database query to fail on a live instance; OpenRegister tests/Unit/AppHost/Observability/Source/TableMetricSourceBehaviourTest.php::testAQueryFailureIsLoggedAndYieldsNoSamples pins the warning, and shows the family gets no sample rather than the 0 this scenario names
 - GIVEN the database query for tiles fails
 - WHEN the metrics endpoint is called
 - THEN the system MUST return 0 for the tile count
@@ -199,6 +205,7 @@ a lazy factory in `Application::register()`.
 - AND MUST NOT redirect to the login page
 
 #### Scenario: Database failure
+@e2e exclude needs the database unreachable under a running instance; no unit test feeds the health engine a failing database probe (tests/Unit/Controller/HealthControllerTest.php::testResultIsReportedWithItsOwnStatusCode only passes an executor result through), and OpenRegister's HealthCheckExecutor::formatCheckResult renders a failed check as `failed: <message>`, not the `error` this scenario names
 - GIVEN the database is not accessible
 - WHEN GET /api/health is called
 - THEN the system MUST report `checks.database: "error"` and a non-ok overall status
@@ -212,6 +219,7 @@ are exposed; the engine owns the exposition format and the auth posture so the
 contract cannot drift per app (ADR-006 / ADR-040).
 
 #### Scenario: Declarative metrics drive the output
+@e2e exclude a single failing metric source cannot be arranged on a live instance; the per-source isolation is pinned by OpenRegister tests/Unit/AppHost/Observability/Source/TableMetricSourceBehaviourTest.php::testAQueryFailureIsLoggedAndYieldsNoSamples; no test asserts the COUNT aggregation itself (that test file stubs func()->count without expecting it). That the counts are live is shown e2e by dashboard-counts-by-type and widget-placement-count
 - GIVEN the `observability.metrics` block declares `tableCount` descriptors over
   the allowlisted `launchpad_*` own-tables
 - WHEN the metrics endpoint is called
@@ -219,6 +227,7 @@ contract cannot drift per app (ADR-006 / ADR-040).
   through the engine, and a single failed source MUST NOT fail the whole response
 
 #### Scenario: Engine degrades safely without OpenRegister
+@e2e exclude needs OpenRegister disabled, which the shared instance cannot do; pinned by tests/Unit/Controller/MetricsControllerTest.php::testMissingEngineAnswers503 and tests/Unit/Controller/HealthControllerTest.php::testMissingEngineAnswers503
 - GIVEN OpenRegister is disabled or absent
 - WHEN Nextcloud boots
 - THEN LaunchPad MUST still boot (the engine wiring is lazy)
@@ -230,6 +239,7 @@ contract cannot drift per app (ADR-006 / ADR-040).
 The metrics endpoint MUST respond quickly to avoid blocking Prometheus scrape intervals.
 
 #### Scenario: Metrics response under load
+@e2e exclude needs 65,000 seeded rows, which the shared instance cannot hold for one spec; no performance test exists, and no test asserts the COUNT aggregation (OpenRegister's TableMetricSource::countAll issues COUNT(*), but its unit test stubs func()->count without expecting it)
 - GIVEN a large installation with 10,000 dashboards, 50,000 widget placements, and 5,000 tiles
 - WHEN the metrics endpoint is called
 - THEN the response MUST return within 2 seconds
@@ -240,6 +250,22 @@ The metrics endpoint MUST respond quickly to avoid blocking Prometheus scrape in
 - WHEN two scrapes overlap
 - THEN both requests MUST complete successfully
 - AND no locking or caching issues MUST occur
+
+### Requirement: The admin page shows the app's health (REQ-PROM-011)
+
+The Operations tab of the LaunchPad admin page MUST show a Health panel that reads the health check endpoint (REQ-PROM-007). The panel MUST show "Checking…" while it waits, then "Healthy" or "Degraded" with the result in words, not only a colour.
+
+#### Scenario: A healthy app
+
+- **GIVEN** Noor is a Nextcloud administrator and the health check answers `status: "ok"`
+- **WHEN** she opens the Operations tab of the LaunchPad admin page
+- **THEN** the Health panel says "Healthy"
+
+#### Scenario: A degraded app
+
+- **GIVEN** the health check reports that the database cannot be reached
+- **WHEN** Noor opens the Operations tab
+- **THEN** the Health panel says "Degraded"
 
 ## Non-Functional Requirements
 

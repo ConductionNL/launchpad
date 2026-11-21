@@ -27,8 +27,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AcknowledgementService;
-use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -38,7 +36,6 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -52,28 +49,25 @@ use Throwable;
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 class AcknowledgementController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param AcknowledgementService $acknowledgementService The service.
-	 * @param RoleService $roleService LaunchPad role gate.
-	 * @param IGroupManager $groupManager NC admin check.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId Acting user ID.
+	 * @param IRequest             $request The request.
+	 * @param AcknowledgementTools $tools The acknowledgement and role services and the logger.
+	 * @param IGroupManager        $groupManager NC admin check.
+	 * @param UserResponses $context Holds the userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AcknowledgementService $acknowledgementService,
-		private readonly RoleService $roleService,
+		private readonly AcknowledgementTools $tools,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
-		private readonly ?string $userId,
+		private readonly UserResponses $context,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -84,55 +78,161 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse The stored receipt.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function acknowledge(): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		$announcementKey = (string)$this->request->getParam(key: 'announcementKey', default: '');
 		if ($announcementKey === '') {
-			return new JSONResponse(
-				data: ['error' => 'announcementKey is required'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		// Reject any attempt to acknowledge on behalf of another user
-		// (REQ-ACK-003 scenario "A user cannot acknowledge on behalf of
-		// another user").
+		$refusal = $this->refuseForeignUser() ?? $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->context->userId);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$contentVersion = $this->requestedContentVersion();
+
+		$invalid = $this->rejectUnpublishedVersion(announcementKey: $announcementKey, contentVersion: $contentVersion);
+		if ($invalid !== null) {
+			return $invalid;
+		}
+
+		try {
+			$receipt = $this->tools->acknowledgements->acknowledge(
+				announcementKey: $announcementKey,
+				userId: $this->context->userId,
+				contentVersion: $contentVersion
+			);
+		} catch (Throwable $e) {
+			return $this->loggedFailure(exception: $e, operation: 'acknowledge');
+		}
+
+		return $this->context->responseHelper->success(data: $receipt->jsonSerialize());
+	}//end acknowledge()
+
+	/**
+	 * Reject any attempt to acknowledge on behalf of another user
+	 * (REQ-ACK-003 scenario "A user cannot acknowledge on behalf of
+	 * another user").
+	 *
+	 * @return JSONResponse|null The 403, or null when the body names no other user.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function refuseForeignUser(): JSONResponse|null {
 		$bodyUserId = $this->request->getParam(key: 'userId');
-		if ($bodyUserId !== null && (string)$bodyUserId !== $this->userId) {
-			return ResponseHelper::forbidden(
+		if ($bodyUserId !== null && (string)$bodyUserId !== $this->context->userId) {
+			return $this->context->responseHelper->forbidden(
 				message: 'Cannot acknowledge on behalf of another user'
 			);
 		}
 
+		return null;
+	}//end refuseForeignUser()
+
+	/**
+	 * The content version the request acknowledges, at least 1.
+	 *
+	 * @return int The version.
+	 */
+	private function requestedContentVersion(): int {
 		$contentVersion = (int)$this->request->getParam(key: 'contentVersion', default: 1);
 		if ($contentVersion < 1) {
-			$contentVersion = 1;
+			return 1;
 		}
 
+		return $contentVersion;
+	}//end requestedContentVersion()
+
+	/**
+	 * Log an unexpected failure and answer the generic 500.
+	 *
+	 * @param Throwable $exception The failure.
+	 * @param string    $operation The operation name for the log line.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function loggedFailure(Throwable $exception, string $operation): JSONResponse {
+		$this->tools->logger->error(
+			message: $operation . ' failed: ' . $exception->getMessage(),
+			context: ['exception' => $exception]
+		);
+		return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end loggedFailure()
+
+	/**
+	 * The acknowledgement report of an announcement, or the 404 / logged
+	 * 500 answer.
+	 *
+	 * @param string $announcementKey The announcement key.
+	 * @param string $operation       The operation name for the log line.
+	 *
+	 * @return array|JSONResponse The report, or the error response.
+	 */
+	private function fetchReport(string $announcementKey, string $operation): array|JSONResponse {
 		try {
-			$receipt = $this->acknowledgementService->acknowledge(
-				announcementKey: $announcementKey,
-				userId: $this->userId,
-				contentVersion: $contentVersion
+			return $this->tools->acknowledgements->report(
+				announcementKey: $announcementKey
 			);
+		} catch (DoesNotExistException) {
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'acknowledge failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			return $this->loggedFailure(exception: $e, operation: $operation);
+		}
+	}//end fetchReport()
+
+	/**
+	 * Refuse a user outside the announcement's live audience (REQ-ACK-003,
+	 * ADR-005). An unknown announcement has no audience.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The session user.
+	 *
+	 * @return JSONResponse|null The 403, or null when the user may acknowledge.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function denyOutsideAudience(string $announcementKey, string $userId): ?JSONResponse {
+		if ($this->tools->acknowledgements->isAllowedToAcknowledge(announcementKey: $announcementKey, userId: $userId) === false) {
+			return $this->context->responseHelper->forbidden(
+				message: 'This announcement is not addressed to you'
 			);
 		}
 
-		return ResponseHelper::success(data: $receipt->jsonSerialize());
-	}//end acknowledge()
+		return null;
+	}//end denyOutsideAudience()
+
+	/**
+	 * Refuse a content version newer than the announcement's current one for
+	 * the session user (the template's version, or without a template the
+	 * version on the user's own copy), so
+	 * no receipt can exist for content that was not published yet
+	 * (REQ-ACK-005). An older version stays accepted: a copy that has not
+	 * been re-synced yet still shows it.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param int    $contentVersion  The version from the request.
+	 *
+	 * @return JSONResponse|null The 400, or null when the version is published.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function rejectUnpublishedVersion(string $announcementKey, int $contentVersion): ?JSONResponse {
+		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->context->userId);
+		if ($current === null || $contentVersion > $current) {
+			return $this->context->responseHelper->invalidArgument(
+				message: 'contentVersion is not a published version of this announcement'
+			);
+		}
+
+		return null;
+	}//end rejectUnpublishedVersion()
 
 	/**
 	 * GET /api/acknowledgements/pending — the current user's outstanding
@@ -141,27 +241,21 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse The `{count, items}` payload.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function pending(): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
-			$result = $this->acknowledgementService->getPending(userId: $this->userId);
+			$result = $this->tools->acknowledgements->getPending(userId: $this->context->userId);
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'pending failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->loggedFailure(exception: $e, operation: 'pending');
 		}
 
-		return ResponseHelper::success(data: $result);
+		return $this->context->responseHelper->success(data: $result);
 	}//end pending()
 
 	/**
@@ -174,40 +268,26 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse The report payload or 403 / 404.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function report(string $announcementKey): JSONResponse {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		if ($this->isManager(announcementKey: $announcementKey) === false) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Only an admin or the template owner may read this report'
 			);
 		}
 
-		try {
-			$report = $this->acknowledgementService->report(
-				announcementKey: $announcementKey
-			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'report failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+		$report = $this->fetchReport(announcementKey: $announcementKey, operation: 'report');
+		if ($report instanceof JSONResponse) {
+			return $report;
 		}
 
-		return ResponseHelper::success(data: $report);
+		return $this->context->responseHelper->success(data: $report);
 	}//end report()
 
 	/**
@@ -220,38 +300,24 @@ class AcknowledgementController extends Controller {
 	 * @return DataDownloadResponse|JSONResponse The CSV download or 403 / 404.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function reportCsv(string $announcementKey) {
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		if ($this->context->userId === null) {
+			return $this->context->responseHelper->unauthorized();
 		}
 
 		if ($this->isManager(announcementKey: $announcementKey) === false) {
-			return ResponseHelper::forbidden(
+			return $this->context->responseHelper->forbidden(
 				message: 'Only an admin or the template owner may export this report'
 			);
 		}
 
-		try {
-			$report = $this->acknowledgementService->report(
-				announcementKey: $announcementKey
-			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'reportCsv failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+		$report = $this->fetchReport(announcementKey: $announcementKey, operation: 'reportCsv');
+		if ($report instanceof JSONResponse) {
+			return $report;
 		}
 
 		$csv = $this->buildCsv(report: $report);
@@ -308,24 +374,26 @@ class AcknowledgementController extends Controller {
 	 * @param string $announcementKey The announcement identity.
 	 *
 	 * @return bool True when authorized.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function isManager(string $announcementKey): bool {
-		if ($this->userId === null) {
+		if ($this->context->userId === null) {
 			return false;
 		}
 
-		if ($this->groupManager->isAdmin(userId: $this->userId) === true) {
+		if ($this->groupManager->isAdmin(userId: $this->context->userId) === true) {
 			return true;
 		}
 
-		if ($this->roleService->isAdmin(userId: $this->userId) === true) {
+		if ($this->tools->roleService->isAdmin(userId: $this->context->userId) === true) {
 			return true;
 		}
 
-		$owner = $this->acknowledgementService->resolveOwnerUserId(
+		$owner = $this->tools->acknowledgements->resolveOwnerUserId(
 			announcementKey: $announcementKey
 		);
 
-		return $owner !== null && $owner === $this->userId;
+		return $owner !== null && $owner === $this->context->userId;
 	}//end isManager()
 }//end class

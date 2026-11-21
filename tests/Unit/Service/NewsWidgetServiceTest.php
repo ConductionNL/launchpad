@@ -22,6 +22,10 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\FeedFetchTools;
+use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\NewsWidgetService;
@@ -63,11 +67,13 @@ class NewsWidgetServiceTest extends TestCase {
 
 		$this->service = new NewsWidgetService(
 			placementMapper: $this->placementMapper,
-			clientService: $this->clientService,
+			fetch: new FeedFetchTools(
+				clientService: $this->clientService,
+				cacheFactory: $this->cacheFactory,
+				urlValidator: $urlValidator
+			),
 			appConfig: $this->appConfig,
-			cacheFactory: $this->cacheFactory,
-			logger: $this->logger,
-			urlValidator: $urlValidator
+			logger: $this->logger
 		);
 	}//end setUp()
 
@@ -317,9 +323,7 @@ class NewsWidgetServiceTest extends TestCase {
 	}//end testCheckAllowListSubdomainNotImplied()
 
 	public function testCheckMetadataFilterRejectsWhenSpecNotImplemented(): void {
-		// dashboard-metadata-fields capability not on this branch — the
-		// filter must conservatively return false (treat missing field
-		// as null which never matches a configured equality).
+		// Built without the metadata store: a configured filter never matches.
 		$this->assertFalse(
 			$this->service->checkMetadataFilter(
 				dashboardId: 1,
@@ -327,6 +331,68 @@ class NewsWidgetServiceTest extends TestCase {
 			)
 		);
 	}//end testCheckMetadataFilterRejectsWhenSpecNotImplemented()
+
+	/**
+	 * A service whose dashboard 7 (uuid `dash-7`) carries these metadata values.
+	 *
+	 * @param array<string, string> $values The dashboard's metadata.
+	 *
+	 * @return NewsWidgetService
+	 */
+	private function serviceWithMetadata(array $values): NewsWidgetService {
+		$dashboard = new Dashboard();
+		$dashboard->setUuid('dash-7');
+		$dashboards = $this->createMock(originalClassName: DashboardMapper::class);
+		$dashboards->method('find')->with(7)->willReturn($dashboard);
+		$metadata = $this->createMock(originalClassName: MetadataService::class);
+		$metadata->method('getMetadataForDashboard')->with('dash-7')->willReturn($values);
+
+		return new NewsWidgetService(
+			placementMapper: $this->placementMapper,
+			fetch: new FeedFetchTools(
+				clientService: $this->clientService,
+				cacheFactory: $this->cacheFactory,
+				urlValidator: new UrlSafetyValidator(appConfig: $this->appConfig)
+			),
+			appConfig: $this->appConfig,
+			logger: $this->logger,
+			metadata: $metadata,
+			dashboards: $dashboards
+		);
+	}//end serviceWithMetadata()
+
+	public function testCheckMetadataFilterPassesWhenTheDashboardValueMatches(): void {
+		$service = $this->serviceWithMetadata(values: ['department' => 'marketing']);
+
+		$this->assertTrue(
+			$service->checkMetadataFilter(
+				dashboardId: 7,
+				metadataFilter: ['fieldKey' => 'department', 'value' => 'marketing']
+			)
+		);
+	}//end testCheckMetadataFilterPassesWhenTheDashboardValueMatches()
+
+	public function testCheckMetadataFilterFailsOnAnotherValue(): void {
+		$service = $this->serviceWithMetadata(values: ['department' => 'engineering']);
+
+		$this->assertFalse(
+			$service->checkMetadataFilter(
+				dashboardId: 7,
+				metadataFilter: ['fieldKey' => 'department', 'value' => 'marketing']
+			)
+		);
+	}//end testCheckMetadataFilterFailsOnAnotherValue()
+
+	public function testCheckMetadataFilterFailsWhenTheDashboardHasNoValueForTheField(): void {
+		$service = $this->serviceWithMetadata(values: ['region' => 'marketing']);
+
+		$this->assertFalse(
+			$service->checkMetadataFilter(
+				dashboardId: 7,
+				metadataFilter: ['fieldKey' => 'department', 'value' => 'marketing']
+			)
+		);
+	}//end testCheckMetadataFilterFailsWhenTheDashboardHasNoValueForTheField()
 
 	public function testFetchAndMergeFeedsWithEmptyListReturnsEmptyResponse(): void {
 		$response = $this->service->fetchAndMergeFeeds(feedUrls: [], limit: 10);

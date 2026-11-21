@@ -32,8 +32,8 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\PersonalLayerMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\PersonalLayerServiceInterface;
 use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\PersonalLayerService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,14 +48,16 @@ use stdClass;
  * something any user may do on a dashboard they can already see, and the read
  * of the dashboard is what decides whether they can see it.
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 class PersonalLayerApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param PersonalLayerService $layers Applies, saves and resets a layer.
+	 * @param PersonalLayerServiceInterface $layers Applies, saves and resets a layer.
 	 * @param PersonalLayerMapper $mapper Reads the layer for the GET.
 	 * @param DashboardService $dashboards Decides whether the caller may see it.
 	 * @param string|null $userId The acting user ID.
@@ -63,7 +65,7 @@ class PersonalLayerApiController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PersonalLayerService $layers,
+		private readonly PersonalLayerServiceInterface $layers,
 		private readonly PersonalLayerMapper $mapper,
 		private readonly DashboardService $dashboards,
 		private readonly ?string $userId,
@@ -79,33 +81,18 @@ class PersonalLayerApiController extends Controller {
 	 *
 	 * @return JSONResponse The layer, or an empty one.
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	#[NoAdminRequired]
 	public function show(int $dashboardId): JSONResponse {
 		$visible = $this->visible(dashboardId: $dashboardId);
 		if ($visible === null) {
-			return new JSONResponse(['error' => 'dashboard_not_found'], Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'dashboard_not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		$layer = $this->mapper->findForUser(userId: (string)$this->userId, dashboardId: $dashboardId);
 		if ($layer === null) {
-			// No layer means this person sees what the owner composed, which
-			// is a state worth answering plainly rather than with a 404. The
-			// answer carries the same keys and the same JSON types as a saved
-			// layer, so a client can read `overrides.<placementId>` and
-			// `hidden` without first branching on `hasLayer`.
-			return new JSONResponse(
-				[
-					'id' => null,
-					'dashboardId' => $dashboardId,
-					'overrides' => new stdClass(),
-					'hidden' => [],
-					'updatedAt' => null,
-					'hasLayer' => false,
-					'hiddenPlacements' => [],
-				]
-			);
+			return self::noLayer(dashboardId: $dashboardId);
 		}
 
 		return new JSONResponse(
@@ -118,6 +105,33 @@ class PersonalLayerApiController extends Controller {
 			]
 		);
 	}//end show()
+
+	/**
+	 * The answer for a person without a layer on the dashboard.
+	 *
+	 * No layer means this person sees what the owner composed, which is a
+	 * state worth answering plainly rather than with a 404. The answer
+	 * carries the same keys and the same JSON types as a saved layer, so a
+	 * client can read `overrides.<placementId>` and `hidden` without first
+	 * branching on `hasLayer`.
+	 *
+	 * @param int $dashboardId The dashboard id.
+	 *
+	 * @return JSONResponse The empty layer.
+	 */
+	private static function noLayer(int $dashboardId): JSONResponse {
+		return new JSONResponse(
+			[
+				'id' => null,
+				'dashboardId' => $dashboardId,
+				'overrides' => new stdClass(),
+				'hidden' => [],
+				'updatedAt' => null,
+				'hasLayer' => false,
+				'hiddenPlacements' => [],
+			]
+		);
+	}//end noLayer()
 
 	/**
 	 * The placements this person hid, so the "Hidden (n)" list can name
@@ -157,13 +171,13 @@ class PersonalLayerApiController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	#[NoAdminRequired]
 	public function save(int $dashboardId, array $overrides = [], array $hidden = []): JSONResponse {
 		$visible = $this->visible(dashboardId: $dashboardId);
 		if ($visible === null) {
-			return new JSONResponse(['error' => 'dashboard_not_found'], Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'dashboard_not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		$saved = $this->layers->save(
@@ -189,12 +203,12 @@ class PersonalLayerApiController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	#[NoAdminRequired]
 	public function reset(int $dashboardId): JSONResponse {
 		if ($this->visible(dashboardId: $dashboardId) === null) {
-			return new JSONResponse(['error' => 'dashboard_not_found'], Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'dashboard_not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// A reset with no layer is not an error: the caller asked for the

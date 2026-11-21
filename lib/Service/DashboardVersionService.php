@@ -40,15 +40,12 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use Exception;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardVersion;
 use OCA\LaunchPad\Db\DashboardVersionMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
 use OCP\ICacheFactory;
-use OCP\IDBConnection;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -81,6 +78,7 @@ class DashboardVersionService {
 	private const BLOB_SETTERS = [
 		'styleConfig' => 'setStyleConfigArray',
 		'content' => 'setContentArray',
+		'calculatedFields' => 'setCalculatedFieldsArray',
 	];
 
 	/**
@@ -126,39 +124,17 @@ class DashboardVersionService {
 	/**
 	 * Constructor
 	 *
-	 * @param DashboardVersionMapper $versionMapper Version row mapper.
-	 * @param DashboardMapper $dashboardMapper Dashboard row mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper
-	 *                                               (drives snapshot
-	 *                                               payload assembly).
-	 * @param IGroupManager $groupManager Group manager — used
-	 *                                    exclusively for the
-	 *                                    owner-or-admin
-	 *                                    permission guard
-	 *                                    (no group-membership
-	 *                                    lookups).
-	 * @param ICacheFactory $cacheFactory NC cache factory
-	 *                                    supplying the
-	 *                                    debounce backing
-	 *                                    store.
+	 * @param VersionStores   $stores The version, dashboard and placement mappers and the database.
+	 * @param IGroupManager   $groupManager Group manager — used exclusively for the owner-or-admin permission
+	 *                                      guard (no group-membership lookups).
+	 * @param ICacheFactory   $cacheFactory NC cache factory supplying the debounce backing store.
 	 * @param LoggerInterface $logger PSR logger.
-	 * @param IDBConnection|null $db DB connection used to
-	 *                               wrap restoreVersion
-	 *                               in a transaction
-	 *                               (WF1 fix).
-	 *                               Nullable for
-	 *                               backwards-compat
-	 *                               with existing test
-	 *                               doubles.
 	 */
 	public function __construct(
-		private readonly DashboardVersionMapper $versionMapper,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly VersionStores $stores,
 		private readonly IGroupManager $groupManager,
 		private readonly ICacheFactory $cacheFactory,
 		private readonly LoggerInterface $logger,
-		private readonly ?IDBConnection $db = null,
 	) {
 	}//end __construct()
 
@@ -185,14 +161,12 @@ class DashboardVersionService {
 	 * controllers that don't yet pass an explicit body.
 	 *
 	 * @param Dashboard $dashboard The dashboard being snapshotted.
-	 * @param string|null $snapshotJson Pre-built snapshot JSON, or null
-	 *                                  to auto-build from the live
-	 *                                  state.
-	 * @param string $createdBy The acting user ID.
-	 * @param string|null $note Optional note for explicit
-	 *                          snapshots; ignored / coerced to
-	 *                          null on automatic captures.
-	 * @param boolean $explicit Whether to bypass the debounce.
+	 * @param string    $createdBy The acting user ID.
+	 * @param array     $options   Optional `snapshotJson` (pre-built
+	 *                             snapshot JSON; null or empty to
+	 *                             auto-build from the live state), `note`
+	 *                             (kept on explicit snapshots only) and
+	 *                             `explicit` (bypass the debounce; false).
 	 *
 	 * @return DashboardVersion|null The persisted version row, or null
 	 *                               when an automatic snapshot was
@@ -200,14 +174,9 @@ class DashboardVersionService {
 	 *
 	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
-	public function captureSnapshot(
-		Dashboard $dashboard,
-		?string $snapshotJson,
-		string $createdBy,
-		?string $note = null,
-		bool $explicit = false,
-	): ?DashboardVersion {
-		$uuid = (string)$dashboard->getUuid();
+	public function captureSnapshot(Dashboard $dashboard, string $createdBy, array $options=[]): ?DashboardVersion {
+		$options += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
+		$uuid     = (string)$dashboard->getUuid();
 		if ($uuid === '') {
 			// Defensive — without a UUID we have nothing to key the
 			// snapshot to. Refuse silently rather than throw because
@@ -215,10 +184,53 @@ class DashboardVersionService {
 			return null;
 		}
 
-		if ($explicit === false && $this->isDebounced(uuid: $uuid) === true) {
+		if ($options['explicit'] === false && $this->isDebounced(uuid: $uuid) === true) {
 			return null;
 		}
 
+		$entity = $this->newVersion(dashboard: $dashboard, options: $options);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setCreatedBy($createdBy);
+
+		return $this->insertVersion(entity: $entity);
+	}//end captureSnapshot()
+
+	/**
+	 * The stored dashboard and its snapshot payload, built before an update so
+	 * the automatic snapshot holds the state the update replaces, placements
+	 * included (REQ-VERS-001). Pass both to captureSnapshot() once the update
+	 * succeeded.
+	 *
+	 * @param int $dashboardId The dashboard about to be updated.
+	 *
+	 * @return array{dashboard: Dashboard, snapshotJson: string}|null The state, or null when the dashboard does not exist.
+	 *
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	public function stateBeforeUpdate(int $dashboardId): ?array {
+		try {
+			$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		return ['dashboard' => $dashboard, 'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard)];
+	}//end stateBeforeUpdate()
+
+	/**
+	 * The next version row of a dashboard, not yet persisted and without
+	 * its author.
+	 *
+	 * @param Dashboard $dashboard The dashboard being snapshotted (it has a UUID).
+	 * @param array     $options   `snapshotJson`, `note` and `explicit` as
+	 *                             {@see self::captureSnapshot()} takes them.
+	 *
+	 * @return DashboardVersion The unsaved row.
+	 */
+	private function newVersion(Dashboard $dashboard, array $options): DashboardVersion {
+		$uuid         = (string)$dashboard->getUuid();
+		$snapshotJson = $options['snapshotJson'];
+		$note         = $options['note'];
 		// Auto-build the payload when the caller hands us nothing —
 		// this keeps the integration with `DashboardService` simple.
 		if ($snapshotJson === null || $snapshotJson === '') {
@@ -226,11 +238,11 @@ class DashboardVersionService {
 		}
 
 		$coercedNote = null;
-		if ($explicit === true && $note !== null && $note !== '') {
+		if ($options['explicit'] === true && $note !== null && $note !== '') {
 			$coercedNote = $note;
 		}
 
-		$next = ($this->versionMapper->findMaxVersionNumber(
+		$next = ($this->stores->versionMapper->findMaxVersionNumber(
 			dashboardUuid: $uuid
 		) + 1);
 
@@ -241,18 +253,30 @@ class DashboardVersionService {
 		$entity->setDashboardUuid($uuid);
 		$entity->setVersionNumber($next);
 		$entity->setSnapshotJson($snapshotJson);
-		$entity->setCreatedBy($createdBy);
 		$entity->setCreatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
 		$entity->setNote($coercedNote);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
-		$persisted = $this->versionMapper->insert(entity: $entity);
+		return $entity;
+	}//end newVersion()
+
+	/**
+	 * Persist a version row, prune past the retention limit and refresh
+	 * the debounce key.
+	 *
+	 * @param DashboardVersion $entity The row to insert.
+	 *
+	 * @return DashboardVersion The persisted row.
+	 */
+	private function insertVersion(DashboardVersion $entity): DashboardVersion {
+		$uuid      = (string)$entity->getDashboardUuid();
+		$persisted = $this->stores->versionMapper->insert(entity: $entity);
 
 		// REQ-VERS-006: prune inline so the table never exceeds the
 		// retention limit by more than the single in-flight insert.
-		$this->versionMapper->pruneOldVersions(
+		$this->stores->versionMapper->pruneOldVersions(
 			dashboardUuid: $uuid,
 			keepCount: self::RETENTION_LIMIT
 		);
@@ -264,7 +288,7 @@ class DashboardVersionService {
 		$this->markDebounced(uuid: $uuid);
 
 		return $persisted;
-	}//end captureSnapshot()
+	}//end insertVersion()
 
 	/**
 	 * List the versions available for a dashboard, newest-first
@@ -304,7 +328,7 @@ class DashboardVersionService {
 			];
 		}
 
-		$rows = $this->versionMapper->findLatestByDashboard(
+		$rows = $this->stores->versionMapper->findLatestByDashboard(
 			dashboardUuid: (string)$dashboard->getUuid(),
 			limit: self::RETENTION_LIMIT
 		);
@@ -349,7 +373,7 @@ class DashboardVersionService {
 			);
 		}
 
-		return $this->versionMapper->findByDashboardAndVersion(
+		return $this->stores->versionMapper->findByDashboardAndVersion(
 			dashboardUuid: (string)$dashboard->getUuid(),
 			versionNumber: $versionNumber
 		);
@@ -389,10 +413,8 @@ class DashboardVersionService {
 
 		$persisted = $this->captureSnapshot(
 			dashboard: $dashboard,
-			snapshotJson: null,
 			createdBy: $requestingUser,
-			note: $note,
-			explicit: true
+			options: ['note' => $note, 'explicit' => true]
 		);
 
 		if ($persisted === null) {
@@ -413,10 +435,11 @@ class DashboardVersionService {
 	 * BEFORE the restore overwrites the body so the operation is
 	 * itself reversible.
 	 *
-	 * Restoring to the latest version is treated as a no-op (idempotent
-	 * round-trip) — no new snapshot is created and the existing
-	 * dashboard is returned untouched. This matches the
-	 * "restore to current is a no-op" scenario in REQ-VERS-005.
+	 * Restoring the latest version while it holds the dashboard's current
+	 * placements is a no-op: no new snapshot, the dashboard untouched
+	 * ("restore to current is a no-op" in REQ-VERS-005). A latest version
+	 * that differs, such as a pre-restore snapshot, is restored normally
+	 * ("restore is reversible").
 	 *
 	 * @param Dashboard $dashboard The dashboard.
 	 * @param integer $versionNumber The target version number.
@@ -440,24 +463,20 @@ class DashboardVersionService {
 			actorUserId: $restoringUser
 		);
 
-		if ($this->isGroupfolderBacked(dashboard: $dashboard) === true) {
-			throw new Exception(
-				message: self::ERR_VERSIONING_UNAVAILABLE
-			);
-		}
+		$this->assertVersioningAvailable(dashboard: $dashboard);
 
 		$uuid = (string)$dashboard->getUuid();
 
-		$target = $this->versionMapper->findByDashboardAndVersion(
+		$target = $this->stores->versionMapper->findByDashboardAndVersion(
 			dashboardUuid: $uuid,
 			versionNumber: $versionNumber
 		);
 
-		$latest = $this->versionMapper->findMaxVersionNumber(
+		$latest = $this->stores->versionMapper->findMaxVersionNumber(
 			dashboardUuid: $uuid
 		);
 
-		if ($latest === $versionNumber) {
+		if ($latest === $versionNumber && $this->holdsCurrentPlacements(dashboard: $dashboard, target: $target) === true) {
 			// REQ-VERS-005: restoring to the current version is a no-op.
 			return [
 				'snapshot' => (string)$target->getSnapshotJson(),
@@ -465,54 +484,92 @@ class DashboardVersionService {
 			];
 		}
 
-		// WF1 fix: wrap the wipe-and-reinsert in a DB transaction so a
-		// mid-loop insert failure never leaves the dashboard with zero or
-		// partial placements. When no db connection is wired (test doubles)
-		// the operations run without an explicit transaction envelope,
-		// preserving backwards-compat.
-		if ($this->db !== null) {
-			$this->db->beginTransaction();
+		$snapshotJson = $this->inRestoreTransaction(
+			restore: function () use ($dashboard, $target, $restoringUser): string {
+				// Capture pre-restore state as a new snapshot so the restore
+				// itself is reversible (REQ-VERS-005 design D3).
+				$preRestore = ['snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard), 'note' => 'pre-restore', 'explicit' => true];
+				$this->captureSnapshot(dashboard: $dashboard, createdBy: $restoringUser, options: $preRestore);
+
+				return $this->applyVersion(dashboard: $dashboard, target: $target);
+			}
+		);
+
+		return [
+			'snapshot' => $snapshotJson,
+			'version' => $target,
+		];
+	}//end restoreVersion()
+
+	/**
+	 * Whether a version holds the same placements as the dashboard now,
+	 * ignoring the row ids and timestamps a restore does not keep.
+	 *
+	 * @param Dashboard        $dashboard The dashboard.
+	 * @param DashboardVersion $target    The version to compare.
+	 *
+	 * @return boolean True when restoring the version would change no placement.
+	 */
+	private function holdsCurrentPlacements(Dashboard $dashboard, DashboardVersion $target): bool {
+		$current = json_decode($this->buildDefaultSnapshot(dashboard: $dashboard), associative: true);
+		$stored  = json_decode((string)$target->getSnapshotJson(), associative: true);
+
+		return $this->comparablePlacements(payload: $current) === $this->comparablePlacements(payload: $stored);
+	}//end holdsCurrentPlacements()
+
+	/**
+	 * The placements of a decoded snapshot as sorted JSON strings without
+	 * id, dashboardId, createdAt and updatedAt.
+	 *
+	 * @param mixed $payload The decoded snapshot.
+	 *
+	 * @return string[] One string per placement, sorted.
+	 */
+	private function comparablePlacements(mixed $payload): array {
+		$placements = [];
+		if (is_array($payload) === true && is_array($payload['placements'] ?? null) === true) {
+			$placements = $payload['placements'];
 		}
 
-		$snapshotJson = '';
+		$comparable = [];
+		foreach ($placements as $placement) {
+			if (is_array($placement) === false) {
+				continue;
+			}
+
+			unset($placement['id'], $placement['dashboardId'], $placement['createdAt'], $placement['updatedAt']);
+			ksort($placement);
+			$comparable[] = (string)json_encode($placement);
+		}
+
+		sort($comparable);
+		return $comparable;
+	}//end comparablePlacements()
+
+	/**
+	 * Run a restore inside one DB transaction, rolled back and logged on failure.
+	 *
+	 * WF1 fix: wrap the wipe-and-reinsert in a DB transaction so a
+	 * mid-loop insert failure never leaves the dashboard with zero or
+	 * partial placements. When no db connection is wired (test doubles)
+	 * the operations run without an explicit transaction envelope,
+	 * preserving backwards-compat.
+	 *
+	 * @param \Closure $restore Runs the restore and returns the applied snapshot JSON.
+	 *
+	 * @return string The applied snapshot JSON.
+	 *
+	 * @throws Throwable The restore's failure, after the rollback.
+	 */
+	private function inRestoreTransaction(\Closure $restore): string {
+		$this->stores->db?->beginTransaction();
+
 		try {
-			// Capture pre-restore state as a new snapshot so the restore
-			// itself is reversible (REQ-VERS-005 design D3).
-			$this->captureSnapshot(
-				dashboard: $dashboard,
-				snapshotJson: $this->buildDefaultSnapshot(dashboard: $dashboard),
-				createdBy: $restoringUser,
-				note: 'pre-restore',
-				explicit: true
-			);
+			$snapshotJson = $restore();
 
-			// C3 fix: decode the target snapshot and apply it to the DB so
-			// the restore is a real state change, not a no-op.
-			$snapshotJson = (string)$target->getSnapshotJson();
-			$payload = json_decode($snapshotJson, associative: true);
-			if (is_array($payload) === true) {
-				$this->applySnapshotPayload(
-					dashboard: $dashboard,
-					payload: $payload
-				);
-			}
-
-			// Stamp the dashboard's updatedAt so callers that listen on
-			// metadata see the restore (REQ-VERS-005 scenario "restore
-			// updates the modified timestamp").
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setUpdatedAt(
-				(new DateTime())->format(format: 'Y-m-d H:i:s')
-			);
-			$this->dashboardMapper->update(entity: $dashboard);
-
-			if ($this->db !== null) {
-				$this->db->commit();
-			}
+			$this->stores->db?->commit();
 		} catch (Throwable $t) {
-			if ($this->db !== null) {
-				$this->db->rollBack();
-			}
+			$this->stores->db?->rollBack();
 
 			$this->logger->error(
 				message: 'launchpad: restoreVersion failed, transaction rolled back',
@@ -521,11 +578,57 @@ class DashboardVersionService {
 			throw $t;
 		}//end try
 
-		return [
-			'snapshot' => $snapshotJson,
-			'version' => $target,
-		];
-	}//end restoreVersion()
+		return $snapshotJson;
+	}//end inRestoreTransaction()
+
+	/**
+	 * Refuse versioning for a dashboard backed by a group folder.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception With {@see self::ERR_VERSIONING_UNAVAILABLE}.
+	 */
+	private function assertVersioningAvailable(Dashboard $dashboard): void {
+		if ($this->isGroupfolderBacked(dashboard: $dashboard) === true) {
+			throw new Exception(
+				message: self::ERR_VERSIONING_UNAVAILABLE
+			);
+		}
+	}//end assertVersioningAvailable()
+
+	/**
+	 * Apply a stored version to the dashboard and stamp its modification time.
+	 *
+	 * C3 fix: the target snapshot is decoded and applied to the DB so the
+	 * restore is a real state change, not a no-op. The dashboard's
+	 * updatedAt is stamped so callers that listen on metadata see the
+	 * restore (REQ-VERS-005 scenario "restore updates the modified timestamp").
+	 *
+	 * @param Dashboard        $dashboard The dashboard to restore.
+	 * @param DashboardVersion $target    The version to restore to.
+	 *
+	 * @return string The applied snapshot JSON.
+	 */
+	private function applyVersion(Dashboard $dashboard, DashboardVersion $target): string {
+		$snapshotJson = (string)$target->getSnapshotJson();
+		$payload = json_decode($snapshotJson, associative: true);
+		if (is_array($payload) === true) {
+			$this->applySnapshotPayload(
+				dashboard: $dashboard,
+				payload: $payload
+			);
+		}
+
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+		$this->stores->dashboardMapper->update(entity: $dashboard);
+
+		return $snapshotJson;
+	}//end applyVersion()
 
 	/*
 	 * NO CASCADE-DELETE WRAPPER HERE.
@@ -674,7 +777,7 @@ class DashboardVersionService {
 		$placements = [];
 		if ($dashboardId !== null) {
 			try {
-				$rows = $this->placementMapper->findByDashboardId(
+				$rows = $this->stores->placementMapper->findByDashboardId(
 					dashboardId: $dashboardId
 				);
 				foreach ($rows as $row) {
@@ -734,7 +837,7 @@ class DashboardVersionService {
 		}
 
 		try {
-			$this->placementMapper->deleteByDashboardId(
+			$this->stores->placementMapper->deleteByDashboardId(
 				dashboardId: $dashboardId
 			);
 
@@ -751,7 +854,7 @@ class DashboardVersionService {
 					continue;
 				}
 
-				$this->placementMapper->insert(entity: $entity);
+				$this->stores->placementMapper->insert(entity: $entity);
 			}//end foreach
 		} catch (Throwable $t) {
 			$this->logger->error(

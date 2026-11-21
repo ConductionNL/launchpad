@@ -28,19 +28,14 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Dashboard metadata read/write controller.
@@ -49,32 +44,26 @@ use OCP\IUserSession;
  * source of truth for dashboard ACL (H5, REQ-MDFL-008).
  */
 class DashboardMetadataController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param MetadataService $metadataService The metadata service facade.
-	 * @param DashboardMapper $dashboardMapper For dashboard lookup.
-	 * @param PermissionService $permissionService Authoritative ACL service
-	 *                                             (replaces inline canRead /
+	 * @param IRequest          $request The HTTP request.
+	 * @param MetadataApiCaller $caller The metadata sources, session and action check.
+	 * @param PermissionService $permissionService Authoritative ACL service (replaces inline canRead /
 	 *                                             canWrite helpers — H5).
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId The active user id.
+	 * @param UserResponses $context Holds the userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MetadataService $metadataService,
-		private readonly DashboardMapper $dashboardMapper,
+		private readonly MetadataApiCaller $caller,
 		private readonly PermissionService $permissionService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly ?string $userId,
+		private readonly UserResponses $context,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -86,46 +75,34 @@ class DashboardMetadataController extends Controller {
 	 *                      403 when the caller cannot see the dashboard.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'dashboard-metadata.get-metadata');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'dashboard-metadata.get-metadata');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
 		if ($dashboard === null) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// H5: delegate to PermissionService — the single ACL source of truth.
 		if ($this->permissionService->canViewDashboard(
-			userId: $this->userId,
+			userId: $this->context->userId,
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
-		$metadata = $this->metadataService->getMetadataForDashboard(
+		$metadata = $this->caller->sources->metadataService->getMetadataForDashboard(
 			dashboardUuid: $uuid
 		);
 
-		return ResponseHelper::success(data: $metadata);
+		return $this->metadataResponse(metadata: $metadata);
 	}//end getMetadata()
 
 	/**
@@ -138,15 +115,16 @@ class DashboardMetadataController extends Controller {
 	 * @return JSONResponse `{fields: [...]}`, or 401 without a login.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function fields(): JSONResponse {
-		if ($this->userId === null || $this->userSession->getUser() === null) {
+		if ($this->context->userId === null || $this->caller->userSession->getUser() === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		return ResponseHelper::success(
-			data: ['fields' => ResponseHelper::serializeList(entities: $this->metadataService->listFields())]
+		return $this->context->responseHelper->success(
+			data: ['fields' => $this->context->responseHelper->serializeList(entities: $this->caller->sources->metadataService->listFields())]
 		);
 	}//end fields()
 
@@ -163,30 +141,18 @@ class DashboardMetadataController extends Controller {
 	 *                      failure, 404 when missing, 403 otherwise.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'dashboard-metadata.set-metadata');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'dashboard-metadata.set-metadata');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
 		if ($dashboard === null) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// H5: delegate to PermissionService — canEditDashboardMetadata is
@@ -194,15 +160,15 @@ class DashboardMetadataController extends Controller {
 		// This replaces the previous inline canWrite() which incorrectly
 		// allowed any group member to write group-shared metadata.
 		if ($this->permissionService->canEditDashboardMetadata(
-			userId: $this->userId,
+			userId: $this->context->userId,
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
-			$updated = $this->metadataService->setMetadataForDashboard(
+			$updated = $this->caller->sources->metadataService->setMetadataForDashboard(
 				dashboardUuid: $uuid,
 				keyValues: $metadata
 			);
@@ -216,8 +182,20 @@ class DashboardMetadataController extends Controller {
 			);
 		}
 
-		return ResponseHelper::success(data: $updated);
+		return $this->metadataResponse(metadata: $updated);
 	}//end setMetadata()
+
+	/**
+	 * Answer a dashboard's values as a JSON object, `{}` when there are none
+	 * and with all-digit keys kept as keys (REQ-MDFL-004).
+	 *
+	 * @param array<string, string> $metadata The values by field key.
+	 *
+	 * @return JSONResponse 200 with the object.
+	 */
+	private function metadataResponse(array $metadata): JSONResponse {
+		return new JSONResponse(data: (object)$metadata);
+	}//end metadataResponse()
 
 	/**
 	 * Resolve a UUID to a dashboard or null.
@@ -228,9 +206,24 @@ class DashboardMetadataController extends Controller {
 	 */
 	private function loadDashboard(string $uuid): ?Dashboard {
 		try {
-			return $this->dashboardMapper->findByUuid(uuid: $uuid);
+			return $this->caller->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return null;
 		}
 	}//end loadDashboard()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->context->userId, action: $action);
+	}//end actionRefusal()
 }//end class

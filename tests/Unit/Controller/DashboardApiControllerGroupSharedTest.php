@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -29,6 +32,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\GroupDashboardCreation;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -37,6 +41,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Tests for the group-scoped controller actions (REQ-DASH-011, REQ-DASH-013, REQ-DASH-014).
@@ -61,6 +70,13 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	 * @var PermissionService&MockObject
 	 */
 	private $permissionService;
+
+	/**
+	 * Who may create a group dashboard.
+	 *
+	 * @var GroupDashboardCreation&MockObject
+	 */
+	private $groupCreation;
 
 	/**
 	 * @var DashboardTreeService&MockObject
@@ -96,6 +112,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->dashboardService = $this->createMock(DashboardService::class);
 		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->groupCreation = $this->createMock(originalClassName: GroupDashboardCreation::class);
 		$this->treeService = $this->createMock(DashboardTreeService::class);
 		$this->versionService = $this->createMock(DashboardVersionService::class);
 		$this->analyticsService = $this->createMock(AnalyticsService::class);
@@ -122,15 +139,19 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->dashboardService,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
-			versionService: $this->versionService,
-			analyticsService: $this->analyticsService,
-			logger: $this->logger,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			userId: $userId,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService
+			),
+			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
+				treeService: $this->treeService,
+				versionService: $this->versionService,
+				analyticsService: $this->analyticsService,
+				logger: $this->logger
+			), groupCreation: $this->groupCreation),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 
@@ -226,17 +247,17 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * `createGroup()` is admin-only via the `#[AuthorizedAdminSetting]`
-	 * attribute — the framework middleware (not reachable when calling the
-	 * controller method directly in a unit test) rejects non-admins before
-	 * the method body runs. See `testGroupEndpointsCarryAuthorizedAdminSettingAttribute()`
-	 * for the machine-checkable assertion, and
-	 * `openspec/changes/fix-group-dashboard-admin-auth-attribute/tasks.md#task-15`
-	 * for the manual curl/Newman verification of the actual 403 behaviour.
+	 * `createGroup()` creates the dashboard for a caller the creation rule
+	 * service lets create one for the group (REQ-DASH-014).
 	 *
 	 * @return void
 	 */
 	public function testCreateGroupReturns201ForAdmin(): void {
+		$this->groupCreation
+			->method('allows')
+			->with('admin', 'marketing')
+			->willReturn(true);
+
 		$dashboard = $this->makeDashboard(
 			uuid: 'new-uuid',
 			groupId: 'marketing',
@@ -257,6 +278,24 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		$data = $response->getData();
 		$this->assertSame('new-uuid', $data['dashboard']['uuid']);
 	}//end testCreateGroupReturns201ForAdmin()
+
+	/**
+	 * `createGroup()` answers 403 before it creates anything for a caller
+	 * the creation rule refuses, such as an Editor outside the group.
+	 *
+	 * @return void
+	 */
+	public function testCreateGroupReturns403WhenTheCallerMayNotCreateForTheGroup(): void {
+		$this->groupCreation
+			->method('allows')
+			->with('bob', 'marketing')
+			->willReturn(false);
+		$this->dashboardService->expects($this->never())->method('createGroupShared');
+
+		$response = $this->makeController(userId: 'bob')->createGroup(groupId: 'marketing', name: 'Marketing');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testCreateGroupReturns403WhenTheCallerMayNotCreateForTheGroup()
 
 	/**
 	 * `createGroup()` returns 401 when the session has no user.
@@ -491,17 +530,23 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * `createGroup()`, `updateGroup()`, `deleteGroup()`, and
-	 * `setGroupDefault()` MUST carry `#[AuthorizedAdminSetting]` rather
-	 * than relying on an in-body `isAdmin()` check layered on a permissive
-	 * `#[NoAdminRequired]` attribute (ADR-005 gate-semantic-auth).
+	 * `updateGroup()`, `deleteGroup()` and `setGroupDefault()` MUST carry
+	 * `#[AuthorizedAdminSetting]` rather than relying on an in-body
+	 * `isAdmin()` check layered on a permissive `#[NoAdminRequired]`
+	 * attribute (ADR-005 gate-semantic-auth). `createGroup()` is open to
+	 * Editors in the group (REQ-DASH-014), so it carries `#[NoAdminRequired]`
+	 * and checks `GroupDashboardCreation::allows()` in its body.
 	 *
 	 * @return void
 	 */
 	public function testGroupEndpointsCarryAuthorizedAdminSettingAttribute(): void {
 		$reflection = new \ReflectionClass(DashboardApiController::class);
 
-		foreach (['createGroup', 'updateGroup', 'deleteGroup', 'setGroupDefault'] as $methodName) {
+		$create = $reflection->getMethod('createGroup');
+		$this->assertNotEmpty(actual: $create->getAttributes(\OCP\AppFramework\Http\Attribute\NoAdminRequired::class));
+		$this->assertEmpty(actual: $create->getAttributes(\OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting::class));
+
+		foreach (['updateGroup', 'deleteGroup', 'setGroupDefault'] as $methodName) {
 			$method = $reflection->getMethod($methodName);
 			$attributes = $method->getAttributes(
 				\OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting::class

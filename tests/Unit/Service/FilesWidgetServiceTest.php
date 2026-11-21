@@ -29,6 +29,8 @@ use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCA\LaunchPad\Service\FilesWidgetService;
 use OCP\Constants;
+use OCP\Files\Cache\ICacheEntry;
+use OCP\Files\Cache\IFileAccess;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -140,6 +142,36 @@ class FilesWidgetServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-FLS-003: an item's path is relative to the widget root, not the
+	 * storage-internal path.
+	 */
+	public function testListedItemPathIsRelativeToTheWidgetRoot(): void {
+		$sub = $this->createMock(Folder::class);
+		$sub->method('getId')->willReturn(5);
+		$sub->method('getName')->willReturn('sub');
+		$sub->method('getPath')->willReturn('/alice/files/Root/sub');
+		$sub->method('getInternalPath')->willReturn('files/Root/sub');
+		$sub->method('getMimetype')->willReturn('httpd/unix-directory');
+		$sub->method('getSize')->willReturn(0);
+		$sub->method('getMTime')->willReturn(1700000000);
+		$sub->method('isReadable')->willReturn(true);
+		$sub->method('getPermissions')->willReturn(Constants::PERMISSION_READ);
+
+		$this->configuredFolder->method('isReadable')->willReturn(true);
+		$this->configuredFolder->method('getDirectoryListing')->willReturn([$sub]);
+		$this->configuredFolder->method('getRelativePath')
+			->willReturnMap([['/alice/files/Root/sub', '/sub']]);
+		$this->userFolder->method('getById')->willReturn([$this->configuredFolder]);
+
+		$page = $this->service->getContentsForPlacement(
+			userId: 'alice',
+			config: ['fileId' => 99]
+		);
+
+		$this->assertSame('/sub', $page['items'][0]['path']);
+	}
+
+	/**
 	 * REQ-FLS-004: silently omits unreadable children.
 	 */
 	public function testUnreadableChildrenAreSilentlyOmitted(): void {
@@ -171,6 +203,71 @@ class FilesWidgetServiceTest extends TestCase {
 			userId: 'alice',
 			config: ['fileId' => 99]
 		);
+	}
+
+	/**
+	 * A service whose file cache knows the folder id under the given path.
+	 *
+	 * @param string|null $cachePath The cache path, or null for no entry.
+	 */
+	private function serviceWithCachePath(?string $cachePath): FilesWidgetService {
+		$fileAccess = $this->createMock(IFileAccess::class);
+		$entry = null;
+		if ($cachePath !== null) {
+			$entry = $this->createMock(ICacheEntry::class);
+			$entry->method('getPath')->willReturn($cachePath);
+		}
+		$fileAccess->method('getByFileId')->with(99)->willReturn($entry);
+
+		return new FilesWidgetService(
+			rootFolder: $this->rootFolder,
+			urlGenerator: $this->urlGenerator,
+			previewManager: $this->previewManager,
+			fileAccess: $fileAccess,
+		);
+	}
+
+	/**
+	 * REQ-FLS-004: a folder another user can read, but the viewer cannot
+	 * see at all, is a NoAccessException, not a missing folder.
+	 */
+	public function testNoAccessWhenTheFolderExistsOutsideTheViewersFiles(): void {
+		$this->userFolder->method('getById')->willReturn([]);
+		$this->userFolder->method('nodeExists')->willReturn(false);
+
+		$this->expectException(NoAccessException::class);
+		$this->serviceWithCachePath('files/private')->getContentsForPlacement(
+			userId: 'alice',
+			config: ['fileId' => 99, 'folderPath' => '/private']
+		);
+	}
+
+	/**
+	 * REQ-FLS-009: a folder in its owner's trash bin, or unknown to the
+	 * file cache, is gone.
+	 *
+	 * @dataProvider goneFolderProvider
+	 */
+	public function testFolderNotFoundWhenTheFolderIsTrashedOrUnknown(?string $cachePath): void {
+		$this->userFolder->method('getById')->willReturn([]);
+
+		$this->expectException(FolderNotFoundException::class);
+		$this->serviceWithCachePath($cachePath)->getContentsForPlacement(
+			userId: 'alice',
+			config: ['fileId' => 99]
+		);
+	}
+
+	/**
+	 * Cache paths of folders that are gone.
+	 *
+	 * @return array<string, array{0: string|null}>
+	 */
+	public static function goneFolderProvider(): array {
+		return [
+			'trashed' => ['files_trashbin/files/private.d1700000000'],
+			'unknown' => [null],
+		];
 	}
 
 	/**
@@ -236,12 +333,83 @@ class FilesWidgetServiceTest extends TestCase {
 		$second = $this->service->getContentsForPlacement(
 			userId: 'alice',
 			config: ['fileId' => 99],
-			currentSubPath: '/',
-			limit: 50,
-			cursor: '50'
+			page: ['currentSubPath' => '/', 'limit' => 50, 'cursor' => '50']
 		);
 		$this->assertCount(25, $second['items']);
 		$this->assertNull($second['nextCursor']);
+	}
+
+	/**
+	 * List one page of the configured folder.
+	 *
+	 * @param array<string, mixed> $page The page options.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function listPage(array $page): array {
+		return $this->service->getContentsForPlacement(userId: 'alice', config: ['fileId' => 99, 'sortDescending' => true], page: $page);
+	}
+
+	/**
+	 * REQ-FLS-003: the page a set of paging options selects (sub-path,
+	 * page size, cursor), or the refusal, pinned against a fixture.
+	 */
+	public function testPagesMatchTheRecordedFixture(): void {
+		$files = [];
+		for ($i = 1; $i <= 120; $i++) {
+			$files[] = $this->buildFile(id: $i, name: sprintf('file-%03d.txt', $i));
+		}
+		$sub = $this->createMock(Folder::class);
+		$sub->method('isReadable')->willReturn(true);
+		$sub->method('getDirectoryListing')->willReturn([$this->buildFile(id: 500, name: 'inner.txt')]);
+		$this->configuredFolder->method('isReadable')->willReturn(true);
+		$this->configuredFolder->method('getDirectoryListing')->willReturn($files);
+		$this->configuredFolder->method('get')->willReturnCallback(
+			static function (string $path) use ($sub): Folder {
+				if ($path === 'sub') {
+					return $sub;
+				}
+				throw new \OCP\Files\NotFoundException($path);
+			}
+		);
+		$this->userFolder->method('getById')->willReturn([$this->configuredFolder]);
+
+		$cases = [
+			'defaults'      => [],
+			'root path'     => ['currentSubPath' => '/'],
+			'null path'     => ['currentSubPath' => null],
+			'sub path'      => ['currentSubPath' => '/sub/'],
+			'missing path'  => ['currentSubPath' => 'nope'],
+			'traversal'     => ['currentSubPath' => '/sub/../..'],
+			'small page'    => ['limit' => 7],
+			'second page'   => ['limit' => 7, 'cursor' => '7'],
+			'last page'     => ['limit' => 50, 'cursor' => '100'],
+			'past the end'  => ['limit' => 50, 'cursor' => '500'],
+			'zero limit'    => ['limit' => 0],
+			'huge limit'    => ['limit' => 100000],
+			'junk cursor'   => ['cursor' => 'abc'],
+			'all three'     => ['currentSubPath' => '/', 'limit' => 3, 'cursor' => '3'],
+		];
+		$actual = [];
+		foreach ($cases as $name => $page) {
+			try {
+				$result = $this->listPage($page);
+				$actual[$name] = [
+					'names' => array_map(static fn (array $item): string => $item['name'], $result['items']),
+					'nextCursor' => $result['nextCursor'],
+				];
+			} catch (FolderNotFoundException | NoAccessException $e) {
+				$actual[$name] = ['error' => $e::class];
+			}
+		}
+
+		$fixture = __DIR__ . '/fixtures/files-widget-pages.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+			$this->markTestIncomplete('Fixture recorded.');
+		}
+
+		$this->assertSame(json_decode((string)file_get_contents($fixture), true), $actual);
 	}
 
 	/**

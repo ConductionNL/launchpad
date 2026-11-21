@@ -18,15 +18,19 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\AppInfo;
 
+use OCA\LaunchPad\Mcp\LaunchPadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
+use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
+use OCA\LaunchPad\Listener\DashboardDiscussionListener;
 use OCA\LaunchPad\Listener\DashboardSharesListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
+use OCA\LaunchPad\Listener\ProfileFieldsListener;
 use OCA\LaunchPad\Listener\PublicSharesListener;
 use OCA\LaunchPad\Listener\ReactionsListener;
 use OCA\LaunchPad\Listener\TranslationsListener;
@@ -35,19 +39,26 @@ use OCA\LaunchPad\Listener\UserDeletedListener;
 use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Listener\PublicStartRedirectListener;
+use OCA\LaunchPad\Middleware\ApiContractMiddleware;
+use OCA\LaunchPad\Middleware\EmbedTokenMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
+use OCA\LaunchPad\Service\ContractBindings;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\StoreService;
+use OCP\Accounts\UserUpdatedEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\AppFramework\Http\Events\BeforeLoginTemplateRenderedEvent;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use OCP\User\Events\UserDeletedEvent;
+use OCP\User\Events\UserLoggedInEvent;
 
 /**
  * Application bootstrap.
@@ -81,6 +92,15 @@ class Application extends App implements IBootstrap {
 	 * @return void
 	 */
 	public function register(IRegistrationContext $context): void {
+		// The API contract (version header, deprecation of unversioned paths,
+		// problem details). Registered first: Nextcloud runs afterController in
+		// reverse order, so it sees the final response of every other middleware.
+		$context->registerMiddleware(class: ApiContractMiddleware::class);
+		// Embed tokens (embedded-analytics task 6): validated, and their scope
+		// enforced, before any controller runs on a request that carries one.
+		$context->registerMiddleware(class: EmbedTokenMiddleware::class);
+
+		(new ContractBindings())->register(context: $context);
 		$this->registerUserLifecycle(context: $context);
 		$this->registerSharedServices(context: $context);
 		$this->registerCascadeListeners(context: $context);
@@ -101,7 +121,34 @@ class Application extends App implements IBootstrap {
 		// resolved through self::optional(), so an instance without OpenRegister
 		// gets a store that reports `not_configured` rather than a fatal.
 		$this->registerStore(context: $context);
+
+		$this->registerMcpToolProvider(context: $context);
 	}//end register()
+
+	/**
+	 * Register LaunchPad's MCP tool provider under the key OpenRegister enumerates.
+	 *
+	 * OpenRegister looks providers up as `'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::' . $appId`,
+	 * so the suffix must stay this app's id. The alias is a string pair: nothing
+	 * is autoloaded at registration, so an instance without OpenRegister boots
+	 * as before and simply never resolves it (mcp-tool-surface task 2, ADR-083).
+	 *
+	 * OpenRegister resolves that key through the server container, which does not
+	 * see this app's aliases, so the provider is found by its class name
+	 * `OCA\<namespace>\Mcp\<namespace>ToolProvider` (namespace from info.xml).
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	private function registerMcpToolProvider(IRegistrationContext $context): void {
+		$context->registerServiceAlias(
+			'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad',
+			LaunchPadToolProvider::class
+		);
+	}//end registerMcpToolProvider()
 
 	/**
 	 * Register the notifier and the user-deletion cascade listener.
@@ -124,6 +171,22 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: UserDeletedEvent::class,
 			listener: UserDeletedListener::class
+		);
+
+		// Custom profile fields (REQ-PEX-001, REQ-PEX-004): LDAP sync and the
+		// standard-field mirror on sign-in and profile edits; values go with
+		// the user.
+		$context->registerEventListener(
+			event: UserLoggedInEvent::class,
+			listener: ProfileFieldsListener::class
+		);
+		$context->registerEventListener(
+			event: UserUpdatedEvent::class,
+			listener: ProfileFieldsListener::class
+		);
+		$context->registerEventListener(
+			event: UserDeletedEvent::class,
+			listener: ProfileFieldsListener::class
 		);
 	}//end registerUserLifecycle()
 
@@ -223,6 +286,17 @@ class Application extends App implements IBootstrap {
 			event: DashboardDeletedEvent::class,
 			listener: TreeListener::class
 		);
+
+		// The discussion object of a shared dashboard follows its audience and
+		// goes with the dashboard (openregister-leaf-integrations).
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: DashboardDiscussionListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardAudienceChangedEvent::class,
+			listener: DashboardDiscussionListener::class
+		);
 	}//end registerCascadeListeners()
 
 	/**
@@ -244,6 +318,13 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: AddContentSecurityPolicyEvent::class,
 			listener: CspListener::class
+		);
+
+		// Sharing-public-start-page REQ-PSP-002: a signed-out visitor on the
+		// plain login page goes to the public start page when it is on.
+		$context->registerEventListener(
+			event: BeforeLoginTemplateRenderedEvent::class,
+			listener: PublicStartRedirectListener::class
 		);
 	}//end registerIntegrations()
 

@@ -19,39 +19,54 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\StalePlacementException;
+use OCP\IDBConnection;
+use Throwable;
 
 /**
  * Service for managing widget placement CRUD operations.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementService {
 	/**
+	 * Grid position, size and content of a new widget placement when the
+	 * caller leaves them out.
+	 */
+	private const DEFAULT_LAYOUT = [
+		'gridX'      => 0,
+		'gridY'      => 0,
+		'gridWidth'  => 4,
+		'gridHeight' => 4,
+		'content'    => null,
+	];
+
+	/**
 	 * Constructor
 	 *
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param TileUpdater $tileUpdater Tile updater service.
-	 * @param PlacementUpdater $placementUpdater Placement updater service.
-	 * @param PublicShareContext|null $publicShareContext Public-share bearer
-	 *                                                    guard (nullable for
-	 *                                                    legacy test doubles).
-	 * @param QuotaService|null $quotaService Widget-quota enforcer
-	 *                                        (dashboard-quota-limits
-	 *                                        REQ-QUOTA-003).
-	 *                                        Nullable to keep
-	 *                                        existing test doubles
-	 *                                        working — when
-	 *                                        absent no quota is
-	 *                                        enforced.
+	 * @param WidgetPlacementMapper   $placementMapper Widget placement mapper.
+	 * @param PlacementUpdaters       $updaters The tile and placement updaters.
+	 * @param PublicShareContext|null $publicShareContext Public-share bearer guard (nullable for legacy test doubles).
+	 * @param QuotaService|null       $quotaService Widget-quota enforcer (dashboard-quota-limits
+	 *                                              REQ-QUOTA-003). Nullable to keep existing test doubles
+	 *                                              working — when absent no quota is enforced.
+	 * @param DashboardMapper|null    $dashboardMapper Reads the dashboard's grid width for a new widget's free spot.
+	 * @param FreeSpotFinder          $freeSpots The free-spot search for a new widget.
+	 * @param IDBConnection|null      $db           Wraps a bookmark import in one transaction
+	 *                                              (launcher-bookmark-import REQ-BMI-003).
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly TileUpdater $tileUpdater,
-		private readonly PlacementUpdater $placementUpdater,
+		private readonly PlacementUpdaters $updaters,
 		private readonly ?PublicShareContext $publicShareContext = null,
 		private readonly ?QuotaService $quotaService = null,
+		private readonly ?DashboardMapper $dashboardMapper = null,
+		private readonly FreeSpotFinder $freeSpots = new FreeSpotFinder(),
+		private readonly ?IDBConnection $db = null,
 	) {
 	}//end __construct()
 
@@ -60,14 +75,12 @@ class PlacementService {
 	 *
 	 * @param int $dashboardId Dashboard ID.
 	 * @param string $widgetId Widget ID.
-	 * @param int $gridX Grid X position.
-	 * @param int $gridY Grid Y position.
-	 * @param int $gridWidth Grid width.
-	 * @param int $gridHeight Grid height.
-	 * @param array|null $content Optional per-type content payload for
-	 *                            custom widgets (registry-driven types
-	 *                            like `label`, `text`, etc. — shape
-	 *                            matches the type's `defaultContent`).
+	 * @param array $layout Grid position and size (`gridX`, `gridY`,
+	 *                      `gridWidth`, `gridHeight`; default 0, 0, 4 x 4)
+	 *                      and the optional per-type `content` payload for
+	 *                      custom widgets (registry-driven types like
+	 *                      `label`, `text`, etc. — shape matches the type's
+	 *                      `defaultContent`).
 	 *
 	 * @return WidgetPlacement The created widget placement.
 	 *
@@ -77,15 +90,8 @@ class PlacementService {
 	 *
 	 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-003-widget-count-enforcement
 	 */
-	public function addWidget(
-		int $dashboardId,
-		string $widgetId,
-		int $gridX = 0,
-		int $gridY = 0,
-		int $gridWidth = 4,
-		int $gridHeight = 4,
-		?array $content = null,
-	): WidgetPlacement {
+	public function addWidget(int $dashboardId, string $widgetId, array $layout=[]): WidgetPlacement {
+		$layout += self::DEFAULT_LAYOUT;
 		// Task-7 of dashboard-public-share — bearer cannot mutate placements.
 		$this->publicShareContext?->requireMutable();
 		// Dashboard-quota-limits REQ-QUOTA-003: enforce the per-dashboard
@@ -98,16 +104,17 @@ class PlacementService {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$placement->setDashboardId($dashboardId);
 		$placement->setWidgetId($widgetId);
-		$placement->setGridX($gridX);
-		$placement->setGridY($gridY);
-		$placement->setGridWidth($gridWidth);
-		$placement->setGridHeight($gridHeight);
+		$spot = $this->freeSpot(dashboardId: $dashboardId, wanted: $layout);
+		$placement->setGridX($spot['gridX']);
+		$placement->setGridY($spot['gridY']);
+		$placement->setGridWidth($spot['gridWidth']);
+		$placement->setGridHeight($spot['gridHeight']);
 		$placement->setIsCompulsory(0);
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
 
-		if ($content !== null) {
-			$placement->setContentArray($content);
+		if ($layout['content'] !== null) {
+			$placement->setContentArray(VideoContent::forWidget(widgetId: $widgetId, content: $layout['content']));
 		}
 
 		$placement->setCreatedAt($now);
@@ -143,17 +150,24 @@ class PlacementService {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$placement->setDashboardId($dashboardId);
 		$placement->setWidgetId('tile-' . uniqid());
-		$placement->setGridX($tileData['gridX'] ?? 0);
-		$placement->setGridY($tileData['gridY'] ?? 0);
-		$placement->setGridWidth($tileData['gridWidth'] ?? 2);
-		$placement->setGridHeight(
-			$tileData['gridHeight'] ?? 2
+		$spot = $this->freeSpot(
+			dashboardId: $dashboardId,
+			wanted: [
+				'gridX'      => (int)($tileData['gridX'] ?? 0),
+				'gridY'      => (int)($tileData['gridY'] ?? 0),
+				'gridWidth'  => (int)($tileData['gridWidth'] ?? 2),
+				'gridHeight' => (int)($tileData['gridHeight'] ?? 2),
+			]
 		);
+		$placement->setGridX($spot['gridX']);
+		$placement->setGridY($spot['gridY']);
+		$placement->setGridWidth($spot['gridWidth']);
+		$placement->setGridHeight($spot['gridHeight']);
 		$placement->setIsCompulsory(0);
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
 
-		$this->tileUpdater->applyTileConfig(
+		$this->updaters->tileUpdater->applyTileConfig(
 			placement: $placement,
 			tileData: $tileData
 		);
@@ -181,20 +195,21 @@ class PlacementService {
 		// Task-7 of dashboard-public-share — bearer cannot mutate placements.
 		$this->publicShareContext?->requireMutable();
 		$placement = $this->placementMapper->find(id: $placementId);
+		$placement->setVersion($this->nextVersion(placement: $placement, data: $data));
 
-		$this->placementUpdater->applyGridUpdates(
+		$this->updaters->placementUpdater->applyGridUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->placementUpdater->applyDisplayUpdates(
+		$this->updaters->placementUpdater->applyDisplayUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->tileUpdater->applyTileUpdates(
+		$this->updaters->tileUpdater->applyTileUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->placementUpdater->applyAcknowledgementUpdates(
+		$this->updaters->placementUpdater->applyAcknowledgementUpdates(
 			placement: $placement,
 			data: $data
 		);
@@ -205,6 +220,92 @@ class PlacementService {
 
 		return $this->placementMapper->update(entity: $placement);
 	}//end updatePlacement()
+
+	/**
+	 * The version a save writes: one above the version it was made on.
+	 *
+	 * A save that names the version it was made on claims that version in
+	 * one statement; when a colleague saved first the claim fails and the
+	 * save is refused with the widget as it is now. A save that names no
+	 * version (an older client) just raises the version.
+	 *
+	 * @param WidgetPlacement      $placement The widget as loaded.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return int
+	 *
+	 * @throws StalePlacementException When the change was made on an older version.
+	 *
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
+	 */
+	private function nextVersion(WidgetPlacement $placement, array $data): int {
+		if (array_key_exists('version', $data) === false || is_numeric($data['version']) === false) {
+			return ($placement->getVersion() + 1);
+		}
+
+		$expected = (int)$data['version'];
+		if ($this->placementMapper->claimVersion(id: (int)$placement->getId(), expected: $expected) === false) {
+			throw new StalePlacementException(current: $this->placementMapper->find(id: (int)$placement->getId()));
+		}
+
+		return ($expected + 1);
+	}//end nextVersion()
+
+	/**
+	 * The spot a new widget takes: the one asked for when free in the saved
+	 * layout, else the first free one, never over another widget.
+	 *
+	 * @param int                                                      $dashboardId The dashboard.
+	 * @param array{gridX:int,gridY:int,gridWidth:int,gridHeight:int} $wanted      The spot asked for and the size.
+	 *
+	 * @return array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}
+	 *
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
+	 */
+	private function freeSpot(int $dashboardId, array $wanted): array {
+		$occupied = array_map(
+			static fn (WidgetPlacement $saved): array => [
+				'gridX'      => (int)$saved->getGridX(),
+				'gridY'      => (int)$saved->getGridY(),
+				'gridWidth'  => (int)$saved->getGridWidth(),
+				'gridHeight' => (int)$saved->getGridHeight(),
+			],
+			array_filter(
+				(array)$this->placementMapper->findByDashboardId(dashboardId: $dashboardId),
+				static fn ($saved): bool => $saved instanceof WidgetPlacement
+			)
+		);
+
+		return $this->freeSpots->place(
+			occupied: array_values($occupied),
+			columns: $this->columnsOf(dashboardId: $dashboardId),
+			wanted: [
+				'gridX'      => (int)$wanted['gridX'],
+				'gridY'      => (int)$wanted['gridY'],
+				'gridWidth'  => (int)$wanted['gridWidth'],
+				'gridHeight' => (int)$wanted['gridHeight'],
+			]
+		);
+	}//end freeSpot()
+
+	/**
+	 * The dashboard's grid column count; 12 when it cannot be read.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 *
+	 * @return int
+	 */
+	private function columnsOf(int $dashboardId): int {
+		if ($this->dashboardMapper === null) {
+			return 12;
+		}
+
+		try {
+			return max(1, (int)$this->dashboardMapper->find(id: $dashboardId)->getGridColumns());
+		} catch (\Throwable) {
+			return 12;
+		}
+	}//end columnsOf()
 
 	/**
 	 * Remove a widget placement.
@@ -247,4 +348,89 @@ class PlacementService {
 			dashboardId: $dashboardId
 		);
 	}//end getDashboardPlacements()
+
+	/**
+	 * Create the placements of a bookmark import: the dashboard quota is
+	 * checked once for the whole import before anything is written, and every
+	 * placement is created in one transaction, so a failure leaves nothing
+	 * behind (launcher-bookmark-import REQ-BMI-001, REQ-BMI-003). Everything
+	 * goes below the dashboard's lowest edge (bottom-append).
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return list<WidgetPlacement> The created placements, containers first.
+	 *
+	 * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the import does not fit the quota.
+	 * @throws Throwable When a write fails; the transaction is rolled back first.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-the-import-respects-the-widget-quota-as-one-operation-req-bmi-003
+	 */
+	public function importBookmarks(int $dashboardId, BookmarkImportPlan $plan): array {
+		$this->publicShareContext?->requireMutable();
+		$this->quotaService?->assertCanAddPlacements(dashboardId: $dashboardId, count: $plan->placementCount());
+
+		$bottom = 0;
+		foreach ($this->getDashboardPlacements(dashboardId: $dashboardId) as $existing) {
+			$bottom = max($bottom, ((int)$existing->getGridY() + (int)$existing->getGridHeight()));
+		}
+
+		$this->db?->beginTransaction();
+		try {
+			$created = [];
+			foreach ($plan->layout(bottom: $bottom) as $spec) {
+				$created[] = $this->placementMapper->insert(entity: $this->importedPlacement(dashboardId: $dashboardId, spec: $spec));
+			}
+
+			$this->db?->commit();
+		} catch (Throwable $e) {
+			$this->db?->rollBack();
+			throw $e;
+		}
+
+		return $created;
+	}//end importBookmarks()
+
+	/**
+	 * One placement of an import: a container with its link children, or a
+	 * tile opening the bookmark in a new tab.
+	 *
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $spec        One entry of {@see BookmarkImportPlan::layout()}.
+	 *
+	 * @return WidgetPlacement
+	 */
+	private function importedPlacement(int $dashboardId, array $spec): WidgetPlacement {
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$placement = new WidgetPlacement();
+		$placement->setDashboardId($dashboardId);
+		$placement->setGridX($spec['gridX']);
+		$placement->setGridY($spec['gridY']);
+		$placement->setGridWidth($spec['gridWidth']);
+		$placement->setGridHeight($spec['gridHeight']);
+		$placement->setIsCompulsory(0);
+		$placement->setIsVisible(1);
+		$placement->setShowTitle(1);
+		$placement->setCreatedAt($now);
+		$placement->setUpdatedAt($now);
+
+		if (isset($spec['tile']) === true) {
+			$placement->setWidgetId('tile-' . uniqid());
+			$this->updaters->tileUpdater->applyTileConfig(
+				placement: $placement,
+				tileData: [
+					'title' => $spec['tile']['title'],
+					'linkType' => 'url',
+					'linkVal' => $spec['tile']['url'],
+					'icon' => 'icon-link',
+					'iconType' => 'class',
+				]
+			);
+			return $placement;
+		}
+
+		$placement->setWidgetId((string)$spec['widgetId']);
+		$placement->setContentArray($spec['content']);
+		return $placement;
+	}//end importedPlacement()
 }//end class

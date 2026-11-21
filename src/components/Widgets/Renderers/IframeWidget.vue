@@ -54,6 +54,10 @@ import { translate as t } from '@nextcloud/l10n'
 import { NcLoadingIcon } from '@nextcloud/vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { checkIframeFramable } from '../../../services/iframeClient.js'
 
 /**
@@ -111,10 +115,7 @@ export default {
 		 *
 		 * @type {object}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The widget placement (unused directly — the iframe embeds
@@ -123,10 +124,7 @@ export default {
 		 * @type {{id?: number|string}|null}
 		 */
 		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding; see above
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Milliseconds to wait for the `load` event before treating the
@@ -221,6 +219,9 @@ export default {
 			if (!this.hasUrl) {
 				return t('launchpad', 'This embed has not been configured yet.')
 			}
+			if (this.failureReason === 'not_permitted') {
+				return t('launchpad', 'This embed is no longer permitted by your administrator.')
+			}
 			if (this.failureReason === 'blocked') {
 				return t(
 					'launchpad',
@@ -288,7 +289,7 @@ export default {
 				if (result && result.framable === false) {
 					this.clearTimer()
 					this.state = 'failed'
-					this.failureReason = 'blocked'
+					this.failureReason = result.reason === 'host_not_allowed' ? 'not_permitted' : 'blocked'
 					return
 				}
 				// Server confirms framing is permitted — ONLY NOW render the

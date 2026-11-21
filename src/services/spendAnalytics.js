@@ -114,48 +114,89 @@ export async function fetchFinanceSummary({
 	}
 
 	const rows = Array.isArray(data?.transactions) ? data.transactions : []
-	if (rows.length === 0) {
-		return {
-			available: true,
-			empty: true,
-			total: 0,
-			currency: 'EUR',
-			byCategory: [],
-			trend: [],
-		}
-	}
+	return rows.length === 0 ? emptyFinanceSummary() : summariseTransactions(rows)
+}
 
+/**
+ * The finance summary for a period without transactions.
+ *
+ * @return {object} `{available, empty, total, currency, byCategory, trend}`
+ */
+function emptyFinanceSummary() {
+	return {
+		available: true,
+		empty: true,
+		total: 0,
+		currency: 'EUR',
+		byCategory: [],
+		trend: [],
+	}
+}
+
+/**
+ * A transaction's amount, with a missing or non-numeric amount read as 0.
+ *
+ * @param {object} row A transaction.
+ * @return {number} The amount.
+ */
+function amountOf(row) {
+	return Number(row.totalAmount) || 0
+}
+
+/**
+ * A transaction's category, `uncategorised` when it has none.
+ *
+ * @param {object} row A transaction.
+ * @return {string} The category.
+ */
+function categoryOf(row) {
+	return typeof row.category === 'string' && row.category
+		? row.category
+		: 'uncategorised'
+}
+
+/**
+ * A transaction's booking month (`YYYY-MM`), `unknown` when it has no date.
+ *
+ * @param {object} row A transaction.
+ * @return {string} The month.
+ */
+function monthOf(row) {
+	return typeof row.bookedAt === 'string' ? row.bookedAt.slice(0, 7) : 'unknown'
+}
+
+/**
+ * Sum the transaction amounts per key, in the order the keys first appear.
+ *
+ * @param {Array<object>} rows The transactions.
+ * @param {(row: object) => string} keyOf Reads the key of a transaction.
+ * @return {Array<[string, number]>} The key and amount pairs.
+ */
+function sumAmountsBy(rows, keyOf) {
+	const totals = new Map()
+	for (const row of rows) {
+		const key = keyOf(row)
+		totals.set(key, (totals.get(key) || 0) + amountOf(row))
+	}
+	return [...totals.entries()]
+}
+
+/**
+ * The finance summary of a non-empty list of transactions: the total, the
+ * first currency named, the amount per category (largest first) and per
+ * booking month (oldest first).
+ *
+ * @param {Array<object>} rows The transactions.
+ * @return {object} `{available, empty, total, currency, byCategory, trend}`
+ */
+function summariseTransactions(rows) {
 	const currency =
 		rows.find((row) => typeof row.currency === 'string')?.currency || 'EUR'
-	const total = rows.reduce((sum, row) => sum + (Number(row.totalAmount) || 0), 0)
-
-	// Aggregate by category (top categories view).
-	const byCategoryMap = new Map()
-	for (const row of rows) {
-		const key =
-			typeof row.category === 'string' && row.category
-				? row.category
-				: 'uncategorised'
-		byCategoryMap.set(
-			key,
-			(byCategoryMap.get(key) || 0) + (Number(row.totalAmount) || 0),
-		)
-	}
-	const byCategory = [...byCategoryMap.entries()]
+	const total = rows.reduce((sum, row) => sum + amountOf(row), 0)
+	const byCategory = sumAmountsBy(rows, categoryOf)
 		.map(([category, amount]) => ({ category, amount }))
 		.sort((a, b) => b.amount - a.amount)
-
-	// Aggregate by booking month (trend view).
-	const trendMap = new Map()
-	for (const row of rows) {
-		const month =
-			typeof row.bookedAt === 'string' ? row.bookedAt.slice(0, 7) : 'unknown'
-		trendMap.set(
-			month,
-			(trendMap.get(month) || 0) + (Number(row.totalAmount) || 0),
-		)
-	}
-	const trend = [...trendMap.entries()]
+	const trend = sumAmountsBy(rows, monthOf)
 		.map(([month, amount]) => ({ month, amount }))
 		.sort((a, b) => a.month.localeCompare(b.month))
 

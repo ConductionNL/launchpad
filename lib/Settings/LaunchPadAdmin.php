@@ -26,13 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Settings;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\FileService;
-use OCA\LaunchPad\Service\InitialState\Page;
-use OCA\LaunchPad\Service\InitialStateBuilder;
-use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;
@@ -43,28 +37,17 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	/**
 	 * Constructor.
 	 *
-	 * @param IInitialState $initialState The Nextcloud initial-state service.
-	 * @param IGroupManager $groupManager Group manager (full group list).
-	 * @param WidgetService $widgetService Available-widgets descriptor formatter.
-	 * @param AdminSettingMapper $settingMapper Admin settings store
-	 *                                          (legacy configured-groups list).
-	 * @param AdminSettingsService $settingsService Admin-settings service exposing
-	 *                                              the `group_order` setting
+	 * @param IInitialState        $initialState The Nextcloud initial-state service.
+	 * @param IGroupManager        $groupManager Group manager (full group list).
+	 * @param AdminPageSources     $sources The widget service, setting mapper, dashboard service and file service.
+	 * @param AdminSettingsService $settingsService Admin-settings service exposing the `group_order` setting
 	 *                                              (REQ-ASET-012).
-	 * @param DashboardService $dashboardService Dashboard service exposing
-	 *                                           the `allow_user_dashboards`
-	 *                                           flag (REQ-ASET-003).
-	 * @param FileService $fileService link-button-widget extension
-	 *                                 allow-list reader.
 	 */
 	public function __construct(
 		private readonly IInitialState $initialState,
 		private readonly IGroupManager $groupManager,
-		private readonly WidgetService $widgetService,
-		private readonly AdminSettingMapper $settingMapper,
+		private readonly AdminPageSources $sources,
 		private readonly AdminSettingsService $settingsService,
-		private readonly DashboardService $dashboardService,
-		private readonly FileService $fileService,
 	) {
 	}//end __construct()
 
@@ -88,49 +71,12 @@ class LaunchPadAdmin implements IDelegatedSettings {
 			file: 'launchpad-admin'
 		);
 
-		$allGroups = [];
-		foreach ($this->groupManager->search(search: '') as $group) {
-			$allGroups[] = [
-				'id' => $group->getGID(),
-				'displayName' => $group->getDisplayName(),
-			];
-		}
-
-		// REQ-ASET-012: prefer the new `group_order` setting (defensive
-		// read returns []). Falls back to the legacy `configured_groups`
-		// key for installs that wrote it before the cutover so the
-		// initial render still shows the admin's previous selection.
-		$configuredGroups = $this->settingsService->getGroupOrder();
-		if ($configuredGroups === []) {
-			$legacy = $this->settingMapper->getValue(
-				key: 'configured_groups',
-				default: []
-			);
-			if (is_array($legacy) === true) {
-				$filtered = array_filter(
-					array: $legacy,
-					callback: static function ($entry) {
-						return is_string($entry) === true && $entry !== '';
-					}
-				);
-				$configuredGroups = array_values(array: $filtered);
-			}
-		}
-
-		$allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
-
-		(new InitialStateBuilder(
+		(new AdminFormState(
 			initialState: $this->initialState,
-			page: Page::ADMIN
-		))
-			->setAllGroups($allGroups)
-			->setConfiguredGroups($configuredGroups)
-			->setWidgets($this->widgetService->getAvailableWidgets())
-			->setAllowUserDashboards($allowUserDashboards)
-			->setLinkCreateFileExtensions(
-				$this->fileService->getAllowedExtensions()
-			)
-			->apply();
+			groupManager: $this->groupManager,
+			sources: $this->sources,
+			settingsService: $this->settingsService
+		))->provide();
 
 		return new TemplateResponse(
 			appName: Application::APP_ID,

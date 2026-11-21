@@ -53,7 +53,7 @@ One object per (groupId, widgetId) pair (slug `rld-{groupId}-{widgetId}`).
 
 ## Requirements
 
-### REQ-RFP-001: Feature presence visibility by role
+### Requirement: REQ-RFP-001: Feature presence visibility by role
 
 The system MUST render or hide dashboard features based on the authenticated user's effective
 role-feature-permissions. A widget not in the user's effective `allowedWidgets` set MUST NOT
@@ -92,7 +92,7 @@ appear anywhere in the UI and MUST NOT be returned by `GET /api/widgets`.
 
 ---
 
-### REQ-RFP-002: Role-based default dashboard layout
+### Requirement: REQ-RFP-002: Role-based default dashboard layout
 
 The system MUST seed a role-appropriate default layout. When a new user opens LaunchPad for
 the first time and no admin template matches their group, the system MUST seed their dashboard
@@ -132,7 +132,7 @@ priority). Existing personal customisations MUST never be overwritten.
 
 ---
 
-### REQ-RFP-003: Role-based card library
+### Requirement: REQ-RFP-003: Role-based card library
 
 The card library (widget picker) MUST only surface widgets permitted for the authenticated
 user's effective role. Widgets outside the allowed set MUST be absent from the picker UI and
@@ -168,7 +168,7 @@ from `GET /api/widgets`.
 
 ---
 
-### REQ-RFP-004: Role-and-priority layout ordering
+### Requirement: REQ-RFP-004: Role-and-priority layout ordering
 
 Widgets on a user's dashboard MUST be ordered according to the `priorityWeights` defined in
 the user's effective RoleFeaturePermission. Widgets with higher priority weight MUST appear
@@ -204,7 +204,7 @@ earlier in the default sort order.
 
 ---
 
-### REQ-RFP-005: Role precedence for multi-group users
+### Requirement: REQ-RFP-005: Role precedence for multi-group users
 
 The system MUST resolve a deterministic effective widget set for multi-group users. When a user
 belongs to multiple groups that each have a RoleFeaturePermission, the system MUST resolve a
@@ -244,7 +244,7 @@ the set; `deniedWidgets` from any matched group always win.
 
 ---
 
-### REQ-RFP-006: Role, interest, and journey distinction
+### Requirement: REQ-RFP-006: Role, interest, and journey distinction
 
 The system MUST distinguish between role-based access (Nextcloud group membership), expressed
 personal interest (user adds a widget they are permitted to add), and journey stage (the user's
@@ -283,7 +283,7 @@ effect within one session refresh.
 
 ---
 
-### REQ-RFP-007: Admin CRUD for role-feature-permissions
+### Requirement: REQ-RFP-007: Admin CRUD for role-feature-permissions
 
 IT admins MUST be able to create, read, update, and delete RoleFeaturePermission objects via
 admin-only API endpoints. Non-admin users MUST receive HTTP 403 on all mutation attempts.
@@ -322,7 +322,7 @@ admin-only API endpoints. Non-admin users MUST receive HTTP 403 on all mutation 
 
 ---
 
-### REQ-RFP-008: Admin CRUD for role-layout-defaults
+### Requirement: REQ-RFP-008: Admin CRUD for role-layout-defaults
 
 IT admins MUST be able to create, read, update, and delete RoleLayoutDefault objects. Non-admin
 users MUST receive HTTP 403 on all mutation attempts.
@@ -353,7 +353,7 @@ users MUST receive HTTP 403 on all mutation attempts.
 
 ---
 
-### REQ-RFP-009: Unconfigured installations retain full backwards-compatibility
+### Requirement: REQ-RFP-009: Unconfigured installations retain full backwards-compatibility
 
 When no RoleFeaturePermission objects exist in OpenRegister, `GET /api/widgets` MUST return
 the full widget list unchanged. No change in behaviour for existing LaunchPad installations that
@@ -378,7 +378,7 @@ have not configured role-feature-permissions.
 
 ---
 
-### REQ-RFP-010: Initial-state widget allowlist
+### Requirement: REQ-RFP-010: Initial-state widget allowlist
 
 The backend MUST include the resolved `allowedWidgets` list (or `null` for unconfigured) in
 the initial-state payload delivered to the frontend, so that the card library can filter
@@ -397,6 +397,33 @@ without a separate API call.
 - WHEN any user loads LaunchPad
 - THEN the initial-state payload MUST include `"allowedWidgets": null`
 - AND the frontend MUST treat `null` as "no restriction" (show all widgets)
+
+---
+
+### Requirement: REQ-RFP-011: The shipped default rule lets every user add LaunchPad's own widgets
+
+The `default` RoleFeaturePermission that a fresh install seeds MUST allow every LaunchPad widget
+type listed in `lib/widget-types.json`, plus the Nextcloud dashboard widgets `activity` and
+`recommendations`. A user with no group rule of their own MUST be able to add any LaunchPad widget.
+On upgrade, a `default` rule that still holds exactly what older versions shipped
+(`["activity", "recommendations"]` and no denials) MUST be widened to the same list. A `default`
+rule an administrator edited MUST be kept as it is.
+
+#### Scenario: A fresh install lets every user add a LaunchPad widget
+@e2e exclude the seed runs once at install, before any test, and the e2e suite replaces the `default` rule with its own fixture (tests/e2e/fixtures/role-feature-permissions.ts); pinned by SeedRolePermissionsGoldenTest::testSeedMatchesTheRecordedFixture and WidgetTypeListTest::testTheShippedListReads
+
+- GIVEN LaunchPad is installed and the seeded `default` rule is untouched
+- AND user "sem" belongs to no group that has a rule of its own
+- WHEN sem adds a `text` widget to his own dashboard
+- THEN the widget MUST be added
+
+#### Scenario: An upgrade widens the old shipped rule and keeps an edited one
+@e2e exclude an upgrade repair step, which no HTTP request can trigger; pinned by BroadenDefaultWidgetRuleTest::testTheShippedRuleIsWidened and BroadenDefaultWidgetRuleTest::testAnEditedRuleIsKept
+
+- GIVEN an instance whose `default` rule allows only `["activity", "recommendations"]` and denies nothing
+- WHEN LaunchPad is upgraded
+- THEN the `default` rule MUST allow every LaunchPad widget type plus `activity` and `recommendations`
+- AND when an administrator had changed the `default` rule, it MUST stay as the administrator left it
 
 ---
 

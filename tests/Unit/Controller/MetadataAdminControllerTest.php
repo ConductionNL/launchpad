@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\MetadataAdminController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Exception\MetadataFieldHasValuesException;
@@ -34,6 +35,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 class MetadataAdminControllerTest extends TestCase {
 	private MetadataAdminController $controller;
@@ -58,9 +61,8 @@ class MetadataAdminControllerTest extends TestCase {
 		$this->controller = new MetadataAdminController(
 			request: $this->request,
 			metadataService: $this->metadataService,
-			groupManager: $this->groupManager,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->actionAuth),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}
 

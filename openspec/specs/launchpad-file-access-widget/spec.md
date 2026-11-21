@@ -30,8 +30,6 @@ dossier document from dashboard).
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented widget — `launchpad_file_access` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, Files OCS/WebDAV metadata routing, and Specter-sourced dossier-file rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
-
 ### REQ-FAW-001: The system SHALL register a `launchpad_file_access` widget type alongside the existing `files-widget`
 
 The widget MUST appear in `src/constants/widgetRegistry.js` as a
@@ -43,6 +41,8 @@ always satisfied in practice; the declaration is for completeness.
 
 #### Scenario: Widget registered without colliding with `files-widget`
 
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. Only `files` is registered, and no test lists the other type.
+
 - **GIVEN** the registry completeness test (REQ-WDG-023)
 - **WHEN** it runs
 - **THEN** both `files` and `file-access` MUST appear in
@@ -51,6 +51,8 @@ always satisfied in practice; the declaration is for completeness.
   `renderer` + `form` components
 
 #### Scenario: Picker disambiguates the two types
+
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json, so the picker shows only the one Files type (`git log --all -S'Quick file access'` is empty).
 
 - **GIVEN** the Add Widget modal type picker
 - **WHEN** rendered
@@ -72,11 +74,15 @@ The placement MUST persist `{type: 'file-access', content: {...}}` with:
 
 #### Scenario: Minimal `orObject` placement validates
 
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no form and no content contract; `orObject` appears in history only in unrelated comment-manager code.
+
 - **GIVEN** the content shape contract
 - **WHEN** `{type: 'file-access', content: {sourceMode: 'orObject', orObjectRef: {register: 'procest', schema: 'Case', objectId: 'case-1'}}}` is saved
 - **THEN** validation MUST pass
 
 #### Scenario: Cross-mode field is rejected
+
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no form with a validate() to reject it, and no unit test.
 
 - **GIVEN** `sourceMode === 'recent'` AND `fileIds = [42]`
 - **WHEN** `validate()` runs
@@ -100,6 +106,8 @@ where the placement-level toggles already exist per REQ-FLS-001.)
 
 #### Scenario: Metadata fetch routes through OCS
 
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. Nothing fetches file metadata by id list; the existing `files` widget lists a folder through LaunchPad's own backend and has its own files-widget spec.
+
 - **GIVEN** `sourceMode === 'fileIds'` AND `fileIds = [123, 456]`
 - **WHEN** the widget mounts
 - **THEN** the renderer MUST issue OCS metadata requests for both
@@ -107,12 +115,16 @@ where the placement-level toggles already exist per REQ-FLS-001.)
 
 #### Scenario: No launchpad file table
 
+@e2e exclude never built, and a source inspection rather than a browser behaviour: the widget never shipped (`launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json). Checked by hand: no migration in lib/Migration creates a file metadata table. No test performs the check.
+
 - **GIVEN** the launchpad migration files after this widget ships
 - **WHEN** inspected
 - **THEN** no migration introducing a file metadata table MUST
   exist
 
 #### Scenario: No write call to Files
+
+@e2e exclude never built, and a source scan rather than a browser behaviour: the widget source files it would scan do not exist (`launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json). No test performs the scan.
 
 - **GIVEN** the file-access widget source files
 - **WHEN** scanned for HTTP method `POST` / `PUT` / `DELETE` to
@@ -129,12 +141,16 @@ same OCS metadata fetch as REQ-FAW-003.
 
 #### Scenario: Dossier files surface (Specter source)
 
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. Nothing reads an OpenRegister object's attached files into a widget, and the CI fixture has no procest register to hold one.
+
 - **GIVEN** an OR object `{register: 'procest', schema: 'Case', objectId: 'case-1'}` with 3 attached documents
 - **WHEN** the widget renders
 - **THEN** the widget MUST list those 3 documents with their titles
   and last-modified dates
 
 #### Scenario: Click opens the document viewer (Specter source)
+
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json, so there is no dossier document to click. Opening a file from the existing `files` widget is a different widget and mechanism (nc-vue useFileOpener, OCA.Viewer or the `/f/{fileid}` permalink), which belongs to files-widget::click-file-to-open-in-files-app.
 
 - **GIVEN** a clickable document on the dashboard
 - **WHEN** the viewer clicks it
@@ -151,6 +167,8 @@ NOT throw — other rows MUST keep rendering.
 
 #### Scenario: Access denied row (Specter source)
 
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. The "No access" row text appears in no commit (`git log --all -S'No access' -- src lib appinfo templates` is empty).
+
 - **GIVEN** a placement with `fileIds = [999]` AND the viewer
   has no read access to file 999
 - **WHEN** the widget renders
@@ -161,12 +179,16 @@ NOT throw — other rows MUST keep rendering.
 
 #### Scenario: Partial denial keeps other rows
 
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. There is no per-file-id row list to deny in part.
+
 - **GIVEN** `fileIds = [123, 999, 456]` where 999 is denied
 - **WHEN** the widget renders
 - **THEN** rows for 123 and 456 MUST render normally
 - **AND** the 999 row MUST render in the denied state
 
 #### Scenario: Deleted file shows missing state
+
+@e2e exclude never built: `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and neither is in src/constants/widgetRegistry.js, lib/widget-types.json, nc-vue's registry or src/manifest.json. The widget's "File not found" row does not exist; the string appears in history only in CLI import commands.
 
 - **GIVEN** a file ID that no longer exists in Nextcloud
 - **WHEN** the widget renders

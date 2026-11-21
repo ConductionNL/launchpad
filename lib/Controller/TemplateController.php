@@ -59,15 +59,12 @@ class TemplateController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly ActionAuthService $actionAuth,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
-	 * `GET /api/templates/gallery` — list all admin templates with the
-	 * gallery metadata (REQ-TMPL-014).
+	 * `GET /api/templates/gallery`: list the admin templates offered to the
+	 * caller's groups, with the gallery metadata (REQ-TMPL-014, REQ-TMPL-018).
 	 *
 	 * Query parameters:
 	 *   - `category` (string, optional): exact-match category filter.
@@ -83,6 +80,7 @@ class TemplateController extends Controller {
 	 * @return JSONResponse The gallery list envelope.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-the-gallery-offers-a-template-to-the-groups-it-names-req-tmpl-018
 	 */
 	#[NoAdminRequired]
 	public function gallery(
@@ -101,6 +99,7 @@ class TemplateController extends Controller {
 		}
 
 		$templates = $this->templateService->getGallery(
+			userId: $user->getUID(),
 			category: $category,
 			sortBy: $sort
 		);

@@ -201,7 +201,7 @@ The core design choice is **dual evaluation**: client-side for instant feedback 
           {"type": "literal", "valueType": "string", "value": "days"}
         ]
       },
-      "returnType": "duration",
+      "returnType": "number",
       "evaluationMode": "client",
       "formatOptions": {
         "pattern": "d 'dagen'"
@@ -317,3 +317,46 @@ Widget A (register: sales) tries to reference Widget B (register: crm) in a serv
 - Should calculated fields display in the widget's schema export (OpenAPI / Postman)? Current decision: yes, but marked as derived/read-only at export time.
 - Can calculated fields be used in widget filtering (as filter targets)? Current decision: no (v1 — filter.field must reference real data). Future: revisit for v2 if demand is high.
 - Should there be a formula function to query sibling calculated fields on the same widget? Current decision: no (use `CalculatedRef` only); forces you to inline formulas if you want to chain them. Future: revisit if complexity justifies it.
+
+## Build notes: value semantics
+
+Pinned by the shared evaluator suite (`tests/fixtures/calculated-fields/shared-evaluator-test-suite.json`), which the PHP evaluator must also pass:
+
+- Dates are UTC ISO strings `YYYY-MM-DDTHH:MM:SSZ`; durations are seconds. `dateDiff(end, start, unit)` answers a whole number of `unit` (default `days`; calendar months and years), so its type is `number`; `durationBetween` answers a duration.
+- Null propagates through every operator and function except `coalesce`, `ifNull`, `case` and the list aggregates; nulls inside a list are skipped.
+- `round` rounds half away from zero after trimming to 15 significant digits, as PHP does (`round(1.005, 2)` is `1.01`).
+- Runtime failures (division by zero, invalid dates, unknown units, failed coercions) are errors with a fixed message, never a partial value.
+
+## Build notes: server-mode materialisation
+
+OpenRegister has no separate `computed-fields` store. Its derived values are
+schema properties: a property may carry a JSON-AST `calculation`
+(`{type, expression}`), which OpenRegister's save-time calculation listener
+evaluates and writes into every object of the schema. A server-mode field is
+materialised as exactly that: one read-only property per field on the widget's
+source schema, keyed `launchpad_<placement>__<field>`. That key is the field's
+`serverComputedFieldId`. Because every key a widget owns shares the prefix
+`launchpad_<placement>__`, a save replaces exactly that widget's properties and
+a delete removes them all, so no entry is orphaned, and other widgets' and the
+schema's own properties are never touched.
+
+OpenRegister's calculation vocabulary is narrower than ours, and some of its
+operators behave differently (PHP `round` against JavaScript `Math.round` on
+halves, a placeholder reading of strings starting with `$`, number-to-text in
+`concat`). So only the part both engines evaluate alike is translated:
+literals, the widget's own fields, other materialised fields of the same
+widget, `+ - * / %`, the comparisons, `and`/`or`/`not`, `if`, and `abs`,
+`min`, `max`, `coalesce`. Any other field, and any field reading one, is
+downgraded to `client` with a warning, as are fields whose return type
+OpenRegister cannot declare (`duration`, `null`). The difference that remains
+is null handling: our evaluator propagates null, OpenRegister's refuses a
+non-numeric operand, logs the failing calculation and saves the object without
+that value, which is the computed-field error log of REQ-CALC-008.
+
+The widget and the schema live in different stores, so the save is ordered
+instead of wrapped in one database transaction: the keys are planned before
+the widget is saved, the schema is written once afterwards, and when
+OpenRegister refuses that write (the current user may not edit the schema, or
+it is gone) the widget is saved again with those fields in client mode. The
+schema is read and written as the current user, so OpenRegister's own schema
+access checks decide who may materialise a field.

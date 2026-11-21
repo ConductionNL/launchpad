@@ -36,6 +36,7 @@ import {
 	registerBuiltinDashboardWidgets,
 	registerDashboardWidget,
 	registerIcons,
+	registerTranslations,
 	useAppManifest,
 } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
@@ -48,17 +49,31 @@ import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import registry from './registry.js'
+import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
 
+// Captures the boot address before the router's catch-all redirects it.
+import './utils/bootPath.js'
 import './publicPath.js'
 import './services/widgetBridge.js'
 import 'gridstack/dist/gridstack.min.css'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
 import './styles/workspace.css'
+import './styles/modals.css'
+import './styles/kiosk.css'
 registerBuiltinDashboardWidgets()
+
+// The library's own strings ("Good afternoon, {name}" in the greeting header,
+// its dialogs and empty states) live in the `nextcloud-vue` translation
+// domain, which only exists once the app registers it. Without this call a
+// Dutch start page greeted in English.
+registerTranslations()
 
 // Populate the shared CnIcon registry with the MDI icons LaunchPad's
 // manifests name (ADR-077 rule 3).
@@ -122,6 +137,10 @@ const pinia = createPinia()
 // declared in REQ-INIT-002 is filled (defaults applied for missing keys
 // by the reader); descendants `inject(key, default)` to read.
 const initialState = loadInitialState('workspace')
+
+// platform-dashboard-theme-and-css REQ-THM-003 / D4: the administrator CSS for
+// all of LaunchPad, already cleaned and scoped by the server, inserted as text.
+applyCustomCss(GLOBAL_STYLE_ID, initialState.customCss)
 
 // --- Runtime manifest loader (ADR-036 Decision 8) ---
 //

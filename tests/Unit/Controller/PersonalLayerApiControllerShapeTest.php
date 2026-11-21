@@ -234,4 +234,16 @@ class PersonalLayerApiControllerShapeTest extends TestCase {
 		self::assertNull($empty['id']);
 		self::assertSame(self::DASHBOARD, $empty['dashboardId']);
 	}//end testBothStatesAnswerTheSameKeys()
+
+	/**
+	 * The full answer without a layer, key by key.
+	 *
+	 * @return void
+	 */
+	public function testTheAnswerWithoutALayer(): void {
+		$body = $this->showWith(null);
+
+		self::assertSame('{"id":null,"dashboardId":1,"overrides":{},"hidden":[],"updatedAt":null,"hasLayer":false,"hiddenPlacements":[]}', $body);
+	}//end testTheAnswerWithoutALayer()
+
 }//end class

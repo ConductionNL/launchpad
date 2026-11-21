@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Db\MetadataFieldMapper;
 use OCA\LaunchPad\Db\MetadataValue;
@@ -136,7 +137,9 @@ class MetadataServiceTest extends TestCase {
 			key: 'department',
 			label: 'Department',
 			type: MetadataField::TYPE_TEXT,
-			options: ['foo'],
+			settings: [
+				'options' => ['foo'],
+			]
 		);
 	}
 
@@ -166,7 +169,9 @@ class MetadataServiceTest extends TestCase {
 			key: 'department',
 			label: 'Department',
 			type: MetadataField::TYPE_TEXT,
-			required: 1,
+			settings: [
+				'required' => 1,
+			]
 		);
 
 		$this->assertSame('department', $field->getFieldKey());
@@ -340,6 +345,30 @@ class MetadataServiceTest extends TestCase {
 
 		$this->assertCount(1, $result);
 		$this->assertSame('uuid-a', $result[0]['uuid']);
+	}
+
+	/**
+	 * The controllers pass Dashboard entities, whose getUuid() is a magic
+	 * Entity getter, not serialised rows.
+	 *
+	 * @return void
+	 */
+	public function testFilterDashboardsKeepsMatchingEntities(): void {
+		$this->fieldMapper->method('findByKey')->willReturn($this->makeField(id: 1, key: 'department', type: MetadataField::TYPE_SELECT));
+		$this->valueMapper->method('findByField')->willReturn([
+			$this->makeValue(fieldId: 1, value: 'Finance', uuid: 'payroll'),
+			$this->makeValue(fieldId: 1, value: 'HR', uuid: 'onboarding'),
+		]);
+		$payroll = new Dashboard();
+		$onboarding = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$payroll->setUuid('payroll');
+		$onboarding->setUuid('onboarding');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$result = $this->service->filterDashboards(dashboards: [$payroll, $onboarding], metadataFilters: ['department' => 'Finance']);
+
+		$this->assertSame(expected: [$payroll], actual: $result);
 	}
 
 	public function testFilterDashboardsNumberRange(): void {

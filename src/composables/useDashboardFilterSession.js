@@ -16,6 +16,7 @@
  * the chips.
  */
 
+import { presetLevelLabels } from '../utils/hierarchyPresets.js'
 import { useFilterBus } from './useFilterBus.js'
 import { useFilterUrlSync } from './useFilterUrlSync.js'
 
@@ -33,15 +34,24 @@ export function hierarchiesOf(dashboard) {
 /**
  * A display label per hierarchy level dimension.
  *
+ * A preset's levels carry the preset's labels in the reader's language
+ * (REQ-CWF-011); any other hierarchy shows the labels it stores.
+ *
  * @param {Array<object>} hierarchies The hierarchy descriptors.
  * @return {{[key: string]: string}}
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 export function levelLabels(hierarchies) {
 	const labels = {}
 	for (const hierarchy of hierarchies) {
+		const preset = presetLevelLabels(hierarchy.id) ?? {}
 		for (const level of hierarchy.levels) {
-			if (level && typeof level.dimension === 'string' && typeof level.label === 'string' && level.label !== '') {
-				labels[level.dimension] = level.label
+			if (!level || typeof level.dimension !== 'string') {
+				continue
+			}
+			const label = preset[level.dimension] ?? level.label
+			if (typeof label === 'string' && label !== '') {
+				labels[level.dimension] = label
 			}
 		}
 	}

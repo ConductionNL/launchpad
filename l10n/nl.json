@@ -2051,6 +2051,13 @@
         "Invalid URL format": "Ongeldige URL",
         "Unsupported video source": "Deze videobron wordt niet ondersteund",
         "Video file not found": "Videobestand niet gevonden",
-        "File is not a video": "Dit bestand is geen video"
+        "File is not a video": "Dit bestand is geen video",
+        "Drill-down levels": "Doorklikniveaus",
+        "A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to.": "Een klik op een gebied in de ene widget filtert de andere widgets, en een klik op een kleiner gebied selecteert ook het gebied waar het onder valt.",
+        "Dutch administrative areas": "Nederlandse bestuurlijke indeling",
+        "Province, municipality and district": "Provincie, gemeente en wijk",
+        "Province": "Provincie",
+        "Municipality": "Gemeente",
+        "District": "Wijk"
     }
 }

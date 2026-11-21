@@ -2884,7 +2884,9 @@ export default {
 		 * @param {string} [config.slug] Web address name (edit only).
 		 * @param {object} [config.look] The changed look fields (REQ-THM-001), edit only.
 		 * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule (edit only).
+		 * @param {Array<object>} [config.hierarchies] The hierarchy descriptors, only when changed (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 		 */
 		async saveDashboardConfig({
 			id,
@@ -2895,6 +2897,7 @@ export default {
 			slug,
 			look,
 			defaultLinkTarget,
+			hierarchies,
 		}) {
 			this.configSaveError = ''
 			try {
@@ -2919,8 +2922,15 @@ export default {
 					if (defaultLinkTarget !== undefined) {
 						data.defaultLinkTarget = defaultLinkTarget
 					}
+					if (hierarchies !== undefined) {
+						data.hierarchies = hierarchies
+					}
 					await api.updateDashboard(id, data)
 					await this.loadDashboards()
+					// REQ-CWF-011: the open dashboard's bus is rebuilt on what it now stores.
+					if (hierarchies !== undefined && this.activeDashboard?.id === id) {
+						this.openFilterSession(false)
+					}
 				}
 				this.closeConfigModal()
 			} catch (error) {

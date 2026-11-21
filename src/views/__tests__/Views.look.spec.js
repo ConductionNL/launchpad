@@ -36,6 +36,24 @@ describe('Views dashboard look', () => {
 		expect(self.closeConfigModal).toHaveBeenCalled()
 	})
 
+	it('sends changed hierarchies and rebuilds the open dashboard\'s filter bus on them (REQ-CWF-011)', async () => {
+		api.updateDashboard.mockResolvedValue({})
+		const self = { configSaveError: '', loadDashboards: vi.fn(), closeConfigModal: vi.fn(), treeSaveMessage: vi.fn(), openFilterSession: vi.fn(), activeDashboard: { id: 7 } }
+		const hierarchies = [{ id: 'nl-administrative', levels: [{ dimension: 'provincieCode', label: 'Province', parentDimension: null }] }]
+
+		await Views.methods.saveDashboardConfig.call(self, { id: 7, name: 'N', description: '', icon: 'x', hierarchies })
+
+		expect(api.updateDashboard).toHaveBeenLastCalledWith(7, { name: 'N', description: '', icon: 'x', hierarchies })
+		expect(self.openFilterSession).toHaveBeenCalledWith(false)
+
+		await Views.methods.saveDashboardConfig.call(self, { id: 7, name: 'N', description: '', icon: 'x' })
+		expect(api.updateDashboard).toHaveBeenLastCalledWith(7, { name: 'N', description: '', icon: 'x' })
+		expect(self.openFilterSession).toHaveBeenCalledTimes(1)
+
+		await Views.methods.saveDashboardConfig.call(self, { id: 8, name: 'N', description: '', icon: 'x', hierarchies: [] })
+		expect(self.openFilterSession).toHaveBeenCalledTimes(1)
+	})
+
 	it('names the measured ratio when the server refuses a pale accent', () => {
 		const error = { response: { data: { error: 'contrast_too_low', ratio: 1.1, message: 'x' } } }
 

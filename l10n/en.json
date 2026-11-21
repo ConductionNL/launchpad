@@ -1606,6 +1606,13 @@
         "Discussion": "Discussion",
         "No conversation linked to this dashboard yet": "No conversation linked to this dashboard yet",
         "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.": "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.",
-        "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered.": "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered."
+        "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered.": "This widget consumes {dimension}, but no hierarchy on this dashboard publishes it. It shows its data unfiltered.",
+        "Drill-down levels": "Drill-down levels",
+        "A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to.": "A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to.",
+        "Dutch administrative areas": "Dutch administrative areas",
+        "Province, municipality and district": "Province, municipality and district",
+        "Province": "Province",
+        "Municipality": "Municipality",
+        "District": "District"
     }
 }

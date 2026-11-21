@@ -138,6 +138,22 @@
 							:clearable="false"
 							data-testid="dashboard-link-target-select" />
 					</div>
+					<!-- REQ-CWF-011: the hierarchies the filter bus joins widgets on. -->
+					<div class="dashboard-config__field">
+						<NcSelect
+							v-model="form.hierarchies"
+							:inputLabel="t('launchpad', 'Drill-down levels')"
+							:options="hierarchyChoices"
+							label="name"
+							trackBy="id"
+							multiple
+							keepOpen
+							:placeholder="t('launchpad', 'None')"
+							data-testid="dashboard-hierarchies-select" />
+						<span class="dashboard-config__hint">
+							{{ t('launchpad', 'A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to.') }}
+						</span>
+					</div>
 				</template>
 				<p
 					v-if="saveError"
@@ -537,6 +553,7 @@ import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
+import { hierarchyPresets } from '../utils/hierarchyPresets.js'
 import { logger } from '../utils/logger.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
@@ -545,6 +562,17 @@ const PERMISSION_OPTIONS = [
 	{ value: 'add_only', label: 'Add only' },
 	{ value: 'full', label: 'Full access' },
 ]
+
+/**
+ * The ids of picked hierarchy choices, as one comparable string.
+ *
+ * @param {Array<{id: string}>} choices The choices.
+ * @return {string}
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ */
+function hierarchyIds(choices) {
+	return (choices || []).map((choice) => choice.id).join('\n')
+}
 
 export default {
 	name: 'DashboardConfigModal',
@@ -641,6 +669,8 @@ export default {
 				// launcher-tile-open-behaviour D2: `{id, label}`, id '' for
 				// the link-type rule.
 				defaultLinkTarget: null,
+				// REQ-CWF-011: the picked hierarchy choices, `{id, name, descriptor}`.
+				hierarchies: [],
 			},
 
 			saving: false,
@@ -672,6 +702,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The hierarchies an owner can pick: the presets, then any other
+		 * hierarchy the dashboard stores, so saving does not drop it.
+		 *
+		 * @return {Array<{id: string, name: string, descriptor: object}>}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 */
+		hierarchyChoices() {
+			const presets = hierarchyPresets()
+			const stored = Array.isArray(this.dashboard?.hierarchies) ? this.dashboard.hierarchies : []
+			const others = stored
+				.filter((entry) => entry && typeof entry.id === 'string' && !presets.some((preset) => preset.id === entry.id))
+				.map((entry) => ({ id: entry.id, name: entry.id, descriptor: entry }))
+			return [...presets, ...others]
+		},
+
 		/**
 		 * The dashboard default choices for how tiles open.
 		 *
@@ -947,6 +993,8 @@ export default {
 							(c) => c.id === (this.dashboard.defaultLinkTarget || ''),
 						) || this.linkTargetChoices[0]
 					this._initialLinkTarget = this.form.defaultLinkTarget.id
+					this.form.hierarchies = this.storedHierarchyChoices()
+					this._initialHierarchies = hierarchyIds(this.form.hierarchies)
 					this.form.parent =
 						this.parentChoices.find(
 							(p) => p.uuid === (this.dashboard.parentUuid || ''),
@@ -984,6 +1032,19 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * The choices of the hierarchies the dashboard stores, in stored order.
+		 *
+		 * @return {Array<{id: string, name: string, descriptor: object}>}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 */
+		storedHierarchyChoices() {
+			const stored = Array.isArray(this.dashboard?.hierarchies) ? this.dashboard.hierarchies : []
+			return stored
+				.map((entry) => this.hierarchyChoices.find((choice) => choice.id === entry?.id))
+				.filter(Boolean)
+		},
 
 		/**
 		 * Upload a chosen background image through LaunchPad's resource
@@ -1308,6 +1369,10 @@ export default {
 								// metadata-only editor's save must not carry it.
 								...((this.form.defaultLinkTarget?.id ?? '') !== this._initialLinkTarget
 									? { defaultLinkTarget: this.form.defaultLinkTarget?.id ?? '' }
+									: {}),
+								// REQ-CWF-011: only when changed, for the same reason.
+								...(hierarchyIds(this.form.hierarchies) !== this._initialHierarchies
+									? { hierarchies: this.form.hierarchies.map((choice) => choice.descriptor) }
 									: {}),
 							}),
 				})

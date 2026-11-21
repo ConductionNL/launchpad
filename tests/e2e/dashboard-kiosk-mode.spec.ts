@@ -1356,8 +1356,10 @@ test.describe('REQ-KIOSK-005 unattended resilience', () => {
 				page.getByRole('status'),
 				'the indicator goes once a poll succeeds',
 			).toHaveCount(0)
-			// Rotation resumes: A's 120 s run out and B follows.
-			await after(page, 60_000, b)
+			// Rotation resumes: A's 120 s run out at 70 + 50 s and B follows.
+			// Not further: B's read answers in real time while the fake clock
+			// stands still, and 10 s past its turn the player skips it.
+			await after(page, 50_000, b)
 		} finally {
 			await context.close()
 		}

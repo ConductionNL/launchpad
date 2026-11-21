@@ -61,7 +61,7 @@ export default {
 	 * @return {object} the injected data-source adapters.
 	 */
 	provide() {
-		return buildWidgetDataProvide(() => this.placement?.id)
+		return buildWidgetDataProvide(() => this.placement?.id, () => this.placement?.content)
 	},
 
 	props: {

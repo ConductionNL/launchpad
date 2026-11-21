@@ -379,11 +379,12 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		await expect(
 			page.getByRole('menuitem', { name: /Set as default|Default dashboard/ }),
 		).toBeVisible()
+		// The edit entry reads "Edit dashboard" outside edit mode and
+		// "Save dashboard" inside it.
 		for (const name of [
 			/Add custom widget…/,
-			/Save dashboard/,
+			/Save dashboard|Edit dashboard/,
 			/Dashboard configuration…/,
-			/Documentation/,
 		]) {
 			await expect
 				.soft(
@@ -393,6 +394,10 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 				.toBeVisible()
 		}
 		await page.keyboard.press('Escape')
+		// Documentation moved out of the row menu into the switcher's footer.
+		await expect
+			.soft(page.locator(SIDEBAR).getByRole('link', { name: /Documentation/ }))
+			.toBeVisible()
 		await closeSwitcher(page)
 
 		await recordContextMenus(page)

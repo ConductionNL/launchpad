@@ -17,6 +17,7 @@
 			:placement="placement"
 			v-bind="rendererProps"
 			@data="onWidgetData"
+			@edit="$emit('editRequest')"
 			@editRequest="$emit('editRequest')" />
 
 		<CalculatedValues v-if="registryEntry" :placement="placement" />
@@ -164,7 +165,7 @@ export default {
 	 * @return {object} the injected data-source adapters.
 	 */
 	provide() {
-		return buildWidgetDataProvide(() => this.placement?.id)
+		return buildWidgetDataProvide(() => this.placement?.id, () => this.placement?.content)
 	},
 
 	props: {

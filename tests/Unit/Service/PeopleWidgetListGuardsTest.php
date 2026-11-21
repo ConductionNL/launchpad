@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
+use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
@@ -36,23 +37,23 @@ class PeopleWidgetListGuardsTest extends TestCase {
 	/**
 	 * Refused requests and the message they are refused with.
 	 *
-	 * @return array<string,array{0:string,1:int,2:int,3:string|null,4:string}>
+	 * @return array<string,array{0:string,1:int,2:int,3:string|null,4:string,5:class-string}>
 	 */
 	public static function refusals(): array {
 		return [
-			'limit zero'        => ['displayName', 0, 0, null, 'limit must be between 1 and 100'],
-			'limit over max'    => ['displayName', 101, 0, null, 'limit must be between 1 and 100'],
-			'window before sort' => ['recent-activity', 0, -1, 's', 'limit must be between 1 and 100'],
-			'offset negative'   => ['recent-activity', 10, -1, 's', 'offset must be >= 0'],
-			'sort before query' => ['recent-activity', 10, 0, 's', 'sortBy=recent-activity is not yet implemented'],
-			'query too short'   => ['displayName', 10, 0, ' é ', 'q must be at least 2 characters'],
+			'limit zero'        => ['displayName', 0, 0, null, 'limit must be between 1 and 100', InvalidPeopleRequestException::class],
+			'limit over max'    => ['displayName', 101, 0, null, 'limit must be between 1 and 100', InvalidPeopleRequestException::class],
+			'window before sort' => ['recent-activity', 0, -1, 's', 'limit must be between 1 and 100', InvalidPeopleRequestException::class],
+			'offset negative'   => ['recent-activity', 10, -1, 's', 'offset must be >= 0', InvalidPeopleRequestException::class],
+			'sort before query' => ['recent-activity', 10, 0, 's', 'sortBy=recent-activity is not yet implemented', InvalidArgumentException::class],
+			'query too short'   => ['displayName', 10, 0, ' é ', 'q must be at least 2 characters', InvalidPeopleRequestException::class],
 		];
 	}
 
 	/**
 	 * @dataProvider refusals
 	 */
-	public function testRefusalMessage(string $sortBy, int $limit, int $offset, ?string $search, string $message): void {
+	public function testRefusalMessage(string $sortBy, int $limit, int $offset, ?string $search, string $message, string $class): void {
 		$userManager = $this->createMock(originalClassName: IUserManager::class);
 		$userManager->expects($this->never())->method('search');
 		$userManager->expects($this->never())->method('searchDisplayName');
@@ -65,7 +66,7 @@ class PeopleWidgetListGuardsTest extends TestCase {
 			$this->createMock(originalClassName: ProfileFieldService::class),
 		);
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException($class);
 		$this->expectExceptionMessage($message);
 
 		$service->listUsers(

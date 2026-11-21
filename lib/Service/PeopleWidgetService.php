@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\IGroupManager;
@@ -194,16 +195,17 @@ class PeopleWidgetService {
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When the request cannot be listed.
+	 * @throws InvalidPeopleRequestException When the window is out of range.
+	 * @throws InvalidArgumentException       When the sort key is not implemented.
 	 */
 	private function assertListable(PeopleQuery $request): void {
 		$limit = $request->page->limit;
 		if ($limit < 1 || $limit > self::MAX_LIMIT) {
-			throw new InvalidArgumentException(message: 'limit must be between 1 and ' . self::MAX_LIMIT);
+			throw new InvalidPeopleRequestException(message: 'limit must be between 1 and ' . self::MAX_LIMIT);
 		}
 
 		if ($request->page->offset < 0) {
-			throw new InvalidArgumentException(message: 'offset must be >= 0');
+			throw new InvalidPeopleRequestException(message: 'offset must be >= 0');
 		}
 
 		if ($request->sortBy === 'recent-activity') {
@@ -220,12 +222,12 @@ class PeopleWidgetService {
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 *
-	 * @throws InvalidArgumentException When the query is shorter than MIN_QUERY_LENGTH.
+	 * @throws InvalidPeopleRequestException When the query is shorter than MIN_QUERY_LENGTH.
 	 */
 	private function listSearchMatches(PeopleQuery $request, ?array $groupFilter): array {
 		$query = trim(string: (string)$request->search);
 		if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
-			throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
+			throw new InvalidPeopleRequestException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
 		}
 
 		return $this->paginateCandidates(

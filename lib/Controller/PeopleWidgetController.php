@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\AppFramework\Controller;
@@ -138,6 +139,8 @@ class PeopleWidgetController extends Controller {
 				),
 				viewerId: $user->getUID(),
 			);
+		} catch (InvalidPeopleRequestException $e) {
+			return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		} catch (InvalidArgumentException $e) {
 			return $this->badRequest(exception: $e, message: 'Invalid request parameters');
 		}

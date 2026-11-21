@@ -25,6 +25,7 @@ namespace Unit\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\PeopleWidgetController;
+use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
@@ -176,6 +177,30 @@ class PeopleWidgetControllerTest extends TestCase {
 			actual: $response->getData()['error']
 		);
 	}//end testReturns400WhenServiceRejectsArguments()
+
+	/**
+	 * A refused window answers with the message that names the parameter.
+	 *
+	 * @return void
+	 */
+	public function testReturns400WithTheMessageOfARefusedWindow(): void {
+		$this->service->method('listUsers')
+			->willThrowException(
+				exception: new InvalidPeopleRequestException(message: 'limit must be between 1 and 100')
+			);
+
+		$controller = $this->buildController(userId: 'alice');
+		$response = $controller->getUsers(limit: 200);
+
+		$this->assertSame(
+			expected: Http::STATUS_BAD_REQUEST,
+			actual: $response->getStatus()
+		);
+		$this->assertSame(
+			expected: 'limit must be between 1 and 100',
+			actual: $response->getData()['error']
+		);
+	}//end testReturns400WithTheMessageOfARefusedWindow()
 
 	/**
 	 * @return void

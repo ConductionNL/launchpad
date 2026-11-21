@@ -173,7 +173,7 @@ async function expectUrlAccepted(page: Page, url: string): Promise<void> {
 async function expectUrlRejected(page: Page, urls: string[]): Promise<void> {
 	const dialog = await startAdding(page)
 	const input = await addLinkRow(dialog, 'Danger', urls[0])
-	const error = await resolveColor(input, 'var(--color-error, #d32f2f)')
+	const error = await resolveColor(input.locator('..'), 'var(--color-error, #d32f2f)')
 
 	for (const url of urls) {
 		await input.fill(url)

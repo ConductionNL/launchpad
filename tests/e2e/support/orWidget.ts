@@ -172,19 +172,18 @@ export function degradedLabel(widget: Locator): Locator {
 export const RAW_ERROR = /Request failed|status code|Internal Server Error|Service Unavailable|Exception|\bat \S+ \(/
 
 /**
- * The shipped `src/manifest.json`, read from the checkout the instance runs.
+ * The shipped `src/manifest.json`, read from the checkout under test.
  *
- * Nextcloud's web server answers a static file only for a fixed list of
- * extensions (css, js, svg, images, ...), so a `.json` under the app's web
- * root is routed to index.php and comes back 404; the file cannot be fetched.
+ * Nextcloud's web server answers static app files only for asset extensions
+ * (js, css, images, fonts); a `.json` under an app directory is routed to
+ * `index.php` and comes back 404, so the file cannot be fetched over HTTP.
  *
- * @param _page kept for the callers' signature.
+ * @param _page unused; kept so callers need not change.
  * @return the parsed manifest.
  */
-export async function readShippedManifest(_page: Page): Promise<Record<string, unknown>> {
-	return JSON.parse(
-		fs.readFileSync(path.resolve(__dirname, '../../../src/manifest.json'), 'utf8'),
-	)
+export async function readShippedManifest(_page?: Page): Promise<Record<string, unknown>> {
+	const raw = fs.readFileSync(path.resolve(process.cwd(), 'src/manifest.json'), 'utf8')
+	return JSON.parse(raw)
 }
 
 /**

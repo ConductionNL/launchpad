@@ -560,6 +560,12 @@ describe('nudgePlacement (keyboard-accessible repositioning)', () => {
 	})
 })
 
+describe('quicklinks sizing — REQ-QLNK-011', () => {
+	it('a new quicklinks widget is 4 columns by 2 rows', () => {
+		expect(defaultSizeFor('quicklinks', 12)).toEqual({ w: 4, h: 2 })
+	})
+})
+
 describe('divider sizing — REQ-DIV-006', () => {
 	it('a new divider spans every column and is one row tall; other widgets keep the default', () => {
 		expect(defaultSizeFor('divider', 12)).toEqual({ w: 12, h: 1 })

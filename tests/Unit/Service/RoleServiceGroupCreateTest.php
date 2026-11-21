@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PermissionServiceGroupCreateTest
+ * RoleServiceGroupCreateTest
  *
  * Who may create a group dashboard for a group (REQ-DASH-014): a Nextcloud
  * administrator or a LaunchPad Admin for any group, an Editor only for a
@@ -15,36 +15,45 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\RoleAssignmentMapper;
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\DashboardShareService;
-use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\RoleService;
 use OCP\IGroupManager;
+use OCP\IUserManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \OCA\LaunchPad\Service\PermissionService
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the constructor.
+ * @covers \OCA\LaunchPad\Service\RoleService
  */
-class PermissionServiceGroupCreateTest extends TestCase {
+class RoleServiceGroupCreateTest extends TestCase {
 
 	/**
-	 * A PermissionService for one user, who is in group "engineering".
+	 * A RoleService for bob, who is in group "engineering".
 	 *
-	 * @param string $kind `nc-admin`, `lp-admin`, `editor` or `user`.
+	 * @param string $kind `nc-admin`, `lp-admin`, `editor`, `viewer` or `user`.
 	 *
-	 * @return PermissionService The service.
+	 * @return RoleService The service.
 	 */
-	private function serviceFor(string $kind): PermissionService {
-		$roles = $this->createMock(originalClassName: RoleService::class);
-		$roles->method('isAdmin')->willReturn($kind === 'lp-admin');
-		$roles->method('isEditorOrHigher')->willReturn(in_array(needle: $kind, haystack: ['lp-admin', 'editor'], strict: true));
+	private function serviceFor(string $kind): RoleService {
+		$roles = [
+			'lp-admin' => RoleAssignment::ROLE_ADMIN,
+			'editor'   => RoleAssignment::ROLE_EDITOR,
+			'viewer'   => RoleAssignment::ROLE_VIEWER,
+		];
+		$direct = [];
+		if (isset($roles[$kind]) === true) {
+			$assignment = new RoleAssignment();
+			$assignment->setUserId('bob');
+			$assignment->setRole($roles[$kind]);
+			$direct[] = $assignment;
+		}
+
+		$mapper = $this->createMock(originalClassName: RoleAssignmentMapper::class);
+		$mapper->method('findByUser')->willReturn($direct);
+		$mapper->method('findByGroupIds')->willReturn([]);
 
 		$groups = $this->createMock(originalClassName: IGroupManager::class);
 		$groups->method('isAdmin')->willReturn($kind === 'nc-admin');
@@ -52,14 +61,11 @@ class PermissionServiceGroupCreateTest extends TestCase {
 		$templates = $this->createMock(originalClassName: AdminTemplateService::class);
 		$templates->method('getUserGroupIdsFor')->willReturn(['engineering']);
 
-		return new PermissionService(
-			dashboardMapper: $this->createMock(originalClassName: DashboardMapper::class),
-			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
-			settingMapper: $this->createMock(originalClassName: AdminSettingMapper::class),
-			shareService: $this->createMock(originalClassName: DashboardShareService::class),
+		return new RoleService(
+			mapper: $mapper,
+			userManager: $this->createMock(originalClassName: IUserManager::class),
 			groupManager: $groups,
 			adminTemplateService: $templates,
-			roleService: $roles,
 		);
 	}//end serviceFor()
 
@@ -70,21 +76,22 @@ class PermissionServiceGroupCreateTest extends TestCase {
 	 */
 	public static function cases(): array {
 		return [
-			'nc admin, own group'       => ['nc-admin', 'engineering', true],
 			'nc admin, other group'     => ['nc-admin', 'finance', true],
 			'nc admin, default group'   => ['nc-admin', Dashboard::DEFAULT_GROUP_ID, true],
+			'lp admin, own group'       => ['lp-admin', 'engineering', true],
 			'lp admin, other group'     => ['lp-admin', 'finance', true],
 			'lp admin, default group'   => ['lp-admin', Dashboard::DEFAULT_GROUP_ID, true],
 			'editor, own group'         => ['editor', 'engineering', true],
 			'editor, other group'       => ['editor', 'finance', false],
 			'editor, default group'     => ['editor', Dashboard::DEFAULT_GROUP_ID, false],
-			'plain user, own group'     => ['user', 'engineering', false],
-			'plain user, default group' => ['user', Dashboard::DEFAULT_GROUP_ID, false],
+			'viewer, own group'         => ['viewer', 'engineering', false],
+			'no role, own group'        => ['user', 'engineering', false],
+			'no role, default group'    => ['user', Dashboard::DEFAULT_GROUP_ID, false],
 		];
 	}//end cases()
 
 	/**
-	 * Whether the user may create a group dashboard for the group.
+	 * Whether bob may create a group dashboard for the group.
 	 *
 	 * @param string $kind    The kind of user.
 	 * @param string $groupId The group.
@@ -96,7 +103,7 @@ class PermissionServiceGroupCreateTest extends TestCase {
 	public function testWhoMayCreateAGroupDashboard(string $kind, string $groupId, bool $allowed): void {
 		$this->assertSame(
 			expected: $allowed,
-			actual: $this->serviceFor(kind: $kind)->canCreateGroupDashboard(userId: 'bob', groupId: $groupId)
+			actual: $this->serviceFor(kind: $kind)->mayCreateGroupDashboard(userId: 'bob', groupId: $groupId)
 		);
 	}//end testWhoMayCreateAGroupDashboard()
 }//end class

@@ -32,6 +32,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -71,6 +72,13 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	private $permissionService;
 
 	/**
+	 * Role service double: who may create a group dashboard.
+	 *
+	 * @var RoleService&MockObject
+	 */
+	private $roles;
+
+	/**
 	 * @var DashboardTreeService&MockObject
 	 */
 	private $treeService;
@@ -104,6 +112,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->dashboardService = $this->createMock(DashboardService::class);
 		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->roles = $this->createMock(RoleService::class);
 		$this->treeService = $this->createMock(DashboardTreeService::class);
 		$this->versionService = $this->createMock(DashboardVersionService::class);
 		$this->analyticsService = $this->createMock(AnalyticsService::class);
@@ -138,7 +147,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 				versionService: $this->versionService,
 				analyticsService: $this->analyticsService,
 				logger: $this->logger
-			)),
+			), roles: $this->roles),
 			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
@@ -238,14 +247,14 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * `createGroup()` creates the dashboard for a caller the permission
+	 * `createGroup()` creates the dashboard for a caller the role
 	 * service lets create one for the group (REQ-DASH-014).
 	 *
 	 * @return void
 	 */
 	public function testCreateGroupReturns201ForAdmin(): void {
-		$this->permissionService
-			->method('canCreateGroupDashboard')
+		$this->roles
+			->method('mayCreateGroupDashboard')
 			->with('admin', 'marketing')
 			->willReturn(true);
 
@@ -272,20 +281,20 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 
 	/**
 	 * `createGroup()` answers 403 before it creates anything for a caller
-	 * the permission service refuses, such as an Editor outside the group.
+	 * the role service refuses, such as an Editor outside the group.
 	 *
 	 * @return void
 	 */
 	public function testCreateGroupReturns403WhenTheCallerMayNotCreateForTheGroup(): void {
-		$this->permissionService
-			->method('canCreateGroupDashboard')
+		$this->roles
+			->method('mayCreateGroupDashboard')
 			->with('bob', 'marketing')
 			->willReturn(false);
 		$this->dashboardService->expects($this->never())->method('createGroupShared');
 
-		$response = $this->makeController('bob')->createGroup(groupId: 'marketing', name: 'Marketing');
+		$response = $this->makeController(userId: 'bob')->createGroup(groupId: 'marketing', name: 'Marketing');
 
-		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}//end testCreateGroupReturns403WhenTheCallerMayNotCreateForTheGroup()
 
 	/**
@@ -526,7 +535,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	 * `isAdmin()` check layered on a permissive `#[NoAdminRequired]`
 	 * attribute (ADR-005 gate-semantic-auth). `createGroup()` is open to
 	 * Editors in the group (REQ-DASH-014), so it carries `#[NoAdminRequired]`
-	 * and checks `PermissionService::canCreateGroupDashboard()` in its body.
+	 * and checks `RoleService::mayCreateGroupDashboard()` in its body.
 	 *
 	 * @return void
 	 */
@@ -534,8 +543,8 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		$reflection = new \ReflectionClass(DashboardApiController::class);
 
 		$create = $reflection->getMethod('createGroup');
-		$this->assertNotEmpty($create->getAttributes(\OCP\AppFramework\Http\Attribute\NoAdminRequired::class));
-		$this->assertEmpty($create->getAttributes(\OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting::class));
+		$this->assertNotEmpty(actual: $create->getAttributes(\OCP\AppFramework\Http\Attribute\NoAdminRequired::class));
+		$this->assertEmpty(actual: $create->getAttributes(\OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting::class));
 
 		foreach (['updateGroup', 'deleteGroup', 'setGroupDefault'] as $methodName) {
 			$method = $reflection->getMethod($methodName);

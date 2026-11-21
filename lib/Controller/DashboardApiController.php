@@ -1267,8 +1267,9 @@ class DashboardApiController extends Controller {
 	 * Create a new group-shared dashboard.
 	 *
 	 * For a Nextcloud administrator, a LaunchPad Admin, or an Editor who is
-	 * in the group (REQ-DASH-014); anyone else gets HTTP 403 before the
-	 * request body is read.
+	 * in the group ({@see RoleService::mayCreateGroupDashboard()},
+	 * REQ-DASH-014); anyone else gets HTTP 403 before the request body is
+	 * read.
 	 *
 	 * @param string $groupId The group ID.
 	 * @param mixed $name The dashboard name (or {name,...}
@@ -1290,10 +1291,10 @@ class DashboardApiController extends Controller {
 			return $this->context->responseHelper->unauthorized();
 		}
 
-		if ($this->access->permissionService->canCreateGroupDashboard(
+		if ($this->access->roles?->mayCreateGroupDashboard(
 			userId: $this->context->userId,
 			groupId: $groupId
-		) === false
+		) !== true
 		) {
 			return $this->context->responseHelper->forbidden();
 		}

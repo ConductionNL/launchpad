@@ -1764,11 +1764,14 @@ export default {
 		 * `data.viewEventLastSent` (Object.create(null)) so different
 		 * dashboards are tracked independently per spec scenario
 		 * "Different dashboards are not debounced against each other".
-		 * The debounce is per-mount (not cross-tab), matching the
-		 * spec's reload semantics.
+		 * Across the tabs of one browser, the tab that sends holds a Web
+		 * Lock named after the dashboard for a second; another tab that
+		 * finds it held sends nothing ("Debouncing prevents multi-tab
+		 * double-counting"). A reload drops the lock with the page, so it
+		 * counts again. Without the Locks API every tab sends.
 		 *
 		 * @param {string} uuid The dashboard UUID to record.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
 			if (!uuid) {
@@ -1780,7 +1783,25 @@ export default {
 				return
 			}
 			this.viewEventLastSent[uuid] = now
-			this.recordViewEvent(uuid)
+			const locks = globalThis.navigator?.locks
+			if (typeof locks?.request !== 'function') {
+				this.recordViewEvent(uuid)
+				return
+			}
+			let sent = false
+			locks.request(`launchpad-view-event:${uuid}`, { ifAvailable: true }, (lock) => {
+				if (!lock) {
+					return undefined
+				}
+				sent = true
+				this.recordViewEvent(uuid)
+				return new Promise((resolve) => setTimeout(resolve, 1000))
+			}).catch((e) => {
+				logger.debug('[Views] view-event lock unavailable:', e)
+				if (!sent) {
+					this.recordViewEvent(uuid)
+				}
+			})
 		},
 
 		/*

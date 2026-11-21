@@ -349,6 +349,53 @@ describe('Views view events', () => {
 		host.recordViewEventDebounced('')
 		expect(host.recordViewEvent).toHaveBeenCalledTimes(3)
 	})
+
+	it('sends one view-event across two tabs of the same dashboard, holding the lock a second', async () => {
+		vi.useFakeTimers()
+		const held = new Set()
+		const locks = {
+			request: vi.fn(async (name, options, callback) => {
+				if (held.has(name)) {
+					return callback(null)
+				}
+				held.add(name)
+				try {
+					return await callback({ name })
+				} finally {
+					held.delete(name)
+				}
+			}),
+		}
+		vi.stubGlobal('navigator', { locks })
+		const recordViewEvent = vi.fn()
+		const first = makeHost({ recordViewEvent })
+		const second = makeHost({ recordViewEvent })
+
+		first.recordViewEventDebounced('a')
+		second.recordViewEventDebounced('a')
+		second.recordViewEventDebounced('b')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(recordViewEvent.mock.calls).toEqual([['a'], ['b']])
+		expect(locks.request).toHaveBeenCalledWith('launchpad-view-event:a', { ifAvailable: true }, expect.any(Function))
+
+		await vi.advanceTimersByTimeAsync(1000)
+		makeHost({ recordViewEvent }).recordViewEventDebounced('a')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(recordViewEvent.mock.calls).toEqual([['a'], ['b'], ['a']])
+		vi.unstubAllGlobals()
+	})
+
+	it('sends anyway when the lock request fails', async () => {
+		vi.stubGlobal('navigator', { locks: { request: vi.fn().mockRejectedValue(new Error('SecurityError')) } })
+		const host = makeHost({ recordViewEvent: vi.fn() })
+
+		host.recordViewEventDebounced('a')
+		await Promise.resolve()
+		await Promise.resolve()
+
+		expect(host.recordViewEvent).toHaveBeenCalledWith('a')
+		vi.unstubAllGlobals()
+	})
 })
 
 describe('Views saving tiles and custom widgets', () => {

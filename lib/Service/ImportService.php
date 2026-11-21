@@ -847,6 +847,8 @@ class ImportService {
 	 * Validated like an API update. A malformed list is left out with a
 	 * warning, so one bad field does not cost the whole dashboard.
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) DashboardHierarchies is a stateless validator.
+	 *
 	 * @param Dashboard            $dashboard The entity being hydrated.
 	 * @param array<string, mixed> $payload   The dashboard payload.
 	 *

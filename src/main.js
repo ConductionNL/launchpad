@@ -56,6 +56,8 @@ import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
 
+// Captures the boot address before the router's catch-all redirects it.
+import './utils/bootPath.js'
 import './publicPath.js'
 import './services/widgetBridge.js'
 import 'gridstack/dist/gridstack.min.css'

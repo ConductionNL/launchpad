@@ -15,6 +15,7 @@
 import { generateUrl } from '@nextcloud/router'
 
 const BOOT_PATH = typeof window === 'undefined' ? '' : window.location.pathname
+const BOOT_HASH = typeof window === 'undefined' ? '' : window.location.hash
 
 /**
  * The pathname the page was loaded with, before any client-side navigation.
@@ -23,6 +24,34 @@ const BOOT_PATH = typeof window === 'undefined' ? '' : window.location.pathname
  */
 export function bootPath() {
 	return BOOT_PATH
+}
+
+/**
+ * The hash the page was loaded with, before any client-side navigation.
+ *
+ * @return {string} The boot hash, with its `#`, or ''.
+ */
+export function bootHash() {
+	return BOOT_HASH
+}
+
+/**
+ * The dashboard uuid a `#dashboard/<uuid>` hash names, as unified search
+ * links a result (`#dashboard/<uuid>` or `#dashboard/<uuid>;widget=<id>`).
+ *
+ * @param {string} hash The location hash.
+ * @return {string} The uuid, or '' when the hash names no dashboard.
+ */
+export function dashboardUuidFromHash(hash) {
+	const match = /^#dashboard\/([^;?&/]+)/.exec(String(hash ?? ''))
+	if (!match) {
+		return ''
+	}
+	try {
+		return decodeURIComponent(match[1])
+	} catch {
+		return ''
+	}
 }
 
 /**

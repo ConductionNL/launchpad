@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { appBase } from '../bootPath.js'
+import { appBase, dashboardUuidFromHash } from '../bootPath.js'
 
 // Pretty URLs on: generateUrl drops the front controller.
 vi.mock('@nextcloud/router', () => ({
@@ -33,5 +33,21 @@ describe('appBase', () => {
 	it('falls back to generateUrl off the app', () => {
 		expect(appBase('/settings/user')).toBe('/apps/launchpad')
 		expect(appBase('')).toBe('/apps/launchpad')
+	})
+})
+
+describe('dashboardUuidFromHash', () => {
+	it('reads the uuid of a unified search link, with or without a widget hint', () => {
+		expect(dashboardUuidFromHash('#dashboard/abc-123')).toBe('abc-123')
+		expect(dashboardUuidFromHash('#dashboard/abc-123;widget=42')).toBe('abc-123')
+		expect(dashboardUuidFromHash('#dashboard/a%20b')).toBe('a b')
+	})
+
+	it('names no dashboard for any other hash', () => {
+		expect(dashboardUuidFromHash('')).toBe('')
+		expect(dashboardUuidFromHash('#user-settings')).toBe('')
+		expect(dashboardUuidFromHash('#dashboard/')).toBe('')
+		expect(dashboardUuidFromHash('#dashboard/%E0%A4%A')).toBe('')
+		expect(dashboardUuidFromHash(null)).toBe('')
 	})
 })

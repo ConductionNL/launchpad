@@ -40,7 +40,8 @@ describe('Views boot address', () => {
 		window.history.replaceState(null, '', '/index.php/apps/launchpad/')
 
 		const openDeepLinkedDashboard = vi.fn(async () => {})
-		const host = { grid: {}, canEdit: false, openDeepLinkedDashboard }
+		const openHashLinkedDashboard = vi.fn(async () => {})
+		const host = { grid: {}, canEdit: false, openDeepLinkedDashboard, openHashLinkedDashboard }
 		await Views.created.call(host)
 
 		expect(openDeepLinkedDashboard).toHaveBeenCalledWith(

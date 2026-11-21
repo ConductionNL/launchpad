@@ -5,7 +5,8 @@
  * With pretty URLs on, `generateUrl` drops `/index.php`, but a page opened
  * through the front controller has its router mounted under it. The deep
  * link the page writes keeps the prefix it was opened on, so the address
- * stays under the router's base.
+ * stays under the router's base. A unified search result's
+ * `#dashboard/<uuid>` link opens the dashboard it names.
  *
  * @spec openspec/specs/dashboard-deeplinking/spec.md
  */
@@ -61,5 +62,31 @@ describe('Views deep link under the front controller', () => {
 			.replaceUrlFromInitialState()
 		expect(replace).not.toHaveBeenCalled()
 		expect(window.location.pathname).toBe('/index.php/apps/launchpad/team/hr')
+	})
+})
+
+describe('Views unified search link', () => {
+	it('opens the dashboard a #dashboard/<uuid> hash names', async () => {
+		const switchDashboard = vi.fn()
+		const host = makeHost({
+			activeDashboard: { uuid: 'u-other' },
+			dashboards: [{ id: 1, uuid: 'u-other' }, { id: 2, uuid: 'u-target' }],
+			switchDashboard,
+		})
+		await host.openHashLinkedDashboard('#dashboard/u-target;widget=7')
+		expect(switchDashboard).toHaveBeenCalledWith(2)
+	})
+
+	it('keeps the open dashboard for its own uuid, an unknown uuid or another hash', async () => {
+		const switchDashboard = vi.fn()
+		const host = makeHost({
+			activeDashboard: { uuid: 'u-other' },
+			dashboards: [{ id: 1, uuid: 'u-other' }],
+			switchDashboard,
+		})
+		await host.openHashLinkedDashboard('#dashboard/u-other')
+		await host.openHashLinkedDashboard('#dashboard/u-gone')
+		await host.openHashLinkedDashboard('#user-settings')
+		expect(switchDashboard).not.toHaveBeenCalled()
 	})
 })

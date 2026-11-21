@@ -563,7 +563,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
-import { appBase, bootPath } from '../utils/bootPath.js'
+import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
@@ -1527,6 +1527,7 @@ export default {
 			tileStore.loadTiles(),
 		])
 		await this.openDeepLinkedDashboard(bootPath())
+		await this.openHashLinkedDashboard(bootHash())
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding
@@ -1579,6 +1580,8 @@ export default {
 
 		// Browser back / forward → re-resolve the URL and switch.
 		window.addEventListener('popstate', this.handleHistoryPopState)
+		// A search result opened while LaunchPad is already showing.
+		window.addEventListener('hashchange', this.onDashboardHashChange)
 
 		// The greeting row mounts with the grid, after this view; watch the
 		// container so the controls dock once it is there, and move again
@@ -1602,6 +1605,7 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		window.removeEventListener('hashchange', this.onDashboardHashChange)
 		this.headerActionsObserver?.disconnect()
 		this.headerActionsObserver = null
 		// Leaving the page while editing withdraws the presence.
@@ -3078,6 +3082,36 @@ export default {
 			if (target) {
 				await this.switchDashboard(target.id)
 			}
+		},
+
+		/**
+		 * Open the dashboard a `#dashboard/<uuid>` hash names: the link a
+		 * unified search result carries. A uuid the user has no dashboard
+		 * for keeps what the store chose.
+		 *
+		 * @param {string} hash The location hash.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-011-nextcloud-search-ui-integration
+		 */
+		async openHashLinkedDashboard(hash) {
+			const uuid = dashboardUuidFromHash(hash)
+			if (!uuid || this.activeDashboard?.uuid === uuid) {
+				return
+			}
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.switchDashboard(target.id)
+			}
+		},
+
+		/**
+		 * Follow a `#dashboard/<uuid>` hash set after the page loaded.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-011-nextcloud-search-ui-integration
+		 */
+		async onDashboardHashChange() {
+			await this.openHashLinkedDashboard(window.location.hash)
 		},
 
 		/**

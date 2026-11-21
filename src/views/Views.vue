@@ -598,6 +598,48 @@ function withTypeMinHeight(placement) {
 	return { ...placement, minHeight }
 }
 
+
+/**
+ * The update body of a dashboard settings save: the fields the modal sent.
+ *
+ * @param {object} config The modal's save.
+ * @param {string} config.name Display name.
+ * @param {string} config.description Short description.
+ * @param {string} config.icon Icon key or URL.
+ * @param {string} [config.parentUuid] Parent uuid, '' for none.
+ * @param {string} [config.slug] Web address name.
+ * @param {object} [config.look] The changed look fields (REQ-THM-001).
+ * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule.
+ * @param {Array<object>} [config.hierarchies] The hierarchy descriptors, only when changed.
+ * @return {object} The body for `api.updateDashboard`.
+ * @spec openspec/specs/dashboards/spec.md
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ */
+function dashboardUpdateData({ name, description, icon, parentUuid, slug, look, defaultLinkTarget, hierarchies }) {
+	const data = { name, description, icon }
+	// dashboard-tree-navigation: '' clears the parent; an
+	// empty web address name leaves the stored one alone.
+	if (parentUuid !== undefined) {
+		data.parentUuid = parentUuid
+	}
+	if (slug) {
+		data.slug = slug
+	}
+	// REQ-THM-001: only a changed look is sent, so a rename
+	// stays a metadata edit.
+	if (look) {
+		Object.assign(data, look)
+	}
+	// launcher-tile-open-behaviour D2: '' clears the default.
+	if (defaultLinkTarget !== undefined) {
+		data.defaultLinkTarget = defaultLinkTarget
+	}
+	if (hierarchies !== undefined) {
+		data.hierarchies = hierarchies
+	}
+	return data
+}
+
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
 	// (devtools / findComponent), NOT the registration key — parents still
@@ -2888,44 +2930,14 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 		 */
-		async saveDashboardConfig({
-			id,
-			name,
-			description,
-			icon,
-			parentUuid,
-			slug,
-			look,
-			defaultLinkTarget,
-			hierarchies,
-		}) {
+		async saveDashboardConfig(config) {
+			const { id, name, description, icon, hierarchies } = config
 			this.configSaveError = ''
 			try {
 				if (id === null || id === undefined) {
 					await this.createDashboard({ name, description, icon })
 				} else {
-					const data = { name, description, icon }
-					// dashboard-tree-navigation: '' clears the parent; an
-					// empty web address name leaves the stored one alone.
-					if (parentUuid !== undefined) {
-						data.parentUuid = parentUuid
-					}
-					if (slug) {
-						data.slug = slug
-					}
-					// REQ-THM-001: only a changed look is sent, so a rename
-					// stays a metadata edit.
-					if (look) {
-						Object.assign(data, look)
-					}
-					// launcher-tile-open-behaviour D2: '' clears the default.
-					if (defaultLinkTarget !== undefined) {
-						data.defaultLinkTarget = defaultLinkTarget
-					}
-					if (hierarchies !== undefined) {
-						data.hierarchies = hierarchies
-					}
-					await api.updateDashboard(id, data)
+					await api.updateDashboard(id, dashboardUpdateData(config))
 					await this.loadDashboards()
 					// REQ-CWF-011: the open dashboard's bus is rebuilt on what it now stores.
 					if (hierarchies !== undefined && this.activeDashboard?.id === id) {

@@ -29,6 +29,7 @@ use OCA\LaunchPad\Service\WidgetPlatform;
 use OCA\LaunchPad\Service\WidgetRendering;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\InvalidWidgetContentException;
+use OCA\LaunchPad\Service\IframeService;
 use OCA\LaunchPad\Service\MenuService;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\WidgetFormatter;
@@ -203,4 +204,67 @@ class WidgetServiceUpdateValidationTest extends TestCase {
 
 		$this->assertSame($updated, $result);
 	}//end testUpdateWithoutContentSkipsContentValidation()
+
+	/**
+	 * A service whose iframe allow-list answers with the given errors.
+	 *
+	 * @param string[] $errors What IframeService::validateConfig() returns.
+	 *
+	 * @return WidgetService
+	 */
+	private function serviceWithIframeErrors(array $errors): WidgetService {
+		$iframe = $this->createMock(IframeService::class);
+		$iframe->method('validateConfig')->willReturn($errors);
+
+		return new WidgetService(
+			platform: new WidgetPlatform(
+				dashboardManager: $this->createMock(IManager::class),
+				userSession: $this->createMock(IUserSession::class)
+			),
+			placementService: $this->placementService,
+			rendering: new WidgetRendering(
+				widgetFormatter: $this->createMock(WidgetFormatter::class),
+				widgetItemLoader: $this->createMock(WidgetItemLoader::class)
+			),
+			menuService: new MenuService(),
+			iframeService: $iframe
+		);
+	}//end serviceWithIframeErrors()
+
+	/**
+	 * REQ-IFRAME-002: an iframe placement on a host off the allow-list is
+	 * refused at save, naming the host, and nothing is stored.
+	 *
+	 * @return void
+	 */
+	public function testAddRefusesAnIframeHostOffTheAllowListNamingIt(): void {
+		$this->placementService->expects($this->never())->method('addWidget');
+
+		$this->expectException(InvalidWidgetContentException::class);
+		$this->expectExceptionMessage('The host evil.example is not on the allow-list.');
+		$this->serviceWithIframeErrors(['host_not_allowed'])->addWidget(
+			dashboardId: 1,
+			widgetId: 'iframe',
+			layout: ['content' => ['url' => 'https://evil.example/board', 'title' => 'Evil']]
+		);
+	}//end testAddRefusesAnIframeHostOffTheAllowListNamingIt()
+
+	/**
+	 * An allow-listed iframe host is stored; other config errors (such as a
+	 * missing title) are the editor's to report, not a host refusal.
+	 *
+	 * @return void
+	 */
+	public function testAddStoresAnIframeOnAnAllowListedHost(): void {
+		$created = new WidgetPlacement();
+		$this->placementService->expects($this->once())->method('addWidget')->willReturn($created);
+
+		$result = $this->serviceWithIframeErrors(['title_required'])->addWidget(
+			dashboardId: 1,
+			widgetId: 'iframe',
+			layout: ['content' => ['url' => 'https://status.example/board']]
+		);
+
+		$this->assertSame($created, $result);
+	}//end testAddStoresAnIframeOnAnAllowListedHost()
 }//end class

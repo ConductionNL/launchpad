@@ -29,6 +29,8 @@ use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCA\LaunchPad\Service\FilesWidgetService;
 use OCP\Constants;
+use OCP\Files\Cache\ICacheEntry;
+use OCP\Files\Cache\IFileAccess;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -201,6 +203,71 @@ class FilesWidgetServiceTest extends TestCase {
 			userId: 'alice',
 			config: ['fileId' => 99]
 		);
+	}
+
+	/**
+	 * A service whose file cache knows the folder id under the given path.
+	 *
+	 * @param string|null $cachePath The cache path, or null for no entry.
+	 */
+	private function serviceWithCachePath(?string $cachePath): FilesWidgetService {
+		$fileAccess = $this->createMock(IFileAccess::class);
+		$entry = null;
+		if ($cachePath !== null) {
+			$entry = $this->createMock(ICacheEntry::class);
+			$entry->method('getPath')->willReturn($cachePath);
+		}
+		$fileAccess->method('getByFileId')->with(99)->willReturn($entry);
+
+		return new FilesWidgetService(
+			rootFolder: $this->rootFolder,
+			urlGenerator: $this->urlGenerator,
+			previewManager: $this->previewManager,
+			fileAccess: $fileAccess,
+		);
+	}
+
+	/**
+	 * REQ-FLS-004: a folder another user can read, but the viewer cannot
+	 * see at all, is a NoAccessException, not a missing folder.
+	 */
+	public function testNoAccessWhenTheFolderExistsOutsideTheViewersFiles(): void {
+		$this->userFolder->method('getById')->willReturn([]);
+		$this->userFolder->method('nodeExists')->willReturn(false);
+
+		$this->expectException(NoAccessException::class);
+		$this->serviceWithCachePath('files/private')->getContentsForPlacement(
+			userId: 'alice',
+			config: ['fileId' => 99, 'folderPath' => '/private']
+		);
+	}
+
+	/**
+	 * REQ-FLS-009: a folder in its owner's trash bin, or unknown to the
+	 * file cache, is gone.
+	 *
+	 * @dataProvider goneFolderProvider
+	 */
+	public function testFolderNotFoundWhenTheFolderIsTrashedOrUnknown(?string $cachePath): void {
+		$this->userFolder->method('getById')->willReturn([]);
+
+		$this->expectException(FolderNotFoundException::class);
+		$this->serviceWithCachePath($cachePath)->getContentsForPlacement(
+			userId: 'alice',
+			config: ['fileId' => 99]
+		);
+	}
+
+	/**
+	 * Cache paths of folders that are gone.
+	 *
+	 * @return array<string, array{0: string|null}>
+	 */
+	public static function goneFolderProvider(): array {
+		return [
+			'trashed' => ['files_trashbin/files/private.d1700000000'],
+			'unknown' => [null],
+		];
 	}
 
 	/**

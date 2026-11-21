@@ -60,6 +60,8 @@ import {
 const RUN = Date.now()
 const ROOT = `E2E-FW-config-${RUN}`
 const PNG = fs.readFileSync(path.join(__dirname, 'fixtures', 'tiny.png'))
+/** 64x64: Nextcloud makes no preview of a 1x1 image, so the thumbnail test needs a larger one. */
+const PREVIEWABLE_PNG = fs.readFileSync(path.join(__dirname, 'fixtures', 'preview.png'))
 
 let admin: APIRequestContext
 let dashboard: SeededDashboard | null = null
@@ -165,10 +167,14 @@ test('picking a folder in the dialog stores it by its persistent file id', async
 	await openOnWidget(page, Number(placement.id))
 	expect(await rowNames(filesWidget(page, Number(placement.id)))).toEqual(['inside-picked.txt'])
 
-	// Exactly one of folderPath / fileId: the two are mutually exclusive.
-	const present = [placement.content.folderPath, placement.content.fileId]
-		.filter((v) => v !== undefined && v !== null && v !== '')
-	expect(present, JSON.stringify(placement.content)).toHaveLength(1)
+	// At least one of folderPath / fileId (the spec's data model). The form
+	// keeps the path beside the id to show it; when both are stored they name
+	// the same folder, and fileId is the one the widget resolves.
+	const content = placement.content
+	expect(content.fileId ?? content.folderPath, JSON.stringify(content)).toBeTruthy()
+	if (content.folderPath) {
+		expect(content.folderPath, 'the path names the picked folder').toBe(`/${picked}`)
+	}
 })
 
 // @e2e files-widget::config-for-view-mode
@@ -199,7 +205,7 @@ test('the view mode is stored as list, grid or tree and defaults to list', async
 test('thumbnails default to on, can be switched off, and are not drawn in tree mode', async ({ page }) => {
 	const folder = `${ROOT}/thumbs`
 	await mkdirs(admin, ADMIN.user, folder)
-	await putFile(admin, ADMIN.user, `${folder}/picture.png`, PNG)
+	await putFile(admin, ADMIN.user, `${folder}/picture.png`, PREVIEWABLE_PNG)
 
 	const untouched = await addThroughDialog(page)
 	expect(untouched.content.showThumbnails).toBe(true)

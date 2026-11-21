@@ -67,7 +67,9 @@
 		<!-- embedded-analytics task 40: an administrator can create an embed
 		     token for this one widget, in Beheer ▸ Embeds with it pre-selected. -->
 		<div v-if="showHideForMe || showEmbed" class="launchpad-widget__cog">
-			<NcActions :aria-label="t('launchpad', 'Widget options')">
+			<NcActions
+				:aria-label="t('launchpad', 'Widget options')"
+				:forceMenu="true">
 				<NcActionButton
 					v-if="showHideForMe"
 					:closeAfterClick="true"

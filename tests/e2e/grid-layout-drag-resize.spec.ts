@@ -290,9 +290,11 @@ test('a widget dragged past the right edge stops at the last column that fits it
 test('dragging a widget onto another pushes the other one down', async ({
 	browser,
 }) => {
+	// b is taller than a for the reason given in the first drag test: an
+	// equal-size b is pushed early and then covered by exactly half.
 	const [a, b] = await seed([
 		{ x: 0, y: 0, w: 4, h: 2 },
-		{ x: 0, y: 2, w: 4, h: 2 },
+		{ x: 0, y: 2, w: 4, h: 3 },
 	])
 	const { context, page } = await openEditing(browser, 2)
 	try {
@@ -302,12 +304,12 @@ test('dragging a widget onto another pushes the other one down', async ({
 
 		const rendered = await renderedRects(page)
 		expect(rendered.get(a)).toEqual({ x: 0, y: 2, w: 4, h: 2 })
-		expect(rendered.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 2 })
+		expect(rendered.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 3 })
 		expect(anyOverlap([...rendered.values()])).toBe(false)
 
 		const stored = await placementRects(own!.owner.api, own!.id)
 		expect(stored.get(a)).toEqual({ x: 0, y: 2, w: 4, h: 2 })
-		expect(stored.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 2 })
+		expect(stored.get(b)).toEqual({ x: 0, y: 4, w: 4, h: 3 })
 	} finally {
 		await context.close()
 	}

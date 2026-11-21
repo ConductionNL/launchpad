@@ -46,6 +46,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\GroupDashboardCreation;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
@@ -226,6 +227,8 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 		$permissions = $this->createMock(PermissionService::class);
 		$permissions->method('canCreateDashboard')->willReturn(true);
 		$permissions->method('canHaveMultipleDashboards')->willReturn(true);
+		$groupCreation = $this->createMock(originalClassName: GroupDashboardCreation::class);
+		$groupCreation->method('allows')->willReturn(true);
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
@@ -237,7 +240,7 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 				versionService: $this->createMock(DashboardVersionService::class),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			)),
+			), groupCreation: $groupCreation),
 			context: new ActorResponses(actor: new RequestActor(
 				userSession: $session,
 				actionAuth: $this->createMock(ActionAuthService::class)

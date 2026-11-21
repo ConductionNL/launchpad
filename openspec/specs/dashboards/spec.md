@@ -347,7 +347,7 @@ The system MUST support a third dashboard type `group_shared` in addition to `us
 
 #### Scenario: Non-admin cannot create a group-shared dashboard
 
-- GIVEN a logged-in user "alice" who is not an administrator
+- GIVEN a logged-in user "alice" who is not an administrator and has no LaunchPad Admin or Editor role
 - WHEN she sends `POST /api/dashboards/group/marketing` with any body
 - THEN the system MUST return HTTP 403
 
@@ -466,10 +466,24 @@ Each returned dashboard MUST carry an additional `source` field with values `'us
 The system MUST expose CRUD endpoints scoped to a group:
 
 - `GET /api/dashboards/group/{groupId}` — list group-shared dashboards in that group (any logged-in user can list)
-- `POST /api/dashboards/group/{groupId}` — create a new one (admin only)
+- `POST /api/dashboards/group/{groupId}` — create a new one: a Nextcloud administrator or a LaunchPad Admin for any group, an Editor for a group they belong to (Ruben, 21 Nov 2026). An Editor cannot create one for the `default` group, which means everyone. Anyone else gets HTTP 403. The new dashboard has no owner (`userId` null).
 - `GET /api/dashboards/group/{groupId}/{uuid}` — get one (any logged-in user)
 - `PUT /api/dashboards/group/{groupId}/{uuid}` — update name/layout/icon (admin only)
 - `DELETE /api/dashboards/group/{groupId}/{uuid}` — remove (admin only)
+
+#### Scenario: An Editor creates a group dashboard for their own group
+
+- GIVEN bob has the LaunchPad role "editor" and is in group "engineering"
+- WHEN he sends `POST /api/dashboards/group/engineering` with `{"name": "Engineering"}`
+- THEN the system MUST return HTTP 201 with a `group_shared` dashboard for "engineering"
+- AND its `userId` MUST be null
+
+#### Scenario: An Editor cannot create a group dashboard for another group
+
+- GIVEN bob has the LaunchPad role "editor" and is not in group "sales"
+- WHEN he sends `POST /api/dashboards/group/sales`
+- THEN the system MUST return HTTP 403
+- AND no dashboard MUST be created
 
 #### Scenario: Update propagates immediately
 
@@ -1408,19 +1422,22 @@ A dashboard MAY carry `unpublishAt`. Once that time has passed, the dashboard MU
 
 ### Requirement: REQ-DASH-014 Group-shared dashboard CRUD is admin-only and declared as such
 
-Group-shared dashboard CRUD endpoints (`createGroup`, `updateGroup`, `deleteGroup`, `setGroupDefault`) MUST be reachable only by Nextcloud global administrators, AND this restriction MUST be declared via the
+The group-shared dashboard endpoints `updateGroup`, `deleteGroup` and `setGroupDefault` MUST be reachable only by Nextcloud global administrators, AND this restriction MUST be declared via the
 `#[AuthorizedAdminSetting]` PHP attribute rather than via an in-body
 `isAdmin()` check layered on a `#[NoAdminRequired]` attribute. The
 attribute-level declaration is enforced by Nextcloud's own middleware
 before the controller method body runs, and is the mechanically
 verifiable form per ADR-005's auth-attribute contract.
 
+`createGroup` is the exception (Ruben, 21 Nov 2026): an Editor may create a group dashboard for a group they belong to, so it carries `#[NoAdminRequired]` and checks `GroupDashboardCreation::allows()` before it reads the body.
+
 #### Scenario: Non-admin cannot create a group-shared dashboard
 
-- **GIVEN** an authenticated non-admin user "bob"
+- **GIVEN** an authenticated user "bob" who is not an administrator and has
+  no LaunchPad Admin or Editor role
 - **WHEN** bob sends `POST /api/dashboards/group/{groupId}`
-- **THEN** the framework MUST reject the request with HTTP 403 before the
-  controller body's business logic runs
+- **THEN** the controller MUST reject the request with HTTP 403 before it
+  reads the body or creates anything (REQ-DASH-014)
 - **AND** no dashboard MUST be created
 
 #### Scenario: Non-admin cannot update, delete, or set-default a group-shared dashboard

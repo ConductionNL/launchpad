@@ -300,6 +300,15 @@ class DashboardApiController extends Controller {
 		);
 
 		if ($result === null) {
+			// REQ-SHARE-003: a dashboard that exists but is neither owned by
+			// nor shared with the caller is refused, not reported missing.
+			if ($this->services->dashboardService->dashboardExists(dashboardId: $id) === true) {
+				return $this->context->responseHelper->success(
+					data: ['error' => 'Access denied'],
+					statusCode: Http::STATUS_FORBIDDEN
+				);
+			}
+
 			return $this->context->responseHelper->success(
 				data: ['error' => 'Not found'],
 				statusCode: Http::STATUS_NOT_FOUND

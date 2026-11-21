@@ -170,11 +170,6 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		const allowed = await readDashboard(bob!, dash.id)
 		expect(allowed.status(), await allowed.text()).toBe(200)
 
-		// SUSPECTED BUG: the spec says 403. `DashboardApiController::show()`
-		// answers 404 `{"error":"Not found"}` when `getDashboardForUser()`
-		// finds the dashboard outside the caller's visible set
-		// (lib/Controller/DashboardApiController.php:293-297), so this
-		// assertion is expected to go red until the two agree.
 		const refused = await readDashboard(carol!, dash.id)
 		expect(refused.status(), await refused.text()).toBe(403)
 		const text = await refused.text()

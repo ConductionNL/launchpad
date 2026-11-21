@@ -1311,6 +1311,28 @@ class DashboardService {
 	}//end findByUuid()
 
 	/**
+	 * Whether a dashboard with this id exists, whoever owns it.
+	 *
+	 * Lets a read tell a dashboard the caller may not see (403) from one
+	 * that does not exist (404), without handing the entity out.
+	 *
+	 * @param int $dashboardId The dashboard ID.
+	 *
+	 * @return bool True when the row exists.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	public function dashboardExists(int $dashboardId): bool {
+		try {
+			$this->stores->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return false;
+		}
+
+		return true;
+	}//end dashboardExists()
+
+	/**
 	 * List the group-shared dashboards in a single group.
 	 *
 	 * Any logged-in user may list — REQ-DASH-014.

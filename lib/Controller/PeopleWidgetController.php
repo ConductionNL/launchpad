@@ -80,7 +80,9 @@ class PeopleWidgetController extends Controller {
 	 * @param int|null $excludeDisabled 1 to exclude disabled users.
 	 * @param int|null $showBirthdays 1 to include birthdate field.
 	 * @param string|null $sortBy Sort key.
-	 * @param int|null $limit Page size.
+	 * @param int|string|null $limit Page size. Not declared `int`: Nextcloud
+	 *                              casts an int `limit` itself and answers a
+	 *                              non-number with a 500 before this runs.
 	 * @param int|null $offset Page offset.
 	 * @param string|null $q Search text; 2 or more characters search the whole directory by name, email and profile fields (REQ-PEX-003).
 	 *
@@ -98,7 +100,7 @@ class PeopleWidgetController extends Controller {
 		?int $excludeDisabled = 1,
 		?int $showBirthdays = 1,
 		?string $sortBy = 'displayName',
-		?int $limit = PeopleWidgetService::DEFAULT_LIMIT,
+		int|string|null $limit = PeopleWidgetService::DEFAULT_LIMIT,
 		?int $offset = 0,
 		?string $q = null,
 	): JSONResponse {
@@ -118,6 +120,11 @@ class PeopleWidgetController extends Controller {
 		}
 
 
+		$pageSize = $this->parseLimit(raw: $limit);
+		if ($pageSize === null) {
+			return new JSONResponse(['error' => 'limit must be an integer'], Http::STATUS_BAD_REQUEST);
+		}
+
 		try {
 			$parsedFilters = $this->parseFilters(raw: $filters);
 		} catch (InvalidArgumentException $e) {
@@ -133,7 +140,7 @@ class PeopleWidgetController extends Controller {
 					page: PeopleQuery::window(
 						excludeDisabled: ($excludeDisabled ?? 1) === 1,
 						showBirthdays: ($showBirthdays ?? 1) === 1,
-						limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
+						limit: $pageSize,
 						offset: ($offset ?? 0)
 					)
 				),
@@ -147,6 +154,30 @@ class PeopleWidgetController extends Controller {
 
 		return $this->context->responseHelper->success(data: $payload);
 	}//end getUsers()
+
+	/**
+	 * The page size a `limit` parameter asks for: the default when absent,
+	 * NULL when it is not a whole number.
+	 *
+	 * @param int|string|null $raw The `limit` parameter.
+	 *
+	 * @return int|null The page size, or NULL when it is not an integer.
+	 */
+	private function parseLimit(int|string|null $raw): ?int {
+		if ($raw === null || $raw === '') {
+			return PeopleWidgetService::DEFAULT_LIMIT;
+		}
+
+		if (is_int(value: $raw) === true) {
+			return $raw;
+		}
+
+		if (preg_match(pattern: '/^-?\d+$/', subject: trim(string: $raw)) !== 1) {
+			return null;
+		}
+
+		return (int) trim(string: $raw);
+	}//end parseLimit()
 
 	/**
 	 * A logged HTTP 400 for a rejected request parameter.

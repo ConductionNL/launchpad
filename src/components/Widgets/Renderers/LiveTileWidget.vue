@@ -22,10 +22,10 @@
 		</div>
 
 		<div
-			v-else-if="errorMessage"
+			v-else-if="shownError"
 			class="live-tile-widget__state live-tile-widget__state--error">
 			<AlertCircleOutline :size="32" />
-			<span>{{ errorMessage }}</span>
+			<span>{{ shownError }}</span>
 			<button type="button" class="live-tile-widget__retry" @click.stop="load">
 				{{ t('launchpad', 'Retry') }}
 			</button>
@@ -205,14 +205,41 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		unavailable() {
+			return this.content?.sourceMode === 'connector' && this.noValue
+		},
+
+		/**
+		 * Whether the server answered without any value: the source failed
+		 * and there was no last-known value to serve (`value: null`,
+		 * `stale: true`, nothing mapped).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
+		noValue() {
 			return (
-				this.content?.sourceMode === 'connector'
-				&& this.reading !== null
+				this.reading !== null
 				&& this.reading.value === null
 				&& this.reading.stale === true
 				&& this.items.length === 0
 				&& this.pairs.length === 0
 			)
+		},
+
+		/**
+		 * The error the tile shows: a failed request, or a reading without
+		 * any value, which is an error rather than a "last known value".
+		 *
+		 * @return {string} The message, or '' when there is no error.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
+		shownError() {
+			if (this.errorMessage) {
+				return this.errorMessage
+			}
+			return this.noValue
+				? t('launchpad', 'The value is currently unavailable.')
+				: ''
 		},
 
 		/**

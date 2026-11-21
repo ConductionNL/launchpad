@@ -452,6 +452,7 @@
 			v-if="contextMenuVisible"
 			:top="contextMenuTop"
 			:left="contextMenuLeft"
+			:removeLocked="!contextMenuCanRemove"
 			@edit="grid.triggerEdit()"
 			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"
@@ -510,7 +511,6 @@ import {
 } from '@conduction/nextcloud-vue'
 import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
 import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
 // Icons
@@ -564,7 +564,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
-import { bootPath } from '../utils/bootPath.js'
+import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
@@ -1275,6 +1275,16 @@ export default {
 			return this.grid.state.contextMenuPosition.x
 		},
 
+		/**
+		 * Whether the context menu offers Remove for the widget it opened on.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		contextMenuCanRemove() {
+			return this.isRemovablePlacement(this.grid.state.selectedWidget)
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
 			return this.widgetPlacements.map((p) => p.widgetId)
@@ -1544,6 +1554,7 @@ export default {
 			tileStore.loadTiles(),
 		])
 		await this.openDeepLinkedDashboard(bootPath())
+		await this.openHashLinkedDashboard(bootHash())
 		// After the watcher has seen the deep-linked switch.
 		await nextTick()
 		this.historyBooted = true
@@ -1599,6 +1610,8 @@ export default {
 
 		// Browser back / forward → re-resolve the URL and switch.
 		window.addEventListener('popstate', this.handleHistoryPopState)
+		// A search result opened while LaunchPad is already showing.
+		window.addEventListener('hashchange', this.onDashboardHashChange)
 
 		// The greeting row mounts with the grid, after this view; watch the
 		// container so the controls dock once it is there, and move again
@@ -1622,6 +1635,7 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		window.removeEventListener('hashchange', this.onDashboardHashChange)
 		this.headerActionsObserver?.disconnect()
 		this.headerActionsObserver = null
 		// Leaving the page while editing withdraws the presence.
@@ -2715,6 +2729,21 @@ export default {
 		},
 
 		/**
+		 * Whether the user may remove a placement: not a compulsory widget
+		 * on a dashboard the user holds with less than full permission.
+		 *
+		 * @param {object|null} placement The placement.
+		 * @return {boolean} True when it may be removed.
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		isRemovablePlacement(placement) {
+			return !(
+				Number(placement?.isCompulsory) === 1
+				&& this.permissionLevel !== 'full'
+			)
+		},
+
+		/**
 		 * Remove a placement from the active dashboard.
 		 *
 		 * @param {number|string} placementId Id of the placement to remove.
@@ -2728,10 +2757,7 @@ export default {
 			const placement = (this.widgetPlacements || []).find(
 				(p) => p.id === placementId,
 			)
-			if (
-				Number(placement?.isCompulsory) === 1
-				&& this.permissionLevel !== 'full'
-			) {
+			if (!this.isRemovablePlacement(placement)) {
 				showError(
 					t(
 						'launchpad',
@@ -3076,11 +3102,9 @@ export default {
 		},
 
 		/**
-		 * Compute the absolute URL for a slug-chain path. The launchpad
-		 * routes mount under whatever prefix `generateUrl` produces
-		 * (typically `/index.php/apps/launchpad` or `/apps/launchpad` when
-		 * URL rewriting is enabled), so we anchor onto the same prefix
-		 * the API client uses.
+		 * Compute the absolute URL for a slug-chain path, under the app
+		 * prefix the page was opened on (`/index.php/apps/launchpad` or
+		 * `/apps/launchpad`), which is the prefix the router is mounted on.
 		 *
 		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
 		 * @return {string} Absolute pathname for `history.pushState`.
@@ -3090,7 +3114,7 @@ export default {
 			if (!path) {
 				return ''
 			}
-			const prefix = generateUrl('/apps/launchpad')
+			const prefix = appBase()
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
 		},
@@ -3119,6 +3143,36 @@ export default {
 			if (target) {
 				await this.switchDashboard(target.id)
 			}
+		},
+
+		/**
+		 * Open the dashboard a `#dashboard/<uuid>` hash names: the link a
+		 * unified search result carries. A uuid the user has no dashboard
+		 * for keeps what the store chose.
+		 *
+		 * @param {string} hash The location hash.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-011-nextcloud-search-ui-integration
+		 */
+		async openHashLinkedDashboard(hash) {
+			const uuid = dashboardUuidFromHash(hash)
+			if (!uuid || this.activeDashboard?.uuid === uuid) {
+				return
+			}
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.switchDashboard(target.id)
+			}
+		},
+
+		/**
+		 * Follow a `#dashboard/<uuid>` hash set after the page loaded.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-011-nextcloud-search-ui-integration
+		 */
+		async onDashboardHashChange() {
+			await this.openHashLinkedDashboard(window.location.hash)
 		},
 
 		/**
@@ -3281,7 +3335,7 @@ export default {
 				return
 			}
 
-			const prefix = generateUrl('/apps/launchpad')
+			const prefix = appBase()
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {

@@ -51,6 +51,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const CONFIG =
@@ -635,14 +636,9 @@ test('REQ-LIVETILE-003: the browser reads the placement endpoint, which answers 
 test('REQ-LIVETILE-003: a user who may not view the dashboard gets 403 and nothing is fetched', async () => {
 	test.skip(!reachable, UNREACHABLE())
 	const outsider = await provisionThrowawayUser('e2e-livetile')
-	const ctx = await request.newContext({
-		baseURL: BASE_URL,
-		httpCredentials: {
-			username: outsider.username,
-			password: outsider.password,
-		},
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
-	})
+	// Not `request.newContext` with bare credentials: that context rides the
+	// admin's stored session and never sends them.
+	const ctx = await contextFor(outsider.username, outsider.password)
 	try {
 		expect(hitsOn('/auth.json')).toBe(0)
 		const refused = await ctx.get(`${API}/livetile/${tiles.auth}`)

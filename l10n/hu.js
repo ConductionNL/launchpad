@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Ütemezte a(z) {dashboard} irányítópultot",
     "{actor} scheduled dashboard {dashboard}" : "{actor} ütemezte a(z) {dashboard} irányítópultot",
     "You shared dashboard {dashboard} with {recipient}" : "Megosztotta a(z) {dashboard} irányítópultot {recipient} felhasználóval",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} megosztotta a(z) {dashboard} irányítópultot {recipient} felhasználóval",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} megosztotta önnel a következő irányítópultot: {dashboard}",
     "You created a public link for dashboard {dashboard}" : "Nyilvános hivatkozást hozott létre a(z) {dashboard} irányítópulthoz",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} nyilvános hivatkozást hozott létre a(z) {dashboard} irányítópulthoz",
     "You commented on dashboard {dashboard}" : "Megjegyzést fűzött a(z) {dashboard} irányítópulthoz",

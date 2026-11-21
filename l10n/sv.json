@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Du schemalade instrumentpanelen {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} schemalade instrumentpanelen {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Du delade instrumentpanelen {dashboard} med {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} delade instrumentpanelen {dashboard} med {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} delade instrumentpanelen {dashboard} med dig",
         "You created a public link for dashboard {dashboard}": "Du skapade en offentlig länk för instrumentpanelen {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} skapade en offentlig länk för instrumentpanelen {dashboard}",
         "You commented on dashboard {dashboard}": "Du kommenterade instrumentpanelen {dashboard}",

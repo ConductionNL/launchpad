@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Zakazali ste kontrolnu tablu {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} je zakazao kontrolnu tablu {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Podijelili ste kontrolnu tablu {dashboard} s {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} je podijelio kontrolnu tablu {dashboard} s {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} je podijelio/la kontrolnu ploču {dashboard} s vama",
     "You created a public link for dashboard {dashboard}" : "Kreirali ste javnu vezu za kontrolnu tablu {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} je kreirao javnu vezu za kontrolnu tablu {dashboard}",
     "You commented on dashboard {dashboard}" : "Komentarisali ste kontrolnu tablu {dashboard}",

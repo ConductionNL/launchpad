@@ -136,6 +136,13 @@ class DashboardShareWriteSequenceGoldenTest extends TestCase {
 				$this->log[] = "notify $sharerUserId ".$dashboard->getName().' '.$share->getShareWith().' '.$share->getPermissionLevel();
 			}
 		);
+		$notifier->method('sharedAll')->willReturnCallback(
+			function (array $shares, string $sharerUserId, Dashboard $dashboard): void {
+				foreach ($shares as $share) {
+					$this->log[] = "notify $sharerUserId ".$dashboard->getName().' '.$share->getShareWith().' '.$share->getPermissionLevel();
+				}
+			}
+		);
 
 		return new DashboardShareService(
 			shareMapper: $shares,

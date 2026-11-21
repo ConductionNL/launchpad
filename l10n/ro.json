@@ -437,7 +437,7 @@
         "You scheduled dashboard {dashboard}": "Ați programat tabloul de bord {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} a programat tabloul de bord {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Ați partajat tabloul de bord {dashboard} cu {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} a partajat tabloul de bord {dashboard} cu {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} a partajat tabloul de bord {dashboard} cu dumneavoastră",
         "You created a public link for dashboard {dashboard}": "Ați creat o legătură publică pentru tabloul de bord {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} a creat o legătură publică pentru tabloul de bord {dashboard}",
         "You commented on dashboard {dashboard}": "Ați comentat la tabloul de bord {dashboard}",

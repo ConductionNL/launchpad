@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Ajastasid töölaua {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} ajastas töölaua {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Jagasid töölauda {dashboard} kasutajaga {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} jagas töölauda {dashboard} kasutajaga {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} jagas töölauda {dashboard} sinuga",
         "You created a public link for dashboard {dashboard}": "Lõid avaliku lingi töölauale {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} lõi avaliku lingi töölauale {dashboard}",
         "You commented on dashboard {dashboard}": "Kommenteerisid töölauda {dashboard}",

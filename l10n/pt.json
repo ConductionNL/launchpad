@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Agendou o painel {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} agendou o painel {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Partilhou o painel {dashboard} com {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} partilhou o painel {dashboard} com {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} partilhou o painel {dashboard} consigo",
         "You created a public link for dashboard {dashboard}": "Criou uma ligação pública para o painel {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} criou uma ligação pública para o painel {dashboard}",
         "You commented on dashboard {dashboard}": "Comentou no painel {dashboard}",

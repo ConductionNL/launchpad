@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Προγραμματίσατε τον πίνακα {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "Ο/Η {actor} προγραμμάτισε τον πίνακα {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Διαμοιραστήκατε τον πίνακα {dashboard} με τον/την {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "Ο/Η {actor} διαμοιράστηκε τον πίνακα {dashboard} με τον/την {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "Ο/Η {actor} διαμοιράστηκε τον πίνακα {dashboard} μαζί σας",
         "You created a public link for dashboard {dashboard}": "Δημιουργήσατε έναν δημόσιο σύνδεσμο για τον πίνακα {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "Ο/Η {actor} δημιούργησε έναν δημόσιο σύνδεσμο για τον πίνακα {dashboard}",
         "You commented on dashboard {dashboard}": "Σχολιάσατε τον πίνακα {dashboard}",

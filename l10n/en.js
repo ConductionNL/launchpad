@@ -382,7 +382,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "You scheduled dashboard {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} scheduled dashboard {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "You shared dashboard {dashboard} with {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} shared dashboard {dashboard} with {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} shared dashboard {dashboard} with you",
     "You created a public link for dashboard {dashboard}" : "You created a public link for dashboard {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} created a public link for dashboard {dashboard}",
     "You commented on dashboard {dashboard}" : "You commented on dashboard {dashboard}",

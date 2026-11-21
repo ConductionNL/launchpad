@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Heu programat el tauler {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} ha programat el tauler {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Heu compartit el tauler {dashboard} amb {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} ha compartit el tauler {dashboard} amb {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} ha compartit el tauler {dashboard} amb vós",
         "You created a public link for dashboard {dashboard}": "Heu creat un enllaç públic per al tauler {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} ha creat un enllaç públic per al tauler {dashboard}",
         "You commented on dashboard {dashboard}": "Heu comentat al tauler {dashboard}",

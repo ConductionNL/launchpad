@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Du planlagde dashboardet {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} planlagde dashboardet {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Du delte dashboardet {dashboard} med {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} delte dashboardet {dashboard} med {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} delte dashboardet {dashboard} med dig",
     "You created a public link for dashboard {dashboard}" : "Du oprettede et offentligt link til dashboardet {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} oprettede et offentligt link til dashboardet {dashboard}",
     "You commented on dashboard {dashboard}" : "Du kommenterede på dashboardet {dashboard}",

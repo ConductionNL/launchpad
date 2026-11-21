@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Sceidealaigh tú an deais {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "Sceidealaigh {actor} an deais {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Chomhroinn tú an deais {dashboard} le {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "Chomhroinn {actor} an deais {dashboard} le {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "Chomhroinn {actor} an deais {dashboard} leat",
     "You created a public link for dashboard {dashboard}" : "Chruthaigh tú nasc poiblí don deais {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "Chruthaigh {actor} nasc poiblí don deais {dashboard}",
     "You commented on dashboard {dashboard}" : "Rinne tú trácht ar an deais {dashboard}",

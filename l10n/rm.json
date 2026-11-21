@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Vus avais planisà il tabladi {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} ha planisà il tabladi {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Vus avais cundividì il tabladi {dashboard} cun {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} ha cundividì il tabladi {dashboard} cun {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} ha cundividì il tabladi {dashboard} cun tai",
         "You created a public link for dashboard {dashboard}": "Vus avais creà ina colliaziun publica per il tabladi {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} ha creà ina colliaziun publica per il tabladi {dashboard}",
         "You commented on dashboard {dashboard}": "Vus avais commentà il tabladi {dashboard}",

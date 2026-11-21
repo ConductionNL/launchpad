@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Ajastit kojelaudan {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} ajasti kojelaudan {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Jaoit kojelaudan {dashboard} vastaanottajan {recipient} kanssa",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} jakoi kojelaudan {dashboard} vastaanottajan {recipient} kanssa",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} jakoi koontinäytön {dashboard} kanssasi",
     "You created a public link for dashboard {dashboard}" : "Loit julkisen linkin kojelaudalle {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} loi julkisen linkin kojelaudalle {dashboard}",
     "You commented on dashboard {dashboard}" : "Kommentoit kojelautaa {dashboard}",

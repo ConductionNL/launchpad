@@ -195,9 +195,9 @@ class DashboardShareService {
 		$notifyQueue = $this->replaceInTransaction(dashboardId: $dashboardId, grants: $grants);
 
 		// Publish notifications after the transaction commits.
-		foreach ($notifyQueue as $share) {
-			$this->notifier->shared(
-				share: $share,
+		if ($notifyQueue !== []) {
+			$this->notifier->sharedAll(
+				shares: $notifyQueue,
 				sharerUserId: $userId,
 				dashboard: $dashboard
 			);

@@ -387,7 +387,7 @@
         "You scheduled dashboard {dashboard}": "Je hebt dashboard {dashboard} ingepland",
         "{actor} scheduled dashboard {dashboard}": "{actor} heeft dashboard {dashboard} ingepland",
         "You shared dashboard {dashboard} with {recipient}": "Je hebt dashboard {dashboard} gedeeld met {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} heeft dashboard {dashboard} gedeeld met {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} heeft dashboard {dashboard} met je gedeeld",
         "You created a public link for dashboard {dashboard}": "Je hebt een openbare link gemaakt voor dashboard {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} heeft een openbare link gemaakt voor dashboard {dashboard}",
         "You commented on dashboard {dashboard}": "Je hebt gereageerd op dashboard {dashboard}",

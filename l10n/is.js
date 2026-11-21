@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Þér tímasettuð stjórnborð {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} tímasetti stjórnborð {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Þér deilduð stjórnborði {dashboard} með {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} deildi stjórnborði {dashboard} með {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} deildi mælaborðinu {dashboard} með þér",
     "You created a public link for dashboard {dashboard}" : "Þér bjugguð til opinberan tengil fyrir stjórnborð {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} bjó til opinberan tengil fyrir stjórnborð {dashboard}",
     "You commented on dashboard {dashboard}" : "Þér settuð athugasemd við stjórnborð {dashboard}",

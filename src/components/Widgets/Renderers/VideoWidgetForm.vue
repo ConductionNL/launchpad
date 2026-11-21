@@ -78,6 +78,7 @@ export default {
 		 * The content the dialog stores, read from the shared form.
 		 *
 		 * @return {object|undefined}
+		 * @spec openspec/specs/video-widget/spec.md#requirement-req-vid-005-parse-and-validate-video-urls-server-side
 		 */
 		assembledContent() {
 			// Read again on each change: `$refs` alone is not reactive.
@@ -95,6 +96,7 @@ export default {
 		 * The shared form's errors plus the parse endpoint's.
 		 *
 		 * @return {string[]}
+		 * @spec openspec/specs/video-widget/spec.md#requirement-req-vid-005-parse-and-validate-video-urls-server-side
 		 */
 		validate() {
 			return this.$refs.form ? this.$refs.form.validate() : []
@@ -104,6 +106,7 @@ export default {
 		 * Pass a change up, and parse a changed URL once typing pauses.
 		 *
 		 * @param {object} content The assembled content.
+		 * @spec openspec/specs/video-widget/spec.md#requirement-req-vid-005-parse-and-validate-video-urls-server-side
 		 * @return {void}
 		 */
 		onContent(content) {
@@ -126,6 +129,7 @@ export default {
 		 *
 		 * @param {string} url The URL.
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/video-widget/spec.md#requirement-req-vid-005-parse-and-validate-video-urls-server-side
 		 */
 		async parse(url) {
 			let error = ''

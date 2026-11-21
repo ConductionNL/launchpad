@@ -63,6 +63,8 @@ class VideoParseController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/video-widget/spec.md#requirement-req-vid-005-parse-and-validate-video-urls-server-side
+	 *
+	 * @no-admin-idor-exempt A pure parse of the caller's own input: it takes no object id and reads no stored data.
 	 */
 	#[NoAdminRequired]
 	public function parse(string $videoUrl=''): JSONResponse {

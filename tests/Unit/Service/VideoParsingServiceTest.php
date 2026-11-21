@@ -36,28 +36,41 @@ class VideoParsingServiceTest extends TestCase {
 	 * @return array<string, array{string, string, string, string}>
 	 */
 	public static function validUrls(): array {
+		$embed = 'https://www.youtube.com/embed/';
+		$uuid  = '9c9de5e8-0a1e-484a-b099-e80766180a6d';
+
 		return [
-			'youtube watch'         => ['https://www.youtube.com/watch?v=ABC123', 'youtube', 'ABC123', 'https://www.youtube.com/embed/ABC123'],
-			'youtube short link'    => ['https://youtu.be/ABC123', 'youtube', 'ABC123', 'https://www.youtube.com/embed/ABC123'],
-			'youtube with t=30s'    => ['https://youtube.com/watch?v=ABC123&t=30s', 'youtube', 'ABC123', 'https://www.youtube.com/embed/ABC123?start=30'],
-			'youtube with t=1m30s'  => ['https://youtu.be/ABC123?t=1m30s', 'youtube', 'ABC123', 'https://www.youtube.com/embed/ABC123?start=90'],
-			'youtube embed'         => ['https://www.youtube.com/embed/ABC123?start=120', 'youtube', 'ABC123', 'https://www.youtube.com/embed/ABC123?start=120'],
-			'youtube shorts'        => ['https://m.youtube.com/shorts/ABC_12-3', 'youtube', 'ABC_12-3', 'https://www.youtube.com/embed/ABC_12-3'],
+			'youtube watch'         => ['https://www.youtube.com/watch?v=ABC123', 'youtube', 'ABC123', $embed.'ABC123'],
+			'youtube short link'    => ['https://youtu.be/ABC123', 'youtube', 'ABC123', $embed.'ABC123'],
+			'youtube with t=30s'    => ['https://youtube.com/watch?v=ABC123&t=30s', 'youtube', 'ABC123', $embed.'ABC123?start=30'],
+			'youtube with t=1m30s'  => ['https://youtu.be/ABC123?t=1m30s', 'youtube', 'ABC123', $embed.'ABC123?start=90'],
+			'youtube embed'         => [$embed.'ABC123?start=120', 'youtube', 'ABC123', $embed.'ABC123?start=120'],
+			'youtube shorts'        => ['https://m.youtube.com/shorts/ABC_12-3', 'youtube', 'ABC_12-3', $embed.'ABC_12-3'],
 			'vimeo'                 => ['https://vimeo.com/12345', 'vimeo', '12345', 'https://player.vimeo.com/video/12345'],
 			'vimeo player'          => ['https://player.vimeo.com/video/12345', 'vimeo', '12345', 'https://player.vimeo.com/video/12345'],
 			'peertube watch'        => ['https://peertube.example.com/w/abc123', 'peertube', 'abc123', 'https://peertube.example.com/videos/embed/abc123'],
-			'peertube videos/watch' => ['https://tube.example.org/videos/watch/9c9de5e8-0a1e-484a-b099-e80766180a6d', 'peertube', '9c9de5e8-0a1e-484a-b099-e80766180a6d', 'https://tube.example.org/videos/embed/9c9de5e8-0a1e-484a-b099-e80766180a6d'],
-			'surrounding spaces'    => ['  https://youtu.be/ABC123  ', 'youtube', 'ABC123', 'https://www.youtube.com/embed/ABC123'],
+			'peertube videos/watch' => ['https://tube.example.org/videos/watch/'.$uuid, 'peertube', $uuid, 'https://tube.example.org/videos/embed/'.$uuid],
+			'surrounding spaces'    => ['  https://youtu.be/ABC123  ', 'youtube', 'ABC123', $embed.'ABC123'],
 		];
 	}//end validUrls()
 
+	/**
+	 * Every supported URL form becomes its canonical embed URL.
+	 *
+	 * @param string $input     The URL as typed.
+	 * @param string $source    The expected source type.
+	 * @param string $videoId   The expected video id.
+	 * @param string $canonical The expected embed URL.
+	 *
+	 * @return void
+	 */
 	#[DataProvider('validUrls')]
 	public function testAVideoUrlIsParsedToItsCanonicalEmbed(string $input, string $source, string $videoId, string $canonical): void {
 		$this->assertSame(
-			['isValid' => true, 'sourceType' => $source, 'videoId' => $videoId, 'canonicalUrl' => $canonical],
-			(new VideoParsingService())->parse(videoUrl: $input)
+			expected: ['isValid' => true, 'sourceType' => $source, 'videoId' => $videoId, 'canonicalUrl' => $canonical],
+			actual: (new VideoParsingService())->parse(videoUrl: $input)
 		);
-	}
+	}//end testAVideoUrlIsParsedToItsCanonicalEmbed()
 
 	/**
 	 * Inputs that are not an http(s) URL.
@@ -74,14 +87,33 @@ class VideoParsingServiceTest extends TestCase {
 		];
 	}//end notUrls()
 
+	/**
+	 * Input that is not an http(s) URL is refused as an invalid format.
+	 *
+	 * @param string $input The input.
+	 *
+	 * @return void
+	 */
 	#[DataProvider('notUrls')]
 	public function testInputThatIsNoUrlIsRefusedAsAnInvalidFormat(string $input): void {
-		$this->assertSame(['isValid' => false, 'error' => 'Invalid URL format'], (new VideoParsingService())->parse(videoUrl: $input));
-	}
+		$this->assertSame(
+			expected: ['isValid' => false, 'error' => 'Invalid URL format'],
+			actual: (new VideoParsingService())->parse(videoUrl: $input)
+		);
+	}//end testInputThatIsNoUrlIsRefusedAsAnInvalidFormat()
 
+	/**
+	 * A URL that is no known video is refused as unsupported.
+	 *
+	 * @return void
+	 */
 	public function testAUrlThatIsNoKnownVideoIsRefusedAsUnsupported(): void {
 		foreach (['https://example.com/page', 'https://www.youtube.com/watch', 'https://vimeo.com/channels/staffpicks'] as $input) {
-			$this->assertSame(['isValid' => false, 'error' => 'Unsupported video source'], (new VideoParsingService())->parse(videoUrl: $input), $input);
+			$this->assertSame(
+				expected: ['isValid' => false, 'error' => 'Unsupported video source'],
+				actual: (new VideoParsingService())->parse(videoUrl: $input),
+				message: $input
+			);
 		}
-	}
+	}//end testAUrlThatIsNoKnownVideoIsRefusedAsUnsupported()
 }//end class

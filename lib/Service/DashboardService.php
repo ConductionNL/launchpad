@@ -1256,9 +1256,13 @@ class DashboardService {
 	 * @param int $dashboardId The dashboard ID.
 	 * @param string $userId The user ID.
 	 *
+	 * A recipient of a share gets the dashboard back unchanged: the active
+	 * flag lives on the owner's row, so nothing is written (REQ-SHARE-005).
+	 *
 	 * @return Dashboard The activated dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/specs/dashboard-sharing/spec.md#requirement-req-share-005
 	 */
 	public function activateDashboard(
 		int $dashboardId,
@@ -1267,6 +1271,14 @@ class DashboardService {
 		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
+			$entry = $this->findVisibleEntryById(
+				visible: $this->getVisibleToUser(userId: $userId),
+				dashboardId: $dashboardId
+			);
+			if ($entry !== null && (string)$entry['source'] === Dashboard::SOURCE_SHARED) {
+				return $dashboard;
+			}
+
 			throw new Exception(message: 'Access denied');
 		}
 
@@ -1297,6 +1309,28 @@ class DashboardService {
 	public function findByUuid(string $uuid): Dashboard {
 		return $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 	}//end findByUuid()
+
+	/**
+	 * Whether a dashboard with this id exists, whoever owns it.
+	 *
+	 * Lets a read tell a dashboard the caller may not see (403) from one
+	 * that does not exist (404), without handing the entity out.
+	 *
+	 * @param int $dashboardId The dashboard ID.
+	 *
+	 * @return bool True when the row exists.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	public function dashboardExists(int $dashboardId): bool {
+		try {
+			$this->stores->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return false;
+		}
+
+		return true;
+	}//end dashboardExists()
 
 	/**
 	 * List the group-shared dashboards in a single group.

@@ -202,7 +202,7 @@ import Eye from 'vue-material-design-icons/Eye.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import VisibilityRuleRow from './VisibilityRuleRow.vue'
-import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
+import { previewRuleId, useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
 import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { toGroupOptions } from '../../utils/groupOptions.js'
@@ -330,7 +330,7 @@ export default {
 				(this.preview.state.result
 					&& this.preview.state.result.matchedIncludeRuleIds)
 				|| []
-			return this.rules.filter((r) => ids.includes(r.id))
+			return this.rules.filter((r) => ids.includes(previewRuleId(r)))
 		},
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
@@ -339,7 +339,7 @@ export default {
 				(this.preview.state.result
 					&& this.preview.state.result.matchedExcludeRuleIds)
 				|| []
-			return this.rules.filter((r) => ids.includes(r.id))
+			return this.rules.filter((r) => ids.includes(previewRuleId(r)))
 		},
 	},
 

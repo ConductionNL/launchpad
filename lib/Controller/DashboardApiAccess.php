@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\GroupDashboardCreation;
 
 /**
  * Collaborators DashboardApiController takes as one value.
@@ -34,12 +35,14 @@ class DashboardApiAccess {
 	 *
 	 * @param PermissionService   $permissionService The permission service.
 	 * @param DashboardApiHistory $history The tree, version and analytics services and the logger.
+	 * @param GroupDashboardCreation|null $groupCreation Decides who may create a group dashboard (REQ-DASH-014).
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		public readonly PermissionService $permissionService,
 		public readonly DashboardApiHistory $history,
+		public readonly ?GroupDashboardCreation $groupCreation = null,
 	) {
 	}//end __construct()
 }//end class

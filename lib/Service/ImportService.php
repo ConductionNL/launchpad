@@ -807,6 +807,7 @@ class ImportService {
 	 * @param array<string, mixed> $payload The dashboard payload.
 	 *
 	 * @return void
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function applyEntityLayout(
 		Dashboard $dashboard,
@@ -828,6 +829,8 @@ class ImportService {
 			$dashboard->setTargetGroupsArray(groups: $payload['targetGroups']);
 		}
 
+		$this->applyEntityHierarchies(dashboard: $dashboard, payload: $payload);
+
 		// What a template is filed under and how it is described in the
 		// gallery is part of the template, so it travels with it (REQ-EXIM-012).
 		foreach (['templateCategory', 'templateDescription'] as $field) {
@@ -837,6 +840,34 @@ class ImportService {
 			}
 		}
 	}//end applyEntityLayout()
+
+	/**
+	 * Hydrate the hierarchy descriptors of the filter bus (REQ-CWF-011).
+	 *
+	 * Validated like an API update. A malformed list is left out with a
+	 * warning, so one bad field does not cost the whole dashboard.
+	 *
+	 * @param Dashboard            $dashboard The entity being hydrated.
+	 * @param array<string, mixed> $payload   The dashboard payload.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	private function applyEntityHierarchies(Dashboard $dashboard, array $payload): void {
+		if (array_key_exists(key: 'hierarchies', array: $payload) === false) {
+			return;
+		}
+
+		try {
+			$dashboard->setHierarchiesArray(DashboardHierarchies::validated(value: $payload['hierarchies']));
+		} catch (InvalidArgumentException $e) {
+			$this->logger->warning(
+				message: 'LaunchPad import: hierarchies left out of dashboard {name}: {reason}',
+				context: ['name' => (string)$dashboard->getName(), 'reason' => $e->getMessage()]
+			);
+		}
+	}//end applyEntityHierarchies()
 
 	/**
 	 * Hydrate the tree-placement and publication fields.

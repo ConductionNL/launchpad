@@ -255,6 +255,12 @@ A dashboard SHALL store its `hierarchies` (a list of hierarchy_descriptor object
 - **WHEN** that user sends an update with `hierarchies`
 - **THEN** the API SHALL refuse it as it refuses a layout change, and the stored hierarchies SHALL stay as they were
 
+#### Scenario: Copies keep the hierarchies
+
+- **GIVEN** a dashboard or admin template that stores the `nl-administrative` hierarchy
+- **WHEN** a user forks it as a personal copy, a dashboard is made from the template, or the dashboard is exported and imported again
+- **THEN** the copy SHALL store the same hierarchies, so its filter bus joins widgets as the original's does; a malformed list in an imported archive SHALL be left out without failing the import
+
 #### Scenario: Clearing the hierarchies
 
 - **GIVEN** a dashboard that stores the `nl-administrative` hierarchy

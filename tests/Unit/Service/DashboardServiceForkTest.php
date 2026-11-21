@@ -329,6 +329,29 @@ class DashboardServiceForkTest extends TestCase {
 	}//end testForkCopiesATemplateTheGalleryOffers()
 
 	/**
+	 * REQ-CWF-011: the fork keeps the source's hierarchies, so its filter
+	 * bus joins widgets as the source's does.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function testForkKeepsTheSourcesHierarchies(): void {
+		$this->settingMapper->method('getValue')->willReturn(true);
+		$hierarchies = [['id' => 'nl-administrative', 'levels' => [['dimension' => 'provincieCode', 'label' => 'Province', 'parentDimension' => null]]]];
+		$template    = $this->makeDashboard(uuid: 'tpl-uuid', name: 'Wijken', type: Dashboard::TYPE_ADMIN_TEMPLATE, userId: null, groupId: null, id: 55);
+		$template->setHierarchiesArray(hierarchies: $hierarchies);
+		$this->stubVisibleToUser(userId: 'alice', visible: []);
+		$this->adminTemplateService->method('findOfferedTemplate')->willReturn($template);
+		$this->dashboardMapper->method('insert')->willReturnArgument(0);
+		$this->placementMapper->method('cloneToDashboard')->willReturn(0);
+
+		$fork = $this->service->forkAsPersonal(userId: 'alice', sourceUuid: 'tpl-uuid', name: 'Mijn wijken');
+
+		$this->assertSame(expected: $hierarchies, actual: $fork->getHierarchiesArray());
+	}//end testForkKeepsTheSourcesHierarchies()
+
+	/**
 	 * REQ-DASH-020 scenario: empty body uses
 	 * `t('My copy of %s', [source.name])` as the default name.
 	 *

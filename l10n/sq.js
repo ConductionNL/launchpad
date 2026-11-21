@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Ju planifikuat pultin {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} planifikoi pultin {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Ju ndatë pultin {dashboard} me {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} ndau pultin {dashboard} me {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} ndau pultin {dashboard} me ju",
     "You created a public link for dashboard {dashboard}" : "Ju krijuat një lidhje publike për pultin {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} krijoi një lidhje publike për pultin {dashboard}",
     "You commented on dashboard {dashboard}" : "Ju komentuat te pulti {dashboard}",

@@ -29,9 +29,11 @@
  *   @e2e activity-feed-integration::geticon-returns-non-empty-url-for-all-known-types
  *   @e2e activity-feed-integration::correct-fields-populated-on-ievent
  *   @e2e activity-feed-integration::publish-called-after-domain-action-is-persisted
- *   @e2e activity-feed-integration::self-action-on-personal-dashboard-single-row-for-owner
+ *   @e2e activity-feed-integration::self-action-on-personal-dashboard-writes-no-row
  *   @e2e activity-feed-integration::no-fan-out-for-personal-dashboards
  *   @e2e activity-feed-integration::share-with-two-users-produces-three-rows
+ *   @e2e activity-feed-integration::replacing-the-share-list-tells-the-sharer-once
+ *   @e2e activity-feed-integration::user-turns-off-push-for-dashboardshared
  *   @e2e activity-feed-integration::actor-row-uses-first-person-subject-recipient-rows-use-secondthird-person
  *   @e2e activity-feed-integration::sharing-with-a-user-who-already-has-the-dashboard-does-not-skip-their-row
  *   @e2e activity-feed-integration::update-on-group-shared-dashboard-fans-out-to-all-members
@@ -451,19 +453,17 @@ test.describe('activity-feed-integration', () => {
 		expect(rows[0].subject).not.toContain(dash.name)
 	})
 
-	// @e2e activity-feed-integration::self-action-on-personal-dashboard-single-row-for-owner
-	test('updating your own personal dashboard writes exactly one row, to you, by you', async () => {
+	// @e2e activity-feed-integration::self-action-on-personal-dashboard-writes-no-row
+	test('updating your own private dashboard writes no row', async () => {
 		const dash = await personalDashboard(`E2E Act Self ${RUN}`)
 
 		await updatePersonalDashboard(dash, { name: `${dash.name} v2` })
 
-		const rows = await rowsAbout(admin, dash, 'dashboard_updated')
-		expect(rows).toHaveLength(1)
-		expect(rows[0].user).toBe(ADMIN.user)
+		expect(await rowsAbout(admin, dash, 'dashboard_updated')).toHaveLength(0)
 	})
 
 	// @e2e activity-feed-integration::no-fan-out-for-personal-dashboards
-	test('adding a widget to an unshared personal dashboard tells the owner and nobody else', async () => {
+	test('adding a widget to an unshared personal dashboard tells nobody, the owner included', async () => {
 		const bystander = await user('act-nofan')
 		const dash = await personalDashboard(`E2E Act NoFan ${RUN}`)
 
@@ -479,7 +479,7 @@ test.describe('activity-feed-integration', () => {
 		})
 		expect(widget.status(), await widget.text()).toBeLessThan(300)
 
-		expect(await rowsAbout(admin, dash, 'dashboard_updated')).toHaveLength(1)
+		expect(await rowsAbout(admin, dash, 'dashboard_updated')).toHaveLength(0)
 		expect(await rowsAbout(bystander.api, dash)).toHaveLength(0)
 	})
 
@@ -505,6 +505,7 @@ test.describe('activity-feed-integration', () => {
 		})
 
 		// @e2e activity-feed-integration::share-with-two-users-produces-three-rows
+		// @e2e activity-feed-integration::replacing-the-share-list-tells-the-sharer-once
 		test('writes three dashboard_shared rows: the sharer, bob and carol', async () => {
 			expect(await rowsAbout(admin, dash, 'dashboard_shared')).toHaveLength(1)
 			expect(await rowsAbout(bob.api, dash, 'dashboard_shared')).toHaveLength(1)
@@ -625,7 +626,7 @@ test.describe('activity-feed-integration', () => {
 	})
 
 	// @e2e activity-feed-integration::default-notification-preferences-for-a-new-user
-	test('a new user gets LaunchPad events in the stream and mail only for shares and publications', async () => {
+	test('a new user gets LaunchPad events in the stream, mail and push only for shares and publications', async () => {
 		const frank = await user('act-frank')
 		const groups = await activityGroups(frank.api, '/index.php/settings/user/notifications')
 
@@ -633,6 +634,7 @@ test.describe('activity-feed-integration', () => {
 		for (const [type, mail] of Object.entries(SETTING_MAIL_DEFAULTS)) {
 			expect(activities[type], `${type} has no preference`).toBeDefined()
 			expect(Boolean(activities[type].email), `${type} email`).toBe(mail)
+			expect(Boolean(activities[type].notification), `${type} push`).toBe(mail)
 		}
 
 		// Activity 7 writes every event to the stream; its settings page only
@@ -642,19 +644,14 @@ test.describe('activity-feed-integration', () => {
 		expect(await rowsAbout(frank.api, dash, 'dashboard_shared')).toHaveLength(1)
 	})
 
-	// @e2e activity-feed-integration::opt-out-state-is-per-user-and-per-type
-	test('frank opting out of dashboard_updated stops his rows and not grace\'s', async () => {
-		const frank = await user('act-optout')
-		const grace = await user('act-grace')
-		const groupId = await group([frank.username, grace.username])
-
-		// Save frank's settings the way the form does: every type keeps its
-		// current values except dashboard_updated, whose in-app box is cleared.
+	// @e2e activity-feed-integration::user-turns-off-push-for-dashboardshared
+	test('frank turning off push for dashboard_shared still gets the row in his stream', async () => {
+		const frank = await user('act-nopush')
 		const path = '/index.php/settings/user/notifications'
 		const form: Record<string, string> = {}
 		for (const g of Object.values(await activityGroups(frank.api, path))) {
 			for (const [id, entry] of Object.entries(g.activities)) {
-				const notify = id === 'dashboard_updated' ? false : Boolean(entry.notification)
+				const notify = id === 'dashboard_shared' ? false : Boolean(entry.notification)
 				form[`${id}_notification`] = notify ? '1' : '0'
 				form[`${id}_email`] = entry.email ? '1' : '0'
 			}
@@ -662,13 +659,43 @@ test.describe('activity-feed-integration', () => {
 		const saved = await frank.api.post('/index.php/apps/activity/settings', { form })
 		expect(saved.status(), await saved.text()).toBe(200)
 		const stored = (await activityGroups(frank.api, path)).launchpad.activities
-		expect(Boolean(stored.dashboard_updated.notification)).toBe(false)
+		expect(Boolean(stored.dashboard_shared.notification)).toBe(false)
+
+		const dash = await personalDashboard(`E2E Act NoPush ${RUN}`)
+		await share(dash, 'user', frank.username)
+
+		expect(await rowsAbout(frank.api, dash, 'dashboard_shared')).toHaveLength(1)
+	})
+
+	// @e2e activity-feed-integration::opt-out-state-is-per-user-and-per-type
+	test('frank turning on push for dashboard_updated changes only his push, both streams get the row', async () => {
+		const frank = await user('act-optout')
+		const grace = await user('act-grace')
+		const groupId = await group([frank.username, grace.username])
+
+		// Save frank's settings the way the form does: every type keeps its
+		// current values except dashboard_updated, whose push box is ticked.
+		const path = '/index.php/settings/user/notifications'
+		const form: Record<string, string> = {}
+		for (const g of Object.values(await activityGroups(frank.api, path))) {
+			for (const [id, entry] of Object.entries(g.activities)) {
+				const notify = id === 'dashboard_updated' ? true : Boolean(entry.notification)
+				form[`${id}_notification`] = notify ? '1' : '0'
+				form[`${id}_email`] = entry.email ? '1' : '0'
+			}
+		}
+		const saved = await frank.api.post('/index.php/apps/activity/settings', { form })
+		expect(saved.status(), await saved.text()).toBe(200)
+		const stored = (await activityGroups(frank.api, path)).launchpad.activities
+		expect(Boolean(stored.dashboard_updated.notification)).toBe(true)
 
 		const dash = await groupDashboard(groupId, `E2E Act OptOut ${RUN}`)
 		await updateGroupDashboard(dash, { description: 'opt-out' })
 
-		expect(await rowsAbout(frank.api, dash, 'dashboard_updated')).toHaveLength(0)
+		expect(await rowsAbout(frank.api, dash, 'dashboard_updated')).toHaveLength(1)
 		expect(await rowsAbout(grace.api, dash, 'dashboard_updated')).toHaveLength(1)
+		const graces = (await activityGroups(grace.api, path)).launchpad.activities
+		expect(Boolean(graces.dashboard_updated.notification)).toBe(false)
 	})
 
 	// @e2e activity-feed-integration::missing-translation-key-falls-back-to-english

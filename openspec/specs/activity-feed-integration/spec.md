@@ -142,24 +142,24 @@ The system MUST provide `\OCA\LaunchPad\Activity\ActivityPublisher` as the sole 
 
 ### Requirement: REQ-ACT-004 Audience Targeting — Personal Dashboards
 
-For events on `user`-type dashboards, the system MUST emit exactly one activity row per event occurrence, addressed to the dashboard owner. The owner receives their own events so they appear in their personal activity stream.
+A save of a private dashboard (a `user`-type dashboard with no shares and no target groups) MUST NOT write any activity row, not even for its owner (Ruben, 21 Nov 2026; this matches REQ-DIGE-003). Other events on a `user`-type dashboard MUST emit exactly one activity row per event occurrence, addressed to the dashboard owner.
 
 NOTE: REQ-ACT-004 through REQ-ACT-006 and REQ-ACT-008 together implement the normative four-scope audience rule. The recipient set for any event is determined by the dashboard's scope at emit-time:
 
 | Scope | Recipients |
 |---|---|
-| `user` (personal) | Owner only |
+| `user` (personal) | Owner only; a save of a private dashboard writes no row |
 | User-to-user share | Owner + every named share recipient |
 | `group_shared` | All current members of the target group (resolved via `IGroupManager` at emit-time) |
 | Default-group (`groupId = 'default'`) | All authenticated NC users (via `IUserManager::callForAllUsers`), subject to debounce (see REQ-ACT-008) |
 
 NOTE: Group membership MUST be resolved at emit-time, not at read-time. This matches NC core's own pattern and keeps `oc_activity` queries simple. For personal-scope events, the guard on `dashboard->getType()` MUST prevent any `IGroupManager` call.
 
-#### Scenario: Self-action on personal dashboard — single row for owner
+#### Scenario: Self-action on personal dashboard writes no row
 
-- GIVEN user "alice" updates her personal dashboard "Work"
-- WHEN `ActivityPublisher::publish('dashboard_updated', 'alice', ...)` is called
-- THEN exactly one row MUST be written to `oc_activity` with `user = 'alice'` and `affecteduser = 'alice'`
+- GIVEN user "alice" has a personal dashboard "Work" that is not shared and has no target groups
+- WHEN she saves it
+- THEN no `dashboard_updated` row MUST be written to `oc_activity`, not for "alice" and not for anyone else
 
 #### Scenario: Admin action on personal-origin dashboard — single row to owner
 
@@ -172,28 +172,35 @@ NOTE: Group membership MUST be resolved at emit-time, not at read-time. This mat
 #### Scenario: No fan-out for personal dashboards
 
 - GIVEN "alice"'s personal dashboard is not shared with anyone
-- WHEN she creates a new widget on it (triggering `dashboard_updated`)
-- THEN `oc_activity` MUST contain exactly one new row for this event
+- WHEN she creates a new widget on it
+- THEN `oc_activity` MUST contain no new `dashboard_updated` row for this dashboard
 - AND no rows MUST be written for any other user
 
 #### Scenario: First-person vs third-person subject selection
 
 @e2e exclude its second GIVEN cannot be reached: no endpoint lets another user update a personal dashboard (DashboardService::updateDashboard throws "Access denied" for a non-owner, lib/Service/DashboardService.php:972). Variant selection is pinned by tests/Unit/Activity/ActivityRowTest.php::testTheActorGetsTheSelfVariant and ::testAnotherUserGetsTheOtherVariant
 
-- GIVEN "alice" updates her own personal dashboard
-- THEN the activity row MUST use the first-person subject template for `dashboard_updated`
-- GIVEN "root" updates "alice"'s personal dashboard
+- GIVEN "alice" acts on her own personal dashboard in a way that writes a row (for example publishing it)
+- THEN the activity row MUST use the first-person subject template for that event
+- GIVEN "root" acts on "alice"'s personal dashboard
 - THEN the activity row addressed to "alice" MUST use the third-person template with actor param `'root'`
 
 ### Requirement: REQ-ACT-005 Audience Targeting — Shared Dashboards
 
-For `dashboard_shared` events (user-to-user shares via the `dashboard-sharing` capability), the system MUST emit one activity row to each named share recipient plus one row to the acting user.
+For `dashboard_shared` events (shares via the `dashboard-sharing` capability), one share action MUST write one activity row for the sharer that names every recipient of that action, plus one row for each recipient (Ruben, 21 Nov 2026). A group share counts every current member of the group as a recipient; the sharer's row names the group. The sharer never gets a second row as a recipient.
 
 #### Scenario: Share with two users produces three rows
 
 - GIVEN "alice" shares dashboard "Marketing" with "bob" and "carol"
 - WHEN `ActivityPublisher::publishToRecipients('dashboard_shared', 'alice', uuid, 'Marketing', link, ['bob', 'carol'])` is called
 - THEN `oc_activity` MUST contain three new rows: one for "alice", one for "bob", one for "carol"
+
+#### Scenario: Replacing the share list tells the sharer once
+
+- GIVEN "alice" saves the share list of "Marketing" with new shares for "bob" and group "staff" in one request
+- WHEN the shares are written
+- THEN "alice" MUST get exactly one `dashboard_shared` row, naming "bob, staff"
+- AND "bob" and every member of "staff" other than "alice" MUST get one row each
 
 #### Scenario: Actor row uses first-person subject; recipient rows use second/third-person
 
@@ -325,23 +332,21 @@ For events on dashboards with `groupId = 'default'`, the system MUST apply a deb
 
 ### Requirement: REQ-ACT-009 User Opt-Out via NC Settings
 
-The system MUST register each of the 13 event types with NC Activity's per-type notification preference system. Users MUST be able to independently disable in-app notifications and email notifications for each type via the standard NC Settings → Activity UI, with no custom LaunchPad preferences page required.
+The system MUST register its event types with NC Activity's per-type preferences. As in Nextcloud's own Activity app, every event MUST be written to the activity stream, and opting out MUST control only mail and push (Ruben, 21 Nov 2026). Each LaunchPad setting MUST NOT offer a stream switch (`canChangeStream()` is false), MUST offer mail and push switches, and push MUST default to the same value as mail. No custom LaunchPad preferences page is required.
 
 #### Scenario: Default notification preferences for a new user
 
 - GIVEN a new NC user "frank" with no prior Activity preferences
 - WHEN LaunchPad emits any activity event addressed to "frank"
-- THEN in-app notification MUST be enabled (default on) for all 13 types
-- AND email notification MUST be disabled (default off) for all 13 types
+- THEN the row MUST be written to his activity stream
+- AND mail and push MUST be on for `dashboard_shared` and `dashboard_published` and off for `dashboard_updated` and `dashboard_acknowledged`
 
-#### Scenario: User disables `dashboard_commented` in-app notifications
+#### Scenario: User turns off push for `dashboard_shared`
 
-@e2e exclude never built: no code path in lib/ emits dashboard_commented (grep `Extension::EVENT_COMMENTED` in lib/ finds only the catalogue in lib/Activity/Extension.php), so there is no action to drive and no row to read; no test exists; there is also no activity setting for it (appinfo/info.xml registers four)
-
-- GIVEN "frank" has navigated to NC Settings → Activity and disabled in-app for `dashboard_commented`
-- WHEN another user comments on a dashboard "frank" has access to
-- THEN no in-app row MUST be written to `oc_activity` for "frank" for this comment event
-- AND "frank" MUST still receive rows for other event types he has not disabled
+- GIVEN "frank" has turned off push for `dashboard_shared` in NC Settings → Activity
+- WHEN a dashboard is shared with him
+- THEN the `dashboard_shared` row MUST still be written to his activity stream
+- AND his stored preference for `dashboard_shared` MUST read push off
 
 #### Scenario: User enables email for `dashboard_shared`
 
@@ -354,10 +359,10 @@ The system MUST register each of the 13 event types with NC Activity's per-type 
 
 #### Scenario: Opt-out state is per-user and per-type
 
-- GIVEN "frank" disables `dashboard_updated` but "grace" keeps it enabled
-- WHEN a group-shared dashboard they both access is updated
-- THEN no `dashboard_updated` row MUST be written for "frank"
-- AND a `dashboard_updated` row MUST be written for "grace"
+- GIVEN "frank" turns on push for `dashboard_updated` and "grace" keeps the default (off)
+- WHEN a group dashboard they both see is updated
+- THEN a `dashboard_updated` row MUST be written for "frank" and for "grace"
+- AND "frank"'s stored preference for `dashboard_updated` MUST read push on while "grace"'s reads push off
 
 ### Requirement: REQ-ACT-010 Subject/Message Templates and Translation
 
@@ -557,7 +562,7 @@ LaunchPad MUST register activity settings for `dashboard_shared`, `dashboard_pub
 
 ### Requirement: Sharing and publishing emit activity events (REQ-DIGE-002)
 
-LaunchPad MUST emit `dashboard_shared` to the recipients when a dashboard is shared, and `dashboard_published` to the target audience when a dashboard becomes published, including the first time a scheduled dashboard is surfaced as published. The person who acted MUST NOT receive their own event.
+LaunchPad MUST emit `dashboard_shared` to the recipients when a dashboard is shared, and `dashboard_published` to the target audience when a dashboard becomes published, including the first time a scheduled dashboard is surfaced as published. The person who acted MUST NOT receive a recipient row of their own. For a share, the sharer MUST instead receive the one row that names every recipient (REQ-ACT-005, Ruben 21 Nov 2026).
 
 #### Scenario: Group dashboard published
 
@@ -568,7 +573,7 @@ LaunchPad MUST emit `dashboard_shared` to the recipients when a dashboard is sha
 
 ### Requirement: Updates to shared dashboards are summarised, not repeated (REQ-DIGE-003)
 
-LaunchPad MUST emit `dashboard_updated` to the audience of a shared or group dashboard when it is saved, at most once per dashboard per 24 hours.
+LaunchPad MUST emit `dashboard_updated` to the audience of a shared or group dashboard when it is saved, at most once per dashboard per 24 hours. A save of a private dashboard MUST NOT write any activity row (REQ-ACT-004).
 
 #### Scenario: Ten edits in one morning
 

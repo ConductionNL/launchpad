@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Els avais planisà la tabla da cumond {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} ha planisà la tabla da cumond {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Els avais cundividì la tabla da cumond {dashboard} cun {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} ha cundividì la tabla da cumond {dashboard} cun {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} ha cundividì il tabladi {dashboard} cun tai",
     "You created a public link for dashboard {dashboard}" : "Els avais creà ina colliaziun publica per la tabla da cumond {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} ha creà ina colliaziun publica per la tabla da cumond {dashboard}",
     "You commented on dashboard {dashboard}" : "Els avais commentà la tabla da cumond {dashboard}",

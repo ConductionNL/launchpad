@@ -304,7 +304,7 @@ class Extension implements IProvider {
 			],
 			self::EVENT_SHARED => [
 				'self' => 'You shared dashboard {dashboard} with {recipient}',
-				'other' => '{actor} shared dashboard {dashboard} with {recipient}',
+				'other' => '{actor} shared dashboard {dashboard} with you',
 			],
 			self::EVENT_PUBLIC_SHARE_CREATED => [
 				'self' => 'You created a public link for dashboard {dashboard}',

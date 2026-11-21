@@ -437,7 +437,7 @@
         "You scheduled dashboard {dashboard}": "Naplánovali jste nástěnku {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} naplánoval(a) nástěnku {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Sdíleli jste nástěnku {dashboard} s {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} sdílel(a) nástěnku {dashboard} s {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} s vámi sdílel(a) nástěnku {dashboard}",
         "You created a public link for dashboard {dashboard}": "Vytvořili jste veřejný odkaz pro nástěnku {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} vytvořil(a) veřejný odkaz pro nástěnku {dashboard}",
         "You commented on dashboard {dashboard}": "Okomentovali jste nástěnku {dashboard}",

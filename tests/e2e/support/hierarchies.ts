@@ -20,6 +20,7 @@ export const NL_ADMINISTRATIVE = {
 		{ dimension: 'provincieCode', label: 'Province', parentDimension: null },
 		{ dimension: 'gemeenteCode', label: 'Municipality', parentDimension: 'provincieCode' },
 		{ dimension: 'wijkCode', label: 'District', parentDimension: 'gemeenteCode' },
+		{ dimension: 'buurtCode', label: 'Neighbourhood', parentDimension: 'wijkCode' },
 	],
 }
 

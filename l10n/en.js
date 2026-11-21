@@ -1849,7 +1849,8 @@ OC.L10N.register(
     "Drill-down levels" : "Drill-down levels",
     "A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to." : "A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to.",
     "Dutch administrative areas" : "Dutch administrative areas",
-    "Province, municipality and district" : "Province, municipality and district",
+    "Province, municipality, district and neighbourhood" : "Province, municipality, district and neighbourhood",
+    "Neighbourhood" : "Neighbourhood",
     "Province" : "Province",
     "Municipality" : "Municipality",
     "District" : "District"

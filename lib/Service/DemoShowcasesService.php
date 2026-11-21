@@ -512,7 +512,7 @@ class DemoShowcasesService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-9
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-9
 	 */
 	private function seedCatalogue(): void {
 		if ($this->catalogue === null) {

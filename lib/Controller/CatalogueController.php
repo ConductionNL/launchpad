@@ -37,7 +37,7 @@ use OCP\IUser;
 /**
  * App catalogue endpoints for users.
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-4
+ * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
  */
 class CatalogueController extends Controller {
 	use GuardsActions;
@@ -49,7 +49,7 @@ class CatalogueController extends Controller {
 	 * @param CatalogueService $catalogue The catalogue.
 	 * @param ActionCaller     $caller    The session and the action check.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-4
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-4
 	 */
 	public function __construct(
 		IRequest $request,
@@ -65,7 +65,7 @@ class CatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{apps: [...]}`, 401 or 403.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
 	 */
 	#[NoAdminRequired]
 	public function index(): JSONResponse {
@@ -86,7 +86,7 @@ class CatalogueController extends Controller {
 	 *
 	 * @return JSONResponse `{request: {...}}` (201), 400, 401, 403 or 429 with code `request_limit`.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
 	 */
 	#[NoAdminRequired]
 	public function request(?string $appName = null, ?string $purpose = null): JSONResponse {

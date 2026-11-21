@@ -14,7 +14,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-3
+ * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-3
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use OCP\IRequest;
 /**
  * `GET /api/tiles/{placementId}/rdp` (design D3).
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-3
+ * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-3
  */
 class TileLaunchController extends Controller {
 	/**
@@ -75,7 +75,7 @@ class TileLaunchController extends Controller {
 	 *
 	 * @return Response The file, or the refusal.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

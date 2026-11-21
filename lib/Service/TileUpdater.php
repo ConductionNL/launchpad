@@ -46,8 +46,8 @@ class TileUpdater {
 	 * @throws InvalidArgumentException When the office-network address, the link target or the launch link is not allowed (HTTP 400).
 	 *
 	 * @spec openspec/specs/tiles/spec.md
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function applyTileConfig(
 		WidgetPlacement $placement,
@@ -104,7 +104,7 @@ class TileUpdater {
 	 * @throws \InvalidArgumentException When `content.linkTarget` is not a link target.
 	 *
 	 * @spec openspec/specs/tiles/spec.md
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function applyTileUpdates(
 		WidgetPlacement $placement,
@@ -162,8 +162,8 @@ class TileUpdater {
 	 *
 	 * @throws InvalidArgumentException When `content.linkTarget` or `content.internalUrl` is not allowed.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
 	 */
 	private function checkContentUpdate(mixed $content): void {
 		if (is_array($content) === false) {
@@ -191,7 +191,7 @@ class TileUpdater {
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) TileLinkTarget holds the rule as a pure function.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	private function validatedLinkTarget(mixed $value, string $field): ?string {
 		return TileLinkTarget::validated(value: $value, field: $field);
@@ -211,7 +211,7 @@ class TileUpdater {
 	 *
 	 * @throws InvalidArgumentException When the tile may not be saved like this (HTTP 400).
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
 	 */
 	private function checkLaunchLink(WidgetPlacement $placement): void {
 		$type = $placement->getTileLinkType();
@@ -244,7 +244,7 @@ class TileUpdater {
 	 *
 	 * @throws InvalidArgumentException When the address is not allowed; the caller answers 400.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
 	 */
 	public function assertValidInternalUrl(mixed $url): void {
 		if ($url === null || $url === '') {

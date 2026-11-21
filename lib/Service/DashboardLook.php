@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCA\LaunchPad\Exception\ContrastTooLowException;
  * background, WCAG 2.2 SC 1.4.11; the accent's own text colour is derived
  * the same way, so it reaches 4.5:1 by construction.
  *
- * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
  */
 final class DashboardLook {
 
@@ -60,7 +60,7 @@ final class DashboardLook {
 	 *
 	 * @throws InvalidArgumentException When the colour is not a hex colour.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 	 */
 	public static function normaliseHex(string $colour, string $field): string {
 		$colour = strtolower(trim($colour));
@@ -82,7 +82,7 @@ final class DashboardLook {
 	 *
 	 * @return float Between 0 (black) and 1 (white).
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	public static function relativeLuminance(string $colour): float {
 		$channels = [];
@@ -107,7 +107,7 @@ final class DashboardLook {
 	 *
 	 * @return float From 1 (same) to 21 (black on white).
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	public static function contrast(string $first, string $second): float {
 		$lighter = max(self::relativeLuminance(colour: $first), self::relativeLuminance(colour: $second));
@@ -123,7 +123,7 @@ final class DashboardLook {
 	 *
 	 * @return string `#000000` or `#ffffff`.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	public static function textColorFor(string $background): string {
 		if (self::contrast(first: '#000000', second: $background) >= self::contrast(first: '#ffffff', second: $background)) {
@@ -143,7 +143,7 @@ final class DashboardLook {
 	 *
 	 * @throws ContrastTooLowException When the contrast is under 3:1.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	public static function assertAccentReadable(string $accent, ?string $background): void {
 		$ratio = self::contrast(first: $accent, second: ($background ?? self::INSTANCE_BACKGROUND));
@@ -159,7 +159,7 @@ final class DashboardLook {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 	 */
 	public static function isResourceName(string $name): bool {
 		return preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]{0,200}\.(png|jpe?g|gif|webp|svg)$/i', $name) === 1

@@ -20,7 +20,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+ * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use Closure;
 /**
  * Validates a tile's display, mapping and limit, and maps a source node onto them.
  *
- * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+ * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
  */
 class LiveTileListMapper {
 
@@ -85,7 +85,7 @@ class LiveTileListMapper {
 	 *
 	 * @return string One of DISPLAYS.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 	 */
 	public function displayOf(array $config): string {
 		$display = ($config['display'] ?? 'value');
@@ -104,7 +104,7 @@ class LiveTileListMapper {
 	 *
 	 * @return array<int,string> Error codes.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 	 */
 	public function configErrors(array $config): array {
 		if (array_key_exists('display', $config) === true && $this->displayOf(config: $config) !== $config['display']) {
@@ -144,7 +144,7 @@ class LiveTileListMapper {
 	 * @return array<string,mixed>|null `{items: [[{label, role, value}]]}` for a list or table,
 	 *                                  `{pairs: [{label, role, value}]}` for key-value, or null when the node does not fit.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	public function map(mixed $node, array $config, callable $extract): ?array {
 		if (is_array($node) === false) {
@@ -169,7 +169,7 @@ class LiveTileListMapper {
 	 *
 	 * @return array<string,mixed>|null
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	private function pairsOf(array $node, array $mapping): ?array {
 		if (array_is_list($node) === true && $node !== []) {
@@ -188,7 +188,7 @@ class LiveTileListMapper {
 	 *
 	 * @return array<string,mixed>|null
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	private function itemsOf(array $node, array $config): ?array {
 		if (array_is_list($node) === false) {

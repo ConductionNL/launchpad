@@ -761,7 +761,7 @@ class DashboardService {
 			options: self::factoryOptions(options: $options)
 		);
 		$this->applyNewIcon(dashboard: $dashboard, icon: $options['icon']);
-		$this->assertNewSlugUnique(dashboard: $dashboard, userId: $userId, options: $options);
+		$this->assertNewSlugUnique(dashboard: $dashboard, parentUuid: $options['parentUuid']);
 
 		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
 
@@ -841,60 +841,20 @@ class DashboardService {
 	 * skip the unique check in that case (NULL slugs are simply
 	 * unaddressable by path).
 	 *
-	 * Root slugs share one namespace across users, so a slug derived from
-	 * the name of a new root dashboard is first moved off one that another
-	 * user's dashboard holds.
-	 *
-	 * @param Dashboard            $dashboard The new dashboard.
-	 * @param string               $userId    The owner.
-	 * @param array<string, mixed> $options   The create options: parentUuid, slug.
+	 * @param Dashboard   $dashboard  The new dashboard.
+	 * @param string|null $parentUuid The parent, or null for a root.
 	 *
 	 * @return void
 	 */
-	private function assertNewSlugUnique(Dashboard $dashboard, string $userId, array $options): void {
+	private function assertNewSlugUnique(Dashboard $dashboard, ?string $parentUuid): void {
 		$resolvedSlug = $dashboard->getSlug();
-		if ($resolvedSlug === null || $resolvedSlug === '') {
-			return;
+		if ($resolvedSlug !== null && $resolvedSlug !== '') {
+			$this->structure->treeService->validateSlugUnique(
+				parentUuid: $parentUuid,
+				slug: $resolvedSlug
+			);
 		}
-
-		if ($options['slug'] === null && $options['parentUuid'] === null) {
-			$resolvedSlug = $this->freeRootSlug(userId: $userId, slug: $resolvedSlug);
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setSlug($resolvedSlug);
-		}
-
-		$this->structure->treeService->validateSlugUnique(
-			parentUuid: $options['parentUuid'],
-			slug: $resolvedSlug
-		);
 	}//end assertNewSlugUnique()
-
-	/**
-	 * The first of `slug`, `slug-2`, `slug-3`… that no other user's root
-	 * dashboard holds. A slug the owner's own root dashboard holds is
-	 * returned as it is, so the sibling check refuses it.
-	 *
-	 * @param string $userId The owner.
-	 * @param string $slug   The slug derived from the name.
-	 *
-	 * @return string The slug to store.
-	 */
-	private function freeRootSlug(string $userId, string $slug): string {
-		$base = substr(string: $slug, offset: 0, length: 120);
-		for ($number = 1; $number <= 100; $number++) {
-			$candidate = $slug;
-			if ($number > 1) {
-				$candidate = $base . '-' . $number;
-			}
-
-			$holder = $this->stores->dashboardMapper->findChildBySlug(parentUuid: null, slug: $candidate);
-			if ($holder === null || ($number === 1 && $holder->getUserId() === $userId)) {
-				return $candidate;
-			}
-		}
-
-		return $base . '-' . bin2hex(random_bytes(4));
-	}//end freeRootSlug()
 
 	/**
 	 * Seed a stored dashboard's primary translation and, when asked, its
@@ -3681,7 +3641,7 @@ class DashboardService {
 	 *
 	 * @throws InvalidArgumentException When a colour or image is malformed, or the accent is too pale.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	private function applyLookUpdates(Dashboard $dashboard, array $data): void {
 		$colours    = $this->patchedColours(
@@ -3715,7 +3675,7 @@ class DashboardService {
 	 *
 	 * @throws InvalidArgumentException When a colour is malformed.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	private function patchedColours(array $data, array $current): array {
 		$labels = ['themeAccent' => 'The accent', 'themeBackgroundColor' => 'The background colour'];
@@ -3744,7 +3704,7 @@ class DashboardService {
 	 *
 	 * @throws InvalidArgumentException When the name is no LaunchPad resource.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	private function applyBackgroundResourceUpdate(Dashboard $dashboard, array $data): void {
 		if (array_key_exists('themeBackgroundResource', $data) === false) {
@@ -3777,7 +3737,7 @@ class DashboardService {
 	 *
 	 * @throws InvalidArgumentException When the CSS is larger than 20 KB.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
 	 */
 	private function applyCustomCssUpdate(Dashboard $dashboard, array $data): void {
 		if (array_key_exists('customCss', $data) === false) {
@@ -3809,7 +3769,7 @@ class DashboardService {
 	 *
 	 * @throws \InvalidArgumentException When the value is not a link target.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	private function applyLinkTargetUpdate(Dashboard $dashboard, array $data): void {
 		if (array_key_exists(key: 'defaultLinkTarget', array: $data) === false) {

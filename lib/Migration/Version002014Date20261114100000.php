@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Add the dashboard's default tile link target.
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+ * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 class Version002014Date20261114100000 extends SimpleMigrationStep {
 	/**
@@ -48,7 +48,7 @@ class Version002014Date20261114100000 extends SimpleMigrationStep {
 	 *
 	 * @return ISchemaWrapper|null The modified schema, or null when unchanged.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function changeSchema(
 		IOutput $output,

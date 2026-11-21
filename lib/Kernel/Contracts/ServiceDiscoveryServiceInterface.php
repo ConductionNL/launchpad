@@ -42,7 +42,7 @@ interface ServiceDiscoveryServiceInterface {
 	 *
 	 * @return array<int, array{appId: string, name: string, href: string, icon: string}> The apps, in menu order.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 	 */
 	public function discover(): array;
 }//end interface

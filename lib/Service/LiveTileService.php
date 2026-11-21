@@ -255,7 +255,7 @@ class LiveTileService {
 	 *
 	 * @return array<string,mixed>|null The reading to cache, or null when it does not fit the display.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	private function mapped(?array $reading, array $config): ?array {
 		if ($reading === null || $this->lists->displayOf(config: $config) === 'value') {
@@ -973,7 +973,7 @@ class LiveTileService {
 	 *
 	 * @return array<string,mixed>
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	private function displayPart(array $reading, array $config): array {
 		$display = $this->lists->displayOf(config: $config);

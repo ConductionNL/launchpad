@@ -1,14 +1,15 @@
 <?php
 
 /**
- * LaunchPad LaunchPadToolProvider
+ * LaunchPad LaunchpadToolProvider
  *
  * LaunchPad's MCP tool provider: a dispatcher over a constant tool catalogue,
  * routing each call to a domain handler that validates, authorises through
  * McpDashboardGate and calls the service layer (mcp-tool-surface D1, D4).
- * OpenRegister finds it by its class name, `OCA\<namespace>\Mcp\<namespace>ToolProvider`
- * with the namespace from info.xml, so the class name follows `LaunchPad`.
- * Without OpenRegister nothing resolves it and the app boots as before.
+ * Registered under the string alias
+ * `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`, which OpenRegister
+ * enumerates; without OpenRegister the alias resolves nothing and the app boots
+ * as before.
  *
  * Every descriptor carries hermiq's grant annotations: `scope` (read, create,
  * update, delete), `reach` (self, user, instance, external) and `readOnlyHint`.
@@ -46,7 +47,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
  */
-class LaunchPadToolProvider implements IMcpToolProvider {
+class LaunchpadToolProvider implements IMcpToolProvider {
 
 	public const APP_ID = 'launchpad';
 

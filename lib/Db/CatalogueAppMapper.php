@@ -30,7 +30,7 @@ use OCP\IDBConnection;
  *
  * @extends QBMapper<CatalogueApp>
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
  */
 class CatalogueAppMapper extends QBMapper {
 	/**
@@ -38,7 +38,7 @@ class CatalogueAppMapper extends QBMapper {
 	 *
 	 * @param IDBConnection $db Database connection.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function __construct(IDBConnection $db) {
 		parent::__construct(
@@ -53,7 +53,7 @@ class CatalogueAppMapper extends QBMapper {
 	 *
 	 * @return array<int, CatalogueApp>
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function findAllOrdered(): array {
 		$qb = $this->db->getQueryBuilder();
@@ -75,7 +75,7 @@ class CatalogueAppMapper extends QBMapper {
 	 *
 	 * @throws DoesNotExistException When there is no such entry.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function findByUuid(string $uuid): CatalogueApp {
 		$qb = $this->db->getQueryBuilder();

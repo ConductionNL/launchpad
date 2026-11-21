@@ -52,7 +52,7 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(string|null $updatedAt)
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
  */
 class CatalogueApp extends Entity implements JsonSerializable {
 
@@ -96,7 +96,7 @@ class CatalogueApp extends Entity implements JsonSerializable {
 	 *
 	 * @var string
 	 */
-	protected string $linkType = '';
+	protected string $linkType = 'url';
 
 	/**
 	 * The Nextcloud app id or the web address.
@@ -136,7 +136,7 @@ class CatalogueApp extends Entity implements JsonSerializable {
 	/**
 	 * Register the column types.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');
@@ -148,7 +148,7 @@ class CatalogueApp extends Entity implements JsonSerializable {
 	 *
 	 * @return array<int, string>
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function getTargetGroupList(): array {
 		$decoded = json_decode(json: (string)($this->targetGroups ?? ''), associative: true);
@@ -169,7 +169,7 @@ class CatalogueApp extends Entity implements JsonSerializable {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
 		return [

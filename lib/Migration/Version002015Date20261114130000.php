@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Create the catalogue and request tables.
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
  */
 class Version002015Date20261114130000 extends SimpleMigrationStep {
 	/**
@@ -44,7 +44,7 @@ class Version002015Date20261114130000 extends SimpleMigrationStep {
 	 *
 	 * @return ISchemaWrapper|null The modified schema, or null when unchanged.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
 	 */
 	public function changeSchema(
 		IOutput $output,

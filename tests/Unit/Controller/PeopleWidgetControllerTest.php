@@ -231,6 +231,50 @@ class PeopleWidgetControllerTest extends TestCase {
 	}//end testParsesValidFilterJson()
 
 	/**
+	 * A limit that is not a whole number is refused with a message naming
+	 * it, and the directory is not read.
+	 *
+	 * @return void
+	 */
+	public function testReturns400ForANonIntegerLimit(): void {
+		$this->service->expects($this->never())->method('listUsers');
+
+		$controller = $this->buildController(userId: 'alice');
+		$response = $controller->getUsers(limit: 'abc');
+
+		$this->assertSame(
+			expected: Http::STATUS_BAD_REQUEST,
+			actual: $response->getStatus()
+		);
+		$this->assertSame(
+			expected: 'limit must be an integer',
+			actual: $response->getData()['error']
+		);
+	}//end testReturns400ForANonIntegerLimit()
+
+	/**
+	 * A limit sent as a numeric string reaches the service as an integer.
+	 *
+	 * @return void
+	 */
+	public function testReadsANumericLimitString(): void {
+		$this->service->expects($this->once())
+			->method('listUsers')
+			->with(
+				new PeopleQuery(
+					filters: [],
+					sortBy: 'displayName',
+					search: null,
+					page: PeopleQuery::window(excludeDisabled: true, showBirthdays: true, limit: 20, offset: 0)
+				),
+			)
+			->willReturn(['users' => [], 'total' => 0, 'hasMore' => false]);
+
+		$controller = $this->buildController(userId: 'alice');
+		$controller->getUsers(limit: '20');
+	}//end testReadsANumericLimitString()
+
+	/**
 	 * @param string|null $userId The user id (null for anonymous).
 	 *
 	 * @return PeopleWidgetController

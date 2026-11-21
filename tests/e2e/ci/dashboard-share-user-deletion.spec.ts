@@ -60,6 +60,10 @@ import {
 
 const STAMP = Date.now()
 
+// Each test provisions up to six accounts and deletes one, at several
+// seconds per account on the stack, so the 60 s default is too short.
+test.describe.configure({ timeout: 180_000 })
+
 let admin: APIRequestContext
 let prior: SharingSettings | null = null
 
@@ -133,10 +137,15 @@ async function viewOf(p: Principal, id: number) {
 	}
 }
 
-/** Delete the owner's account; their context is disposed first. */
+/**
+ * Delete the owner's account; their context is disposed first. The owner
+ * leaves the cleanup list, because disposing a context a second time throws
+ * and would fail the afterAll.
+ */
 async function deleteOwner(owner: Principal): Promise<void> {
 	await owner.api.dispose()
 	await deleteAccount(admin, owner.username)
+	principals.splice(principals.indexOf(owner), 1)
 }
 
 /** A dashboard owned by `owner`. */

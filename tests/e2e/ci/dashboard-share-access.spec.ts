@@ -126,6 +126,17 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		const dash = await dashboardOf(alice!, 'load')
 		await addWidgets(alice!.api, dash.id, 4)
 		await share(alice!.api, dash.id, 'user', bob!.username, 'view_only')
+		// A new dashboard starts with the default widget bundle, so the four
+		// added here come on top of what the owner herself reads.
+		const asOwner = await readDashboard(alice!, dash.id)
+		expect(asOwner.status(), await asOwner.text()).toBe(200)
+		const ownerIds = ((await asOwner.json()).placements as Array<{ id: number }>)
+			.map((p) => Number(p.id))
+			.sort((a, b) => a - b)
+		expect(
+			ownerIds.length,
+			'CONTROL: the four added widgets are on the dashboard',
+		).toBeGreaterThanOrEqual(4)
 
 		const res = await readDashboard(bob!, dash.id)
 		expect(res.status(), await res.text()).toBe(200)
@@ -136,9 +147,11 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		)
 		expect(body.dashboard?.name).toBe(dash.name)
 		expect(
-			body.placements,
-			'all four placements must come with it',
-		).toHaveLength(4)
+			(body.placements as Array<{ id: number }>)
+				.map((p) => Number(p.id))
+				.sort((a, b) => a - b),
+			'every placement the owner has must come with it',
+		).toEqual(ownerIds)
 		expect(
 			body.permissionLevel,
 			"the level is the share's, not the owner's",
@@ -157,11 +170,6 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		const allowed = await readDashboard(bob!, dash.id)
 		expect(allowed.status(), await allowed.text()).toBe(200)
 
-		// SUSPECTED BUG: the spec says 403. `DashboardApiController::show()`
-		// answers 404 `{"error":"Not found"}` when `getDashboardForUser()`
-		// finds the dashboard outside the caller's visible set
-		// (lib/Controller/DashboardApiController.php:293-297), so this
-		// assertion is expected to go red until the two agree.
 		const refused = await readDashboard(carol!, dash.id)
 		expect(refused.status(), await refused.text()).toBe(403)
 		const text = await refused.text()
@@ -247,11 +255,6 @@ test.describe('REQ-SHARE-005 owner-only metadata and lifecycle', () => {
 			"CONTROL: the owner's new dashboard is her active one",
 		).toBeTruthy()
 
-		// SUSPECTED BUG: the spec says a successful no-op (200 with the
-		// dashboard). `DashboardService::activateDashboard()` throws
-		// `Exception('Access denied')` for anyone but the owner
-		// (lib/Service/DashboardService.php:1247-1249), which
-		// `DashboardApiController::activate()` turns into a 400.
 		const res = await bob!.api.post(`${API}/dashboard/${dash.id}/activate`)
 		expect(res.status(), await res.text()).toBe(200)
 		expect(Number((await res.json()).dashboard?.id)).toBe(dash.id)

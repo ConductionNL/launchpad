@@ -213,6 +213,31 @@ describe('ConditionalVisibilityEditor — preview', () => {
 		expect(wrapper.find('[data-test="preview-matched-include"]').exists()).toBe(false)
 	})
 
+	it('names a matched exclude rule that was never saved', async () => {
+		api.getWidgetRules.mockResolvedValue({ data: { rules: [groupRule] } })
+		// Echo what the endpoint does: each rule's id, or its index when it has none.
+		api.previewVisibility.mockImplementation(async (body) => ({
+			data: {
+				visible: false,
+				matchedIncludeRuleIds: body.rules.filter((r) => r.isInclude).map((r, i) => r.id ?? i),
+				matchedExcludeRuleIds: body.rules
+					.map((r, i) => ({ r, i }))
+					.filter(({ r }) => !r.isInclude)
+					.map(({ r, i }) => r.id ?? i),
+			},
+		}))
+		const wrapper = mountEditor()
+		await settle(wrapper)
+		wrapper.vm.addRule()
+		wrapper.vm.rules[1] = { ...wrapper.vm.rules[1], ...timeRule, id: null }
+		await wrapper.find('[data-test="run-preview"]').trigger('click')
+		await settle(wrapper)
+		const reasons = wrapper.findAll('[data-test="preview-matched-exclude"]')
+		expect(reasons).toHaveLength(1)
+		expect(reasons[0].text()).toBe('Matched exclude rule: 09:00–17:00')
+		expect(wrapper.findAll('[data-test="preview-matched-include"]')).toHaveLength(1)
+	})
+
 	it('shows the preview error when the preview request fails', async () => {
 		api.getWidgetRules.mockResolvedValue({ data: { rules: [groupRule] } })
 		api.previewVisibility.mockRejectedValue(new Error('500'))

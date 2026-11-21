@@ -512,7 +512,7 @@ import {
 import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
-import { computed, provide, reactive, shallowRef } from 'vue'
+import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TileWidget from '../components/TileWidget.vue'
@@ -581,6 +581,18 @@ import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 /** The workspace grid's row height in pixels; matches `:cellHeight` above. */
 const GRID_ROW_HEIGHT = 60
+
+/**
+ * A pathname without the `/index.php` front controller or a trailing slash,
+ * so an address and the canonical deep link compare as the same route
+ * whether or not the instance rewrites URLs.
+ *
+ * @param {string} path The pathname.
+ * @return {string} The bare pathname.
+ */
+function barePath(path) {
+	return path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+}
 
 /**
  * A placement with the minimum height its widget type registers, so the grid
@@ -871,6 +883,10 @@ export default {
 			// Different uuids are tracked independently per spec
 			// scenario "Different dashboards are not debounced".
 			viewEventLastSent: Object.create(null),
+			// Whether the boot (stored active dashboard, then the deep-linked
+			// one) is over; until then a dashboard change replaces the address
+			// instead of pushing a history entry.
+			historyBooted: false,
 
 			// Wave3.7 — UUID of the user's pinned default dashboard, or
 			// '' when no pin is set. Fetched once on mount via
@@ -1502,12 +1518,12 @@ export default {
 				// session; only the first one reads a bookmarked `?f=`.
 				this.openFilterSession(prevUuid === undefined)
 				this.recordViewEventDebounced(uuid)
-				// Outbound URL sync — every uuid change pushes a new
-				// history entry so back/forward navigates between
-				// dashboards. The first hydration is `replaceState`
-				// (handled in mounted) so we don't pollute history with
-				// the bootstrap entry.
-				if (prevUuid !== undefined) {
+				// Outbound URL sync — every uuid change after the boot pushes
+				// a new history entry so back/forward navigates between
+				// dashboards. The boot's changes (the stored active
+				// dashboard, then the one the address names) are covered by
+				// `replaceState` in mounted, so they add no entry.
+				if (this.historyBooted) {
 					this.pushUrlForActiveDashboard()
 				}
 			},
@@ -1539,6 +1555,9 @@ export default {
 		])
 		await this.openDeepLinkedDashboard(bootPath())
 		await this.openHashLinkedDashboard(bootHash())
+		// After the watcher has seen the deep-linked switch.
+		await nextTick()
+		this.historyBooted = true
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding
@@ -1808,11 +1827,14 @@ export default {
 		 * `data.viewEventLastSent` (Object.create(null)) so different
 		 * dashboards are tracked independently per spec scenario
 		 * "Different dashboards are not debounced against each other".
-		 * The debounce is per-mount (not cross-tab), matching the
-		 * spec's reload semantics.
+		 * Across the tabs of one browser, the tab that sends holds a Web
+		 * Lock named after the dashboard for a second; another tab that
+		 * finds it held sends nothing ("Debouncing prevents multi-tab
+		 * double-counting"). A reload drops the lock with the page, so it
+		 * counts again. Without the Locks API every tab sends.
 		 *
 		 * @param {string} uuid The dashboard UUID to record.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
 			if (!uuid) {
@@ -1824,7 +1846,25 @@ export default {
 				return
 			}
 			this.viewEventLastSent[uuid] = now
-			this.recordViewEvent(uuid)
+			const locks = globalThis.navigator?.locks
+			if (typeof locks?.request !== 'function') {
+				this.recordViewEvent(uuid)
+				return
+			}
+			let sent = false
+			locks.request(`launchpad-view-event:${uuid}`, { ifAvailable: true }, (lock) => {
+				if (!lock) {
+					return undefined
+				}
+				sent = true
+				this.recordViewEvent(uuid)
+				return new Promise((resolve) => setTimeout(resolve, 1000))
+			}).catch((e) => {
+				logger.debug('[Views] view-event lock unavailable:', e)
+				if (!sent) {
+					this.recordViewEvent(uuid)
+				}
+			})
 		},
 
 		/*
@@ -3096,9 +3136,7 @@ export default {
 			if (!uuid || !canonical || this.activeDashboard?.uuid === uuid) {
 				return
 			}
-			const bare = (path) =>
-				path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
-			if (bare(bootPath) !== bare(canonical)) {
+			if (barePath(bootPath) !== barePath(canonical)) {
 				return
 			}
 			const target = this.dashboards.find((d) => d.uuid === uuid)
@@ -3150,20 +3188,18 @@ export default {
 			if (!target) {
 				return
 			}
-			if (
-				window.location.pathname.replace(/\/+$/, '')
-				=== target.replace(/\/+$/, '')
-			) {
+			if (barePath(window.location.pathname) === barePath(target)) {
 				return
 			}
 			try {
+				// The query and hash stay: `?kiosk=1` must survive a reload.
 				window.history.replaceState(
 					{
 						uuid: this.activeDashboard?.uuid ?? null,
 						source: 'launchpad-deeplink',
 					},
 					'',
-					target,
+					target + window.location.search + window.location.hash,
 				)
 			} catch (e) {
 				// SecurityError when running outside the page's origin
@@ -3268,7 +3304,7 @@ export default {
 				if (!target) {
 					return
 				}
-				if (window.location.pathname === target) {
+				if (barePath(window.location.pathname) === barePath(target)) {
 					return
 				}
 				window.history.pushState(

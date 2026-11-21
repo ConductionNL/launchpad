@@ -208,26 +208,57 @@ class WidgetPlacementMapperCoverageTest extends TestCase {
 	}//end testFindByAnnouncementKeyFiltersByKey()
 
 	/**
-	 * deleteByDashboardId() deletes by integer dashboard id.
+	 * deleteByDashboardId() first deletes the conditional rules of the
+	 * dashboard's placements (REQ-VIS-011), then the placements.
 	 *
 	 * @return void
 	 */
-	public function testDeleteByDashboardIdDeletesByDashboard(): void {
-		$this->mapper()->deleteByDashboardId(12);
+	public function testDeleteByDashboardIdDeletesRulesThenPlacements(): void {
+		$this->mapper()->deleteByDashboardId(dashboardId: 12);
 
+		$sub = '(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1)';
 		$this->assertSame(
-			[
+			expected: [
 				'qb1 new',
-				'qb1.delete(' . self::TABLE . ', null)',
+				'qb1.delete("launchpad_conditional_rules", null)',
 				'qb1.expr()',
 				'qb1.createNamedParameter(12, 1, null)',
-				'qb1.expr.eq("dashboard_id", ":p1", null)',
-				'qb1.where("eq(\"dashboard_id\", \":p1\", null)")',
+				'qb1.createFunction("' . $sub . '")',
+				'qb1.expr.in("widget_placement_id", ' . $sub . ', null)',
+				'qb1.where("in(\"widget_placement_id\", ' . $sub . ', null)")',
 				'qb1.executeStatement(null)',
+				'qb2 new',
+				'qb2.delete(' . self::TABLE . ', null)',
+				'qb2.expr()',
+				'qb2.createNamedParameter(12, 1, null)',
+				'qb2.expr.eq("dashboard_id", ":p2", null)',
+				'qb2.where("eq(\"dashboard_id\", \":p2\", null)")',
+				'qb2.executeStatement(null)',
 			],
-			$this->recorder->calls
+			actual: $this->recorder->calls
 		);
-	}//end testDeleteByDashboardIdDeletesByDashboard()
+	}//end testDeleteByDashboardIdDeletesRulesThenPlacements()
+
+	/**
+	 * delete() removes the placement's conditional rules before the
+	 * placement itself (REQ-VIS-011).
+	 *
+	 * @return void
+	 */
+	public function testDeleteRemovesThePlacementsRulesFirst(): void {
+		$placement = new WidgetPlacement();
+		$placement->setId(5);
+
+		$this->mapper()->delete(entity: $placement);
+
+		$calls = $this->recorder->calls;
+		$this->assertSame(expected: 'qb1.delete("launchpad_conditional_rules", null)', actual: $calls[1]);
+		$this->assertContains(
+			needle: 'qb1.createFunction("(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `id` = :p1)")',
+			haystack: $calls
+		);
+		$this->assertContains(needle: 'qb2.delete(' . self::TABLE . ', null)', haystack: $calls);
+	}//end testDeleteRemovesThePlacementsRulesFirst()
 
 	/**
 	 * deleteByDashboardUuid() resolves the UUID with a bound sub-select and

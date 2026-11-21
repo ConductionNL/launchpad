@@ -277,7 +277,8 @@ test('signing off writes one receipt and answers with its timestamp', async ({
 
 		const posted = page.waitForResponse(
 			(r) =>
-				new URL(r.url()).pathname.endsWith(ACKS)
+				// The page posts to /apps/..., without the /index.php in ACKS.
+				new URL(r.url()).pathname.endsWith('/apps/launchpad/api/acknowledgements')
 				&& r.request().method() === 'POST',
 		)
 		await prompt.locator('[data-testid="acknowledgement-signoff"]').click()

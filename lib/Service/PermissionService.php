@@ -807,7 +807,9 @@ class PermissionService {
 	}//end findPlacedWidget()
 
 	/**
-	 * Verify user owns a placement's dashboard.
+	 * Verify user owns a placement's dashboard, or is a Nextcloud
+	 * administrator, who may manage the visibility rules of every dashboard
+	 * (REQ-VIS-001..004).
 	 *
 	 * @param string $userId The user ID.
 	 * @param int $placementId The placement ID.
@@ -817,12 +819,17 @@ class PermissionService {
 	 * @throws \Exception If access is denied.
 	 *
 	 * @spec openspec/specs/permissions/spec.md
+	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function verifyPlacementOwnership(
 		string $userId,
 		int $placementId,
 	): WidgetPlacement {
 		$placement = $this->placementMapper->find(id: $placementId);
+		if ($this->groupManager->isAdmin(userId: $userId) === true) {
+			return $placement;
+		}
+
 		$this->verifyDashboardOwnership(
 			userId: $userId,
 			dashboardId: $placement->getDashboardId()

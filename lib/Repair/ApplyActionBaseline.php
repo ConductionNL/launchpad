@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 6;
+	private const BASELINE_VERSION = 7;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -104,6 +104,11 @@ class ApplyActionBaseline implements IRepairStep {
 	 * still checks owner-or-admin per dashboard, so admins keep the right
 	 * for every dashboard and an owner reaches only their own.
 	 *
+	 * v7: the owner changes and removes the visibility rules of their own
+	 * dashboard's widgets (REQ-VIS-003, REQ-VIS-004, Ruben 21 Nov 2026).
+	 * Each route checks placement ownership first; a Nextcloud administrator
+	 * keeps the right for every dashboard.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
@@ -127,6 +132,10 @@ class ApplyActionBaseline implements IRepairStep {
 			'dashboard.publish',
 			'dashboard.unpublish',
 			'dashboard.schedule',
+		],
+		7 => [
+			'rule.update-rule',
+			'rule.delete-rule',
 		],
 	];
 

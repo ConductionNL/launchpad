@@ -8,8 +8,9 @@
  *
  * WHY THE ACTION MATRIX IS OPENED UP FIRST
  * ========================================
- * `lib/actions.seed.json` ships `rule.get-rules`, `rule.add-rule`,
- * `rule.update-rule` and `rule.delete-rule` as `["admin"]`. With that matrix a
+ * `lib/actions.seed.json` once shipped `rule.get-rules`, `rule.add-rule`,
+ * `rule.update-rule` and `rule.delete-rule` as `["admin"]`; it now opens all
+ * four to every user, with the ownership check per placement. With the old matrix a
  * non-admin owner is refused with 403 by the ACTION check, before
  * `PermissionService::verifyPlacementOwnership()` ever runs. Two things follow.
  *

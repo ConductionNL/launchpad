@@ -89,9 +89,9 @@ describe('hierarchiesOf / levelLabels', () => {
 	})
 
 	it('labels a preset\'s levels with the preset\'s labels in the reader\'s language (REQ-CWF-011)', () => {
-		const stored = { id: 'nl-administrative', levels: [{ dimension: 'provincieCode', label: 'Province' }, { dimension: 'buurtCode', label: 'Buurt' }] }
+		const stored = { id: 'nl-administrative', levels: [{ dimension: 'provincieCode', label: 'Province' }, { dimension: 'blokCode', label: 'Blok' }] }
 
-		expect(levelLabels([stored])).toEqual({ provincieCode: 'Province', buurtCode: 'Buurt' })
+		expect(levelLabels([stored])).toEqual({ provincieCode: 'Province', blokCode: 'Blok' })
 	})
 })
 

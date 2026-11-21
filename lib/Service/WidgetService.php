@@ -24,6 +24,7 @@ use InvalidArgumentException;
 
 /**
  * Service for discovering and querying Nextcloud dashboard widgets.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One validator per widget type, each a small injected or inline class.
  */
 class WidgetService {
 	/**
@@ -85,7 +86,7 @@ class WidgetService {
 	private function validateContentOfType(string $widgetType, array $content): void {
 		$pingErrors = ($this->healthPing?->validateConfig(config: $content) ?? []);
 		if ($pingErrors !== []) {
-			throw new \InvalidArgumentException(message: 'Invalid health check: ' . implode(separator: ', ', array: $pingErrors));
+			throw new InvalidArgumentException(message: 'Invalid health check: ' . implode(separator: ', ', array: $pingErrors));
 		}
 
 		if ($widgetType === 'map') {

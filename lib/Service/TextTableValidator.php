@@ -67,9 +67,23 @@ class TextTableValidator {
 			throw new InvalidArgumentException(message: 'Table must have at least one column');
 		}
 
-		$columns = count($alignments);
+		$this->checkGrid(rows: array_values($rows), columns: count($alignments));
+	}//end validate()
+
+	/**
+	 * Refuse rows of another width and spans that leave the grid.
+	 *
+	 * @param array $rows    The rows, as a list.
+	 * @param int   $columns The column count.
+	 *
+	 * @return void
+	 * @throws InvalidArgumentException When the grid is not rectangular or a span leaves it.
+	 *
+	 * @spec openspec/specs/text-display-widget/spec.md
+	 */
+	private function checkGrid(array $rows, int $columns): void {
 		$rowCount = count($rows);
-		foreach (array_values($rows) as $rowIndex => $row) {
+		foreach ($rows as $rowIndex => $row) {
 			if (is_array($row) === false || count($row) !== $columns) {
 				throw new InvalidArgumentException(message: 'Grid is not rectangular');
 			}
@@ -82,7 +96,7 @@ class TextTableValidator {
 				}
 			}
 		}
-	}//end validate()
+	}//end checkGrid()
 
 	/**
 	 * A cell's row or column span, 1 when absent or not a positive integer.

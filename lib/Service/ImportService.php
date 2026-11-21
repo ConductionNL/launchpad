@@ -847,12 +847,12 @@ class ImportService {
 	 * Validated like an API update. A malformed list is left out with a
 	 * warning, so one bad field does not cost the whole dashboard.
 	 *
-	 * @SuppressWarnings(PHPMD.StaticAccess) DashboardHierarchies is a stateless validator.
-	 *
 	 * @param Dashboard            $dashboard The entity being hydrated.
 	 * @param array<string, mixed> $payload   The dashboard payload.
 	 *
 	 * @return void
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) DashboardHierarchies is a stateless validator.
 	 *
 	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */

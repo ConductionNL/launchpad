@@ -20,6 +20,7 @@ import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { createPinia } from 'pinia'
 import { createApp, h } from 'vue'
 import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
+import { hideCursorWhenIdle, isKioskMode, KIOSK_CLASS } from './utils/kioskMode.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { publicPageToken } from './utils/publicStart.js'
 
@@ -28,6 +29,7 @@ import 'gridstack/dist/gridstack.min.css'
 // The library's own stylesheet (board look, widgets, dialogs). Without it
 // the page only had the library CSS another app's bundle happened to load.
 import '@conduction/nextcloud-vue/css/index.css'
+import './styles/kiosk.css'
 registerBuiltinDashboardWidgets()
 // The library's own strings (the greeting header among them) in the
 // viewer's language. See main.js.
@@ -58,5 +60,11 @@ const app = createApp({
 app.mixin({ methods: { t, n } })
 app.use(pinia)
 app.mount('#public-share-vue')
+
+// REQ-KIOSK-001: a public kiosk screen has no scrollbars and hides an idle cursor.
+if (isKioskMode()) {
+	document.documentElement.classList.add(KIOSK_CLASS)
+	hideCursorWhenIdle(document)
+}
 
 export default app

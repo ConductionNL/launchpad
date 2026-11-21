@@ -11,7 +11,7 @@ start page (`startPage`) it carries a bar with the organisation's name and a
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
-	<div class="public-share-view">
+	<div class="public-share-view" :class="{ 'public-share-view--kiosk': kiosk }">
 		<!-- The way in for staff on the public start page (REQ-PSP-003) -->
 		<nav
 			v-if="startPage"
@@ -72,6 +72,7 @@ import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { isKioskMode } from '../utils/kioskMode.js'
 import { signInUrl } from '../utils/publicStart.js'
 
 const baseUrl = generateUrl('/apps/launchpad')
@@ -224,6 +225,8 @@ export default defineComponent({
 		const signInHref = signInUrl(generateUrl)
 
 		return {
+			// REQ-KIOSK-001: `?kiosk=1` fills the screen, chrome-less.
+			kiosk: isKioskMode(),
 			organisationName,
 			signInHref,
 			loading,
@@ -247,6 +250,19 @@ export default defineComponent({
 .public-share-view {
 	min-height: 100vh;
 	padding: 1.5rem;
+}
+
+.public-share-view--kiosk {
+	position: fixed;
+	inset: 0;
+	min-height: 0;
+	overflow: hidden;
+	padding: 0.75rem;
+	background-color: var(--color-main-background);
+}
+
+.public-share-view--kiosk :deep(.public-share-view__grid) {
+	max-width: none;
 }
 
 .public-share-view__start-bar {

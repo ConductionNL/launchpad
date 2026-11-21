@@ -29,6 +29,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Entity\EmbedToken;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -47,12 +48,14 @@ class EmbedRenderService {
 	 * @param WidgetPlacementMapper   $widgets    The widget placements.
 	 * @param TenantThemeService      $themes     The tenant themes.
 	 * @param ScopeEnforcementService $scopes     The scope decisions.
+	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboards,
 		private readonly WidgetPlacementMapper $widgets,
 		private readonly TenantThemeService $themes,
 		private readonly ScopeEnforcementService $scopes,
+		private readonly ?ConditionalServiceInterface $visibility = null,
 	) {
 	}//end __construct()
 
@@ -80,7 +83,7 @@ class EmbedRenderService {
 
 		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
 			'subjectType' => 'widget',
-			'placements'  => [$placement->jsonSerialize()],
+			'placements'  => $this->forVisitor(placements: [$placement->jsonSerialize()]),
 		];
 	}//end renderWidget()
 
@@ -105,12 +108,26 @@ class EmbedRenderService {
 		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
 			'subjectType' => 'dashboard',
 			'dashboard'   => $dashboard->jsonSerialize(),
-			'placements'  => array_map(
-				static fn ($placement): array => $placement->jsonSerialize(),
-				$this->widgets->findByDashboardId(dashboardId: (int)$dashboard->getId())
+			'placements'  => $this->forVisitor(
+				placements: array_map(
+					static fn ($placement): array => $placement->jsonSerialize(),
+					$this->widgets->findByDashboardId(dashboardId: (int)$dashboard->getId())
+				)
 			),
 		];
 	}//end renderDashboard()
+
+	/**
+	 * The placements an embed shows: an embed has no viewer who can edit, so
+	 * a widget the visibility rules hide is left out (REQ-VIS-013).
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 *
+	 * @return array<int, array<string, mixed>> The placements to render.
+	 */
+	private function forVisitor(array $placements): array {
+		return ($this->visibility?->visiblePlacements(placements: $placements, userId: '', canEdit: false) ?? $placements);
+	}//end forVisitor()
 
 	/**
 	 * The subject named by type, or null for an unknown type or a missing subject.

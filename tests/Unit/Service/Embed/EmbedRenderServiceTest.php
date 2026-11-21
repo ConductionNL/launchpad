@@ -24,6 +24,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Entity\EmbedToken;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Service\Embed\EmbedRenderService;
 use OCA\LaunchPad\Service\Embed\ScopeEnforcementService;
 use OCA\LaunchPad\Service\Embed\TenantThemeService;
@@ -154,4 +155,30 @@ class EmbedRenderServiceTest extends TestCase {
 			'tenantThemeId' => $theme,
 		]);
 	}//end token()
+
+	/**
+	 * An embed has no viewer who can edit: its placements go through the
+	 * visibility rules for a visitor without an account (REQ-VIS-013).
+	 *
+	 * @return void
+	 */
+	public function testAnEmbedAppliesTheVisibilityRulesForAVisitor(): void {
+		$dashboard = $this->getMockBuilder(className: Dashboard::class)->onlyMethods(['jsonSerialize'])->getMock();
+		$dashboard->setId(7);
+		$dashboard->method('jsonSerialize')->willReturn(['uuid' => 'dash-uuid']);
+		$this->dashboards->method('findByUuid')->willReturn($dashboard);
+		$placement = $this->createMock(originalClassName: WidgetPlacement::class);
+		$placement->method('jsonSerialize')->willReturn(['id' => 1]);
+		$this->widgets->method('findByDashboardId')->willReturn([$placement]);
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
+		$visibility->expects($this->once())->method('visiblePlacements')->with([['id' => 1]], '', false)->willReturn([]);
+		$service = new EmbedRenderService($this->dashboards, $this->widgets, $this->themes, new ScopeEnforcementService(), $visibility);
+
+		$payload = $service->renderDashboard(
+			dashboardId: 'dash-uuid',
+			token: self::token(subject: ['type' => 'dashboard', 'id' => 'dash-uuid'], scope: ['mode' => 'read'], theme: null)
+		);
+
+		$this->assertSame(expected: [], actual: $payload['placements'] ?? null);
+	}//end testAnEmbedAppliesTheVisibilityRulesForAVisitor()
 }//end class

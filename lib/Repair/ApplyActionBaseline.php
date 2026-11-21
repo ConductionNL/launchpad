@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 4;
+	private const BASELINE_VERSION = 5;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -95,6 +95,10 @@ class ApplyActionBaseline implements IRepairStep {
 	 * deleting or promoting a variant of their own dashboard. Every translation
 	 * write still checks ownership per dashboard.
 	 *
+	 * v5: the owner adds visibility rules to the widgets of their own
+	 * dashboard (REQ-VIS-001, Ruben 21 Nov 2026). The route checks placement
+	 * ownership before it writes, so the action reaches no one else's widget.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
@@ -113,6 +117,7 @@ class ApplyActionBaseline implements IRepairStep {
 			'dashboard-translation.destroy',
 			'dashboard-translation.set-primary',
 		],
+		5 => ['rule.add-rule'],
 	];
 
 	/**

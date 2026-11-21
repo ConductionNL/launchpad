@@ -29,6 +29,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -69,6 +70,7 @@ class PublicShareController extends Controller {
 	 * @param PublicShareContext $shareContext Request-scoped bearer marker (Task 7).
 	 * @param LoggerInterface $logger PSR-3 logger.
 	 * @param string|null $userId Authenticated user ID (null for public endpoints).
+	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -76,6 +78,7 @@ class PublicShareController extends Controller {
 		private readonly PublicShareContext $shareContext,
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
+		private readonly ?ConditionalServiceInterface $visibility = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -397,13 +400,15 @@ class PublicShareController extends Controller {
 	private function renderPayload(array $result): array {
 		$shareData = $result['share']->jsonSerialize();
 		unset($shareData['createdBy']);
+		$placements = array_map(
+			callback: static fn ($placement) => $placement->jsonSerialize(),
+			array: $result['placements']
+		);
+		// A visitor cannot edit, so a widget the rules hide is left out (REQ-VIS-013).
 		return [
 			'share' => $shareData,
 			'dashboard' => $result['dashboard']->jsonSerialize(),
-			'placements' => array_map(
-				callback: static fn ($placement) => $placement->jsonSerialize(),
-				array: $result['placements']
-			),
+			'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: (string)$this->userId, canEdit: false) ?? $placements),
 		];
 	}//end renderPayload()
 

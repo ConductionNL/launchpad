@@ -79,7 +79,6 @@ class ActionAuthBaselineTest extends TestCase {
 		'search-shortcut.save',
 		'profile-fields.get-definitions',
 		'profile-fields.save-definitions',
-		'rule.add-rule',
 		'rule.update-rule',
 		'rule.delete-rule',
 		'tile.create',
@@ -127,6 +126,9 @@ class ActionAuthBaselineTest extends TestCase {
 		'dashboard-version.create-version',
 		'dashboard-version.restore-version',
 		'rule.get-rules',
+		// REQ-VIS-001: the owner adds rules to the widgets of their own
+		// dashboard; the route checks placement ownership first.
+		'rule.add-rule',
 		// REQ-LANGUI-001: the owner manages their dashboard's language
 		// versions; each translation write checks ownership per dashboard.
 		'dashboard-translation.create',

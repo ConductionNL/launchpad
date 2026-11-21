@@ -249,8 +249,9 @@ class DashboardApiController extends Controller {
 		return $this->context->responseHelper->success(
 			data: [
 				'dashboard' => $activeDashboard->jsonSerialize(),
-				'placements' => $this->context->responseHelper->serializeList(
-					entities: $result['placements']
+				'placements' => $this->renderedPlacements(
+					placements: $result['placements'],
+					permissionLevel: (string)$result['permissionLevel']
 				),
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
@@ -315,8 +316,9 @@ class DashboardApiController extends Controller {
 		return $this->context->responseHelper->success(
 			data: [
 				'dashboard' => $dashboard->jsonSerialize(),
-				'placements' => $this->context->responseHelper->serializeList(
-					entities: $result['placements']
+				'placements' => $this->renderedPlacements(
+					placements: $result['placements'],
+					permissionLevel: (string)$result['permissionLevel']
 				),
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
@@ -326,6 +328,31 @@ class DashboardApiController extends Controller {
 			]
 		);
 	}//end show()
+
+	/**
+	 * The placements a dashboard renders for the caller, with the widget
+	 * visibility rules applied: a viewer does not get a hidden widget, the
+	 * owner and editors get it marked `hiddenForViewers` (REQ-VIS-013).
+	 *
+	 * @param array  $placements      The dashboard's placement entities.
+	 * @param string $permissionLevel The caller's permission level on the dashboard.
+	 *
+	 * @return array The serialised placements.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	private function renderedPlacements(array $placements, string $permissionLevel): array {
+		$serialized = $this->context->responseHelper->serializeList(entities: $placements);
+		if ($this->services->visibility === null) {
+			return $serialized;
+		}
+
+		return $this->services->visibility->visiblePlacements(
+			placements: $serialized,
+			userId: (string)$this->context->userId,
+			canEdit: $permissionLevel !== Dashboard::PERMISSION_VIEW_ONLY
+		);
+	}//end renderedPlacements()
 
 	/**
 	 * Whether a dashboard has more than one language version, so the page

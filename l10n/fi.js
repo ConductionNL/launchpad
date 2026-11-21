@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Kun tämä on poistettu käytöstä, olemassa olevat kojelaudat, joihin on upotettu silloitettuja Nextcloud-pienoisohjelmia, näyttävät \"Ei saatavilla\" -tilan, kunnes silta otetaan uudelleen käyttöön.",
     "Visibility rules" : "Näkyvyyssäännöt",
     "Visibility rules…" : "Näkyvyyssäännöt…",
+    "Hidden for viewers" : "Piilotettu katsojilta",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Näytä tai piilota tämä pienoisohjelma ryhmäjäsenyyden, kellonajan, päivämääräalueen tai käyttäjäattribuutin perusteella. Sisällytyssäännöt käyttävät TAI-logiikkaa; poissulkemissäännöt käyttävät JA-logiikkaa.",
     "Remove rule" : "Poista sääntö",
     "No visibility rules yet — this widget is always shown." : "Ei vielä näkyvyyssääntöjä — tämä pienoisohjelma näytetään aina.",

@@ -34,6 +34,7 @@ use DateTime;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
@@ -94,12 +95,14 @@ class KioskService {
 	 * @param IGroupManager   $groupManager NC group manager for admin scoping.
 	 * @param ISecureRandom   $secureRandom CSPRNG for token generation.
 	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
 	 */
 	public function __construct(
 		private readonly KioskStores $stores,
 		private readonly IGroupManager $groupManager,
 		private readonly ISecureRandom $secureRandom,
 		private readonly LoggerInterface $logger,
+		private readonly ?ConditionalServiceInterface $visibility = null,
 	) {
 	}//end __construct()
 
@@ -264,17 +267,16 @@ class KioskService {
 
 			// The screen shows the widgets, so each entry carries the
 			// dashboard's placements, as the public share render does.
-			$placements = $this->stores->placementMapper->findByDashboardId(
-				dashboardId: (int)$dashboard->getId()
+			$placements = array_map(
+				callback: static fn ($placement) => $placement->jsonSerialize(),
+				array: $this->stores->placementMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
 			);
 
 			$rendered[] = [
 				'dwellSeconds' => $entry['dwellSeconds'],
 				'dashboard' => $this->publicDashboardPayload(dashboard: $dashboard),
-				'placements' => array_map(
-					callback: static fn ($placement) => $placement->jsonSerialize(),
-					array: $placements
-				),
+				// A screen has no viewer who can edit, so a widget the rules hide is left out (REQ-VIS-013).
+				'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: '', canEdit: false) ?? $placements),
 			];
 		}
 

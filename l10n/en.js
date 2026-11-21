@@ -1096,6 +1096,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled.",
     "Visibility rules" : "Visibility rules",
     "Visibility rules…" : "Visibility rules…",
+    "Hidden for viewers" : "Hidden for viewers",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic.",
     "Remove rule" : "Remove rule",
     "No visibility rules yet — this widget is always shown." : "No visibility rules yet — this widget is always shown.",

@@ -362,4 +362,30 @@ class ApplyActionBaselineTest extends TestCase {
 		);
 		$this->assertSame(expected: ['admin'], actual: $written['dashboard.create'], message: 'v4 adds only its own actions');
 	}//end testAnInstanceAtV3GainsTheOwnersTranslationWrites()
+
+	/**
+	 * An instance at v4 lets the owner add visibility rules from v5, and an
+	 * entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV4LetsTheOwnerAddRules(): void {
+		$this->appConfig->method('getValueInt')->willReturn(4);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'rule.add-rule' => ['admin'],
+			'rule.update-rule' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['rule.add-rule']);
+		$this->assertSame(expected: ['admin'], actual: $written['rule.update-rule'], message: 'v5 adds only its own action');
+	}//end testAnInstanceAtV4LetsTheOwnerAddRules()
 }//end class

@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Når deaktivert, gjengir eksisterende kontrollpaneler som bygger inn brokoblede Nextcloud-moduler en «Utilgjengelig»-tilstand til broen aktiveres på nytt.",
     "Visibility rules" : "Synlighetsregler",
     "Visibility rules…" : "Synlighetsregler…",
+    "Hidden for viewers" : "Skjult for lesere",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Vis eller skjul denne modulen basert på gruppemedlemskap, tid på dagen, datointervall eller en brukerattributt. Inkluderingsregler bruker ELLER-logikk; ekskluderingsregler bruker OG-logikk.",
     "Remove rule" : "Fjern regel",
     "No visibility rules yet — this widget is always shown." : "Ingen synlighetsregler ennå — denne modulen vises alltid.",

@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Kui see on keelatud, kuvavad olemasolevad töölauad, mis sisaldavad sillatud Nextcloudi vidinaid, oleku \"Pole saadaval\", kuni sild uuesti lubatakse.",
     "Visibility rules" : "Nähtavusreeglid",
     "Visibility rules…" : "Nähtavusreeglid…",
+    "Hidden for viewers" : "Vaatajate eest peidetud",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Näidake või peitke see vidin grupikuuluvuse, kellaaja, kuupäevavahemiku või kasutaja atribuudi alusel. Kaasamisreeglid kasutavad VÕI-loogikat; välistamisreeglid kasutavad JA-loogikat.",
     "Remove rule" : "Eemalda reegel",
     "No visibility rules yet — this widget is always shown." : "Veel ühtegi nähtavusreeglit pole — see vidin kuvatakse alati.",

@@ -153,4 +153,21 @@ class PermissionServiceAcknowledgementTest extends TestCase {
 		$this->assertFalse(condition: $service->canManageAcknowledgement(userId: 'bob', placementId: 21));
 		$this->assertFalse(condition: $service->canManageAcknowledgement(userId: 'bob', placementId: 99));
 	}
+
+	/**
+	 * A widget on an admin template, which belongs to nobody, changes for a
+	 * Nextcloud admin and for nobody else (REQ-PERM-011), so the admin can
+	 * reach the acknowledgement check of REQ-ACK-001.
+	 *
+	 * @return void
+	 */
+	public function testOnlyANextcloudAdminStylesATemplateWidget(): void {
+		$service = $this->service(
+			dashboards: [1 => [Dashboard::TYPE_ADMIN_TEMPLATE, null]],
+			placements: [30 => [1, null]]
+		);
+
+		$this->assertTrue(condition: $service->canStyleWidget(userId: 'root', placementId: 30));
+		$this->assertFalse(condition: $service->canStyleWidget(userId: 'bob', placementId: 30));
+	}
 }//end class

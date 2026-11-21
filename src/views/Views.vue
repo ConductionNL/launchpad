@@ -452,7 +452,7 @@
 			v-if="contextMenuVisible"
 			:top="contextMenuTop"
 			:left="contextMenuLeft"
-			:canRemove="contextMenuCanRemove"
+			:removeLocked="!contextMenuCanRemove"
 			@edit="grid.triggerEdit()"
 			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"

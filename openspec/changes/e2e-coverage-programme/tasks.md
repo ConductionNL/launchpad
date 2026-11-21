@@ -94,8 +94,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/dashboard-reactions.spec.ts`, `tests/e2e/dashboard-reactions-ui.spec.ts`, 27 scenarios cited, 6 excluded, not yet run (cloud, 2026-11-19)
-- [ ] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
+- [x] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
   - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): tile-quick-search-widget 24 of 24 and tile-quick-search 9 of 9 green.
 - [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-icons.spec.ts (new), 21 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
@@ -108,8 +109,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: tests/e2e/runtime-shell.spec.ts (new), with tests/e2e/support/firstVisit.ts, 20 scenarios cited (11 by the new file), not yet run (cloud, 2026-11-19)
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
   - Written: `tests/e2e/dashboard-deeplinking.spec.ts` cites 6 scenarios (stale slug lands on a dashboard with 200, a slug address opens that dashboard, the path endpoint, one pushState per switch and none on mount, back returns to the previous dashboard, the health route); their exclusions are removed. The route-table order keeps a reasoned exclusion. The NULL-slug half of the path endpoint stays with DashboardApiControllerComputePathTest (a created dashboard always gets a derived slug). Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
-- [ ] 3.18 `default-widget-bundle`: 6 scenarios, 0 cited.
+- [x] 3.18 `default-widget-bundle`: 6 scenarios, 0 cited.
   - Written: `tests/e2e/default-widget-bundle.spec.ts` cites 4 scenarios (the create response and the rendered grid, the preset tile columns, the envelope, the loading shim held on the active-dashboard read). The 2 left keep a reasoned exclusion naming their PHPUnit tests: the seedDefaults flag of the bootstrap (not visible in a browser) and the admin-template override (no e2e yet). Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 3.19 `effective-default-marker`: 5 scenarios, 0 cited.
   - Written: `tests/e2e/effective-default-marker.spec.ts` cites all 5 scenarios, and their exclusions are removed from the spec. Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
 
@@ -143,14 +145,18 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
-- [ ] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
+- [x] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
   - Spec written: tests/e2e/clock-weather-widgets.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with a reason
-- [ ] 4.15 `launchpad-spend-analytics-widget`: 21 scenarios, 0 cited, blanket.
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 16 green; the remaining test is the existing fixme for a requirement that was never built.
+- [x] 4.15 `launchpad-spend-analytics-widget`: 21 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/launchpad-spend-analytics-widget.spec.ts`, 9 scenarios cited, 12 excluded with a reason (8 never built, 4 unit-only, CLI or source scan), not yet run (cloud, 2026-11-19). The blanket was wrong: the widget was built in 7d7da1bb and renders today through nc-vue `CnSpendAnalyticsWidget`; the manifest entry it describes was removed in 2cf53831.
-- [ ] 4.16 `launchpad-ai-dashboard-assistant`: 18 scenarios, 0 cited, blanket.
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 8 of 8 green.
+- [x] 4.16 `launchpad-ai-dashboard-assistant`: 18 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/launchpad-ai-dashboard-assistant.spec.ts, 8 scenarios cited, 3 excluded with a reason, not yet run (cloud, 2026-11-19)
-- [ ] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 7 of 7 green.
+- [x] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/iframe-embed-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 12 of 12 green (the allow-list fixes of #1471).
 - [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/launchpad-mobile-remote-access.spec.ts`, 1 scenario cited, 14 excluded with a reason (8 never built: `mobileReady` appears in no commit under src, lib, appinfo or templates (`git log --all -S`); 6 need an expired session, an https feed host, or are source scans), not yet run (cloud, 2026-11-19)
 - [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
@@ -161,8 +167,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: tests/e2e/label-widget-content-edit.spec.ts, 1 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 12 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 12 per-scenario verdicts. `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); opening a file from the existing `files` widget belongs to the files-widget spec.
-- [ ] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
+- [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/container-widget.spec.ts, tests/e2e/container-tile-sorting.spec.ts, 11 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with a reason
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): container-widget 7 of 7 and container-tile-sorting 6 of 6 green.
 - [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
 
@@ -184,8 +191,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/confluence-html-import.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with reasons
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 37 of 37 green.
-- [ ] 5.7 `prometheus-metrics`: 23 scenarios, 0 cited, blanket.
+- [x] 5.7 `prometheus-metrics`: 23 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/prometheus-metrics.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 10 excluded with reasons
+  - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green.
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.
   - Spec written: tests/e2e/launchpad-adopt-or-abstractions.spec.ts (+ tests/e2e/support/orWidget.ts), 3 new scenarios cited (4 with manifest-boot.spec.ts), 16 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.

@@ -688,9 +688,10 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 			await expect
 				.poll(() => new URL(page.url()).searchParams.get('kiosk'))
 				.toBeNull()
-			expect(new URL(page.url()).pathname.replace(/\/+$/, '')).toBe(
-				`${APP}/${lobby.slug}`,
-			)
+			// The same route with or without the `/index.php` front controller:
+			// the app writes its addresses the way Nextcloud generates them.
+			const bare = (path: string) => path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+			expect(bare(new URL(page.url()).pathname)).toBe(bare(`${APP}/${lobby.slug}`))
 			await expect(page.locator(NC_HEADER).first()).toBeVisible()
 			await expect(page.locator(SIDEBAR_TOGGLE).first()).toBeVisible()
 			await expect(page.getByText(lobby.text).first()).toBeVisible()

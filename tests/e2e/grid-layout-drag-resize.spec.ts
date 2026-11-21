@@ -182,9 +182,12 @@ async function openEditing(browser: Browser, count: number) {
 test('a dragged widget snaps to its new cell and the widget in the way is pushed down', async ({
 	browser,
 }) => {
+	// notes holds the drop target itself. GridStack pushes a widget only when
+	// the dragged one covers more than half of it, so a widget a row lower
+	// (covered by exactly half) keeps its place and blocks the drop.
 	const [weather, notes] = await seed([
 		{ x: 0, y: 0, w: 4, h: 2 },
-		{ x: 4, y: 3, w: 4, h: 2 },
+		{ x: 4, y: 2, w: 4, h: 2 },
 	])
 	const { context, page } = await openEditing(browser, 2)
 	try {
@@ -194,7 +197,7 @@ test('a dragged widget snaps to its new cell and the widget in the way is pushed
 
 		const rendered = await renderedRects(page)
 		expect(rendered.get(weather)).toEqual({ x: 4, y: 2, w: 4, h: 2 })
-		// notes sat on row 3 of columns 4-7, under the drop target: pushed down.
+		// notes sat on the drop target: pushed down below it.
 		expect(rendered.get(notes)!.y).toBeGreaterThanOrEqual(4)
 		expect(anyOverlap([...rendered.values()])).toBe(false)
 

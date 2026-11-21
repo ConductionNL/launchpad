@@ -26,11 +26,12 @@ function presetTable() {
 		{
 			id: NL_ADMINISTRATIVE,
 			name: t('launchpad', 'Dutch administrative areas'),
-			description: t('launchpad', 'Province, municipality and district'),
+			description: t('launchpad', 'Province, municipality, district and neighbourhood'),
 			levels: [
 				{ dimension: 'provincieCode', label: 'Province', displayLabel: t('launchpad', 'Province') },
 				{ dimension: 'gemeenteCode', label: 'Municipality', displayLabel: t('launchpad', 'Municipality') },
 				{ dimension: 'wijkCode', label: 'District', displayLabel: t('launchpad', 'District') },
+				{ dimension: 'buurtCode', label: 'Neighbourhood', displayLabel: t('launchpad', 'Neighbourhood') },
 			],
 		},
 	]

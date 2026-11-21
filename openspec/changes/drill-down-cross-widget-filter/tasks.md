@@ -119,7 +119,7 @@
 
 - [x] Task 37: API validation. `PUT /api/dashboard/{id}` accepts `hierarchies`; `DashboardHierarchies::validated()` refuses a malformed descriptor with 400 before anything is saved, and the update needs the same permission as a layout change. `openapi.json` documents the field. Link REQ-CWF-011.
 
-- [x] Task 38: Preset. The `nl-administrative` hierarchy (province > municipality > district) ships as a selectable preset in `src/utils/hierarchyPresets.js`, with nl and en level labels. Link REQ-CWF-011.
+- [x] Task 38: Preset. The `nl-administrative` hierarchy (province > municipality > district > neighbourhood, Ruben 21 Nov) ships as a selectable preset in `src/utils/hierarchyPresets.js`, with nl and en level labels. Link REQ-CWF-011.
 
 - [x] Task 39: Settings UI. The dashboard settings modal lets an owner or editor pick the dashboard's hierarchies from the presets; only a changed choice is sent. Link REQ-CWF-011.
 

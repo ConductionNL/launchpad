@@ -229,13 +229,13 @@ When org-level telemetry is enabled, the system SHALL persist `filter_event` row
 
 ### Requirement: REQ-CWF-011 A dashboard stores its hierarchies
 
-A dashboard SHALL store its `hierarchies` (a list of hierarchy_descriptor objects) and return them on every read of the dashboard, so the filter bus of every viewer joins widgets on them without any per-page configuration. An owner or editor SHALL pick the hierarchies in the dashboard settings from the shipped presets; the `nl-administrative` preset (province > municipality > district: `provincieCode` > `gemeenteCode` > `wijkCode`) SHALL be one of them. The dashboard API SHALL validate every descriptor before it stores it.
+A dashboard SHALL store its `hierarchies` (a list of hierarchy_descriptor objects) and return them on every read of the dashboard, so the filter bus of every viewer joins widgets on them without any per-page configuration. An owner or editor SHALL pick the hierarchies in the dashboard settings from the shipped presets; the `nl-administrative` preset (province > municipality > district > neighbourhood: `provincieCode` > `gemeenteCode` > `wijkCode` > `buurtCode`) SHALL be one of them. The dashboard API SHALL validate every descriptor before it stores it.
 
 #### Scenario: An owner picks the nl-administrative preset
 
 - **GIVEN** a dashboard without hierarchies and its owner in the dashboard settings
 - **WHEN** the owner picks the "Dutch administrative areas" preset and saves
-- **THEN** the dashboard SHALL store the `nl-administrative` descriptor with the levels `provincieCode`, `gemeenteCode` and `wijkCode`, every later read of the dashboard SHALL return it, and the dashboard's filter bus SHALL be rebuilt on it
+- **THEN** the dashboard SHALL store the `nl-administrative` descriptor with the levels `provincieCode`, `gemeenteCode`, `wijkCode` and `buurtCode`, every later read of the dashboard SHALL return it, and the dashboard's filter bus SHALL be rebuilt on it
 
 #### Scenario: Stored hierarchies put consuming widgets on the bus
 

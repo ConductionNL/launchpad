@@ -219,6 +219,40 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	}//end testSharedDraftDashboardIsStillVisibleToItsRecipient()
 
 	/**
+	 * REQ-SHARE-005: a recipient activating a shared dashboard gets it back
+	 * and no active flag is written.
+	 *
+	 * @return void
+	 */
+	public function testRecipientActivatingASharedDashboardWritesNothing(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+		$this->dashboardMapper->method('find')->willReturn($shared);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[['dashboard' => $shared, 'source' => Dashboard::SOURCE_SHARED]]
+		);
+		$this->dashboardMapper->expects($this->never())->method('setActive');
+
+		$this->assertSame($shared, $this->service->activateDashboard(dashboardId: 7, userId: 'recipient'));
+	}//end testRecipientActivatingASharedDashboardWritesNothing()
+
+	/**
+	 * Someone the dashboard is not shared with is still refused.
+	 *
+	 * @return void
+	 */
+	public function testStrangerActivatingAForeignDashboardIsRefused(): void {
+		$foreign = $this->makeDashboard(7, 'uuid-foreign', 'owner');
+		$this->dashboardMapper->method('find')->willReturn($foreign);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn([]);
+		$this->dashboardMapper->expects($this->never())->method('setActive');
+
+		$this->expectException(\Exception::class);
+		$this->service->activateDashboard(dashboardId: 7, userId: 'stranger');
+	}//end testStrangerActivatingAForeignDashboardIsRefused()
+
+	/**
 	 * The exemption is scoped to the share: a draft the user was NOT given
 	 * still stays hidden. This is what stops the fix from becoming a
 	 * blanket draft leak.

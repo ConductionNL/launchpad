@@ -247,11 +247,6 @@ test.describe('REQ-SHARE-005 owner-only metadata and lifecycle', () => {
 			"CONTROL: the owner's new dashboard is her active one",
 		).toBeTruthy()
 
-		// SUSPECTED BUG: the spec says a successful no-op (200 with the
-		// dashboard). `DashboardService::activateDashboard()` throws
-		// `Exception('Access denied')` for anyone but the owner
-		// (lib/Service/DashboardService.php:1247-1249), which
-		// `DashboardApiController::activate()` turns into a 400.
 		const res = await bob!.api.post(`${API}/dashboard/${dash.id}/activate`)
 		expect(res.status(), await res.text()).toBe(200)
 		expect(Number((await res.json()).dashboard?.id)).toBe(dash.id)

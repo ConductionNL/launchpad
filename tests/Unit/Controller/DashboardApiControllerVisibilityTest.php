@@ -29,6 +29,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -74,7 +75,7 @@ class DashboardApiControllerVisibilityTest extends TestCase {
 	 *
 	 * @return DashboardApiController The controller.
 	 */
-	private function controller(): DashboardApiController {
+	private function controller(?RoleFeaturePermissionService $roleWidgets=null): DashboardApiController {
 		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('alice');
 		$session = $this->createMock(originalClassName: IUserSession::class);
@@ -82,7 +83,7 @@ class DashboardApiControllerVisibilityTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(originalClassName: IRequest::class),
-			services: new DashboardApiServices(dashboardService: $this->dashboards, visibility: $this->visibility),
+			services: new DashboardApiServices(dashboardService: $this->dashboards, visibility: $this->visibility, roleWidgets: $roleWidgets),
 			access: new DashboardApiAccess(
 				permissionService: $this->createMock(originalClassName: PermissionService::class),
 				history: new DashboardApiHistory(
@@ -106,11 +107,11 @@ class DashboardApiControllerVisibilityTest extends TestCase {
 	 *
 	 * @return array<string, mixed> The service result.
 	 */
-	private static function readResult(string $level): array {
+	private static function readResult(string $level, string $owner='bob'): array {
 		$dashboard = new Dashboard();
 		$dashboard->setId(7);
 		$dashboard->setUuid('dash-7');
-		$dashboard->setUserId('bob');
+		$dashboard->setUserId($owner);
 		$placement = new WidgetPlacement();
 		$placement->setId(3);
 
@@ -171,4 +172,60 @@ class DashboardApiControllerVisibilityTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: $data['placements']);
 	}//end testGetActiveAppliesTheRules()
+
+	/**
+	 * On the caller's own dashboard the placements go through the role's
+	 * widget allow-list before the visibility rules (REQ-RFP-003).
+	 *
+	 * @return void
+	 */
+	public function testShowHidesUnpermittedWidgetsOnOwnDashboard(): void {
+		$this->dashboards->method('getDashboardForUser')
+			->willReturn(self::readResult(level: Dashboard::PERMISSION_FULL, owner: 'alice'));
+		$roleWidgets = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
+		$roleWidgets->expects($this->once())
+			->method('hideUnpermittedPlacements')
+			->with($this->anything(), 'alice')
+			->willReturn([['id' => 3, 'isVisible' => 0]]);
+		$this->visibility->expects($this->once())
+			->method('visiblePlacements')
+			->with([['id' => 3, 'isVisible' => 0]], 'alice', true)
+			->willReturnArgument(0);
+
+		$data = $this->controller(roleWidgets: $roleWidgets)->show(id: 7)->getData();
+
+		$this->assertSame(expected: [['id' => 3, 'isVisible' => 0]], actual: $data['placements']);
+	}//end testShowHidesUnpermittedWidgetsOnOwnDashboard()
+
+	/**
+	 * Someone else's dashboard is not narrowed by the caller's role.
+	 *
+	 * @return void
+	 */
+	public function testShowLeavesAnotherOwnersDashboardToItsOwner(): void {
+		$this->dashboards->method('getDashboardForUser')
+			->willReturn(self::readResult(level: Dashboard::PERMISSION_VIEW_ONLY));
+		$roleWidgets = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
+		$roleWidgets->expects($this->never())->method('hideUnpermittedPlacements');
+		$this->visibility->method('visiblePlacements')->willReturnArgument(0);
+
+		$this->controller(roleWidgets: $roleWidgets)->show(id: 7);
+	}//end testShowLeavesAnotherOwnersDashboardToItsOwner()
+
+	/**
+	 * getActive() narrows the caller's own dashboard the same way.
+	 *
+	 * @return void
+	 */
+	public function testGetActiveHidesUnpermittedWidgetsOnOwnDashboard(): void {
+		$this->dashboards->method('getEffectiveDashboard')
+			->willReturn(self::readResult(level: Dashboard::PERMISSION_FULL, owner: 'alice'));
+		$roleWidgets = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
+		$roleWidgets->method('hideUnpermittedPlacements')->willReturn([['id' => 3, 'isVisible' => 0]]);
+		$this->visibility->method('visiblePlacements')->willReturnArgument(0);
+
+		$data = $this->controller(roleWidgets: $roleWidgets)->getActive()->getData();
+
+		$this->assertSame(expected: [['id' => 3, 'isVisible' => 0]], actual: $data['placements']);
+	}//end testGetActiveHidesUnpermittedWidgetsOnOwnDashboard()
 }//end class

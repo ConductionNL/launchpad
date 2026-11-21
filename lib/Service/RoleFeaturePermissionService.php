@@ -625,6 +625,40 @@ class RoleFeaturePermissionService {
 	}//end isWidgetAllowed()
 
 	/**
+	 * Mark the placements whose widget the user's role does not permit as
+	 * hidden (`isVisible` 0), keeping them, so a placement made under an
+	 * earlier role comes back when the role does (REQ-RFP-003, REQ-RFP-004).
+	 *
+	 * A tile placement (`tile-<uniqid>`) counts as the `tile` widget type.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The user the dashboard renders for.
+	 *
+	 * @return array<int, array<string, mixed>> The placements, the unpermitted ones hidden.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	public function hideUnpermittedPlacements(array $placements, string $userId): array {
+		$allowed = $this->getAllowedWidgetIds(userId: $userId);
+		if ($allowed === null) {
+			return $placements;
+		}
+
+		foreach ($placements as $index => $placement) {
+			$widgetId = (string)($placement['widgetId'] ?? '');
+			if (str_starts_with(haystack: $widgetId, needle: 'tile-') === true) {
+				$widgetId = 'tile';
+			}
+
+			if ($widgetId !== '' && in_array(needle: $widgetId, haystack: $allowed, strict: true) === false) {
+				$placements[$index]['isVisible'] = 0;
+			}
+		}
+
+		return $placements;
+	}//end hideUnpermittedPlacements()
+
+	/**
 	 * Whether this user has RoleLayoutDefault rows to be seeded from.
 	 *
 	 * Resolved exactly as {@see self::seedLayoutFromRoleDefaults()} resolves

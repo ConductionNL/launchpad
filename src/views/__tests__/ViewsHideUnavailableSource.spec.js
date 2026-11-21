@@ -156,3 +156,12 @@ describe('Views hides an app tile whose register is not here', () => {
 		expect(get).toHaveBeenCalledTimes(2)
 	})
 })
+
+describe('Views never shows a placement with isVisible 0', () => {
+	it('leaves it out in view mode and in edit mode, and keeps the rest', () => {
+		const hidden = { id: 7, widgetId: 'files-favorites', isVisible: 0, content: {} }
+		const shown = { ...header, isVisible: 1 }
+		expect(makeHost([shown, hidden]).shownPlacements.map((p) => p.id)).toEqual([1])
+		expect(makeHost([shown, hidden], true).shownPlacements.map((p) => p.id)).toEqual([1])
+	})
+})

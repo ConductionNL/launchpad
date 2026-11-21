@@ -998,16 +998,22 @@ export default {
 		},
 
 		/**
-		 * The placements the grid shows: every placement in edit mode, and
-		 * outside it every placement but an object-list that asked to be
-		 * hidden when its register is not on this instance (REQ-TMPL-022).
-		 * In edit mode the list stays, so whoever edits sees it is there.
+		 * The placements the grid shows. A placement with `isVisible` 0 never
+		 * renders (REQ-WDG-009; the server sets it for a widget the owner's
+		 * role does not permit, REQ-RFP-003). Of the rest: every placement in
+		 * edit mode, and outside it every placement but an object-list that
+		 * asked to be hidden when its register is not on this instance
+		 * (REQ-TMPL-022). In edit mode the list stays, so whoever edits sees
+		 * it is there.
 		 *
 		 * @return {object[]} the placements to lay out.
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		shownPlacements() {
-			const all = this.widgetPlacements || []
+			const all = (this.widgetPlacements || []).filter(
+				(p) => p.isVisible !== 0 && p.isVisible !== false,
+			)
 			if (this.isEditMode) {
 				return all
 			}

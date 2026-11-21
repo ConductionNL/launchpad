@@ -251,7 +251,8 @@ class DashboardApiController extends Controller {
 				'dashboard' => $activeDashboard->jsonSerialize(),
 				'placements' => $this->renderedPlacements(
 					placements: $result['placements'],
-					permissionLevel: (string)$result['permissionLevel']
+					permissionLevel: (string)$result['permissionLevel'],
+					isOwner: $isOwner
 				),
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
@@ -318,7 +319,8 @@ class DashboardApiController extends Controller {
 				'dashboard' => $dashboard->jsonSerialize(),
 				'placements' => $this->renderedPlacements(
 					placements: $result['placements'],
-					permissionLevel: (string)$result['permissionLevel']
+					permissionLevel: (string)$result['permissionLevel'],
+					isOwner: $isOwner
 				),
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
@@ -332,17 +334,28 @@ class DashboardApiController extends Controller {
 	/**
 	 * The placements a dashboard renders for the caller, with the widget
 	 * visibility rules applied: a viewer does not get a hidden widget, the
-	 * owner and editors get it marked `hiddenForViewers` (REQ-VIS-013).
+	 * owner and editors get it marked `hiddenForViewers` (REQ-VIS-013). On
+	 * the caller's own dashboard a widget their role does not permit comes
+	 * back with `isVisible` 0 (REQ-RFP-003, REQ-RFP-004).
 	 *
 	 * @param array  $placements      The dashboard's placement entities.
 	 * @param string $permissionLevel The caller's permission level on the dashboard.
+	 * @param bool   $isOwner         Whether the caller owns the dashboard.
 	 *
 	 * @return array The serialised placements.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/specs/role-feature-permissions/spec.md
 	 */
-	private function renderedPlacements(array $placements, string $permissionLevel): array {
+	private function renderedPlacements(array $placements, string $permissionLevel, bool $isOwner): array {
 		$serialized = $this->context->responseHelper->serializeList(entities: $placements);
+		if ($isOwner === true && $this->services->roleWidgets !== null) {
+			$serialized = $this->services->roleWidgets->hideUnpermittedPlacements(
+				placements: $serialized,
+				userId: (string)$this->context->userId
+			);
+		}
+
 		if ($this->services->visibility === null) {
 			return $serialized;
 		}

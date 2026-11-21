@@ -119,6 +119,23 @@ class PermissionServiceAcknowledgementTest extends TestCase {
 	}
 
 	/**
+	 * A Nextcloud admin may style a widget on an admin template that belongs
+	 * to nobody, so the acknowledgement guard behind it is reached; a user
+	 * who is no admin may not (REQ-PERM-011, REQ-ACK-001).
+	 *
+	 * @return void
+	 */
+	public function testAnAdminStylesAWidgetOnAnOwnerlessTemplate(): void {
+		$service = $this->service(
+			dashboards: [1 => [Dashboard::TYPE_ADMIN_TEMPLATE, null]],
+			placements: [30 => [1, null]]
+		);
+
+		$this->assertTrue(condition: $service->canStyleWidget(userId: 'root', placementId: 30));
+		$this->assertFalse(condition: $service->canStyleWidget(userId: 'bob', placementId: 30));
+	}
+
+	/**
 	 * Without a template the author is the owner of the original placement
 	 * (a placement whose dashboard is gone does not count); a fork made later
 	 * does not make its holder the author.

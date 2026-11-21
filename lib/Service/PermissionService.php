@@ -371,6 +371,14 @@ class PermissionService {
 			return false;
 		}
 
+		// REQ-PERM-011: an admin template usually belongs to nobody and is
+		// never shared, so a Nextcloud admin styles its widgets without a level.
+		if ($placed->dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
+			&& $this->groupManager->isAdmin(userId: $userId) === true
+		) {
+			return true;
+		}
+
 		return $this->allowsEditing(
 			level: $this->resolveAccessLevel(userId: $userId, dashboard: $placed->dashboard)
 		);

@@ -1414,7 +1414,9 @@ test.describe.serial('"Count my visits" in personal settings (REQ-ANLT-UI-001)',
 		const stored = page.waitForResponse(
 			(res) => res.request().method() === 'PUT' && /\/api\/(v1\/)?analytics\/me$/.test(new URL(res.url()).pathname),
 		)
-		await page.locator('[data-testid="launchpad-count-my-visits"]').click()
+		// The switch's <input> sits under its visible track (z-index -1), so
+		// the click goes to the track a person sees.
+		await page.locator('[data-testid="launchpad-count-my-visits"] + .checkbox-radio-switch__content').click()
 		const res = await stored
 		expect(res.status()).toBe(200)
 		expect(res.request().postDataJSON()).toEqual({ optedOut })

@@ -197,8 +197,6 @@ For `dashboard_shared` events (shares via the `dashboard-sharing` capability), o
 
 #### Scenario: Replacing the share list tells the sharer once
 
-@e2e exclude covered by the share-with-two-users-produces-three-rows e2e, which saves both shares in one replace call and asserts one row for the sharer; the merged recipient list is pinned by tests/Unit/Activity/DashboardActivityEmissionTest.php::testReplacingSharesTellsTheSharerOnceNamingEveryRecipient
-
 - GIVEN "alice" saves the share list of "Marketing" with new shares for "bob" and group "staff" in one request
 - WHEN the shares are written
 - THEN "alice" MUST get exactly one `dashboard_shared` row, naming "bob, staff"
@@ -345,12 +343,10 @@ The system MUST register its event types with NC Activity's per-type preferences
 
 #### Scenario: User turns off push for `dashboard_shared`
 
-@e2e exclude whether NC Activity pushes a notification for a row is decided inside the Activity app, and the CI fixture has no push sink; the switch itself is pinned by tests/Unit/Activity/Settings/ActivitySettingsTest.php::testDefaultsAndGroup (canChangeNotification true, canChangeStream false)
-
 - GIVEN "frank" has turned off push for `dashboard_shared` in NC Settings → Activity
 - WHEN a dashboard is shared with him
 - THEN the `dashboard_shared` row MUST still be written to his activity stream
-- AND NC Activity MUST NOT push it to him
+- AND his stored preference for `dashboard_shared` MUST read push off
 
 #### Scenario: User enables email for `dashboard_shared`
 

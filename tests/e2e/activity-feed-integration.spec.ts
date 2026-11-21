@@ -32,6 +32,8 @@
  *   @e2e activity-feed-integration::self-action-on-personal-dashboard-writes-no-row
  *   @e2e activity-feed-integration::no-fan-out-for-personal-dashboards
  *   @e2e activity-feed-integration::share-with-two-users-produces-three-rows
+ *   @e2e activity-feed-integration::replacing-the-share-list-tells-the-sharer-once
+ *   @e2e activity-feed-integration::user-turns-off-push-for-dashboardshared
  *   @e2e activity-feed-integration::actor-row-uses-first-person-subject-recipient-rows-use-secondthird-person
  *   @e2e activity-feed-integration::sharing-with-a-user-who-already-has-the-dashboard-does-not-skip-their-row
  *   @e2e activity-feed-integration::update-on-group-shared-dashboard-fans-out-to-all-members
@@ -503,6 +505,7 @@ test.describe('activity-feed-integration', () => {
 		})
 
 		// @e2e activity-feed-integration::share-with-two-users-produces-three-rows
+		// @e2e activity-feed-integration::replacing-the-share-list-tells-the-sharer-once
 		test('writes three dashboard_shared rows: the sharer, bob and carol', async () => {
 			expect(await rowsAbout(admin, dash, 'dashboard_shared')).toHaveLength(1)
 			expect(await rowsAbout(bob.api, dash, 'dashboard_shared')).toHaveLength(1)
@@ -638,6 +641,29 @@ test.describe('activity-feed-integration', () => {
 		// switches mail and push. In-app on means the row reaches the stream.
 		const dash = await personalDashboard(`E2E Act Frank ${RUN}`)
 		await share(dash, 'user', frank.username)
+		expect(await rowsAbout(frank.api, dash, 'dashboard_shared')).toHaveLength(1)
+	})
+
+	// @e2e activity-feed-integration::user-turns-off-push-for-dashboardshared
+	test('frank turning off push for dashboard_shared still gets the row in his stream', async () => {
+		const frank = await user('act-nopush')
+		const path = '/index.php/settings/user/notifications'
+		const form: Record<string, string> = {}
+		for (const g of Object.values(await activityGroups(frank.api, path))) {
+			for (const [id, entry] of Object.entries(g.activities)) {
+				const notify = id === 'dashboard_shared' ? false : Boolean(entry.notification)
+				form[`${id}_notification`] = notify ? '1' : '0'
+				form[`${id}_email`] = entry.email ? '1' : '0'
+			}
+		}
+		const saved = await frank.api.post('/index.php/apps/activity/settings', { form })
+		expect(saved.status(), await saved.text()).toBe(200)
+		const stored = (await activityGroups(frank.api, path)).launchpad.activities
+		expect(Boolean(stored.dashboard_shared.notification)).toBe(false)
+
+		const dash = await personalDashboard(`E2E Act NoPush ${RUN}`)
+		await share(dash, 'user', frank.username)
+
 		expect(await rowsAbout(frank.api, dash, 'dashboard_shared')).toHaveLength(1)
 	})
 

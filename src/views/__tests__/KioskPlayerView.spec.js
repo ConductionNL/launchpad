@@ -221,6 +221,18 @@ describe('KioskPlayerView', () => {
 		wrapper.unmount()
 	})
 
+	it('REQ-KIOSK-005: the 10 seconds count from the entry\'s turn, not from its early fetch', async () => {
+		const fresh = { dwellSeconds: 20, dashboard: { uuid: 'k', name: 'Kantine vers' }, placements: [] }
+		// Fetched at 25 s, its turn at 30 s, the answer at 37 s: 7 s after its turn.
+		serve([ok], () => new Promise((resolve) => setTimeout(() => resolve({ data: fresh }), 12_000)))
+		const wrapper = mountPlayer()
+		await flushPromises()
+
+		await vi.advanceTimersByTimeAsync(38_000)
+		expect(wrapper.text()).toContain('Kantine vers')
+		wrapper.unmount()
+	})
+
 	it('REQ-KIOSK-001: hides the cursor after 10 seconds without movement', async () => {
 		serve([ok])
 		const wrapper = mountPlayer()

@@ -166,6 +166,21 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 		expect(checkIframeFramable).toHaveBeenCalledWith('https://github.com/')
 	})
 
+	it('says the embed is no longer permitted when its host was taken off the allow-list (REQ-IFRAME-002)', async () => {
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'host_not_allowed' })
+		const wrapper = mount(IframeWidget, {
+			propsData: {
+				content: { url: 'https://status.example.com/board', title: 'Status' },
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
+		})
+		await flushPromises()
+		const fallback = wrapper.find('.iframe-widget__fallback')
+		expect(fallback.text()).toContain('This embed is no longer permitted by your administrator')
+		expect(fallback.text()).not.toContain('does not allow itself to be embedded')
+		expect(wrapper.find('iframe').exists()).toBe(false)
+	})
+
 	it('does NOT render the iframe while the framable check is still pending (prevents the blocked-frame load event from masking the fallback)', async () => {
 		// Regression: a live XFO-deny target fires a browser "refused to
 		// connect" load event with a null contentDocument that onLoad cannot

@@ -69,14 +69,14 @@ export async function closeSidebar(page: Page): Promise<void> {
 }
 
 /**
- * Open the Add Widget modal via the first personal dashboard row's cog menu.
- * Leaves the modal visible.
+ * Open the Add Widget modal via the cog menu of the active personal dashboard's
+ * row (the first personal row when none is active). Leaves the modal visible.
  */
 export async function openAddWidgetModal(page: Page): Promise<void> {
 	await openSidebar(page)
-	const personalRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.first()
+	const personalRows = page.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+	const activeRow = personalRows.and(page.locator('.active'))
+	const personalRow = (await activeRow.count()) > 0 ? activeRow.first() : personalRows.first()
 	await expect(personalRow).toBeVisible({ timeout: 8_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })

@@ -23,15 +23,15 @@
 				class="ai-assistant__messages"
 				aria-live="polite">
 				<li
-					v-for="(message, index) in chat.messages"
+					v-for="(message, index) in chat.state.messages"
 					:key="index"
 					:class="`ai-assistant__message ai-assistant__message--${message.role}`">
 					{{ message.content }}
 				</li>
 				<li
-					v-if="chat.isStreaming"
+					v-if="chat.state.isStreaming"
 					class="ai-assistant__message ai-assistant__message--assistant">
-					{{ chat.currentText || t('launchpad', 'Thinking…') }}
+					{{ chat.state.currentText || t('launchpad', 'Thinking…') }}
 				</li>
 			</ol>
 			<p
@@ -41,11 +41,11 @@
 				{{ lastAnswer }}
 			</p>
 			<p
-				v-if="chat.error"
+				v-if="chat.state.error"
 				class="ai-assistant__error"
 				role="alert"
 				data-testid="ai-assistant-error">
-				{{ chat.error.message }}
+				{{ chat.state.error.message }}
 			</p>
 			<form
 				v-if="!summaryMode"
@@ -58,14 +58,14 @@
 					:id="inputId"
 					v-model="question"
 					type="text"
-					:disabled="available !== true || chat.isStreaming"
+					:disabled="available !== true || chat.state.isStreaming"
 					:placeholder="t('launchpad', 'Ask about this dashboard')"
 					data-testid="ai-assistant-input" />
 				<button
 					type="submit"
 					:disabled="
 						available !== true
-						|| chat.isStreaming
+						|| chat.state.isStreaming
 						|| question.trim() === ''
 					"
 					data-testid="ai-assistant-send">
@@ -75,7 +75,7 @@
 			<button
 				v-else
 				type="button"
-				:disabled="available !== true || chat.isStreaming"
+				:disabled="available !== true || chat.state.isStreaming"
 				data-testid="ai-assistant-summarise"
 				@click="summarise">
 				{{ t('launchpad', 'Summarise this dashboard') }}
@@ -175,9 +175,9 @@ export default {
 		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		lastAnswer() {
-			const answers = this.chat.messages.filter((m) => m.role === 'assistant')
-			return this.chat.isStreaming
-				? this.chat.currentText
+			const answers = this.chat.state.messages.filter((m) => m.role === 'assistant')
+			return this.chat.state.isStreaming
+				? this.chat.state.currentText
 				: (answers[answers.length - 1]?.content ?? '')
 		},
 	},
@@ -212,7 +212,7 @@ export default {
 					agentUuid: this.content?.agentUuid || '',
 				})
 			} catch {
-				// chat.error carries the message the widget shows.
+				// chat.state.error carries the message the widget shows.
 			}
 		},
 
@@ -232,7 +232,7 @@ export default {
 					{ agentUuid: this.content?.agentUuid || '' },
 				)
 			} catch {
-				// chat.error carries the message the widget shows.
+				// chat.state.error carries the message the widget shows.
 			}
 		},
 	},

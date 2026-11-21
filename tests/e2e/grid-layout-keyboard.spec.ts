@@ -261,10 +261,9 @@ test('in edit mode Tab lands on each of three widgets in turn with a visible foc
 			await expect(item(page, id)).toHaveAttribute('role', 'group')
 			await expect(item(page, id)).toHaveAttribute('tabindex', '0')
 		}
-		await page
-			.locator('.launchpad-container')
-			.first()
-			.click({ position: { x: 4, y: 4 } })
+		// Start from the top of the document. A click on the container's corner
+		// lands on the navigation toggle that overlaps it.
+		await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
 
 		const visited: number[] = []
 		for (let press = 0; press < 120 && visited.length < ids.length; press++) {

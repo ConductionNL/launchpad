@@ -177,7 +177,9 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 					'.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__section',
 				)
 				.filter({
-					has: parent,
+					// `has` matches inside the section, so it cannot name the
+					// sidebar ancestor that `row()` starts from.
+					has: page.locator(`${ROW}[aria-label="${HR}"]`),
 				})
 			const names = await section
 				.locator(ROW)
@@ -279,8 +281,11 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 				.first()
 			await expect(select).toBeVisible({ timeout: 10_000 })
 			await select.click()
+			// NcSelect splits a long option label over two spans, so the
+			// option's accessible name is not the plain dashboard name.
 			await page
-				.getByRole('option', { name: 'Onboarding', exact: true })
+				.getByRole('option')
+				.filter({ has: page.locator('[title="Onboarding"]') })
 				.click()
 
 			const saved = page.waitForResponse(

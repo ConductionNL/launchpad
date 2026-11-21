@@ -572,8 +572,10 @@ test.describe('image widget — broken-image fallback', () => {
 		await expect(otherImg).toBeVisible({ timeout: 15_000 })
 		await expect.poll(() => decoded(otherImg), { timeout: 10_000 }).toBe(true)
 
-		// ...and still responds: the grid's context menu opens on it and its
-		// Edit action opens the editor pre-filled with that cell's own content.
+		// ...and still responds: in edit mode the grid's context menu opens on
+		// it and its Edit action opens the editor pre-filled with that cell's
+		// own content.
+		await enterEditMode(page)
 		await page.locator(`[data-placement-id="${otherId}"]`).dispatchEvent('contextmenu')
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })

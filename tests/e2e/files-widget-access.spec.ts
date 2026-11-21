@@ -33,10 +33,16 @@
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Page } from '@playwright/test'
+import type { RoleFeaturePermissionRow } from './fixtures/role-feature-permissions.ts'
 import type { Account } from './support/filesWidget.ts'
 
 import { expect, test } from '@playwright/test'
 import * as fs from 'fs'
+import {
+	deleteRoleFeaturePermission,
+	listRoleFeaturePermissions,
+	restoreRoleFeaturePermissions,
+} from './fixtures/role-feature-permissions.ts'
 import { deprovisionUser, loginAs, provisionThrowawayUser } from './fixtures/secondary-user.ts'
 import {
 	activate,
@@ -76,6 +82,8 @@ const readerPlacements: number[] = []
 const shares: number[] = []
 const extraDashboards: number[] = []
 const sessions: BrowserContext[] = []
+/** The `default` group's widget rule, lifted for this file and put back after it. */
+let defaultRuleBefore: RoleFeaturePermissionRow | null = null
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(180_000)
@@ -84,6 +92,12 @@ test.beforeAll(async () => {
 	admin = await apiAs()
 	const flag = await admin.put(`${API}/admin/settings`, { data: { allowUserDash: true } })
 	expect(flag.status(), await flag.text()).toBeLessThan(300)
+	// Other specs leave a `default` rule that allows only two widgets, which
+	// would refuse the reader's files widgets before any folder right is read.
+	defaultRuleBefore = (await listRoleFeaturePermissions(admin)).find((row) => row.groupId === 'default') ?? null
+	if (defaultRuleBefore !== null) {
+		await deleteRoleFeaturePermission(admin, defaultRuleBefore.id)
+	}
 	adminDash = await seedOwnActiveDashboard(admin, `E2E Files access admin ${RUN}`)
 	await mkdirs(admin, ADMIN.user, ROOT)
 
@@ -112,6 +126,9 @@ test.afterAll(async () => {
 	await readerApi?.dispose()
 	if (reader !== null) {
 		await deprovisionUser(reader.username)
+	}
+	if (defaultRuleBefore !== null) {
+		await restoreRoleFeaturePermissions(admin, [defaultRuleBefore])
 	}
 	await admin.dispose()
 })

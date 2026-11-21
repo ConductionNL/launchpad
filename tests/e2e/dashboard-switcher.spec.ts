@@ -229,6 +229,9 @@ test.beforeAll(async () => {
 		})
 		expect(res.status(), await res.text()).toBe(201)
 		const dash = (await res.json()).dashboard
+		// A new dashboard is a draft, which only its owner sees (REQ-DASH-036).
+		const published = await admin.post(`${API}/dashboards/${dash.uuid}/publish`)
+		expect(published.status(), await published.text()).toBe(200)
 		groupDashboards.push({ id: Number(dash.id), uuid: String(dash.uuid), name })
 	}
 	personalA = await createPersonal(maria, `E2E Personal A ${RUN}`)

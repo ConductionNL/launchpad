@@ -82,14 +82,17 @@ let previousHosts: string | null = null
 let fixture: Server
 let fixtureOrigin = ''
 
-/** The current app value of the allow-list, or null when unset. */
+/**
+ * The current app value of the allow-list, or null when unset. Nextcloud
+ * answers a missing key with an empty string, which this suite never writes.
+ */
 async function readHosts(): Promise<string | null> {
 	const res = await admin.get(`${HOSTS_CONFIG}?format=json`)
 	if (!res.ok()) {
 		return null
 	}
 	const data = (await res.json())?.ocs?.data
-	return typeof data?.data === 'string' ? data.data : null
+	return typeof data?.data === 'string' && data.data !== '' ? data.data : null
 }
 
 /**
@@ -266,7 +269,7 @@ test.beforeAll(async () => {
 	admin = await request.newContext({
 		baseURL: BASE_URL,
 		storageState: { cookies: [], origins: [] },
-		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass, send: 'always' },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
 	})
 	previousHosts = await readHosts()
@@ -390,14 +393,14 @@ test('with no allow-list configured every URL is refused', async ({ page }) => {
 		await form.getByLabel('Title', { exact: true }).fill('Status')
 
 		await expect(form.locator('.iframe-widget-form__warning')).toHaveText(
-			'This host is not on the allow-list.',
+			`The host ${STATUS_HOST} is not on the allow-list.`,
 			{ timeout: 10_000 },
 		)
 		const add = dialog.getByRole('button', { name: /^add$/i })
 		await expect(add).toBeDisabled()
 		await expect(add).toHaveAttribute(
 			'title',
-			'This host is not on the allow-list.',
+			`The host ${STATUS_HOST} is not on the allow-list.`,
 		)
 
 		await dialog.getByRole('button', { name: /^cancel$/i }).click()
@@ -408,12 +411,6 @@ test('with no allow-list configured every URL is refused', async ({ page }) => {
 	}
 })
 
-// SUSPECTED BUG: Two defects. (1) The refusal does not name the host:
-// allowListMessage() in src/utils/urlAllowList.js:26 returns the fixed text "This host
-// is not on the allow-list.". (2) The save is not refused server-side:
-// WidgetApiController::addWidget() (:193) and updatePlacement() (:595) never call
-// IframeService::validateConfig() (only IframeController::validateUrl does), so a
-// placement with any host is stored.
 // @e2e iframe-embed-widget::disallowed-host-rejected-at-save
 test('a host off the allow-list is refused at save, naming the host, and nothing is stored', async ({
 	page,
@@ -483,11 +480,6 @@ test('a host off the allow-list is refused at save, naming the host, and nothing
 	}
 })
 
-// SUSPECTED BUG: The "no longer permitted" state does not exist: IframeWidget.vue
-// restart() (:289) maps every framable:false answer (including host_not_allowed) to
-// failureReason "blocked", which shows "This site does not allow itself to be
-// embedded…" (fallbackMessage, IframeWidget.vue:218-230); the text "This embed is no
-// longer permitted by your administrator" is nowhere in src/.
 // @e2e iframe-embed-widget::host-removed-after-configuration-is-refused-at-render
 test('a placement whose host was taken off the allow-list renders no frame', async ({
 	page,

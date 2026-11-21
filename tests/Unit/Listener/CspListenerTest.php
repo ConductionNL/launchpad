@@ -26,6 +26,7 @@ use OCA\LaunchPad\Listener\CspListener;
 use OCA\LaunchPad\Service\IframeService;
 use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
 use OCP\EventDispatcher\Event;
+use OCP\IRequest;
 use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
@@ -44,11 +45,46 @@ class CspListenerTest extends TestCase {
 	protected function setUp(): void {
 		$this->iframeService = $this->createMock(originalClassName: IframeService::class);
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
-		$this->listener = new CspListener(
+		$this->listener = $this->listenerFor(path: '/apps/launchpad/');
+	}//end setUp()
+
+	/**
+	 * A listener handling a request for the given path.
+	 *
+	 * @param string $path The request's path info.
+	 *
+	 * @return CspListener
+	 */
+	private function listenerFor(string $path): CspListener {
+		$request = $this->createMock(originalClassName: IRequest::class);
+		$request->method('getPathInfo')->willReturn($path);
+
+		return new CspListener(
 			iframeService: $this->iframeService,
 			logger: $this->logger,
+			request: $request,
 		);
-	}//end setUp()
+	}//end listenerFor()
+
+	/**
+	 * REQ-IFRAME-003: the hosts go into frame-src on LaunchPad pages only;
+	 * every other app keeps the instance policy.
+	 *
+	 * @return void
+	 */
+	public function testOtherAppsPagesGetNoPolicy(): void {
+		$this->iframeService->method('getAllowedHosts')->willReturn(['status.example.com']);
+
+		foreach (['/settings/user', '/apps/files/', '/apps/launchpadx/'] as $path) {
+			$captured = [];
+			$this->listenerFor(path: $path)->handle(event: $this->makeEvent(captured: $captured));
+			$this->assertSame([], $captured, $path);
+		}
+
+		$captured = [];
+		$this->listenerFor(path: '/apps/launchpad')->handle(event: $this->makeEvent(captured: $captured));
+		$this->assertCount(1, $captured);
+	}//end testOtherAppsPagesGetNoPolicy()
 
 	/**
 	 * Builds a mock `AddContentSecurityPolicyEvent` (constructor disabled —

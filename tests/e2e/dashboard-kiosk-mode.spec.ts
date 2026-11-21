@@ -38,7 +38,9 @@
  * from /s/{token}/data. This file spends five: the unknown and the revoked
  * playlist token, the revoked player re-reading its playlist, and the expired
  * share read with and without the flag. Nothing else here asks for a dead
- * token, which is also why the throttle scenario itself is excluded.
+ * token, which is also why the throttle scenario itself is excluded. The
+ * attempts already held for this address are cleared first (beforeAll), as
+ * Nextcloud delays every read of a protected route by them, entry reads too.
  *
  * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
@@ -56,6 +58,8 @@ import type {
 import type { Principal } from './support/principals.ts'
 
 import { expect, request, test } from '@playwright/test'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL } from './support/baseUrl.ts'
@@ -68,6 +72,7 @@ import {
 	createPrincipal,
 	removePrincipal,
 } from './support/principals.ts'
+import { CONTAINER, occ } from './support/scheduledExports.ts'
 
 const APP = '/index.php/apps/launchpad'
 const PLAYLISTS = `${API}/kiosk/playlists`
@@ -448,7 +453,30 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 	)
 }
 
+/**
+ * Clear the brute-force attempts the instance holds for the address this
+ * runner reaches it from (the container's network gateway). Nextcloud delays
+ * EVERY request to a #[BruteForceProtection] route by the address's delay, the
+ * per-entry kiosk read included, and attempts last 12 hours: a few dozen 404s
+ * spent by earlier runs or other files made each entry read take 25 seconds,
+ * longer than an entry may take, so the rotation never moved.
+ *
+ * @return nothing.
+ */
+async function resetShareThrottle(): Promise<void> {
+	const { stdout } = await promisify(execFile)('docker', [
+		'inspect',
+		'-f',
+		'{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}',
+		CONTAINER,
+	])
+	for (const ip of stdout.trim().split(/\s+/).filter(Boolean)) {
+		await occ('security:bruteforce:reset', ip)
+	}
+}
+
 test.beforeAll(async () => {
+	await resetShareThrottle()
 	admin = await adminContext()
 	await assertActingAs(admin, process.env.NC_ADMIN_USER ?? 'admin')
 

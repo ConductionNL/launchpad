@@ -1266,10 +1266,10 @@ class DashboardApiController extends Controller {
 	/**
 	 * Create a new group-shared dashboard.
 	 *
-	 * Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute
-	 * (gate-route-auth / gate-semantic-auth both pass since the
-	 * framework-level check is the actual authorization point).
-	 * REQ-DASH-014.
+	 * For a Nextcloud administrator, a LaunchPad Admin, or an Editor who is
+	 * in the group ({@see GroupDashboardCreation::allows()},
+	 * REQ-DASH-014); anyone else gets HTTP 403 before the request body is
+	 * read.
 	 *
 	 * @param string $groupId The group ID.
 	 * @param mixed $name The dashboard name (or {name,...}
@@ -1281,7 +1281,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboards/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
-	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	#[NoAdminRequired]
 	public function createGroup(
 		string $groupId,
 		$name = null,
@@ -1289,6 +1289,14 @@ class DashboardApiController extends Controller {
 	): JSONResponse {
 		if ($this->context->userId === null) {
 			return $this->context->responseHelper->unauthorized();
+		}
+
+		if ($this->access->groupCreation?->allows(
+			userId: $this->context->userId,
+			groupId: $groupId
+		) !== true
+		) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		$resolved = $this->resolveCreateParams(

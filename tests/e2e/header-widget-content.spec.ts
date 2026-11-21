@@ -23,10 +23,7 @@
  *   @e2e header-widget::text-alignment-applied-correctly
  *   @e2e header-widget::vertical-alignment-applied-correctly
  *   @e2e header-widget::text-color-applied-with-contrast-fallback
- *   @e2e header-widget::height-small-120px
- *   @e2e header-widget::height-medium-200px
- *   @e2e header-widget::height-large-320px
- *   @e2e header-widget::height-xlarge-480px
+ *   @e2e header-widget::the-banner-fills-its-cell
  *   @e2e header-widget::cta-button-with-primary-style
  *   @e2e header-widget::cta-button-with-secondary-style
  *   @e2e header-widget::cta-button-with-ghost-style
@@ -131,53 +128,21 @@ test.describe('REQ-HDR-008 text rendering and styling', () => {
 	})
 })
 
-test.describe('REQ-HDR-009 height presets', () => {
-	/*
-	 * Each banner is seeded into a 10-row cell (well over 600px), so a banner
-	 * that merely fills its cell cannot pass for a preset.
-	 */
-	/**
-	 * Seed one banner with a preset and measure it against the grid.
-	 *
-	 * @param page the page.
-	 * @param height the preset, or undefined for the default.
-	 * @return the banner's height and width, and the grid's width.
-	 */
-	async function measure(page: Page, height: string | undefined): Promise<{ h: number; w: number; gridW: number }> {
-		const content: Record<string, unknown> = { title: `Height ${height ?? 'default'}` }
-		if (height !== undefined) {
-			content.height = height
+test.describe('REQ-HDR-009 flexible height', () => {
+	// @e2e header-widget::the-banner-fills-its-cell
+	test('each banner is as tall as its own grid cell, whatever its preset', async ({ page }) => {
+		const short = await place({ title: 'Short cell', height: 'xlarge' }, 0, 3)
+		const tall = await place({ title: 'Tall cell', height: 'small' }, 4, 6)
+		const [s, t] = await render(page, short, tall)
+
+		for (const [b, id] of [[s, short], [t, tall]] as const) {
+			const cell = page.getByTestId(`widget-placement-${id}`)
+			const [bb, cb] = [await b.boundingBox(), await cell.boundingBox()]
+			// The card's own border and padding are all that may separate them.
+			expect(cb!.height - bb!.height, `banner ${id} fills its cell`).toBeLessThanOrEqual(8)
 		}
-		const id = await place(content, 0, 10)
-		const [b] = await render(page, id)
-		const box = await b.boundingBox()
-		const grid = await page.locator('[data-testid="launchpad-dashboard-region"] .grid-stack').first().boundingBox()
-		return { h: box!.height, w: box!.width, gridW: grid!.width }
-	}
-
-	// @e2e header-widget::height-small-120px
-	test('height small is 120px and spans the dashboard width', async ({ page }) => {
-		const m = await measure(page, 'small')
-		expect(Math.abs(m.h - 120), `measured ${m.h}px`).toBeLessThanOrEqual(1)
-		expect(m.w, 'full dashboard width').toBeGreaterThanOrEqual(m.gridW * 0.95)
-	})
-
-	// @e2e header-widget::height-medium-200px
-	test('no height set is the medium preset, 200px', async ({ page }) => {
-		const m = await measure(page, undefined)
-		expect(Math.abs(m.h - 200), `measured ${m.h}px`).toBeLessThanOrEqual(1)
-	})
-
-	// @e2e header-widget::height-large-320px
-	test('height large is 320px', async ({ page }) => {
-		const m = await measure(page, 'large')
-		expect(Math.abs(m.h - 320), `measured ${m.h}px`).toBeLessThanOrEqual(1)
-	})
-
-	// @e2e header-widget::height-xlarge-480px
-	test('height xlarge is 480px', async ({ page }) => {
-		const m = await measure(page, 'xlarge')
-		expect(Math.abs(m.h - 480), `measured ${m.h}px`).toBeLessThanOrEqual(1)
+		const [sb, tb] = [await s.boundingBox(), await t.boundingBox()]
+		expect(tb!.height, 'the 6-row banner is taller than the 3-row one').toBeGreaterThan(sb!.height * 1.5)
 	})
 })
 

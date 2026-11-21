@@ -37,6 +37,7 @@
  *   @e2e header-widget::config-for-cta-button
  *   @e2e header-widget::config-is-json-serializable
  *   @e2e header-widget::default-grid-sizing-for-header-widget
+ *   @e2e header-widget::a-preset-sets-the-starting-height
  *
  * @spec openspec/specs/header-widget/spec.md
  */
@@ -468,5 +469,17 @@ test.describe('REQ-HDR-009 default grid sizing', () => {
 		// The workspace grid's row is 60px (Views.vue `:cellHeight="60"`); the
 		// medium preset is 200px.
 		expect(row.gridHeight, 'gridHeight follows the preset and the row size').toBe(Math.ceil(200 / 60))
+	})
+
+	// @e2e header-widget::a-preset-sets-the-starting-height
+	test('a header added with the small preset starts two rows tall', async ({ page }) => {
+		await openWorkspace(page)
+		const row = await addHeader(page, async (d) => {
+			await titleField(d).fill('Small start')
+			await choose(page, d, 'Height', 0)
+		})
+		expect(contentOf(row).height).toBe('small')
+		// The workspace grid's row is 60px; the small preset is 120px.
+		expect(row.gridHeight).toBe(Math.ceil(120 / 60))
 	})
 })

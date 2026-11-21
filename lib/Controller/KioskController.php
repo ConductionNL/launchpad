@@ -36,6 +36,7 @@ use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\BruteForceProtection;
@@ -261,6 +262,42 @@ class KioskController extends Controller {
 			);
 		}//end try
 	}//end render()
+
+	/**
+	 * Anonymously render one entry of a kiosk playlist: the player fetches
+	 * the next entry just before it shows it (REQ-KIOSK-004) and skips one
+	 * that fails (REQ-KIOSK-005). An unknown or revoked token answers 404
+	 * and counts against the shared throttle bucket; a dashboard that is not
+	 * an entry, or was deleted, answers 404 without a throttle attempt.
+	 *
+	 * @param string $token The playlist token from the URL.
+	 * @param string $uuid  The entry's dashboard UUID.
+	 *
+	 * @return DataResponse HTTP 200 entry payload, 404 if invalid, 429 when throttled.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
+	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
+	public function renderEntry(string $token, string $uuid): DataResponse {
+		try {
+			$entry = $this->kioskService->renderEntry(token: $token, dashboardUuid: $uuid);
+			$this->shareContext->markBearer(token: $token);
+
+			return new DataResponse(data: $entry);
+		} catch (PlaylistNotFoundException) {
+			$response = new DataResponse(data: ['error' => 'Not found'], statusCode: Http::STATUS_NOT_FOUND);
+			$response->throttle(['action' => PublicShareService::ACTION_SHARE_ACCESS]);
+			return $response;
+		} catch (DoesNotExistException) {
+			return new DataResponse(data: ['error' => 'Not found'], statusCode: Http::STATUS_NOT_FOUND);
+		} catch (Exception $e) {
+			$this->logError(message: $e->getMessage());
+			return new DataResponse(data: ['error' => 'Internal error'], statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}//end try
+	}//end renderEntry()
 
 	/**
 	 * Whether the caller is a browser asking for the page rather than the

@@ -1,5 +1,5 @@
 <template>
-	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight }">
+	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight, 'launchpad-app--kiosk': kiosk }">
 		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
 		     `isOpen` prop / `update:open` event pair mandated by the spec.
 		     Vue 3 removed the component-level `model: { prop, event }`
@@ -27,7 +27,8 @@
 		     again would not have helped. Teleporting makes the sidebar a
 		     sibling of the navigation rather than a descendant of the content,
 		     which is the only place its z-index means what it says. -->
-		<Teleport to="body">
+		<!-- REQ-KIOSK-001: a kiosk view has no switcher and no top controls. -->
+		<Teleport v-if="!kiosk" to="body">
 			<DashboardSwitcherSidebar
 				:isOpen="sidebarOpen"
 				:groupName="primaryGroupName"
@@ -76,7 +77,7 @@
 		     dock into that row (headerActionsDock.js), right of "Startpagina
 		     aanpassen" as LpStart draws the page's actions. Floating there,
 		     they covered that button. -->
-		<Teleport :to="headerActionsTarget || 'body'">
+		<Teleport v-if="!kiosk" :to="headerActionsTarget || 'body'">
 			<div
 				class="launchpad-floating-controls"
 				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
@@ -568,6 +569,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
+import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
@@ -769,6 +771,10 @@ export default {
 
 	data() {
 		return {
+			/** REQ-KIOSK-001: opened with `?kiosk=1`. */
+			kiosk: isKioskMode(),
+			stopKiosk: null,
+			kioskRefresh: null,
 			isEditMode: false,
 			/**
 			 * The greeting row's actions element the top-right controls are
@@ -1508,6 +1514,14 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
+		if (this.kiosk) {
+			this.stopKiosk = startKioskView(window)
+			// REQ-KIOSK-004: a kiosk view re-reads its widgets in place.
+			this.kioskRefresh = setInterval(
+				() => useDashboardStore().reloadPlacements(),
+				KIOSK_REFRESH_MS,
+			)
+		}
 		// dashboard-language-and-details-tabs: fields for "Filter by detail".
 		this.loadDetailFields()
 		// Attach the document-level click listener (REQ-WDG-016 outside-
@@ -1538,6 +1552,8 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		this.stopKiosk?.()
+		clearInterval(this.kioskRefresh)
 		applyCustomCss(DASHBOARD_STYLE_ID, '')
 		this.filterSession?.stop()
 		this.grid.detach()
@@ -2060,6 +2076,9 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async enterEditMode() {
+			if (this.kiosk) {
+				return false
+			}
 			if (this.isEditMode) {
 				return true
 			}
@@ -2126,6 +2145,9 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onWidgetRightClick(event, placement) {
+			if (this.kiosk) {
+				return
+			}
 			this.grid.onWidgetRightClick(event, placement)
 		},
 

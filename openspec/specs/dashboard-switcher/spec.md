@@ -100,19 +100,20 @@ The dashboard whose `id === activeDashboardId` MUST receive a visual `.active` c
 
 ### Requirement: REQ-SWITCH-004 Personal dashboard delete affordance
 
-Items in the `My Dashboards` section (excluding the `+ New Dashboard` row) MUST display a small close-icon delete button on hover (CSS-only `display: none → inline-flex`). Clicking it MUST emit `delete-dashboard(id)` and MUST NOT trigger the row's `switch` event (use `@click.stop`).
+Delete MUST live in each row's options menu (the row cog, labelled "Dashboard menu"), shown only for a dashboard the user owns; a row MUST NOT reveal a delete button on hover (Ruben, 21 Nov 2026, following the product). Choosing Delete MUST emit `deleteDashboard(id, source)` and MUST NOT trigger the row's `switch` event.
 
-#### Scenario: Hover reveals delete button
+#### Scenario: Delete lives in the row options menu
 
 - GIVEN a personal dashboard item with `id = 'p1'`
 - WHEN the user hovers over the row
-- THEN the delete button MUST become visible (CSS hover state)
+- THEN no delete button MUST appear in the row
+- AND the row's options menu MUST offer "Delete dashboard"
 
 #### Scenario: Delete click does not trigger switch
 
-- GIVEN the delete button is visible
-- WHEN the user clicks it
-- THEN the sidebar MUST emit `delete-dashboard('p1')`
+- GIVEN the row's options menu is open
+- WHEN the user chooses "Delete dashboard"
+- THEN the sidebar MUST emit `deleteDashboard('p1', source)`
 - AND MUST NOT emit `switch(...)`
 - AND MUST NOT emit `update:open(false)` (closing decision is up to the parent)
 

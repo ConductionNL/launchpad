@@ -116,22 +116,22 @@ The system MUST maintain a curated registry of at least 15 built-in dashboard ic
 
 ### Requirement: REQ-ICON-003 Single picker source for admin UI
 
-When the admin UI renders an icon picker (e.g. when creating or editing a dashboard), the available options MUST be enumerated from `Object.keys(DASHBOARD_ICONS)` directly. Hardcoding option lists in the picker template is forbidden so the picker stays in lock-step with the registry whenever icons are added or removed.
+When the UI renders the dashboard icon picker (the dashboard settings modal and the group dashboard dialog), the available options MUST be enumerated from `Object.keys(DASHBOARD_ICONS)` of the shared nextcloud-vue registry directly, 57 names today, and a picked option MUST be stored as its registry name (Ruben, 21 Nov 2026). Hardcoding option lists in the picker template is forbidden so the picker stays in lock-step with the registry whenever icons are added or removed. Tile and organisation-navigation icon pickers are not dashboard icon pickers and keep the full MDI catalogue.
 
 #### Scenario: Picker reflects registry size
 
-- GIVEN the registry has 15 entries
-- WHEN the icon picker `<select>` renders
-- THEN it MUST emit exactly 15 `<option>` elements (one per registry key)
-- AND each option's `value` MUST match a registry key string
+- GIVEN the registry has 57 entries
+- WHEN the dashboard icon picker's Icons tab renders
+- THEN it MUST offer exactly 57 icons (one per registry key)
+- AND each icon's stored value MUST match a registry key string
 
 #### Scenario: Picker stays in sync when registry grows
 
 @e2e exclude Needs a code change to the registry module (a 17-entry DASHBOARD_ICONS), which an e2e run cannot make. The e2e for "Picker reflects registry size" compares the picker against the registry read at test time rather than a fixed 15, so it would catch this drift; no LaunchPad Vitest test pins it (tests/vitest/stubs/conduction-nextcloud-vue.js stubs the library wholesale).
 
-- GIVEN the registry is extended to 17 entries in a future change
-- WHEN the icon picker `<select>` renders without code changes
-- THEN it MUST emit exactly 17 `<option>` elements
+- GIVEN the registry is extended to 59 entries in a future change
+- WHEN the dashboard icon picker renders without code changes
+- THEN it MUST offer exactly 59 icons
 
 ### Requirement: REQ-ICON-004 Tree-shakeable imports
 
@@ -230,7 +230,7 @@ The shared `IconRenderer` component MUST accept a single `name` prop (string or 
 
 ### Requirement: IconPicker dual-input UX (REQ-ICON-008)
 
-The `IconPicker` component MUST present BOTH affordances visible simultaneously: a `<select>` of registry option names (per REQ-ICON-003) AND an "Upload icon" `<input type="file" accept="image/*">` button. Selecting either MUST update the same `v-model` value: a registry option assigns the option string, an upload POSTs to the resource-uploads endpoint and assigns the returned URL string. A 24×24 preview thumbnail of the current value MUST be rendered via `IconRenderer`.
+The dashboard icon picker is nextcloud-vue's `CnIconBrowser`, shown inline. It MUST offer BOTH affordances: an Icons tab with the registry names (per REQ-ICON-003) AND a Custom tab with an upload (`<input type="file" accept="image/*">`). Either MUST update the same value: a registry icon assigns its name, an upload POSTs to the resource-uploads endpoint and assigns the returned URL string. A preview of the current value MUST be rendered via `CnDashboardIcon` (Ruben, 21 Nov 2026, following the product).
 
 #### Scenario: Switching from built-in to custom
 
@@ -242,7 +242,7 @@ The `IconPicker` component MUST present BOTH affordances visible simultaneously:
 #### Scenario: Switching from custom back to built-in
 
 - GIVEN v-model value is `/apps/launchpad/resource/abc.png`
-- WHEN the user picks `"Home"` from the `<select>`
+- WHEN the user picks `"Home"` on the Icons tab
 - THEN the v-model value MUST become `"Home"`
 - AND the preview MUST switch from `<img>` to `<svg>` (Home)
 - NOTE: switching away does NOT delete the previously uploaded resource (resource lifecycle is owned by `resource-uploads` capability)

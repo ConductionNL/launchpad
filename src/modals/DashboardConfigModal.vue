@@ -533,7 +533,7 @@ import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
 import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
 import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
-import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
+import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
@@ -716,7 +716,7 @@ export default {
 		 * @return {object} the frozen icon catalogue.
 		 */
 		iconCatalogue() {
-			return ICON_CATALOGUE
+			return DASHBOARD_ICON_CATALOGUE
 		},
 
 		/**

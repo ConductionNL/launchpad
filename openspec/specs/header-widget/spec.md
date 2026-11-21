@@ -345,33 +345,20 @@ The system MUST render title and subtitle with semantic HTML and configurable st
 
 ### Requirement: REQ-HDR-009 Height presets and responsive sizing
 
-The system MUST support four height presets (small, medium, large, xlarge) that map to fixed pixel values, and default widgets to full dashboard width.
+The header banner MUST fill its grid cell, so its height is flexible: the author resizes it in the grid like any other widget (Ruben, 21 Nov 2026, following the product). The four height presets (small 120px, medium 200px, large 320px, xlarge 480px; medium when unset) only set the starting height of a header when it is added, as the number of grid rows that preset needs. A new header defaults to the full dashboard width.
 
-#### Scenario: Height small (120px)
+#### Scenario: The banner fills its cell
 
-- GIVEN a placement with height='small'
-- WHEN the widget renders
-- THEN the widget height MUST be 120px
-- AND the widget MUST span the full dashboard width
+- GIVEN two header placements of 3 and 6 grid rows
+- WHEN the dashboard renders
+- THEN each banner MUST be as tall as its own grid cell
+- AND the 6-row banner MUST be taller than the 3-row one, whatever height preset either carries
 
-#### Scenario: Height medium (200px)
+#### Scenario: A preset sets the starting height
 
-- GIVEN a placement with height='medium'
-- WHEN the widget renders
-- THEN the widget height MUST be 200px
-- AND this is the default when height is not set
-
-#### Scenario: Height large (320px)
-
-- GIVEN a placement with height='large'
-- WHEN the widget renders
-- THEN the widget height MUST be 320px
-
-#### Scenario: Height xlarge (480px)
-
-- GIVEN a placement with height='xlarge'
-- WHEN the widget renders
-- THEN the widget height MUST be 480px
+- GIVEN the author adds a header with height preset "small"
+- WHEN the placement is created
+- THEN its gridHeight MUST be the number of grid rows 120px needs (2 rows of 60px)
 
 #### Scenario: Default grid sizing for header widget
 

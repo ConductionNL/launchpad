@@ -84,4 +84,20 @@ describe('dashboard store widget visibility', () => {
 		expect(logger.error).toHaveBeenCalled()
 		expect(store.widgetPlacements).toEqual([{ id: 1, hiddenForViewers: true }])
 	})
+
+	it('reloads the active placements in place, and keeps them when the read fails', async () => {
+		const store = useDashboardStore()
+		store.activeDashboard = { id: 7 }
+		store.widgetPlacements = [{ id: 1, content: { text: 'old' } }]
+		api.getDashboardById.mockResolvedValueOnce({ data: { placements: [{ id: 1, content: { text: 'new' } }] } })
+
+		await store.reloadPlacements()
+		expect(store.widgetPlacements).toEqual([{ id: 1, content: { text: 'new' } }])
+		expect(store.loading).toBe(false)
+
+		api.getDashboardById.mockRejectedValueOnce(new Error('down'))
+		await store.reloadPlacements()
+		expect(store.widgetPlacements).toEqual([{ id: 1, content: { text: 'new' } }])
+		expect(logger.error).toHaveBeenCalled()
+	})
 })

@@ -14,6 +14,7 @@ import { createApp, h } from 'vue'
 import KioskPlayerView from './views/KioskPlayerView.vue'
 
 import './publicPath.js'
+import './styles/kiosk.css'
 
 const pathSegments = window.location.pathname.replace(/\/+$/, '').split('/')
 const token = pathSegments[pathSegments.length - 1] || ''

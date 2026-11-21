@@ -53,16 +53,16 @@
 
 		<!-- Legacy Widget - Mount via callback -->
 		<div
-			v-else-if="!loading"
+			v-else-if="(widget || isTileWidget) && !loading"
 			ref="legacyWidgetContainer"
 			class="widget-renderer__legacy" />
 
-		<!-- Loading state for unknown widget types -->
+		<!-- Loading state while a widget initialises -->
 		<div v-else-if="loading" class="widget-renderer__loading">
 			<NcLoadingIcon :size="32" />
 		</div>
 
-		<!-- Unknown widget type -->
+		<!-- Unknown widget type: no registry entry, tile or installed widget -->
 		<NcEmptyContent v-else :description="t('launchpad', 'Widget not available')">
 			<template #icon>
 				<AlertCircleOutline :size="48" />

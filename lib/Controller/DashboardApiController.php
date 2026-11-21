@@ -730,7 +730,11 @@ class DashboardApiController extends Controller {
 		$defaultLinkTarget = $this->requestedLinkTarget();
 		$metadataOnly = self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget)
 			&& array_filter($look, static fn ($value): bool => $value !== null) === [];
-		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly)
+		$touchesMetadata = array_filter(
+			[$name, $description, $icon, $parentUuid, $slug, $sortOrder],
+			static fn ($value): bool => $value !== null
+		) !== [];
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata)
 			?? $this->denyCustomCss(customCss: $look['customCss']);
 		if ($denial !== null) {
 			return $denial;
@@ -834,20 +838,21 @@ class DashboardApiController extends Controller {
 	 * Order is load-bearing: the session, then the action check, then the
 	 * injected user id, then the permission for the kind of update.
 	 *
-	 * @param int  $dashboardId  The dashboard ID.
-	 * @param bool $metadataOnly Whether the update leaves the placements alone.
+	 * @param int  $dashboardId     The dashboard ID.
+	 * @param bool $metadataOnly    Whether the update leaves the placements alone.
+	 * @param bool $touchesMetadata Whether the update changes a metadata field.
 	 *
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
-	private function denyUpdate(int $dashboardId, bool $metadataOnly): ?JSONResponse {
+	private function denyUpdate(int $dashboardId, bool $metadataOnly, bool $touchesMetadata): ?JSONResponse {
 		$refusal = $this->actionRefusal(action: 'dashboard.update');
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		if ($this->mayUpdate(dashboardId: $dashboardId, metadataOnly: $metadataOnly) === false) {
+		if ($this->mayUpdate(dashboardId: $dashboardId, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata) === false) {
 			return $this->context->responseHelper->forbidden();
 		}
 
@@ -859,27 +864,31 @@ class DashboardApiController extends Controller {
 	 *
 	 * REQ-PERM-007: Metadata-only updates (name, description, icon) are
 	 * allowed for all permission levels. Widget/tile/layout changes
-	 * require add_only or full permission.
+	 * require add_only or full permission; an update that does both needs both.
 	 *
-	 * @param int  $dashboardId  The dashboard ID.
-	 * @param bool $metadataOnly Whether the update leaves the placements alone.
+	 * @param int  $dashboardId     The dashboard ID.
+	 * @param bool $metadataOnly    Whether the update leaves the placements alone.
+	 * @param bool $touchesMetadata Whether the update changes a metadata field.
 	 *
 	 * @return bool True when the update is allowed.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/admin-roles/spec.md#requirement-req-role-002-dashboard-editor-role-definition
 	 */
-	private function mayUpdate(int $dashboardId, bool $metadataOnly): bool {
+	private function mayUpdate(int $dashboardId, bool $metadataOnly, bool $touchesMetadata): bool {
+		$mayEditMetadata = fn (): bool => $this->access->permissionService->canEditDashboardMetadata(
+			userId: $this->context->userId,
+			dashboardId: $dashboardId
+		) !== false;
+
 		if ($metadataOnly === true) {
-			return $this->access->permissionService->canEditDashboardMetadata(
-				userId: $this->context->userId,
-				dashboardId: $dashboardId
-			) !== false;
+			return $mayEditMetadata();
 		}
 
 		return $this->access->permissionService->canEditDashboard(
 			userId: $this->context->userId,
 			dashboardId: $dashboardId
-		) !== false;
+		) !== false && ($touchesMetadata === false || $mayEditMetadata());
 	}//end mayUpdate()
 
 	/**
@@ -961,6 +970,10 @@ class DashboardApiController extends Controller {
 		$refusal = $this->actionRefusal(action: 'dashboard.delete');
 		if ($refusal !== null) {
 			return $refusal;
+		}
+
+		if ($this->access->permissionService->canDeleteDashboards(userId: (string)$this->context->userId) === false) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		$cascade = $this->resolveCascadeFlag();

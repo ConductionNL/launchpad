@@ -21,6 +21,8 @@
  *                         separate props)
  *       - `tile`        → TileHost        (a `create` office tile opens the new-file
  *                         dialog; every other tile renders through CnDashTileWidget)
+ *       - `video`       → VideoHost       (resolves a Nextcloud-file source's streaming
+ *                         URL for the viewer, REQ-VID-006)
  *     `files` keeps the communal CnFilesWidget renderer — its launchpad backend
  *     `apiBase` is injected by WidgetRenderer.rendererProps, not the registry.
  *
@@ -111,6 +113,7 @@ import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
 import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
 import TileHost from '../components/Widgets/Renderers/TileHost.vue'
+import VideoHost from '../components/Widgets/Renderers/VideoHost.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
@@ -138,6 +141,8 @@ const RENDERER_OVERRIDES = {
 	// integrations-office-tiles: a `create` tile opens the new-file dialog;
 	// every other tile still renders through CnDashTileWidget.
 	tile: TileHost,
+	// REQ-VID-006: a Nextcloud-file video is resolved for its viewer first.
+	video: VideoHost,
 }
 
 /**

@@ -280,6 +280,10 @@
             "description": "`GET /api/tiles/{placementId}/rdp` (design D3)."
         },
         {
+            "name": "video-widget",
+            "description": "Resolves the file of a video placement for its viewer."
+        },
+        {
             "name": "visibility-preview",
             "description": "`POST /api/visibility/preview` — evaluates a caller-supplied conditional rule set against a caller-supplied `(groups, datetime)` context and returns the effective visibility, WITHOUT persisting anything."
         },
@@ -13953,6 +13957,49 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/widgets/video/{placementId}/file": {
+            "get": {
+                "operationId": "video-widget-file",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/widgets/video/{placementId}/file",
+                "description": "GET /api/widgets/video/{placementId}/file 200 `{streamingUrl}` for a video the viewer can read; otherwise `{error}` with `not_found` (404), `not_video` (422), `not_accessible` (403) or `no_file` (400), never an address. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "video-widget"
+                ],
+                "parameters": [
+                    {
+                        "name": "placementId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The placement.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     }
                 }
             }

@@ -180,7 +180,7 @@
         ]
     },
     "delete / allowed": {
-        "thrown": "Error",
+        "status": 403,
         "asked": [
             "dashboard.delete"
         ]

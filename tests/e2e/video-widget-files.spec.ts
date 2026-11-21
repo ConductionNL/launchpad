@@ -15,14 +15,12 @@
  * dashboard through a view-only share, so the viewer is a logged-in user who
  * genuinely cannot read the file.
  *
- * WHY MOST OF THIS FILE IS EXPECTED TO BE RED TODAY
- * =================================================
- * The renderer (nc-vue `CnVideoWidget`) plays `content.fileStreamingUrl`, which
- * the spec says the parent resolves through an ACL-checked endpoint at render
- * time. Nothing in LaunchPad resolves it: `WidgetRenderer.vue` hands the stored
- * `placement.content` straight through, and `lib/` has no video file service
- * or route. So every `nc-file` placement renders "Video not accessible", for the
- * owner too. The tests assert the spec, not that.
+ * HOW THE FILE IS RESOLVED
+ * ========================
+ * The renderer (nc-vue `CnVideoWidget`) plays `content.fileStreamingUrl`.
+ * LaunchPad's `VideoHost` asks `GET /api/widgets/video/{placementId}/file`
+ * at render time, for the viewer, and hands CnVideoWidget either the
+ * streaming URL or the message; the stored placement never carries a URL.
  *
  * Gate-19 @e2e traceability:
  *   @e2e video-widget::widget-stores-nextcloud-file-reference

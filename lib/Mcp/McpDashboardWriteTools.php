@@ -151,7 +151,9 @@ class McpDashboardWriteTools {
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-9
 	 */
 	public function deleteDashboard(array $args): array {
-		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId') ?? $this->gate->requireAction(action: 'dashboard.delete'));
+		$refusal = ($this->validator->positiveId(args: $args, name: 'dashboardId')
+			?? $this->gate->requireAction(action: 'dashboard.delete')
+			?? $this->gate->requireDeleteDashboards());
 		if ($refusal !== null) {
 			return $refusal;
 		}

@@ -99,7 +99,9 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		bool $denyAction=false,
 		array $body=[],
 		?DashboardVersionService $versions=null,
-		?\Exception $serviceRefusal=null
+		?\Exception $serviceRefusal=null,
+		?string $metadataAllowed=null,
+		bool $mayDelete=true
 	): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
@@ -121,14 +123,16 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		);
 
 		$permissions = $this->createMock(PermissionService::class);
-		foreach (['canEditDashboard', 'canEditDashboardMetadata'] as $method) {
+		$allowedFor  = ['canEditDashboard' => $allowed, 'canEditDashboardMetadata' => ($metadataAllowed ?? $allowed)];
+		foreach ($allowedFor as $method => $who) {
 			$permissions->method($method)->willReturnCallback(
-				function (string $userId, int $dashboardId) use ($method, $allowed): bool {
+				function (string $userId, int $dashboardId) use ($method, $who): bool {
 					$this->asked[] = [$method, $userId, $dashboardId];
-					return $userId === $allowed;
+					return $userId === $who;
 				}
 			);
 		}
+		$permissions->method('canDeleteDashboards')->willReturn($mayDelete);
 
 		$service = $this->createMock(DashboardService::class);
 		$service->method('updateDashboard')->willReturnCallback(
@@ -143,6 +147,9 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		);
 		if ($serviceRefusal !== null) {
 			$service->method('deleteDashboard')->willThrowException($serviceRefusal);
+		}
+		if ($mayDelete === false) {
+			$service->expects($this->never())->method('deleteDashboard');
 		}
 
 		$request = $this->createMock(IRequest::class);
@@ -286,6 +293,45 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		$this->assertSame([['canEditDashboardMetadata', 'bob', 7], ['canEditDashboard', 'bob', 7]], $this->asked);
 		$this->assertSame([], $this->saved);
 	}//end testOtherUserIsForbidden()
+
+	/**
+	 * A layout update that also renames needs both permissions: a group's
+	 * editor may change the layout but not rename, and nothing is saved.
+	 *
+	 * @return void
+	 */
+	public function testALayoutUpdateWithARenameNeedsTheMetadataPermissionToo(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', metadataAllowed: 'bob')->update(7, name: 'x', placements: []);
+
+		$this->assertSame(403, $response->getStatus());
+		$this->assertSame([['canEditDashboard', 'alice', 7], ['canEditDashboardMetadata', 'alice', 7]], $this->asked);
+		$this->assertSame([], $this->saved);
+	}//end testALayoutUpdateWithARenameNeedsTheMetadataPermissionToo()
+
+	/**
+	 * A layout-only update by a user who may edit the layout but not rename is saved.
+	 *
+	 * @return void
+	 */
+	public function testALayoutOnlyUpdateDoesNotAskTheMetadataPermission(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', metadataAllowed: 'bob')->update(7, placements: []);
+
+		$this->assertSame(200, $response->getStatus());
+		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked);
+		$this->assertSame([[7, 'alice']], $this->saved);
+	}//end testALayoutOnlyUpdateDoesNotAskTheMetadataPermission()
+
+	/**
+	 * REQ-ROLE-008: a Viewer's delete answers 403 before the delete runs,
+	 * even for a dashboard they own.
+	 *
+	 * @return void
+	 */
+	public function testAViewersDeleteIsForbidden(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', mayDelete: false)->delete(7);
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testAViewersDeleteIsForbidden()
 
 	/**
 	 * The permission check runs for the injected user id, not the session's UID.

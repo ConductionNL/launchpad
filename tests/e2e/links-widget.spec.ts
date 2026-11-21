@@ -111,9 +111,13 @@ async function renderLinks(
  * @return the anchor.
  */
 function linkNamed(widget: Locator, label: string): Locator {
-	return widget.locator(
-		`a.cn-links-widget__link:has-text("${label}"), a.cn-links-widget__link[title="${label}"]`,
-	)
+	// The label matches whole, so "With" does not also find "Without".
+	const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+	const exact = new RegExp('^\\s*' + escaped + '\\s*$')
+	return widget
+		.locator('a.cn-links-widget__link')
+		.filter({ has: widget.page().locator('.cn-links-widget__label', { hasText: exact }) })
+		.or(widget.locator(`a.cn-links-widget__link[title="${label}"]`))
 }
 
 // ── REQ-LNKS-001 Widget registration ─────────────────────────────────────

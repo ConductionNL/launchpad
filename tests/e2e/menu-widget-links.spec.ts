@@ -91,7 +91,9 @@ async function seed(name: string, seed: MenuSeed): Promise<MenuDashboard> {
  * @return nothing.
  */
 async function expectPath(page: Page, path: string): Promise<void> {
-	await expect.poll(() => new URL(page.url()).pathname.replace(/\/+$/, '')).toBe(path)
+	// With pretty URLs on, the address bar drops the `/index.php` front controller.
+	const bare = (p: string) => p.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+	await expect.poll(() => bare(new URL(page.url()).pathname)).toBe(bare(path))
 }
 
 /**

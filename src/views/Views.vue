@@ -3060,6 +3060,25 @@ export default {
 		 * Open the filter session of the active dashboard, stopping the
 		 * previous one (drill-down-cross-widget-filter REQ-CWF-003).
 		 *
+		 * Drill-down performance (Task 35, measured 2026-11-21 by
+		 * tests/e2e/cross-widget-filter-performance.spec.ts on a local stack:
+		 * 50,000 OpenRegister objects, 12 provinces, 342 gemeenten, 3,073
+		 * wijken, OpenRegister 2.2.0-dev, PostgreSQL 16; 12 gemeente-then-wijk
+		 * clicks per run, median / p95):
+		 * - OpenRegister time of a filtered aggregation: 113 / 125 ms
+		 *   (gemeente step), 108 / 118 ms (wijk step); a consumer's request
+		 *   leaves 5 / 9 ms after the press.
+		 * - Click to every consumer showing the filtered data, `bar-list`
+		 *   charts: 176 / 244 ms (wijk step 161 / 191 ms), inside 300 ms.
+		 * - The same with ApexCharts bars: 9.8 / 13.6 s, almost all of it the
+		 *   chart redraw after the response (ApexCharts measures each SVG text
+		 *   with getComputedStyle and getBBox); the bus and the query are not
+		 *   the cost. A consumer whose data lands over 200 ms after a filter
+		 *   change logs a warning (`refetchClock` in widgetBusConsumption.js).
+		 * - Non-consumers sent no request and did not redraw.
+		 * - Heap of 110 charts on the bus over the same charts off it:
+		 *   +0.32 MB (bound 1 MB).
+		 *
 		 * @param {boolean} readUrl Whether the URL's `f` seeds the bus.
 		 * @return {void}
 		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable

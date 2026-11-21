@@ -121,8 +121,10 @@ async function dragBy(
 		.locator('.grid-stack-item-content')
 		.boundingBox()
 	expect(box).not.toBeNull()
+	// Low in the body: on a narrow widget the header's Actions button sits
+	// at the middle of the card, and GridStack starts no drag on a button.
 	const startX = box!.x + box!.width / 2
-	const startY = box!.y + box!.height / 2
+	const startY = box!.y + box!.height * 0.8
 	await page.mouse.move(startX, startY)
 	await page.mouse.down()
 	await page.mouse.move(startX + 6, startY + 6, { steps: 3 })
@@ -565,8 +567,13 @@ test('a widget cannot be resized below two columns by two rows', async ({
 	const [shrinking] = await seed([{ x: 0, y: 0, w: 4, h: 3 }])
 	const { context, page } = await openEditing(browser, 1)
 	try {
-		await expect(item(page, shrinking)).toHaveAttribute('gs-min-w', '2')
-		await expect(item(page, shrinking)).toHaveAttribute('gs-min-h', '2')
+		// GridStack reads gs-min-w / gs-min-h into the item's node and then
+		// drops the attributes, so the node is where the minimum lives.
+		const minimum = await item(page, shrinking).evaluate((el) => {
+			const node = (el as HTMLElement & { gridstackNode?: { minW?: number, minH?: number } }).gridstackNode
+			return { minW: node?.minW, minH: node?.minH }
+		})
+		expect(minimum).toEqual({ minW: 2, minH: 2 })
 
 		const saved = nextLayoutSave(page, own!.id)
 		await resizeBy(page, shrinking, -3, -2)

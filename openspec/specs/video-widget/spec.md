@@ -200,7 +200,6 @@ The system MUST prevent embedding videos from arbitrary domains unless explicitl
 The backend MUST extract video IDs from user-provided URLs and validate format before storage.
 
 #### Scenario: URL parsing endpoint is available
-@e2e exclude never built: appinfo/routes.php has no /api/widgets/video/parse route and lib/ has no video controller (`git log --all -S VideoWidgetController -- lib appinfo` is empty); parsing happens client-side in nc-vue videoUrlParser.js; no unit test exists
 - GIVEN a user is editing a widget config in the frontend
 - WHEN they type or paste a URL and click "Validate" or on blur
 - THEN POST /api/widgets/video/parse MUST be called with `{"sourceType": "youtube", "videoUrl": "https://..."}`
@@ -208,7 +207,6 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 - OR return `{"isValid": false, "error": "..."}` if parsing fails
 
 #### Scenario: Invalid URL format is rejected early
-@e2e exclude never built: the parse endpoint does not exist (see url-parsing-endpoint-is-available); the form-side half is the e2e of invalid-url-error in tests/e2e/video-widget.spec.ts; no unit test exists
 - GIVEN a user submits `videoUrl: "not-a-url"`
 - WHEN the parse endpoint processes it
 - THEN it MUST return HTTP 400 with `{"isValid": false, "error": "Invalid URL format"}`

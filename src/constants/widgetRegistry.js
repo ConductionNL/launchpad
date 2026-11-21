@@ -114,6 +114,7 @@ import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidg
 import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
 import TileHost from '../components/Widgets/Renderers/TileHost.vue'
 import VideoHost from '../components/Widgets/Renderers/VideoHost.vue'
+import VideoWidgetForm from '../components/Widgets/Renderers/VideoWidgetForm.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
@@ -159,6 +160,8 @@ const FORM_OVERRIDES = {
 	'nc-widget': NcDashboardForm,
 	// launcher-tile-sorting: the communal fields plus "Sort tiles".
 	container: ContainerWidgetForm,
+	// REQ-VID-005: the URL is checked by the parse endpoint.
+	video: VideoWidgetForm,
 }
 
 // The shared bundle (beta.155) exports CnNcWidgetWidget but its self-

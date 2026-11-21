@@ -12,6 +12,15 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn(), showSuccess: vi.fn() }))
 vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn() } }))
+// The unit suite runs against a stub of nextcloud-vue (vitest.config.js), so
+// the divider's registered minimum is supplied here.
+vi.mock('../../constants/widgetRegistry.js', async (importOriginal) => {
+	const actual = await importOriginal()
+	return {
+		...actual,
+		getWidgetTypeEntry: (type) => (type === 'divider' ? { minHeight: 1 } : actual.getWidgetTypeEntry(type)),
+	}
+})
 
 let Views
 
@@ -59,13 +68,22 @@ describe('Views: a dashboard that fills the height', () => {
 
 	it('hands the placements over unchanged while editing', () => {
 		const host = makeHost([header, counter, tiles], true)
-		expect(host.gridLayout).toBe(host.shownPlacements)
+		expect(host.gridLayout).toEqual(host.shownPlacements)
+		host.gridLayout.forEach((p, i) => expect(p).toBe(host.shownPlacements[i]))
 		expect(host.gridLayout[0].fitRows).toBeUndefined()
+	})
+
+	it('gives a divider the one-row minimum its type registers, and other widgets none', () => {
+		const divider = { id: 4, widgetId: 'divider', gridHeight: 1, content: {} }
+		const host = makeHost([divider, tiles], true)
+		expect(host.gridLayout[0].minHeight).toBe(1)
+		expect(host.gridLayout[1]).toBe(tiles)
 	})
 
 	it('does not fill a dashboard that does not ask', () => {
 		const host = makeHost([counter, tiles])
 		expect(host.fillsHeight).toBe(false)
-		expect(host.gridLayout).toBe(host.shownPlacements)
+		expect(host.gridLayout).toEqual(host.shownPlacements)
+		host.gridLayout.forEach((p, i) => expect(p).toBe(host.shownPlacements[i]))
 	})
 })

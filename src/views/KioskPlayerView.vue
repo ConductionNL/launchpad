@@ -218,8 +218,7 @@ export default {
 		},
 
 		/**
-		 * Fetch one entry's render payload, or null when it fails or has not
-		 * answered within the entry timeout.
+		 * Fetch one entry's render payload, or null when it fails.
 		 *
 		 * @param {object} entry The entry as the playlist read gave it.
 		 * @return {Promise<object|null>} The fresh entry, or null.
@@ -230,7 +229,7 @@ export default {
 			if (!uuid) {
 				return Promise.resolve(null)
 			}
-			const read = axios
+			return axios
 				.get(
 					generateUrl(
 						`/apps/launchpad/kiosk/${encodeURIComponent(this.token)}/dashboards/${encodeURIComponent(uuid)}`,
@@ -239,10 +238,22 @@ export default {
 				)
 				.then(({ data }) => (data?.dashboard ? { ...entry, ...data } : null))
 				.catch(() => null)
+		},
+
+		/**
+		 * Wait for an entry's read from the moment its turn comes, or null
+		 * once it has not answered within the entry timeout (REQ-KIOSK-005).
+		 *
+		 * @param {Promise<object|null>} read The entry's read.
+		 * @return {Promise<object|null>} The fresh entry, or null.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		withinEntryTimeout(read) {
+			let timer = null
 			const timeout = new Promise((resolve) => {
-				setTimeout(() => resolve(null), ENTRY_TIMEOUT_MS)
+				timer = setTimeout(() => resolve(null), ENTRY_TIMEOUT_MS)
 			})
-			return Promise.race([read, timeout])
+			return Promise.race([read, timeout]).finally(() => clearTimeout(timer))
 		},
 
 		/**
@@ -262,7 +273,7 @@ export default {
 				const index = (this.index + step) % count
 				const entry = this.entries[index]
 				const ready = this.prefetched?.index === index && this.prefetched.uuid === entry?.dashboard?.uuid
-				const fresh = await (ready ? this.prefetched.result : this.fetchEntry(entry))
+				const fresh = await this.withinEntryTimeout(ready ? this.prefetched.result : this.fetchEntry(entry))
 				if (fresh !== null && this.entries[index]?.dashboard?.uuid === fresh.dashboard?.uuid) {
 					this.entries.splice(index, 1, fresh)
 					this.index = index

@@ -183,6 +183,11 @@ class RuleEvaluatorService {
 		$startTime = $config['startTime'] ?? '00:00';
 		$endTime = $config['endTime'] ?? '23:59';
 
+		// A window whose start lies after its end wraps around midnight.
+		if ($startTime > $endTime) {
+			return $currentTime >= $startTime || $currentTime <= $endTime;
+		}
+
 		return $currentTime >= $startTime && $currentTime <= $endTime;
 	}//end evaluateTimeRule()
 

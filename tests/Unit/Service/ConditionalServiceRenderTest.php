@@ -171,6 +171,29 @@ class ConditionalServiceRenderTest extends TestCase {
 	}//end testAVisitorWithoutAnAccountMatchesNoGroup()
 
 	/**
+	 * A placement switched off with isVisible 0 is hidden whatever its rules say.
+	 *
+	 * @return void
+	 */
+	public function testAPlacementSwitchedOffIsHidden(): void {
+		$this->rules->method('findByPlacementIds')->willReturn([self::groupRule(placementId: 2, group: 'staff', isInclude: true)]);
+		$placements = [['id' => 1, 'isVisible' => 0], ['id' => 2, 'isVisible' => 0], ['id' => 3, 'isVisible' => 1]];
+
+		$this->assertSame(
+			expected: [3],
+			actual: array_column(array: $this->service->visiblePlacements(placements: $placements, userId: 'alice', canEdit: false), column_key: 'id')
+		);
+		$this->assertSame(
+			expected: [1 => true, 2 => true, 3 => false],
+			actual: array_column(
+				array: $this->service->visiblePlacements(placements: $placements, userId: 'alice', canEdit: true),
+				column_key: 'hiddenForViewers',
+				index_key: 'id'
+			)
+		);
+	}//end testAPlacementSwitchedOffIsHidden()
+
+	/**
 	 * No placements read no rules.
 	 *
 	 * @return void

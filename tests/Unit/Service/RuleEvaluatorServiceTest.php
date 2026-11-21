@@ -156,6 +156,9 @@ class RuleEvaluatorServiceTest extends TestCase {
 			'listed day'                => ['2026-11-11 12:00', ['days' => ['mon', 'wed']], true],
 			'unlisted day'              => ['2026-11-11 12:00', ['days' => ['sat', 'sun']], false],
 			'no config is the whole day' => ['2026-11-11 23:59', [], true],
+			'night window at 02:00'     => ['2026-11-11 02:00', ['startTime' => '22:00', 'endTime' => '06:00'], true],
+			'night window at 23:00'     => ['2026-11-11 23:00', ['startTime' => '22:00', 'endTime' => '06:00'], true],
+			'night window at noon'      => ['2026-11-11 12:00', ['startTime' => '22:00', 'endTime' => '06:00'], false],
 		];
 	}//end timeCases()
 

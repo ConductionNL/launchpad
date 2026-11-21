@@ -371,6 +371,12 @@ class PermissionService {
 			return false;
 		}
 
+		// REQ-PERM-011: an admin template belongs to nobody and is never
+		// shared, so only Nextcloud admin status lets its widgets change.
+		if ($placed->dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
+		}
+
 		return $this->allowsEditing(
 			level: $this->resolveAccessLevel(userId: $userId, dashboard: $placed->dashboard)
 		);

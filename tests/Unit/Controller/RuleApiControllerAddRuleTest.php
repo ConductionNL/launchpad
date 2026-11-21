@@ -114,6 +114,36 @@ class RuleApiControllerAddRuleTest extends TestCase {
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 	}
 
+	/**
+	 * A rule type outside group, time, date and attribute is refused before ownership is checked.
+	 *
+	 * @return void
+	 */
+	public function testUnknownRuleTypeIsABadRequestNamingTheRuleType(): void {
+		$this->permissions->expects($this->never())->method('verifyPlacementOwnership');
+		$this->rules->expects($this->never())->method('addRule');
+
+		$response = $this->controller()->addRule(placementId: 4, ruleType: 'weather', ruleConfig: []);
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'ruleType', haystack: (string)$response->getData()['message']);
+	}
+
+	/**
+	 * An update to an unknown rule type is refused before the rule is loaded.
+	 *
+	 * @return void
+	 */
+	public function testUnknownRuleTypeOnUpdateIsABadRequest(): void {
+		$this->rules->expects($this->never())->method('findRule');
+		$this->rules->expects($this->never())->method('updateRule');
+
+		$response = $this->controller()->updateRule(ruleId: 7, ruleType: 'weather');
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'ruleType', haystack: (string)$response->getData()['message']);
+	}
+
 	public function testOwnershipFailureStopsTheCreate(): void {
 		$this->permissions->expects($this->once())
 			->method('verifyPlacementOwnership')

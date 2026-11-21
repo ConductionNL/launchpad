@@ -81,7 +81,8 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * Fetches the rules for the placement and delegates to
 	 * {@see VisibilityChecker::checkRules()} for include/exclude
 	 * aggregation logic (REQ-VIS-003). Returns `true` when no rules
-	 * are configured (no restriction = visible).
+	 * are configured (no restriction = visible). A placement with
+	 * `isVisible: 0` is hidden without evaluating its rules (REQ-VIS-010).
 	 *
 	 * @param int $placementId The widget placement ID.
 	 * @param string $userId The acting user's UID.
@@ -91,6 +92,10 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function checkRulesForPlacement(int $placementId, string $userId): bool {
+		if ($this->placementMapper->find(id: $placementId)->getIsVisible() === 0) {
+			return false;
+		}
+
 		$rules = $this->ruleMapper->findByPlacementId(
 			placementId: $placementId
 		);
@@ -108,7 +113,8 @@ class ConditionalService implements ConditionalServiceInterface {
 	/**
 	 * Apply the visibility rules to the placements a dashboard renders.
 	 *
-	 * A placement whose rules hide it for this user is left out, unless the
+	 * A placement whose rules hide it for this user, or whose `isVisible`
+	 * flag is 0 (REQ-VIS-010), is left out, unless the
 	 * user may edit the dashboard: then it stays, marked `hiddenForViewers`,
 	 * so the owner and editors still see and edit it. Every other placement
 	 * carries `hiddenForViewers: false`.
@@ -127,7 +133,8 @@ class ConditionalService implements ConditionalServiceInterface {
 		$visible = [];
 		foreach ($placements as $placement) {
 			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
-			$hidden = $rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false;
+			$hidden = (int)($placement['isVisible'] ?? 1) === 0
+				|| ($rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false);
 			if ($hidden === true && $canEdit === false) {
 				continue;
 			}

@@ -332,8 +332,6 @@ test.describe('REQ-VIS-001 create a conditional rule', () => {
 	// @e2e conditional-visibility::create-rule-with-invalid-ruletype
 	test('an unknown ruleType is refused with 400 and nothing is stored', async () => {
 		const pid = await alicePlacement('invalid type')
-		// SUSPECTED BUG: no ruleType validation in RuleApiController::addRule();
-		// "weather" is stored with 201.
 		const res = await postRule(alice!.api, pid, {
 			ruleType: 'weather',
 			ruleConfig: {},
@@ -686,8 +684,6 @@ test.describe('REQ-VIS-011 rules go with their placement', () => {
 			'CONTROL: the placement is gone',
 		).toBe(false)
 
-		// SUSPECTED BUG: PlacementService::removePlacement() deletes the
-		// placement row only, and the rules table has no foreign key.
 		expect(
 			await orphanedRuleCount(admin),
 			'the five rules must be deleted with their placement',
@@ -731,8 +727,6 @@ test.describe('REQ-VIS-011 rules go with their placement', () => {
 			'CONTROL: the dashboard is gone',
 		).toBeGreaterThanOrEqual(400)
 
-		// SUSPECTED BUG: DashboardService::deleteDashboard() removes the
-		// placements with deleteByDashboardId() and leaves their rules behind.
 		expect(
 			await orphanedRuleCount(admin),
 			'the six rules must be deleted with their dashboard',

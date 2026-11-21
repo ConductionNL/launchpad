@@ -340,15 +340,16 @@ class DashboardShareMapper extends QBMapper {
 		string $shareWith,
 		string $ownerId,
 	): int {
-		$sub = $this->ownedDashboardIds(ownerId: $ownerId);
-
+		// Every value is bound on this one builder: a second builder for the
+		// subquery would number its parameters from 1 as well and collide.
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete(delete: $this->getTableName())
 			->where(
 				$qb->expr()->in(
 					x: 'dashboard_id',
 					y: $qb->createFunction(
-						call: '(' . $sub->getSQL() . ')'
+						call: '(SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = '
+							. $qb->createNamedParameter(value: $ownerId) . ')'
 					)
 				)
 			)
@@ -365,34 +366,8 @@ class DashboardShareMapper extends QBMapper {
 				)
 			);
 
-		// Merge parameters from sub into main.
-		foreach ($sub->getParameters() as $key => $value) {
-			$qb->setParameter(key: $key, value: $value);
-		}
-
 		return $qb->executeStatement();
 	}//end deleteByOwnerAndRecipient()
-
-	/**
-	 * Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
-	 *
-	 * @param string $ownerId The owner's user id.
-	 *
-	 * @return IQueryBuilder The subquery.
-	 */
-	private function ownedDashboardIds(string $ownerId): IQueryBuilder {
-		$sub = $this->db->getQueryBuilder();
-		$sub->select('id')
-			->from(from: 'launchpad_dashboards')
-			->where(
-				$sub->expr()->eq(
-					x: 'user_id',
-					y: $sub->createNamedParameter(value: $ownerId)
-				)
-			);
-
-		return $sub;
-	}//end ownedDashboardIds()
 
 	/**
 	 * Delete all shares for a dashboard identified by UUID.

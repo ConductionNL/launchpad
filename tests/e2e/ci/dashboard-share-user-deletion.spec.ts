@@ -60,6 +60,10 @@ import {
 
 const STAMP = Date.now()
 
+// Each test provisions up to six accounts and deletes one, at several
+// seconds per account on the stack, so the 60 s default is too short.
+test.describe.configure({ timeout: 180_000 })
+
 let admin: APIRequestContext
 let prior: SharingSettings | null = null
 

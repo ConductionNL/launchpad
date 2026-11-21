@@ -126,6 +126,17 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		const dash = await dashboardOf(alice!, 'load')
 		await addWidgets(alice!.api, dash.id, 4)
 		await share(alice!.api, dash.id, 'user', bob!.username, 'view_only')
+		// A new dashboard starts with the default widget bundle, so the four
+		// added here come on top of what the owner herself reads.
+		const asOwner = await readDashboard(alice!, dash.id)
+		expect(asOwner.status(), await asOwner.text()).toBe(200)
+		const ownerIds = ((await asOwner.json()).placements as Array<{ id: number }>)
+			.map((p) => Number(p.id))
+			.sort((a, b) => a - b)
+		expect(
+			ownerIds.length,
+			'CONTROL: the four added widgets are on the dashboard',
+		).toBeGreaterThanOrEqual(4)
 
 		const res = await readDashboard(bob!, dash.id)
 		expect(res.status(), await res.text()).toBe(200)
@@ -136,9 +147,11 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		)
 		expect(body.dashboard?.name).toBe(dash.name)
 		expect(
-			body.placements,
-			'all four placements must come with it',
-		).toHaveLength(4)
+			(body.placements as Array<{ id: number }>)
+				.map((p) => Number(p.id))
+				.sort((a, b) => a - b),
+			'every placement the owner has must come with it',
+		).toEqual(ownerIds)
 		expect(
 			body.permissionLevel,
 			"the level is the share's, not the owner's",

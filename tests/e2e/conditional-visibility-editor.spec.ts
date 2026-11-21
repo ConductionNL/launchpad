@@ -1668,14 +1668,9 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		/*
 		 * The include rule is stored; the exclude rule is held in the editor
 		 * as an unsaved row, which is what "the editor holds" allows, and the
-		 * only way to hold one while launchpad#96 refuses to store it.
-		 *
-		 * Also expected RED on the last assertion even after #97 is fixed: an
-		 * unsaved row has `id: null`, the endpoint echoes its array INDEX as
-		 * the correlation id (`$entry['id'] ?? $index` in
-		 * VisibilityPreviewController::ruleEntity), and the editor matches
-		 * `ids.includes(r.id)` (ConditionalVisibilityEditor.vue,
-		 * `matchedExcludeRules`), so a matched draft row is never indicated.
+		 * only way to hold one while launchpad#96 refuses to store it. The
+		 * unsaved row is previewed under its negative local key, which the
+		 * endpoint echoes back, so the editor can name it as the reason.
 		 */
 		const api = await adminApi()
 		await seedRule(api, {

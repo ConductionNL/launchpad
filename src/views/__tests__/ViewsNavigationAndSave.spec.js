@@ -82,6 +82,21 @@ describe('Views deep-link history', () => {
 		expect(host.buildDeepLinkUrl(null)).toBe('')
 	})
 
+	it('pushes a history entry for a dashboard change only once the boot is over', () => {
+		const handler = Views.watch['activeDashboard.uuid'].handler
+		const host = makeHost({ openFilterSession: vi.fn(), recordViewEventDebounced: vi.fn(), pushUrlForActiveDashboard: vi.fn() })
+
+		// The boot: no dashboard yet, the stored active one, then the deep-linked one.
+		handler.call(host, 'u-b', null)
+		handler.call(host, 'u-a', 'u-b')
+		expect(host.pushUrlForActiveDashboard).not.toHaveBeenCalled()
+		expect(host.recordViewEventDebounced.mock.calls).toEqual([['u-b'], ['u-a']])
+
+		host.historyBooted = true
+		handler.call(host, 'u-b', 'u-a')
+		expect(host.pushUrlForActiveDashboard).toHaveBeenCalledTimes(1)
+	})
+
 	it('replaces the boot address with the injected deep link, unless it is already there', () => {
 		const replace = vi.spyOn(window.history, 'replaceState')
 		const host = makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } })
@@ -97,6 +112,34 @@ describe('Views deep-link history', () => {
 
 		makeHost({ injectedDeepLinkPath: '' }).replaceUrlFromInitialState()
 		expect(replace).not.toHaveBeenCalled()
+	})
+
+	it('keeps the query and hash when it replaces the boot address', () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		at('/index.php/apps/launchpad/?kiosk=1#top')
+
+		makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } }).replaceUrlFromInitialState()
+
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-hr', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/team/hr?kiosk=1#top',
+		)
+	})
+
+	it('treats an address without the front controller as the deep link itself', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		const push = vi.spyOn(window.history, 'pushState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: 'team/hr' } })
+		at('/apps/launchpad/team/hr')
+		replace.mockClear()
+		const host = makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } })
+
+		host.replaceUrlFromInitialState()
+		await host.pushUrlForActiveDashboard()
+
+		expect(replace).not.toHaveBeenCalled()
+		expect(push).not.toHaveBeenCalled()
 	})
 
 	it('opens the dashboard a slug address names, not the stored active one', async () => {
@@ -320,6 +363,53 @@ describe('Views view events', () => {
 
 		host.recordViewEventDebounced('')
 		expect(host.recordViewEvent).toHaveBeenCalledTimes(3)
+	})
+
+	it('sends one view-event across two tabs of the same dashboard, holding the lock a second', async () => {
+		vi.useFakeTimers()
+		const held = new Set()
+		const locks = {
+			request: vi.fn(async (name, options, callback) => {
+				if (held.has(name)) {
+					return callback(null)
+				}
+				held.add(name)
+				try {
+					return await callback({ name })
+				} finally {
+					held.delete(name)
+				}
+			}),
+		}
+		vi.stubGlobal('navigator', { locks })
+		const recordViewEvent = vi.fn()
+		const first = makeHost({ recordViewEvent })
+		const second = makeHost({ recordViewEvent })
+
+		first.recordViewEventDebounced('a')
+		second.recordViewEventDebounced('a')
+		second.recordViewEventDebounced('b')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(recordViewEvent.mock.calls).toEqual([['a'], ['b']])
+		expect(locks.request).toHaveBeenCalledWith('launchpad-view-event:a', { ifAvailable: true }, expect.any(Function))
+
+		await vi.advanceTimersByTimeAsync(1000)
+		makeHost({ recordViewEvent }).recordViewEventDebounced('a')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(recordViewEvent.mock.calls).toEqual([['a'], ['b'], ['a']])
+		vi.unstubAllGlobals()
+	})
+
+	it('sends anyway when the lock request fails', async () => {
+		vi.stubGlobal('navigator', { locks: { request: vi.fn().mockRejectedValue(new Error('SecurityError')) } })
+		const host = makeHost({ recordViewEvent: vi.fn() })
+
+		host.recordViewEventDebounced('a')
+		await Promise.resolve()
+		await Promise.resolve()
+
+		expect(host.recordViewEvent).toHaveBeenCalledWith('a')
+		vi.unstubAllGlobals()
 	})
 })
 

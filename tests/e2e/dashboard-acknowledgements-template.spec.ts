@@ -18,15 +18,6 @@
  * A change on the template reaches the copies through the documented admin
  * re-sync (`POST /api/admin/templates/{id}/resync`, strategy `merge`).
  *
- * KNOWN RED (suspected product defect, see the e2e-coverage-programme report):
- * the first step, the administrator's `PUT /api/widgets/{templatePlacement}`,
- * is refused with 403 at HEAD. WidgetApiController::denyPlacementUpdate()
- * asks PermissionService::canStyleWidget() first, which resolves an access
- * level from ownership or a share; an admin template belongs to nobody
- * (AdminTemplateService sets userId null) and is never shared, so even an
- * administrator is refused before denyAcknowledgementChange() — which DOES
- * let an admin through — is reached. The tests assert what the spec says.
- *
  * Gate-19 @e2e traceability:
  *   @e2e dashboard-acknowledgements::admin-requires-acknowledgement-on-a-template-announcement
  *   @e2e dashboard-acknowledgements::non-author-cannot-require-acknowledgement

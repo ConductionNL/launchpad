@@ -18,13 +18,25 @@ import { reactive } from 'vue'
 import { api } from '../services/api.js'
 
 /**
+ * The id the preview endpoint echoes back for a rule: its server id, or for
+ * a never-saved draft its negative local key, so a matched draft can be
+ * named without colliding with a stored rule.
+ *
+ * @param {object} rule one entry of the in-editor rule set
+ * @return {number|null|undefined} the correlation id
+ */
+export function previewRuleId(rule) {
+	return rule.id ?? rule._localKey
+}
+
+/**
  * @param {object} rule one entry of the in-editor rule set:
- *   `{id?: number, ruleType: string, ruleConfig: object, isInclude: boolean}`
- * @return {{ruleType: string, ruleConfig: object, isInclude: boolean, id: (number|undefined)}}
+ *   `{id?: number, _localKey?: number, ruleType: string, ruleConfig: object, isInclude: boolean}`
+ * @return {{ruleType: string, ruleConfig: object, isInclude: boolean, id: (number|null|undefined)}}
  */
 function toPreviewRule(rule) {
 	return {
-		id: rule.id,
+		id: previewRuleId(rule),
 		ruleType: rule.ruleType,
 		ruleConfig: rule.ruleConfig,
 		isInclude: rule.isInclude,

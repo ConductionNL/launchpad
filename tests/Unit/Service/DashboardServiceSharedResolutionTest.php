@@ -225,7 +225,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	 * @return void
 	 */
 	public function testRecipientActivatingASharedDashboardWritesNothing(): void {
-		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+		$shared = $this->makeDashboard(id: 7, uuid: 'uuid-shared', owner: 'owner');
 		$this->dashboardMapper->method('find')->willReturn($shared);
 		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
 		$this->dashResolver->method('findSharedDashboards')->willReturn(
@@ -233,7 +233,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 		);
 		$this->dashboardMapper->expects($this->never())->method('setActive');
 
-		$this->assertSame($shared, $this->service->activateDashboard(dashboardId: 7, userId: 'recipient'));
+		$this->assertSame(expected: $shared, actual: $this->service->activateDashboard(dashboardId: 7, userId: 'recipient'));
 	}//end testRecipientActivatingASharedDashboardWritesNothing()
 
 	/**
@@ -242,13 +242,13 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	 * @return void
 	 */
 	public function testStrangerActivatingAForeignDashboardIsRefused(): void {
-		$foreign = $this->makeDashboard(7, 'uuid-foreign', 'owner');
+		$foreign = $this->makeDashboard(id: 7, uuid: 'uuid-foreign', owner: 'owner');
 		$this->dashboardMapper->method('find')->willReturn($foreign);
 		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
 		$this->dashResolver->method('findSharedDashboards')->willReturn([]);
 		$this->dashboardMapper->expects($this->never())->method('setActive');
 
-		$this->expectException(\Exception::class);
+		$this->expectException(exception: \Exception::class);
 		$this->service->activateDashboard(dashboardId: 7, userId: 'stranger');
 	}//end testStrangerActivatingAForeignDashboardIsRefused()
 

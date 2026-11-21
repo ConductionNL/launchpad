@@ -107,7 +107,7 @@ Users MUST be able to add conditional visibility rules to widget placements on d
 - WHEN she sends POST /api/widgets/10/rules with body `{"ruleType": "weather", "ruleConfig": {}, "isInclude": true}`
 - THEN the system SHOULD return HTTP 400 with an error indicating the ruleType is invalid
 - AND only `group`, `time`, `date`, and `attribute` SHOULD be accepted
-- NOTE: Rule type validation is NOT currently implemented -- any string value is accepted. Unknown rule types evaluate to `false` via the `default => false` case in `evaluateRule()`.
+- NOTE: `RuleApiController::addRule()` and `updateRule()` refuse a ruleType outside `ConditionalRule::ALLOWED_TYPES` with 400 `invalid_argument` before anything is stored.
 
 #### Scenario: Create rule on another user's placement
 - GIVEN widget placement id 10 belongs to alice's dashboard
@@ -501,7 +501,6 @@ The admin settings tab "Versioning and audit" MUST list every widget placement, 
 - REQ-VIS-013 (Rules apply when a dashboard renders): `ConditionalService::visiblePlacements()` filters or marks the placements of `DashboardApiController::getActive()` / `show()`, `PublicShareController::show()`, `KioskService::renderPlaylist()` and `EmbedRenderService`.
 
 **Not yet implemented:**
-- REQ-VIS-001 ruleType validation: No server-side validation for ruleType values.
 - REQ-VIS-006 midnight-spanning windows: Simple string comparison does not handle time windows spanning midnight.
 - REQ-VIS-006 timezone support: No `timezone` field support.
 - REQ-VIS-011 cascade delete: `PlacementService::removePlacement()` does not explicitly cascade-delete conditional rules.

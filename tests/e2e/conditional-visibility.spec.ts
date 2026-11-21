@@ -332,8 +332,6 @@ test.describe('REQ-VIS-001 create a conditional rule', () => {
 	// @e2e conditional-visibility::create-rule-with-invalid-ruletype
 	test('an unknown ruleType is refused with 400 and nothing is stored', async () => {
 		const pid = await alicePlacement('invalid type')
-		// SUSPECTED BUG: no ruleType validation in RuleApiController::addRule();
-		// "weather" is stored with 201.
 		const res = await postRule(alice!.api, pid, {
 			ruleType: 'weather',
 			ruleConfig: {},

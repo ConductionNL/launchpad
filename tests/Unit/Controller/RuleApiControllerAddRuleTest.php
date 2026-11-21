@@ -114,6 +114,26 @@ class RuleApiControllerAddRuleTest extends TestCase {
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 	}
 
+	public function testUnknownRuleTypeIsABadRequestNamingTheRuleType(): void {
+		$this->permissions->expects($this->never())->method('verifyPlacementOwnership');
+		$this->rules->expects($this->never())->method('addRule');
+
+		$response = $this->controller()->addRule(placementId: 4, ruleType: 'weather', ruleConfig: []);
+
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$this->assertStringContainsString('ruleType', (string)$response->getData()['message']);
+	}
+
+	public function testUnknownRuleTypeOnUpdateIsABadRequest(): void {
+		$this->rules->expects($this->never())->method('findRule');
+		$this->rules->expects($this->never())->method('updateRule');
+
+		$response = $this->controller()->updateRule(ruleId: 7, ruleType: 'weather');
+
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$this->assertStringContainsString('ruleType', (string)$response->getData()['message']);
+	}
+
 	public function testOwnershipFailureStopsTheCreate(): void {
 		$this->permissions->expects($this->once())
 			->method('verifyPlacementOwnership')

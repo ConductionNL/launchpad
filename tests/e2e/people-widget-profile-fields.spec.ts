@@ -234,7 +234,8 @@ test.describe('REQ-PEX-002: a person lists their own expertise', () => {
 		try {
 			const settings = session.page
 			await settings.goto('/index.php/apps/launchpad/#user-settings')
-			const section = settings.locator('#launchpad-profile-fields')
+			// NcAppSettingsSection prefixes the section id with `settings-section_`.
+			const section = settings.locator('#settings-section_launchpad-profile-fields')
 			await expect(section).toBeVisible({ timeout: 30_000 })
 
 			const tags = section.locator('.v-select').filter({ has: settings.getByText('Expertise') }).first()

@@ -2894,6 +2894,7 @@ class DashboardService {
 	 * @throws Throwable Whatever the transaction body threw, after rollback.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function persistFork(
 		string $userId,
@@ -2919,6 +2920,8 @@ class DashboardService {
 			// Defensive — the factory already sets this for TYPE_USER but
 			// we make the contract visible at the call site.
 			$fork->setIsDefault(0);
+			// REQ-CWF-011: the copy's filter bus joins widgets as the source's does.
+			$fork->setHierarchiesArray($source->getHierarchiesArray());
 
 			// REQ-DASH-020: deactivate every other personal dashboard
 			// for this user before persisting the fork — mirrors

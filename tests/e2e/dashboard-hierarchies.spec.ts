@@ -13,6 +13,7 @@
  *   @e2e cross-widget-filter::a-malformed-descriptor-is-refused
  *   @e2e cross-widget-filter::a-viewer-cannot-change-the-hierarchies
  *   @e2e cross-widget-filter::clearing-the-hierarchies
+ *   @e2e cross-widget-filter::copies-keep-the-hierarchies
  *
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
@@ -24,7 +25,7 @@ import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { NL_ADMINISTRATIVE, putHierarchies, readHierarchies, storeHierarchies } from './support/hierarchies.ts'
 import { adminContext, assertActingAs, createPrincipal, removePrincipal, seedDashboardWithWidget, shareWith } from './support/principals.ts'
-import { adminApi, openWorkspace, Seeds } from './support/widgetPlacements.ts'
+import { adminApi, LP_API as API, openWorkspace, Seeds } from './support/widgetPlacements.ts'
 
 test.describe('A dashboard stores its hierarchies', () => {
 	test('@e2e cross-widget-filter::an-owner-picks-the-nl-administrative-preset the stored preset comes back on every read', async () => {
@@ -118,6 +119,41 @@ test.describe('A dashboard stores its hierarchies', () => {
 			}
 			await removePrincipal(admin, viewer)
 			await admin.dispose()
+		}
+	})
+
+	test('@e2e cross-widget-filter::copies-keep-the-hierarchies a fork and an export imported again keep them', async () => {
+		const seeds = new Seeds(await adminApi())
+		const copies: number[] = []
+		try {
+			const dash = await seeds.dashboard(`E2E hierarchies copied ${Date.now()}`)
+			await storeHierarchies(seeds.api, dash.id, [NL_ADMINISTRATIVE])
+
+			const fork = await seeds.api.post(`${API}/dashboards/${dash.uuid}/fork`, { data: { name: `${dash.name} fork` } })
+			expect(fork.status(), await fork.text()).toBeLessThan(300)
+			const forked = Number(((await fork.json()).dashboard ?? {}).id)
+			copies.push(forked)
+			expect(await readHierarchies(seeds.api, forked)).toEqual([NL_ADMINISTRATIVE])
+
+			const exported = await seeds.api.post(`${API}/admin/export?scope=dashboard&dashboardUuid=${dash.uuid}`)
+			expect(exported.status(), await exported.text()).toBe(200)
+			const archive = await exported.body()
+			expect(archive.subarray(0, 2).toString()).toBe('PK')
+			const imported = await seeds.api.post(`${API}/admin/import`, {
+				multipart: { file: { name: 'hierarchies.zip', mimeType: 'application/zip', buffer: archive } },
+			})
+			const report = await imported.json()
+			expect(report.importedDashboardCount, JSON.stringify(report)).toBe(1)
+			const list = await seeds.api.get(`${API}/dashboards`)
+			const copy = ((await list.json()).items ?? []).find((d: { name: string, uuid: string }) => d.name === dash.name && d.uuid !== dash.uuid)
+			expect(copy, 'the imported copy').toBeTruthy()
+			copies.push(Number(copy.id))
+			expect(await readHierarchies(seeds.api, Number(copy.id))).toEqual([NL_ADMINISTRATIVE])
+		} finally {
+			for (const id of copies) {
+				await seeds.api.delete(`${API}/dashboard/${id}`)
+			}
+			await seeds.cleanup()
 		}
 	})
 

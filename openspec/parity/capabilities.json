@@ -3348,19 +3348,20 @@
 			"id": "int-office-tiles",
 			"area": "integrations",
 			"name": "Get ready-made tiles for the office suite without setting each one up.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/modals/WidgetPickerModal.vue:117",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/integrations-office-tiles",
-				"requirement": "openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md :: The add flow offers an office tile pack built from what the server has (REQ-OFT-001)"
+				"spec": "openspec/specs/office-tiles",
+				"requirement": "openspec/specs/office-tiles :: The add flow offers an office tile pack built from what the server has (REQ-OFT-001)"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Workspace page (/apps/launchpad/), More > Add widget > Office tiles",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175363-full-guide-for-user ready tiles for documents, email, calendar and address book from Microsoft 365 (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for office, document, new file: none; the shipped 'office' app is an overview page with its own navigation entry (nextcloud/office stable35 appinfo/info.xml), not dashboard tiles. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1.",
@@ -3372,7 +3373,7 @@
 			"providerHow": "research-then-code",
 			"feature": "runtime-or-consumption",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/integrations-office-tiles (openspec pass).",
+			"note": "Specified 2026-09-27 in openspec/changes/integrations-office-tiles (openspec pass). Built and archived 2026-11-21; e2e office-tiles.spec.ts 2 of 2 against onlyoffice (#1451).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpTegelToevoegen"

@@ -209,17 +209,26 @@ class PageController extends Controller {
 		//
 		// The slide-in sidebar is unaffected; it lives inside the workspace
 		// view, not in the chrome slot.
+		return $this->workspaceResponse();
+	}//end index()
+
+	/**
+	 * The workspace page, without the Nextcloud layout for `kiosk=1`
+	 * (REQ-KIOSK-001).
+	 *
+	 * @return TemplateResponse The page.
+	 */
+	private function workspaceResponse(): TemplateResponse {
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
 			templateName: 'index',
 			params: [],
 			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_USER)
 		);
-
 		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
 
 		return $response;
-	}//end index()
+	}//end workspaceResponse()
 
 	/**
 	 * The per-user widget allow-list (PR #95, role-based-content).

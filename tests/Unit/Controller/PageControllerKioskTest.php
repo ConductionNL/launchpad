@@ -54,9 +54,7 @@ class PageControllerKioskTest extends TestCase {
 	 */
 	private function controller(?string $kiosk): PageController {
 		$request = $this->createMock(originalClassName: IRequest::class);
-		$request->method('getParam')->willReturnCallback(
-			static fn (string $key, mixed $default = null): mixed => ($key === 'kiosk' ? $kiosk : $default)
-		);
+		$request->method('getParam')->willReturnMap(valueMap: [['kiosk', null, $kiosk]]);
 
 		return new class(
 			request: $request,

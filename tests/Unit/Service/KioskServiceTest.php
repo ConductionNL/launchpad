@@ -504,7 +504,9 @@ class KioskServiceTest extends TestCase {
 	private function twoEntryPlaylist(): KioskPlaylist {
 		$playlist = new KioskPlaylist();
 		$playlist->setToken('tok');
-		$playlist->setEntries((string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30], ['dashboardUuid' => 'kantine', 'dwellSeconds' => 20]]));
+		$playlist->setEntries(
+			(string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30], ['dashboardUuid' => 'kantine', 'dwellSeconds' => 20]])
+		);
 
 		return $playlist;
 	}

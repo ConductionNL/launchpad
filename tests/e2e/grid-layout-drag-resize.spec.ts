@@ -182,12 +182,14 @@ async function openEditing(browser: Browser, count: number) {
 test('a dragged widget snaps to its new cell and the widget in the way is pushed down', async ({
 	browser,
 }) => {
-	// notes holds the drop target itself. GridStack pushes a widget only when
-	// the dragged one covers more than half of it, so a widget a row lower
-	// (covered by exactly half) keeps its place and blocks the drop.
+	// notes holds the drop target. GridStack pushes a widget aside only once
+	// the dragged one covers more than half of it, and swaps two widgets of
+	// one size, so notes is taller than weather and covered past half only at
+	// the drop target: an equal-size notes a row lower was covered by exactly
+	// half there, kept its place and blocked the drop at 3,1.
 	const [weather, notes] = await seed([
 		{ x: 0, y: 0, w: 4, h: 2 },
-		{ x: 4, y: 2, w: 4, h: 2 },
+		{ x: 4, y: 2, w: 4, h: 3 },
 	])
 	const { context, page } = await openEditing(browser, 2)
 	try {

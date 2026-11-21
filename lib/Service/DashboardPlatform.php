@@ -43,12 +43,14 @@ class DashboardPlatform {
 	 * @param IConfig       $config Nextcloud per-user preference storage.
 	 * @param IFactory      $l10nFactory L10N factory used to build the "My copy of {name}" default fork name
 	 *                                   (REQ-DASH-020).
+	 * @param PermissionService|null $permissions Decides who may create a group dashboard (REQ-DASH-014).
 	 */
 	public function __construct(
 		public readonly IGroupManager $groupManager,
 		public readonly IDBConnection $db,
 		public readonly IConfig $config,
 		public readonly IFactory $l10nFactory,
+		public readonly ?PermissionService $permissions = null,
 	) {
 	}//end __construct()
 }//end class

@@ -1356,9 +1356,9 @@ class DashboardService {
 	/**
 	 * Create a new group-shared dashboard.
 	 *
-	 * Admin-only — caller MUST have validated the actor with
-	 * {@see DashboardService::isAdmin()}. The route attribute alone is
-	 * not enough (per Hydra semantic-auth gate).
+	 * For a Nextcloud administrator, a LaunchPad Admin, or an Editor in that
+	 * group ({@see PermissionService::canCreateGroupDashboard()},
+	 * REQ-DASH-014). Checked here as well as by the caller.
 	 *
 	 * @param string $actorUserId The acting user ID (for the admin
 	 *                            check).
@@ -1368,13 +1368,15 @@ class DashboardService {
 	 *
 	 * @return Dashboard The created group-shared dashboard.
 	 *
-	 * @throws Exception When the actor is not an administrator.
+	 * @throws Exception When the actor may not create a dashboard for the group.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function createGroupShared(string $actorUserId, string $groupId, array $fields): Dashboard {
 		$fields += ['description' => null, 'gridColumns' => 12];
-		if ($this->isAdmin(userId: $actorUserId) === false) {
+		if ($this->isAdmin(userId: $actorUserId) === false
+			&& $this->platform->permissions?->canCreateGroupDashboard(userId: $actorUserId, groupId: $groupId) !== true
+		) {
 			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
 		}
 

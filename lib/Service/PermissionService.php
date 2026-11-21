@@ -410,6 +410,39 @@ class PermissionService {
 	}//end canCreateDashboard()
 
 	/**
+	 * Whether a user may create a group dashboard for a group: a Nextcloud
+	 * administrator or a LaunchPad Admin for any group, an Editor for a
+	 * group they belong to (REQ-DASH-014). The default group means everyone,
+	 * so an Editor cannot aim a dashboard at it.
+	 *
+	 * @param string $userId  The user ID.
+	 * @param string $groupId The group the dashboard is for.
+	 *
+	 * @return bool Whether the user may create it.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	public function canCreateGroupDashboard(string $userId, string $groupId): bool {
+		if ($this->groupManager->isAdmin(userId: $userId) === true
+			|| $this->roleService->isAdmin(userId: $userId) === true
+		) {
+			return true;
+		}
+
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID
+			|| $this->roleService->isEditorOrHigher(userId: $userId) === false
+		) {
+			return false;
+		}
+
+		return in_array(
+			needle: $groupId,
+			haystack: $this->adminTemplateService->getUserGroupIdsFor(userId: $userId),
+			strict: true
+		);
+	}//end canCreateGroupDashboard()
+
+	/**
 	 * Check if multiple dashboards are allowed (global admin setting).
 	 *
 	 * This is a global configuration flag, not per-user — the admin setting

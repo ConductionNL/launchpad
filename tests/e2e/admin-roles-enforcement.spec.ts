@@ -293,15 +293,13 @@ test.describe('what each LaunchPad role may do', () => {
 	// ── REQ-ROLE-001: the Dashboard Admin role ─────────────────────────────
 
 	// @e2e admin-roles::non-admin-user-assigned-dashboard-admin-role
-	test('a non-admin with the admin role is admin from the user row and reaches the LaunchPad admin API', async () => {
+	test('a non-admin with the admin role is admin from the user row and is still refused by the admin API', async () => {
 		const { status, body } = await myRole(alice!.api)
 		expect(status).toBe(200)
 		expect(body).toEqual({ role: 'admin', source: SOURCE.user })
 
-		// SUSPECTED BUG: every LaunchPad admin route is guarded by
-		// `#[AuthorizedAdminSetting(LaunchPadAdmin::class)]`, which only an NC
-		// admin (or a delegated NC admin group) passes. The LaunchPad admin
-		// role is never consulted, so alice gets 403 on all four.
+		// The admin API stays Nextcloud-admin only (REQ-ROLE-001); the
+		// LaunchPad Admin role works through the normal API.
 		const reached: Record<string, number> = {}
 		for (const path of [
 			'settings',
@@ -312,11 +310,13 @@ test.describe('what each LaunchPad role may do', () => {
 			reached[path] = (await alice!.api.get(`${API}/admin/${path}`)).status()
 		}
 		expect(reached).toEqual({
-			settings: 200,
-			'demo-showcases': 200,
-			'metadata-fields': 200,
-			roles: 200,
+			settings: 403,
+			'demo-showcases': 403,
+			'metadata-fields': 403,
+			roles: 403,
 		})
+		// CONTROL: the NC admin reaches the same routes.
+		expect((await admin.get(`${API}/admin/roles`)).status()).toBe(200)
 	})
 
 	// @e2e admin-roles::dashboard-admin-can-edit-any-dashboard
@@ -350,104 +350,68 @@ test.describe('what each LaunchPad role may do', () => {
 		)
 	})
 
-	// @e2e admin-roles::dashboard-admin-can-manage-metadata-field-definitions
-	test('the admin role creates a metadata field definition that every dashboard can use', async () => {
+	// @e2e admin-roles::dashboard-admin-cannot-manage-metadata-field-definitions
+	test('the admin role is refused a metadata field definition, and no field is created', async () => {
 		const key = `role_admin_field_${STAMP}`
 		try {
-			// SUSPECTED BUG: AuthorizedAdminSetting refuses alice with 403.
 			const res = await alice!.api.post(`${API}/admin/metadata-fields`, {
 				data: { key, label: 'Role admin field', type: 'text' },
 			})
-			expect(res.status(), await res.text()).toBe(201)
-
-			// Global, not group-scoped: another user sees it and fills it in
-			// on their own dashboard.
-			expect(await fieldKeys(plain!.api)).toContain(key)
-			const set = await plain!.api.put(
-				`${API}/dashboards/${plainDash!.uuid}/metadata`,
-				{
-					data: { metadata: { [key]: 'set by plain' } },
-				},
-			)
-			expect(set.status(), await set.text()).toBe(200)
+			expect(res.status(), await res.text()).toBe(403)
+			expect(await fieldKeys(plain!.api)).not.toContain(key)
 		} finally {
 			await dropField(key)
 		}
 	})
 
-	// @e2e admin-roles::dashboard-admin-can-install-demo-data
-	test('the admin role installs a demo showcase, which lands for everyone', async () => {
+	// @e2e admin-roles::dashboard-admin-cannot-install-demo-data
+	test('the admin role is refused a demo showcase install, and the showcase stays as it was', async () => {
 		const before = await showcaseState()
-		try {
-			// SUSPECTED BUG: AuthorizedAdminSetting refuses alice with 403.
-			const res = await alice!.api.post(
-				`${API}/admin/demo-showcases/${SHOWCASE}/install`,
-			)
-			expect([200, 201], await res.text()).toContain(res.status())
-			const uuid = String((await res.json()).installedDashboardUuid)
-
-			expect((await showcaseState()).isInstalled).toBe(true)
-			// Installed into the default group: an ordinary user sees it.
-			const visible = await plain!.api.get(`${API}/dashboards/visible`)
-			expect(visible.status()).toBe(200)
-			const body = await visible.json()
-			const uuids = ((body.items ?? body) as Array<{ uuid: string }>).map(
-				(d) => d.uuid,
-			)
-			expect(uuids).toContain(uuid)
-		} finally {
-			if (!before.isInstalled) {
-				await admin.delete(`${API}/admin/demo-showcases/${SHOWCASE}`)
-			}
-		}
+		const res = await alice!.api.post(
+			`${API}/admin/demo-showcases/${SHOWCASE}/install`,
+		)
+		expect(res.status(), await res.text()).toBe(403)
+		expect((await showcaseState()).isInstalled).toBe(before.isInstalled)
 	})
 
-	// @e2e admin-roles::dashboard-admin-can-edit-organization-navigation
-	test('the admin role replaces the organisation navigation, and every user sees the change', async () => {
+	// @e2e admin-roles::dashboard-admin-cannot-edit-organization-navigation
+	test('the admin role is refused the organisation navigation, and the tree stays as it was', async () => {
 		const lang = 'en'
 		const snapshot = await admin.get(`${API}/admin/org-navigation?lang=${lang}`)
 		expect(snapshot.status(), await snapshot.text()).toBe(200)
 		const previous = (await snapshot.json()).tree ?? []
 
-		const nodeId = randomUUID()
-		const label = `E2E role admin nav ${STAMP}`
-		try {
-			// SUSPECTED BUG: AuthorizedAdminSetting refuses alice with 403.
-			const res = await alice!.api.put(`${API}/admin/org-navigation`, {
-				data: {
-					lang,
-					tree: [{ id: nodeId, label, url: '/apps/files', children: [] }],
-				},
-			})
-			expect(res.status(), await res.text()).toBe(200)
+		const res = await alice!.api.put(`${API}/admin/org-navigation`, {
+			data: {
+				lang,
+				tree: [{ id: randomUUID(), label: `E2E role admin nav ${STAMP}`, url: '/apps/files', children: [] }],
+			},
+		})
+		expect(res.status(), await res.text()).toBe(403)
 
-			const seen = await plain!.api.get(
-				`${API}/admin/org-navigation?lang=${lang}`,
-			)
-			expect(seen.status(), await seen.text()).toBe(200)
-			const tree = (await seen.json()).tree as Array<{
-				id: string
-				label: string
-			}>
-			expect(tree.map((n) => n.id)).toContain(nodeId)
-		} finally {
-			// Restore what the admin could see before. A node hidden from the
-			// admin by its group visibility could not be read back, so on an
-			// instance that has such nodes this restore is lossy; the CI
-			// fixture has none.
-			await admin.put(`${API}/admin/org-navigation`, {
-				data: { lang, tree: previous },
-			})
+		const after = await admin.get(`${API}/admin/org-navigation?lang=${lang}`)
+		expect((await after.json()).tree ?? []).toEqual(previous)
+	})
+
+	// @e2e admin-roles::dashboard-admin-creates-a-group-dashboard-for-a-group-they-are-not-in
+	test('the admin role creates a group dashboard for a group it is not in', async () => {
+		const res = await alice!.api.post(`${API}/dashboards/group/${sales}`, {
+			data: { name: `E2E rolex alice group ${STAMP}` },
+		})
+		const text = await res.text()
+		if (res.status() === 201) {
+			const made = JSON.parse(text).dashboard
+			extraGroupDashboards.push({ id: Number(made.id), uuid: String(made.uuid), groupId: sales! })
 		}
+		expect(res.status(), text).toBe(201)
+		expect(JSON.parse(text).dashboard.groupId).toBe(sales)
 	})
 
 	// ── REQ-ROLE-002 / 007: the Editor role ────────────────────────────────
 
 	// @e2e admin-roles::dashboard-editor-creates-a-new-groupshared-dashboard
-	test('an editor creates a group dashboard in their own group and owns it', async () => {
-		// SUSPECTED BUG: `createGroup` is AuthorizedAdminSetting-guarded and
-		// `createGroupShared()` requires an NC admin, so bob gets 403; and a
-		// group dashboard is created with userId NULL, so nobody "owns" one.
+	// @e2e dashboards::an-editor-creates-a-group-dashboard-for-their-own-group
+	test('an editor creates a group dashboard in their own group, which has no owner and which they can edit', async () => {
 		const res = await bob!.api.post(`${API}/dashboards/group/${engineering}`, {
 			data: { name: `E2E rolex bob group ${STAMP}` },
 		})
@@ -464,7 +428,28 @@ test.describe('what each LaunchPad role may do', () => {
 		const dashboard = JSON.parse(text).dashboard
 		expect(dashboard.type).toBe('group_shared')
 		expect(dashboard.groupId).toBe(engineering)
-		expect(dashboard.userId).toBe(bob!.username)
+		expect(dashboard.userId).toBeNull()
+
+		const edit = await bob!.api.put(`${API}/dashboard/${dashboard.id}`, {
+			data: { themeAccent: '#1f4e7a' },
+		})
+		expect(edit.status(), await edit.text()).toBe(200)
+	})
+
+	// @e2e admin-roles::dashboard-editor-cannot-create-a-group-dashboard-for-another-group
+	// @e2e dashboards::an-editor-cannot-create-a-group-dashboard-for-another-group
+	test('an editor is refused a group dashboard for a group they are not in, and nothing is created', async () => {
+		const name = `E2E rolex bob sales ${STAMP}`
+		const res = await bob!.api.post(`${API}/dashboards/group/${sales}`, {
+			data: { name },
+		})
+		expect(res.status(), await res.text()).toBe(403)
+
+		const listed = await admin.get(`${API}/dashboards/group/${sales}`)
+		expect(listed.status()).toBe(200)
+		const rows = (await listed.json()) as Array<{ name: string }> | { items?: Array<{ name: string }> }
+		const names = (Array.isArray(rows) ? rows : (rows.items ?? [])).map((r) => r.name)
+		expect(names).not.toContain(name)
 	})
 
 	// @e2e admin-roles::dashboard-editor-can-edit-groupshared-dashboard-in-their-group

@@ -226,6 +226,7 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 		$permissions = $this->createMock(PermissionService::class);
 		$permissions->method('canCreateDashboard')->willReturn(true);
 		$permissions->method('canHaveMultipleDashboards')->willReturn(true);
+		$permissions->method('canCreateGroupDashboard')->willReturn(true);
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),

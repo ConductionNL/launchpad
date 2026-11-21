@@ -1069,13 +1069,21 @@ test.describe.serial('unified search: empty results (REQ-SRCH-009)', () => {
 	})
 
 	// @e2e nc-unified-search-integration::empty-search-term
-	test('an empty or whitespace-only term answers an empty result, not an error', async () => {
+	test('an empty or whitespace-only term returns no LaunchPad entries', async () => {
+		// Nextcloud drops a blank term from the filter list and refuses the
+		// request itself ("No valid filters provided") before any provider
+		// runs, so over HTTP the answer is core's 400, never a LaunchPad
+		// error. The provider's own empty answer for a blank term is pinned by
+		// LaunchPadSearchProviderTest::testEmptyTermReturnsEmptyResult.
 		const alice = await account('blank')
 		await dashboard(alice, `Blank probe ${RUN}`)
 		for (const term of ['', '   ']) {
-			const answer = await search(alice, term)
-			expect(answer.status, JSON.stringify(term)).toBe(200)
-			expect(answer.entries, JSON.stringify(term)).toEqual([])
+			const res = await alice.api.get(
+				`${SEARCH}/${PROVIDER}/search?format=json&term=${encodeURIComponent(term)}`,
+			)
+			const body = await res.json()
+			expect(res.status(), JSON.stringify(term)).toBe(400)
+			expect(body.ocs?.data, JSON.stringify(term)).toBe('No valid filters provided')
 		}
 	})
 

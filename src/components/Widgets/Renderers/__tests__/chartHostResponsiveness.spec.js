@@ -13,7 +13,9 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, nextTick } from 'vue'
 import ChartHost from '../ChartHost.vue'
+import StatsBlockHost from '../StatsBlockHost.vue'
 import { useFilterBus } from '../../../../composables/useFilterBus.js'
+import { logger } from '../../../../utils/logger.js'
 
 const HIERARCHY = { id: 'nl', levels: [{ dimension: 'gemeenteCode' }] }
 
@@ -28,6 +30,7 @@ function fetchingChart(log) {
 	return defineComponent({
 		name: 'CnChartWidget',
 		props: ['dataSource', 'widgetId', 'type'],
+		emits: ['data'],
 		data: () => ({ shown: null }),
 		watch: {
 			dataSource: {
@@ -37,6 +40,7 @@ function fetchingChart(log) {
 					setTimeout(() => {
 						this.shown = source?.filter?.gemeente ?? null
 						log.push({ widget: this.widgetId, gemeente: this.shown, at: Date.now() })
+						this.$emit('data', { total: 1 })
 					}, delay)
 				},
 			},
@@ -80,5 +84,62 @@ describe('consuming charts re-render within 300 ms of a publish', () => {
 			expect(entry.at - publishedAt).toBeLessThanOrEqual(300)
 		}
 		expect(charts.map((chart) => chart.find('.chart').text())).toEqual(['GM0355', 'GM0355', 'null'])
+	})
+})
+
+describe('a slow refetch after a filter change is logged (Task 35)', () => {
+	it('warns for a consumer whose data lands over 200 ms after the change, not for a fast one or a non-consumer', async () => {
+		const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {})
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		const stub = fetchingChart([])
+		const consumes = [{ dimension: 'gemeenteCode', field: 'gemeente' }]
+		const mountChart = (id, content) => mount(ChartHost, {
+			props: { content, placement: { id } },
+			global: { stubs: { CnChartWidget: stub }, provide: { dashboardFilterBus: computed(() => bus) } },
+		})
+		mountChart('fast', { dataSource: { schema: 'zaak', delay: 150 }, consumes })
+		mountChart('slow', { dataSource: { schema: 'zaak', delay: 260 }, consumes })
+		mountChart('other', { dataSource: { schema: 'zaak', delay: 400 } })
+		await vi.advanceTimersByTimeAsync(500)
+		expect(warn).not.toHaveBeenCalled()
+
+		bus.publish({ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355', source: 'widgetClick' })
+		await nextTick()
+		await vi.advanceTimersByTimeAsync(500)
+
+		expect(warn).toHaveBeenCalledTimes(1)
+		expect(warn).toHaveBeenCalledWith('[launchpad] widget slow took 260 ms to show its data after a filter change (over 200 ms): {"gemeente":"GM0355"}')
+		warn.mockRestore()
+	})
+
+	it('a consuming stats block is timed the same way', async () => {
+		const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {})
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		const slowStats = defineComponent({
+			name: 'CnStatsBlockWidget',
+			props: ['dataSource'],
+			emits: ['data'],
+			watch: {
+				dataSource: {
+					immediate: true,
+					handler() {
+						setTimeout(() => this.$emit('data', { count: 1 }), 300)
+					},
+				},
+			},
+			render: () => h('div'),
+		})
+		mount(StatsBlockHost, {
+			props: { content: { dataSource: { schema: 'zaak' }, consumes: [{ dimension: 'gemeenteCode', field: 'gemeente' }] }, placement: { id: 9 } },
+			global: { stubs: { CnStatsBlockWidget: slowStats }, provide: { dashboardFilterBus: computed(() => bus) } },
+		})
+		await vi.advanceTimersByTimeAsync(400)
+
+		bus.publish({ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355', source: 'widgetClick' })
+		await nextTick()
+		await vi.advanceTimersByTimeAsync(400)
+
+		expect(warn).toHaveBeenCalledWith('[launchpad] widget 9 took 300 ms to show its data after a filter change (over 200 ms): {"gemeente":"GM0355"}')
+		warn.mockRestore()
 	})
 })

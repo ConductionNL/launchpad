@@ -1427,11 +1427,13 @@ test.describe.serial('"Count my visits" in personal settings (REQ-ANLT-UI-001)',
 			await page.goto(`${APP}/${dash.slug}`)
 			await waitForDashboard(page, dash.uuid)
 			await openPersonalSettings(page)
+			// NcCheckboxRadioSwitch passes its attributes to its <input>, so the
+			// test id names the switch's input itself.
 			const toggle = page.locator('[data-testid="launchpad-count-my-visits"]')
 			await expect(toggle).toBeVisible({ timeout: 20_000 })
-			await expect(toggle.locator('input')).toBeChecked()
+			await expect(toggle).toBeChecked()
 			await flip(page, true)
-			await expect(toggle.locator('input')).not.toBeChecked()
+			await expect(toggle).not.toBeChecked()
 
 			const me = await eve!.api.get(`${API}/analytics/me`)
 			expect((await me.json()).optedOut).toBe(true)
@@ -1454,9 +1456,9 @@ test.describe.serial('"Count my visits" in personal settings (REQ-ANLT-UI-001)',
 			await openPersonalSettings(page)
 			const toggle = page.locator('[data-testid="launchpad-count-my-visits"]')
 			await expect(toggle).toBeVisible({ timeout: 20_000 })
-			await expect(toggle.locator('input')).not.toBeChecked()
+			await expect(toggle).not.toBeChecked()
 			await flip(page, false)
-			await expect(toggle.locator('input')).toBeChecked()
+			await expect(toggle).toBeChecked()
 
 			const me = await eve!.api.get(`${API}/analytics/me`)
 			expect((await me.json()).optedOut).toBe(false)

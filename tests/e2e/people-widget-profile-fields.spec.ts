@@ -241,7 +241,9 @@ test.describe('REQ-PEX-002: a person lists their own expertise', () => {
 			// NcSelect draws its inputLabel outside the `.v-select` box; the
 			// search input is the combobox it names.
 			const input = section.getByRole('combobox', { name: 'Expertise' })
-			const tags = section.locator('.v-select').filter({ has: input })
+			const tags = section
+				.locator('.v-select')
+				.filter({ has: settings.getByRole('combobox', { name: 'Expertise' }) })
 			for (const tag of ['subsidies', 'Omgevingswet']) {
 				await input.click()
 				await input.fill(tag)

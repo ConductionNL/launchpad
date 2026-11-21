@@ -12,10 +12,9 @@
  * The dashboard holds a gemeente chart A that publishes gemeenteCode, a wijk
  * chart B that consumes gemeenteCode and publishes wijkCode, a status chart E
  * that consumes gemeenteCode and wijkCode, and a province chart C that consumes
- * nothing. Dashboards do not store hierarchy descriptors yet, so the specs add
- * the nl-administrative hierarchy to the dashboard the app loads (a route on
- * the dashboard read); every click, publish, refetch, OpenRegister query and
- * render after that is the live one.
+ * nothing. Each dashboard stores the nl-administrative hierarchy through the
+ * dashboard API (REQ-CWF-011), so every click, publish, refetch, OpenRegister
+ * query and render is the live one.
  *
  * Each click is measured in the page's own clock, from the pointerdown:
  * to B showing only the clicked gemeente's wijken, to E's first DOM update
@@ -25,31 +24,27 @@
  * the chart drawing takes is told apart from the bus and the query. The
  * numbers are attached as JSON and printed.
  *
+ * Gate-19 @e2e traceability:
+ *   @e2e cross-widget-filter::stored-hierarchies-put-consuming-widgets-on-the-bus
+ *
  * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
  * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-41
  */
 
-import type { CDPSession, Page, Route, TestInfo } from '@playwright/test'
+import type { CDPSession, Page, TestInfo } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { PERF_OBJECT_COUNT, PERF_REGISTER, PERF_SCHEMA, seededCount } from './support/cwfPerfSeed.ts'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
+import { NL_ADMINISTRATIVE, storeHierarchies } from './support/hierarchies.ts'
 import { adminApi, gridItem, openWorkspace, Seeds } from './support/widgetPlacements.ts'
 
 const BOUND_MS = 300
 const MEMORY_BOUND_BYTES = 1024 * 1024
 const REPETITIONS = 12
-
-const HIERARCHY = {
-	id: 'nl-administratief',
-	levels: [
-		{ dimension: 'provincieCode', label: 'Provincie' },
-		{ dimension: 'gemeenteCode', parentDimension: 'provincieCode', label: 'Gemeente' },
-		{ dimension: 'wijkCode', parentDimension: 'gemeenteCode', label: 'Wijk' },
-	],
-}
 
 const SOURCE = { register: PERF_REGISTER, schema: PERF_SCHEMA }
 const QUIET = { chart: { animations: { enabled: false } } }
@@ -67,26 +62,6 @@ const BAR_LIST: Renderer = {
 	kind: 'bar-list',
 	item: '[data-testid="cn-chart-widget-bar-row"] >> nth={i}',
 	label: '.cn-chart-widget__bar-label',
-}
-
-/**
- * Serve the dashboard reads with the nl-administrative hierarchy added.
- *
- * @param page the page.
- * @return nothing.
- */
-async function withHierarchy(page: Page): Promise<void> {
-	await page.route(/\/apps\/launchpad\/api\/dashboard(\/\d+)?(\?.*)?$/, async (route: Route) => {
-		if (route.request().method() !== 'GET') {
-			return route.fallback()
-		}
-		const response = await route.fetch()
-		const body = await response.json()
-		if (body?.dashboard) {
-			body.dashboard.hierarchies = [HIERARCHY]
-		}
-		return route.fulfill({ response, json: body })
-	})
 }
 
 /**
@@ -206,6 +181,7 @@ async function drillDown(page: Page, renderer: Renderer): Promise<Record<string,
 	try {
 		const dash = await seeds.dashboard(`E2E drill-down ${renderer.kind} ${Date.now()}`)
 		await clearSeededWidgets(seeds.api, dash.id)
+		await storeHierarchies(seeds.api, dash.id, [NL_ADMINISTRATIVE])
 		const chart = (gridX: number, gridY: number, gridWidth: number, content: object) => seeds.widget(dash, {
 			widgetId: 'chart', gridX, gridY, gridWidth, gridHeight: 4,
 			content: { chartKind: renderer.kind, ...(renderer.options ? { options: renderer.options } : {}), ...content },
@@ -227,7 +203,6 @@ async function drillDown(page: Page, renderer: Renderer): Promise<Record<string,
 				}
 			}
 		})
-		await withHierarchy(page)
 		await instrument(page)
 		await openWorkspace(page, b.id)
 		for (const id of [a.id, b.id, c.id, e.id]) {
@@ -351,6 +326,7 @@ test.describe('cross-widget filter performance on 50,000 objects (REQ-CWF-002)',
 			for (const variant of ['off', 'on']) {
 				const dash = await seeds.dashboard(`E2E bus memory ${variant} ${Date.now()}`)
 				await clearSeededWidgets(seeds.api, dash.id)
+				await storeHierarchies(seeds.api, dash.id, [NL_ADMINISTRATIVE])
 				let first = 0
 				for (let i = 0; i < COUNT; i++) {
 					const bus = variant === 'on'
@@ -365,7 +341,6 @@ test.describe('cross-widget filter performance on 50,000 objects (REQ-CWF-002)',
 				variants[variant] = { dash, first }
 			}
 
-			await withHierarchy(page)
 			const cdp: CDPSession = await page.context().newCDPSession(page)
 			await cdp.send('HeapProfiler.enable')
 			const heaps: Record<string, number[]> = { off: [], on: [] }

@@ -113,6 +113,20 @@
 - [x] Task 35: Performance audit. After widgets are wired to the bus, measure query time for drill-down operations (e.g., click gemeentecode, then wijkcode) on a representative local stack (volume recorded). Confirm the 300 ms responsiveness bound is met. Log a performance warning if a single widget re-render exceeds 200 ms (indicating slow OR query). Profile memory usage on a dashboard with 100+ widgets to ensure the bus's pub/sub subscription overhead is negligible (<1 MB). Document results as a comment in `Dashboard.vue`. Link REQ-CWF-002.
   - Done 21 Nov on the local stack of Task 10 (same volume and spec, log `triage/t14-perf-4.log`; volume in the livepass ledger). OpenRegister time of the filtered aggregations, median / p95: gemeente step 113 / 125 ms (134 / 209 ms in the ApexCharts run), wijk step 108 / 118 ms (153 / 196 ms). Per-widget re-render after a click: `bar-list` 173 / 216 ms (wijk chart) and 173 / 244 ms (status chart); ApexCharts 8.1 / 12.1 s and 8.2 / 13.6 s, so the 300 ms bound holds for HTML charts and is missed by ApexCharts redrawing, not by the query. The warning: `ChartHost.vue` and `StatsBlockHost.vue` time each refetch from the filter change to the widget's new data (`refetchClock` in `src/utils/widgetBusConsumption.js`, a `launchpad:filter-refetch` performance measure) and log `[launchpad] widget <id> took <n> ms to show its data after a filter change (over 200 ms): <filter>` (test `chartHostResponsiveness.spec.js`). Memory: 110 charts on the bus over the same charts off it, median heap of 4 loads each, +330,616 bytes (bound 1 MB). The dashboard view is `src/views/Views.vue` (there is no `Dashboard.vue`); the results are the comment on `openFilterSession()`.
 
+### Stored hierarchies (REQ-CWF-011, Ruben 21 Nov 2026)
+
+- [x] Task 36: Storage. A nullable `hierarchies` JSON column on `launchpad_dashboards` (migration), read as `[]` when empty, on the `Dashboard` entity and its wire format (owner and viewer reads). Link REQ-CWF-011.
+
+- [x] Task 37: API validation. `PUT /api/dashboard/{id}` accepts `hierarchies`; `DashboardHierarchies::validated()` refuses a malformed descriptor with 400 before anything is saved, and the update needs the same permission as a layout change. `openapi.json` documents the field. Link REQ-CWF-011.
+
+- [ ] Task 38: Preset. The `nl-administrative` hierarchy (province > municipality > district) ships as a selectable preset in `src/utils/hierarchyPresets.js`, with nl and en level labels. Link REQ-CWF-011.
+
+- [ ] Task 39: Settings UI. The dashboard settings modal lets an owner or editor pick the dashboard's hierarchies from the presets; only a changed choice is sent. Link REQ-CWF-011.
+
+- [ ] Task 40: Bus. After a save that changes the hierarchies of the open dashboard, its filter session is rebuilt on the stored hierarchies; a preset's level labels follow the reader's language. Link REQ-CWF-011, REQ-CWF-004.
+
+- [x] Task 41: Tests. The performance spec stores the hierarchy through the dashboard API instead of adding it to the dashboard read; `tests/e2e/dashboard-hierarchies.spec.ts` covers storing, reading, refusing and clearing. Link REQ-CWF-011.
+
 Built so far: Tasks 1-3 (`src/composables/useFilterBus.js`, `src/composables/useDashboardFilter.js`) and their vitest specs, Tasks 18-20. Ancestor clauses are inferred from the clicked row's fields (`publish(clause, {row})`); a wijk in another gemeente moves the inferred ancestors with it (Task 23), and a publication is refused only when an ancestor is pinned to another value. Then Tasks 4-6 and 21: the bus on the dashboard, its URL sync and the active-filters panel with "Reset filters" (strings in all locales). Open: widget publishing and consuming (Tasks 7-10), saved views (11-13), the register and telemetry (14-17), the Playwright and performance tasks (22-30, 35), and 31-34.
 
 ## Verification

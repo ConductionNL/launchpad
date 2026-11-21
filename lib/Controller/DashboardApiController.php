@@ -725,6 +725,8 @@ class DashboardApiController extends Controller {
 	 *
 	 * The optional `defaultLinkTarget` body field sets the default tile link
 	 * target; an empty string clears it ({@see self::requestedLinkTarget()}).
+	 * The optional `hierarchies` body field sets the hierarchy descriptors of
+	 * the filter bus; an empty list clears them (REQ-CWF-011).
 	 *
 	 * The look travels in the same body and is read by {@see self::lookParams()}:
 	 * `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the
@@ -740,6 +742,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	#[NoAdminRequired]
 	public function update(
@@ -755,7 +758,9 @@ class DashboardApiController extends Controller {
 		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
 		$look = $this->lookParams();
 		$defaultLinkTarget = $this->requestedLinkTarget();
-		$metadataOnly = self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget)
+		// Read raw, so a value that is no list is refused with 400 by the service.
+		$hierarchies = $this->request->getParam(key: 'hierarchies');
+		$metadataOnly = self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget, hierarchies: $hierarchies)
 			&& array_filter($look, static fn ($value): bool => $value !== null) === [];
 		$touchesMetadata = array_filter(
 			[$name, $description, $icon, $parentUuid, $slug, $sortOrder],
@@ -778,6 +783,7 @@ class DashboardApiController extends Controller {
 				'slug'        => $slug,
 				'sortOrder'   => $sortOrder,
 				'defaultLinkTarget' => $defaultLinkTarget,
+				'hierarchies' => $hierarchies,
 			] + $look
 		);
 	}//end update()
@@ -843,20 +849,24 @@ class DashboardApiController extends Controller {
 	}//end requestedLinkTarget()
 
 	/**
-	 * Whether an update leaves the placements and the way tiles open alone.
+	 * Whether an update leaves the placements, the way tiles open and the
+	 * hierarchies alone.
 	 *
-	 * How tiles open is a dashboard edit, not metadata, so it needs the full
-	 * edit permission like a placement change.
+	 * How tiles open and which hierarchies the filter bus uses are dashboard
+	 * edits, not metadata, so they need the full edit permission like a
+	 * placement change.
 	 *
 	 * @param array|null  $placements        The placements, or null.
 	 * @param string|null $defaultLinkTarget The default tile link target, or null.
+	 * @param mixed       $hierarchies       The hierarchy descriptors as sent, or null.
 	 *
 	 * @return bool True for a metadata-only update.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
-	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget): bool {
-		return $placements === null && $defaultLinkTarget === null;
+	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget, mixed $hierarchies): bool {
+		return $placements === null && $defaultLinkTarget === null && $hierarchies === null;
 	}//end isMetadataOnly()
 
 	/**

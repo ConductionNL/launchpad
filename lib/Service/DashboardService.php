@@ -3718,6 +3718,7 @@ class DashboardService {
 		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
 		$this->applyLookUpdates(dashboard: $dashboard, data: $data);
 		$this->applyLinkTargetUpdate(dashboard: $dashboard, data: $data);
+		$this->applyHierarchiesUpdate(dashboard: $dashboard, data: $data);
 
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
@@ -3881,6 +3882,29 @@ class DashboardService {
 			TileLinkTarget::validated(value: $data['defaultLinkTarget'], field: 'defaultLinkTarget')
 		);
 	}//end applyLinkTargetUpdate()
+
+	/**
+	 * Apply the patched hierarchy descriptors, when the payload names them.
+	 *
+	 * The empty list clears them, so widgets that consume a hierarchy
+	 * dimension leave the filter bus (REQ-CWF-011).
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a descriptor is malformed.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	private function applyHierarchiesUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists(key: 'hierarchies', array: $data) === false) {
+			return;
+		}
+
+		$dashboard->setHierarchiesArray(DashboardHierarchies::validated(value: $data['hierarchies']));
+	}//end applyHierarchiesUpdate()
 
 	/**
 	 * Apply a patched placement position list, when the payload has one.

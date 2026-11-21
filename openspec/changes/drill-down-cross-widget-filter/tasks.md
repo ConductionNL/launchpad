@@ -115,9 +115,9 @@
 
 ### Stored hierarchies (REQ-CWF-011, Ruben 21 Nov 2026)
 
-- [ ] Task 36: Storage. A nullable `hierarchies` JSON column on `launchpad_dashboards` (migration), read as `[]` when empty, on the `Dashboard` entity and its wire format (owner and viewer reads). Link REQ-CWF-011.
+- [x] Task 36: Storage. A nullable `hierarchies` JSON column on `launchpad_dashboards` (migration), read as `[]` when empty, on the `Dashboard` entity and its wire format (owner and viewer reads). Link REQ-CWF-011.
 
-- [ ] Task 37: API validation. `PUT /api/dashboard/{id}` accepts `hierarchies`; `DashboardHierarchies::validated()` refuses a malformed descriptor with 400 before anything is saved, and the update needs the same permission as a layout change. `openapi.json` documents the field. Link REQ-CWF-011.
+- [x] Task 37: API validation. `PUT /api/dashboard/{id}` accepts `hierarchies`; `DashboardHierarchies::validated()` refuses a malformed descriptor with 400 before anything is saved, and the update needs the same permission as a layout change. `openapi.json` documents the field. Link REQ-CWF-011.
 
 - [ ] Task 38: Preset. The `nl-administrative` hierarchy (province > municipality > district) ships as a selectable preset in `src/utils/hierarchyPresets.js`, with nl and en level labels. Link REQ-CWF-011.
 
@@ -125,7 +125,7 @@
 
 - [ ] Task 40: Bus. After a save that changes the hierarchies of the open dashboard, its filter session is rebuilt on the stored hierarchies; a preset's level labels follow the reader's language. Link REQ-CWF-011, REQ-CWF-004.
 
-- [ ] Task 41: Tests. The performance spec stores the hierarchy through the dashboard API instead of adding it to the dashboard read; `tests/e2e/dashboard-hierarchies.spec.ts` covers storing, reading, refusing and clearing. Link REQ-CWF-011.
+- [x] Task 41: Tests. The performance spec stores the hierarchy through the dashboard API instead of adding it to the dashboard read; `tests/e2e/dashboard-hierarchies.spec.ts` covers storing, reading, refusing and clearing. Link REQ-CWF-011.
 
 Built so far: Tasks 1-3 (`src/composables/useFilterBus.js`, `src/composables/useDashboardFilter.js`) and their vitest specs, Tasks 18-20. Ancestor clauses are inferred from the clicked row's fields (`publish(clause, {row})`); a wijk in another gemeente moves the inferred ancestors with it (Task 23), and a publication is refused only when an ancestor is pinned to another value. Then Tasks 4-6 and 21: the bus on the dashboard, its URL sync and the active-filters panel with "Reset filters" (strings in all locales). Open: widget publishing and consuming (Tasks 7-10), saved views (11-13), the register and telemetry (14-17), the Playwright and performance tasks (22-30, 35), and 31-34.
 

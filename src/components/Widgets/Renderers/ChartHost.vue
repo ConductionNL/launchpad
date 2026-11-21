@@ -11,7 +11,7 @@
 		:selectable="publishing"
 		v-bind="passthroughProps"
 		@select="onSelect"
-		@data="$emit('data', $event)" />
+		@data="onData" />
 </template>
 
 <script>
@@ -21,7 +21,7 @@ import { translate as t } from '@nextcloud/l10n'
 import { levelLabels as hierarchyLevelLabels } from '../../../composables/useDashboardFilterSession.js'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { logger } from '../../../utils/logger.js'
-import { busDeclarationsOf, consumedFilter, publishedClauses, withBusFilter } from '../../../utils/widgetBusConsumption.js'
+import { busDeclarationsOf, consumedFilter, filterBusOf, publishedClauses, refetchClock, withBusFilter } from '../../../utils/widgetBusConsumption.js'
 import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
 
 // Chart config keys that a content-based placement may carry through to
@@ -55,6 +55,8 @@ const CHART_PROP_KEYS = [
  * CnChartWidget refetches when that filter changes (drill-down-cross-widget-
  * filter REQ-CWF-002). A declaration that does not fit the dashboard's
  * hierarchies keeps the chart off the bus, with a warning (REQ-CWF-008).
+ * A chart that shows its new data more than 200 ms after a filter change
+ * logs a warning with the time (Task 35).
  *
  * A chart that declares `publishes` lets the reader pick a bar or slice:
  * CnChartWidget's `select` names the grouped field and the raw key, and the
@@ -94,12 +96,30 @@ export default {
 		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		dataSource() {
-			const declared = this.content.dataSource || this.content.props?.dataSource || null
-			const bus = this.bus
-			if (bus === null || !this.busCheck.participates) {
-				return declared
+			return withBusFilter(this.content.dataSource || this.content.props?.dataSource || null, this.busFilter)
+		},
+
+		/**
+		 * The filter the bus's clauses add to the chart's data source; empty off the bus.
+		 *
+		 * @return {{[field: string]: unknown}}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 */
+		busFilter() {
+			if (this.bus === null || !this.busCheck.participates) {
+				return {}
 			}
-			return withBusFilter(declared, consumedFilter(bus.clauses.value, this.busDeclarations.consumes))
+			return consumedFilter(this.bus.clauses.value, this.busDeclarations.consumes)
+		},
+
+		/**
+		 * The bus filter as text, so a change of another dimension's clause is no change.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 */
+		busFilterKey() {
+			return JSON.stringify(this.busFilter)
 		},
 
 		/**
@@ -108,9 +128,7 @@ export default {
 		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		bus() {
-			const injected = this.filterBus
-			const bus = injected && typeof injected.publish !== 'function' && 'value' in injected ? injected.value : injected
-			return bus && typeof bus.publish === 'function' ? bus : null
+			return filterBusOf(this.filterBus)
 		},
 
 		/**
@@ -175,6 +193,16 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Start timing the refetch a changed bus filter causes.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 */
+		busFilterKey() {
+			this.refetchClock.start(this.busFilter)
+		},
+
 		busCheck: {
 			immediate: true,
 			/**
@@ -192,7 +220,23 @@ export default {
 		},
 	},
 
+	created() {
+		this.refetchClock = refetchClock({ widgetId: () => this.widgetId, warn: (message) => logger.warn(message) })
+	},
+
 	methods: {
+		/**
+		 * Pass the chart's data on, settling a refetch timed since a filter change.
+		 *
+		 * @param {object} data What the chart shows.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 */
+		onData(data) {
+			this.refetchClock.settle()
+			this.$emit('data', data)
+		},
+
 		/**
 		 * Publish the reader's pick to the bus, and say so when it replaced
 		 * another widget's filter or was refused.

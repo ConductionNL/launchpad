@@ -163,6 +163,59 @@ describe('ChartHost on the filter bus (REQ-CWF-002, REQ-CWF-008)', () => {
 	})
 })
 
+describe('StatsBlockHost on the filter bus (REQ-CWF-002, REQ-CWF-008)', () => {
+	const HIERARCHY = { id: 'nl', levels: [{ dimension: 'gemeenteCode' }, { dimension: 'wijkCode', parentDimension: 'gemeenteCode' }] }
+
+	/**
+	 * Mount a stats block under a bus.
+	 *
+	 * @param {object} content The placement content.
+	 * @param {object} bus The bus.
+	 * @return {import('@vue/test-utils').VueWrapper}
+	 */
+	function mountOnBus(content, bus) {
+		return mount(StatsBlockHost, {
+			props: { content, placement: { id: 8 } },
+			global: { stubs: { CnStatsBlockWidget: StatsStub }, provide: { dashboardFilterBus: computed(() => bus) } },
+		})
+	}
+
+	it('a consuming stats block counts on the bus filter, follows it, and ignores other dimensions', async () => {
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		const content = { dataSource: { register: 'r', schema: 'zaak', filter: { type: 'bezwaar' } }, consumes: [{ dimension: 'gemeenteCode', field: 'gemeente' }] }
+		const wrapper = mountOnBus(content, bus)
+		expect(wrapper.findComponent(StatsStub).props('dataSource')).toEqual(content.dataSource)
+
+		bus.publish({ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355', source: 'widgetClick' })
+		await nextTick()
+		expect(wrapper.findComponent(StatsStub).props('dataSource')).toEqual({ register: 'r', schema: 'zaak', filter: { type: 'bezwaar', gemeente: 'GM0355' } })
+
+		bus.publish({ dimension: 'wijkCode', operator: 'eq', value: 'WK035501', source: 'widgetClick' }, { row: { gemeenteCode: 'GM0355' } })
+		await nextTick()
+		expect(wrapper.findComponent(StatsStub).props('dataSource').filter).toEqual({ type: 'bezwaar', gemeente: 'GM0355' })
+	})
+
+	it('a stats block consuming a dimension outside the hierarchies stays unfiltered, with a warning', () => {
+		const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {})
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		bus.publish({ dimension: 'status', operator: 'eq', value: 'open' })
+
+		const wrapper = mountOnBus({ dataSource: { schema: 'zaak' }, consumes: ['status'] }, bus)
+
+		expect(wrapper.findComponent(StatsStub).props('dataSource')).toEqual({ schema: 'zaak' })
+		expect(warn).toHaveBeenCalledWith('[launchpad] widget 8 is not on the filter bus: consumes-unknown-dimension (status)')
+		warn.mockRestore()
+	})
+
+	it('a stats block without consumes ignores the bus', () => {
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		bus.publish({ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355' })
+		const source = { schema: 'zaak' }
+
+		expect(mountOnBus({ dataSource: source }, bus).findComponent(StatsStub).props('dataSource')).toEqual(source)
+	})
+})
+
 describe('ChartHost publishing a pick (REQ-CWF-001, REQ-CWF-005)', () => {
 	const HIERARCHY = { id: 'nl', levels: [{ dimension: 'gemeenteCode', label: 'Gemeente' }, { dimension: 'wijkCode', parentDimension: 'gemeenteCode' }] }
 	const CONTENT = { dataSource: { schema: 'zaak', groupBy: 'gemeente' }, publishes: [{ dimension: 'gemeenteCode', fromField: 'gemeente' }] }

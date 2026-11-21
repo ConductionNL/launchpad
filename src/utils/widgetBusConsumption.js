@@ -143,3 +143,61 @@ export function publishedClauses(publishes, selection, widgetId) {
 			sourceWidgetId: widgetId,
 		}))
 }
+
+/** Above this many ms between a filter change and a widget's new data, the host logs a warning. */
+export const SLOW_REFETCH_MS = 200
+
+/**
+ * The dashboard's filter bus from what a host injected: the bus itself or a
+ * ref to it; null without a bus.
+ *
+ * @param {object|null} injected The injected `dashboardFilterBus`.
+ * @return {object|null}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ */
+export function filterBusOf(injected) {
+	const bus = injected && typeof injected.publish !== 'function' && 'value' in injected ? injected.value : injected
+	return bus && typeof bus.publish === 'function' ? bus : null
+}
+
+/**
+ * Times a widget's refetch after a filter change: `start()` when the bus
+ * changes the widget's filter, `settle()` when its new data arrives. A
+ * settle more than {@link SLOW_REFETCH_MS} after the start logs a warning
+ * with the time, the widget and the filter (REQ-CWF-002, Task 35), and every
+ * settled refetch is a `launchpad:filter-refetch` performance measure.
+ *
+ * @param {object} options The clock's options.
+ * @param {() => string} options.widgetId The widget being timed.
+ * @param {(message: string) => void} options.warn Where a slow refetch is reported.
+ * @param {() => number} [options.now] The clock, in ms.
+ * @return {{start: (filter: object) => void, settle: () => number|null}}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+ */
+export function refetchClock({ widgetId, warn, now = () => performance.now() }) {
+	let pending = null
+	return {
+		start(filter) {
+			pending = { at: now(), filter }
+		},
+		settle() {
+			if (pending === null) {
+				return null
+			}
+			const { at, filter } = pending
+			pending = null
+			const elapsed = Math.round(now() - at)
+			if (typeof performance !== 'undefined' && typeof performance.measure === 'function') {
+				try {
+					performance.measure('launchpad:filter-refetch', { start: at, duration: elapsed, detail: { widget: widgetId(), filter } })
+				} catch {
+					// a clock that is not performance.now() cannot place the measure
+				}
+			}
+			if (elapsed > SLOW_REFETCH_MS) {
+				warn(`[launchpad] widget ${widgetId()} took ${elapsed} ms to show its data after a filter change (over ${SLOW_REFETCH_MS} ms): ${JSON.stringify(filter)}`)
+			}
+			return elapsed
+		},
+	}
+}

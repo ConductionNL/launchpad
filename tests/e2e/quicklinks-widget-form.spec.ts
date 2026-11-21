@@ -236,7 +236,9 @@ test.describe('quicklinks widget: registration and sizing (REQ-QLNK-001, REQ-QLN
 		expect.soft(placement.gridHeight, 'default gridHeight').toBe(2)
 
 		await expect(quicklinksWidget(page, placement.id)).toBeVisible({ timeout: 15_000 })
-		await enterEditMode(page)
+		// Adding a widget already put the dashboard in edit mode; More → Edit
+		// would toggle it back off.
+		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
 		const item = page
 			.locator('.grid-stack-item')
 			.filter({ has: page.locator(`[data-testid="widget-placement-${placement.id}"]`) })

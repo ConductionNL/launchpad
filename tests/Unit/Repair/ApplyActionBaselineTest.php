@@ -388,4 +388,34 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['rule.add-rule']);
 		$this->assertSame(expected: ['admin'], actual: $written['rule.update-rule'], message: 'v5 adds only its own action');
 	}//end testAnInstanceAtV4LetsTheOwnerAddRules()
+
+	/**
+	 * An instance at v5 lets the owner publish, unpublish and schedule from
+	 * v6, and an entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV5LetsTheOwnerPublish(): void {
+		$this->appConfig->method('getValueInt')->willReturn(5);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.publish' => ['admin'],
+			'dashboard.unpublish' => ['admin'],
+			'dashboard.schedule' => ['admin', 'redactie'],
+			'dashboard-lock.force-release' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['dashboard.publish']);
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['dashboard.unpublish']);
+		$this->assertSame(expected: ['admin', 'redactie'], actual: $written['dashboard.schedule'], message: 'an entry an admin changed is kept');
+		$this->assertSame(expected: ['admin'], actual: $written['dashboard-lock.force-release'], message: 'v6 adds only its own actions');
+	}//end testAnInstanceAtV5LetsTheOwnerPublish()
 }//end class

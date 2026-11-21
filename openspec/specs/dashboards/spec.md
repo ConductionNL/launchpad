@@ -1112,7 +1112,7 @@ The system MUST track dashboard publication state via three new database columns
 
 ### Requirement: REQ-DASH-032 Publish action
 
-The system MUST expose `POST /api/dashboards/{uuid}/publish` that transitions a dashboard to `published` and stamps `publishedAt = now()` the first time the transition occurs. The action MUST be idempotent and gated to the dashboard owner or a Nextcloud administrator.
+The system MUST expose `POST /api/dashboards/{uuid}/publish` that transitions a dashboard to `published` and stamps `publishedAt = now()` the first time the transition occurs. The action MUST be idempotent and gated to the dashboard owner or a Nextcloud administrator: the owner publishes their own dashboard, and an administrator keeps the right for every dashboard (Ruben, 21 Nov 2026). The shipped action matrix (`lib/actions.seed.json`) therefore opens `dashboard.publish`, `dashboard.unpublish` and `dashboard.schedule` to every user, the route checks owner-or-admin per dashboard, and the action baseline repair step (revision 6) opens the three on an existing instance where the entry is still the pristine admin-only default.
 
 #### Scenario: Publish a draft dashboard
 

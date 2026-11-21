@@ -144,8 +144,9 @@ test.describe('label widget — content edit round-trip', () => {
 			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
-		// Enter edit mode via the sidebar cog -> "Edit dashboard".
-		await enterEditMode(page)
+		// Opening the add-widget modal already put the dashboard in edit
+		// mode, and More -> Edit would now toggle it off again.
+		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
 
 		// Right-click the rendered widget content to open the popover, then Edit.
 		const cell = page

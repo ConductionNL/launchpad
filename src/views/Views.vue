@@ -510,7 +510,6 @@ import {
 } from '@conduction/nextcloud-vue'
 import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
 import { computed, provide, reactive, shallowRef } from 'vue'
 // Icons
@@ -564,7 +563,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
-import { bootPath } from '../utils/bootPath.js'
+import { appBase, bootPath } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
@@ -3036,11 +3035,9 @@ export default {
 		},
 
 		/**
-		 * Compute the absolute URL for a slug-chain path. The launchpad
-		 * routes mount under whatever prefix `generateUrl` produces
-		 * (typically `/index.php/apps/launchpad` or `/apps/launchpad` when
-		 * URL rewriting is enabled), so we anchor onto the same prefix
-		 * the API client uses.
+		 * Compute the absolute URL for a slug-chain path, under the app
+		 * prefix the page was opened on (`/index.php/apps/launchpad` or
+		 * `/apps/launchpad`), which is the prefix the router is mounted on.
 		 *
 		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
 		 * @return {string} Absolute pathname for `history.pushState`.
@@ -3050,7 +3047,7 @@ export default {
 			if (!path) {
 				return ''
 			}
-			const prefix = generateUrl('/apps/launchpad')
+			const prefix = appBase()
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
 		},
@@ -3245,7 +3242,7 @@ export default {
 				return
 			}
 
-			const prefix = generateUrl('/apps/launchpad')
+			const prefix = appBase()
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {

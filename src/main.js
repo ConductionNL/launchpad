@@ -49,6 +49,8 @@ import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import registry from './registry.js'
+// Captures the boot address before the router's catch-all redirects it.
+import { appBase } from './utils/bootPath.js'
 import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
@@ -56,8 +58,6 @@ import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
 
-// Captures the boot address before the router's catch-all redirects it.
-import './utils/bootPath.js'
 import './publicPath.js'
 import './services/widgetBridge.js'
 import 'gridstack/dist/gridstack.min.css'
@@ -200,8 +200,7 @@ const RoutePageRenderer = { ...CnPageRenderer }
  * @return {string} The router base.
  */
 function routerBase() {
-	const match = window.location.pathname.match(/^(.*\/apps\/launchpad)(?:\/|$)/)
-	return match ? match[1] : generateUrl('/apps/launchpad')
+	return appBase(window.location.pathname)
 }
 
 // The permissions this account holds, from the server's own answer rather than

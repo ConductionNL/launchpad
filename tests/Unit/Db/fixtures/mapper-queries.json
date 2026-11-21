@@ -5890,24 +5890,40 @@
         "deleteByDashboardId all": {
             "calls": [
                 "qb1 new",
-                "qb1.delete(\"launchpad_widget_placements\", null)",
+                "qb1.delete(\"launchpad_conditional_rules\", null)",
                 "qb1.expr()",
                 "qb1.createNamedParameter(7, 1, null)",
-                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
-                "qb1.executeStatement(null)"
+                "qb1.createFunction(\"(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1)\")",
+                "qb1.expr.in(\"widget_placement_id\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)\")",
+                "qb1.executeStatement(null)",
+                "qb2 new",
+                "qb2.delete(\"launchpad_widget_placements\", null)",
+                "qb2.expr()",
+                "qb2.createNamedParameter(7, 1, null)",
+                "qb2.expr.eq(\"dashboard_id\", \":p2\", null)",
+                "qb2.where(\"eq(\\\"dashboard_id\\\", \\\":p2\\\", null)\")",
+                "qb2.executeStatement(null)"
             ],
             "outcome": "returned null"
         },
         "deleteByDashboardId rows": {
             "calls": [
                 "qb1 new",
-                "qb1.delete(\"launchpad_widget_placements\", null)",
+                "qb1.delete(\"launchpad_conditional_rules\", null)",
                 "qb1.expr()",
                 "qb1.createNamedParameter(7, 1, null)",
-                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
-                "qb1.executeStatement(null)"
+                "qb1.createFunction(\"(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1)\")",
+                "qb1.expr.in(\"widget_placement_id\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)\")",
+                "qb1.executeStatement(null)",
+                "qb2 new",
+                "qb2.delete(\"launchpad_widget_placements\", null)",
+                "qb2.expr()",
+                "qb2.createNamedParameter(7, 1, null)",
+                "qb2.expr.eq(\"dashboard_id\", \":p2\", null)",
+                "qb2.where(\"eq(\\\"dashboard_id\\\", \\\":p2\\\", null)\")",
+                "qb2.executeStatement(null)"
             ],
             "outcome": "returned null"
         },

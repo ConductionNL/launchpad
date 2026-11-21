@@ -684,8 +684,6 @@ test.describe('REQ-VIS-011 rules go with their placement', () => {
 			'CONTROL: the placement is gone',
 		).toBe(false)
 
-		// SUSPECTED BUG: PlacementService::removePlacement() deletes the
-		// placement row only, and the rules table has no foreign key.
 		expect(
 			await orphanedRuleCount(admin),
 			'the five rules must be deleted with their placement',
@@ -729,8 +727,6 @@ test.describe('REQ-VIS-011 rules go with their placement', () => {
 			'CONTROL: the dashboard is gone',
 		).toBeGreaterThanOrEqual(400)
 
-		// SUSPECTED BUG: DashboardService::deleteDashboard() removes the
-		// placements with deleteByDashboardId() and leaves their rules behind.
 		expect(
 			await orphanedRuleCount(admin),
 			'the six rules must be deleted with their dashboard',

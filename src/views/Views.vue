@@ -512,7 +512,7 @@ import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
-import { computed, provide, reactive, shallowRef } from 'vue'
+import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TileWidget from '../components/TileWidget.vue'
@@ -841,6 +841,10 @@ export default {
 			// Different uuids are tracked independently per spec
 			// scenario "Different dashboards are not debounced".
 			viewEventLastSent: Object.create(null),
+			// Whether the boot (stored active dashboard, then the deep-linked
+			// one) is over; until then a dashboard change replaces the address
+			// instead of pushing a history entry.
+			historyBooted: false,
 
 			// Wave3.7 — UUID of the user's pinned default dashboard, or
 			// '' when no pin is set. Fetched once on mount via
@@ -1462,12 +1466,12 @@ export default {
 				// session; only the first one reads a bookmarked `?f=`.
 				this.openFilterSession(prevUuid === undefined)
 				this.recordViewEventDebounced(uuid)
-				// Outbound URL sync — every uuid change pushes a new
-				// history entry so back/forward navigates between
-				// dashboards. The first hydration is `replaceState`
-				// (handled in mounted) so we don't pollute history with
-				// the bootstrap entry.
-				if (prevUuid !== undefined) {
+				// Outbound URL sync — every uuid change after the boot pushes
+				// a new history entry so back/forward navigates between
+				// dashboards. The boot's changes (the stored active
+				// dashboard, then the one the address names) are covered by
+				// `replaceState` in mounted, so they add no entry.
+				if (this.historyBooted) {
 					this.pushUrlForActiveDashboard()
 				}
 			},
@@ -1498,6 +1502,9 @@ export default {
 			tileStore.loadTiles(),
 		])
 		await this.openDeepLinkedDashboard(bootPath())
+		// After the watcher has seen the deep-linked switch.
+		await nextTick()
+		this.historyBooted = true
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding

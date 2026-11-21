@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Ajastit koontinäytön {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} ajasti koontinäytön {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Jaoit koontinäytön {dashboard} vastaanottajalle {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} jakoi koontinäytön {dashboard} vastaanottajalle {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} jakoi koontinäytön {dashboard} kanssasi",
         "You created a public link for dashboard {dashboard}": "Loit julkisen linkin koontinäytölle {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} loi julkisen linkin koontinäytölle {dashboard}",
         "You commented on dashboard {dashboard}": "Kommentoit koontinäyttöä {dashboard}",

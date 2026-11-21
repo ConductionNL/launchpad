@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Te ajastasite töölaua {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} ajastas töölaua {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Te jagasite töölauda {dashboard} kasutajaga {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} jagas töölauda {dashboard} kasutajaga {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} jagas töölauda {dashboard} sinuga",
     "You created a public link for dashboard {dashboard}" : "Te lõite töölauale {dashboard} avaliku lingi",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} lõi töölauale {dashboard} avaliku lingi",
     "You commented on dashboard {dashboard}" : "Te kommenteerisite töölauda {dashboard}",

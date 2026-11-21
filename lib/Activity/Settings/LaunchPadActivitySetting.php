@@ -73,26 +73,49 @@ abstract class LaunchPadActivitySetting extends ActivitySettings {
 	}//end getGroupName()
 
 	/**
-	 * Each person decides whether the event shows in their stream.
+	 * Every event shows in the stream; like Nextcloud's own activity
+	 * settings, a person only opts out of mail and push (REQ-ACT-009).
 	 *
-	 * @return boolean Always true.
+	 * @return boolean Always false.
 	 *
-	 * @spec openspec/changes/engagement-activity-digest/tasks.md#task-1
+	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
 	public function canChangeStream() {
-		return true;
+		return false;
 	}//end canChangeStream()
 
 	/**
-	 * Every LaunchPad event shows in the stream by default.
+	 * Every LaunchPad event shows in the stream.
 	 *
 	 * @return boolean Always true.
 	 *
-	 * @spec openspec/changes/engagement-activity-digest/tasks.md#task-1
+	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
 	public function isDefaultEnabledStream() {
 		return true;
 	}//end isDefaultEnabledStream()
+
+	/**
+	 * Each person decides whether the event is pushed as a notification.
+	 *
+	 * @return boolean Always true.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function canChangeNotification() {
+		return true;
+	}//end canChangeNotification()
+
+	/**
+	 * Push follows the mail default of each event type.
+	 *
+	 * @return boolean Whether push is on before the person chooses.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function isDefaultEnabledNotification() {
+		return $this->isDefaultEnabledMail();
+	}//end isDefaultEnabledNotification()
 
 	/**
 	 * Each person decides whether the event goes into their email digest.

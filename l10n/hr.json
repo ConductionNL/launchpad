@@ -437,7 +437,7 @@
         "You scheduled dashboard {dashboard}": "Zakazali ste nadzornu ploču {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} je zakazao/la nadzornu ploču {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Podijelili ste nadzornu ploču {dashboard} s {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} je podijelio/la nadzornu ploču {dashboard} s {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} je podijelio/la nadzornu ploču {dashboard} s vama",
         "You created a public link for dashboard {dashboard}": "Izradili ste javnu poveznicu za nadzornu ploču {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} je izradio/la javnu poveznicu za nadzornu ploču {dashboard}",
         "You commented on dashboard {dashboard}": "Komentirali ste nadzornu ploču {dashboard}",

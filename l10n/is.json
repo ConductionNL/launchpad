@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Þú áætlaðir mælaborðið {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} áætlaði mælaborðið {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Þú deildir mælaborðinu {dashboard} með {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} deildi mælaborðinu {dashboard} með {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} deildi mælaborðinu {dashboard} með þér",
         "You created a public link for dashboard {dashboard}": "Þú bjóst til opinberan tengil fyrir mælaborðið {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} bjó til opinberan tengil fyrir mælaborðið {dashboard}",
         "You commented on dashboard {dashboard}": "Þú gerðir athugasemd við mælaborðið {dashboard}",

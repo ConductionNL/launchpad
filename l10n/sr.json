@@ -437,7 +437,7 @@
         "You scheduled dashboard {dashboard}": "Заказали сте контролну таблу {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} је заказао/ла контролну таблу {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Поделили сте контролну таблу {dashboard} са {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} је поделио/ла контролну таблу {dashboard} са {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} је са вама поделио/ла контролну таблу {dashboard}",
         "You created a public link for dashboard {dashboard}": "Креирали сте јавну везу за контролну таблу {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} је креирао/ла јавну везу за контролну таблу {dashboard}",
         "You commented on dashboard {dashboard}": "Коментарисали сте контролну таблу {dashboard}",

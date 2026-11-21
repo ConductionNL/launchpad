@@ -270,8 +270,10 @@ class DashboardShareWriteGoldenTest extends TestCase {
 		});
 
 		$activity = $this->getMockBuilder(className: DashboardActivityEmitter::class)->disableOriginalConstructor()->getMock();
-		$activity->method('shared')->willReturnCallback(static function (Dashboard $dashboard, DashboardShare $share, string $actor, array $recipients) use (&$log): int {
-			$log[] = ['activity shared', $dashboard->getId(), self::row(share: $share), $actor, $recipients];
+		$activity->method('shared')->willReturnCallback(static function (Dashboard $dashboard, array $shares, string $actor, array $recipients) use (&$log): int {
+			foreach ($shares as $share) {
+				$log[] = ['activity shared', $dashboard->getId(), self::row(share: $share), $actor, $recipients];
+			}
 			return count($recipients);
 		});
 

@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "Ütemezte a következő irányítópultot: {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} ütemezte a következő irányítópultot: {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Megosztotta a következő irányítópultot: {dashboard}, vele: {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} megosztotta a következő irányítópultot: {dashboard}, vele: {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} megosztotta önnel a következő irányítópultot: {dashboard}",
         "You created a public link for dashboard {dashboard}": "Nyilvános hivatkozást hozott létre a következő irányítópulthoz: {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} nyilvános hivatkozást hozott létre a következő irányítópulthoz: {dashboard}",
         "You commented on dashboard {dashboard}": "Megjegyzést fűzött a következő irányítópulthoz: {dashboard}",

@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Вы запланировали панель управления {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} запланировал(-а) панель управления {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Вы поделились панелью управления {dashboard} с {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} поделился(-ась) панелью управления {dashboard} с {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} поделился(-ась) с вами дашбордом {dashboard}",
     "You created a public link for dashboard {dashboard}" : "Вы создали публичную ссылку для панели управления {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} создал(-а) публичную ссылку для панели управления {dashboard}",
     "You commented on dashboard {dashboard}" : "Вы прокомментировали панель управления {dashboard}",

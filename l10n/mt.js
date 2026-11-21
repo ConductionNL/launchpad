@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Int skedajt id-dashboard {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} skeda d-dashboard {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Int ikkondividejt id-dashboard {dashboard} ma' {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} ikkondivida d-dashboard {dashboard} ma' {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} qasam id-dashboard {dashboard} miegħek",
     "You created a public link for dashboard {dashboard}" : "Int ħloqt link pubbliku għad-dashboard {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} ħoloq link pubbliku għad-dashboard {dashboard}",
     "You commented on dashboard {dashboard}" : "Int ikkummentajt fuq id-dashboard {dashboard}",

@@ -161,30 +161,72 @@ class DashboardActivityEmitterTest extends TestCase {
 	}
 
 	/**
-	 * shared() sends one row with the recipient and role to the given users.
+	 * shared() writes one row for the sharer naming every recipient, and
+	 * one row per recipient without a second row for the sharer.
 	 *
 	 * @return void
 	 */
-	public function testSharedPublishesRecipientAndRoleToTheRecipients(): void {
+	public function testSharedTellsTheSharerOnceAndEachRecipient(): void {
 		$expected = new ActivityRow(
 			type: Extension::EVENT_SHARED,
 			actorUserId: 'alice',
 			dashboard: new ActivitySubject(uuid: 'dash-7', name: 'Board'),
-			extraParams: ['recipient' => 'bob', 'role' => Dashboard::PERMISSION_VIEW_ONLY]
+			extraParams: ['recipient' => 'bob, staff', 'role' => Dashboard::PERMISSION_VIEW_ONLY]
 		);
 		$this->publisher->expects($this->once())
+			->method('publish')
+			->with($expected->forRecipient(recipientUserId: 'alice'), 'alice')
+			->willReturn(true);
+		$this->publisher->expects($this->once())
 			->method('publishToRecipients')
-			->with($expected, ['bob', 'carol'])
+			->with(
+				$this->callback(
+					static fn (ActivityRow $row): bool => $row->tellsActor() === false
+						&& $row->extraParams === $expected->extraParams
+				),
+				['bob', 'carol']
+			)
 			->willReturn(2);
 
 		$count = $this->emitter->shared(
 			dashboard: $this->dashboard(),
-			share: $this->share(type: DashboardShare::SHARE_TYPE_USER, with: 'bob'),
+			shares: [
+				$this->share(type: DashboardShare::SHARE_TYPE_USER, with: 'bob'),
+				$this->share(type: DashboardShare::SHARE_TYPE_GROUP, with: 'staff'),
+			],
 			actor: 'alice',
 			recipients: ['bob', 'carol']
 		);
 
-		$this->assertSame(expected: 2, actual: $count);
+		$this->assertSame(expected: 3, actual: $count);
+	}
+
+	/**
+	 * Different roles across the shares are all named; no shares send nothing.
+	 *
+	 * @return void
+	 */
+	public function testSharedNamesEveryRoleAndSkipsAnEmptyAction(): void {
+		$this->publisher->expects($this->once())
+			->method('publish')
+			->with(
+				$this->callback(static fn (ActivityRow $row): bool => $row->extraParams['role'] === Dashboard::PERMISSION_VIEW_ONLY.', '.Dashboard::PERMISSION_FULL),
+				'alice'
+			)
+			->willReturn(true);
+		$this->publisher->method('publishToRecipients')->willReturn(0);
+
+		$this->emitter->shared(
+			dashboard: $this->dashboard(),
+			shares: [
+				$this->share(type: DashboardShare::SHARE_TYPE_USER, with: 'bob'),
+				$this->share(type: DashboardShare::SHARE_TYPE_USER, with: 'carol', level: Dashboard::PERMISSION_FULL),
+			],
+			actor: 'alice',
+			recipients: []
+		);
+
+		$this->assertSame(expected: 0, actual: $this->emitter->shared(dashboard: $this->dashboard(), shares: [], actor: 'alice', recipients: ['bob']));
 	}
 
 	/**
@@ -193,14 +235,15 @@ class DashboardActivityEmitterTest extends TestCase {
 	 * @return void
 	 */
 	public function testSharedSwallowsAndLogsAPublisherFailure(): void {
+		$this->publisher->method('publish')->willThrowException(new RuntimeException('activity down'));
 		$this->publisher->method('publishToRecipients')->willThrowException(new RuntimeException('activity down'));
-		$this->logger->expects($this->once())
+		$this->logger->expects($this->exactly(2))
 			->method('warning')
 			->with('LaunchPad dashboard activity could not be emitted', ['exception' => 'activity down']);
 
 		$count = $this->emitter->shared(
 			dashboard: $this->dashboard(),
-			share: $this->share(type: DashboardShare::SHARE_TYPE_USER, with: 'bob'),
+			shares: [$this->share(type: DashboardShare::SHARE_TYPE_USER, with: 'bob')],
 			actor: 'alice',
 			recipients: ['bob']
 		);

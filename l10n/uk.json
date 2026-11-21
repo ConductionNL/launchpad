@@ -437,7 +437,7 @@
         "You scheduled dashboard {dashboard}": "Ви запланували дашборд {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} запланував(-ла) дашборд {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Ви надали спільний доступ до дашборда {dashboard} для {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} надав(-ла) спільний доступ до дашборда {dashboard} для {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} надав(-ла) вам спільний доступ до дашборда {dashboard}",
         "You created a public link for dashboard {dashboard}": "Ви створили публічне посилання для дашборда {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} створив(-ла) публічне посилання для дашборда {dashboard}",
         "You commented on dashboard {dashboard}": "Ви прокоментували дашборд {dashboard}",

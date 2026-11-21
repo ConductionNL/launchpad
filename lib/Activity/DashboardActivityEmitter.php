@@ -4,7 +4,8 @@
  * DashboardActivityEmitter
  *
  * Sends the activity events a digest needs from the places where a
- * dashboard changes state: `dashboard_shared` when a share is created,
+ * dashboard changes state: `dashboard_shared` when shares are created (one
+ * row for the sharer naming every recipient, one row per recipient),
  * `dashboard_published` when a dashboard becomes published (directly or
  * when a scheduled one is materialised), and `dashboard_updated` when a
  * shared or group dashboard is saved, at most once per dashboard per day
@@ -63,33 +64,53 @@ class DashboardActivityEmitter {
 	}//end __construct()
 
 	/**
-	 * A share was created or upgraded: tell its recipients.
+	 * Shares were created or upgraded: the sharer gets one row naming every
+	 * recipient, and each recipient gets a row of their own.
 	 *
-	 * @param Dashboard      $dashboard  The shared dashboard.
-	 * @param DashboardShare $share      The share row.
-	 * @param string         $actor      The user who shared it.
-	 * @param string[]       $recipients The resolved recipient user ids (the sharer excluded).
+	 * @param Dashboard        $dashboard  The shared dashboard.
+	 * @param DashboardShare[] $shares     The share rows written in one action.
+	 * @param string           $actor      The user who shared it.
+	 * @param string[]         $recipients The resolved recipient user ids (the sharer excluded).
 	 *
 	 * @return int The number of activity rows written.
 	 *
 	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
-	public function shared(Dashboard $dashboard, DashboardShare $share, string $actor, array $recipients): int {
-		return $this->guard(
-			step: fn (): int => $this->publisher->publishToRecipients(
-				row: new ActivityRow(
-					type: Extension::EVENT_SHARED,
-					actorUserId: $actor,
-					dashboard: $this->subjectOf(dashboard: $dashboard),
-					extraParams: [
-						'recipient' => (string) $share->getShareWith(),
-						'role'      => (string) $share->getPermissionLevel(),
-					]
-				),
-				recipientUserIds: $recipients
-			)
+	public function shared(Dashboard $dashboard, array $shares, string $actor, array $recipients): int {
+		if ($shares === []) {
+			return 0;
+		}
+
+		$row = new ActivityRow(
+			type: Extension::EVENT_SHARED,
+			actorUserId: $actor,
+			dashboard: $this->subjectOf(dashboard: $dashboard),
+			extraParams: [
+				'recipient' => $this->joined(shares: $shares, value: static fn (DashboardShare $share): string => (string) $share->getShareWith()),
+				'role'      => $this->joined(shares: $shares, value: static fn (DashboardShare $share): string => (string) $share->getPermissionLevel()),
+			]
+		);
+
+		$count = $this->guard(
+			step: fn (): int => (int) $this->publisher->publish(row: $row->forRecipient(recipientUserId: $actor), recipientUserId: $actor)
+		);
+
+		return $count + $this->guard(
+			step: fn (): int => $this->publisher->publishToRecipients(row: $row->withoutActor(), recipientUserIds: $recipients)
 		);
 	}//end shared()
+
+	/**
+	 * The distinct values of a list of shares, joined for an activity line.
+	 *
+	 * @param DashboardShare[] $shares The shares.
+	 * @param callable         $value  Reads one value from a share.
+	 *
+	 * @return string The values, comma separated, in share order.
+	 */
+	private function joined(array $shares, callable $value): string {
+		return implode(separator: ', ', array: array_values(array_unique(array_map($value, $shares))));
+	}//end joined()
 
 	/**
 	 * A dashboard became published: tell its audience once.

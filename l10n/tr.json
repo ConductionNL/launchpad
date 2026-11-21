@@ -436,7 +436,7 @@
         "You scheduled dashboard {dashboard}": "{dashboard} panosunu zamanladınız",
         "{actor} scheduled dashboard {dashboard}": "{actor}, {dashboard} panosunu zamanladı",
         "You shared dashboard {dashboard} with {recipient}": "{dashboard} panosunu {recipient} ile paylaştınız",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor}, {dashboard} panosunu {recipient} ile paylaştı",
+        "{actor} shared dashboard {dashboard} with you": "{actor}, {dashboard} panosunu sizinle paylaştı",
         "You created a public link for dashboard {dashboard}": "{dashboard} panosu için herkese açık bir bağlantı oluşturdunuz",
         "{actor} created a public link for dashboard {dashboard}": "{actor}, {dashboard} panosu için herkese açık bir bağlantı oluşturdu",
         "You commented on dashboard {dashboard}": "{dashboard} panosuna yorum yaptınız",

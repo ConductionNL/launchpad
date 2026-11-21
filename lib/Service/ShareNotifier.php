@@ -59,13 +59,6 @@ class ShareNotifier {
 	/**
 	 * Publish `dashboard_shared` notifications for a share.
 	 *
-	 * For `user`-type shares: one notification.
-	 * For `group`-type shares: fan out one notification per current group
-	 * member, excluding the sharer. REQ-SHARE-008.
-	 *
-	 * The share is already committed and a retry would send nothing, so a
-	 * failure is logged and the remaining recipients are still notified.
-	 *
 	 * @param DashboardShare $share        The share row.
 	 * @param string         $sharerUserId The user who created the share.
 	 * @param Dashboard      $dashboard    The shared dashboard.
@@ -79,25 +72,81 @@ class ShareNotifier {
 		string $sharerUserId,
 		Dashboard $dashboard,
 	): void {
-		$recipients = [];
-		try {
-			$recipients = $this->resolveRecipients(
-				share: $share,
-				excludeUserId: $sharerUserId
-			);
+		$this->sharedAll(shares: [$share], sharerUserId: $sharerUserId, dashboard: $dashboard);
+	}//end shared()
 
-			// The activity stream and digest get the same audience as the
-			// notification (engagement-activity-digest D2, issue #713).
+	/**
+	 * Publish `dashboard_shared` for the shares one action wrote.
+	 *
+	 * For `user`-type shares: one notification.
+	 * For `group`-type shares: fan out one notification per current group
+	 * member, excluding the sharer. REQ-SHARE-008.
+	 *
+	 * The activity stream gets one row for the sharer naming every
+	 * recipient and one row per recipient (REQ-ACT-005).
+	 *
+	 * The shares are already committed and a retry would send nothing, so a
+	 * failure is logged and the remaining recipients are still notified.
+	 *
+	 * @param DashboardShare[] $shares       The share rows.
+	 * @param string           $sharerUserId The user who created the shares.
+	 * @param Dashboard        $dashboard    The shared dashboard.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function sharedAll(
+		array $shares,
+		string $sharerUserId,
+		Dashboard $dashboard,
+	): void {
+		$perShare = [];
+		try {
+			foreach ($shares as $index => $share) {
+				$perShare[$index] = $this->resolveRecipients(
+					share: $share,
+					excludeUserId: $sharerUserId
+				);
+			}
+
 			$this->activity?->shared(
 				dashboard: $dashboard,
-				share: $share,
+				shares: $shares,
 				actor: $sharerUserId,
-				recipients: $recipients
+				recipients: array_values(array_unique(array_merge([], ...array_values($perShare))))
 			);
 		} catch (Throwable $e) {
 			$this->logFailure(exception: $e);
 		}
 
+		foreach ($shares as $index => $share) {
+			$this->notifyRecipients(
+				share: $share,
+				recipients: ($perShare[$index] ?? []),
+				sharerUserId: $sharerUserId,
+				dashboard: $dashboard
+			);
+		}
+	}//end sharedAll()
+
+	/**
+	 * Send the `dashboard_shared` notification of one share to its recipients.
+	 *
+	 * @param DashboardShare $share        The share row.
+	 * @param string[]       $recipients   The resolved recipient user ids.
+	 * @param string         $sharerUserId The user who created the share.
+	 * @param Dashboard      $dashboard    The shared dashboard.
+	 *
+	 * @return void
+	 */
+	private function notifyRecipients(
+		DashboardShare $share,
+		array $recipients,
+		string $sharerUserId,
+		Dashboard $dashboard,
+	): void {
 		$subject = [
 			$sharerUserId,
 			(string)$dashboard->getName(),
@@ -118,7 +167,7 @@ class ShareNotifier {
 				$this->logFailure(exception: $e);
 			}
 		}//end foreach
-	}//end shared()
+	}//end notifyRecipients()
 
 	/**
 	 * Publish a `dashboard_ownership_transferred` notification.

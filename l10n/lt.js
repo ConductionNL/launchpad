@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Jūs suplanavote valdymo skydą {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} suplanavo valdymo skydą {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Jūs bendrinote valdymo skydą {dashboard} su {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} bendrino valdymo skydą {dashboard} su {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} bendrino skydelį {dashboard} su jumis",
     "You created a public link for dashboard {dashboard}" : "Jūs sukūrėte viešąją nuorodą valdymo skydui {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} sukūrė viešąją nuorodą valdymo skydui {dashboard}",
     "You commented on dashboard {dashboard}" : "Jūs pakomentavote valdymo skydą {dashboard}",

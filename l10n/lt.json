@@ -437,7 +437,7 @@
         "You scheduled dashboard {dashboard}": "Suplanavote skydelį {dashboard}",
         "{actor} scheduled dashboard {dashboard}": "{actor} suplanavo skydelį {dashboard}",
         "You shared dashboard {dashboard} with {recipient}": "Bendrinote skydelį {dashboard} su {recipient}",
-        "{actor} shared dashboard {dashboard} with {recipient}": "{actor} bendrino skydelį {dashboard} su {recipient}",
+        "{actor} shared dashboard {dashboard} with you": "{actor} bendrino skydelį {dashboard} su jumis",
         "You created a public link for dashboard {dashboard}": "Sukūrėte viešąjį saitą skydeliui {dashboard}",
         "{actor} created a public link for dashboard {dashboard}": "{actor} sukūrė viešąjį saitą skydeliui {dashboard}",
         "You commented on dashboard {dashboard}": "Pakomentavote skydelį {dashboard}",

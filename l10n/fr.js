@@ -436,7 +436,7 @@ OC.L10N.register(
     "You scheduled dashboard {dashboard}" : "Vous avez planifié le tableau de bord {dashboard}",
     "{actor} scheduled dashboard {dashboard}" : "{actor} a planifié le tableau de bord {dashboard}",
     "You shared dashboard {dashboard} with {recipient}" : "Vous avez partagé le tableau de bord {dashboard} avec {recipient}",
-    "{actor} shared dashboard {dashboard} with {recipient}" : "{actor} a partagé le tableau de bord {dashboard} avec {recipient}",
+    "{actor} shared dashboard {dashboard} with you" : "{actor} a partagé le tableau de bord {dashboard} avec vous",
     "You created a public link for dashboard {dashboard}" : "Vous avez créé un lien public pour le tableau de bord {dashboard}",
     "{actor} created a public link for dashboard {dashboard}" : "{actor} a créé un lien public pour le tableau de bord {dashboard}",
     "You commented on dashboard {dashboard}" : "Vous avez commenté le tableau de bord {dashboard}",

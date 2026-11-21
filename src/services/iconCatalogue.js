@@ -10,10 +10,28 @@
  * isn't made reactive when referenced from components.
  */
 
-import { mdiCatalogue } from '@conduction/nextcloud-vue'
+import { DASHBOARD_ICONS, mdiCatalogue } from '@conduction/nextcloud-vue'
 import * as mdi from '@mdi/js'
 
 export const ICON_CATALOGUE = Object.freeze(mdiCatalogue(mdi))
+
+/**
+ * The dashboard icon picker's catalogue: the names of the shared icon
+ * registry (`DASHBOARD_ICONS` in nextcloud-vue), so a picked icon is stored
+ * as its registry name (REQ-ICON-003). Tiles and the organisation navigation
+ * keep the full MDI catalogue above.
+ *
+ * @spec openspec/specs/dashboard-icons/spec.md#req-icon-003
+ */
+export const DASHBOARD_ICON_CATALOGUE = Object.freeze(
+	Object.keys(DASHBOARD_ICONS).map((key) => ({
+		key,
+		label: key.replace(/([a-z\d])([A-Z])/g, '$1 $2'),
+		value: key,
+		search: key.toLowerCase(),
+		component: DASHBOARD_ICONS[key],
+	})),
+)
 
 // A bare icon-name token: a letter followed by letters/digits and word
 // separators only. SVG path strings (commas, dots — see CnDashboardIcon's

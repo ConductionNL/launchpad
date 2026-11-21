@@ -322,7 +322,7 @@ The `defaultPermissionLevel` setting MUST be applied as a fallback when resolvin
 
 ### Requirement: Default Grid Columns Setting (REQ-ASET-006)
 
-The `defaultGridColumns` setting MUST be applied to new dashboards when no explicit gridColumns is specified.
+The `defaultGridColumns` setting MUST be applied to new dashboards when no explicit gridColumns is specified. The admin page offers it as a select of 6, 8 and 12 columns.
 
 #### Scenario: Default grid columns applied
 - GIVEN `defaultGridColumns` is set to `8`
@@ -396,7 +396,7 @@ The admin settings MUST be accessible via a Nextcloud admin panel page.
   - A toggle for "Allow user dashboards" (on/off)
   - A toggle for "Allow multiple dashboards" (on/off)
   - A dropdown for "Default permission level" (view_only, add_only, full)
-  - A number input for "Default grid columns" (1-24)
+  - A select for "Default grid columns" offering 6, 8 and 12 (Ruben, 21 Nov 2026, following the product)
   - A "Save" button
 - AND each setting MUST show its current value
 

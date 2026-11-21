@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+import { DASHBOARD_ICONS } from '@conduction/nextcloud-vue'
 import * as mdi from '@mdi/js'
 import { describe, expect, it } from 'vitest'
-import { ICON_CATALOGUE, normaliseIconValue } from '../iconCatalogue.js'
+import { DASHBOARD_ICON_CATALOGUE, ICON_CATALOGUE, normaliseIconValue } from '../iconCatalogue.js'
 
 describe('ICON_CATALOGUE', () => {
 	it('is a frozen, non-empty array', () => {
@@ -29,6 +30,23 @@ describe('ICON_CATALOGUE', () => {
 			expect(entry.value).toBe(entry.path)
 			expect(entry.search).toBe(entry.key.toLowerCase())
 		}
+	})
+})
+
+describe('DASHBOARD_ICON_CATALOGUE', () => {
+	it('offers exactly the shared registry names, stored as the name', () => {
+		expect(Object.isFrozen(DASHBOARD_ICON_CATALOGUE)).toBe(true)
+		expect(DASHBOARD_ICON_CATALOGUE.map((entry) => entry.key)).toEqual(Object.keys(DASHBOARD_ICONS))
+		for (const entry of DASHBOARD_ICON_CATALOGUE) {
+			expect(entry.value).toBe(entry.key)
+			expect(entry.search).toBe(entry.key.toLowerCase())
+			expect(entry.component).toBe(DASHBOARD_ICONS[entry.key])
+		}
+	})
+
+	it('spaces the camel-cased name for its label', () => {
+		const entry = DASHBOARD_ICON_CATALOGUE.find((e) => e.key === 'ViewDashboard')
+		expect(entry.label).toBe('View Dashboard')
 	})
 })
 

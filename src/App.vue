@@ -66,6 +66,7 @@ import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
+import { isKioskMode } from './utils/kioskMode.js'
 import { permits } from './utils/permissions.js'
 
 /**
@@ -269,10 +270,16 @@ export default {
 		 * `/dashboards/:id`). Every other page (Store, Reports, Flows, the
 		 * admin pages) keeps the panel, which is how a member gets back.
 		 *
+		 * A kiosk view (`?kiosk=1`, REQ-KIOSK-001) never shows the panel.
+		 *
 		 * @return {boolean} True to render the shell without `CnAppNav`.
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		railSuppressed() {
+			if (isKioskMode()) {
+				return true
+			}
 			if (this.startPageWithoutNavigation !== true) {
 				return false
 			}

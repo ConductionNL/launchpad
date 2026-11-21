@@ -256,28 +256,10 @@ class KioskService {
 
 		$rendered = [];
 		foreach ($playlist->getEntriesArray() as $entry) {
-			try {
-				$dashboard = $this->stores->dashMapper->findByUuid(
-					uuid: $entry['dashboardUuid']
-				);
-			} catch (DoesNotExistException) {
-				// Dashboard deleted since the playlist was created — skip it.
-				continue;
+			$payload = $this->entryPayload(entry: $entry);
+			if ($payload !== null) {
+				$rendered[] = $payload;
 			}
-
-			// The screen shows the widgets, so each entry carries the
-			// dashboard's placements, as the public share render does.
-			$placements = array_map(
-				callback: static fn ($placement) => $placement->jsonSerialize(),
-				array: $this->stores->placementMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
-			);
-
-			$rendered[] = [
-				'dwellSeconds' => $entry['dwellSeconds'],
-				'dashboard' => $this->publicDashboardPayload(dashboard: $dashboard),
-				// A screen has no viewer who can edit, so a widget the rules hide is left out (REQ-VIS-013).
-				'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: '', canEdit: false) ?? $placements),
-			];
 		}
 
 		$descriptor = $playlist->jsonSerialize();
@@ -290,6 +272,72 @@ class KioskService {
 			'entries' => $rendered,
 		];
 	}//end renderPlaylist()
+
+	/**
+	 * Render one entry of a playlist, for the player to fetch just before it
+	 * shows that entry (REQ-KIOSK-004). The dashboard must be an entry of
+	 * the playlist the token names.
+	 *
+	 * @param string $token         The playlist token.
+	 * @param string $dashboardUuid The entry's dashboard UUID.
+	 *
+	 * @return array{dwellSeconds: int, dashboard: array, placements: array} The entry payload.
+	 *
+	 * @throws PlaylistNotFoundException When the token is unknown or revoked.
+	 * @throws DoesNotExistException When the dashboard is not an entry, or was deleted.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	public function renderEntry(string $token, string $dashboardUuid): array {
+		try {
+			$playlist = $this->stores->playlistMapper->findByToken(token: $token);
+		} catch (DoesNotExistException) {
+			throw new PlaylistNotFoundException();
+		}
+
+		foreach ($playlist->getEntriesArray() as $entry) {
+			if (($entry['dashboardUuid'] ?? null) !== $dashboardUuid) {
+				continue;
+			}
+
+			$payload = $this->entryPayload(entry: $entry);
+			if ($payload !== null) {
+				return $payload;
+			}
+		}
+
+		throw new DoesNotExistException(msg: 'Not an entry of this playlist');
+	}//end renderEntry()
+
+	/**
+	 * The read-only render payload of one playlist entry, or null when its
+	 * dashboard was deleted since the playlist was made (REQ-KIOSK-003).
+	 *
+	 * @param array{dashboardUuid: string, dwellSeconds: int} $entry The stored entry.
+	 *
+	 * @return array{dwellSeconds: int, dashboard: array, placements: array}|null The payload.
+	 */
+	private function entryPayload(array $entry): ?array {
+		try {
+			$dashboard = $this->stores->dashMapper->findByUuid(uuid: $entry['dashboardUuid']);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		// The screen shows the widgets, so each entry carries the
+		// dashboard's placements, as the public share render does.
+		$placements = array_map(
+			callback: static fn ($placement) => $placement->jsonSerialize(),
+			array: $this->stores->placementMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
+		);
+
+		return [
+			'dwellSeconds' => $entry['dwellSeconds'],
+			'dashboard' => $this->publicDashboardPayload(dashboard: $dashboard),
+			// A screen has no viewer who can edit, so a widget the rules hide is left out (REQ-VIS-013).
+			'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: '', canEdit: false) ?? $placements),
+		];
+	}//end entryPayload()
 
 	/**
 	 * Validate and normalise raw playlist entries.

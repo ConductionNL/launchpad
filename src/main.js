@@ -66,6 +66,7 @@ import 'gridstack/dist/gridstack.min.css'
 import '@conduction/nextcloud-vue/css/index.css'
 import './styles/workspace.css'
 import './styles/modals.css'
+import './styles/kiosk.css'
 registerBuiltinDashboardWidgets()
 
 // The library's own strings ("Good afternoon, {name}" in the greeting header,

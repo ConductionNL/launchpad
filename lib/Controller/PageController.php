@@ -211,7 +211,9 @@ class PageController extends Controller {
 		// view, not in the chrome slot.
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
-			templateName: 'index'
+			templateName: 'index',
+			params: [],
+			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_USER)
 		);
 
 		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
@@ -655,7 +657,7 @@ class PageController extends Controller {
 			appName: Application::APP_ID,
 			templateName: 'public',
 			params: [],
-			renderAs: TemplateResponse::RENDER_AS_PUBLIC
+			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_PUBLIC)
 		);
 
 		$csp = new ContentSecurityPolicy();
@@ -667,6 +669,23 @@ class PageController extends Controller {
 
 		return $response;
 	}//end publicPage()
+
+	/**
+	 * The page layout: without any Nextcloud chrome (header, navigation)
+	 * when the request carries `kiosk=1` (REQ-KIOSK-001), else the default.
+	 * The flag only changes the layout; every access check runs unchanged.
+	 *
+	 * @param string $default The layout without the flag.
+	 *
+	 * @return string The layout to render as.
+	 */
+	private function kioskRenderAs(string $default): string {
+		if ($this->request->getParam(key: 'kiosk') === '1') {
+			return TemplateResponse::RENDER_AS_BASE;
+		}
+
+		return $default;
+	}//end kioskRenderAs()
 
 	/**
 	 * Add the `launchpad-public` script and the app stylesheet to the page.

@@ -65,9 +65,6 @@ class ActionAuthBaselineTest extends TestCase {
 		'tile-analytics.top-tiles',
 		'tile-analytics.dashboard-breakdown',
 		'tile-analytics.export-csv',
-		'dashboard.publish',
-		'dashboard.unpublish',
-		'dashboard.schedule',
 		'dashboard-lock.force-release',
 		'metadata-admin.list-fields',
 		'metadata-admin.create-field',
@@ -126,6 +123,11 @@ class ActionAuthBaselineTest extends TestCase {
 		'dashboard-version.create-version',
 		'dashboard-version.restore-version',
 		'rule.get-rules',
+		// REQ-DASH-032..034: the owner publishes, unpublishes and schedules
+		// their own dashboard; each route checks owner-or-admin.
+		'dashboard.publish',
+		'dashboard.unpublish',
+		'dashboard.schedule',
 		// REQ-VIS-001: the owner adds rules to the widgets of their own
 		// dashboard; the route checks placement ownership first.
 		'rule.add-rule',

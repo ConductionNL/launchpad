@@ -661,9 +661,6 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forBob = await tileWith(v('bob'), 'language nl', [rule])
 
 		await expectVerdict(v('bob'), forBob, false, 'bob has language en')
-		// SUSPECTED BUG: UserAttributeResolver has no `language` attribute (the
-		// language is resolved under the name `locale`), so this rule matches
-		// nobody. The editor's own placeholder for the field is "language".
 		await expectVerdict(v('alice'), forAlice, true, 'alice has language nl')
 		await expectRendered(v('alice'), [
 			{ ...forAlice, shown: true, why: 'alice has language nl' },
@@ -684,7 +681,6 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forBob = await tileWith(v('bob'), 'language not en', [rule])
 
 		await expectVerdict(v('bob'), forBob, false, 'bob has language en')
-		// SUSPECTED BUG: as above, `language` resolves to null and never matches.
 		await expectVerdict(v('carol'), forCarol, true, 'carol has language de')
 		await expectRendered(v('carol'), [
 			{ ...forCarol, shown: true, why: 'de is not en' },

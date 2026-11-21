@@ -459,6 +459,8 @@ class KioskServiceTest extends TestCase {
 	/**
 	 * A screen has no viewer who can edit: its placements go through the
 	 * visibility rules for a visitor without an account (REQ-VIS-013).
+	 *
+	 * @return void
 	 */
 	public function testRenderPlaylistAppliesTheVisibilityRulesForAVisitor(): void {
 		$playlist = new KioskPlaylist();
@@ -466,14 +468,14 @@ class KioskServiceTest extends TestCase {
 		$playlist->setName('Lobby');
 		$playlist->setEntries((string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30]]));
 		$this->playlistMapper->method('findByToken')->willReturn($playlist);
-		$dashboard = $this->dashboard('alice');
+		$dashboard = $this->dashboard(owner: 'alice');
 		$dashboard->setId(42);
 		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
 		$placement = new WidgetPlacement();
 		$placement->setId(5);
 		$this->placementMapper->method('findByDashboardId')->willReturn([$placement]);
 
-		$visibility = $this->createMock(ConditionalServiceInterface::class);
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
 		$visibility->expects($this->once())
 			->method('visiblePlacements')
 			->with($this->callback(callback: static fn (array $placements): bool => $placements[0]['id'] === 5), '', false)
@@ -491,6 +493,6 @@ class KioskServiceTest extends TestCase {
 			visibility: $visibility
 		);
 
-		$this->assertSame([], $service->renderPlaylist(token: 'tok')['entries'][0]['placements']);
+		$this->assertSame(expected: [], actual: $service->renderPlaylist(token: 'tok')['entries'][0]['placements']);
 	}
 }//end class

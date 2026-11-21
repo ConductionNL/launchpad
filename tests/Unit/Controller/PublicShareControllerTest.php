@@ -313,6 +313,8 @@ class PublicShareControllerTest extends TestCase {
 	/**
 	 * A visitor cannot edit: the placements go through the visibility rules
 	 * with no edit rights (REQ-VIS-013).
+	 *
+	 * @return void
 	 */
 	public function testShowAppliesTheVisibilityRulesForAVisitor(): void {
 		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
@@ -324,7 +326,7 @@ class PublicShareControllerTest extends TestCase {
 		$this->shareService
 			->method('renderShareContent')
 			->willReturn(['share' => $share, 'dashboard' => new Dashboard(), 'placements' => [$placement]]);
-		$visibility = $this->createMock(ConditionalServiceInterface::class);
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
 		$visibility->expects($this->once())
 			->method('visiblePlacements')
 			->with($this->callback(callback: static fn (array $placements): bool => $placements[0]['id'] === 9), '', false)
@@ -339,6 +341,6 @@ class PublicShareControllerTest extends TestCase {
 			visibility: $visibility,
 		);
 
-		$this->assertSame([], $controller->show(token: 'tok')->getData()['placements']);
+		$this->assertSame(expected: [], actual: $controller->show(token: 'tok')->getData()['placements']);
 	}
 }

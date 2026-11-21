@@ -57,8 +57,8 @@ class ConditionalServiceRenderTest extends TestCase {
 	protected function setUp(): void {
 		$this->rules = $this->createMock(originalClassName: ConditionalRuleMapper::class);
 		$templates = $this->createMock(originalClassName: AdminTemplateService::class);
-		$templates->method('getUserGroupIdsFor')->willReturnCallback(
-			callback: static fn (string $userId): array => ($userId === 'alice' ? ['staff'] : [])
+		$templates->method('getUserGroupIdsFor')->willReturnMap(
+			valueMap: [['alice', ['staff']], ['bob', []], ['', []]]
 		);
 		$evaluator = new RuleEvaluatorService(
 			adminTemplateService: $templates,
@@ -103,7 +103,12 @@ class ConditionalServiceRenderTest extends TestCase {
 		$this->rules->expects($this->once())
 			->method('findByPlacementIds')
 			->with([1, 2, 3])
-			->willReturn([self::groupRule(placementId: 2, group: 'staff', isInclude: true), self::groupRule(placementId: 3, group: 'staff', isInclude: false)]);
+			->willReturn(
+				[
+					self::groupRule(placementId: 2, group: 'staff', isInclude: true),
+					self::groupRule(placementId: 3, group: 'staff', isInclude: false),
+				]
+			);
 
 		return [
 			['id' => 1, 'widgetId' => 'text'],

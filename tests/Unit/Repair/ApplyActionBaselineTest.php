@@ -373,7 +373,7 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->appConfig->method('getValueInt')->willReturn(4);
 		$this->actionAuth->method('getMatrix')->willReturn([
 			'rule.add-rule' => ['admin'],
-			'rule.update-rule' => ['admin'],
+			'tile.create' => ['admin'],
 		]);
 
 		$written = null;
@@ -386,7 +386,7 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->step->run($this->output);
 
 		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['rule.add-rule']);
-		$this->assertSame(expected: ['admin'], actual: $written['rule.update-rule'], message: 'v5 adds only its own action');
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'later revisions add only their own actions');
 	}//end testAnInstanceAtV4LetsTheOwnerAddRules()
 
 	/**
@@ -418,4 +418,32 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->assertSame(expected: ['admin', 'redactie'], actual: $written['dashboard.schedule'], message: 'an entry an admin changed is kept');
 		$this->assertSame(expected: ['admin'], actual: $written['dashboard-lock.force-release'], message: 'v6 adds only its own actions');
 	}//end testAnInstanceAtV5LetsTheOwnerPublish()
+
+	/**
+	 * An instance at v6 lets the owner change and remove rules from v7, and
+	 * an entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV6LetsTheOwnerChangeAndRemoveRules(): void {
+		$this->appConfig->method('getValueInt')->willReturn(6);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'rule.update-rule' => ['admin'],
+			'rule.delete-rule' => ['admin', 'redactie'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['rule.update-rule']);
+		$this->assertSame(expected: ['admin', 'redactie'], actual: $written['rule.delete-rule'], message: 'an entry an admin changed is kept');
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v7 adds only its own actions');
+	}//end testAnInstanceAtV6LetsTheOwnerChangeAndRemoveRules()
 }//end class

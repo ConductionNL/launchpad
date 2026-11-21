@@ -139,7 +139,7 @@ Users MUST be able to retrieve all conditional rules for a widget placement they
 
 ### Requirement: Update Conditional Rule (REQ-VIS-003)
 
-Users MUST be able to modify existing conditional rules on placements they own.
+Users MUST be able to modify existing conditional rules on placements they own, without an administrator role, and a Nextcloud administrator on every placement (Ruben, 21 Nov 2026). The shipped action matrix opens `rule.update-rule` to every user; the route checks placement ownership before it writes, and the action baseline repair step (revision 7) opens it on an existing instance where the entry is still the pristine admin-only default.
 
 #### Scenario: Update rule configuration
 - GIVEN conditional rule id 5 with `ruleConfig: {"groups": ["marketing"]}`
@@ -179,7 +179,7 @@ Users MUST be able to modify existing conditional rules on placements they own.
 
 ### Requirement: Delete Conditional Rule (REQ-VIS-004)
 
-Users MUST be able to remove conditional rules from their widget placements.
+Users MUST be able to remove conditional rules from their widget placements, without an administrator role, and a Nextcloud administrator on every placement (Ruben, 21 Nov 2026). `rule.delete-rule` is opened the same way as `rule.update-rule` (REQ-VIS-003).
 
 #### Scenario: Delete a rule
 - GIVEN widget placement id 10 has 3 conditional rules, including rule id 5
@@ -491,6 +491,7 @@ The admin settings tab "Versioning and audit" MUST list every widget placement, 
 - REQ-VIS-002 (List Conditional Rules): `ConditionalService::getRules()` returns rules by placement ID with ownership check.
 - REQ-VIS-003 (Update Conditional Rule): `ConditionalService::updateRule()` handles partial updates. `RuleApiController::updateRule()` exposes PUT /api/rules/{ruleId}.
 - REQ-VIS-004 (Delete Conditional Rule): `ConditionalService::deleteRule()` removes rules. `RuleApiController::deleteRule()` exposes DELETE /api/rules/{ruleId}.
+- REQ-VIS-001..004 access: `PermissionService::verifyPlacementOwnership()` lets the dashboard owner and a Nextcloud administrator through, before any rule is read or written.
 - REQ-VIS-005 (Group-Based Rule Evaluation): `RuleEvaluatorService::evaluateGroupRule()` uses `IGroupManager::getUserGroupIds()` and `array_intersect()`.
 - REQ-VIS-006 (Time-Based Rule Evaluation): `RuleEvaluatorService::evaluateTimeRule()` checks day-of-week filter and time range. Uses `strtolower($now->format('D'))` for day abbreviations.
 - REQ-VIS-007 (Date-Based Rule Evaluation): `RuleEvaluatorService::evaluateDateRule()` supports optional `startDate` and `endDate`.
@@ -501,7 +502,6 @@ The admin settings tab "Versioning and audit" MUST list every widget placement, 
 
 **Not yet implemented:**
 - REQ-VIS-001 ruleType validation: No server-side validation for ruleType values.
-- REQ-VIS-003/004 ownership verification: `updateRule()` and `deleteRule()` in `RuleApiController` do NOT verify placement ownership.
 - REQ-VIS-006 midnight-spanning windows: Simple string comparison does not handle time windows spanning midnight.
 - REQ-VIS-006 timezone support: No `timezone` field support.
 - REQ-VIS-011 cascade delete: `PlacementService::removePlacement()` does not explicitly cascade-delete conditional rules.

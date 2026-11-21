@@ -197,6 +197,35 @@ test.describe('REQ-VIS-001 create a conditional rule', () => {
 		).toHaveLength(1)
 	})
 
+	// @e2e conditional-visibility::update-rule-configuration
+	// @e2e conditional-visibility::delete-a-rule
+	test('with the action matrix as shipped, an ordinary owner may change and remove her own rule', async () => {
+		const pid = await alicePlacement('shipped matrix edit')
+		const granted = await readActionMatrix(admin)
+		await writeActionMatrix(admin, { ...granted, ...shippedRuleActions() })
+		try {
+			const added = await postRule(alice!.api, pid, {
+				ruleType: 'group',
+				ruleConfig: { groups: ['marketing'] },
+				isInclude: true,
+			})
+			expect(added.status(), await added.text()).toBe(201)
+			const ruleId = Number((await added.json()).id)
+
+			const updated = await alice!.api.put(`/index.php/apps/launchpad/api/rules/${ruleId}`, {
+				data: { ruleConfig: { groups: ['marketing', 'sales'] } },
+			})
+			expect(updated.status(), await updated.text()).toBe(200)
+			expect((await readRules(alice!.api, pid)).rules[0].ruleConfig).toEqual({ groups: ['marketing', 'sales'] })
+
+			const removed = await alice!.api.delete(`/index.php/apps/launchpad/api/rules/${ruleId}`)
+			expect(removed.status(), await removed.text()).toBeLessThan(300)
+		} finally {
+			await writeActionMatrix(admin, granted)
+		}
+		expect((await readRules(alice!.api, pid)).rules, 'the removed rule is gone').toHaveLength(0)
+	})
+
 	// @e2e conditional-visibility::create-a-time-based-exclusion-rule
 	test('a time exclusion rule is stored, and hides the widget only while its window matches', async () => {
 		const pid = await alicePlacement('time exclude')

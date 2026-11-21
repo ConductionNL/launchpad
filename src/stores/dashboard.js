@@ -789,6 +789,27 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
+		 * Re-read the active dashboard's placements in place, without the
+		 * loading state, so a kiosk screen updates with no flash
+		 * (REQ-KIOSK-004). A failed read keeps what is on screen.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		async reloadPlacements() {
+			const id = this.activeDashboard?.id
+			if (!id) {
+				return
+			}
+			try {
+				const response = await api.getDashboardById(id)
+				this.widgetPlacements = response.data.placements || []
+			} catch (error) {
+				logger.error('Failed to reload the dashboard:', error)
+			}
+		},
+
+		/**
 		 * Re-read whether the visibility rules hide each placement of the
 		 * active dashboard for its viewers, and copy that onto the loaded
 		 * placements. The layout itself is left alone, so unsaved edits stay.

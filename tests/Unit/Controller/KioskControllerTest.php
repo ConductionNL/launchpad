@@ -30,6 +30,7 @@ use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
@@ -314,4 +315,66 @@ class KioskControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame([], $response->getThrottleMetadata());
 	}
-}//end class
+
+	/**
+	 * One entry renders for the player and marks the request as a bearer
+	 * (REQ-KIOSK-004).
+	 *
+	 * @return void
+	 */
+	public function testRenderEntryReturns200AndMarksBearer(): void {
+		$entry = ['dwellSeconds' => 30, 'dashboard' => ['uuid' => 'd-1'], 'placements' => []];
+		$this->kioskService->expects($this->once())
+			->method('renderEntry')
+			->with('tok', 'd-1')
+			->willReturn($entry);
+		$this->shareContext->expects($this->once())->method('markBearer')->with('tok');
+
+		$response = $this->makeController(userId: null)->renderEntry(token: 'tok', uuid: 'd-1');
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: $entry, actual: $response->getData());
+	}
+
+	/**
+	 * An unknown token is 404 and counts against the throttle; a dashboard
+	 * that is no entry is 404 without a throttle attempt.
+	 *
+	 * @return void
+	 */
+	public function testRenderEntry404sThrottleOnlyForAnUnknownToken(): void {
+		$this->kioskService->method('renderEntry')->willReturnCallback(
+			static function (string $token): array {
+				if ($token === 'bogus') {
+					throw new PlaylistNotFoundException();
+				}
+				throw new DoesNotExistException('not an entry');
+			}
+		);
+		$this->shareContext->expects($this->never())->method('markBearer');
+		$controller = $this->makeController(userId: null);
+
+		$unknown = $controller->renderEntry(token: 'bogus', uuid: 'd-1');
+		$notEntry = $controller->renderEntry(token: 'tok', uuid: 'other');
+
+		$this->assertSame(expected: Http::STATUS_NOT_FOUND, actual: $unknown->getStatus());
+		$this->assertSame(expected: Http::STATUS_NOT_FOUND, actual: $notEntry->getStatus());
+		$this->assertTrue(condition: $unknown->isThrottled());
+		$this->assertFalse(condition: $notEntry->isThrottled());
+		$this->assertSame(expected: $unknown->getData(), actual: $notEntry->getData());
+	}
+
+	/**
+	 * Any other failure is a neutral 500.
+	 *
+	 * @return void
+	 */
+	public function testRenderEntryAnswersANeutral500(): void {
+		$this->kioskService->method('renderEntry')->willThrowException(new \RuntimeException('db down'));
+
+		$response = $this->makeController(userId: null)->renderEntry(token: 'tok', uuid: 'd-1');
+
+		$this->assertSame(expected: Http::STATUS_INTERNAL_SERVER_ERROR, actual: $response->getStatus());
+		$this->assertSame(expected: ['error' => 'Internal error'], actual: $response->getData());
+	}
+}

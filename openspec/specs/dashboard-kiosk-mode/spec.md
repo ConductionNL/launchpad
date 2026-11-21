@@ -12,7 +12,10 @@ Turns LaunchPad dashboards into unattended signage by rendering them chrome-less
 The system MUST support a `kiosk=1` query flag on the authenticated single-dashboard
 route and on the public-share render route that renders the dashboard full-viewport
 with all Nextcloud and LaunchPad chrome suppressed (header, app navigation, switcher
-sidebar, edit and context-menu affordances, scrollbars).
+sidebar, edit and context-menu affordances, scrollbars). The server renders both pages
+without the Nextcloud layout when the flag is set; the flag changes no access check.
+Escape reloads the same route without the flag, so the chrome comes back (Ruben,
+21 Nov 2026).
 
 #### Scenario: Authenticated kiosk render hides all chrome
 - GIVEN a logged-in user "display-lobby" with access to dashboard uuid `550e8400-e29b-41d4-a716-446655440001`
@@ -145,7 +148,12 @@ HTTP 404 without leaking whether the token ever existed, and the route MUST shar
 A kiosk view MUST re-fetch the visible dashboard's widget data every `refreshSeconds`
 (playlist setting, or default 300 for flag-based kiosk views) and update widgets in
 place without a full page reload. Rotation entries MUST be fetched just-in-time so each
-dwell slot shows data no older than one dwell cycle.
+dwell slot shows data no older than one dwell cycle: the player reads one entry from
+`GET /kiosk/{token}/dashboards/{uuid}` about 5 seconds before its turn. That route
+answers only for a dashboard that is an entry of the playlist; an unknown or revoked
+token answers 404 and counts against the `launchpad_share_access` throttle bucket, and
+a dashboard that is not an entry, or was deleted, answers the same 404 without a
+throttle attempt (Ruben, 21 Nov 2026).
 
 #### Scenario: Widget data refreshes without page reload
 - GIVEN a kiosk view displaying a dashboard with `refreshSeconds: 300`
@@ -161,7 +169,7 @@ dwell slot shows data no older than one dwell cycle.
 
 #### Scenario: Refresh interval respects the clamp
 
-@e2e exclude the flag-based kiosk view was never built (archived change 2026-06-14-dashboard-kiosk-mode, task 5 is [~] DEFERRED and no `kiosk=1` handling exists in src/), and neither the spec nor the product names any way to configure a refresh value for a flag-based view, so the clamp clause has no input a test could drive; no unit test pins it. The missing flag itself is caught red by the authenticated-kiosk-render and esc-exits tests in tests/e2e/dashboard-kiosk-mode.spec.ts
+@e2e exclude the flag-based view re-reads every 300 seconds (KIOSK_REFRESH_MS in src/utils/kioskMode.js), and neither the spec nor the product names any way to configure a refresh value for it, so the clamp clause has no input a test could drive; the 300-second constant is used by src/views/Views.vue and the in-place reload is pinned by src/stores/__tests__/dashboard.visibility.spec.js
 
 - GIVEN a flag-based kiosk view (`?kiosk=1`) with no playlist configuration
 - WHEN the view initializes

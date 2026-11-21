@@ -39,7 +39,9 @@ describe('KioskPlayerView empty playlist', () => {
 		expect(wrapper.text()).toContain('This playlist has no dashboards to show.')
 		expect(wrapper.find('[data-testid="kiosk-dashboard"]').exists()).toBe(false)
 		expect(wrapper.vm.dwellTimer).toBeNull()
-		expect(vi.getTimerCount()).toBe(1)
+		expect(wrapper.vm.prefetchTimer).toBeNull()
+		// The next playlist read, and the idle-cursor timer (REQ-KIOSK-001).
+		expect(vi.getTimerCount()).toBe(2)
 
 		await vi.advanceTimersByTimeAsync(59_000)
 		expect(axios.get).toHaveBeenCalledTimes(1)

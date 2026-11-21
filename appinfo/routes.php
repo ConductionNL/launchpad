@@ -228,6 +228,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Registered BEFORE the deep-link catch-all at the bottom.
 		['name' => 'kiosk#render', 'url' => '/kiosk/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// One entry, fetched by the player just before it shows it (REQ-KIOSK-004).
+		['name' => 'kiosk#renderEntry', 'url' => '/kiosk/{token}/dashboards/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+', 'uuid' => '[A-Za-z0-9\-]+']],
 
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
 		['name' => 'dashboardShareApi#index', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'GET'],

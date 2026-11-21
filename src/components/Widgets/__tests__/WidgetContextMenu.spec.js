@@ -49,6 +49,12 @@ describe('WidgetContextMenu', () => {
 		])
 	})
 
+	it('REQ-PERM-002: offers no Remove when the widget may not be removed', () => {
+		const wrapper = mountMenu({ canRemove: false })
+		expect(wrapper.find('[data-testid="ctx-remove"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="ctx-edit"]').exists()).toBe(true)
+	})
+
 	it('REQ-ACK-007: Read confirmation emits readConfirmation then close', async () => {
 		const wrapper = mountMenu()
 		await wrapper.find('[data-testid="ctx-read-confirmation"]').trigger('click')

@@ -452,6 +452,7 @@
 			v-if="contextMenuVisible"
 			:top="contextMenuTop"
 			:left="contextMenuLeft"
+			:canRemove="contextMenuCanRemove"
 			@edit="grid.triggerEdit()"
 			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"
@@ -1256,6 +1257,16 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuLeft() {
 			return this.grid.state.contextMenuPosition.x
+		},
+
+		/**
+		 * Whether the context menu offers Remove for the widget it opened on.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		contextMenuCanRemove() {
+			return this.isRemovablePlacement(this.grid.state.selectedWidget)
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -2678,6 +2689,21 @@ export default {
 		},
 
 		/**
+		 * Whether the user may remove a placement: not a compulsory widget
+		 * on a dashboard the user holds with less than full permission.
+		 *
+		 * @param {object|null} placement The placement.
+		 * @return {boolean} True when it may be removed.
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		isRemovablePlacement(placement) {
+			return !(
+				Number(placement?.isCompulsory) === 1
+				&& this.permissionLevel !== 'full'
+			)
+		},
+
+		/**
 		 * Remove a placement from the active dashboard.
 		 *
 		 * @param {number|string} placementId Id of the placement to remove.
@@ -2691,10 +2717,7 @@ export default {
 			const placement = (this.widgetPlacements || []).find(
 				(p) => p.id === placementId,
 			)
-			if (
-				Number(placement?.isCompulsory) === 1
-				&& this.permissionLevel !== 'full'
-			) {
+			if (!this.isRemovablePlacement(placement)) {
 				showError(
 					t(
 						'launchpad',

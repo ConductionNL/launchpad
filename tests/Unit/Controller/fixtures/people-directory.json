@@ -104,7 +104,7 @@
     "filter none sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -117,7 +117,7 @@
     "filter none sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -488,7 +488,7 @@
     "filter none sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -501,7 +501,7 @@
     "filter none sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -1002,7 +1002,7 @@
     "filter none sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -1015,7 +1015,7 @@
     "filter none sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -1381,7 +1381,7 @@
     "filter none sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -1394,7 +1394,7 @@
     "filter none sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -1760,7 +1760,7 @@
     "filter empty sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -1773,7 +1773,7 @@
     "filter empty sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -2144,7 +2144,7 @@
     "filter empty sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -2157,7 +2157,7 @@
     "filter empty sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -2658,7 +2658,7 @@
     "filter empty sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -2671,7 +2671,7 @@
     "filter empty sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -3037,7 +3037,7 @@
     "filter empty sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -3050,7 +3050,7 @@
     "filter empty sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -3416,7 +3416,7 @@
     "filter empty list sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -3429,7 +3429,7 @@
     "filter empty list sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -3800,7 +3800,7 @@
     "filter empty list sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -3813,7 +3813,7 @@
     "filter empty list sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -4314,7 +4314,7 @@
     "filter empty list sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -4327,7 +4327,7 @@
     "filter empty list sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -4693,7 +4693,7 @@
     "filter empty list sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -4706,7 +4706,7 @@
     "filter empty list sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -5053,7 +5053,7 @@
     "filter staff sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -5066,7 +5066,7 @@
     "filter staff sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -5373,7 +5373,7 @@
     "filter staff sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -5386,7 +5386,7 @@
     "filter staff sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -5823,7 +5823,7 @@
     "filter staff sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -5836,7 +5836,7 @@
     "filter staff sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -6139,7 +6139,7 @@
     "filter staff sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -6152,7 +6152,7 @@
     "filter staff sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -6454,7 +6454,7 @@
     "filter hr and staff sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -6467,7 +6467,7 @@
     "filter hr and staff sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -6789,7 +6789,7 @@
     "filter hr and staff sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -6802,7 +6802,7 @@
     "filter hr and staff sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -7254,7 +7254,7 @@
     "filter hr and staff sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -7267,7 +7267,7 @@
     "filter hr and staff sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -7585,7 +7585,7 @@
     "filter hr and staff sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -7598,7 +7598,7 @@
     "filter hr and staff sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -7874,7 +7874,7 @@
     "filter no groups sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -7887,7 +7887,7 @@
     "filter no groups sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8104,7 +8104,7 @@
     "filter no groups sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8117,7 +8117,7 @@
     "filter no groups sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8464,7 +8464,7 @@
     "filter no groups sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8477,7 +8477,7 @@
     "filter no groups sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8694,7 +8694,7 @@
     "filter no groups sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8707,7 +8707,7 @@
     "filter no groups sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8924,7 +8924,7 @@
     "filter ghost and blank sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -8937,7 +8937,7 @@
     "filter ghost and blank sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -9154,7 +9154,7 @@
     "filter ghost and blank sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -9167,7 +9167,7 @@
     "filter ghost and blank sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -9514,7 +9514,7 @@
     "filter ghost and blank sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -9527,7 +9527,7 @@
     "filter ghost and blank sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -9744,7 +9744,7 @@
     "filter ghost and blank sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -9757,7 +9757,7 @@
     "filter ghost and blank sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -10036,7 +10036,7 @@
     "filter other field sort \"displayName\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -10049,7 +10049,7 @@
     "filter other field sort \"displayName\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -10420,7 +10420,7 @@
     "filter other field sort \"group\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -10433,7 +10433,7 @@
     "filter other field sort \"group\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -10934,7 +10934,7 @@
     "filter other field sort null q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -10947,7 +10947,7 @@
     "filter other field sort null q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -11313,7 +11313,7 @@
     "filter other field sort \"foo\" q \"e\" excl 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -11326,7 +11326,7 @@
     "filter other field sort \"foo\" q \"e\" excl 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "q must be at least 2 characters"
         },
         "log": [
             [
@@ -13026,7 +13026,7 @@
     "page none limit 1 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -13237,7 +13237,7 @@
     "page none limit 2 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -13493,7 +13493,7 @@
     "page none limit 50 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -13770,7 +13770,7 @@
     "page none limit 100 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -13858,7 +13858,7 @@
     "page none limit 0 offset 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13871,7 +13871,7 @@
     "page none limit 0 offset 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13884,7 +13884,7 @@
     "page none limit 0 offset 4": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13897,7 +13897,7 @@
     "page none limit 0 offset 9": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13910,7 +13910,7 @@
     "page none limit 0 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13923,7 +13923,7 @@
     "page none limit 0 offset null": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13936,7 +13936,7 @@
     "page none limit 101 offset 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13949,7 +13949,7 @@
     "page none limit 101 offset 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13962,7 +13962,7 @@
     "page none limit 101 offset 4": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13975,7 +13975,7 @@
     "page none limit 101 offset 9": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -13988,7 +13988,7 @@
     "page none limit 101 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -14001,7 +14001,7 @@
     "page none limit 101 offset null": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -14203,7 +14203,7 @@
     "page none limit null offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -14403,7 +14403,7 @@
     "page staff limit 1 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -14576,7 +14576,7 @@
     "page staff limit 2 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -14760,7 +14760,7 @@
     "page staff limit 50 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -14944,7 +14944,7 @@
     "page staff limit 100 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [
@@ -15005,7 +15005,7 @@
     "page staff limit 0 offset 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15018,7 +15018,7 @@
     "page staff limit 0 offset 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15031,7 +15031,7 @@
     "page staff limit 0 offset 4": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15044,7 +15044,7 @@
     "page staff limit 0 offset 9": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15057,7 +15057,7 @@
     "page staff limit 0 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15070,7 +15070,7 @@
     "page staff limit 0 offset null": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15083,7 +15083,7 @@
     "page staff limit 101 offset 0": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15096,7 +15096,7 @@
     "page staff limit 101 offset 1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15109,7 +15109,7 @@
     "page staff limit 101 offset 4": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15122,7 +15122,7 @@
     "page staff limit 101 offset 9": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15135,7 +15135,7 @@
     "page staff limit 101 offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15148,7 +15148,7 @@
     "page staff limit 101 offset null": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "limit must be between 1 and 100"
         },
         "log": [
             [
@@ -15284,7 +15284,7 @@
     "page staff limit null offset -1": {
         "status": 400,
         "body": {
-            "error": "Invalid request parameters"
+            "error": "offset must be >= 0"
         },
         "log": [
             [

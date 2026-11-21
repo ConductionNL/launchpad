@@ -553,6 +553,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { bootPath } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
@@ -1438,7 +1439,6 @@ export default {
 		// Read now, because mounted() rewrites the address.
 		const editFromAddress =
 			new URLSearchParams(window.location.search).get('edit') === '1'
-		const bootPath = window.location.pathname
 
 		const dashboardStore = useDashboardStore()
 		const widgetStore = useWidgetStore()
@@ -1449,7 +1449,7 @@ export default {
 			widgetStore.loadAvailableWidgets(),
 			tileStore.loadTiles(),
 		])
-		await this.openDeepLinkedDashboard(bootPath)
+		await this.openDeepLinkedDashboard(bootPath())
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding

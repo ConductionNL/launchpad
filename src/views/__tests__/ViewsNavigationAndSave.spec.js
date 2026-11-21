@@ -99,6 +99,34 @@ describe('Views deep-link history', () => {
 		expect(replace).not.toHaveBeenCalled()
 	})
 
+	it('keeps the query and hash when it replaces the boot address', () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		at('/index.php/apps/launchpad/?kiosk=1#top')
+
+		makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } }).replaceUrlFromInitialState()
+
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-hr', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/team/hr?kiosk=1#top',
+		)
+	})
+
+	it('treats an address without the front controller as the deep link itself', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		const push = vi.spyOn(window.history, 'pushState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: 'team/hr' } })
+		at('/apps/launchpad/team/hr')
+		replace.mockClear()
+		const host = makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } })
+
+		host.replaceUrlFromInitialState()
+		await host.pushUrlForActiveDashboard()
+
+		expect(replace).not.toHaveBeenCalled()
+		expect(push).not.toHaveBeenCalled()
+	})
+
 	it('opens the dashboard a slug address names, not the stored active one', async () => {
 		const switchDashboard = vi.fn()
 		const dashboards = [{ id: 1, uuid: 'u-a' }, { id: 2, uuid: 'u-b' }]

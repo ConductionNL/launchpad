@@ -583,6 +583,18 @@ import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 const GRID_ROW_HEIGHT = 60
 
 /**
+ * A pathname without the `/index.php` front controller or a trailing slash,
+ * so an address and the canonical deep link compare as the same route
+ * whether or not the instance rewrites URLs.
+ *
+ * @param {string} path The pathname.
+ * @return {string} The bare pathname.
+ */
+function barePath(path) {
+	return path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+}
+
+/**
  * A placement with the minimum height its widget type registers, so the grid
  * lets a divider be one row while other widgets keep the grid's minimum.
  *
@@ -3050,9 +3062,7 @@ export default {
 			if (!uuid || !canonical || this.activeDashboard?.uuid === uuid) {
 				return
 			}
-			const bare = (path) =>
-				path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
-			if (bare(bootPath) !== bare(canonical)) {
+			if (barePath(bootPath) !== barePath(canonical)) {
 				return
 			}
 			const target = this.dashboards.find((d) => d.uuid === uuid)
@@ -3074,20 +3084,18 @@ export default {
 			if (!target) {
 				return
 			}
-			if (
-				window.location.pathname.replace(/\/+$/, '')
-				=== target.replace(/\/+$/, '')
-			) {
+			if (barePath(window.location.pathname) === barePath(target)) {
 				return
 			}
 			try {
+				// The query and hash stay: `?kiosk=1` must survive a reload.
 				window.history.replaceState(
 					{
 						uuid: this.activeDashboard?.uuid ?? null,
 						source: 'launchpad-deeplink',
 					},
 					'',
-					target,
+					target + window.location.search + window.location.hash,
 				)
 			} catch (e) {
 				// SecurityError when running outside the page's origin
@@ -3192,7 +3200,7 @@ export default {
 				if (!target) {
 					return
 				}
-				if (window.location.pathname === target) {
+				if (barePath(window.location.pathname) === barePath(target)) {
 					return
 				}
 				window.history.pushState(

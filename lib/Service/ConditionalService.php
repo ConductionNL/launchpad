@@ -106,6 +106,63 @@ class ConditionalService implements ConditionalServiceInterface {
 	}//end checkRulesForPlacement()
 
 	/**
+	 * Apply the visibility rules to the placements a dashboard renders.
+	 *
+	 * A placement whose rules hide it for this user is left out, unless the
+	 * user may edit the dashboard: then it stays, marked `hiddenForViewers`,
+	 * so the owner and editors still see and edit it. Every other placement
+	 * carries `hiddenForViewers: false`.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The viewing user, '' for a visitor without an account.
+	 * @param bool                             $canEdit    Whether the viewer may edit the dashboard.
+	 *
+	 * @return array<int, array<string, mixed>> The placements to render, in order.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
+		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
+
+		$visible = [];
+		foreach ($placements as $placement) {
+			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
+			$hidden = $rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false;
+			if ($hidden === true && $canEdit === false) {
+				continue;
+			}
+
+			$placement['hiddenForViewers'] = $hidden;
+			$visible[] = $placement;
+		}
+
+		return $visible;
+	}//end visiblePlacements()
+
+	/**
+	 * The rules of the given placements, keyed by placement ID.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 *
+	 * @return array<int, ConditionalRule[]> The rules per placement ID.
+	 */
+	private function rulesByPlacement(array $placements): array {
+		$ids = [];
+		foreach ($placements as $placement) {
+			if (isset($placement['id']) === true) {
+				$ids[] = (int)$placement['id'];
+			}
+		}
+
+		$grouped = [];
+		foreach ($this->ruleMapper->findByPlacementIds(placementIds: $ids) as $rule) {
+			$grouped[(int)$rule->getWidgetPlacementId()][] = $rule;
+		}
+
+		return $grouped;
+	}//end rulesByPlacement()
+
+	/**
 	 * Evaluate an in-memory (not persisted) rule set against a supplied
 	 * `(groups, datetime)` context.
 	 *

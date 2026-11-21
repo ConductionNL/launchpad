@@ -1141,6 +1141,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Indien uitgeschakeld tonen bestaande dashboards met overbrugde Nextcloud-widgets een status \"Niet beschikbaar\" totdat de brug weer wordt ingeschakeld.",
     "Visibility rules" : "Zichtbaarheidsregels",
     "Visibility rules…" : "Zichtbaarheidsregels…",
+    "Hidden for viewers" : "Verborgen voor kijkers",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Toon of verberg deze widget op basis van groepslidmaatschap, tijdstip, datumbereik of een gebruikerskenmerk. Insluitregels gebruiken OF-logica; uitsluitregels gebruiken EN-logica.",
     "Remove rule" : "Regel verwijderen",
     "No visibility rules yet — this widget is always shown." : "Nog geen zichtbaarheidsregels — deze widget wordt altijd getoond.",

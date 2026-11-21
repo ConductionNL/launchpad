@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Atunci când este dezactivată, tablourile de bord existente care încorporează widgeturi Nextcloud prin punte afișează o stare „Indisponibil” până când puntea este reactivată.",
     "Visibility rules" : "Reguli de vizibilitate",
     "Visibility rules…" : "Reguli de vizibilitate…",
+    "Hidden for viewers" : "Ascuns pentru vizitatori",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Afișați sau ascundeți acest widget în funcție de apartenența la grup, ora din zi, intervalul de date sau un atribut de utilizator. Regulile de includere utilizează logica OR; regulile de excludere utilizează logica AND.",
     "Remove rule" : "Eliminați regula",
     "No visibility rules yet — this widget is always shown." : "Nicio regulă de vizibilitate încă — acest widget este întotdeauna afișat.",

@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Όταν είναι απενεργοποιημένη, οι υπάρχοντες πίνακες που ενσωματώνουν γεφυρωμένα γραφικά στοιχεία Nextcloud εμφανίζουν μια κατάσταση \"Μη διαθέσιμο\" μέχρι να ενεργοποιηθεί ξανά η γέφυρα.",
     "Visibility rules" : "Κανόνες ορατότητας",
     "Visibility rules…" : "Κανόνες ορατότητας…",
+    "Hidden for viewers" : "Κρυφό για τους θεατές",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Εμφανίστε ή αποκρύψτε αυτό το γραφικό στοιχείο με βάση τη συμμετοχή σε ομάδα, την ώρα της ημέρας, το εύρος ημερομηνιών ή ένα χαρακτηριστικό χρήστη. Οι κανόνες συμπερίληψης χρησιμοποιούν λογική OR· οι κανόνες εξαίρεσης χρησιμοποιούν λογική AND.",
     "Remove rule" : "Αφαίρεση κανόνα",
     "No visibility rules yet — this widget is always shown." : "Δεν υπάρχουν ακόμη κανόνες ορατότητας — αυτό το γραφικό στοιχείο εμφανίζεται πάντα.",

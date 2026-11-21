@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Nuair atá sé díchumasaithe, rindreálann deaiseanna atá ann cheana a leabaíonn giuirléidí Nextcloud droichdithe staid \"Gan fáil\" go dtí go n-athchumasaítear an droichead.",
     "Visibility rules" : "Rialacha infheictheachta",
     "Visibility rules…" : "Rialacha infheictheachta…",
+    "Hidden for viewers" : "I bhfolach ar lucht féachana",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Taispeáin nó folaigh an ghiuirléid seo bunaithe ar bhallraíocht grúpa, am an lae, raon dátaí, nó tréith úsáideora. Úsáideann rialacha cuir-san-áireamh loighic OR; úsáideann rialacha eisiata loighic AND.",
     "Remove rule" : "Bain riail",
     "No visibility rules yet — this widget is always shown." : "Níl aon rialacha infheictheachta ann fós — taispeántar an ghiuirléid seo i gcónaí.",

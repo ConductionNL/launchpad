@@ -789,6 +789,32 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
+		 * Re-read whether the visibility rules hide each placement of the
+		 * active dashboard for its viewers, and copy that onto the loaded
+		 * placements. The layout itself is left alone, so unsaved edits stay.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/conditional-visibility/spec.md
+		 */
+		async refreshPlacementVisibility() {
+			const id = this.activeDashboard?.id
+			if (!id) {
+				return
+			}
+			try {
+				const response = await api.getDashboardById(id)
+				const hidden = new Map(
+					(response.data.placements || []).map((p) => [p.id, p.hiddenForViewers === true]),
+				)
+				this.widgetPlacements = this.widgetPlacements.map((p) =>
+					hidden.has(p.id) ? { ...p, hiddenForViewers: hidden.get(p.id) } : p,
+				)
+			} catch (error) {
+				logger.error('Failed to refresh widget visibility:', error)
+			}
+		},
+
+		/**
 		 * Persist the active-dashboard preference (REQ-DASH-019).
 		 *
 		 * Fire-and-forget: a network error here is logged but does NOT

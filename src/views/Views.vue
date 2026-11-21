@@ -293,9 +293,18 @@
 						class="launchpad-grid-item"
 						:class="{
 							'launchpad-grid-item--dimmed': isTileDimmed(item),
+							'launchpad-grid-item--hidden-for-viewers': item.hiddenForViewers === true,
 						}"
 						:data-placement-id="item.id"
 						@contextmenu="onWidgetRightClick($event, item)">
+						<!-- REQ-VIS-013: the visibility rules hide this widget for its
+						     viewers; the owner and editors still see it, dimmed. -->
+						<span
+							v-if="item.hiddenForViewers === true"
+							class="launchpad-grid-item__hidden-badge"
+							data-testid="hidden-for-viewers-badge">
+							{{ t('launchpad', 'Hidden for viewers') }}
+						</span>
 						<!-- Tile placements render the launcher tile directly. -->
 						<TileWidget
 							v-if="isTilePlacement(item)"
@@ -2271,8 +2280,9 @@ export default {
 
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRulesChanged() {
-			// Rules are evaluated server-side at render; nothing to refetch
-			// here. Hook kept so future live-preview can refresh placements.
+			// Rules are applied server-side when the dashboard renders, so
+			// ask again which widgets they hide for viewers.
+			useDashboardStore().refreshPlacementVisibility()
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -3517,6 +3527,29 @@ export default {
    (see `isTileDimmed`) — no other component reaches in to set it. */
 .launchpad-grid-item--dimmed {
 	opacity: 0.35;
+}
+
+.launchpad-grid-item--hidden-for-viewers {
+	position: relative;
+}
+
+.launchpad-grid-item--hidden-for-viewers > :not(.launchpad-grid-item__hidden-badge) {
+	opacity: 0.5;
+}
+
+.launchpad-grid-item__hidden-badge {
+	position: absolute;
+	top: calc(var(--default-grid-baseline) * 2);
+	inset-inline-start: calc(var(--default-grid-baseline) * 2);
+	z-index: 2;
+	padding: 0 calc(var(--default-grid-baseline) * 2);
+	border-radius: var(--border-radius-pill);
+	background-color: var(--color-main-background);
+	color: var(--color-main-text);
+	border: 1px solid var(--color-border-dark);
+	font-size: var(--font-size-small, 13px);
+	line-height: 24px;
+	pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

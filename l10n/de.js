@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Wenn deaktiviert, zeigen vorhandene Dashboards, die überbrückte Nextcloud-Widgets einbetten, einen Zustand \"Nicht verfügbar\" an, bis die Brücke erneut aktiviert wird.",
     "Visibility rules" : "Sichtbarkeitsregeln",
     "Visibility rules…" : "Sichtbarkeitsregeln …",
+    "Hidden for viewers" : "Für Betrachter ausgeblendet",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Zeigen oder verbergen Sie dieses Widget basierend auf Gruppenmitgliedschaft, Tageszeit, Datumsbereich oder einem Benutzerattribut. Einschlussregeln verwenden ODER-Logik; Ausschlussregeln verwenden UND-Logik.",
     "Remove rule" : "Regel entfernen",
     "No visibility rules yet — this widget is always shown." : "Noch keine Sichtbarkeitsregeln — dieses Widget wird immer angezeigt.",

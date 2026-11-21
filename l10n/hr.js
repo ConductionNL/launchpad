@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Kada je onemogućeno, postojeće nadzorne ploče koje ugrađuju premoštene Nextcloud widgete prikazuju stanje \"Nedostupno\" dok se most ponovno ne omogući.",
     "Visibility rules" : "Pravila vidljivosti",
     "Visibility rules…" : "Pravila vidljivosti…",
+    "Hidden for viewers" : "Skriveno za gledatelje",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Prikaži ili sakrij ovaj widget na temelju članstva u grupi, doba dana, raspona datuma ili korisničkog atributa. Pravila uključivanja koriste ILI logiku; pravila isključivanja koriste I logiku.",
     "Remove rule" : "Ukloni pravilo",
     "No visibility rules yet — this widget is always shown." : "Još nema pravila vidljivosti — ovaj se widget uvijek prikazuje.",

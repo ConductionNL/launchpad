@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Sch'el è deactivà, mussan las tablas da cumond existentas che integreschan widgets da Nextcloud transmess in stadi \"Betg disponibel\" enfin ch'il punt vegn reactivà.",
     "Visibility rules" : "Reglas da visibilitad",
     "Visibility rules…" : "Reglas da visibilitad…",
+    "Hidden for viewers" : "Zuppà per las spectaturas",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Mussar u zuppentar quest widget sin basa da l'appartegnientscha a la gruppa, l'ura dal di, la firà da datas u in attribut da l'utilisader. Las reglas d'inclusiun utiliseschan la logica OR; las reglas d'exclusiun utiliseschan la logica AND.",
     "Remove rule" : "Allontanar la regla",
     "No visibility rules yet — this widget is always shown." : "Anc naginas reglas da visibilitad — quest widget vegn adina mussà.",

@@ -1032,6 +1032,7 @@ OC.L10N.register(
     "When disabled, existing dashboards that embed bridged Nextcloud widgets render an \"Unavailable\" state until the bridge is re-enabled." : "Meta diżattivat, id-dashboards eżistenti li jinkorporaw widgets ta' Nextcloud mgħoddija mill-pont jirrenderaw stat \"Mhux disponibbli\" sakemm il-pont jerġa' jiġi attivat.",
     "Visibility rules" : "Regoli ta' viżibilità",
     "Visibility rules…" : "Regoli ta' viżibilità…",
+    "Hidden for viewers" : "Moħbi għal min jara",
     "Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic." : "Uri jew aħbi dan il-widget abbażi tas-sħubija fil-grupp, il-ħin tal-ġurnata, il-firxa tad-dati, jew attribut tal-utent. Ir-regoli ta' inklużjoni jużaw loġika OR; ir-regoli ta' esklużjoni jużaw loġika AND.",
     "Remove rule" : "Neħħi r-regola",
     "No visibility rules yet — this widget is always shown." : "Għad m'hemmx regoli ta' viżibilità — dan il-widget jintwera dejjem.",

@@ -23,6 +23,7 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
+use InvalidArgumentException;
 use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -171,9 +172,15 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return Entity The deleted placement.
 	 *
+	 * @throws InvalidArgumentException When the entity is not a widget placement.
+	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-req-vis-011
 	 */
 	public function delete(Entity $entity): Entity {
+		if (($entity instanceof WidgetPlacement) === false) {
+			throw new InvalidArgumentException(message: 'WidgetPlacementMapper deletes widget placements only');
+		}
+
 		$this->deleteRulesOfPlacementsWhere(column: 'id', value: (int)$entity->getId());
 
 		return parent::delete(entity: $entity);

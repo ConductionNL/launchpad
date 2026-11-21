@@ -261,9 +261,33 @@ async function seedFiveStates(api: APIRequestContext, label: string): Promise<Da
 	return dash
 }
 
-/** Wait, in real time. */
-async function sleep(ms: number): Promise<void> {
-	await new Promise((resolve) => setTimeout(resolve, ms))
+/**
+ * The server's clock, read from a response's Date header (one-second
+ * resolution).
+ *
+ * @param api any context.
+ * @return the server time in milliseconds.
+ */
+async function serverNow(api: APIRequestContext): Promise<number> {
+	const res = await api.get(`${API}/dashboards`)
+	return Date.parse(res.headers().date)
+}
+
+/**
+ * Wait until the server's clock is at least `ms` past `since`. The debounce
+ * and the timestamps run on the server's wall clock, which on this host can
+ * run seconds behind real time under load, so a fixed sleep on the test's
+ * clock can end before the server's window does.
+ *
+ * @param api any context.
+ * @param since a server time from {@link serverNow}.
+ * @param ms how far past it.
+ * @param timeout how long to wait at most.
+ */
+async function waitForServerClock(api: APIRequestContext, since: number, ms: number, timeout: number): Promise<void> {
+	await expect
+		.poll(async () => (await serverNow(api)) - since, { timeout, intervals: [1_000] })
+		.toBeGreaterThanOrEqual(ms)
 }
 
 test.beforeAll(async () => {
@@ -336,6 +360,7 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		const dash = await createDashboard(admin, `${STAMP} burst`)
 		await addTextWidget(admin, dash.id, 'burst-widget')
 
+		const burstStart = await serverNow(admin)
 		for (let i = 1; i <= 5; i++) {
 			const put = await admin.put(`${API}/dashboard/${dash.id}`, {
 				data: { name: `${STAMP} burst ${i}` },
@@ -344,7 +369,8 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		}
 		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
 
-		await sleep(62_000)
+		// Past the window, with room for the Date header's one-second resolution.
+		await waitForServerClock(admin, burstStart, 63_000, 150_000)
 
 		const late = await admin.put(`${API}/dashboard/${dash.id}`, {
 			data: { name: `${STAMP} burst late` },
@@ -868,8 +894,9 @@ test.describe('REQ-VERS-005 restoring', () => {
 			(await readDashboard(admin, dash.id)).dashboard.updatedAt,
 		)
 
-		// Timestamps have one-second resolution.
-		await sleep(1_500)
+		// Timestamps have one-second resolution: let the server's clock pass
+		// the second the last write was stamped in.
+		await waitForServerClock(admin, await serverNow(admin), 2_000, 20_000)
 		const res = await admin.post(
 			`${API}/dashboards/${dash.uuid}/versions/1/restore`,
 		)

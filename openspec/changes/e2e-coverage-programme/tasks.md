@@ -54,14 +54,16 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-locking.spec.ts, 17 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
   - Run 19 Nov: 3 red. Open, decisions: an administrator may not acquire the lock of another user's dashboard after a force-release (403 lock_forbidden); a colleague's save after the owner deleted the dashboard answers 403, the spec says 404; the lock-cleanup test relies on an import restoring the dashboard under its uuid, which it does not.
-- [ ] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
+- [x] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-metadata-fields.spec.ts, 30 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
   - Run 19 Nov: app defect fixed (#1430: a text field was refused by the database). Open, decision: `dashboard-metadata.set-metadata` is admin-only in `lib/actions.seed.json`, the spec lets the owner write values.
+  - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 30 of 30 green. The owner writes metadata values since #1444 (owner actions), and #1456 fixed the empty object, the dot-form list filter and the switcher filter.
 - [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-quota-limits.spec.ts, 20 scenarios cited, not yet run (cloud, 2026-11-19). 4 excluded with a reason.
   - Run 19 Nov: 1 red. Open, decision: a non-admin adding a LaunchPad widget gets 403 because the shipped default widget rights (`SeedRolePermissions`, group `default`) allow only activity and recommendations.
-- [ ] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
+- [x] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/legacy-widget-bridge.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
+  - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 3 of 3 green.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.
   - Spec written: openspec/specs/launchpad-compliance-audit-panel/spec.md (no e2e file; never built), 0 scenarios cited, not yet run (cloud, 2026-11-19). 18 excluded as never built.
 - [ ] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
@@ -179,18 +181,21 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: tests/e2e/activity-feed-integration.spec.ts, 21 scenarios cited, not yet run (cloud, 2026-11-19), 39 excluded with reasons
 - [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-unified-search-integration.spec.ts, 42 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with reasons
-- [ ] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
+- [x] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/confluence-html-import.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with reasons
+  - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 37 of 37 green.
 - [ ] 5.7 `prometheus-metrics`: 23 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/prometheus-metrics.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 10 excluded with reasons
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.
   - Spec written: tests/e2e/launchpad-adopt-or-abstractions.spec.ts (+ tests/e2e/support/orWidget.ts), 3 new scenarios cited (4 with manifest-boot.spec.ts), 16 excluded with reasons, not yet run (cloud, 2026-11-19)
-- [ ] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
+- [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
 - [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/service-health-ping.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with reasons
-- [ ] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
+- [x] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/initial-state-contract.spec.ts, 2 scenarios cited, 9 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/runtime-or-consumption.spec.ts (+ tests/e2e/support/orWidget.ts), 7 scenarios cited, 4 excluded with reasons, not yet run (cloud, 2026-11-19)
 - [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.

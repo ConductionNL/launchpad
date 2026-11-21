@@ -302,7 +302,7 @@
   - Multiple embeds on same page are independent
   > `src/embed-sdk/__tests__/LaunchPadEmbed.spec.js` (13): iframe and handshake, refusal and timeout, config checks, listeners added and removed, foreign origin, window and message kind ignored, resize, two embeds kept apart, destroy.
 
-- [ ] Task 35: Playwright integration tests:
+- [x] Task 35: Playwright integration tests:
   - Create embed token via admin UI
   - Render widget in iframe with token (public render route)
   - Verify CSP headers present
@@ -311,6 +311,7 @@
   - Verify theme CSS variables applied
   - Verify rate limiting (429 after quota exceeded)
   - Verify revocation takes effect within 60s
+  > `tests/e2e/embedded-analytics.spec.ts` (#1450): 11 of 11 green on the live pass stack 20-21 Nov (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): token issued in Admin settings, framed render, CSP and rate-limit headers, origin and token refusals, read-only writes refused (Nextcloud's 401 on login routes, 403 `read_only_token` on public ones), filters under the pinned context, theme, 429 after the burst, revocation within 60 s, and a drill-down reaching the host page through the SDK.
 
 - [x] Task 36: Create documentation:
   - `docs/embed/overview.md` — Purpose + use cases + security model

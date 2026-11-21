@@ -76,7 +76,7 @@ Users MUST be able to add conditional visibility rules to widget placements on d
   ```
 - THEN the system MUST create an exclusion rule that hides the widget when the current server time matches
 - AND `isInclude: false` MUST mean the widget is hidden when the rule matches
-- NOTE: The current time comparison uses simple string comparison (`>=` and `<=`) and does NOT handle midnight-spanning windows correctly (startTime > endTime).
+- NOTE: A window whose startTime lies after its endTime wraps around midnight.
 
 #### Scenario: Create a date-based inclusion rule
 - GIVEN widget placement id 10 on alice's dashboard
@@ -253,12 +253,12 @@ Time-based rules MUST show or hide widgets based on the current time of day usin
 - WHEN the dashboard is rendered
 - THEN the widget MUST be hidden
 
-#### Scenario: Time window spanning midnight (KNOWN LIMITATION)
+#### Scenario: Time window spanning midnight
 - GIVEN widget placement id 10 has a time inclusion rule with `startTime: "22:00", endTime: "06:00"`
 - AND the current server time is 02:00
 - WHEN the dashboard is rendered
 - THEN the widget SHOULD be visible (the time window wraps around midnight)
-- NOTE: The current implementation uses simple string comparison (`currentTime >= startTime && currentTime <= endTime`) which does NOT handle midnight-spanning windows. This is a known limitation.
+- NOTE: When `startTime > endTime` the rule matches from startTime to midnight and from midnight to endTime.
 
 #### Scenario: Time evaluation uses server timezone (NOT configurable)
 - GIVEN a time rule with `startTime: "09:00", endTime: "17:00"` (no timezone field)
@@ -447,7 +447,7 @@ When a widget placement is deleted, all its associated conditional rules MUST al
 - WHEN placement 10 is deleted via DELETE /api/widgets/10
 - THEN all 5 conditional rules MUST also be deleted
 - AND no orphaned rules MUST remain in the database
-- NOTE: `PlacementService::removePlacement()` does NOT explicitly cascade-delete conditional rules. This depends on database-level cascade constraints.
+- NOTE: `WidgetPlacementMapper::delete()` and `deleteByDashboardId()` delete the rules first; the rules table has no foreign key.
 
 #### Scenario: Delete dashboard cascades to placements and rules
 - GIVEN dashboard id 5 has 3 placements, each with 2 conditional rules
@@ -501,9 +501,7 @@ The admin settings tab "Versioning and audit" MUST list every widget placement, 
 - REQ-VIS-013 (Rules apply when a dashboard renders): `ConditionalService::visiblePlacements()` filters or marks the placements of `DashboardApiController::getActive()` / `show()`, `PublicShareController::show()`, `KioskService::renderPlaylist()` and `EmbedRenderService`.
 
 **Not yet implemented:**
-- REQ-VIS-006 midnight-spanning windows: Simple string comparison does not handle time windows spanning midnight.
 - REQ-VIS-006 timezone support: No `timezone` field support.
-- REQ-VIS-011 cascade delete: `PlacementService::removePlacement()` does not explicitly cascade-delete conditional rules.
 - Frontend UI: No Vue component exists for creating or managing conditional rules.
 
 ### Standards & References

@@ -409,9 +409,6 @@ test.describe('REQ-VIS-006 time rules', () => {
 				datetime: '2026-11-18T12:00:00',
 			}),
 		).toBe(false)
-		// SUSPECTED BUG (the scenario's own KNOWN LIMITATION): the string
-		// comparison `>= '22:00' && <= '06:00'` is never true, so the widget is
-		// hidden at 02:00 too.
 		expect(
 			await previewVisible(v('bob').who.api, night, {
 				datetime: '2026-11-18T02:00:00',

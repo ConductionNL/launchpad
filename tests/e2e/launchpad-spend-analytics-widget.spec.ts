@@ -183,8 +183,10 @@ async function answerGraphql(
 
 test.describe.configure({ mode: 'serial', timeout: 90_000 })
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	admin = await request.newContext({
 		baseURL: BASE_URL,
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
@@ -194,6 +196,10 @@ test.beforeAll(async () => {
 	// A second widget on the same grid, to show the rest of the dashboard
 	// keeps working while the spend widget sits in its empty state.
 	neighbourId = (await place('label', { text: NEIGHBOUR_TEXT }, 12)).id
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

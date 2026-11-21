@@ -16,7 +16,7 @@
  * does, and reads back every one of the six controls.
  */
 
-import type { APIRequestContext, Page } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
@@ -26,13 +26,13 @@ import {
 	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	openSidebar,
 } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -61,8 +61,10 @@ let api: APIRequestContext
 let seeded: SeededDashboard | null = null
 let sixFieldPlacementId = 0
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	/*
 	 * SEED A DASHBOARD. `gotoLaunchPad()` needs the workspace shell, which only
@@ -99,34 +101,16 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
+})
+
+test.afterAll(async () => {
 	if (sixFieldPlacementId !== 0) {
 		await api.delete(`${API}/widgets/${sixFieldPlacementId}`)
 	}
 	await removeSeededDashboard(api, seeded)
 	await api?.dispose()
 })
-
-/**
- * Put the active dashboard into edit mode (sidebar cog -> "Edit dashboard"),
- * the precondition for the right-click widget menu, and close the sidebar.
- *
- * @param page The Playwright page, already on the LaunchPad workspace.
- */
-async function enterEditMode(page: Page): Promise<void> {
-	if ((await page.locator('.launchpad-edit-mode').count()) > 0) {
-		return
-	}
-	await openSidebar(page)
-	const activeRow = page
-		.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-		)
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-edit-dashboard"]').click()
-	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-	await closeSidebar(page)
-}
 
 test.describe('label widget — content edit round-trip', () => {
 	test.describe.configure({ timeout: 90_000 })

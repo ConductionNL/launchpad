@@ -67,6 +67,8 @@ let prior: SharingSettings | null = null
 const principals: Principal[] = []
 const groups: string[] = []
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
 	admin = await adminContext()
 	prior = await readSharingSettings(admin)
@@ -75,7 +77,11 @@ test.beforeAll(async () => {
 		sharingAllowedGroups: [],
 		sharingRecipientScope: 'everyone',
 	})
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

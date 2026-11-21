@@ -264,8 +264,10 @@ async function openIframeForm(page: Page, dashboard: SeededDashboard) {
 	return dialog
 }
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	admin = await request.newContext({
 		baseURL: BASE_URL,
 		storageState: { cookies: [], origins: [] },
@@ -295,6 +297,10 @@ test.beforeAll(async () => {
 		fixture.listen(0, '0.0.0.0', () => resolve()),
 	)
 	fixtureOrigin = `http://${FIXTURE_HOST}:${(fixture.address() as AddressInfo).port}`
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

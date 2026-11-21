@@ -47,7 +47,7 @@ class WidgetService {
 	/**
 	 * Validate the `content` blob of a widget placement before save.
 	 *
-	 * REQ-MENU-002 server-side hook. The `menu` and `map` widget types have a
+	 * REQ-MENU-002 server-side hook. The `menu`, `map` and `links` widget types have a
 	 * server-side validator; any future widget that needs save-time
 	 * validation should add its own branch here so the dispatcher stays
 	 * single-responsibility.
@@ -82,6 +82,11 @@ class WidgetService {
 	private function validateContentOfType(string $widgetType, array $content): void {
 		if ($widgetType === 'map') {
 			(new MapContentValidator())->validate(content: $content);
+			return;
+		}
+
+		if ($widgetType === 'links') {
+			(new LinksContentValidator())->validate(content: $content);
 			return;
 		}
 

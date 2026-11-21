@@ -978,12 +978,18 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 		let seeded: SeededDashboard | null = null
 		let priorAllowUserDash: boolean | null = null
 
+		let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 		test.beforeAll(async () => {
-			await ensureDefaultWidgetRestriction()
+			restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 			const settings = await admin.get(`${API}/admin/settings`)
 			expect(settings.status(), await settings.text()).toBe(200)
 			priorAllowUserDash = (await settings.json()).allowUserDashboards === true
 			seeded = await seedActiveDashboard(admin, `E2E resource upload ${RUN}`)
+		})
+
+		test.afterAll(async () => {
+			await restoreWidgetRestriction?.()
 		})
 
 		test.afterAll(async () => {

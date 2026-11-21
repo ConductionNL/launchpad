@@ -55,11 +55,17 @@ let dashboard: SeededDashboard | null = null
 
 // Every widget goes on a dashboard this file seeds and makes active, so the
 // cells it looks for are its own and not whatever admin's dashboard holds.
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	api = await apiAs()
 	dashboard = await seedActiveDashboard(api, `E2E Image widget ${Date.now()}`)
 	await clearSeededWidgets(api, dashboard.id)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

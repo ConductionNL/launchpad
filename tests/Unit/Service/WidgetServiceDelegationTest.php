@@ -142,6 +142,21 @@ class WidgetServiceDelegationTest extends TestCase {
 		$this->service->addWidget(dashboardId: 3, widgetId: 'map', layout: ['content' => ['markers' => ['dataSource' => $source]]]);
 	}
 
+	/**
+	 * A links widget carrying a javascript: URL is refused before it is saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/links-widget/spec.md#requirement-req-lnks-007-url-sanitisation-and-validation
+	 */
+	public function testAddWidgetRejectsALinksWidgetWithAJavascriptUrl(): void {
+		$this->placements->expects($this->never())->method('addWidget');
+		$content = ['sections' => [['title' => 'Bad', 'links' => [['label' => 'x', 'url' => 'javascript:alert(1)']]]]];
+
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->service->addWidget(dashboardId: 3, widgetId: 'links', layout: ['content' => $content]);
+	}
+
 	public function testValidateWidgetContentAcceptsAValidMenu(): void {
 		$this->service->validateWidgetContent(widgetType: 'menu', content: ['style' => 'tree', 'items' => 'not-a-list']);
 

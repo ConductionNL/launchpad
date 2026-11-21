@@ -64,10 +64,16 @@ let dashboard: SeededDashboard | null = null
 
 test.setTimeout(120_000)
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 	api = await adminApi()
 	dashboard = await seedActiveDashboard(api, `E2E Quicklinks form ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterEach(async () => {

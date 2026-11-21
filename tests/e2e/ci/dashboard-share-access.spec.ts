@@ -58,6 +58,8 @@ let bob: Principal | null = null
 let carol: Principal | null = null
 let marketing: string | null = null
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
 	admin = await adminContext()
 	prior = await readSharingSettings(admin)
@@ -68,7 +70,7 @@ test.beforeAll(async () => {
 		sharingAllowedGroups: [],
 		sharingRecipientScope: 'everyone',
 	})
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	alice = await createPrincipal(admin, 'e2e-sacc-alice')
 	bob = await createPrincipal(admin, 'e2e-sacc-bob')
@@ -78,6 +80,10 @@ test.beforeAll(async () => {
 	}
 	marketing = await createGroup(admin, `e2e-sacc-marketing-${STAMP}`)
 	await addToGroup(admin, alice.username, marketing)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {

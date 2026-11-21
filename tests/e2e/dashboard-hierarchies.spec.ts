@@ -21,6 +21,7 @@ import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { NL_ADMINISTRATIVE, putHierarchies, readHierarchies, storeHierarchies } from './support/hierarchies.ts'
 import { adminContext, assertActingAs, createPrincipal, removePrincipal, seedDashboardWithWidget, shareWith } from './support/principals.ts'
 import { adminApi, openWorkspace, Seeds } from './support/widgetPlacements.ts'
@@ -38,6 +39,31 @@ test.describe('A dashboard stores its hierarchies', () => {
 			// A later edit that does not name them leaves them alone.
 			const rename = await seeds.api.put(`/index.php/apps/launchpad/api/dashboard/${dash.id}`, { data: { name: 'Renamed' } })
 			expect(rename.status(), await rename.text()).toBe(200)
+			expect(await readHierarchies(seeds.api, dash.id)).toEqual([NL_ADMINISTRATIVE])
+		} finally {
+			await seeds.cleanup()
+		}
+	})
+
+	test('@e2e cross-widget-filter::an-owner-picks-the-nl-administrative-preset the owner picks the preset in the dashboard settings', async ({ page }) => {
+		const seeds = new Seeds(await adminApi())
+		try {
+			const dash = await seeds.dashboard(`E2E hierarchies picked ${Date.now()}`)
+			await openWorkspace(page)
+			const more = page.locator(MORE_MENU)
+			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
+			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+
+			const select = page.getByTestId('dashboard-hierarchies-select').or(page.getByLabel('Drill-down levels')).first()
+			await expect(select).toBeVisible({ timeout: 10_000 })
+			await select.click()
+			await page.getByRole('option').filter({ hasText: 'Dutch administrative areas' }).click()
+
+			const saved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().endsWith(`/api/dashboard/${dash.id}`))
+			await page.getByTestId('dashboard-save-button').click()
+			const body = (await saved).request().postDataJSON()
+			expect(body.hierarchies).toEqual([NL_ADMINISTRATIVE])
+
 			expect(await readHierarchies(seeds.api, dash.id)).toEqual([NL_ADMINISTRATIVE])
 		} finally {
 			await seeds.cleanup()

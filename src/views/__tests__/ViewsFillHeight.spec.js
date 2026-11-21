@@ -12,6 +12,15 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn(), showSuccess: vi.fn() }))
 vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn() } }))
+// The unit suite runs against a stub of nextcloud-vue (vitest.config.js), so
+// the divider's registered minimum is supplied here.
+vi.mock('../../constants/widgetRegistry.js', async (importOriginal) => {
+	const actual = await importOriginal()
+	return {
+		...actual,
+		getWidgetTypeEntry: (type) => (type === 'divider' ? { minHeight: 1 } : actual.getWidgetTypeEntry(type)),
+	}
+})
 
 let Views
 

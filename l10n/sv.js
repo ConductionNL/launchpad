@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Inga instrumentpaneler tillgängliga",
     "Contact your administrator" : "Kontakta din administratör",
     "Create your first dashboard" : "Skapa din första instrumentpanel",
-    "Open menu" : "Öppna meny",
     "Save failed" : "Det gick inte att spara",
     "My dashboards" : "Mina instrumentpaneler",
     "Group dashboards" : "Gruppinstrumentpaneler",

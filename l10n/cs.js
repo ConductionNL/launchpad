@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Nejsou k dispozici žádné nástěnky",
     "Contact your administrator" : "Kontaktujte svého správce",
     "Create your first dashboard" : "Vytvořte svou první nástěnku",
-    "Open menu" : "Otevřít nabídku",
     "Save failed" : "Uložení se nezdařilo",
     "My dashboards" : "Moje nástěnky",
     "Group dashboards" : "Skupinové nástěnky",

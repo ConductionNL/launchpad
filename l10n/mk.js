@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Нема достапни контролни табли",
     "Contact your administrator" : "Контактирајте го вашиот администратор",
     "Create your first dashboard" : "Создајте ја вашата прва контролна табла",
-    "Open menu" : "Отвори мени",
     "Save failed" : "Зачувувањето не успеа",
     "My dashboards" : "Моите контролни табли",
     "Group dashboards" : "Групни контролни табли",

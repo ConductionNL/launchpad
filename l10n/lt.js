@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Nėra prieinamų valdymo skydų",
     "Contact your administrator" : "Susisiekite su savo administratoriumi",
     "Create your first dashboard" : "Sukurkite savo pirmąjį valdymo skydą",
-    "Open menu" : "Atverti meniu",
     "Save failed" : "Įrašyti nepavyko",
     "My dashboards" : "Mano valdymo skydai",
     "Group dashboards" : "Grupės valdymo skydai",

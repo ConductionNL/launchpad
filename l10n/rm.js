@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Naginas tablas da cumond disponiblas",
     "Contact your administrator" : "Contactar Ses administratur",
     "Create your first dashboard" : "Crear Sia emprima tabla da cumond",
-    "Open menu" : "Avrir il menu",
     "Save failed" : "Betg reussì da memorisar",
     "My dashboards" : "Mias tablas da cumond",
     "Group dashboards" : "Tablas da cumond da la gruppa",

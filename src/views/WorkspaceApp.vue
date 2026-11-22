@@ -19,39 +19,6 @@
 		     render anything based on the empty-state + position rules. -->
 		<OrgNavigationPanel v-if="orgNavStore.shouldRender" />
 
-		<!-- Region 1: sidebar backdrop (REQ-SHELL-006).
-		     Fixed-position overlay behind the slide-in sidebar. Clicking
-		     the backdrop emits `close` → `sidebarOpen = false`. The
-		     sidebar panel itself uses @click.stop so clicks inside never
-		     propagate to the backdrop. Starts at top:50px to clear the
-		     Nextcloud header chrome. -->
-		<SidebarBackdrop v-if="sidebarOpen" @close="closeSidebar" />
-
-		<!-- Region 2: hamburger + active-dashboard label strip
-		     (REQ-SHELL-004). Always visible regardless of canEdit.
-		     The hamburger uses NcButton tertiary so its hover/focus
-		     ring matches the Nextcloud account-menu button. The
-		     active dashboard's name is rendered as a static label —
-		     dashboard switching is owned by the left sidebar
-		     (REQ-SWITCH-002). -->
-		<!-- Title strip is only visible when the sidebar is OPEN.
-		     When closed, the floating sidebar-toggle in launchpad-floating-controls
-		     (top-right) is the only entry point. -->
-		<div v-if="sidebarOpen" class="workspace-shell__strip">
-			<NcButton
-				variant="tertiary"
-				:aria-label="t('launchpad', 'Open menu')"
-				class="workspace-shell__hamburger"
-				@click="toggleSidebar">
-				<template #icon>
-					<MenuIcon :size="20" />
-				</template>
-			</NcButton>
-			<h1 class="workspace-shell__title">
-				{{ activeDashboardName }}
-			</h1>
-		</div>
-
 		<!-- Region 3 (edit toolbar) removed: editing actions (Edit/Save
 		     dashboard, Add widget) live in the per-dashboard cog
 		     menu (DashboardRowActions) so the page chrome stays clean. -->
@@ -152,14 +119,12 @@ import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import CalendarOutline from 'vue-material-design-icons/CalendarOutline.vue'
 import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
 import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
-import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
 import WeatherPartlyCloudy from 'vue-material-design-icons/WeatherPartlyCloudy.vue'
 import NoticeBannerRegion from '../components/Announcements/NoticeBannerRegion.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
-import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import TileSidePanel from '../components/Workspace/TileSidePanel.vue'
 import Views from './Views.vue'
@@ -183,11 +148,11 @@ const STARTER_WIDGETS = [
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
  *
- * Owns the five-region page chrome: org nav rail, slide-in sidebar backdrop,
- * hamburger + active-dashboard label strip, edit toolbar (Add Widget + Save
- * Layout, gated by canEdit), and the grid container that either shows the
- * dashboard (delegating to Views.vue for widget machinery) or the empty-state
- * branch (REQ-SHELL-005).
+ * Owns the page chrome: the org nav rail, the notice banners and the grid
+ * container that either shows the dashboard (delegating to Views.vue, which
+ * also owns the dashboard switcher sidebar) or the empty-state branch
+ * (REQ-SHELL-005). It renders no sidebar toggle and no title strip
+ * (REQ-SHELL-004).
  *
  * Permission rule (REQ-SHELL-002): `canEdit = isAdmin || dashboardSource === 'user'`.
  * Gates the edit toolbar (REQ-SHELL-003) and per-widget context menu entries.
@@ -197,9 +162,6 @@ const STARTER_WIDGETS = [
  * the JS reader so a missing key never produces `undefined`.
  *
  * Lifecycle (REQ-SHELL-007):
- *  - `mounted()` registers `document.click` after `nextTick()` so the
- *    grid-container ref is non-null before the listener fires.
- *  - `beforeUnmount()` removes the listener.
  *  - GridStack is owned by Views.vue; its destroy hook fires when Views
  *    unmounts (satisfying REQ-SHELL-007 grid-destroy scenario).
  *
@@ -211,12 +173,10 @@ export default {
 	components: {
 		NoticeBannerRegion,
 		NcButton,
-		MenuIcon,
 		ViewDashboardOutline,
 		Views,
 		DashboardFooter,
 		OrgNavigationPanel,
-		SidebarBackdrop,
 		StartPageMenu,
 		TileSidePanel,
 	},
@@ -282,12 +242,6 @@ export default {
 		},
 	},
 
-	data() {
-		return {
-			sidebarOpen: false,
-		}
-	},
-
 	computed: {
 		/**
 		 * The starter widgets the empty state lists, labelled.
@@ -325,28 +279,6 @@ export default {
 		 */
 		hasActiveDashboard() {
 			return Boolean(this.injectedActiveDashboardId)
-		},
-
-		/**
-		 * Active dashboard's display name (REQ-SHELL-004 active-name
-		 * scenario). Resolved from the union of group + user dashboards.
-		 * Empty string when no active dashboard is resolved.
-		 *
-		 * @return {string}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-6
-		 */
-		activeDashboardName() {
-			if (!this.injectedActiveDashboardId) {
-				return ''
-			}
-			const all = [
-				...(this.injectedUserDashboards || []),
-				...(this.injectedGroupDashboards || []),
-			]
-			const match = all.find(
-				(d) => d && d.id === this.injectedActiveDashboardId,
-			)
-			return match ? match.name || '' : ''
 		},
 
 		/**
@@ -451,55 +383,14 @@ export default {
 	},
 
 	mounted() {
-		document.addEventListener('keydown', this.onDocumentKeydown)
 		// The rail mounts only once a position and a non-empty tree are in
 		// the store, so the shell loads both rather than the rail itself.
 		this.orgNavStore.fetchPosition()
 		this.orgNavStore.fetchTree()
 	},
 
-	beforeUnmount() {
-		document.removeEventListener('keydown', this.onDocumentKeydown)
-	},
-
 	methods: {
 		t,
-
-		/**
-		 * Escape closes the slide-in sidebar (WCAG 2.2 AA SC 2.1.1 Keyboard).
-		 *
-		 * The sidebar could be dismissed two ways, and both needed a mouse:
-		 * clicking the backdrop, or clicking the hamburger again. The
-		 * backdrop is a `role="presentation"` overlay that never takes focus,
-		 * so a `@keydown` bound to the backdrop element itself could never
-		 * fire — the listener has to be on the document to be reachable at
-		 * all, whatever happens to hold focus when the sidebar opens.
-		 *
-		 * Guarded on `sidebarOpen` so this does not swallow Escape from the
-		 * quick-search bar (REQ-QSEARCH-003), which owns its own Escape
-		 * contract and is only reachable while the sidebar is closed. An
-		 * Escape a menu already handled (it calls `preventDefault()`) closed
-		 * that menu and leaves the sidebar open.
-		 *
-		 * @param {KeyboardEvent} event the document keydown.
-		 * @return {void}
-		 * @spec openspec/specs/runtime-shell/spec.md
-		 */
-		onDocumentKeydown(event) {
-			if (event.key === 'Escape' && !event.defaultPrevented && this.sidebarOpen) {
-				this.closeSidebar()
-			}
-		},
-
-		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
-		toggleSidebar() {
-			this.sidebarOpen = !this.sidebarOpen
-		},
-
-		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
-		closeSidebar() {
-			this.sidebarOpen = false
-		},
 
 		/**
 		 * Create the user's first personal dashboard from the empty-state
@@ -562,26 +453,6 @@ export default {
 
 .workspace-shell--org-nav-top {
 	flex-direction: column;
-}
-
-.workspace-shell__strip {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 8px 16px;
-	border-bottom: 1px solid var(--color-border, #ddd);
-	background: var(--color-main-background, #fff);
-}
-
-.workspace-shell__hamburger {
-	flex: 0 0 auto;
-}
-
-.workspace-shell__title {
-	font-weight: 600;
-	font-size: 1.05em;
-	color: var(--color-main-text, #222);
-	margin: 0;
 }
 
 /* REQ-SHELL-003: edit toolbar — only rendered when canEdit=true via v-if. */
@@ -653,8 +524,6 @@ export default {
 	outline-offset: -2px;
 }
 
-/* tile-quick-search REQ-QSEARCH-001: the bar sits above the tile grid,
-   full width, matching the title-strip's horizontal padding. */
 .workspace-shell__empty {
 	display: flex;
 	flex-direction: column;

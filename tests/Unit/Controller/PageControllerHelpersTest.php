@@ -148,8 +148,8 @@ class PageControllerHelpersTest extends TestCase {
 		$controller = $this->controllerWithApps(appManager: $apps);
 		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
 
-		$this->assertTrue($check->invoke($controller, 'spreed'));
-		$this->assertFalse($check->invoke($controller, 'spreed'));
+		$this->assertTrue(condition: $check->invoke($controller, 'spreed'));
+		$this->assertFalse(condition: $check->invoke($controller, 'spreed'));
 	}
 
 	/**
@@ -159,17 +159,17 @@ class PageControllerHelpersTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnIntegrationAppIsAskedAboutForTheViewer(): void {
-		$user = $this->createMock(IUser::class);
+		$user = $this->createMock(originalClassName: IUser::class);
 		$this->session->method('getUser')->willReturn($user);
-		$apps = $this->createMock(IAppManager::class);
+		$apps = $this->createMock(originalClassName: IAppManager::class);
 		$apps->method('isEnabledForUser')->willReturnCallback(
 			static fn (string $appId, $viewer): bool => $appId === 'openregister' && $viewer === $user
 		);
 		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
 		$controller = $this->controllerWithApps(appManager: $apps);
 
-		$this->assertTrue($check->invoke($controller, 'openregister'));
-		$this->assertFalse($check->invoke($controller, 'integration_openproject'));
+		$this->assertTrue(condition: $check->invoke($controller, 'openregister'));
+		$this->assertFalse(condition: $check->invoke($controller, 'integration_openproject'));
 	}
 
 	/**
@@ -179,24 +179,24 @@ class PageControllerHelpersTest extends TestCase {
 	 * @return void
 	 */
 	public function testARenamedFleetAppAnswersWithItsInstalledId(): void {
-		$user = $this->createMock(IUser::class);
+		$user = $this->createMock(originalClassName: IUser::class);
 		$this->session->method('getUser')->willReturn($user);
 		$check = new ReflectionMethod(PageController::class, 'enabledFleetAppId');
 
-		$legacy = $this->createMock(IAppManager::class);
+		$legacy = $this->createMock(originalClassName: IAppManager::class);
 		$legacy->method('isInstalled')->willReturnCallback(static fn (string $appId): bool => $appId === 'procest');
 		$legacy->method('isEnabledForUser')->willReturn(true);
-		$this->assertSame('procest', $check->invoke($this->controllerWithApps(appManager: $legacy), 'dossiq'));
+		$this->assertSame(expected: 'procest', actual: $check->invoke($this->controllerWithApps(appManager: $legacy), 'dossiq'));
 
-		$disabled = $this->createMock(IAppManager::class);
+		$disabled = $this->createMock(originalClassName: IAppManager::class);
 		$disabled->method('isInstalled')->willReturn(true);
 		$disabled->method('isEnabledForUser')->willReturn(false);
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $disabled), 'dossiq'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $disabled), 'dossiq'));
 
-		$absent = $this->createMock(IAppManager::class);
+		$absent = $this->createMock(originalClassName: IAppManager::class);
 		$absent->method('isInstalled')->willReturn(false);
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $absent), 'dossiq'));
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null), 'dossiq'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $absent), 'dossiq'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'dossiq'));
 	}
 
 	/**
@@ -206,14 +206,14 @@ class PageControllerHelpersTest extends TestCase {
 	 */
 	public function testTalkIsOffWithoutASessionAnAppManagerOrWhenTheCheckFails(): void {
 		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
 
 		$this->session->method('getUser')->willReturn($this->createMock(IUser::class));
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
 
 		$failing = $this->createMock(IAppManager::class);
 		$failing->method('isEnabledForUser')->willThrowException(new RuntimeException('app store down'));
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $failing), 'spreed'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $failing), 'spreed'));
 	}
 
 	public function testUserIdIsEmptyWithoutASession(): void {

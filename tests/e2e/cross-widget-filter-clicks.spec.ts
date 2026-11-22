@@ -16,7 +16,8 @@
  *
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::a-click-filters-the-consumers-and-the-url
- *   @e2e cross-widget-filter::drilling-down-a-hierarchy-shows-the-breadcrumb
+ *   @e2e cross-widget-filter::drilling-down-infers-ancestor-filters
+ *   @e2e cross-widget-filter::going-back-up-the-breadcrumb-clears-the-levels-below
  *   @e2e cross-widget-filter::a-second-publisher-replaces-the-filter-with-a-toast
  *   @e2e cross-widget-filter::removing-a-clicked-clause-unfilters-the-consumers
  *   @e2e cross-widget-filter::telemetry-records-an-apply-without-a-value
@@ -224,7 +225,8 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 		}
 	})
 
-	// @e2e cross-widget-filter::drilling-down-a-hierarchy-shows-the-breadcrumb
+	// @e2e cross-widget-filter::drilling-down-infers-ancestor-filters
+	// @e2e cross-widget-filter::going-back-up-the-breadcrumb-clears-the-levels-below
 	test('a wijk click shows its provincie and gemeente in the breadcrumb; going back up clears the levels below; another wijk moves them', async ({ page }) => {
 		const seeds = new Seeds(await adminApi())
 		try {

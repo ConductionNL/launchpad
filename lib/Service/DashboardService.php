@@ -654,14 +654,12 @@ class DashboardService {
 	 * @return array|null The result.
 	 */
 	private function resolveSharedOrTemplateDashboard(string $userId): ?array {
-		$result = $this->builders->dashResolver->tryGetSharedDashboard(
-			userId: $userId,
-			userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
-				userId: $userId
-			)
-		);
-		if ($result !== null) {
-			return $result;
+		// Taken from the visible set so a share obeys the same publication
+		// filter here as in `/api/dashboards/visible` (REQ-DASH-036).
+		foreach ($this->getVisibleToUser(userId: $userId) as $entry) {
+			if ((string)$entry['source'] === Dashboard::SOURCE_SHARED) {
+				return $this->preferredResult(entry: $entry, userId: $userId);
+			}
 		}
 
 		return $this->tryCreateFromTemplate(userId: $userId);
@@ -1282,7 +1280,7 @@ class DashboardService {
 	 * @return Dashboard The activated dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/specs/dashboard-sharing/spec.md#requirement-req-share-005
+	 * @spec openspec/specs/dashboard-sharing/spec.md#requirement-owner-only-metadata-and-lifecycle-operations-req-share-005
 	 */
 	public function activateDashboard(
 		int $dashboardId,
@@ -1752,32 +1750,23 @@ class DashboardService {
 		);
 
 		// REQ-SHARE-002: dashboards reached through an explicit share row
-		// are part of "visible to me" too. The mapper's union only covers
-		// ownership, group_shared membership and the `default` sentinel, so
-		// without this a share is invisible: the recipient never sees the
-		// dashboard in the switcher and the resolver can never land on it.
-		//
-		// Appended AFTER the publication filter, deliberately. Every
-		// dashboard DashboardFactory creates starts as `draft`
-		// (REQ-DASH-031), and the filter hides drafts from non-owners — so
-		// running shares through it would delete every share again, for the
-		// ordinary case, and leave the feature exactly as dead as before.
-		// A share row is the owner's explicit, named grant to this specific
-		// user; it is the same class of entitlement that already exempts
-		// the owner and admins from the hide, and it is what
-		// PermissionService::resolveAccessLevel() already honours. Users
-		// WITHOUT a share still cannot see a draft.
-		//
-		// Deduped by UUID against the filtered set so an owned or
-		// group-reached row always keeps its stronger source tag.
+		// are part of "visible to me" too; the mapper's union only covers
+		// ownership, group_shared membership and the `default` sentinel.
+		// They pass the same publication filter (REQ-DASH-036): a recipient
+		// sees a shared dashboard once it is published. Deduped by UUID so an
+		// owned or group-reached row keeps its stronger source tag.
 		$seenUuids = [];
 		foreach ($filtered as $entry) {
 			$seenUuids[(string)$entry['dashboard']->getUuid()] = true;
 		}
 
-		$sharedEntries = $this->builders->dashResolver->findSharedDashboards(
-			userId: $userId,
-			userGroupIds: $userGroupIds
+		$sharedEntries = $this->filterByPublicationState(
+			entries: $this->builders->dashResolver->findSharedDashboards(
+				userId: $userId,
+				userGroupIds: $userGroupIds
+			),
+			actorUserId: $userId,
+			actorIsAdmin: $isAdmin
 		);
 		foreach ($sharedEntries as $sharedEntry) {
 			$uuid = (string)$sharedEntry['dashboard']->getUuid();
@@ -1785,40 +1774,12 @@ class DashboardService {
 				continue;
 			}
 
-			// A due scheduled row still materialises in-memory so the
-			// recipient sees the same `published` state everyone else does.
-			$this->materialiseDueSchedule(dashboard: $sharedEntry['dashboard']);
-
 			$seenUuids[$uuid] = true;
 			$filtered[] = $sharedEntry;
 		}
 
 		return $filtered;
 	}//end getVisibleToUser()
-
-	/**
-	 * Surface a due `scheduled` dashboard as `published`, in memory only.
-	 *
-	 * Extracted from {@see self::filterByPublicationState()} so the
-	 * share-reached path (which deliberately bypasses the visibility hide,
-	 * see `getVisibleToUser`) still reports the same publication state as
-	 * every other viewer. No DB write — REQ-DASH-034.
-	 *
-	 * @param Dashboard $dashboard The dashboard to materialise.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	private function materialiseDueSchedule(Dashboard $dashboard): void {
-		if ($dashboard->getPublicationStatus() !== Dashboard::STATUS_SCHEDULED) {
-			return;
-		}
-
-		if ($this->isDue(dashboard: $dashboard, now: new DateTime()) === true) {
-			$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
-		}
-	}//end materialiseDueSchedule()
 
 	/**
 	 * Whether a dashboard's `publishAt` has passed. A missing or

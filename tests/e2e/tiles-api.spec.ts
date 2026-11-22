@@ -45,6 +45,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	seedDashboardWithWidget,
 	shareWith,
@@ -294,6 +295,7 @@ test('a view-only share refuses a tile with 403; the owner of the dashboard can 
 		`E2E view-only tiles ${STAMP}`,
 	)
 	try {
+		await publishForRecipients(admin, seeded.id)
 		await shareWith(admin, seeded.id, stranger.username, 'view_only')
 		const before = (await readPlacements(admin, seeded.id)).length
 		const refused = await placeTile(stranger.api, seeded.id, {

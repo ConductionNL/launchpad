@@ -51,6 +51,7 @@ import {
 	contextFor,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 	removeRole,
@@ -148,6 +149,7 @@ async function shareWithUser(
 	id: number,
 	username: string,
 ): Promise<void> {
+	await publishForRecipients(api, Number(id))
 	const res = await api.post(`${API}/dashboard/${id}/shares`, {
 		data: {
 			shareType: 'user',

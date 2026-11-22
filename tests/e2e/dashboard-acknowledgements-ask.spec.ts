@@ -42,6 +42,7 @@ import { enterEditMode } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 } from './support/principals.ts'
 
@@ -69,6 +70,7 @@ test.beforeAll(async () => {
 	dashboard = await createPersonalDashboard(sanne, `Team ${RUN}`)
 	await activate(sanne.api, dashboard.uuid)
 	placementId = await addTextWidget(sanne.api, dashboard.id, WIDGET, 0)
+	await publishForRecipients(sanne.api, dashboard.id)
 	await share(sanne.api, dashboard.id, pieter.username, 'view_only')
 	await activate(pieter.api, dashboard.uuid)
 })

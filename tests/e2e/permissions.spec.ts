@@ -705,7 +705,7 @@ test.describe('permission levels on a template copy the user owns', () => {
 		try {
 			const items = await moreMenuItems(page)
 			expect(items).toContain('cn-grouped-menu-item-set-default')
-			for (const hidden of ['edit', 'add-widget', 'add-custom-widget']) {
+			for (const hidden of ['edit', 'add-widget']) {
 				expect(items, `${hidden} must not be offered`).not.toContain(
 					`cn-grouped-menu-item-${hidden}`,
 				)

@@ -7,7 +7,7 @@
  *
  * Each test gives a fresh throwaway account one dashboard with text widgets at
  * exact coordinates (seeded through the API), then adds a Label through the
- * product's own "Add custom widget…" flow, or removes one through the widget
+ * product's own "Add widget" → "Custom widget" flow, or removes one through the widget
  * menu. The add flow sends no size, so the new widget takes the 4x4 default.
  * The test reads the created placement from the server's answer, the rendered
  * `gs-*` attributes, every save the page sends, and the stored layout.
@@ -92,7 +92,7 @@ function recordWrites(page: Page): Request[] {
 }
 
 /**
- * Add a Label through More menu → "Add custom widget…" and return the
+ * Add a Label through More menu → "Add widget" → "Custom widget" and return the
  * placement the server created.
  *
  * @param page The page.
@@ -108,8 +108,9 @@ async function addLabel(
 		.locator('[data-testid="cn-grouped-menu-trigger"]')
 		.click()
 	await page
-		.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')
+		.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 		.click()
+	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })

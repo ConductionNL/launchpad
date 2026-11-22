@@ -7,7 +7,7 @@
  * e2e-coverage-programme.
  *
  * The add and config scenarios drive the real Add Widget modal (sidebar →
- * personal-row cog → "Add custom widget…" → type "People") and read the
+ * personal-row cog → "Add widget" → "Custom widget" → type "People") and read the
  * placement back through the API, so "saved" means what the server kept, not
  * what the form showed. The modal adds to whichever personal dashboard the
  * sidebar lists first, so the dashboard id is taken from the add request

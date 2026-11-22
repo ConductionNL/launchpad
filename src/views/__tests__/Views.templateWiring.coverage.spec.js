@@ -341,13 +341,21 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(false)
 	}, 90000)
 
-	it('the Meer menu\'s "Add custom widget…" opens the custom-widget modal for the active dashboard', async () => {
+	it('"Custom widget" in the picker opens the custom widget form, with no second menu entry', async () => {
 		const { wrapper, dashStore } = await mountViews()
-		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addCustomWidget')
+		const picker = () => wrapper.findComponent({ name: 'WidgetPickerModal' })
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
+		await flushPromises()
+
+		expect(picker().vm.$attrs.customTypeTitles.length).toBeGreaterThan(0)
+		picker().vm.$emit('addCustom')
 		await flushPromises()
 
 		expect(dashStore.switchDashboard).not.toHaveBeenCalled()
-		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(true)
+		expect(picker().vm.$attrs.open).toBe(false)
+		const form = wrapper.findComponent({ name: 'CnAddWidgetModal' })
+		expect(form.props('show')).toBe(true)
+		expect(wrapper.vm.customWidgetPreselectedType).toBeNull()
 	}, 90000)
 
 	it('the Meer menu\'s "Set as default" toggles the pinned default dashboard over HTTP', async () => {

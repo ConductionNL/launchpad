@@ -257,12 +257,12 @@
 </template>
 
 <script>
+import { appTileColourValue } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import { appTileColourValue } from '@conduction/nextcloud-vue'
 import { FLAG_PROP, LIST_PROP } from '../constants/propDefinitions.js'
 
 export default {

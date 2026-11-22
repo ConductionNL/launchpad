@@ -37,6 +37,7 @@ use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -45,6 +46,7 @@ use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
+use OCP\Server;
 use Throwable;
 
 /**
@@ -3681,20 +3683,24 @@ class DashboardService {
 
 	/**
 	 * The app ids in the current user's app menu, in menu order; empty when
-	 * the menu is unknown.
+	 * the menu is unknown, such as outside a request. The menu is looked up
+	 * here rather than injected because the constructor's parameter holders
+	 * are at the unit size limit.
 	 *
 	 * @return array<int, string> The app ids.
 	 *
 	 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-a-first-dashboard-starts-with-a-tile-per-most-used-app-req-apptile-003
 	 */
 	private function menuAppIds(): array {
-		if ($this->outlets->appMenu === null) {
+		try {
+			$appMenu = Server::get(ServiceDiscoveryServiceInterface::class);
+		} catch (Throwable) {
 			return [];
 		}
 
 		return array_map(
 			static fn (array $app): string => $app['appId'],
-			$this->outlets->appMenu->discover()
+			$appMenu->discover()
 		);
 	}//end menuAppIds()
 

@@ -120,17 +120,42 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 
 ### Requirement: Empty state (REQ-SHELL-005)
 
-When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container, directly on the page ground with no card or panel of its own, as board LpEersteKeer draws it, with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
+When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container, directly on the page ground with no card or panel of its own, as board LpEersteKeer draws it. Its heading is "You have no dashboard yet" (nl "U heeft nog geen dashboard").
+
+When `allowUserDashboards` is `true` the empty state MUST show, in this order:
+
+- the explanation "A dashboard puts your apps, messages and appointments in one place. Start with a few starter widgets and then adjust it as you like." (nl "Een dashboard zet uw apps, berichten en afspraken op één plek. Begin met een paar startwidgets en pas het daarna aan zoals u wilt.");
+- the starter widgets: Apps, Calendar, Mail, Files, Weather and News from the organisation (nl Apps, Agenda, E-mail, Bestanden, Weer, Nieuws van de organisatie);
+- the note "These 6 starter widgets go on it. You can move or remove them later." (nl "Deze 6 startwidgets komen erop. U kunt ze later verplaatsen of weghalen.");
+- a primary "Create my first dashboard (with starter widgets)" button (nl "Maak mijn eerste dashboard (met startwidgets)") and a secondary "Start empty" button (nl "Leeg beginnen").
+
+Both buttons create a personal dashboard named "My dashboard" through `POST /api/dashboard`, which takes an optional `widgets` choice. `starters` seeds the starter widgets (`lib/Service/StarterWidgetSeeds.php`), each one usable without configuration: an `app-tiles` grid of the person's apps, a `calendar` agenda on their personal calendar, Nextcloud Mail's `mail` dashboard widget through `nc-widget`, `files`, `weather` at their weather-status location, and the organisation's `announcements`. `none` seeds nothing. With no choice the create keeps the default widget bundle (default-widget-bundle), so the "+" new-dashboard flow does not change.
+
+When `allowUserDashboards` is `false` no create button and no starter list MUST be shown, and the message MUST direct the user to contact their administrator.
+
+#### Scenario: A first dashboard with starter widgets
+- GIVEN a member without a dashboard, and personal dashboards are allowed
+- WHEN they choose "Create my first dashboard (with starter widgets)"
+- THEN the new dashboard MUST hold the six starter widgets, in the order listed above
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-005
+
+#### Scenario: A first dashboard started empty
+- GIVEN a member without a dashboard, and personal dashboards are allowed
+- WHEN they choose "Start empty"
+- THEN the new dashboard MUST hold no widgets
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-005
 
 #### Scenario: Empty state with creation enabled
 
-@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account resolves to, so no account gets the empty state without deleting the shipped default on a shared instance (runtime-shell-canEdit.spec.ts keeps its attempt as fixme for this reason). The branch is pinned by src/views/__tests__/WorkspaceApp.spec.js "empty state with allowUserDashboards renders Create CTA" and WorkspaceApp.behaviour.spec.js "creates a first dashboard from the empty state".
+@e2e exclude Unreachable on a live instance: since #361 (c9e58089) SeedDefaultDashboard provisions a dashboard on the reserved `default` group that every account resolves to, so no account gets the empty state without deleting the shipped default on a shared instance (runtime-shell-canEdit.spec.ts keeps its attempt as fixme for this reason). The branch is pinned by src/views/__tests__/WorkspaceApp.spec.js "empty state with allowUserDashboards renders Create CTA" and WorkspaceApp.behaviour.spec.js "creates a first dashboard from the empty state" and "creates an empty first dashboard from Start empty"; what each button stores is proved against the live endpoint by tests/e2e/first-run-starter-widgets.spec.ts.
 
 - GIVEN no active dashboard is resolved
 - AND `allowUserDashboards` is `true`
 - WHEN the workspace renders
-- THEN the empty-state MUST render with a "Create your first dashboard" button
-- AND clicking it MUST call `POST /api/dashboards` with a default name
+- THEN the empty-state MUST render with the starter widgets, a "Create my first dashboard (with starter widgets)" button and a "Start empty" button
+- AND the first MUST call `POST /api/dashboard` with a default name and `widgets: "starters"`, the second with `widgets: "none"`
 
 #### Scenario: Empty state with creation disabled
 
@@ -250,7 +275,7 @@ LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`), a
 1. As board LpEersteKeer draws step 1: the title "Here you switch between dashboards" (nl "Hier wisselt u tussen dashboards") and the body "Your own dashboards, what colleagues share with you and the organisation's group dashboards are under More, next to the marketplace and the settings. Pick one to open it." (nl "Uw eigen dashboards, wat collega's met u delen en de groepsdashboards van de organisatie staan onder Meer, naast de marktplaats en de instellingen. Kies er een om hem te openen."). It moves on with Next.
 2. "Reports and Flows are under More as well.", which asks the user to open Flows from More, moves on when the Flows route matches and may be skipped.
 
-The More menu is the target with or without an active dashboard: `DashboardMoreMenu` carries `data-testid="launchpad-more-menu"` and the empty state's `StartPageMenu` carries `data-walkthrough-id="launchpad-more-menu"`. With no navigation panel (REQ-SHELL-009) the tour has no menu items to point at. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
+The More menu is the target with or without an active dashboard: `DashboardMoreMenu` carries `data-testid="launchpad-more-menu"` and the empty state's `StartPageMenu` carries `data-walkthrough-id="launchpad-more-menu"`. With no navigation panel (REQ-SHELL-009) the tour has no menu items to point at. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (2), so raising the version shows the tour again. The version went from 1 to 2 when the tour moved from the side bar to More, so a person who finished the old tour sees the new one once. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
 
 Written on 2026-10-07 after the fact, from the code on `development`; covers parity row `d-tour`. The tour does not visit the admin settings.
 
@@ -270,7 +295,7 @@ Written on 2026-10-07 after the fact, from the code on `development`; covers par
 - THEN the tour MUST end
 
 #### Scenario: A finished tour stays closed
-- GIVEN Pieter completed tour version 1
+- GIVEN Pieter completed tour version 2
 - WHEN he opens LaunchPad again
 - THEN the tour MUST NOT start
 

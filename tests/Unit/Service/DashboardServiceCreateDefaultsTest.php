@@ -193,6 +193,50 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 	}//end testSeedDefaultsInsertsThreeTilesAndFilesWidget()
 
 	/**
+	 * The starter seed set MUST insert the six first-run starter widgets of
+	 * board LpEersteKeer, each with the content it needs to work unconfigured.
+	 *
+	 * @return void
+	 */
+	public function testStarterSeedSetInsertsTheSixStarterWidgets(): void {
+		$dashboard = $this->makeDashboard();
+		$this->dashboardFactory->method('create')->willReturn($dashboard);
+		$this->dashboardMapper->method('insert')->willReturn($dashboard);
+
+		$captured = [];
+		$this->placementMapper->expects($this->exactly(count: 6))
+			->method('insert')
+			->willReturnCallback(
+				static function (WidgetPlacement $placement) use (&$captured) {
+					$captured[] = $placement;
+					return $placement;
+				}
+			);
+
+		$this->service->createDashboard(
+			userId: 'alice',
+			name: 'My Dashboard',
+			options: [
+				'seedDefaults' => true,
+				'seedSet'      => DashboardService::SEED_SET_STARTERS,
+			]
+		);
+
+		$this->assertSame(
+			expected: ['app-tiles', 'calendar', 'nc-widget', 'files', 'weather', 'announcements'],
+			actual: array_map(static fn (WidgetPlacement $p): string => $p->getWidgetId(), $captured)
+		);
+		$this->assertSame(expected: ['launchpad'], actual: $captured[0]->getContentArray()['exclude']);
+		$this->assertSame(expected: ['personal'], actual: $captured[1]->getContentArray()['internalCalendars']);
+		$this->assertSame(expected: 'mail', actual: $captured[2]->getContentArray()['widgetId']);
+		$this->assertSame(expected: [], actual: $captured[3]->getContentArray());
+		foreach ($captured as $placement) {
+			$this->assertNull(actual: $placement->getTileType());
+			$this->assertLessThanOrEqual(expected: 12, actual: $placement->getGridX() + $placement->getGridWidth());
+		}
+	}//end testStarterSeedSetInsertsTheSixStarterWidgets()
+
+	/**
 	 * Default behaviour (`seedDefaults` omitted / false) MUST NOT insert
 	 * any widget placements — only the bootstrap path and the controller
 	 * opt into the seed.

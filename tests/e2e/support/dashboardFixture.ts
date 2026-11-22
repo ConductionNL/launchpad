@@ -8,7 +8,7 @@
  * ===============
  * `tests/e2e/seed.sh` creates exactly one thing: the `e2e-grantee` USER. It
  * creates no dashboard. On a fresh instance — which is what CI provisions —
- * LaunchPad therefore renders its empty state ("No dashboards available"),
+ * LaunchPad therefore renders its empty state ("You have no dashboard yet"),
  * and every control that lives in the workspace shell is simply absent.
  *
  * That is why `active-dashboard-resolution`, `add-widget-modal` and

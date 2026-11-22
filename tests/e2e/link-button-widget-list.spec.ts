@@ -16,6 +16,7 @@
  *   @e2e link-button-widget::single-button-mode-ignores-links-array
  *   @e2e link-button-widget::links-array-can-be-empty-for-button-mode
  *   @e2e link-button-widget::list-item-with-external-link
+ *   @e2e link-button-widget::an-action-id-entry-is-never-rendered-as-a-link
  *   @e2e link-button-widget::list-item-with-createfile-action
  *   @e2e link-button-widget::list-item-click-suppressed-in-edit-mode
  *   @e2e link-button-widget::custom-icon-url-in-list-item
@@ -346,15 +347,7 @@ test.describe('link button: list actions (REQ-LBLM-003)', () => {
 		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
 	})
 
-	/*
-	 * Not a scenario citation: a guard on REQ-LBLM-002's schema, which spells
-	 * the internal type `action_id`. The renderer only knows `internal`, so an
-	 * `action_id` entry falls through to its external-link default and becomes
-	 * `<a href="open-files" target="_blank">`: a click opens a LaunchPad 404 in
-	 * a new tab instead of going to the action registry. The cited scenario
-	 * ("List item with internal action") is excluded because no production
-	 * module registers an action; this checks the half that is observable.
-	 */
+	// @e2e link-button-widget::an-action-id-entry-is-never-rendered-as-a-link
 	test('an action_id list item is dispatched as an action, never opened as a link', async ({
 		context,
 		page,
@@ -366,6 +359,12 @@ test.describe('link button: list actions (REQ-LBLM-003)', () => {
 				{ label: 'Example', url: 'https://example.com', actionType: 'url', icon: '' },
 			],
 		})
+		const warnings: string[] = []
+		page.on('console', (m) => {
+			if (m.type() === 'warning') {
+				warnings.push(m.text())
+			}
+		})
 		const widget = await openWithWidget(page, id)
 		const item = widget.locator(LIST_ITEM).filter({ hasText: 'Files' })
 		await expect(item).toHaveJSProperty('tagName', 'BUTTON')
@@ -373,7 +372,8 @@ test.describe('link button: list actions (REQ-LBLM-003)', () => {
 
 		const popups = collectPopups(context)
 		await item.click()
-		await page.waitForTimeout(1_000)
+		// Nothing registers `open-files`, so reaching the registry shows as its warning.
+		await expect.poll(() => warnings).toContain('Unknown internal action: open-files')
 		expect(popups.map((p) => p.url())).toEqual([])
 	})
 })

@@ -12,7 +12,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import WidgetPickerModal from '../WidgetPickerModal.vue'
-import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../../utils/discoveredTile.js'
+import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard } from '../../utils/discoveredTile.js'
 
 const stubs = {
 	NcModal: { template: '<div class="nc-modal"><slot /></div>' },
@@ -34,16 +34,17 @@ function mountPicker(props = {}) {
 	})
 }
 
-describe('Discovered on this server', () => {
+describe('App tiles', () => {
 	it('lists the discovered apps with their names', () => {
 		const wrapper = mountPicker()
 		const section = wrapper.find('[data-testid="widget-picker-discovered"]')
 		expect(section.exists()).toBe(true)
-		expect(section.text()).toContain('Discovered on this server')
-		expect(section.findAll('.widget-picker__widget').map((row) => row.text())).toEqual([
+		expect(section.text()).toContain('App tiles')
+		expect(section.findAll('[data-testid^="widget-picker-app-tile-"]').map((row) => row.text())).toEqual([
 			expect.stringContaining('Deck'),
 			expect.stringContaining('Context Chat'),
 		])
+		expect(section.find('[data-testid="widget-picker-custom-tile"]').text()).toContain('Custom tile')
 	})
 
 	it('marks an app already on the dashboard', () => {
@@ -66,24 +67,41 @@ describe('Discovered on this server', () => {
 		expect(wrapper.emitted('addApp')[0]).toEqual([DECK])
 	})
 
-	it('draws no section when nothing was discovered', () => {
-		expect(mountPicker({ discoveredApps: [] }).find('[data-testid="widget-picker-discovered"]').exists()).toBe(false)
+	it('draws each app entry in the colour its tile gets', () => {
+		const swatch = mountPicker().get('[data-testid="widget-picker-app-tile-deck"] .widget-picker__tile-swatch')
+		expect(swatch.attributes('style')).toContain('--cn-app-tile-deck')
+	})
+
+	it('offers a custom tile that opens the tile form', async () => {
+		const wrapper = mountPicker({ discoveredApps: [] })
+		await wrapper.get('[data-testid="widget-picker-custom-tile"]').trigger('click')
+		expect(wrapper.emitted('addCustom')[0]).toEqual(['tile'])
+	})
+
+	it('leaves the custom tile out when the search does not match it', async () => {
+		const wrapper = mountPicker({ discoveredApps: [] })
+		await wrapper.find('.nc-text').setValue('weather')
+		expect(wrapper.find('[data-testid="widget-picker-discovered"]').exists()).toBe(false)
 	})
 })
 
 describe('the tile a discovered app becomes', () => {
-	it('opens a Nextcloud app by its id', () => {
-		expect(tileFromDiscoveredApp(DECK)).toEqual({
-			title: 'Deck',
-			icon: '/apps/deck/img/deck.svg',
-			iconType: 'url',
-			linkType: 'app',
-			linkValue: 'deck',
+	it('is an app tile for that app, in its default colour, with its count', () => {
+		expect(appTileFromDiscoveredApp(DECK)).toEqual({
+			type: 'app-tile',
+			content: { appId: 'deck', colour: '', showCount: true },
 		})
 	})
 
-	it('opens another page by its address', () => {
-		expect(tileFromDiscoveredApp(CHAT)).toMatchObject({ linkType: 'url', linkValue: '/apps/app_api/embedded/context_chat_ui/' })
+	it('names an app without its own page by its menu id too', () => {
+		expect(appTileFromDiscoveredApp(CHAT).content.appId).toBe('context_chat_ui')
+	})
+
+	it('reads which apps are on the dashboard from its app-tile widgets', () => {
+		expect(discoveredAppIdsOnDashboard([
+			{ widgetId: 'app-tile', content: { appId: 'deck' } },
+			{ widgetId: 'app-tile', content: {} },
+		], [DECK, CHAT])).toEqual(['deck'])
 	})
 
 	it('reads which apps are on the dashboard from its app tiles', () => {

@@ -341,12 +341,13 @@
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "MIJN APPS",
+						"text": "Mijn apps",
 						"fontSize": "12px",
 						"fontWeight": "bold",
 						"textAlign": "left",
 						"color": "",
-						"backgroundColor": "transparent"
+						"backgroundColor": "transparent",
+						"groupHeading": true
 					}
 				},
 				{
@@ -612,12 +613,13 @@
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "MIJN APPS",
+						"text": "Mijn apps",
 						"fontSize": "12px",
 						"fontWeight": "bold",
 						"textAlign": "left",
 						"color": "",
-						"backgroundColor": "transparent"
+						"backgroundColor": "transparent",
+						"groupHeading": true
 					}
 				},
 				{
@@ -658,12 +660,13 @@
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "SAMENWERKEN",
+						"text": "Samenwerken",
 						"fontSize": "12px",
 						"fontWeight": "bold",
 						"textAlign": "left",
 						"color": "",
-						"backgroundColor": "transparent"
+						"backgroundColor": "transparent",
+						"groupHeading": true
 					}
 				},
 				{
@@ -1147,12 +1150,13 @@
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "SAMENWERKEN",
+						"text": "Samenwerken",
 						"fontSize": "12px",
 						"fontWeight": "bold",
 						"textAlign": "left",
 						"color": "",
-						"backgroundColor": "transparent"
+						"backgroundColor": "transparent",
+						"groupHeading": true
 					}
 				},
 				{
@@ -1496,12 +1500,13 @@
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "APPS VAN HET TEAM",
+						"text": "Apps van het team",
 						"fontSize": "12px",
 						"fontWeight": "bold",
 						"textAlign": "left",
 						"color": "",
-						"backgroundColor": "transparent"
+						"backgroundColor": "transparent",
+						"groupHeading": true
 					}
 				},
 				{

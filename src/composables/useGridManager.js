@@ -231,12 +231,14 @@ export const ONE_ROW_TYPES = Object.freeze(['divider'])
 
 /**
  * New-widget sizes for types whose spec names one other than the default.
- * Quicklinks is a compact row of icons, 4 by 2 (REQ-QLNK-011).
+ * Quicklinks is a compact row of icons, 4 by 2 (REQ-QLNK-011). An app tile
+ * is one cell of two columns by two rows, the tile square inside it (REQ-APPTILE-002).
  *
  * @type {Readonly<Record<string, {w: number, h: number}>>}
  */
 const TYPE_DEFAULT_SIZES = Object.freeze({
 	quicklinks: Object.freeze({ w: 4, h: 2 }),
+	'app-tile': Object.freeze({ w: 2, h: 2 }),
 })
 
 /**

@@ -147,26 +147,31 @@
 					</button>
 				</section>
 				<section
-					v-if="filteredApps.length > 0"
+					v-if="filteredApps.length > 0 || showCustomTile"
 					class="widget-picker__section"
 					data-testid="widget-picker-discovered">
 					<h3 class="widget-picker__section-title">
-						{{ t('launchpad', 'Discovered on this server') }}
+						{{ t('launchpad', 'App tiles') }}
 					</h3>
 					<p class="widget-picker__section-description">
-						{{ t('launchpad', 'Apps this server runs for you. One click places one as a tile.') }}
+						{{ t('launchpad', 'One tile per app this server runs for you. One click places it.') }}
 					</p>
 					<button
 						v-for="app in filteredApps"
 						:key="app.appId"
 						type="button"
 						class="widget-picker__widget"
+						:data-testid="`widget-picker-app-tile-${app.appId}`"
 						@click="$emit('addApp', app)">
-						<img
-							v-if="app.icon"
-							:src="app.icon"
-							alt=""
-							class="widget-picker__widget-icon widget-picker__app-icon">
+						<span
+							class="widget-picker__widget-icon widget-picker__tile-swatch"
+							:style="{ '--widget-picker-tile-colour': tileColour(app.appId) }"
+							aria-hidden="true">
+							<span
+								v-if="app.icon"
+								class="widget-picker__tile-glyph"
+								:style="{ '--widget-picker-tile-icon': `url(&quot;${app.icon}&quot;)` }" />
+						</span>
 						<div class="widget-picker__widget-info">
 							<span class="widget-picker__widget-title">{{ app.name }}</span>
 							<span
@@ -177,10 +182,24 @@
 						</div>
 						<Plus :size="20" class="widget-picker__widget-action" />
 					</button>
+					<button
+						v-if="showCustomTile"
+						type="button"
+						class="widget-picker__widget"
+						data-testid="widget-picker-custom-tile"
+						@click="$emit('addCustom', 'tile')">
+						<span class="widget-picker__widget-icon widget-picker__tile-swatch widget-picker__tile-swatch--own" aria-hidden="true">
+							<Plus :size="18" />
+						</span>
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ customTileLabel }}</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
 				</section>
 
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0 && filteredCustomTypes.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack"
+					v-if="filteredWidgets.length === 0 && filteredCustomTypes.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack && !showCustomTile"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
@@ -238,6 +257,7 @@
 </template>
 
 <script>
+import { appTileColourValue } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
 import Check from 'vue-material-design-icons/Check.vue'
@@ -357,6 +377,27 @@ export default {
 			return this.customTypes.filter((entry) => !query || String(entry.title).toLowerCase().includes(query))
 		},
 
+		/**
+		 * The label of the entry that opens the tile form for a tile of one's own.
+		 *
+		 * @return {string} "Custom tile".
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
+		customTileLabel() {
+			return t('launchpad', 'Custom tile')
+		},
+
+		/**
+		 * The custom tile is offered unless a search leaves it out.
+		 *
+		 * @return {boolean} Whether to show "Custom tile".
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
+		showCustomTile() {
+			const query = this.searchQuery.toLowerCase()
+			return !query || this.customTileLabel.toLowerCase().includes(query)
+		},
+
 		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */
 		filteredApps() {
 			const query = this.searchQuery.toLowerCase()
@@ -409,6 +450,17 @@ export default {
 		t,
 		isPlaced(widgetId) {
 			return this.placedWidgetIds.includes(widgetId)
+		},
+
+		/**
+		 * The colour an app's tile gets when placed, for its entry.
+		 *
+		 * @param {string} appId The app id.
+		 * @return {string} A CSS colour value.
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
+		tileColour(appId) {
+			return appTileColourValue('', appId)
 		},
 
 		/**
@@ -535,6 +587,29 @@ export default {
 	width: 32px;
 	height: 32px;
 	flex-shrink: 0;
+}
+
+.widget-picker__tile-swatch {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--border-radius, 8px);
+	background-color: var(--widget-picker-tile-colour);
+	color: #fff;
+}
+
+.widget-picker__tile-swatch--own {
+	border: 2px dashed var(--color-border-dark);
+	background-color: transparent;
+	color: var(--color-main-text);
+}
+
+.widget-picker__tile-glyph {
+	width: 55%;
+	height: 55%;
+	background-color: currentColor;
+	mask: var(--widget-picker-tile-icon) center / contain no-repeat;
+	-webkit-mask: var(--widget-picker-tile-icon) center / contain no-repeat;
 }
 
 .widget-picker__widget-info {

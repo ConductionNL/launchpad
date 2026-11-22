@@ -64,6 +64,8 @@ import {
 	createPrincipal,
 	removeGroup,
 	removePrincipal,
+	seedDashboardWithWidget,
+	shareWith,
 } from './support/principals.ts'
 
 test.setTimeout(120_000)
@@ -641,6 +643,40 @@ test('removing a user from the granting group drops the widget and hides, not de
 	expect(placement.isVisible).toBe(0)
 })
 
+// @e2e role-feature-permissions::widget-outside-the-viewer-role-is-hidden-on-a-shared-or-group-dashboard
+test("a dashboard someone else owns does not show its viewer a widget outside the viewer's role", async () => {
+	const seeded = await seedDashboardWithWidget(admin, `RFP shared ${STAMP}`)
+	dashboards.push({ api: admin, id: seeded.id })
+	const place = async (widgetId: string, gridX: number): Promise<number> => {
+		const res = await admin.post(`${API}/dashboard/${seeded.id}/widgets`, {
+			data: { widgetId, gridX, gridY: 4, gridWidth: 4, gridHeight: 4 },
+		})
+		expect(res.status(), await res.text()).toBe(201)
+		return Number((await res.json()).id)
+	}
+	const restricted = await place(RESTRICTED, 0)
+	const shared = await place(SHARED, 4)
+
+	const pieter = await member('pietershared', G.medewerkers)
+	expect(await widgetIds(pieter.api)).not.toContain(RESTRICTED)
+	await shareWith(admin, seeded.id, pieter.username, 'view_only')
+
+	const res = await pieter.api.get(`${API}/dashboard/${seeded.id}`)
+	expect(res.status(), await res.text()).toBe(200)
+	const shown = ((await res.json()).placements ?? [])
+		.filter((pl: any) => pl.isVisible !== 0)
+		.map((pl: any) => Number(pl.id))
+	expect(shown).toContain(shared)
+	expect(shown, 'the restricted widget reached a viewer whose role does not permit it').not.toContain(restricted)
+
+	// Control: the owner, an admin, still gets it.
+	const own = await admin.get(`${API}/dashboard/${seeded.id}`)
+	const ownIds = ((await own.json()).placements ?? [])
+		.filter((pl: any) => pl.isVisible !== 0)
+		.map((pl: any) => Number(pl.id))
+	expect(ownIds).toContain(restricted)
+})
+
 // ─── REQ-RFP-004: role-and-priority ordering ─────────────────────────────
 
 // @e2e role-feature-permissions::new-dashboard-respects-role-priority-weights
@@ -1194,10 +1230,8 @@ test("the page's initial state carries the role's allowedWidgets, and the card l
 		expect([...titles].sort()).toEqual(
 			registryIdsIn([SHARED, RESTRICTED]).map(titleOf).sort(),
 		)
-		// SUSPECTED BUG: nothing in src/ reads the `allowedWidgets` initial
-		// state; the card library is fed by `GET /api/widgets`
-		// (src/stores/widgets.js loadAvailableWidgets), the extra call the
-		// spec says the initial state exists to avoid.
+		// The `widgets` initial state carries the role's widget list, so the
+		// card library makes no call of its own (REQ-RFP-010).
 		expect(listCalls, 'the card library fetched GET /api/widgets').toEqual([])
 	} finally {
 		await context.close()

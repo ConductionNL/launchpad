@@ -21,6 +21,8 @@ namespace OCA\LaunchPad\AppInfo;
 use OCA\LaunchPad\Mcp\LaunchPadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
+use OCA\LaunchPad\Dashboard\LinksWidget;
+use OCA\LaunchPad\Dashboard\NewsWidget;
 use OCA\LaunchPad\Controller\MetricsController;
 use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
@@ -311,6 +313,11 @@ class Application extends App implements IBootstrap {
 		// Surface dashboards, widget content, and metadata values in
 		// Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
 		$context->registerSearchProvider(class: LaunchPadSearchProvider::class);
+
+		// The user's news feeds and links on Nextcloud's own dashboard
+		// (REQ-NEWS-001, REQ-LNKS-001).
+		$context->registerDashboardWidget(widgetClass: NewsWidget::class);
+		$context->registerDashboardWidget(widgetClass: LinksWidget::class);
 
 		// `iframe` widget — contribute the admin allow-listed embed hosts
 		// to LaunchPad's own `frame-src` CSP directive so the instance CSP

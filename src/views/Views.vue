@@ -1015,8 +1015,8 @@ export default {
 
 		/**
 		 * The placements the grid shows. A placement with `isVisible` 0 never
-		 * renders (REQ-WDG-009; the server sets it for a widget the owner's
-		 * role does not permit, REQ-RFP-003). Of the rest: every placement in
+		 * renders (REQ-WDG-009; the server sets it for a widget the viewer's
+		 * role does not permit, REQ-RFP-001). Of the rest: every placement in
 		 * edit mode, and outside it every placement but an object-list that
 		 * asked to be hidden when its register is not on this instance
 		 * (REQ-TMPL-022). In edit mode the list stays, so whoever edits sees

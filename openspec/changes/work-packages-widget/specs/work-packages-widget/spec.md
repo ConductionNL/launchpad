@@ -49,7 +49,8 @@ the assignee next to the project. The form SHALL require the project for that sc
 
 ### Requirement: The picker offers the widget only with the integration (REQ-WP-004)
 
-The picker SHALL offer "My work packages" only when `integration_openproject` is enabled for the viewer.
+The picker SHALL offer "My work packages" only when `integration_openproject` is enabled for the viewer. Outside edit
+mode a placed widget SHALL be left out for a viewer without the integration.
 
 #### Scenario: No integration
 

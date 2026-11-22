@@ -1892,7 +1892,18 @@ OC.L10N.register(
     "Number of work packages" : "Number of work packages",
     "Name the project" : "Name the project",
     "Show 1 to 25 work packages" : "Show 1 to 25 work packages",
-    "My work packages" : "My work packages"
+    "My work packages" : "My work packages",
+    "My cases needs dossiq. Ask your administrator to enable it." : "My cases needs dossiq. Ask your administrator to enable it.",
+    "The cases could not be loaded. Try again later." : "The cases could not be loaded. Try again later.",
+    "No open cases are assigned to you" : "No open cases are assigned to you",
+    "Shows the open cases assigned to the person viewing, from the register below. Each person sees what OpenRegister lets them see." : "Shows the open cases assigned to the person viewing, from the register below. Each person sees what OpenRegister lets them see.",
+    "Register" : "Register",
+    "Schema" : "Schema",
+    "Number of cases" : "Number of cases",
+    "Name the register and the schema" : "Name the register and the schema",
+    "Show 1 to 20 cases" : "Show 1 to 20 cases",
+    "My cases" : "My cases",
+    "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"]
 },
 "nplurals=2; plural=(n != 1);"
 );

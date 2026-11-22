@@ -993,12 +993,14 @@ export default {
 		 * role does not permit, REQ-RFP-001). Of the rest: every placement in
 		 * edit mode, and outside it every placement but an object-list that
 		 * asked to be hidden when its register is not on this instance
-		 * (REQ-TMPL-022). In edit mode the list stays, so whoever edits sees
-		 * it is there.
+		 * (REQ-TMPL-022), and every widget that reads through an app that is
+		 * not enabled for the viewer (REQ-CASES-004). In edit mode they stay,
+		 * so whoever edits sees they are there.
 		 *
 		 * @return {object[]} the placements to lay out.
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
 		 */
 		shownPlacements() {
 			const all = (this.widgetPlacements || []).filter(
@@ -1009,8 +1011,9 @@ export default {
 			}
 			return all.filter(
 				(p) =>
-					!hidesWhenUnavailable(p)
-					|| this.unavailableSources[sourceKey(p.content)] !== true,
+					(!hidesWhenUnavailable(p)
+					|| this.unavailableSources[sourceKey(p.content)] !== true)
+					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
 			)
 		},
 

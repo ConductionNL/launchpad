@@ -466,9 +466,10 @@ class InitialStateBuilder {
 	/**
 	 * Set which apps behind the integration widgets are enabled for the
 	 * viewer, by app id. The picker leaves out a widget whose app is not.
+	 * A renamed fleet app answers with the id it is installed under.
 	 * Optional key; the JS reader defaults to `{}`, which offers none of them.
 	 *
-	 * @param array<string, bool> $apps Whether each app is enabled.
+	 * @param array<string, bool|string> $apps Whether each app is enabled, or its installed id.
 	 *
 	 * @return self Fluent.
 	 *

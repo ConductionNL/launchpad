@@ -27,7 +27,9 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use DateTimeImmutable;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCP\AppFramework\Db\DoesNotExistException;
 use RuntimeException;
@@ -52,13 +54,13 @@ class DemoSeedDashboards {
 	 * @param ShowcaseStores       $stores      The dashboard and placement mappers and the database.
 	 * @param DashboardShareService $shares     Replaces a dashboard's shares and notifies new recipients.
 	 * @param DemoSeedPreferences  $preferences Which dashboard opens first; tour progress.
-	 * @param DashboardService     $dashboards  Deletes a first-run user's own dashboards with everything attached.
+	 * @param ShowcasePlatform     $platform    Announces deleted dashboards so their rows are cleaned up.
 	 */
 	public function __construct(
 		private readonly ShowcaseStores $stores,
 		private readonly DashboardShareService $shares,
 		private readonly DemoSeedPreferences $preferences,
-		private readonly DashboardService $dashboards,
+		private readonly ShowcasePlatform $platform,
 	) {
 		$this->hydrator = new PlacementPayloadHydrator();
 	}//end __construct()
@@ -120,7 +122,18 @@ class DemoSeedDashboards {
 	public function resetToFirstRun(string $userId): int {
 		$removed = 0;
 		foreach ($this->stores->dashboardMapper->findByUserId(userId: $userId) as $dashboard) {
-			$this->dashboards->deleteDashboard(dashboardId: (int)$dashboard->getId(), userId: $userId, cascade: true);
+			$dashboardId = (int)$dashboard->getId();
+			$this->stores->placementMapper->deleteByDashboardId(dashboardId: $dashboardId);
+			$this->stores->dashboardMapper->delete(entity: $dashboard);
+			$this->platform->eventDispatcher?->dispatchTyped(
+				new DashboardDeletedEvent(
+					dashboardUuid: (string)$dashboard->getUuid(),
+					ownerUserId: $userId,
+					type: (string)$dashboard->getType(),
+					deletedAt: new DateTimeImmutable(),
+					dashboardId: $dashboardId
+				)
+			);
 			$removed++;
 		}
 

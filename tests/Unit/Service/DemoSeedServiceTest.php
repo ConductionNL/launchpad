@@ -32,7 +32,6 @@ use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\CatalogueService;
-use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\DemoSeedAccounts;
 use OCA\LaunchPad\Service\DemoSeedDashboards;
@@ -42,13 +41,16 @@ use OCA\LaunchPad\Service\DemoSeedParts;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
 use OCA\LaunchPad\Service\DemoSeedService;
 use OCA\LaunchPad\Service\DemoShowcasesService;
+use OCA\LaunchPad\Service\ShowcasePlatform;
 use OCA\LaunchPad\Service\ShowcaseStores;
 use OCA\LaunchPad\Support\WidgetTypeList;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
 use OCP\IConfig;
+use OCP\Dashboard\IManager;
 use OCP\IDBConnection;
+use OCP\IURLGenerator;
 use OCP\Lock\ILockingProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -100,7 +102,11 @@ class DemoSeedServiceTest extends TestCase {
 					),
 					shares: $this->shareService(),
 					preferences: new DemoSeedPreferences(config: $this->config()),
-					dashboards: $this->createMock(originalClassName: DashboardService::class)
+					platform: new ShowcasePlatform(
+						appConfig: $this->createMock(originalClassName: IAppConfig::class),
+						dashboardManager: $this->createMock(originalClassName: IManager::class),
+						urlGenerator: $this->createMock(originalClassName: IURLGenerator::class)
+					)
 				),
 				preferences: new DemoSeedPreferences(config: $this->config()),
 				files: $this->createMock(originalClassName: DemoSeedFiles::class)
@@ -138,7 +144,7 @@ class DemoSeedServiceTest extends TestCase {
 		$this->assertSame(expected: 'marieke', actual: $byName['Team Vergunningen']->getUserId());
 		$this->assertSame(
 			expected: (string)$byName['Vandaag']->getUuid(),
-			actual: $this->prefs['pieter/' . DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY]
+			actual: $this->prefs['pieter/' . DemoSeedPreferences::DEFAULT_DASHBOARD_PREF_KEY]
 		);
 
 		$teamShares = array_values(array: array_filter(

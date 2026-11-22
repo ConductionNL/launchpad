@@ -42,6 +42,21 @@ class DemoSeedPreferences {
 	public const WALKTHROUGH_PREF_KEY = 'pref_walkthrough_completed_version';
 
 	/**
+	 * The user preference holding the dashboard that opens first; the key the
+	 * dashboard resolver reads as its pinned default.
+	 *
+	 * @var string
+	 */
+	public const DEFAULT_DASHBOARD_PREF_KEY = 'default_dashboard_uuid';
+
+	/**
+	 * The user preference holding the dashboard opened last.
+	 *
+	 * @var string
+	 */
+	public const ACTIVE_DASHBOARD_PREF_KEY = 'active_dashboard_uuid';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IConfig $config The user preferences.
@@ -62,7 +77,7 @@ class DemoSeedPreferences {
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function setDefaultDashboard(string $userId, string $uuid): void {
-		$this->config->setUserValue($userId, Application::APP_ID, DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY, $uuid);
+		$this->config->setUserValue($userId, Application::APP_ID, self::DEFAULT_DASHBOARD_PREF_KEY, $uuid);
 	}//end setDefaultDashboard()
 
 	/**
@@ -90,12 +105,7 @@ class DemoSeedPreferences {
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function clear(string $userId): void {
-		$keys = [
-			DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY,
-			DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY,
-			self::WALKTHROUGH_PREF_KEY,
-		];
-		foreach ($keys as $key) {
+		foreach ([self::DEFAULT_DASHBOARD_PREF_KEY, self::ACTIVE_DASHBOARD_PREF_KEY, self::WALKTHROUGH_PREF_KEY] as $key) {
 			$this->config->deleteUserValue($userId, Application::APP_ID, $key);
 		}
 	}//end clear()

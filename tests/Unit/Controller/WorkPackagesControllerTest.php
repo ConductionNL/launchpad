@@ -32,9 +32,9 @@ class WorkPackagesControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testWithoutASessionTheAnswerIs401(): void {
-		$service = $this->createMock(WorkPackagesService::class);
+		$service = $this->createMock(originalClassName: WorkPackagesService::class);
 		$service->expects($this->never())->method('openWorkPackages');
-		$controller = new WorkPackagesController(request: $this->createMock(IRequest::class), workPackages: $service, userId: null);
+		$controller = new WorkPackagesController(request: $this->createMock(originalClassName: IRequest::class), workPackages: $service, userId: null);
 
 		$this->assertSame(expected: 401, actual: $controller->index()->getStatus());
 	}//end testWithoutASessionTheAnswerIs401()
@@ -45,12 +45,12 @@ class WorkPackagesControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheSessionPersonIsAskedForWithAKnownScope(): void {
-		$service = $this->createMock(WorkPackagesService::class);
+		$service = $this->createMock(originalClassName: WorkPackagesService::class);
 		$service->expects($this->once())
 			->method('openWorkPackages')
 			->with('pieter', 'mine', '', 4)
 			->willReturn(['state' => 'ok', 'workPackages' => []]);
-		$controller = new WorkPackagesController(request: $this->createMock(IRequest::class), workPackages: $service, userId: 'pieter');
+		$controller = new WorkPackagesController(request: $this->createMock(originalClassName: IRequest::class), workPackages: $service, userId: 'pieter');
 
 		$this->assertSame(expected: ['state' => 'ok', 'workPackages' => []], actual: $controller->index(scope: 'everyone')->getData());
 	}//end testTheSessionPersonIsAskedForWithAKnownScope()

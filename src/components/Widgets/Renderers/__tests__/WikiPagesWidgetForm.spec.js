@@ -28,9 +28,9 @@ describe('WikiPagesWidgetForm', () => {
 	it('starts from the placement content and emits the trimmed space with the limit', async () => {
 		const wrapper = mountForm({ editingWidget: { content: { space: 'Vergunningen', limit: 5 } } })
 		const fields = wrapper.findAllComponents(NcTextField)
-		expect(fields[0].props('modelValue')).toBe('Vergunningen')
-		expect(fields[1].props('modelValue')).toBe('5')
-		fields[0].vm.$emit('update:modelValue', ' Kennisbank ')
+		expect(fields[0].props('modelValue')).toBe('5')
+		expect(fields[1].props('modelValue')).toBe('Vergunningen')
+		fields[1].vm.$emit('update:modelValue', ' Kennisbank ')
 		expect(wrapper.emitted('update:content').at(-1)[0]).toEqual({ space: 'Kennisbank', limit: 5 })
 	})
 

@@ -97,31 +97,40 @@ class WorkPackagesService {
 	 */
 	public function openWorkPackages(string $userId, string $scope, string $project, int $limit): array {
 		$service = $this->apiService(userId: $userId);
-		if ($service === null) {
-			return ['state' => 'not-installed', 'workPackages' => []];
-		}
-
-		$getToken = [$service, 'getAccessToken'];
-		$request  = [$service, 'request'];
-		if (is_callable($getToken) === false || is_callable($request) === false) {
+		if ($service === null || is_callable([$service, 'getAccessToken']) === false || is_callable([$service, 'request']) === false) {
 			return ['state' => 'not-installed', 'workPackages' => []];
 		}
 
 		try {
-			if ((string)$getToken($userId) === '') {
-				return ['state' => 'not-connected', 'workPackages' => [], 'connectUrl' => self::connectPath()];
+			if ((string)$service->getAccessToken($userId) === '') {
+				return self::notConnected();
 			}
 
-			$result = $request($userId, $this->endpoint(scope: $scope, project: $project), self::query(scope: $scope, limit: $limit));
+			$result = $service->request($userId, $this->endpoint(scope: $scope, project: $project), self::query(scope: $scope, limit: $limit));
 		} catch (Throwable $exception) {
 			$this->logger->warning('OpenProject work packages could not be read: ' . $exception->getMessage(), ['app' => 'launchpad']);
 			return ['state' => 'error', 'workPackages' => []];
 		}
 
-		if (is_array($result) === false || isset($result['error']) === true) {
-			$status = is_array($result) === true ? (int)($result['statusCode'] ?? 0) : 0;
-			if ($status === 401) {
-				return ['state' => 'not-connected', 'workPackages' => [], 'connectUrl' => self::connectPath()];
+		return $this->answer(result: $result);
+	}//end openWorkPackages()
+
+	/**
+	 * The widget's answer for what the integration returned: the work
+	 * packages, the not-connected state for a refused token, or an error.
+	 *
+	 * @param mixed $result What `request()` returned.
+	 *
+	 * @return array{state: string, workPackages: array<int, array<string, mixed>>, connectUrl?: string}
+	 */
+	private function answer(mixed $result): array {
+		if (is_array($result) === false) {
+			return ['state' => 'error', 'workPackages' => []];
+		}
+
+		if (isset($result['error']) === true) {
+			if ((int)($result['statusCode'] ?? 0) === 401) {
+				return self::notConnected();
 			}
 
 			return ['state' => 'error', 'workPackages' => []];
@@ -131,14 +140,23 @@ class WorkPackagesService {
 		$base     = rtrim($this->appConfig->getValueString(app: self::INTEGRATION_APP, key: 'openproject_instance_url'), '/');
 
 		$workPackages = [];
-		foreach (is_array($elements) === true ? $elements : [] as $element) {
+		foreach ((array)$elements as $element) {
 			if (is_array($element) === true && isset($element['id']) === true) {
 				$workPackages[] = self::workPackage(element: $element, base: $base);
 			}
 		}
 
 		return ['state' => 'ok', 'workPackages' => $workPackages];
-	}//end openWorkPackages()
+	}//end answer()
+
+	/**
+	 * The answer for a person who has not connected their OpenProject account.
+	 *
+	 * @return array{state: string, workPackages: array<int, mixed>, connectUrl: string}
+	 */
+	private static function notConnected(): array {
+		return ['state' => 'not-connected', 'workPackages' => [], 'connectUrl' => self::connectPath()];
+	}//end notConnected()
 
 	/**
 	 * The integration's API service, or null when the app is not enabled for
@@ -160,7 +178,11 @@ class WorkPackagesService {
 			}
 
 			$service = $this->container->get(self::API_SERVICE);
-			return is_object($service) === true ? $service : null;
+			if (is_object($service) === false) {
+				return null;
+			}
+
+			return $service;
 		} catch (Throwable $exception) {
 			$this->logger->warning('The OpenProject integration could not be loaded: ' . $exception->getMessage(), ['app' => 'launchpad']);
 			return null;
@@ -215,9 +237,13 @@ class WorkPackagesService {
 	 * @return array{id: int, subject: string, status: string, project: string, assignee: string, dueDate: string, url: string}
 	 */
 	public static function workPackage(array $element, string $base): array {
-		$links = is_array($element['_links'] ?? null) === true ? $element['_links'] : [];
-		$title = static fn (string $key): string => (string)(is_array($links[$key] ?? null) === true ? ($links[$key]['title'] ?? '') : '');
+		$links = $element['_links'] ?? [];
+		$title = static fn (string $key): string => (string)($links[$key]['title'] ?? '');
 		$id    = (int)$element['id'];
+		$url   = '';
+		if (preg_match('#^https?://#i', $base) === 1) {
+			$url = $base . '/work_packages/' . $id;
+		}
 
 		return [
 			'id'       => $id,
@@ -226,7 +252,7 @@ class WorkPackagesService {
 			'project'  => $title('project'),
 			'assignee' => $title('assignee'),
 			'dueDate'  => (string)($element['dueDate'] ?? ''),
-			'url'      => preg_match('#^https?://#i', $base) === 1 ? $base . '/work_packages/' . $id : '',
+			'url'      => $url,
 		];
 	}//end workPackage()
 

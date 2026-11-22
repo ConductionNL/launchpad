@@ -5,17 +5,6 @@
 
 <template>
 	<div class="wiki-pages-widget-form">
-		<p class="wiki-pages-widget-form__hint">
-			{{ t('launchpad', 'Shows search, favourites and recent pages from XWiki, through the connection your administrator set up.') }}
-		</p>
-
-		<NcTextField
-			:modelValue="space"
-			:label="t('launchpad', 'Wiki space')"
-			:helperText="t('launchpad', 'Leave empty to show every space.')"
-			data-testid="wiki-pages-form-space"
-			@update:modelValue="update({ space: String($event) })" />
-
 		<NcTextField
 			:modelValue="String(limit)"
 			type="number"
@@ -24,6 +13,16 @@
 			:label="t('launchpad', 'Pages per list')"
 			data-testid="wiki-pages-form-limit"
 			@update:modelValue="update({ limit: Number($event) })" />
+		<NcTextField
+			:modelValue="space"
+			:label="t('launchpad', 'Wiki space')"
+			:helperText="t('launchpad', 'Leave empty to show every space.')"
+			data-testid="wiki-pages-form-space"
+			@update:modelValue="update({ space: String($event) })" />
+
+		<p class="wiki-pages-widget-form__hint">
+			{{ t('launchpad', 'Shows search, favourites and recent pages from XWiki, through the connection your administrator set up.') }}
+		</p>
 	</div>
 </template>
 

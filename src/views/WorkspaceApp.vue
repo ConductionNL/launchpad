@@ -514,7 +514,7 @@ export default {
 			const store = useDashboardStore()
 			try {
 				await store.createDashboard({
-					name: this.t('launchpad', 'My dashboard'),
+					name: this.t('launchpad', 'My workspace'),
 					widgets,
 				})
 			} catch (error) {

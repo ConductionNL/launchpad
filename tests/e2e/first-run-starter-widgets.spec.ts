@@ -73,7 +73,7 @@ test.describe('REQ-SHELL-005: the first dashboard starts with the starter widget
 
 	// @e2e runtime-shell::a-first-dashboard-with-starter-widgets
 	test('with starter widgets stores the six starters, and no choice keeps the default bundle', async () => {
-		const starters = await create({ name: 'My dashboard', widgets: 'starters' })
+		const starters = await create({ name: 'My workspace', widgets: 'starters' })
 		const stored = await readPlacements(owner!.api, starters)
 		expect(stored.map((p) => p.widgetId)).toEqual(STARTERS)
 
@@ -85,7 +85,7 @@ test.describe('REQ-SHELL-005: the first dashboard starts with the starter widget
 
 	// @e2e runtime-shell::a-first-dashboard-started-empty
 	test('start empty stores a dashboard without widgets', async () => {
-		const empty = await create({ name: 'My dashboard', widgets: 'none' })
+		const empty = await create({ name: 'My workspace', widgets: 'none' })
 		expect(await readPlacements(owner!.api, empty)).toEqual([])
 	})
 })

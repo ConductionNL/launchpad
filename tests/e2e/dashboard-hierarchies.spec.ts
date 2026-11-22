@@ -24,7 +24,7 @@ import { expect, test } from '@playwright/test'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { NL_ADMINISTRATIVE, putHierarchies, readHierarchies, storeHierarchies } from './support/hierarchies.ts'
-import { adminContext, assertActingAs, createPrincipal, removePrincipal, seedDashboardWithWidget, shareWith } from './support/principals.ts'
+import { adminContext, assertActingAs, createPrincipal, publishForRecipients, removePrincipal, seedDashboardWithWidget, shareWith } from './support/principals.ts'
 import { adminApi, LP_API as API, openWorkspace, Seeds } from './support/widgetPlacements.ts'
 
 test.describe('A dashboard stores its hierarchies', () => {
@@ -105,6 +105,7 @@ test.describe('A dashboard stores its hierarchies', () => {
 			const dash = await seedDashboardWithWidget(admin, `E2E hierarchies viewer ${Date.now()}`)
 			dashboardId = dash.id
 			await storeHierarchies(admin, dash.id, [NL_ADMINISTRATIVE])
+			await publishForRecipients(admin, dash.id)
 			await shareWith(admin, dash.id, viewer.username, 'view_only')
 
 			// The viewer reads them, so the viewer's filter bus uses them too.

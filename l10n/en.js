@@ -241,7 +241,6 @@ OC.L10N.register(
     "Create my first dashboard (with starter widgets)" : "Create my first dashboard (with starter widgets)",
     "Start empty" : "Start empty",
     "Create your first dashboard" : "Create your first dashboard",
-    "Open menu" : "Open menu",
     "Save failed" : "Save failed",
     "My dashboards" : "My dashboards",
     "Group dashboards" : "Group dashboards",

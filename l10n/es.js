@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "No hay paneles disponibles",
     "Contact your administrator" : "Póngase en contacto con su administrador",
     "Create your first dashboard" : "Cree su primer panel",
-    "Open menu" : "Abrir menú",
     "Save failed" : "No se pudo guardar",
     "My dashboards" : "Mis paneles",
     "Group dashboards" : "Paneles de grupo",

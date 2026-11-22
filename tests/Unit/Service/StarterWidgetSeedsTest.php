@@ -51,7 +51,7 @@ class StarterWidgetSeedsTest extends TestCase {
 	 */
 	public function testMostUsedAppsComeFirst(): void {
 		$seeds = StarterWidgetSeeds::seeds(menuAppIds: ['photos', 'mail', 'deck', 'files']);
-		$this->assertSame(expected: ['files', 'mail', 'deck', 'photos'], actual: self::tileApps($seeds));
+		$this->assertSame(expected: ['files', 'mail', 'deck', 'photos'], actual: self::tileApps(seeds: $seeds));
 	}//end testMostUsedAppsComeFirst()
 
 	/**
@@ -61,7 +61,7 @@ class StarterWidgetSeedsTest extends TestCase {
 	 */
 	public function testOtherAppsFillTheRowUpToFour(): void {
 		$seeds = StarterWidgetSeeds::seeds(menuAppIds: ['launchpad', 'photos', 'photos', 'forms', '', 'tables', 'collectives']);
-		$this->assertSame(expected: ['photos', 'forms', 'tables', 'collectives'], actual: self::tileApps($seeds));
+		$this->assertSame(expected: ['photos', 'forms', 'tables', 'collectives'], actual: self::tileApps(seeds: $seeds));
 	}//end testOtherAppsFillTheRowUpToFour()
 
 	/**
@@ -72,7 +72,7 @@ class StarterWidgetSeedsTest extends TestCase {
 	public function testNoMenuFallsBackToTheAppGrid(): void {
 		$seeds = StarterWidgetSeeds::seeds(menuAppIds: []);
 		$this->assertSame(expected: 'app-tiles', actual: $seeds[0]['widgetId']);
-		$this->assertSame(expected: [], actual: self::tileApps($seeds));
+		$this->assertSame(expected: [], actual: self::tileApps(seeds: $seeds));
 		$this->assertCount(expectedCount: 6, haystack: $seeds);
 	}//end testNoMenuFallsBackToTheAppGrid()
 
@@ -87,6 +87,6 @@ class StarterWidgetSeedsTest extends TestCase {
 			$this->assertLessThanOrEqual(expected: 12, actual: $seed['gridX'] + $seed['gridWidth']);
 			$this->assertSame(expected: $order, actual: $seed['sortOrder']);
 		}
-		$this->assertSame(expected: ['files', 'mail', 'calendar', 'spreed'], actual: self::tileApps($seeds));
+		$this->assertSame(expected: ['files', 'mail', 'calendar', 'spreed'], actual: self::tileApps(seeds: $seeds));
 	}//end testSeedsFitTheGrid()
 }//end class

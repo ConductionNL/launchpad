@@ -22,6 +22,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { BASE_URL } from './support/baseUrl.ts'
+import { publishForRecipients } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -92,6 +93,7 @@ test.beforeAll(async () => {
 		data: { widgetId: 'communities', gridX: 0, gridY: 0, gridWidth: 6, gridHeight: 6, content: {} },
 	})
 	expect(widget.status(), await widget.text()).toBeLessThan(300)
+	await publishForRecipients(admin, Number(dash.id))
 	const share = await admin.post(`${API}/dashboard/${dash.id}/shares`, {
 		data: { shareType: 'user', shareWith: member.username, permissionLevel: 'view_only' },
 	})

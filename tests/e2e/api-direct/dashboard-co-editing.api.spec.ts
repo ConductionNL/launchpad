@@ -26,7 +26,7 @@ import type { APIRequestContext } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { deprovisionUser, provisionThrowawayUser } from '../fixtures/secondary-user.ts'
-import { assertActingAs, contextFor } from '../support/principals.ts'
+import { assertActingAs, contextFor, publishForRecipients } from '../support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -108,6 +108,7 @@ test.describe('dashboard-co-editing (API)', () => {
 		const body = unwrap(await created.json())
 		dashboard = { id: Number(body.id), uuid: String(body.uuid) }
 
+		await publishForRecipients(owner, Number(dashboard.id))
 		const shared = await owner.post(`${API}/dashboard/${dashboard.id}/shares`, {
 			data: { shareType: 'user', shareWith: colleague.username, permissionLevel: 'full' },
 		})

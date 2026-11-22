@@ -67,6 +67,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -605,6 +606,7 @@ test.describe
 	// @e2e footer-customization::only-dashboard-owner-can-set-custom-footer
 	test.fixme('a view-only recipient is refused with 403; the owner may set custom', async () => {
 		const id = await createDashboard(alice!.api, `E2E Footer Owner ${RUN}`)
+		await publishForRecipients(alice!.api, id)
 		await shareWith(alice!.api, id, bob!.username, 'view_only')
 		await expect
 			.poll(async () =>

@@ -664,7 +664,7 @@ class DashboardApiController extends Controller {
 		return $this->services->dashboardService->createDashboard(
 			userId: $this->context->userId,
 			name: $resolved['name'],
-			options: self::seedOptions(widgets: $resolved['widgets'] ?? null) + array_diff_key($resolved, ['name' => true, 'widgets' => true])
+			options: $this->seedOptions(widgets: $resolved['widgets'] ?? null) + array_diff_key($resolved, ['name' => true, 'widgets' => true])
 		);
 	}//end createDashboardFrom()
 
@@ -685,17 +685,24 @@ class DashboardApiController extends Controller {
 	 *
 	 * @param mixed $widgets The requested choice.
 	 *
-	 * @return array{seedDefaults: bool, seedSet: string} The seed options.
+	 * @return array{seedDefaults: bool, seedSet: string, menuAppIds?: array<int, string>} The seed options;
+	 *   the starters carry the user's app menu, which picks their app tiles.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+	 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-a-first-dashboard-starts-with-a-tile-per-most-used-app-req-apptile-003
 	 */
-	private static function seedOptions(mixed $widgets): array {
+	private function seedOptions(mixed $widgets): array {
 		if ($widgets === 'none') {
 			return ['seedDefaults' => false, 'seedSet' => DashboardService::SEED_SET_DEFAULT];
 		}
 
 		if ($widgets === DashboardService::SEED_SET_STARTERS) {
-			return ['seedDefaults' => true, 'seedSet' => DashboardService::SEED_SET_STARTERS];
+			$menu = $this->access->appMenu?->discover() ?? [];
+			return [
+				'seedDefaults' => true,
+				'seedSet'      => DashboardService::SEED_SET_STARTERS,
+				'menuAppIds'   => array_map(static fn (array $app): string => $app['appId'], $menu),
+			];
 		}
 
 		return ['seedDefaults' => true, 'seedSet' => DashboardService::SEED_SET_DEFAULT];

@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Yhtään kojelautaa ei ole saatavilla",
     "Contact your administrator" : "Ota yhteyttä ylläpitäjääsi",
     "Create your first dashboard" : "Luo ensimmäinen kojelautasi",
-    "Open menu" : "Avaa valikko",
     "Save failed" : "Tallennus epäonnistui",
     "My dashboards" : "Omat kojelautani",
     "Group dashboards" : "Ryhmän kojelaudat",

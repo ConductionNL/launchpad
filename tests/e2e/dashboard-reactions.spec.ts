@@ -69,6 +69,7 @@ import {
 	contextFor,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 	shareWith,
@@ -195,6 +196,7 @@ async function freshDashboard(label: string): Promise<Dashboard> {
 	const made = { id: Number(dash.id), uuid: String(dash.uuid) }
 	seeded.push(made)
 	for (const sharee of [viewer!, carol!, dave!]) {
+		await publishForRecipients(owner!.api, made.id)
 		await shareWith(owner!.api, made.id, sharee.username, 'view_only')
 	}
 	return made

@@ -55,6 +55,7 @@ import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -169,6 +170,7 @@ async function videoOf(page: Page, placementId: number): Promise<Locator> {
  * @return their browser context and page.
  */
 async function openAs(browser: Browser, who: Principal, placementId: number): Promise<{ context: BrowserContext, page: Page }> {
+	await publishForRecipients(api, dashboard!.id)
 	await shareWith(api, dashboard!.id, who.username, 'view_only')
 	const active = await who.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard!.uuid } })
 	expect(active.status(), await active.text()).toBeLessThan(300)

@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Níl aon deaiseanna ar fáil",
     "Contact your administrator" : "Déan teagmháil le do riarthóir",
     "Create your first dashboard" : "Cruthaigh do chéad deais",
-    "Open menu" : "Oscail an roghchlár",
     "Save failed" : "Theip ar an sábháil",
     "My dashboards" : "Mo dheaiseanna",
     "Group dashboards" : "Deaiseanna grúpa",

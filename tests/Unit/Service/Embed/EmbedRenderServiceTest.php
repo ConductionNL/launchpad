@@ -134,11 +134,16 @@ class EmbedRenderServiceTest extends TestCase {
 		$this->assertSame('nosniff', $headers['X-Content-Type-Options']);
 	}//end testThePageIsFramedOnlyByTheHostOriginsAndCarriesTheTheme()
 
+	/**
+	 * The page URL can hold the token, so its requests send only its origin as Referer.
+	 *
+	 * @return void
+	 */
 	public function testThePageNeverSendsItsTokenUrlAsReferer(): void {
 		$response = $this->service()->page(subjectType: 'widget', subjectId: '42', token: self::token());
 
 		$headers = (new ReflectionProperty(Response::class, 'headers'))->getValue($response);
-		$this->assertSame('strict-origin', $headers['Referrer-Policy']);
+		$this->assertSame(expected: 'strict-origin', actual: $headers['Referrer-Policy']);
 	}//end testThePageNeverSendsItsTokenUrlAsReferer()
 
 	private function service(): EmbedRenderService {

@@ -1530,6 +1530,7 @@ export default {
 		])
 		await this.openDeepLinkedDashboard(bootPath())
 		await this.openHashLinkedDashboard(bootHash())
+		await this.replaceUrlAfterBoot()
 		// After the watcher has seen the deep-linked switch.
 		await nextTick()
 		this.historyBooted = true
@@ -3217,19 +3218,56 @@ export default {
 			this.filterSession?.reset()
 		},
 
-		async pushUrlForActiveDashboard() {
+		/**
+		 * Write the address of the dashboard the boot ended on when it is not
+		 * the one the server rendered. A `/dashboards/:id` route or a
+		 * `#dashboard/<uuid>` hash opens another dashboard after mounted()
+		 * wrote the server's dashboard's address, so without this the
+		 * address named the wrong dashboard. Replaces rather than pushes, so
+		 * the boot adds no history entry.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 */
+		async replaceUrlAfterBoot() {
+			const uuid = this.activeDashboard?.uuid
+			if (!uuid || uuid === this.injectedActiveDashboardId) {
+				return
+			}
+			await this.pushUrlForActiveDashboard(true)
+		},
+
+		/**
+		 * Write the active dashboard's canonical path to the address bar.
+		 *
+		 * @param {boolean} [replace] Replace the current entry, keeping the
+		 *   query and hash, and fall back to `/dashboards/:id` for a dashboard
+		 *   without a path. Otherwise push a new entry.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async pushUrlForActiveDashboard(replace = false) {
 			const uuid = this.activeDashboard?.uuid
 			if (!uuid) {
 				return
 			}
 			try {
 				const res = await api.getDashboardPath(uuid)
-				const path = res?.data?.path ?? ''
+				const path = res?.data?.path
+					|| (replace && this.activeDashboard.id !== undefined ? `/dashboards/${this.activeDashboard.id}` : '')
 				const target = this.buildDeepLinkUrl(path)
 				if (!target) {
 					return
 				}
 				if (barePath(window.location.pathname) === barePath(target)) {
+					return
+				}
+				if (replace) {
+					window.history.replaceState(
+						{ uuid, source: 'launchpad-deeplink' },
+						'',
+						target + window.location.search + window.location.hash,
+					)
 					return
 				}
 				window.history.pushState(

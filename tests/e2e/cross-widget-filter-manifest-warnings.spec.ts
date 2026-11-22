@@ -5,7 +5,8 @@
  * Playwright end-to-end test for the filter-declaration warning in the widget
  * dialog (drill-down-cross-widget-filter, Task 29, REQ-CWF-008): a chart that
  * consumes wijkCode on a dashboard whose hierarchies do not publish it still
- * renders, stays off the bus, and its edit dialog says why.
+ * renders, stays off the bus, and its edit dialog says why. The reader can
+ * dismiss the warning, and it stays away when the dialog opens again.
  *
  * The dashboard is seeded as the admin, made the admin's active dashboard and
  * holds only that chart (static data, so no data set is needed).
@@ -53,6 +54,18 @@ test('a chart consuming wijkCode without a hierarchy renders, stays off the bus 
 		const notice = dialog.locator('[data-testid="cn-add-widget-modal-notice"]')
 		await expect(notice).toHaveCount(1)
 		await expect(notice).toContainText('This widget consumes wijkCode, but no hierarchy on this dashboard publishes it.')
+
+		// Dismissed, the warning goes, and it stays away when the dialog opens again.
+		await notice.getByRole('button', { name: 'Dismiss' }).click()
+		await expect(notice).toHaveCount(0)
+		await dialog.getByRole('button', { name: 'Cancel' }).click()
+		await expect(dialog).toHaveCount(0)
+		await rightClickAt(page, chart.id, at.x, at.y)
+		await page.locator('[data-testid="ctx-edit"]').click()
+		await expect(dialog).toBeVisible({ timeout: 10_000 })
+		await expect(dialog.locator('[data-testid="cn-add-widget-modal-notice"]')).toHaveCount(0)
+		// The chart is still there to remove; the warning did not change it.
+		await expect(gridItem(page, chart.id).locator('[data-testid="cn-chart-widget-bar-row"]')).toHaveCount(2)
 	} finally {
 		await seeds.cleanup()
 	}

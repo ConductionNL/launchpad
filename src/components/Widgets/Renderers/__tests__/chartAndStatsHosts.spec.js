@@ -7,7 +7,7 @@
  * (top-level content or `content.props`) and their defaults.
  */
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick } from 'vue'
 import ChartHost from '../ChartHost.vue'
@@ -272,22 +272,23 @@ describe('ChartHost publishing a pick (REQ-CWF-001, REQ-CWF-005)', () => {
 
 	it('the chart that made a filter shows it as selected, until another chart replaces it or it is removed', async () => {
 		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
-		const a = mountOnBus(CONTENT, bus, 5).findComponent(ChartStub)
-		const b = mountOnBus(CONTENT, bus, 6).findComponent(ChartStub)
+		const hostA = mountOnBus(CONTENT, bus, 5)
+		const hostB = mountOnBus(CONTENT, bus, 6)
+		const selected = (host) => host.findComponent(ChartStub).props('selected')
 
-		a.vm.$emit('select', { field: 'gemeente', value: 'GM0355' })
-		await nextTick()
-		expect(a.props('selected')).toEqual(['GM0355'])
-		expect(b.props('selected')).toEqual([])
+		hostA.findComponent(ChartStub).vm.$emit('select', { field: 'gemeente', value: 'GM0355' })
+		await flushPromises()
+		expect(selected(hostA)).toEqual(['GM0355'])
+		expect(selected(hostB)).toEqual([])
 
-		b.vm.$emit('select', { field: 'gemeente', value: 'GM0321' })
-		await nextTick()
-		expect(a.props('selected')).toEqual([])
-		expect(b.props('selected')).toEqual(['GM0321'])
+		hostB.findComponent(ChartStub).vm.$emit('select', { field: 'gemeente', value: 'GM0321' })
+		await flushPromises()
+		expect(selected(hostA)).toEqual([])
+		expect(selected(hostB)).toEqual(['GM0321'])
 
 		bus.remove('gemeenteCode')
-		await nextTick()
-		expect(b.props('selected')).toEqual([])
+		await flushPromises()
+		expect(selected(hostB)).toEqual([])
 	})
 
 	it('a restored clause marks the chart it names, and a chart off the bus marks nothing', async () => {

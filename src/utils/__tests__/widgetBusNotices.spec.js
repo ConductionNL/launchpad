@@ -23,7 +23,14 @@ describe('busNotices', () => {
 			id: 'consumes-unknown-dimension:buurtCode',
 			type: 'warning',
 			text: 'This widget consumes buurtCode, but no hierarchy on this dashboard publishes it. It shows its data unfiltered.',
+			dismissible: true,
 		}])
+	})
+
+	it('leaves out a notice the reader dismissed, and keeps the others', () => {
+		const content = { consumes: ['buurtCode', 'straatCode'] }
+		expect(busNotices(content, HIERARCHIES, ['consumes-unknown-dimension:buurtCode']).map((notice) => notice.id))
+			.toEqual(['consumes-unknown-dimension:straatCode'])
 	})
 
 	it('says nothing for a widget that fits or declares nothing', () => {

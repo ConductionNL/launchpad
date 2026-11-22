@@ -27,22 +27,27 @@ function sentence(finding) {
 
 /**
  * The notices for a widget's filter declarations on a dashboard: none when
- * the widget declares nothing or fits.
+ * the widget declares nothing or fits. Each can be dismissed; a dismissed one
+ * is left out.
  *
  * @param {object|null} content The widget's placement content.
  * @param {Array<object>} hierarchies The dashboard's hierarchy descriptors.
- * @return {Array<{id: string, type: string, text: string}>}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+ * @param {string[]} [dismissed] The ids of the notices the reader dismissed.
+ * @return {Array<{id: string, type: string, text: string, dismissible: boolean}>}
+ * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-29
  */
-export function busNotices(content, hierarchies) {
+export function busNotices(content, hierarchies, dismissed = []) {
 	const { publishes, consumes } = busDeclarationsOf(content)
 	if (publishes.length === 0 && consumes.length === 0) {
 		return []
 	}
 	const { findings } = validateBusDeclarations({ widget: { publishes, consumes }, hierarchies: Array.isArray(hierarchies) ? hierarchies : [] })
-	return findings.map((finding) => ({
-		id: `${finding.code}:${finding.dimension}`,
-		type: finding.level === 'error' ? 'error' : 'warning',
-		text: sentence(finding),
-	}))
+	return findings
+		.map((finding) => ({
+			id: `${finding.code}:${finding.dimension}`,
+			type: finding.level === 'error' ? 'error' : 'warning',
+			text: sentence(finding),
+			dismissible: true,
+		}))
+		.filter((notice) => !dismissed.includes(notice.id))
 }

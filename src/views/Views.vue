@@ -365,7 +365,8 @@
 			:calendarsFetcher="fetchCalendars"
 			:setReturnFocus="dialogReturnFocus"
 			@close="closeCustomWidgetModal"
-			@submit="saveCustomWidget" />
+			@submit="saveCustomWidget"
+			@dismiss-notice="dismissWidgetNotice" />
 
 		<!-- Dashboard configuration modal (also used for creating a new dashboard) -->
 		<DashboardConfigModal
@@ -827,6 +828,8 @@ export default {
 			// keeps its type select.
 			customWidgetInitialType: null,
 			customWidgetEditing: null,
+			// The filter-bus notices dismissed this visit, per placement id (REQ-CWF-008).
+			dismissedWidgetNotices: {},
 			// The element focused when a widget dialog opened (REQ-WDG-013).
 			widgetDialogOpener: null,
 			// Per-widget conditional-visibility editor state. Non-null
@@ -919,7 +922,8 @@ export default {
 		customWidgetNotices() {
 			const content = this.customWidgetEditing?.content ?? null
 			const bus = this.filterSession ? this.filterSession.bus : null
-			return busNotices(content, bus ? bus.hierarchies : [])
+			const dismissed = this.dismissedWidgetNotices[this.customWidgetEditing?.id] ?? []
+			return busNotices(content, bus ? bus.hierarchies : [], dismissed)
 		},
 
 		filterClauses() {
@@ -2519,6 +2523,23 @@ export default {
 			this.customWidgetInitialType = null
 			this.widgetDialogOpener = document.activeElement
 			this.isCustomWidgetModalOpen = true
+		},
+
+		/**
+		 * The reader dismissed a notice in the widget dialog: leave it out for
+		 * that widget for the rest of the visit.
+		 *
+		 * @param {string} id The notice id.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-29
+		 */
+		dismissWidgetNotice(id) {
+			const placementId = this.customWidgetEditing?.id
+			if (placementId === undefined || placementId === null) {
+				return
+			}
+			const dismissed = this.dismissedWidgetNotices[placementId] ?? []
+			this.dismissedWidgetNotices = { ...this.dismissedWidgetNotices, [placementId]: [...dismissed, id] }
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */

@@ -80,7 +80,6 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
-				'startPageWithoutNavigation' => false,
 				// drill-down-cross-widget-filter REQ-CWF-010: telemetry is opt-in.
 				'filterTelemetryEnabled' => false,
 				// launcher-tile-launch-types: both empty until an administrator fills them.
@@ -178,8 +177,8 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('maxWidgetsPerDashboard', $settings);
 		// tile-quick-search REQ-QSEARCH-004.
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
-		// runtime-shell REQ-SHELL-009.
-		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
+		// Runtime-shell REQ-SHELL-009: the start-page option is retired.
+		$this->assertArrayNotHasKey(key: 'startPageWithoutNavigation', array: $settings);
 		// launcher-tile-launch-types: the program schemes and SSO launch templates.
 		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
 		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
@@ -195,7 +194,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('pinnedCommunities', $settings);
 		// REQ-PSP-003.
 		$this->assertArrayHasKey('defaultAppEnabled', $settings);
-		$this->assertCount(23, $settings);
+		$this->assertCount(expectedCount: 22, haystack: $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**
@@ -371,36 +370,6 @@ class AdminSettingsServiceTest extends TestCase {
 	}//end testUpdateSettingsPersistsBridgeToggle()
 
 	/**
-	 * runtime-shell REQ-SHELL-009: off by default, so an instance that
-	 * upgrades keeps its navigation panel.
-	 */
-	public function testGetSettingsStartPageWithoutNavigationDefaultsOff(): void {
-		$this->settingMapper->method('getAllAsArray')->willReturn([]);
-
-		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
-	}//end testGetSettingsStartPageWithoutNavigationDefaultsOff()
-
-	public function testGetSettingsReadsStoredStartPageWithoutNavigation(): void {
-		$this->settingMapper->method('getAllAsArray')->willReturn(
-			[AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION => true]
-		);
-
-		$this->assertTrue($this->service->getSettings()['startPageWithoutNavigation']);
-	}//end testGetSettingsReadsStoredStartPageWithoutNavigation()
-
-	/**
-	 * A hand-edited row that is not a boolean must not take the panel away:
-	 * only a stored `true` does.
-	 */
-	public function testGetSettingsTreatsANonBooleanStartPageValueAsOff(): void {
-		$this->settingMapper->method('getAllAsArray')->willReturn(
-			[AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION => 'yes']
-		);
-
-		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
-	}//end testGetSettingsTreatsANonBooleanStartPageValueAsOff()
-
-	/**
 	 * Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry reads as on
 	 * only for a stored `true`.
 	 *
@@ -439,16 +408,17 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertSame(['filter_telemetry_enabled' => true], $stored);
 	}//end testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven()
 
-	public function testUpdateSettingsPersistsStartPageWithoutNavigation(): void {
-		$this->settingMapper->expects($this->once())
-			->method('setSetting')
-			->with(
-				AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION,
-				true
-			);
+	/**
+	 * The retired start-page option (runtime-shell REQ-SHELL-009) is not
+	 * stored when an older client still sends it.
+	 *
+	 * @return void
+	 */
+	public function testUpdateSettingsIgnoresTheRetiredStartPageOption(): void {
+		$this->settingMapper->expects($this->never())->method('setSetting');
 
 		$this->service->updateSettings(settings: ['startPageWithoutNavigation' => true]);
-	}//end testUpdateSettingsPersistsStartPageWithoutNavigation()
+	}//end testUpdateSettingsIgnoresTheRetiredStartPageOption()
 
 	public function testUpdateSettingsRejectsInvalidSharePermissionLevel(): void {
 		$this->expectException(InvalidArgumentException::class);

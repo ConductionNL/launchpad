@@ -87,6 +87,12 @@ const CONTEXT_MENU = '[data-testid="widget-context-menu"]'
 const TOUR = '.cn-walkthrough'
 const TOUR_CARD = '.cn-walkthrough__card'
 
+/** The title of the tour's first step, which rings More (board LpEersteKeer). */
+const FIRST_STEP_TITLE = 'Here you switch between dashboards'
+
+/** The body of the tour's second step, the Flows task. */
+const FLOWS_STEP_BODY = 'Reports and Flows are under More as well.'
+
 /** The support note, by its accessible name or by the library's test id. */
 function supportNote(page: Page): Locator {
 	return page
@@ -509,7 +515,7 @@ test.describe('REQ-SHELL-008: the support note is for administrators', () => {
 			// it shows, the note has had its chance.
 			await expect(
 				page.locator(`${TOUR_CARD} .cn-walkthrough__title`),
-			).toHaveText('Welcome to Launchpad', { timeout: 30_000 })
+			).toHaveText(FIRST_STEP_TITLE, { timeout: 30_000 })
 			// The overlay layer renders the note on its own schedule; give a
 			// late note the time to arrive before asserting it never did.
 			await page.waitForTimeout(1_500)
@@ -567,15 +573,15 @@ test.describe('REQ-SHELL-008: the support note is for administrators', () => {
 
 /**
  * Walk the Workspace tour to its end the way a person does: Next on the
- * welcome, Finish on the More step.
+ * dashboards step, Finish on the Flows step.
  *
- * @param page the page, with the welcome step open.
+ * @param page the page, with the first step open.
  * @return nothing.
  */
 async function finishWorkspaceTour(page: Page): Promise<void> {
 	const card = page.locator(TOUR_CARD)
 	await card.getByRole('button', { name: /next/i }).click()
-	await expect(card).toContainText('are under More.')
+	await expect(card).toContainText(FLOWS_STEP_BODY)
 	await card.getByRole('button', { name: /finish/i }).click()
 	await expect(page.locator(TOUR)).toHaveCount(0)
 }
@@ -609,7 +615,8 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 	}
 
 	// @e2e runtime-shell::a-first-visit-starts-the-tour
-	test('a first visit opens the welcome step in the centre of the Workspace page', async ({
+	// @e2e runtime-shell::the-tour-points-at-more
+	test('a first visit opens the tour on the More menu, which holds the dashboards', async ({
 		browser,
 	}) => {
 		const pieter = await freshMember()
@@ -618,33 +625,33 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 			await page.goto(APP_URL)
 			const card = page.locator(TOUR_CARD)
 			await expect(card.locator('.cn-walkthrough__title')).toHaveText(
-				'Welcome to Launchpad',
+				FIRST_STEP_TITLE,
 				{ timeout: 30_000 },
 			)
+			await expect(card).toContainText('dashboards are under More')
 			// On the Workspace page, whose view is WorkspaceApp. The address
 			// may carry the active dashboard's slug (dashboard deep links
 			// replace `/` with it), so the view is what identifies the page.
 			expect(new URL(page.url()).pathname).toMatch(/\/apps\/launchpad(\/|$)/)
 			await expect(page.locator('.workspace-shell')).toBeAttached()
 
-			// In the centre: the centred layout, over a full-page dim, and
-			// geometrically in the middle of the viewport.
-			await expect(card).toHaveClass(/cn-walkthrough__card--centered/)
-			await expect(page.locator('.cn-walkthrough__dim--full')).toBeVisible()
-			const box = (await card.boundingBox())!
-			const viewport = page.viewportSize()!
-			const dx = Math.abs(box.x + box.width / 2 - viewport.width / 2)
-			const dy = Math.abs(box.y + box.height / 2 - viewport.height / 2)
-			expect(dx).toBeLessThan(viewport.width * 0.1)
-			expect(dy).toBeLessThan(viewport.height * 0.15)
+			// Anchored to More, not centred: the card sits below the button
+			// and overlaps it horizontally.
+			await expect(card).not.toHaveClass(/cn-walkthrough__card--centered/)
+			const more = page.locator('[data-walkthrough-id="launchpad-more-menu"], [data-testid="launchpad-more-menu"]').first()
+			await expect(more).toBeVisible()
+			const cardBox = (await card.boundingBox())!
+			const moreBox = (await more.boundingBox())!
+			expect(cardBox.y).toBeGreaterThanOrEqual(moreBox.y + moreBox.height - 4)
+			expect(cardBox.x).toBeLessThan(moreBox.x + moreBox.width)
+			expect(cardBox.x + cardBox.width).toBeGreaterThan(moreBox.x)
 		} finally {
 			await context.close()
 		}
 	})
 
-	// @e2e runtime-shell::the-tour-points-at-more
 	// @e2e runtime-shell::opening-flows-from-more-ends-the-tour
-	test('the step after the welcome points at More, and opening Flows there ends the tour', async ({
+	test('the step after the dashboards step asks for Flows, and opening Flows there ends the tour', async ({
 		browser,
 	}) => {
 		const pieter = await freshMember()
@@ -653,15 +660,13 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 			await page.goto(APP_URL)
 			const card = page.locator(TOUR_CARD)
 			await expect(card.locator('.cn-walkthrough__title')).toHaveText(
-				'Welcome to Launchpad',
+				FIRST_STEP_TITLE,
 				{ timeout: 30_000 },
 			)
-			// CONTROL: the welcome step does not carry the More text.
-			await expect(card).not.toContainText('are under More.')
+			// CONTROL: the first step does not carry the Flows text.
+			await expect(card).not.toContainText(FLOWS_STEP_BODY)
 			await card.getByRole('button', { name: /next/i }).click()
-			await expect(card).toContainText(
-				'Your dashboards, the Marketplace, Reports, Flows and the settings are under More.',
-			)
+			await expect(card).toContainText(FLOWS_STEP_BODY)
 			await expect(page.locator(MORE_MENU)).toBeVisible()
 
 			await page

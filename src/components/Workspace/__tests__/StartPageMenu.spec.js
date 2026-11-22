@@ -4,7 +4,8 @@
  *
  * The start-page menu stands in for the navigation panel when the panel is
  * left out (runtime-shell REQ-SHELL-009): nothing while the panel is there,
- * and otherwise every destination, grouped as the panel groups them.
+ * and otherwise every destination, grouped and ordered like the dashboard
+ * view's More menu (Dashboards, Settings, Launchpad).
  */
 
 import { mount } from '@vue/test-utils'
@@ -105,7 +106,7 @@ describe('StartPageMenu (REQ-SHELL-009)', () => {
 		).toBe(false)
 	})
 
-	it('offers every entry with its own destination, in the panel order', () => {
+	it('offers every entry with its own destination, grouped and ordered as the boards draw More', () => {
 		const wrapper = mountMenu({
 			railSuppressed: true,
 			entries: ENTRIES,
@@ -130,11 +131,12 @@ describe('StartPageMenu (REQ-SHELL-009)', () => {
 				.find('[data-testid="launchpad-start-page-menu-dashboards"]')
 				.attributes('data-to'),
 		).toBe('Workspace')
+		// The in-app admin route lands where the admin settings link goes.
 		expect(
 			wrapper
 				.find('[data-testid="launchpad-start-page-menu-admin-settings"]')
-				.attributes('data-to'),
-		).toBe('admin-settings')
+				.exists(),
+		).toBe(false)
 
 		const ids = wrapper
 			.findAll('[data-testid^="launchpad-start-page-menu-"]')
@@ -145,15 +147,27 @@ describe('StartPageMenu (REQ-SHELL-009)', () => {
 			)
 		expect(ids).toEqual([
 			'dashboards',
-			'Documentation',
-			'StoreMenu',
 			'personal-settings',
 			'admin-settings-link',
+			'StoreMenu',
 			'FlowsMenu',
-			'admin-settings',
+			'Documentation',
 		])
-		// Three sections, two separators between them.
+		// Dashboards, Settings and Launchpad, two separators between them.
 		expect(wrapper.findAll('hr')).toHaveLength(2)
+	})
+
+	it('carries the tour target of the More menu', () => {
+		const wrapper = mountMenu({
+			railSuppressed: true,
+			entries: ENTRIES,
+			isAdmin: false,
+		})
+		expect(
+			wrapper
+				.find('[data-testid="launchpad-start-page-menu"]')
+				.attributes('data-walkthrough-id'),
+		).toBe('launchpad-more-menu')
 	})
 
 	it('links an administrator to the Nextcloud admin settings in the same tab', () => {

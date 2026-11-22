@@ -79,13 +79,27 @@ const APP_BASE = '/apps/launchpad'
  * absence is asserted on. `route` stays, used only where the question really
  * is about the route: whether an admin's entry resolves to a working link.
  */
+/*
+ * `menuId` and `href` are what the More menu renders for the surface. The
+ * in-app admin settings route only redirects to Nextcloud's admin settings,
+ * so More offers that destination once, as the Settings group's
+ * `admin-settings-link`, and not the manifest entry beside it.
+ */
 const ADMIN_PAGES = [
 	{
 		id: 'admin-templates',
+		menuId: 'admin-templates',
 		path: '/admin/templates',
+		href: '/admin/templates',
 		route: 'admin-templates-index',
 	},
-	{ id: 'admin-settings', path: '/admin/settings', route: 'admin-settings' },
+	{
+		id: 'admin-settings',
+		menuId: 'admin-settings-link',
+		path: '/admin/settings',
+		href: '/settings/admin/launchpad',
+		route: 'admin-settings',
+	},
 ] as const
 
 /** A menu entry every account holds, as the positive control. */
@@ -210,11 +224,11 @@ test.describe('manifest permission: the admin surfaces', () => {
 				'the navigation rendered its ungated entries',
 			).toContain(UNGATED_ENTRY_ID)
 
-			for (const { id } of ADMIN_PAGES) {
+			for (const { menuId } of ADMIN_PAGES) {
 				expect(
 					entryIds,
-					`admin-gated menu entry "${id}" rendered for a non-admin`,
-				).not.toContain(id)
+					`admin-gated menu entry "${menuId}" rendered for a non-admin`,
+				).not.toContain(menuId)
 			}
 		} finally {
 			await context.close()
@@ -349,18 +363,18 @@ test.describe('manifest permission: the admin surfaces', () => {
 		expect(who.isAdmin, 'the default e2e session is the admin').toBe(true)
 
 		const entryIds = await navEntryIds(page)
-		for (const { id } of ADMIN_PAGES) {
+		for (const { menuId } of ADMIN_PAGES) {
 			expect(
 				entryIds,
-				`admin-gated menu entry "${id}" is missing for an admin`,
-			).toContain(id)
+				`admin-gated menu entry "${menuId}" is missing for an admin`,
+			).toContain(menuId)
 		}
 
 		// The entry must also WORK, not merely render. Both entries used to
 		// declare a URL path where a route NAME was expected, so vue-router
 		// could not resolve either one and both rendered with no anchor:
 		// visible, inert, and for everybody.
-		for (const { id, path: routePath } of ADMIN_PAGES) {
+		for (const { menuId: id, href: routePath } of ADMIN_PAGES) {
 			await expect(
 				page
 					.locator(`[data-testid="launchpad-start-page-menu-${id}"]`)

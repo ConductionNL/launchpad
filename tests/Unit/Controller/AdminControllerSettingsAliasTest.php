@@ -89,7 +89,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 21 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -195,40 +195,23 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end testUnsuppliedSettingsStayNull()
 
 	/**
-	 * runtime-shell REQ-SHELL-009: the start-page option reaches the service
-	 * under its own name, and only when it was sent.
+	 * The retired start-page option (runtime-shell REQ-SHELL-009) never
+	 * reaches the service, so an older client that still sends it stores
+	 * nothing.
 	 *
 	 * @return void
 	 */
-	public function testStartPageWithoutNavigationIsPassedThrough(): void {
+	public function testRetiredStartPageOptionIsNotForwarded(): void {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->settingsMatching(
-					[
-						'defaultPermLevel' => null,
-						'allowUserDash' => null,
-						'allowMultiDash' => null,
-						'defaultGridCols' => null,
-						'linkCreateFileExts' => null,
-						'defaultSharePermissionLevel' => null,
-						'forcedShareGroups' => null,
-						'legacyWidgetBridgeEnabled' => null,
-						'maxDashboardsPerUser' => null,
-						'maxWidgetsPerDashboard' => null,
-						'quicksearchFallbackTarget' => null,
-						'startPageWithoutNavigation' => true,
-						'sharingAllowedGroups' => null,
-						'sharingRecipientScope' => null,
-						'tileAllowedSchemes' => null,
-						'ssoLaunchTemplates' => null,
-						'officeNetworks' => null,
-					]
+				$this->callback(
+					callback: static fn (array $settings): bool => array_key_exists(key: 'startPageWithoutNavigation', array: $settings) === false
 				)
 			);
 
-		$this->controller->updateSettings(startPageWithoutNavigation: true);
-	}//end testStartPageWithoutNavigationIsPassedThrough()
+		$this->controller->updateSettings(filterTelemetryEnabled: true);
+	}//end testRetiredStartPageOptionIsNotForwarded()
 
 	/**
 	 * Launcher-tile-launch-types: the program schemes and SSO launch templates reach the service under their own names.
@@ -241,7 +224,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$templates = [['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
-			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'tileAllowedSchemes' => ['ms-word'], 'ssoLaunchTemplates' => $templates]));
+			->with($this->settingsMatching(expected: ['tileAllowedSchemes' => ['ms-word'], 'ssoLaunchTemplates' => $templates]));
 
 		$this->controller->updateSettings(tileAllowedSchemes: ['ms-word'], ssoLaunchTemplates: $templates);
 	}//end testTileLaunchSettingsArePassedThrough()
@@ -266,7 +249,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	public function testFilterTelemetrySwitchIsPassedThrough(): void {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
-			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'filterTelemetryEnabled' => true]));
+			->with($this->settingsMatching(expected: ['filterTelemetryEnabled' => true]));
 
 		$this->controller->updateSettings(filterTelemetryEnabled: true);
 	}//end testFilterTelemetrySwitchIsPassedThrough()
@@ -279,7 +262,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	public function testOfficeNetworksArePassedThrough(): void {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
-			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'officeNetworks' => ['10.20.0.0/16']]));
+			->with($this->settingsMatching(expected: ['officeNetworks' => ['10.20.0.0/16']]));
 
 		$this->controller->updateSettings(officeNetworks: ['10.20.0.0/16']);
 	}//end testOfficeNetworksArePassedThrough()
@@ -307,7 +290,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$calls = 0;
 		$this->settingsService->expects($this->exactly(2))
 			->method('updateSettings')
-			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'pinnedCommunities' => ['vraagict']]))
+			->with($this->settingsMatching(expected: ['pinnedCommunities' => ['vraagict']]))
 			->willReturnCallback(
 				static function () use (&$calls): void {
 					$calls++;

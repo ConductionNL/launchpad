@@ -34,7 +34,6 @@ Settings are stored as key-value pairs:
 | `max_dashboards_per_user` | `maxDashboardsPerUser` | integer | `0` | Personal dashboard quota per user, `0` = unlimited (REQ-QUOTA-001) |
 | `max_widgets_per_dashboard` | `maxWidgetsPerDashboard` | integer | `0` | Placement quota per dashboard, `0` = unlimited (REQ-QUOTA-001) |
 | `quicksearch_fallback_target` | `quicksearchFallbackTarget` | string | `none` | Quick-search no-match fallback: `none`, `unified-search` or an https URL template (REQ-QSEARCH-004). A stored value that no longer validates reads as `none`. |
-| `start_page_without_navigation` | `startPageWithoutNavigation` | boolean | `false` | Whether the dashboard view renders without the left navigation panel (runtime-shell REQ-SHELL-009). Only a stored `true` turns it on. |
 | `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
 NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts each setting under the key the GET response uses (`defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`) and under its short parameter name (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`). When both arrive in one body the short name wins. See REQ-ASET-002.
@@ -43,13 +42,13 @@ NOTE: The DB stores settings with snake_case keys, but the API response returns 
 
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
-Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the fourteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
+Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the thirteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
-@e2e exclude needs a fresh installation with no settings row; the suite shares one instance and no endpoint deletes a stored setting (PUT treats null as not supplied). Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults (which lists 23 keys, not fourteen; see the format-consistency test).
+@e2e exclude needs a fresh installation with no settings row; the suite shares one instance and no endpoint deletes a stored setting (PUT treats null as not supplied). Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults (which lists 22 keys, not thirteen; see the format-consistency test).
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
-- THEN the system MUST return HTTP 200 with all fourteen settings at their default values:
+- THEN the system MUST return HTTP 200 with all thirteen settings at their default values:
   ```json
   {
     "defaultPermissionLevel": "add_only",
@@ -64,8 +63,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
     "legacyWidgetBridgeEnabled": false,
     "maxDashboardsPerUser": 0,
     "maxWidgetsPerDashboard": 0,
-    "quicksearchFallbackTarget": "none",
-    "startPageWithoutNavigation": false
+    "quicksearchFallbackTarget": "none"
   }
   ```
 - NOTE: `allowUserDashboards` defaults to `false` (REQ-ASET-003) — admins MUST opt in to personal dashboard creation.
@@ -74,7 +72,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - GIVEN the admin has set `allowUserDashboards` to `false`
 - WHEN the admin sends GET /api/admin/settings
 - THEN the response MUST carry `"allowUserDashboards": false`
-- AND the other thirteen keys MUST still be present with their current values
+- AND the other twelve keys MUST still be present with their current values
 
 #### Scenario: Non-admin user retrieves settings
 - GIVEN a regular user "alice"
@@ -91,7 +89,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 #### Scenario: Settings response format consistency
 - GIVEN the admin has configured various settings at different times
 - WHEN GET /api/admin/settings is called
-- THEN the response MUST always return exactly the fourteen keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `sharingAllowedGroups`, `sharingRecipientScope`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`, `startPageWithoutNavigation`
+- THEN the response MUST always return exactly the thirteen keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `sharingAllowedGroups`, `sharingRecipientScope`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`
 - AND no additional keys MUST be present in the response
 - NOTE: This scenario said "exactly four keys" long after the response had grown to twelve. The list above is taken from `AdminSettingsService::getSettings()`; a key added there MUST be added here and to the Defined Settings table.
 - AND the response MUST be a flat JSON object (no nesting)
@@ -102,6 +100,12 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - WHEN the admin sends GET /api/admin/settings
 - THEN the response MUST NOT contain `launchpad.content_storage`
 - AND the stored row MUST stay unread (decision 131)
+
+#### Scenario: The retired start-page key is not returned
+- GIVEN an instance where `start_page_without_navigation` may still be stored from when the option existed (runtime-shell REQ-SHELL-009)
+- WHEN the admin sends a PUT /api/admin/settings that still carries `"startPageWithoutNavigation": true`
+- THEN the PUT MUST answer 200 and store nothing for that key
+- AND a following GET /api/admin/settings MUST NOT contain `startPageWithoutNavigation`
 
 ### Requirement: Update Admin Settings (REQ-ASET-002)
 

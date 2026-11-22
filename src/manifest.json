@@ -496,13 +496,13 @@
         "trigger": "first-visit",
         "steps": [
           {
-            "id": "welcome",
-            "placement": "center",
-            "title": "Welcome to Launchpad",
-            "body": "A short tour of the main screens. It takes under a minute, and you can close it at any point and pick it up again from the help menu.",
+            "id": "dashboards",
+            "placement": "bottom",
+            "title": "Here you switch between dashboards",
+            "body": "Your own dashboards, what colleagues share with you and the organisation's group dashboards are under More, next to the marketplace and the settings. Pick one to open it.",
             "target": {
-              "kind": "page",
-              "ref": "Workspace"
+              "kind": "element",
+              "ref": "launchpad-more-menu"
             },
             "advanceOn": {
               "type": "manual"
@@ -511,7 +511,7 @@
           {
             "id": "more-menu",
             "placement": "bottom",
-            "body": "Your dashboards, the Marketplace, Reports, Flows and the settings are under More.",
+            "body": "Reports and Flows are under More as well.",
             "task": "Open Flows from More",
             "target": {
               "kind": "element",

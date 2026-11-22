@@ -112,6 +112,9 @@
 							trackBy="uuid"
 							:clearable="false"
 							data-testid="dashboard-parent-select" />
+						<span class="dashboard-config__hint" data-testid="dashboard-parent-hint">
+							{{ t('launchpad', 'This builds a tree of dashboards under Dashboards in the More menu') }}
+						</span>
 					</div>
 					<div class="dashboard-config__field">
 						<NcTextField

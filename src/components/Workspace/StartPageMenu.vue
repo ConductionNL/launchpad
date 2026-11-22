@@ -2,23 +2,22 @@
   - SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
   - SPDX-License-Identifier: EUPL-1.2
   -
-  - StartPageMenu: the navigation panel's destinations as one compact menu
-  - in the workspace's top row, for the start page without the panel
-  - (runtime-shell REQ-SHELL-009).
+  - StartPageMenu: the app's destinations as one compact More menu, for a
+  - shell without the navigation panel (runtime-shell REQ-SHELL-009). LaunchPad
+  - renders no panel, so this menu is at the top of every page but the
+  - dashboard view (App.vue) and in the workspace's empty state.
   -
-  - Renders nothing while the panel is rendered, so the destinations are
-  - never offered twice. When the panel is left out, every entry the panel
-  - would have shown is here: the app's menu entries by section (main,
-  - footer, settings), the personal settings dialog and, for an
-  - administrator, the link to Nextcloud's admin settings. The dashboards
-  - themselves are not repeated: the dashboard switcher beside this button
-  - lists them.
+  - Renders nothing while a panel is rendered, so the destinations are never
+  - offered twice. Otherwise every entry the panel would have shown is here:
+  - the app's menu entries by section (main, footer, settings), the personal
+  - settings dialog and, for an administrator, the link to Nextcloud's admin
+  - settings.
 -->
 
 <template>
 	<NcActions
 		v-if="chrome.railSuppressed && groups.length > 0"
-		:ariaLabel="t('launchpad', 'Menu')"
+		:ariaLabel="t('launchpad', 'More')"
 		:forceMenu="true"
 		class="launchpad-start-page-menu"
 		data-testid="launchpad-start-page-menu">

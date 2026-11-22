@@ -7,7 +7,7 @@
  * e2e-coverage-programme.
  *
  * Configuration goes through the product's own controls: the More menu's
- * "Add custom widget…" modal with the News type, and the edit-mode context
+ * "Add widget" → "Custom widget" modal with the News type, and the edit-mode context
  * menu's Edit for an existing placement. The API only seeds placements and
  * reads them back. Where a response has to carry items, the app's own items
  * endpoint is stubbed (see tests/e2e/support/newsWidget.ts for why the CI

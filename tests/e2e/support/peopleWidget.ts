@@ -372,10 +372,7 @@ export async function seedPeopleDashboard(
 /**
  * The rendered People widget, optionally of one layout.
  *
- * Matches both renderers that exist for the `people` type: nc-vue's
- * `CnPeopleWidget` (`.cn-people-widget`, what the registry dispatches to
- * today) and LaunchPad's own `PeopleWidget.vue` (`.people-widget`), so a
- * spec states the behaviour, not which component happens to be wired.
+ * The `people` type renders nc-vue's `CnPeopleWidget` (`.cn-people-widget`).
  *
  * @param page the page.
  * @param layout `card`, `grid` or `list`; any when omitted.
@@ -383,9 +380,9 @@ export async function seedPeopleDashboard(
  */
 export function peopleWidget(page: Page, layout?: string): Locator {
 	if (layout) {
-		return page.locator(`.cn-people-widget--${layout}, .people-widget--${layout}`).first()
+		return page.locator(`.cn-people-widget--${layout}`).first()
 	}
-	return page.locator('.cn-people-widget, .people-widget').first()
+	return page.locator('.cn-people-widget').first()
 }
 
 /**

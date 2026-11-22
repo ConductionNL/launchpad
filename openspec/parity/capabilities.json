@@ -1998,7 +1998,7 @@
 					"openspec/specs/tiles :: Tile Styling (REQ-TILE-009)"
 				]
 			},
-			"reachedOn": "Workspace page, dashboard menu, Add custom widget, tile editor",
+			"reachedOn": "Workspace page, dashboard menu, Add widget, Custom widget, tile editor",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/483000-shortcut-tile 'open an external website directly', 'Choose an icon' and a custom colour (read 2026-09-26)",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:423 app with name, iconUrl, href; packages/widgets/src/app/index.ts:23 app tile with open-in-new-tab; colour through board icon colour (sqlite.ts:284, en.json:4404) and per item border colour (packages/validation/src/shared.ts:19)",
@@ -6957,7 +6957,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
+				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); @conduction/nextcloud-vue CnPeopleWidget (searchPeople via src/services/widgetDataAdapters.js); src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields",
 				"requirement": "openspec/specs/people-widget :: Administrators define custom profile fields (REQ-PEX-001)"
@@ -7277,7 +7277,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
+				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); @conduction/nextcloud-vue CnPeopleWidget (searchPeople via src/services/widgetDataAdapters.js); src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields",
 				"requirement": "openspec/specs/people-widget :: Search finds people across the directory by profile and expertise (REQ-PEX-003)"

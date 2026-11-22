@@ -138,7 +138,7 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 			page.getByRole('menuitem', { name: /Dashboard configuration/ }),
 		).toBeVisible()
 		await expect(
-			page.getByRole('menuitem', { name: /Add custom widget/ }),
+			page.getByRole('menuitem', { name: /^Add widget$/ }),
 		).toBeVisible()
 		await expect(
 			page.getByRole('menuitem', { name: /Delete dashboard/ }),

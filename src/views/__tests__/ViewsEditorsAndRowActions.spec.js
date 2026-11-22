@@ -39,7 +39,6 @@ vi.mock('../../utils/logger.js', () => ({
 vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn(), showSuccess: vi.fn() }))
 
 let Views
-let useDashboardStore
 
 /**
  * A host carrying the given state, with every Views method bound to it
@@ -82,8 +81,7 @@ function makeHost(state = {}) {
 beforeEach(async () => {
 	setActivePinia(createPinia())
 	vi.clearAllMocks()
-	Views = (await import('../Views.vue')).default;
-	({ useDashboardStore } = await import('../../stores/dashboard.js'))
+	Views = (await import('../Views.vue')).default
 })
 
 describe('Views config modal openers', () => {
@@ -435,14 +433,24 @@ describe('Views row-cog actions', () => {
 		expect(host).toMatchObject({ isConfigModalOpen: true, configModalInitialTab: 'general' })
 	})
 
-	it('switches without an active dashboard, then opens the custom widget picker', async () => {
+	it('switches without an active dashboard, then opens the widget picker', async () => {
 		const onSidebarSwitch = vi.fn().mockResolvedValue(undefined)
-		const openCustomWidgetModal = vi.fn()
-		const host = makeHost({ onSidebarSwitch, openCustomWidgetModal })
+		const openWidgetModal = vi.fn()
+		const host = makeHost({ onSidebarSwitch, openWidgetModal })
 
-		await host.onRowAddCustomWidget({ id: 7 }, 'default')
+		await host.onRowAddWidget({ id: 7 }, 'default')
 
 		expect(onSidebarSwitch).toHaveBeenCalledWith(7, 'default')
+		expect(openWidgetModal).toHaveBeenCalledWith()
+	})
+
+	it('closes the picker and opens the custom widget form when "Custom widget" is picked', async () => {
+		const openCustomWidgetModal = vi.fn()
+		const host = makeHost({ openCustomWidgetModal, isWidgetModalOpen: true })
+
+		await host.onPickCustomWidget()
+
+		expect(host.isWidgetModalOpen).toBe(false)
 		expect(openCustomWidgetModal).toHaveBeenCalledWith()
 	})
 })
@@ -483,20 +491,5 @@ describe('Views sidebar create and delete dialog', () => {
 		host.onDeleteDialog(false)
 		expect(host.deleteTarget).toBeNull()
 		expect(host.deleteChildCount).toBe(0)
-	})
-})
-
-describe('Views publishing the active dashboard', () => {
-	it('publishes and unpublishes the active dashboard by its uuid', async () => {
-		const store = useDashboardStore()
-		const publish = vi.spyOn(store, 'publishDashboard').mockResolvedValue(undefined)
-		const unpublish = vi.spyOn(store, 'unpublishDashboard').mockResolvedValue(undefined)
-		const host = makeHost({ activeDashboard: { id: 1, uuid: 'u-team' } })
-
-		await host.onPublishActive()
-		await host.onUnpublishActive()
-
-		expect(publish).toHaveBeenCalledWith('u-team')
-		expect(unpublish).toHaveBeenCalledWith('u-team')
 	})
 })

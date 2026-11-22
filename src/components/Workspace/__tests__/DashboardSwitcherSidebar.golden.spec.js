@@ -19,7 +19,7 @@ beforeEach(() => {
 const rowActionsStub = {
 	name: 'DashboardRowActions',
 	props: ['dashboard', 'source', 'canEdit', 'defaultUuid', 'isEditMode', 'activeDashboardId'],
-	emits: ['toggleEdit', 'openConfig', 'addCustomWidget', 'delete', 'setDefault'],
+	emits: ['toggleEdit', 'openConfig', 'addWidget', 'delete', 'setDefault'],
 	template: '<span class="row-actions-stub" :data-source="source" :data-can-edit="String(canEdit)" :data-default-uuid="defaultUuid" :data-edit-mode="String(isEditMode)" :data-active="activeDashboardId" />',
 }
 
@@ -94,7 +94,7 @@ describe('DashboardSwitcherSidebar row wiring per section', () => {
 		await li.trigger('keydown', { key: 'Enter' })
 		await li.trigger('keydown', { key: ' ' })
 		const actions = wrapper.findAllComponents(rowActionsStub).find((c) => c.props('source') === source)
-		for (const event of ['toggleEdit', 'openConfig', 'addCustomWidget', 'delete', 'setDefault']) {
+		for (const event of ['toggleEdit', 'openConfig', 'addWidget', 'delete', 'setDefault']) {
 			actions.vm.$emit(event)
 		}
 		await wrapper.vm.$nextTick()

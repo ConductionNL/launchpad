@@ -7,7 +7,7 @@
 	DashboardRowActions — wave3.6 per-row cog menu
 
 	Lives at the right edge of every dashboard `<li>` in the sidebar.
-	The 4 actions (Edit / Configure / Add custom widget / Delete) act on
+	The 4 actions (Edit / Configure / Add widget / Delete) act on
 	the row's own dashboard, not on whichever dashboard happens to be
 	"active" — so the user can edit, configure, or delete any dashboard
 	they have access to without having to switch first.
@@ -19,11 +19,11 @@
 	    event so the host can decide whether to switch + enter edit
 	    mode or no-op).
 	  - Dashboard configuration → only when the row's `dashboard.isOwner !== false`.
-	  - Add custom widget       → only when `canEdit` is true.
+	  - Add widget              → only when `canEdit` is true.
 	  - Delete dashboard        → only when the row's `dashboard.isOwner !== false`.
 
 	Emits raw events; the host (`DashboardSwitcherSidebar.vue`) maps
-	them to its `toggle-edit` / `open-config` / `add-custom-widget` /
+	them to its `toggle-edit` / `open-config` / `add-widget` /
 	`delete-dashboard` outputs with the per-row dashboard payload.
 
 	`@click.stop` is set on the cog trigger so opening the menu never
@@ -71,11 +71,11 @@
 			v-if="canEdit"
 			:closeAfterClick="true"
 			data-testid="cog-add-widget"
-			@click="$emit('addCustomWidget')">
+			@click="$emit('addWidget')">
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
 			</template>
-			{{ t('launchpad', 'Add custom widget…') }}
+			{{ t('launchpad', 'Add widget') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="canEdit"
@@ -101,37 +101,6 @@
 					: t('launchpad', 'Set as default')
 			}}
 		</NcActionButton>
-		<template v-if="canManagePublication">
-			<NcActionButton
-				v-if="dashboard.publicationStatus !== 'published'"
-				:closeAfterClick="true"
-				data-testid="cog-publish"
-				@click="$emit('publish')">
-				<template #icon>
-					<Publish :size="20" />
-				</template>
-				{{ t('launchpad', 'Publish') }}
-			</NcActionButton>
-			<NcActionButton
-				v-else
-				:closeAfterClick="true"
-				data-testid="cog-unpublish"
-				@click="$emit('unpublish')">
-				<template #icon>
-					<PublishOff :size="20" />
-				</template>
-				{{ t('launchpad', 'Unpublish') }}
-			</NcActionButton>
-			<NcActionButton
-				:closeAfterClick="true"
-				data-testid="cog-schedule"
-				@click="$emit('schedule')">
-				<template #icon>
-					<CalendarClock :size="20" />
-				</template>
-				{{ t('launchpad', 'Schedule…') }}
-			</NcActionButton>
-		</template>
 		<NcActionButton
 			v-if="canViewHistory"
 			:closeAfterClick="true"
@@ -163,16 +132,6 @@
 			{{ t('launchpad', 'Create embed token') }}
 		</NcActionButton>
 		<NcActionButton
-			v-if="canScheduleExports"
-			:closeAfterClick="true"
-			data-testid="cog-scheduled-exports"
-			@click="$emit('scheduledExports')">
-			<template #icon>
-				<CalendarExport :size="20" />
-			</template>
-			{{ t('launchpad', 'Scheduled exports…') }}
-		</NcActionButton>
-		<NcActionButton
 			v-if="isOwner"
 			:closeAfterClick="true"
 			data-testid="cog-delete"
@@ -190,15 +149,11 @@ import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
 import BookmarkPlusOutline from 'vue-material-design-icons/BookmarkPlusOutline.vue'
-import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
-import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import History from 'vue-material-design-icons/History.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
-import Publish from 'vue-material-design-icons/Publish.vue'
-import PublishOff from 'vue-material-design-icons/PublishOff.vue'
 import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Star from 'vue-material-design-icons/Star.vue'
@@ -262,10 +217,6 @@ export default {
 		Star,
 		StarCheck,
 		ShareVariant,
-		CalendarClock,
-		CalendarExport,
-		Publish,
-		PublishOff,
 		History,
 	},
 
@@ -321,26 +272,12 @@ export default {
 		canEmbed: FLAG_PROP,
 
 		/*
-		 * sharing-dashboard-schedule-screen REQ-SCHEDUI-001: the host allows
-		 * Publish / Unpublish / Schedule… (owner or administrator). Off by
-		 * default, so sidebar rows do not show them.
-		 */
-		canManagePublication: FLAG_PROP,
-
-		/*
 		 * When true the menu renders "Version history…" (REQ-VERSUI-001).
 		 * The host decides: owner or administrator, and versioning
 		 * supported for this dashboard. Off by default, so sidebar rows
 		 * do not show it.
 		 */
 		canViewHistory: FLAG_PROP,
-
-		/*
-		 * scheduled-exports task 19: when true the menu renders "Scheduled
-		 * exports…" beside Share, which emits `scheduledExports` so the host
-		 * opens the export list. Off by default, so sidebar rows do not show it.
-		 */
-		canScheduleExports: FLAG_PROP,
 
 		/*
 		 * NcActions toggle button style. Defaults to the subtle
@@ -366,17 +303,13 @@ export default {
 	emits: [
 		'toggleEdit',
 		'openConfig',
-		'addCustomWidget',
+		'addWidget',
 		// launcher-bookmark-import REQ-BMI-001: only where the user may add.
 		'importBookmarks',
 		'delete',
 		'setDefault',
 		'share',
-		'publish',
-		'unpublish',
-		'schedule',
 		'versionHistory',
-		'scheduledExports',
 		'menuOpen',
 	],
 

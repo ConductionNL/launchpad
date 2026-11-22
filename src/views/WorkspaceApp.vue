@@ -53,7 +53,7 @@
 		</div>
 
 		<!-- Region 3 (edit toolbar) removed: editing actions (Edit/Save
-		     dashboard, Add custom widget) live in the per-dashboard cog
+		     dashboard, Add widget) live in the per-dashboard cog
 		     menu (DashboardRowActions) so the page chrome stays clean. -->
 
 		<!-- Region 3.5 (quick-search bar) removed: quick search is now the

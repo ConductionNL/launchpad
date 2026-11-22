@@ -6,10 +6,11 @@
  * (openspec/specs/widgets/spec.md, REQ-WDG-010..013), written for the
  * e2e-coverage-programme:
  *
- *  - "Add custom widget…" in the More menu opens CnAddWidgetModal, the
- *    registry-driven add/edit modal (src/views/Views.vue:375);
- *  - "Add widget" in the More menu opens WidgetPickerModal, the list of
- *    Nextcloud dashboard widgets (src/modals/WidgetPickerModal.vue);
+ *  - "Add widget" in the More menu opens WidgetPickerModal, the one add
+ *    flow: Nextcloud dashboard widgets, apps and "Custom widget"
+ *    (src/modals/WidgetPickerModal.vue);
+ *  - "Custom widget" in that picker opens CnAddWidgetModal, the
+ *    registry-driven add/edit modal (src/views/Views.vue);
  *  - a placement's edit cog opens the content editor for a registry type and
  *    the style editor (CnWidgetStyleEditorModal) for a Nextcloud widget
  *    (Views.vue handleContextMenuEdit).
@@ -26,6 +27,7 @@
  *   @e2e widgets::open-in-edit-mode
  *   @e2e widgets::switching-type-resets-form-state
  *   @e2e widgets::submit-emits-only-relevant-fields
+ *   @e2e widgets::one-entry-point-adds-every-kind-of-widget
  *   @e2e widgets::widget-picker-displays-available-widgets
  *   @e2e widgets::widget-picker-filters-installed-widgets
  *   @e2e widgets::widget-selection-creates-placement
@@ -102,7 +104,7 @@ async function openLaunchPad(page: Page): Promise<void> {
  * Choose an item of the More menu.
  *
  * @param page the page.
- * @param id the item id (`add-widget`, `add-custom-widget`).
+ * @param id the item id (`add-widget`).
  * @return nothing.
  */
 async function moreMenu(page: Page, id: string): Promise<void> {
@@ -119,7 +121,8 @@ async function moreMenu(page: Page, id: string): Promise<void> {
  * @return the dialog.
  */
 async function openCustomModal(page: Page): Promise<Locator> {
-	await moreMenu(page, 'add-custom-widget')
+	await moreMenu(page, 'add-widget')
+	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 	const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog
@@ -375,6 +378,31 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 		await expect(picker).toBeVisible({ timeout: 15_000 })
 		return picker.locator('.widget-picker__list > button.widget-picker__widget')
 	}
+
+	// @e2e widgets::one-entry-point-adds-every-kind-of-widget
+	test('one "Add widget" entry: the picker offers "Custom widget", which opens the custom widget form', async ({
+		page,
+	}) => {
+		await openLaunchPad(page)
+		await page
+			.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+			.click()
+		await expect(page.locator('[data-testid="cn-grouped-menu-item-add-widget"]')).toBeVisible()
+		await expect(page.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')).toHaveCount(0)
+		await page.keyboard.press('Escape')
+
+		await openPicker(page)
+		const custom = page.locator('[data-testid="widget-picker-custom-widget"]')
+		await page.locator('.widget-picker input').first().fill('image')
+		await expect(custom).toBeVisible()
+		await custom.click()
+
+		await expect(page.locator('.widget-picker')).toHaveCount(0)
+		const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
+		await expect(dialog).toBeVisible({ timeout: 10_000 })
+		await expect(dialog.locator(TYPE_SELECT)).toBeVisible()
+		await page.keyboard.press('Escape')
+	})
 
 	// @e2e widgets::widget-picker-displays-available-widgets
 	test('the picker lists every available widget, each with its icon and title', async ({

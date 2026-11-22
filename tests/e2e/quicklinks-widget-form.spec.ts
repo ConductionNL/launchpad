@@ -6,7 +6,7 @@
  * (openspec/specs/quicklinks-widget), written for e2e-coverage-programme.
  *
  * Everything a person does goes through the product's own controls: the
- * dashboard's row menu -> "Add custom widget" -> the Add Widget modal's type
+ * dashboard's row menu -> "Add widget" → "Custom widget" -> the Add Widget modal's type
  * picker and the quicklinks sub-form, or edit mode -> the widget's cog ->
  * "Edit widget". The API is used to seed placements and to read back what a
  * save actually persisted, never to perform the action under test.

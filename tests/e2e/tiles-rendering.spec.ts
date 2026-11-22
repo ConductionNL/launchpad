@@ -10,7 +10,7 @@
  * placed through `POST /api/dashboard/{id}/tile`, which writes the legacy
  * inline `tile*` fields. The tests open the page as that account and read the
  * rendered tiles; the last test adds a tile through the product's own
- * "Add custom widget…" flow and reads the stored placement back.
+ * "Add widget" → "Custom widget" flow and reads the stored placement back.
  *
  * Gate-19 @e2e traceability:
  *   @e2e tiles::existing-tile-placements-still-render
@@ -534,7 +534,7 @@ test.fixme('the tile editor has title, icon, icon type, colour and link fields a
 })
 
 // @e2e tiles::new-tile-placement-uses-standard-content-shape
-test('a tile added through "Add custom widget…" stores its data in content, not in the tile columns', async ({
+test('a tile added through "Add widget" → "Custom widget" stores its data in content, not in the tile columns', async ({
 	browser,
 }) => {
 	const { context, page } = await open(browser)
@@ -545,8 +545,9 @@ test('a tile added through "Add custom widget…" stores its data in content, no
 			.locator('[data-testid="cn-grouped-menu-trigger"]')
 			.click()
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')
+			.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 			.click()
+		await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Tile' })

@@ -8,8 +8,7 @@
  * row and "Reset filters" a `reset` row, neither carrying a value; with the
  * switch off nothing is written.
  *
- * The `apply` row of a widget click waits for a chart to emit its selection
- * (Task 7, blocked on @conduction/nextcloud-vue) and is not covered here.
+ * The `apply` row of a widget click is in cross-widget-filter-clicks.spec.ts.
  *
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::telemetry-records-bookmark-and-reset

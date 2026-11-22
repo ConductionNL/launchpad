@@ -7,9 +7,8 @@
  * Task 25 and the active-filters panel of Task 26.
  *
  * The filter state is set through the `f` URL parameter, the way a bookmark
- * restores it. The widget-click halves of these tasks wait for a chart to
- * emit its selection (Task 7, blocked on @conduction/nextcloud-vue) and are
- * not covered here.
+ * restores it. The widget-click halves of these tasks are in
+ * cross-widget-filter-clicks.spec.ts.
  *
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::url-restores-in-a-fresh-browser

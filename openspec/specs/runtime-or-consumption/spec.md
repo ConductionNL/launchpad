@@ -27,7 +27,12 @@ consume OR data at runtime.** OR is never a hard dependency.
 
 LaunchPad MUST NOT declare an install-time dependency on `openregister` or
 `openconnector` in `appinfo/info.xml`, `composer.json`, or
-`src/manifest.json`.
+`src/manifest.json`. The manifest MAY list OpenRegister as an optional
+dependency (`{"id": "openregister", "required": false}`), so the shell can
+name it to the admin, but an entry for `openregister` or `openconnector`
+MUST NOT be required: no bare app-id string and no `required: true`. The same
+holds for the manifest served by `GET /api/manifest`, which replaces the
+bundled one at boot.
 
 #### Scenario: Fresh install without OR boots normally
 
@@ -40,12 +45,12 @@ LaunchPad MUST NOT declare an install-time dependency on `openregister` or
 - AND no "missing dependency" warning or fatal error MUST appear in the
   Nextcloud log
 
-#### Scenario: manifest.json dependencies array is empty
+#### Scenario: The manifest lists OpenRegister only as optional
 
-- GIVEN the `src/manifest.json` file for LaunchPad
-- WHEN it is parsed
-- THEN the `dependencies` array MUST be `[]`
-- AND it MUST NOT contain `"openregister"` or `"openconnector"`
+- GIVEN the `src/manifest.json` file for LaunchPad, and the manifest served by `GET /api/manifest`
+- WHEN each is parsed
+- THEN its `dependencies` array MUST list OpenRegister as `{"id": "openregister", "required": false}`
+- AND no entry MUST be a bare `"openregister"` or `"openconnector"` string, and no entry MUST be required
 
 ---
 
@@ -176,6 +181,7 @@ hardcoded tokens, API keys, or forge request headers.
 - `useOrFeatureDetect()` lives at
   `src/composables/useOrFeatureDetect.js`. See
   `docs/widgets/or-data.md` for the canonical widget pattern.
-- The `dependencies: []` guard in `scripts/check-manifest.js` blocks
-  accidental re-introduction of OR as a hard dep (runs in
+- The `dependencies` guard in `scripts/check-manifest.js` blocks a bare
+  `"openregister"` or `"openconnector"` string, so OR cannot come back as a
+  hard dep (runs in
   `npm run check:manifest`, which is wired into `npm run lint`).

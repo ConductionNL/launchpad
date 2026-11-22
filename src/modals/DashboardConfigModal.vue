@@ -371,6 +371,14 @@
 						{{ t('launchpad', 'Not shared with anyone yet.') }}
 					</p>
 					<p
+						v-if="localShares.length > 0 && isUnpublished"
+						class="dashboard-config__hint"
+						data-test="share-unpublished-hint">
+						{{
+							t('launchpad', 'Colleagues see this dashboard once you publish it')
+						}}
+					</p>
+					<p
 						v-if="sharesDirty"
 						class="dashboard-config__hint dashboard-config__hint--dirty">
 						{{
@@ -883,6 +891,18 @@ export default {
 				})
 			}
 			return list
+		},
+
+		/**
+		 * Whether the dashboard is a draft or still scheduled, so share
+		 * recipients do not see it yet (REQ-DASH-036).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboard-sharing/spec.md
+		 */
+		isUnpublished() {
+			const status = this.dashboard?.publicationStatus || 'published'
+			return status === 'draft' || status === 'scheduled'
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */

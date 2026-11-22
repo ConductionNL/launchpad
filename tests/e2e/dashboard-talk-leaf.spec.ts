@@ -61,6 +61,7 @@ import {
 	assertActingAs,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 } from './support/principals.ts'
@@ -240,6 +241,7 @@ test('Task 12: a shared personal dashboard shows the discussion to owner and rec
 	const shared = await setUpOwnDashboard(`e2e-leaf-owner-${RUN}`, `E2E Leaf Shared ${RUN}`)
 	ownDashboards.push(shared)
 	const recipient = await principal('e2e-leaf-recipient')
+	await publishForRecipients(shared.owner.api, shared.id)
 	await share(shared.owner.api, shared.id, 'user', recipient.username, 'view_only')
 
 	const owner = await openWithTalk(browser, shared.owner, shared.uuid)

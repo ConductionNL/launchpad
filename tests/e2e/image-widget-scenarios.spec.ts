@@ -74,6 +74,7 @@ import {
 } from './support/dashboardFixture.ts'
 import { enterEditMode, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import { solidPng } from './support/pngFixture.ts'
+import { publishForRecipients } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -863,6 +864,7 @@ test.describe('image widget — a file-mode cell seen by someone who may not rea
 	 */
 	async function seedForViewer(seeds: Seed[]): Promise<number[]> {
 		const { dashboard, ids } = await seedImages(seeds)
+		await publishForRecipients(admin, Number(dashboard.id))
 		const share = await admin.post(`${API}/dashboard/${dashboard.id}/shares`, {
 			data: { shareType: 'user', shareWith: viewer!.username, permissionLevel: 'view_only' },
 		})

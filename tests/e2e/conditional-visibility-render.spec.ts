@@ -31,6 +31,7 @@ import {
 	API,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 	shareWith,
@@ -64,6 +65,7 @@ test.describe('conditional visibility at render time (REQ-VIS-013)', () => {
 			ruleConfig: { groups: [GROUP] },
 			isInclude: true,
 		})
+		await publishForRecipients(alice.api, dashboard.id)
 		await shareWith(alice.api, dashboard.id, bob.username, 'view_only')
 	})
 

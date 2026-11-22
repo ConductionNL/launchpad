@@ -37,6 +37,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	seedDashboardWithWidget,
 	shareWith,
@@ -77,6 +78,7 @@ test.describe('permission levels, probed as the user who has them', () => {
 			['full', full],
 		] as const) {
 			const seeded = await seedDashboardWithWidget(admin, `${STAMP} ${level}`)
+			await publishForRecipients(admin, seeded.id)
 			await shareWith(admin, seeded.id, alice.username, level)
 			into.push(seeded)
 		}

@@ -24,7 +24,8 @@ import {
  * launchpad's `/apps/launchpad/api/people` and returns `{ users, total, hasMore }`.
  * Axios is lazy-imported (keeps it out of the vitest css-no-op transform path).
  *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays }`.
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays, q }`;
+ *   `q` searches the whole directory by name, email and profile fields (REQ-PEX-003).
  * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
  * @spec openspec/specs/people-widget/spec.md
  */
@@ -40,9 +41,10 @@ export async function fetchPeoplePage(args = {}) {
 
 /**
  * The people endpoint's query string: the filters, the disabled-account
- * switch and the sort key only when given, then the page size and offset.
+ * switch, the sort key and the search text only when given, then the page
+ * size and offset.
  *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays }`.
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays, q }`.
  * @return {string} The query string.
  */
 function peopleQuery(args) {
@@ -58,6 +60,9 @@ function peopleQuery(args) {
 	}
 	if (args.showBirthdays !== undefined) {
 		params.append('showBirthdays', args.showBirthdays ? '1' : '0')
+	}
+	if (args.q) {
+		params.append('q', String(args.q))
 	}
 	params.append('limit', String(args.limit ?? 50))
 	params.append('offset', String(args.offset ?? 0))
@@ -117,12 +122,14 @@ export async function fetchCalendarEvents(placementId, args = {}) {
  * @spec openspec/specs/people-widget/spec.md
  */
 export function buildWidgetDataProvide(getPlacementId, getContent = () => ({})) {
+	const people = (args) => fetchPeoplePage({
+		...args,
+		showBirthdays: (getContent() || {}).showBirthdays !== false,
+	})
 	return {
 		cnPeopleSource: {
-			fetchPeople: (args) => fetchPeoplePage({
-				...args,
-				showBirthdays: (getContent() || {}).showBirthdays !== false,
-			}),
+			fetchPeople: people,
+			searchPeople: people,
 		},
 		cnCalendarSource: {
 			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),

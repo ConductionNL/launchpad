@@ -25,8 +25,11 @@
 		:translate="translateForApp"
 		:requiresApps="[]"
 		:hideMenu="true"
+		:pageGround="true"
 		appId="launchpad">
 		<!--
+		  runtime-shell REQ-SHELL-012: `pageGround` puts the board grid on the
+		  page ground instead of the white content panel.
 		  runtime-shell REQ-SHELL-009: LaunchPad renders no navigation panel.
 		  Its destinations are in the More menu: on the dashboard view the
 		  workspace's own More menu, on every other page this one.

@@ -714,21 +714,6 @@
 		},
 		"fresh": true
 	},
-	"../../components/Widgets/Renderers/PeopleWidget.vue | content": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": {
-			"layout": "grid",
-			"filters": [],
-			"excludeDisabled": true,
-			"showBirthdays": true,
-			"birthdayWindowDays": 7,
-			"sortBy": "displayName",
-			"columns": 3
-		},
-		"fresh": true
-	},
 	"../../components/Widgets/Renderers/SearchWidget.vue | content": {
 		"type": "Object",
 		"required": false,

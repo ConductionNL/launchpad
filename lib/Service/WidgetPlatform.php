@@ -37,10 +37,12 @@ class WidgetPlatform {
 	 *
 	 * @param IManager     $dashboardManager Dashboard manager interface.
 	 * @param IUserSession $userSession User session interface.
+	 * @param DashboardWidgetRegistry|null $registry The widgets without loading them, for the page's initial state.
 	 */
 	public function __construct(
 		public readonly IManager $dashboardManager,
 		public readonly IUserSession $userSession,
+		public readonly ?DashboardWidgetRegistry $registry=null,
 	) {
 	}//end __construct()
 }//end class

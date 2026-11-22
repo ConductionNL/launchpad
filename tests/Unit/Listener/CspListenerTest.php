@@ -24,6 +24,7 @@ namespace Unit\Listener;
 
 use OCA\LaunchPad\Listener\CspListener;
 use OCA\LaunchPad\Service\IframeService;
+use OCA\LaunchPad\Service\ImageHostService;
 use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
 use OCP\EventDispatcher\Event;
 use OCP\IRequest;
@@ -38,12 +39,15 @@ class CspListenerTest extends TestCase {
 
 	private IframeService $iframeService;
 
+	private ImageHostService $imageHosts;
+
 	private LoggerInterface $logger;
 
 	private CspListener $listener;
 
 	protected function setUp(): void {
 		$this->iframeService = $this->createMock(originalClassName: IframeService::class);
+		$this->imageHosts = $this->createMock(originalClassName: ImageHostService::class);
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$this->listener = $this->listenerFor(path: '/apps/launchpad/');
 	}//end setUp()
@@ -61,6 +65,7 @@ class CspListenerTest extends TestCase {
 
 		return new CspListener(
 			iframeService: $this->iframeService,
+			imageHosts: $this->imageHosts,
 			logger: $this->logger,
 			request: $request,
 		);
@@ -187,6 +192,43 @@ class CspListenerTest extends TestCase {
 
 		$this->addToAssertionCount(1);
 	}//end testServiceFailureIsLoggedAndNeverThrows()
+
+	/**
+	 * REQ-IMG-006: allow-listed image hosts go into img-src, over HTTPS.
+	 *
+	 * @return void
+	 */
+	public function testAllowListedImageHostIsAddedToImgSrc(): void {
+		$this->iframeService->method('getAllowedHosts')->willReturn([]);
+		$this->imageHosts->method('getAllowedHosts')->willReturn(['example.com', 'cdn.example.org']);
+		$captured = [];
+
+		$this->listener->handle(event: $this->makeEvent(captured: $captured));
+
+		$this->assertCount(1, $captured);
+		$policy = $captured[0]->buildPolicy();
+		$this->assertMatchesRegularExpression('/img-src[^;]*https:\/\/example\.com/', $policy);
+		$this->assertMatchesRegularExpression('/img-src[^;]*https:\/\/cdn\.example\.org/', $policy);
+		$this->assertDoesNotMatchRegularExpression('/frame-src[^;]*example\.com/', $policy);
+	}//end testAllowListedImageHostIsAddedToImgSrc()
+
+	/**
+	 * REQ-IMG-006: an iframe host is never admitted as an image host, and
+	 * the reverse.
+	 *
+	 * @return void
+	 */
+	public function testFrameAndImageListsStaySeparate(): void {
+		$this->iframeService->method('getAllowedHosts')->willReturn(['status.example.com']);
+		$this->imageHosts->method('getAllowedHosts')->willReturn(['images.example.com']);
+		$captured = [];
+
+		$this->listener->handle(event: $this->makeEvent(captured: $captured));
+
+		$policy = $captured[0]->buildPolicy();
+		$this->assertStringNotContainsString('images.example.com', $this->extractFrameSrc(policy: $policy));
+		$this->assertDoesNotMatchRegularExpression('/img-src[^;]*status\.example\.com/', $policy);
+	}//end testFrameAndImageListsStaySeparate()
 
 	private function extractFrameSrc(string $policy): string {
 		if (preg_match(pattern: '/frame-src [^;]*/', subject: $policy, matches: $matches) === 1) {

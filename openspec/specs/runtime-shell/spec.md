@@ -6,7 +6,7 @@ status: done
 
 ## Purpose
 
-The `runtime-shell` capability owns the user-facing workspace page chrome — the mount point, the sidebar toggle, the active-dashboard label strip, the empty-state branch, and the lifecycle hooks that bind it all together. It is the page-level orchestrator that coordinates four sibling capabilities (`dashboard-switcher`, `widget-add-edit-modal`, `widget-context-menu`, `grid-layout`) and gates editing affordances based on user role and active dashboard scope.
+The `runtime-shell` capability owns the user-facing workspace page chrome — the mount point, the way to the dashboards through More, the empty-state branch, and the lifecycle hooks that bind it all together. It is the page-level orchestrator that coordinates four sibling capabilities (`dashboard-switcher`, `widget-add-edit-modal`, `widget-context-menu`, `grid-layout`) and gates editing affordances based on user role and active dashboard scope.
 
 The shell deliberately holds NO source-of-truth data of its own — every key it consumes flows through the typed initial-state contract via `provide` / `inject`, and every persistence call routes through existing dashboard endpoints. Local state is restricted to UI-only fields (currently just `sidebarOpen` after `runtime-shell-trim` removed the toolbar's `saving` + `showAddDropdown` fields).
 
@@ -46,7 +46,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 - **GIVEN** an admin user viewing any dashboard
 - **WHEN** they open the action menu
 - **THEN** "Add widget", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
-- **AND** right-clicking a widget MUST open the widget context menu (REQ-WDG-015)
+- **AND** in edit mode, right-clicking a widget MUST open the widget context menu (REQ-WDG-015, which keeps view mode on the browser's native menu)
 
 ### Requirement: REQ-SHELL-003 Toolbar contents
 
@@ -80,43 +80,44 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 - THEN the button MUST be disabled (HTML `disabled` attribute set)
 - AND no second request MUST fire
 
-### Requirement: REQ-SHELL-004 Hamburger toggle and active-dashboard label
+### Requirement: REQ-SHELL-004 The dashboards are reached through More
 
-The shell MUST render, in the title strip:
+The shell MUST NOT render a sidebar-toggle (hamburger) button or a title strip with the active dashboard's name. The drawn boards (`launchpad/LpVandaag`, `launchpad/LpWerkplek`) draw neither: the top row holds the More menu (REQ-SHELL-009), and its Dashboards group is how a person switches.
 
-- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('launchpad', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
-- The active dashboard's name as a plain `<h1>` (or `<h2>`) text label — NOT as a `<select>` or any other interactive switcher control. Switching between dashboards happens exclusively via the left sidebar (`dashboard-switcher` capability).
+- The Dashboards group lists the user's dashboards, marks the open one (`role="menuitemradio"`, `aria-checked="true"`), and ends in "All dashboards".
+- "All dashboards" opens the slide-in switcher sidebar (`dashboard-switcher`). The sidebar closes from its own close button, from the backdrop (REQ-SHELL-006) and on Escape.
 
 The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhere in its surface area.
 
-#### Scenario: Toggle button matches account-button styling
+**Why.** The hamburger and the strip went with LpVandaag (one More menu for the start page) and the navigation panel with REQ-SHELL-009. The former scenarios "Toggle button matches account-button styling", "Active-dashboard name visible" and "Empty label on empty state" were removed with them: there is no toggle and no label left to assert.
+
+#### Scenario: No sidebar toggle
 
 - **GIVEN** the workspace shell rendered for an authenticated user
 - **WHEN** the page loads
-- **THEN** the sidebar-toggle button MUST be a `NcButton type="tertiary"` element
-- **AND** its rendered class list MUST include the same `button-vue--vue-tertiary` (or current equivalent) classes the Nextcloud account button uses
-- **AND** clicking it MUST toggle the sidebar's `isOpen` state
+- **THEN** no sidebar-toggle button MUST be rendered
+- **AND** the More menu MUST be rendered exactly once, and the switcher sidebar MUST be closed
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-004
+
+#### Scenario: All dashboards opens the switcher
+
+- **GIVEN** the workspace shell rendered for an authenticated user
+- **WHEN** they open More and choose "All dashboards"
+- **THEN** the switcher sidebar MUST open
+- **AND** its close button MUST close it again
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-004
 
 #### Scenario: No active-dashboard select control
 
 - **GIVEN** the workspace shell rendered with multiple dashboards visible to the user
 - **WHEN** the page is inspected
 - **THEN** no `<select>` element with `name="activeDashboard"` (or equivalent) MUST be present
-- **AND** the active dashboard's name MUST appear as a heading in the title strip
-- **AND** dashboard switching MUST happen only via the left sidebar's row click handlers (REQ-SWITCH-002)
+- **AND** the open dashboard MUST be the one marked entry of More's Dashboards group
+- **AND** dashboard switching MUST happen only through More and the switcher sidebar's row click handlers (REQ-SWITCH-002)
 
-#### Scenario: Active-dashboard name visible
-
-- GIVEN active dashboard `D` has `name = "Marketing Overview"`
-- WHEN the workspace renders
-- THEN the label next to the hamburger MUST display `"Marketing Overview"`
-
-#### Scenario: Empty label on empty state
-
-- GIVEN no active dashboard is resolved (resolver returned null)
-- WHEN the workspace renders
-- THEN the label MUST be empty
-- AND the empty-state component MUST render in the grid area instead
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-004
 
 ### Requirement: Empty state (REQ-SHELL-005)
 

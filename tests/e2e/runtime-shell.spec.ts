@@ -58,7 +58,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import {
 	ADMIN_TOUR_KEY,
 	quietFirstVisit,
@@ -412,6 +412,8 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 			.toBeVisible()
 		await closeSwitcher(page)
 
+		// The widget context menu belongs to edit mode (REQ-WDG-015).
+		await enterEditMode(page)
 		await recordContextMenus(page)
 		await placement.click({ button: 'right' })
 		expect

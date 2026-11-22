@@ -90,7 +90,11 @@ test('the Marketplace has no panel, More at its top, and Dashboards leads back',
 			).toBeVisible()
 		}
 		await page.locator('[data-testid="launchpad-start-page-menu-dashboards"]').click()
-		await expect(page).toHaveURL(/\/apps\/launchpad\/?(#.*)?$/)
+		// The dashboard view writes the open dashboard's own address
+		// (`/apps/launchpad/<slug>`, dashboard-deeplinking), so the URL only
+		// has to have left the Marketplace; the view itself is the proof.
+		await expect(page).not.toHaveURL(/\/store(\?|#|$)/)
+		await expect(page.locator('[data-testid="launchpad-more-menu"]')).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('[data-testid="launchpad-page-menu"]')).toHaveCount(0)
 	} finally {
 		await context.close()

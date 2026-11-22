@@ -4,15 +4,17 @@
  *
  * End-to-end coverage for the `runtime-shell` capability.
  *
- * Covers the hamburger sidebar toggle, the fixed backdrop, and the
- * empty-state CTA branches. The in-page edit toolbar was removed — editing
+ * Covers how the dashboards are reached (More, REQ-SHELL-004) and the
+ * empty-state CTA branches. The backdrop (REQ-SHELL-006) is covered in
+ * runtime-shell.spec.ts. The in-page edit toolbar was removed — editing
  * actions now live in the per-dashboard cog menu (DashboardRowActions) — so
  * the former toolbar / Save-Layout scenarios no longer apply. These tests
  * run against a live Nextcloud instance with the launchpad app enabled.
  *
  * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::hamburger-toggles-sidebar
- *   @e2e runtime-shell::backdrop-click-closes-sidebar
+ *   @e2e runtime-shell::no-sidebar-toggle
+ *   @e2e runtime-shell::all-dashboards-opens-the-switcher
+ *   @e2e runtime-shell::no-active-dashboard-select-control
  *   @e2e runtime-shell::empty-state-with-allow-user-dashboards
  *   @e2e runtime-shell::empty-state-without-allow-user-dashboards
  *   @e2e action-authorization::fresh-install-is-usable-by-non-admins
@@ -29,6 +31,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -72,80 +75,51 @@ async function setAllowUserDashboards(enabled: boolean): Promise<void> {
 }
 
 /**
- * Wait for the Vue shell to hydrate past initial bootstrap.
- * The floating sidebar toggle indicates the workspace has mounted.
+ * Wait for the Vue shell to hydrate past initial bootstrap: the More menu
+ * renders once the workspace has mounted.
  */
 async function waitForShell(page: ReturnType<typeof test.extend>['page']) {
 	await page.goto(APP_URL)
-	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', {
-		timeout: 15_000,
-	})
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 }
 
-test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
+test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
 	test.beforeEach(async ({ page }) => {
 		await waitForShell(page)
 	})
 
-	test('hamburger opens the sidebar', async ({ page }) => {
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await expect(ham).toBeVisible()
-
-		// Sidebar should be closed initially.
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
-
-		await ham.click()
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(1)
-	})
-
-	test('clicking the hamburger again closes the sidebar', async ({ page }) => {
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		await ham.click()
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
-	})
-})
-
-test.describe('REQ-SHELL-006: backdrop click closes sidebar', () => {
-	test.beforeEach(async ({ page }) => {
-		await waitForShell(page)
-	})
-
-	test('clicking the backdrop area closes the sidebar', async ({ page }) => {
-		// Open the sidebar first.
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		// Click the backdrop (area outside the sidebar panel).
-		const backdrop = page.locator('.launchpad-sidebar-backdrop')
-		await expect(backdrop).toBeVisible()
-		await backdrop.click()
-
+	// @e2e runtime-shell::no-sidebar-toggle
+	test('the page has no sidebar toggle, and More is its one menu', async ({ page }) => {
+		await expect(page.locator(MORE_MENU)).toHaveCount(1)
+		await expect(page.locator(MORE_MENU)).toBeVisible()
+		await expect(page.locator('.launchpad-sidebar-toggle')).toHaveCount(0)
 		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
 	})
 
-	test('clicking inside the sidebar panel does NOT close the sidebar', async ({
-		page,
-	}) => {
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
+	// @e2e runtime-shell::all-dashboards-opens-the-switcher
+	test('All dashboards in More opens the switcher, and its close button closes it', async ({ page }) => {
+		await openDashboardSwitcher(page)
+		await page.locator('.dashboard-switcher-sidebar__close').click()
+		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
+	})
 
-		// Click on a safe non-interactive area inside the sidebar (its header).
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		await sidebar.click({ position: { x: 10, y: 5 } })
-
-		// The sidebar should remain open.
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(1)
+	// @e2e runtime-shell::no-active-dashboard-select-control
+	test('More marks the open dashboard and the page has no dashboard select', async ({ browser }) => {
+		// A fresh member, so the open dashboard is among the few More lists
+		// (it lists eight before "All dashboards").
+		const { username, password } = await provisionThrowawayUser('e2e-more-mark')
+		const { context, page } = await loginAs(browser, username, password)
+		try {
+			await waitForShell(page)
+			await expect(page.locator('select[name="activeDashboard"]')).toHaveCount(0)
+			await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
+			const rows = page.locator('[data-testid^="cn-grouped-menu-item-dashboard-"]')
+			await expect(rows.first()).toBeVisible()
+			await expect(rows.and(page.locator('[aria-checked="true"]'))).toHaveCount(1)
+		} finally {
+			await context.close()
+			await deprovisionUser(username)
+		}
 	})
 })
 

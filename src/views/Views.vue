@@ -214,6 +214,12 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<FilterBreadcrumb
+				v-if="activeDashboard && filterSession"
+				:hierarchies="filterSession.bus.hierarchies"
+				:clauses="filterClauses"
+				:labels="filterSession.labels"
+				@pop="onFilterPop" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -496,6 +502,7 @@ import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
+import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
@@ -648,6 +655,7 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		FilterBreadcrumb,
 		DeleteDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
@@ -3216,6 +3224,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * A drill-down breadcrumb step was chosen: go back up to that level.
+		 *
+		 * @param {string} dimension The level's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		onFilterPop(dimension) {
+			this.filterSession?.popTo(dimension)
 		},
 
 		/**

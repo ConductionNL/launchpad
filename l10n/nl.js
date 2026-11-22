@@ -2026,6 +2026,8 @@ OC.L10N.register(
     "Pinned filter" : "Vastgezet filter",
     "Remove filter: {label}" : "Filter verwijderen: {label}",
     "Reset filters" : "Filters wissen",
+    "Drill-down path" : "Inzoompad",
+    "Back to {step}" : "Terug naar {step}",
     "Shown in the email and on the cover page of the PDF." : "Staat in de e-mail en op het voorblad van de pdf.",
     "What to export" : "Wat je exporteert",
     "Run on schedule" : "Volgens schema uitvoeren",

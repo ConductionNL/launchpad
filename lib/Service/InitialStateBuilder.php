@@ -464,6 +464,22 @@ class InitialStateBuilder {
 	}//end setTalkEnabled()
 
 	/**
+	 * Set which apps behind the integration widgets are enabled for the
+	 * viewer, by app id. The picker leaves out a widget whose app is not.
+	 * Optional key; the JS reader defaults to `{}`, which offers none of them.
+	 *
+	 * @param array<string, bool> $apps Whether each app is enabled.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 */
+	public function setIntegrationApps(array $apps): self {
+		$this->values['integrationApps'] = $apps;
+		return $this;
+	}//end setIntegrationApps()
+
+	/**
 	 * Set the viewer's Nextcloud timezone (workspace).
 	 *
 	 * Optional key; the JS reader defaults to '', which makes a clock without

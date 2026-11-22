@@ -894,7 +894,7 @@
 					}
 				},
 				{
-					"widgetId": "wiki",
+					"widgetId": "wiki-pages",
 					"gridX": 4,
 					"gridY": 19,
 					"gridWidth": 4,
@@ -903,9 +903,7 @@
 					"customTitle": "Wiki",
 					"content": {
 						"space": "Kennisbank Zuiddrecht",
-						"showSearch": true,
-						"favourites": 3,
-						"recent": 3
+						"limit": 3
 					}
 				},
 				{
@@ -1708,7 +1706,7 @@
 					}
 				},
 				{
-					"widgetId": "wiki",
+					"widgetId": "wiki-pages",
 					"gridX": 0,
 					"gridY": 11,
 					"gridWidth": 4,
@@ -1717,9 +1715,7 @@
 					"customTitle": "Wiki van het team",
 					"content": {
 						"space": "Vergunningen",
-						"showSearch": true,
-						"favourites": 3,
-						"recent": 3
+						"limit": 3
 					}
 				},
 				{

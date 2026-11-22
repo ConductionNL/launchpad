@@ -117,6 +117,10 @@ import VideoHost from '../components/Widgets/Renderers/VideoHost.vue'
 import VideoWidgetForm from '../components/Widgets/Renderers/VideoWidgetForm.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
+// `wiki-pages` — search, favourites and recent pages of the wiki, read through
+// OpenRegister's XWiki integration (openspec/changes/wiki-widget).
+import WikiPagesWidget from '../components/Widgets/Renderers/WikiPagesWidget.vue'
+import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -126,6 +130,7 @@ import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm
  * @property {string} displayName Human-readable type name for the type picker
  * @property {string} icon Material Design icon name used in the type picker
  * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
+ * @property {string} [requiresApp] The app the widget reads through; the picker offers the type only when the initial state's `integrationApps` says it is enabled for the viewer.
  */
 
 /**
@@ -346,6 +351,20 @@ registerDashboardWidget('search', {
 	icon: 'Magnify',
 })
 
+// wiki-widget REQ-WIKI-001..004: the wiki through OpenRegister's XWiki
+// integration; offered only where OpenRegister is enabled for the viewer.
+registerDashboardWidget('wiki-pages', {
+	renderer: WikiPagesWidget,
+	form: WikiPagesWidgetForm,
+	defaultContent: {
+		space: '',
+		limit: 3,
+	},
+	displayName: 'Wiki',
+	icon: 'BookOpenPageVariantOutline',
+	requiresApp: 'openregister',
+})
+
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,
 // comments and follow per category; notices show as banners instead.
 registerDashboardWidget('announcements', {
@@ -478,4 +497,18 @@ export function getWidgetTypeEntry(type) {
  */
 export function getDefaultContent(type) {
 	return cnGetDefaultContent(type)
+}
+
+/**
+ * Whether the picker offers a widget type to this viewer: always, unless the
+ * type reads through an app (`requiresApp`) that is not enabled for them.
+ *
+ * @param {WidgetRegistryEntry|null} entry The type's entry.
+ * @param {Record<string, boolean>} integrationApps Which apps are enabled for the viewer.
+ * @return {boolean} Whether to offer it.
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+ */
+export function offeredForViewer(entry, integrationApps) {
+	const app = entry?.requiresApp
+	return !app || integrationApps?.[app] === true
 }

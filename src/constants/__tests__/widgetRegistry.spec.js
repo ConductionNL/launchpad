@@ -176,3 +176,13 @@ describe('widgetRegistry — news is LaunchPad-owned', () => {
 		expect(listWidgetTypes()).toContain('news')
 	})
 })
+
+describe('offeredForViewer (wiki-widget REQ-WIKI-004)', () => {
+	it('offers a type without an app always, and a type with one only when it is enabled for the viewer', async () => {
+		const { offeredForViewer, getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(offeredForViewer({ displayName: 'Clock' }, {})).toBe(true)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), {})).toBe(false)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: false })).toBe(false)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: true })).toBe(true)
+	})
+})

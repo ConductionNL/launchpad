@@ -197,10 +197,9 @@ class DemoSeedServiceTest extends TestCase {
 		$werkplek = $report['dashboards'][1];
 
 		$this->assertContains(needle: 'my-cases -> object-list', haystack: $werkplek['fallbacks']);
-		$this->assertContains(needle: 'wiki (Wiki)', haystack: $werkplek['skipped']);
 
 		$types = array_map(callback: fn (WidgetPlacement $p): string => (string)$p->getWidgetId(), array: $this->placements);
-		$this->assertNotContains(needle: 'wiki', haystack: $types);
+		$this->assertContains(needle: 'wiki-pages', haystack: $types);
 		$this->assertContains(needle: 'app-tile', haystack: $types);
 		$this->assertContains(needle: 'tile', haystack: $types);
 	}//end testUnregisteredWidgetsAreSkippedOrFallBack()

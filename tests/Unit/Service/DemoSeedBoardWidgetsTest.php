@@ -95,4 +95,20 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 			$this->assertTrue(condition: $label['content']['groupHeading'] ?? false, message: (string)$label['content']['text']);
 		}
 	}//end testTileGroupsAreHeadedByGroupHeadingLabels()
+
+	/**
+	 * The wiki widgets carry the wiki-pages content: a space and a list length.
+	 *
+	 * @return void
+	 */
+	public function testWikiWidgetsReadASpace(): void {
+		$wikis = self::placementsOf(type: 'wiki-pages');
+		$this->assertCount(expectedCount: 2, haystack: $wikis);
+		foreach ($wikis as $wiki) {
+			$this->assertSame(expected: ['space', 'limit'], actual: array_keys($wiki['content']));
+			$this->assertNotSame(expected: '', actual: $wiki['content']['space']);
+		}
+
+		$this->assertSame(expected: [], actual: self::placementsOf(type: 'wiki'));
+	}//end testWikiWidgetsReadASpace()
 }//end class

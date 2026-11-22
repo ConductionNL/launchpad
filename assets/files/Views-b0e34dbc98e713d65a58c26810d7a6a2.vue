@@ -49,7 +49,7 @@
 				@deleteDashboard="onSidebarDeleteDashboard"
 				@toggleEdit="onRowToggleEdit"
 				@openConfig="onRowOpenConfig"
-				@addCustomWidget="onRowAddCustomWidget"
+				@addWidget="onRowAddWidget"
 				@importBookmarks="onRowImportBookmarks"
 				@setDefault="onRowSetDefault" />
 			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
@@ -110,9 +110,6 @@
 						onRowOpenConfig(activeDashboard, activeDashboardSource)
 					"
 					@addWidget="openWidgetModal"
-					@addCustomWidget="
-						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
-					"
 					@importBookmarks="
 						onRowImportBookmarks(activeDashboard, activeDashboardSource)
 					"
@@ -343,9 +340,11 @@
 			:discoveredApps="discoveredApps"
 			:placedAppIds="placedDiscoveredAppIds"
 			:catalogueApps="catalogueApps"
+			:customTypeTitles="customWidgetTypeTitles"
 			:requestAppFn="requestCatalogueApp"
 			@close="closeWidgetModal"
 			@add="addWidget"
+			@addCustom="onPickCustomWidget"
 			@addApp="addDiscoveredApp"
 			@addCatalogueApp="addCatalogueApp"
 			@addOfficePack="addOfficePack" />
@@ -511,7 +510,7 @@ import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
-import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import { getWidgetTypeEntry, listWidgetTypes } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import {
@@ -1240,6 +1239,17 @@ export default {
 		 */
 		contextMenuCanRemove() {
 			return this.isRemovablePlacement(this.grid.state.selectedWidget)
+		},
+
+		/**
+		 * The names of the widget types Launchpad builds itself, for the
+		 * picker's search.
+		 *
+		 * @return {Array<string>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		customWidgetTypeTitles() {
+			return listWidgetTypes().map((type) => getWidgetTypeEntry(type)?.displayName || type)
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -2438,6 +2448,18 @@ export default {
 		},
 
 		/**
+		 * "Custom widget" was picked: close the picker and open the custom
+		 * widget form, where the user chooses its type.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		async onPickCustomWidget() {
+			this.closeWidgetModal()
+			await this.openCustomWidgetModal()
+		},
+
+		/**
 		 * Open the registry-driven custom widget modal in create mode.
 		 * Pass a `type` to deep-link to a specific sub-form (REQ-WDG-010
 		 * preselected-type scenario); omit it for the type-picker flow.
@@ -3280,16 +3302,16 @@ export default {
 		},
 
 		/**
-		 * Row cog "Add widget" — switch to the row's dashboard, then open the
-		 * custom-widget picker.
+		 * Row cog "Add widget": switch to the row's dashboard, then open the
+		 * widget picker.
 		 *
 		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
 		 */
-		async onRowAddCustomWidget(dashboard, source) {
+		async onRowAddWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
-			this.openCustomWidgetModal()
+			await this.openWidgetModal()
 		},
 
 		/**

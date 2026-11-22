@@ -37,7 +37,6 @@ use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
-use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -46,7 +45,6 @@ use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
-use OCP\Server;
 use Throwable;
 
 /**
@@ -81,6 +79,7 @@ class DashboardService {
 		'sortOrder'    => 0,
 		'seedDefaults' => false,
 		'seedSet'      => self::SEED_SET_DEFAULT,
+		'menuAppIds'   => [],
 	];
 
 	/**
@@ -953,7 +952,11 @@ class DashboardService {
 		$this->seedPrimaryTranslation(dashboard: $persisted);
 
 		if ($options['seedDefaults'] === true) {
-			$this->seedDefaultWidgets(dashboardId: $persisted->getId(), seedSet: (string)$options['seedSet']);
+			$this->seedDefaultWidgets(
+				dashboardId: $persisted->getId(),
+				seedSet: (string)$options['seedSet'],
+				menuAppIds: array_values(array_filter((array)$options['menuAppIds'], 'is_string'))
+			);
 		}
 	}//end completeNewDashboard()
 
@@ -3652,19 +3655,20 @@ class DashboardService {
 	 * With `$seedSet` {@see self::SEED_SET_STARTERS} the dashboard gets the
 	 * first-run starter widgets ({@see StarterWidgetSeeds}) instead.
 	 *
-	 * @param int    $dashboardId The dashboard ID to seed.
-	 * @param string $seedSet     Which set: {@see self::SEED_SET_DEFAULT} or {@see self::SEED_SET_STARTERS}.
+	 * @param int                $dashboardId The dashboard ID to seed.
+	 * @param string             $seedSet     Which set: {@see self::SEED_SET_DEFAULT} or {@see self::SEED_SET_STARTERS}.
+	 * @param array<int, string> $menuAppIds  The app ids in the user's app menu, for the starter app tiles.
 	 *
 	 * @return WidgetPlacement[] The persisted placements.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
 	 */
-	private function seedDefaultWidgets(int $dashboardId, string $seedSet=self::SEED_SET_DEFAULT): array {
+	private function seedDefaultWidgets(int $dashboardId, string $seedSet=self::SEED_SET_DEFAULT, array $menuAppIds=[]): array {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
 		$seeds = $this->defaultWidgetSeeds();
 		if ($seedSet === self::SEED_SET_STARTERS) {
-			$seeds = StarterWidgetSeeds::seeds(menuAppIds: $this->menuAppIds());
+			$seeds = StarterWidgetSeeds::seeds(menuAppIds: $menuAppIds);
 		}
 
 		$placements = [];
@@ -3680,29 +3684,6 @@ class DashboardService {
 
 		return $placements;
 	}//end seedDefaultWidgets()
-
-	/**
-	 * The app ids in the current user's app menu, in menu order; empty when
-	 * the menu is unknown, such as outside a request. The menu is looked up
-	 * here rather than injected because the constructor's parameter holders
-	 * are at the unit size limit.
-	 *
-	 * @return array<int, string> The app ids.
-	 *
-	 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-a-first-dashboard-starts-with-a-tile-per-most-used-app-req-apptile-003
-	 */
-	private function menuAppIds(): array {
-		try {
-			$appMenu = Server::get(ServiceDiscoveryServiceInterface::class);
-		} catch (Throwable) {
-			return [];
-		}
-
-		return array_map(
-			static fn (array $app): string => $app['appId'],
-			$appMenu->discover()
-		);
-	}//end menuAppIds()
 
 	/**
 	 * The declarative seed table for a brand-new dashboard's default

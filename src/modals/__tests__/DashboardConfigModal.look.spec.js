@@ -87,8 +87,9 @@ describe('DashboardConfigModal look', () => {
 			canManageShares: false,
 			sharesDirty: false,
 			dashboard: { id: 7, uuid: 'u-7' },
-			form: { name: 'Team Groen', description: '', icon: 'x', parent: { uuid: '' }, slug: '', isDefault: false },
+			form: { name: 'Team Groen', description: '', icon: 'x', parent: { uuid: '' }, slug: '', isDefault: false, hierarchies: [] },
 			_initialIsDefault: false,
+			_initialHierarchies: '',
 			$emit: (...args) => emitted.push(args),
 		})
 

@@ -7,7 +7,7 @@
  * official Nextcloud OpenProject integration (`integration_openproject`). The
  * integration holds the OpenProject address and each person's own OAuth or
  * OIDC token; launchpad asks it for the work packages as the signed-in person
- * and never sees a credential.
+ * and never sees a credential. A person's answer is kept for a minute.
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service\WorkPackages
@@ -29,6 +29,8 @@ namespace OCA\LaunchPad\Service\WorkPackages;
 
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
+use OCP\ICache;
+use OCP\ICacheFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -58,6 +60,14 @@ class WorkPackagesService {
 	 * @var int
 	 */
 	public const MAX_LIMIT = 25;
+
+	/**
+	 * How long a person's answer is kept, so a dashboard that opens again
+	 * does not wait for OpenProject.
+	 *
+	 * @var int
+	 */
+	private const CACHE_SECONDS = 60;
 
 	/**
 	 * Constructor.
@@ -93,6 +103,32 @@ class WorkPackagesService {
 	 * @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-the-widget-lists-open-work-packages-due-date-first-req-wp-001
 	 */
 	public function openWorkPackages(string $userId, string $scope, string $project, int $limit): array {
+		$cache = $this->cache();
+		$key   = $userId . '/' . $scope . '/' . $project . '/' . $limit;
+		$kept  = $cache?->get($key);
+		if (is_array($kept) === true) {
+			return $kept;
+		}
+
+		$answer = $this->readWorkPackages(userId: $userId, scope: $scope, project: $project, limit: $limit);
+		if ($answer['state'] === 'ok') {
+			$cache?->set($key, $answer, self::CACHE_SECONDS);
+		}
+
+		return $answer;
+	}//end openWorkPackages()
+
+	/**
+	 * Read the open work packages from OpenProject, uncached.
+	 *
+	 * @param string $userId  The signed-in person.
+	 * @param string $scope   `mine` or `project`.
+	 * @param string $project The project identifier for scope `project`.
+	 * @param int    $limit   How many to list.
+	 *
+	 * @return array{state: string, workPackages: array<int, array<string, mixed>>, connectUrl?: string}
+	 */
+	private function readWorkPackages(string $userId, string $scope, string $project, int $limit): array {
 		$service = $this->apiService();
 		if ($service === null || is_callable([$service, 'getAccessToken']) === false || is_callable([$service, 'request']) === false) {
 			return ['state' => 'not-installed', 'workPackages' => []];
@@ -110,7 +146,20 @@ class WorkPackagesService {
 		}
 
 		return $this->answer(result: $result);
-	}//end openWorkPackages()
+	}//end readWorkPackages()
+
+	/**
+	 * The cache of answers per person and query, or null without a cache.
+	 *
+	 * @return ICache|null
+	 */
+	private function cache(): ?ICache {
+		try {
+			return $this->container->get(ICacheFactory::class)->createDistributed(prefix: 'launchpad-work-packages');
+		} catch (Throwable) {
+			return null;
+		}
+	}//end cache()
 
 	/**
 	 * The widget's answer for what the integration returned: the work

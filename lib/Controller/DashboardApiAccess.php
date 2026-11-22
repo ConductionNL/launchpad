@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\GroupDashboardCreation;
 
@@ -36,6 +37,7 @@ class DashboardApiAccess {
 	 * @param PermissionService   $permissionService The permission service.
 	 * @param DashboardApiHistory $history The tree, version and analytics services and the logger.
 	 * @param GroupDashboardCreation|null $groupCreation Decides who may create a group dashboard (REQ-DASH-014).
+	 * @param ServiceDiscoveryServiceInterface|null $appMenu The user's app menu, which picks the starter app tiles (REQ-APPTILE-003).
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
@@ -43,6 +45,7 @@ class DashboardApiAccess {
 		public readonly PermissionService $permissionService,
 		public readonly DashboardApiHistory $history,
 		public readonly ?GroupDashboardCreation $groupCreation = null,
+		public readonly ?ServiceDiscoveryServiceInterface $appMenu = null,
 	) {
 	}//end __construct()
 }//end class

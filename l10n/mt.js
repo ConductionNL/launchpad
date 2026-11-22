@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "L-ebda dashboard disponibbli",
     "Contact your administrator" : "Ikkuntattja lill-amministratur tiegħek",
     "Create your first dashboard" : "Oħloq l-ewwel dashboard tiegħek",
-    "Open menu" : "Iftaħ il-menu",
     "Save failed" : "Is-sejvjar falla",
     "My dashboards" : "Id-dashboards tiegħi",
     "Group dashboards" : "Dashboards tal-grupp",

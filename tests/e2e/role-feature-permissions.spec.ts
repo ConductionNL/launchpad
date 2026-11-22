@@ -62,6 +62,7 @@ import {
 	assertActingAs,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 	seedDashboardWithWidget,
@@ -659,6 +660,7 @@ test("a dashboard someone else owns does not show its viewer a widget outside th
 
 	const pieter = await member('pietershared', G.medewerkers)
 	expect(await widgetIds(pieter.api)).not.toContain(RESTRICTED)
+	await publishForRecipients(admin, seeded.id)
 	await shareWith(admin, seeded.id, pieter.username, 'view_only')
 
 	const res = await pieter.api.get(`${API}/dashboard/${seeded.id}`)

@@ -81,6 +81,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	seedDashboardWithWidget,
 	shareWith,
@@ -378,6 +379,7 @@ test.describe('bulk delete (REQ-BULK-001, 007, 008)', () => {
 		}
 		// Shared with a second user, so "not listed for ANY user" is a claim
 		// about someone who could see it before.
+		await publishForRecipients(admin, seeded[0].id)
 		await shareWith(admin, seeded[0].id, probe!.username, 'view_only')
 		expect(await listUuids(probe!.api, '/dashboards/visible')).toContain(
 			seeded[0].uuid,

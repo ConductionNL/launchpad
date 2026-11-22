@@ -97,6 +97,7 @@ import {
 	allowPersonalDashboards,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -229,6 +230,7 @@ async function newDashboard(label: string, viewers: Principal[] = []): Promise<D
 	const dashboard = { id: Number(dash.id), uuid: String(dash.uuid), name, slug }
 	createdDashboards.push(dashboard.id)
 	for (const viewer of viewers) {
+		await publishForRecipients(admin, dashboard.id)
 		await shareWith(admin, dashboard.id, viewer.username, 'view_only')
 	}
 	return dashboard

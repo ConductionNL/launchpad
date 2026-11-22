@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Nema dostupnih nadzornih ploča",
     "Contact your administrator" : "Obratite se svom administratoru",
     "Create your first dashboard" : "Izradite svoju prvu nadzornu ploču",
-    "Open menu" : "Otvori izbornik",
     "Save failed" : "Spremanje nije uspjelo",
     "My dashboards" : "Moje nadzorne ploče",
     "Group dashboards" : "Grupne nadzorne ploče",

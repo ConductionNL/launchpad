@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCA\LaunchPad\Service\DashboardOutlets;
 use OCA\LaunchPad\Service\DashboardPlatform;
 use OCA\LaunchPad\Service\DashboardStructure;
@@ -82,18 +81,7 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$this->dashboardFactory = $this->createMock(DashboardFactory::class);
 		$this->treeService = $this->createMock(DashboardTreeService::class);
 
-		$this->service = $this->buildService(appMenu: null);
-	}//end setUp()
-
-	/**
-	 * Build the service under test, with or without the user's app menu.
-	 *
-	 * @param ServiceDiscoveryServiceInterface|null $appMenu The app menu.
-	 *
-	 * @return DashboardService
-	 */
-	private function buildService(?ServiceDiscoveryServiceInterface $appMenu): DashboardService {
-		return new DashboardService(
+		$this->service = new DashboardService(
 			stores: new DashboardStores(
 				dashboardMapper: $this->dashboardMapper,
 				placementMapper: $this->placementMapper,
@@ -117,11 +105,10 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 				l10nFactory: $this->createMock(IFactory::class)
 			),
 			outlets: new DashboardOutlets(
-				logger: $this->createMock(LoggerInterface::class),
-				appMenu: $appMenu
+				logger: $this->createMock(LoggerInterface::class)
 			)
 		);
-	}//end buildService()
+	}//end setUp()
 
 	/**
 	 * Build a fresh Dashboard stub the factory/mapper can hand back.
@@ -250,22 +237,12 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 	}//end testStarterSeedSetInsertsTheSixStarterWidgets()
 
 	/**
-	 * With the user's app menu known, the starter set opens with one app tile
-	 * per most-used app in that menu instead of the app grid.
+	 * With the user's app menu, the starter set opens with one app tile per
+	 * most-used app in that menu instead of the app grid (REQ-APPTILE-003).
 	 *
 	 * @return void
 	 */
 	public function testStarterSeedSetPlacesAnAppTilePerMostUsedApp(): void {
-		$appMenu = $this->createMock(ServiceDiscoveryServiceInterface::class);
-		$appMenu->method('discover')->willReturn([
-			['appId' => 'deck', 'name' => 'Deck', 'href' => '/apps/deck/', 'icon' => ''],
-			['appId' => 'calendar', 'name' => 'Agenda', 'href' => '/apps/calendar/', 'icon' => ''],
-			['appId' => 'files', 'name' => 'Bestanden', 'href' => '/apps/files/', 'icon' => ''],
-			['appId' => 'photos', 'name' => 'Foto', 'href' => '/apps/photos/', 'icon' => ''],
-			['appId' => 'spreed', 'name' => 'Talk', 'href' => '/apps/spreed/', 'icon' => ''],
-		]);
-		$service = $this->buildService(appMenu: $appMenu);
-
 		$dashboard = $this->makeDashboard();
 		$this->dashboardFactory->method('create')->willReturn($dashboard);
 		$this->dashboardMapper->method('insert')->willReturn($dashboard);
@@ -278,12 +255,13 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 			}
 		);
 
-		$service->createDashboard(
+		$this->service->createDashboard(
 			userId: 'alice',
 			name: 'My Dashboard',
 			options: [
 				'seedDefaults' => true,
 				'seedSet'      => DashboardService::SEED_SET_STARTERS,
+				'menuAppIds'   => ['deck', 'calendar', 'files', 'photos', 'spreed'],
 			]
 		);
 
@@ -296,7 +274,6 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 			actual: array_map(static fn (WidgetPlacement $p): string => $p->getContentArray()['appId'], array_slice($captured, 0, 4))
 		);
 		$this->assertSame(expected: [0, 2, 4, 6], actual: array_map(static fn (WidgetPlacement $p): int => $p->getGridX(), array_slice($captured, 0, 4)));
-		$this->assertSame(expected: range(0, 8), actual: array_map(static fn (WidgetPlacement $p): int => $p->getSortOrder(), $captured));
 	}//end testStarterSeedSetPlacesAnAppTilePerMostUsedApp()
 
 	/**

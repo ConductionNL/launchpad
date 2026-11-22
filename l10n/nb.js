@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Ingen kontrollpaneler tilgjengelig",
     "Contact your administrator" : "Kontakt administratoren din",
     "Create your first dashboard" : "Opprett ditt første kontrollpanel",
-    "Open menu" : "Åpne meny",
     "Save failed" : "Lagring mislyktes",
     "My dashboards" : "Mine kontrollpaneler",
     "Group dashboards" : "Gruppekontrollpaneler",

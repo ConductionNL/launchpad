@@ -76,6 +76,7 @@ import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 } from './support/principals.ts'
 
@@ -155,6 +156,7 @@ test.beforeAll(async () => {
 	expect(KEY, 'asking for a confirmation mints the announcement key').not.toBe('')
 
 	for (const who of [alice, bob, carol, dave, erin, pieter]) {
+		await publishForRecipients(tom.api, source.id)
 		await share(tom.api, source.id, who.username, 'view_only')
 	}
 	for (const who of [alice, bob, carol, dave]) {

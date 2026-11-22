@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
 	translate: (_app, text) => text,
+	t: (_app, text) => text,
 	translatePlural: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', String(count)),
 }))
 vi.mock('@nextcloud/auth', async (importOriginal) => ({ ...(await importOriginal()), getCurrentUser: () => ({ uid: 'pieter' }) }))

@@ -59,10 +59,9 @@ export default {
 	},
 
 	props: {
-		/** Persisted widget content: `{ register, schema, limit }`. */
+		/** Persisted widget content: `{ register, schema, limit }`, see the component description. */
 		content: OBJECT_PROP,
-
-		/** The placement row; declared so it does not fall through as an attribute. */
+		// The placement row is bound on every renderer; declared so it stays out of $attrs.
 		// eslint-disable-next-line vue/no-unused-properties
 		placement: OBJECT_PROP,
 	},
@@ -77,13 +76,19 @@ export default {
 	},
 
 	computed: {
-		/** @return {string} The id the case app is installed under, '' without it. */
+		/**
+		 * @return {string} The id the case app is installed under, '' without it.
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
+		 */
 		caseApp() {
 			const app = this.integrationApps?.dossiq
 			return typeof app === 'string' ? app : ''
 		},
 
-		/** @return {number} How many cases show. */
+		/**
+		 * @return {number} How many cases show.
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-lists-the-viewers-open-cases-deadline-first-req-cases-001
+		 */
 		limit() {
 			const limit = Number(this.content?.limit)
 			return Number.isInteger(limit) && limit > 0 ? Math.min(limit, 20) : 4
@@ -107,12 +112,16 @@ export default {
 			}))
 		},
 
-		/** @return {string} The case app's list of cases. */
+		/**
+		 * @return {string} The case app's list of cases.
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-lists-the-viewers-open-cases-deadline-first-req-cases-001
+		 */
 		allCasesUrl() {
 			return generateUrl('/apps/{app}/cases', { app: this.caseApp })
 		},
 	},
 
+	/** @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-lists-the-viewers-open-cases-deadline-first-req-cases-001 */
 	async created() {
 		if (!this.caseApp) {
 			return

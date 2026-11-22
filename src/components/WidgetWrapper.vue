@@ -96,6 +96,7 @@
 				:menuLabel="t('launchpad', 'Widget menu')"
 				:editLabel="t('launchpad', 'Edit widget')"
 				:deleteLabel="t('launchpad', 'Delete widget')"
+				:canDelete="canRemove"
 				@edit="$emit('edit', placement)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
@@ -181,6 +182,10 @@ export default {
 		// dashboards-personal-hide-ui: the host allows "Hide for me" here
 		// (a shared dashboard the viewer does not own).
 		canHideForMe: FLAG_PROP,
+
+		// REQ-PERM: the host refuses removal (a compulsory widget on a dashboard
+		// held with less than full permission), so the cog offers no Delete.
+		removeLocked: FLAG_PROP,
 
 		// embedded-analytics task 40: the Beheer ▸ Embeds link that creates an
 		// embed token for this widget; '' when the viewer may not create one.
@@ -387,10 +392,9 @@ export default {
 			return { label: link.label, href: link.href }
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/** @spec openspec/specs/permissions/spec.md */
 		canRemove() {
-			// Can't remove compulsory widgets unless full permission
-			return !this.placement.isCompulsory
+			return !this.removeLocked
 		},
 
 		/**

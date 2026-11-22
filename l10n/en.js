@@ -1854,7 +1854,12 @@ OC.L10N.register(
     "Publication schedule" : "Publication schedule",
     "Colleagues see this dashboard only while it is published." : "Colleagues see this dashboard only while it is published.",
     "Contents" : "Contents",
-    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP."
+    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.",
+    "Personal dashboard" : "Personal dashboard",
+    "Personal dashboard · opens first" : "Personal dashboard · opens first",
+    "Shared with you" : "Shared with you",
+    "Last changed {when}" : "Last changed {when}",
+    "Last changed today {time}" : "Last changed today {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

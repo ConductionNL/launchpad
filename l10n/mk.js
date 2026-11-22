@@ -1479,7 +1479,12 @@ OC.L10N.register(
     "Active filters" : "Активни филтри",
     "Pinned filter" : "Закачен филтер",
     "Remove filter: {label}" : "Отстрани филтер: {label}",
-    "Reset filters" : "Ресетирај ги филтрите",
+    "Reset filters" : "Ресетирај ги филтрите",,
+    "Personal dashboard" : "Лична контролна табла",
+    "Personal dashboard · opens first" : "Лична контролна табла · се отвора прва",
+    "Shared with you" : "Споделено со вас",
+    "Last changed {when}" : "Последна промена {when}",
+    "Last changed today {time}" : "Последна промена денес {time}"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

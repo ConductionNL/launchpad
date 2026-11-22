@@ -116,7 +116,5 @@ export default {
 .notice-region {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	margin: 8px 16px 0;
 }
 </style>

@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktivni filtri",
     "Pinned filter" : "Prikvačeni filtar",
     "Remove filter: {label}" : "Ukloni filtar: {label}",
-    "Reset filters" : "Poništi filtre",
+    "Reset filters" : "Poništi filtre",,
+    "Personal dashboard" : "Osobna nadzorna ploča",
+    "Personal dashboard · opens first" : "Osobna nadzorna ploča · otvara se prva",
+    "Shared with you" : "Podijeljeno s vama",
+    "Last changed {when}" : "Zadnja izmjena {when}",
+    "Last changed today {time}" : "Zadnja izmjena danas {time}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

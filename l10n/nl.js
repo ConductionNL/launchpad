@@ -1791,7 +1791,7 @@ OC.L10N.register(
     "Default dashboard" : "Standaarddashboard",
     "Save dashboard" : "Dashboard opslaan",
     "Default dashboard — opens automatically when you visit LaunchPad" : "Standaarddashboard: opent vanzelf als je LaunchPad opent",
-    "Shared with you" : "Gedeeld met jou",
+    "Shared with you" : "Gedeeld met u",
     "Action" : "Actie",
     "Action authorization" : "Rechten per actie",
     "Action matrix saved." : "De actiematrix is opgeslagen.",
@@ -2301,7 +2301,11 @@ OC.L10N.register(
     "Publication schedule" : "Publicatieschema",
     "Colleagues see this dashboard only while it is published." : "Collega's zien dit dashboard alleen als het gepubliceerd is.",
     "Contents" : "Inhoud",
-    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP."
+    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP.",
+    "Personal dashboard" : "Persoonlijk dashboard",
+    "Personal dashboard · opens first" : "Persoonlijk dashboard · opent als eerste",
+    "Last changed {when}" : "Laatst aangepast {when}",
+    "Last changed today {time}" : "Laatst aangepast vandaag {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

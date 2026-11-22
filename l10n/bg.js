@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Активни филтри",
     "Pinned filter" : "Закачен филтър",
     "Remove filter: {label}" : "Премахване на филтър: {label}",
-    "Reset filters" : "Нулиране на филтрите",
+    "Reset filters" : "Нулиране на филтрите",,
+    "Personal dashboard" : "Лично табло",
+    "Personal dashboard · opens first" : "Лично табло · отваря се първо",
+    "Shared with you" : "Споделено с вас",
+    "Last changed {when}" : "Последна промяна {when}",
+    "Last changed today {time}" : "Последна промяна днес {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

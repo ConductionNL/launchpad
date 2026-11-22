@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktívne filtre",
     "Pinned filter" : "Pripnutý filter",
     "Remove filter: {label}" : "Odstrániť filter: {label}",
-    "Reset filters" : "Zrušiť filtre",
+    "Reset filters" : "Zrušiť filtre",,
+    "Personal dashboard" : "Osobný panel",
+    "Personal dashboard · opens first" : "Osobný panel · otvorí sa ako prvý",
+    "Shared with you" : "Zdieľané s vami",
+    "Last changed {when}" : "Naposledy zmenené {when}",
+    "Last changed today {time}" : "Naposledy zmenené dnes {time}"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

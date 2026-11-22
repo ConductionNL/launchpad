@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Filtres actius",
     "Pinned filter" : "Filtre fixat",
     "Remove filter: {label}" : "Elimina el filtre: {label}",
-    "Reset filters" : "Restableix els filtres",
+    "Reset filters" : "Restableix els filtres",,
+    "Personal dashboard" : "Tauler personal",
+    "Personal dashboard · opens first" : "Tauler personal · s'obre primer",
+    "Shared with you" : "Compartit amb vós",
+    "Last changed {when}" : "Darrer canvi {when}",
+    "Last changed today {time}" : "Darrer canvi avui {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

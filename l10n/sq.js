@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Filtrat aktivë",
     "Pinned filter" : "Filtër i fiksuar",
     "Remove filter: {label}" : "Hiq filtrin: {label}",
-    "Reset filters" : "Rivendos filtrat",
+    "Reset filters" : "Rivendos filtrat",,
+    "Personal dashboard" : "Panel personal",
+    "Personal dashboard · opens first" : "Panel personal · hapet i pari",
+    "Shared with you" : "Ndarë me ju",
+    "Last changed {when}" : "Ndryshuar së fundi {when}",
+    "Last changed today {time}" : "Ndryshuar së fundi sot {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

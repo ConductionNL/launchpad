@@ -16,13 +16,17 @@
 /** Class of the element the controls are teleported into. */
 export const HEADER_ACTIONS_CLASS = 'launchpad-header-actions'
 
+/** Class of the actions slot in a dashboard's page title row (DashboardPageHeader). */
+export const PAGE_HEADER_DOCK_CLASS = 'launchpad-page-header__dock'
+
 /** The greeting row the controls dock into. */
 const GROUND_HEADER_SELECTOR = '.cn-header-widget--ground'
 
 /**
  * Find (or create) the element inside the greeting row that holds the
- * controls, or null when they should float: no greeting row on the page,
- * or the dashboard is being edited (the row is then a draggable grid item).
+ * controls. Without a greeting row, or while editing (the row is then a
+ * draggable grid item), the controls go into the page title row when the
+ * page has one, and float otherwise (null).
  * Removes an actions element that is no longer used, so the row lays out
  * as before when the controls float.
  *
@@ -42,7 +46,7 @@ export function resolveHeaderActionsTarget(container, isEditMode) {
 		}
 	}
 	if (!header || isEditMode) {
-		return null
+		return container.querySelector('.' + PAGE_HEADER_DOCK_CLASS)
 	}
 	let target = header.querySelector(':scope > .' + HEADER_ACTIONS_CLASS)
 	if (!target) {

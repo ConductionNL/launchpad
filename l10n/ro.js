@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Filtre active",
     "Pinned filter" : "Filtru fixat",
     "Remove filter: {label}" : "Elimină filtrul: {label}",
-    "Reset filters" : "Resetează filtrele",
+    "Reset filters" : "Resetează filtrele",,
+    "Personal dashboard" : "Tablou de bord personal",
+    "Personal dashboard · opens first" : "Tablou de bord personal · se deschide primul",
+    "Shared with you" : "Partajat cu dvs.",
+    "Last changed {when}" : "Ultima modificare {when}",
+    "Last changed today {time}" : "Ultima modificare astăzi {time}"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -108,7 +108,10 @@ class DashboardApiControllerStarterAppsTest extends TestCase {
 			expected: ['seedDefaults' => true, 'seedSet' => DashboardService::SEED_SET_STARTERS, 'menuAppIds' => ['files', 'mail']],
 			actual: self::seedOptions(controller: $controller, widgets: 'starters')
 		);
-		$this->assertSame(expected: ['seedDefaults' => false, 'seedSet' => DashboardService::SEED_SET_DEFAULT], actual: self::seedOptions(controller: $controller, widgets: 'none'));
+		$this->assertSame(
+			expected: ['seedDefaults' => false, 'seedSet' => DashboardService::SEED_SET_DEFAULT],
+			actual: self::seedOptions(controller: $controller, widgets: 'none')
+		);
 	}//end testTheStartersCarryTheAppMenu()
 
 	/**

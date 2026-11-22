@@ -15,8 +15,9 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 1.1 `admin-settings`: 83 scenarios, 2 cited, blanket. Access requirements in progress 2026-09-11. Its settings-behaviour scenarios stay open under this task.
   - Spec written: `tests/e2e/admin-settings-api.spec.ts`, `tests/e2e/admin-settings-dashboard-effects.spec.ts`, `tests/e2e/admin-settings-groups.spec.ts`, `tests/e2e/admin-settings-ui.spec.ts` (helper `tests/e2e/support/adminSettings.ts`), 58 scenarios cited, 13 excluded with a reason, blanket removed, not yet run (cloud, 2026-11-19)
-- [ ] 1.2 `admin-roles`: 55 scenarios, 0 cited, blanket. In progress 2026-09-11.
+- [x] 1.2 `admin-roles`: 55 scenarios, 0 cited, blanket. In progress 2026-09-11.
   - Spec written: `tests/e2e/admin-roles.spec.ts`, `tests/e2e/admin-roles-enforcement.spec.ts` (helper `tests/e2e/support/roles.ts`), 55 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 43 of 43 green, every listed test run (checked against `playwright test --list`).
 - [ ] 1.3 `conditional-visibility`: 49 scenarios, 0 cited, blanket. In progress 2026-09-11.
   - Spec written: `tests/e2e/conditional-visibility.spec.ts`, `tests/e2e/conditional-visibility-evaluation.spec.ts` (helper `tests/e2e/support/visibilityRules.ts`), 52 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
 - [ ] 1.4 `permissions`: 42 scenarios, 0 cited, blanket. In progress 2026-09-11, with `admin-roles` and the access requirements of `admin-settings`.
@@ -40,10 +41,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
   - Run 19 Nov: 33 of 37 green. Open, decision: the spec wants `{status:'error', error:'forbidden'}` for a non-admin and 403 for an anonymous caller, but `#[AuthorizedAdminSetting]` lets Nextcloud answer first (403 with its own body, 401 for anonymous).
   - Run 20 Nov on development with #1444-#1447 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev): 38 of 38 green. The refusal cases follow Nextcloud's 401/403 on admin routes (#1446).
-- [ ] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.
+- [x] 2.3 `dashboard-versioning`: 38 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-versioning.spec.ts, tests/e2e/dashboard-versioning-ui.spec.ts, 29 scenarios cited, not yet run (cloud, 2026-11-19). 14 excluded with a reason.
   - Run 19 Nov: 2 app defects fixed (#1430: restore of calculatedFields; seeded widgets now cleared by the spec). Open, decisions: REQ-VERS-002..005 say owner and admin, `lib/actions.seed.json` grants `dashboard-version.*` to admin only; the scenarios "Automatic snapshot on PUT" (state before the update) and "Snapshot captures full state" (the new metadata as persisted) contradict each other; the code takes the state after.
   - Run 20 Nov: dashboard-versioning-ui 4 of 4 green; dashboard-versioning 21 of 22, the red "restoring the pre-restore version" is fixed in #1456 and waits for the rerun.
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 26 of 26 green, every listed test run (checked against `playwright test --list`).
 - [x] 2.4 `orphaned-data-cleanup`: 36 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/orphaned-data-cleanup.spec.ts, 13 scenarios cited, not yet run (cloud, 2026-11-19). 23 excluded with a reason.
   - Run 19 Nov: 12 of 13 green. Open, decision: an unauthenticated scan gets Nextcloud's 401, the spec says 403.
@@ -58,9 +60,10 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: tests/e2e/dashboard-metadata-fields.spec.ts, 30 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
   - Run 19 Nov: app defect fixed (#1430: a text field was refused by the database). Open, decision: `dashboard-metadata.set-metadata` is admin-only in `lib/actions.seed.json`, the spec lets the owner write values.
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 30 of 30 green. The owner writes metadata values since #1444 (owner actions), and #1456 fixed the empty object, the dot-form list filter and the switcher filter.
-- [ ] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
+- [x] 2.8 `dashboard-quota-limits`: 24 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-quota-limits.spec.ts, 20 scenarios cited, not yet run (cloud, 2026-11-19). 4 excluded with a reason.
   - Run 19 Nov: 1 red. Open, decision: a non-admin adding a LaunchPad widget gets 403 because the shipped default widget rights (`SeedRolePermissions`, group `default`) allow only activity and recommendations.
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 20 of 20 green, every listed test run (checked against `playwright test --list`).
 - [x] 2.9 `legacy-widget-bridge`: 21 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/legacy-widget-bridge.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 3 of 3 green.
@@ -92,19 +95,23 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/tiles-api.spec.ts`, `tiles-rendering.spec.ts`, `tiles-launch-target.spec.ts`, `tiles-import-discovery.spec.ts`, 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 13 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.9 `dashboard-language-content`: 35 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/dashboard-language-content.spec.ts`, `tests/e2e/dashboard-language-content-ui.spec.ts`, 32 scenarios cited (5 as `test.fixme` for suspected defects, see the PR), 7 excluded, not yet run (cloud, 2026-11-19)
-- [ ] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
+- [x] 3.10 `dashboard-reactions`: 31 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/dashboard-reactions.spec.ts`, `tests/e2e/dashboard-reactions-ui.spec.ts`, 27 scenarios cited, 6 excluded, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 26 of 26 green, every listed test run (checked against `playwright test --list`).
 - [x] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
   - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): tile-quick-search-widget 24 of 24 and tile-quick-search 9 of 9 green.
-- [ ] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
+- [x] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-icons.spec.ts (new), 21 scenarios cited, not yet run (cloud, 2026-11-19)
-- [ ] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
+- [x] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
   - Spec written: tests/e2e/conditional-visibility-editor.spec.ts, 23 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
   - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
-- [ ] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
+- [x] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
   - Spec written: tests/e2e/dashboard-switcher.spec.ts (new), 19 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
 - [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
   - Spec written: tests/e2e/runtime-shell.spec.ts (new), with tests/e2e/support/firstVisit.ts, 20 scenarios cited (11 by the new file), not yet run (cloud, 2026-11-19)
 - [ ] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
@@ -123,12 +130,14 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
-- [ ] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
+- [x] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/files-widget.spec.ts`, `files-widget-listing.spec.ts`, `files-widget-navigation.spec.ts`, `files-widget-actions.spec.ts`, `files-widget-access.spec.ts`; 6 scenarios excluded with reasons, 51 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 51 of 51 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
   - Spec written: `tests/e2e/header-widget.spec.ts`, `header-widget-content.spec.ts`, `header-widget-a11y.spec.ts`, `header-widget-form.spec.ts`; 7 scenarios excluded with reasons, 49 scenarios cited, not yet run (cloud, 2026-11-19)
-- [ ] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
+- [x] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/calendar-widget.spec.ts`, `calendar-widget-sources.spec.ts`, `calendar-widget-rendering.spec.ts`, `calendar-widget-config.spec.ts`; 13 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 39 of 39 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.6 `links-widget`: 52 scenarios, 0 cited.
   - Spec written: `tests/e2e/links-widget.spec.ts`, `links-widget-grid-navigation.spec.ts`, `links-widget-config.spec.ts`, `links-widget-editor.spec.ts`; 0 scenarios excluded, 52 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.7 `video-widget`: 51 scenarios, 0 cited.
@@ -157,14 +166,17 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 4.17 `iframe-embed-widget`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/iframe-embed-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 12 of 12 green (the allow-list fixes of #1471).
-- [ ] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
+- [x] 4.18 `launchpad-mobile-remote-access`: 15 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/launchpad-mobile-remote-access.spec.ts`, 1 scenario cited, 14 excluded with a reason (8 never built: `mobileReady` appears in no commit under src, lib, appinfo or templates (`git log --all -S`); 6 need an expired session, an https feed host, or are source scans), not yet run (cloud, 2026-11-19)
-- [ ] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 1 of 1 green, every listed test run (checked against `playwright test --list`).
+- [x] 4.19 `live-data-tile-widget`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/live-data-tile-widget.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with a reason
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 14 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 14 per-scenario verdicts. `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); the existing `calendar` widget reads LaunchPad's own events endpoint, not CalDAV or decidesk.
-- [ ] 4.21 `label-widget`: 12 scenarios, 11 cited.
+- [x] 4.21 `label-widget`: 12 scenarios, 11 cited.
   - Spec written: tests/e2e/label-widget-content-edit.spec.ts, 1 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 2 of 2 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 12 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 12 per-scenario verdicts. `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); opening a file from the existing `files` widget belongs to the files-widget spec.
 - [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
@@ -184,10 +196,12 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 20 Nov on development with #1444: 6 of 6 green.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
   - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
-- [ ] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
+- [x] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/activity-feed-integration.spec.ts, 21 scenarios cited, not yet run (cloud, 2026-11-19), 39 excluded with reasons
-- [ ] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
+- [x] 5.5 `nc-unified-search-integration`: 48 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-unified-search-integration.spec.ts, 42 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with reasons
+  - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 42 of 42 green, every listed test run (checked against `playwright test --list`).
 - [x] 5.6 `confluence-html-import`: 41 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/confluence-html-import.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19), 4 excluded with reasons
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 37 of 37 green.

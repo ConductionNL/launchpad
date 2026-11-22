@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Ühtegi töölauda pole saadaval",
     "Contact your administrator" : "Võtke ühendust oma administraatoriga",
     "Create your first dashboard" : "Looge oma esimene töölaud",
-    "Open menu" : "Ava menüü",
     "Save failed" : "Salvestamine ebaõnnestus",
     "My dashboards" : "Minu töölauad",
     "Group dashboards" : "Grupi töölauad",

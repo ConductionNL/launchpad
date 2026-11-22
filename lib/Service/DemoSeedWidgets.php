@@ -173,23 +173,42 @@ class DemoSeedWidgets {
 			'gridHeight' => (int)($entry['gridHeight'] ?? 2),
 			'showTitle'  => 0,
 		];
+
+		return [...$layout, ...$this->tileFields(tile: $tile)];
+	}//end tilePayload()
+
+	/**
+	 * The type-specific fields of a tile: an app tile for an enabled app when
+	 * that type exists, a launcher tile otherwise.
+	 *
+	 * @param array<string, mixed> $tile The catalogue tile.
+	 *
+	 * @return array<string, mixed> The placement fields.
+	 */
+	private function tileFields(array $tile): array {
 		$colour = (string)($tile['colour'] ?? 'primary');
 		$appId  = (string)($tile['appId'] ?? '');
-
-		if ($appId !== ''
-			&& isset($this->enabledApps[$appId]) === true
-			&& isset($this->knownTypes[self::APP_TILE_TYPE]) === true
-		) {
+		if ($appId !== '' && isset($this->enabledApps[$appId], $this->knownTypes[self::APP_TILE_TYPE]) === true) {
 			return [
-				...$layout,
 				'widgetId'    => self::APP_TILE_TYPE,
 				'customTitle' => (string)$tile['name'],
 				'content'     => ['appId' => $appId, 'colour' => $colour, 'showCount' => true],
 			];
 		}
 
+		return $this->launcherTileFields(tile: $tile, colour: $colour);
+	}//end tileFields()
+
+	/**
+	 * The fields of a launcher tile in the tile's colour.
+	 *
+	 * @param array<string, mixed> $tile   The catalogue tile.
+	 * @param string               $colour The colour token.
+	 *
+	 * @return array<string, mixed> The placement fields.
+	 */
+	private function launcherTileFields(array $tile, string $colour): array {
 		return [
-			...$layout,
 			'widgetId'            => 'tile',
 			'tileType'            => 'custom',
 			'tileTitle'           => (string)$tile['name'],
@@ -201,7 +220,7 @@ class DemoSeedWidgets {
 			'tileLinkValue'       => (string)($tile['url'] ?? ''),
 			'content'             => ['colour' => $colour],
 		];
-	}//end tilePayload()
+	}//end launcherTileFields()
 
 	/**
 	 * A readable name for a skipped entry.

@@ -37,6 +37,7 @@ use OCA\LaunchPad\Service\DemoSeedAccounts;
 use OCA\LaunchPad\Service\DemoSeedDashboards;
 use OCA\LaunchPad\Service\DemoSeedContent;
 use OCA\LaunchPad\Service\DemoSeedFiles;
+use OCA\LaunchPad\Service\DemoSeedFirstRun;
 use OCA\LaunchPad\Service\DemoSeedParts;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
 use OCA\LaunchPad\Service\DemoSeedService;
@@ -90,25 +91,31 @@ class DemoSeedServiceTest extends TestCase {
 	 * @return void
 	 */
 	protected function setUp(): void {
+		$stores = new ShowcaseStores(
+			dashboardMapper: $this->dashboardMapper(),
+			placementMapper: $this->placementMapper(),
+			db: $this->createMock(originalClassName: IDBConnection::class),
+			lockingProvider: $this->createMock(originalClassName: ILockingProvider::class)
+		);
+		$preferences = new DemoSeedPreferences(config: $this->config());
+
 		$this->service = new DemoSeedService(
 			parts: new DemoSeedParts(
 				accounts: $this->createMock(originalClassName: DemoSeedAccounts::class),
 				dashboards: new DemoSeedDashboards(
-					stores: new ShowcaseStores(
-						dashboardMapper: $this->dashboardMapper(),
-						placementMapper: $this->placementMapper(),
-						db: $this->createMock(originalClassName: IDBConnection::class),
-						lockingProvider: $this->createMock(originalClassName: ILockingProvider::class)
-					),
+					stores: $stores,
 					shares: $this->shareService(),
-					preferences: new DemoSeedPreferences(config: $this->config()),
+					preferences: $preferences
+				),
+				firstRun: new DemoSeedFirstRun(
+					stores: $stores,
+					preferences: $preferences,
 					platform: new ShowcasePlatform(
 						appConfig: $this->createMock(originalClassName: IAppConfig::class),
 						dashboardManager: $this->createMock(originalClassName: IManager::class),
 						urlGenerator: $this->createMock(originalClassName: IURLGenerator::class)
 					)
 				),
-				preferences: new DemoSeedPreferences(config: $this->config()),
 				files: $this->createMock(originalClassName: DemoSeedFiles::class)
 			),
 			content: new DemoSeedContent(

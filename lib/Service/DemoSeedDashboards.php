@@ -6,8 +6,7 @@
  * Writes the dashboards of a demo seed. Every seeded dashboard has a fixed
  * UUID: a run updates the row with that UUID and replaces its placements
  * and shares, so running the seed twice leaves the same state as running
- * it once. A first-run user loses its own dashboards and saved choices, so
- * the empty state of a first visit (board LpEersteKeer) shows again.
+ * it once.
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -27,9 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use DateTimeImmutable;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCP\AppFramework\Db\DoesNotExistException;
 use RuntimeException;
@@ -54,13 +51,11 @@ class DemoSeedDashboards {
 	 * @param ShowcaseStores       $stores      The dashboard and placement mappers and the database.
 	 * @param DashboardShareService $shares     Replaces a dashboard's shares and notifies new recipients.
 	 * @param DemoSeedPreferences  $preferences Which dashboard opens first; tour progress.
-	 * @param ShowcasePlatform     $platform    Announces deleted dashboards so their rows are cleaned up.
 	 */
 	public function __construct(
 		private readonly ShowcaseStores $stores,
 		private readonly DashboardShareService $shares,
 		private readonly DemoSeedPreferences $preferences,
-		private readonly ShowcasePlatform $platform,
 	) {
 		$this->hydrator = new PlacementPayloadHydrator();
 	}//end __construct()
@@ -78,18 +73,9 @@ class DemoSeedDashboards {
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function write(array $definition, array $payloads): array {
-		$uuid = (string)$definition['uuid'];
-
 		$this->stores->db->beginTransaction();
 		try {
-			[$dashboard, $created] = $this->upsertDashboard(uuid: $uuid, definition: $definition);
-			$dashboardId = (int)$dashboard->getId();
-
-			$this->stores->placementMapper->deleteByDashboardId(dashboardId: $dashboardId);
-			foreach ($payloads as $payload) {
-				$this->stores->placementMapper->insert(entity: $this->placementFor(dashboardId: $dashboardId, payload: $payload));
-			}
-
+			[$dashboard, $created] = $this->writeRows(definition: $definition, payloads: $payloads);
 			$this->stores->db->commit();
 		} catch (Throwable $e) {
 			$this->stores->db->rollBack();
@@ -98,49 +84,49 @@ class DemoSeedDashboards {
 				code: 0,
 				previous: $e
 			);
-		}//end try
-
-		$this->replaceShares(dashboard: $dashboard, shares: (array)($definition['shares'] ?? []));
-
-		foreach ((array)($definition['defaultFor'] ?? []) as $userId) {
-			$this->preferences->setDefaultDashboard(userId: (string)$userId, uuid: $uuid);
 		}
 
-		return ['uuid' => $uuid, 'created' => $created];
+		$this->applyAudience(dashboard: $dashboard, definition: $definition);
+
+		return ['uuid' => (string)$definition['uuid'], 'created' => $created];
 	}//end write()
 
 	/**
-	 * Remove a user's own dashboards, dashboard choices and tour progress,
-	 * so the next visit is a first visit.
+	 * Write the dashboard row and replace its placements.
 	 *
-	 * @param string $userId The user.
+	 * @param array<string, mixed>             $definition The seed dashboard.
+	 * @param array<int, array<string, mixed>> $payloads   The expanded placement payloads.
 	 *
-	 * @return integer The number of dashboards removed.
-	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @return array{0: Dashboard, 1: bool} The dashboard and whether it was created.
 	 */
-	public function resetToFirstRun(string $userId): int {
-		$removed = 0;
-		foreach ($this->stores->dashboardMapper->findByUserId(userId: $userId) as $dashboard) {
-			$dashboardId = (int)$dashboard->getId();
-			$this->stores->placementMapper->deleteByDashboardId(dashboardId: $dashboardId);
-			$this->stores->dashboardMapper->delete(entity: $dashboard);
-			$this->platform->eventDispatcher?->dispatchTyped(
-				new DashboardDeletedEvent(
-					dashboardUuid: (string)$dashboard->getUuid(),
-					ownerUserId: $userId,
-					type: (string)$dashboard->getType(),
-					deletedAt: new DateTimeImmutable(),
-					dashboardId: $dashboardId
-				)
-			);
-			$removed++;
+	private function writeRows(array $definition, array $payloads): array {
+		[$dashboard, $created] = $this->upsertDashboard(uuid: (string)$definition['uuid'], definition: $definition);
+		$dashboardId = (int)$dashboard->getId();
+
+		$this->stores->placementMapper->deleteByDashboardId(dashboardId: $dashboardId);
+		foreach ($payloads as $payload) {
+			$this->stores->placementMapper->insert(entity: $this->placementFor(dashboardId: $dashboardId, payload: $payload));
 		}
 
-		$this->preferences->clear(userId: $userId);
+		return [$dashboard, $created];
+	}//end writeRows()
 
-		return $removed;
-	}//end resetToFirstRun()
+	/**
+	 * Give the dashboard its shares and make it the first dashboard of the
+	 * users the seed names.
+	 *
+	 * @param Dashboard            $dashboard  The written dashboard.
+	 * @param array<string, mixed> $definition The seed dashboard.
+	 *
+	 * @return void
+	 */
+	private function applyAudience(Dashboard $dashboard, array $definition): void {
+		$this->replaceShares(dashboard: $dashboard, shares: (array)($definition['shares'] ?? []));
+
+		foreach ((array)($definition['defaultFor'] ?? []) as $userId) {
+			$this->preferences->setDefaultDashboard(userId: (string)$userId, uuid: (string)$dashboard->getUuid());
+		}
+	}//end applyAudience()
 
 	/**
 	 * The dashboard with this UUID brought to the seeded fields, inserted
@@ -184,6 +170,32 @@ class DemoSeedDashboards {
 	 * @return void
 	 */
 	private function applyFields(Dashboard $dashboard, array $definition, string $now): void {
+		$this->applyOwnership(dashboard: $dashboard, definition: $definition);
+
+		// Entity setters resolve through __call, which reads $args[0].
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setName((string)$definition['name']);
+		$dashboard->setDescription($this->stringOrNull(value: $definition['description'] ?? null));
+		$dashboard->setIcon($this->stringOrNull(value: $definition['icon'] ?? null));
+		$dashboard->setSlug('demo-' . (string)$definition['key']);
+		$dashboard->setGridColumns((int)($definition['gridColumns'] ?? 12));
+		$dashboard->setSortOrder((int)($definition['sortOrder'] ?? 0));
+		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		$dashboard->setReactionsEnabled((int)($definition['reactionsEnabled'] ?? 0));
+		$dashboard->setUpdatedAt($now);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+	}//end applyFields()
+
+	/**
+	 * Write who a dashboard belongs to and what its audience may do: a
+	 * personal dashboard has an owner, a group dashboard a group.
+	 *
+	 * @param Dashboard            $dashboard  The dashboard.
+	 * @param array<string, mixed> $definition The seed dashboard.
+	 *
+	 * @return void
+	 */
+	private function applyOwnership(Dashboard $dashboard, array $definition): void {
 		$type    = (string)($definition['type'] ?? Dashboard::TYPE_USER);
 		$userId  = $this->stringOrNull(value: $definition['owner'] ?? null);
 		$groupId = null;
@@ -192,25 +204,15 @@ class DemoSeedDashboards {
 			$groupId = (string)$definition['group'];
 		}
 
-		// Entity setters resolve through __call, which reads $args[0].
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$dashboard->setName((string)$definition['name']);
-		$dashboard->setDescription($this->stringOrNull(value: $definition['description'] ?? null));
-		$dashboard->setIcon($this->stringOrNull(value: $definition['icon'] ?? null));
 		$dashboard->setType($type);
 		$dashboard->setUserId($userId);
 		$dashboard->setGroupId($groupId);
-		$dashboard->setGridColumns((int)($definition['gridColumns'] ?? 12));
 		$dashboard->setPermissionLevel((string)($definition['permissionLevel'] ?? Dashboard::PERMISSION_FULL));
 		$dashboard->setIsDefault(0);
 		$dashboard->setIsActive(0);
-		$dashboard->setSlug('demo-' . (string)$definition['key']);
-		$dashboard->setSortOrder((int)($definition['sortOrder'] ?? 0));
-		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
-		$dashboard->setReactionsEnabled((int)($definition['reactionsEnabled'] ?? 0));
-		$dashboard->setUpdatedAt($now);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-	}//end applyFields()
+	}//end applyOwnership()
 
 	/**
 	 * A seed value as a string, null when it is absent.

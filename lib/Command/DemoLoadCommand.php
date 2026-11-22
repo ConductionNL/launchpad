@@ -132,19 +132,7 @@ class DemoLoadCommand extends Command {
 		];
 
 		foreach ($report['dashboards'] as $dashboard) {
-			$verb = 'updated';
-			if ($dashboard['created'] === true) {
-				$verb = 'created';
-			}
-
-			$lines[] = sprintf('%s (%s) %s: %d widgets, uuid %s', $dashboard['name'], $dashboard['board'], $verb, $dashboard['placed'], $dashboard['uuid']);
-			if ($dashboard['fallbacks'] !== []) {
-				$lines[] = '  <comment>Placed as fallback: ' . implode(separator: ', ', array: $dashboard['fallbacks']) . '</comment>';
-			}
-
-			if ($dashboard['skipped'] !== []) {
-				$lines[] = '  <comment>Not registered yet, skipped: ' . implode(separator: ', ', array: $dashboard['skipped']) . '</comment>';
-			}
+			array_push($lines, ...self::dashboardLines(dashboard: $dashboard));
 		}
 
 		foreach ($report['firstRun'] as $userId => $removed) {
@@ -157,6 +145,31 @@ class DemoLoadCommand extends Command {
 
 		return $lines;
 	}//end reportLines()
+
+	/**
+	 * The lines that describe one seeded dashboard.
+	 *
+	 * @param array<string, mixed> $dashboard The dashboard's report row.
+	 *
+	 * @return array<int, string> The lines.
+	 */
+	private static function dashboardLines(array $dashboard): array {
+		$verb = 'updated';
+		if ($dashboard['created'] === true) {
+			$verb = 'created';
+		}
+
+		$lines = [sprintf('%s (%s) %s: %d widgets, uuid %s', $dashboard['name'], $dashboard['board'], $verb, $dashboard['placed'], $dashboard['uuid'])];
+		if ($dashboard['fallbacks'] !== []) {
+			$lines[] = '  <comment>Placed as fallback: ' . implode(separator: ', ', array: $dashboard['fallbacks']) . '</comment>';
+		}
+
+		if ($dashboard['skipped'] !== []) {
+			$lines[] = '  <comment>Not registered yet, skipped: ' . implode(separator: ', ', array: $dashboard['skipped']) . '</comment>';
+		}
+
+		return $lines;
+	}//end dashboardLines()
 
 	/**
 	 * A comma-separated list, or "none".

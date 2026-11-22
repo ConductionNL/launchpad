@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 /**
- * Users and groups, dashboards, preferences and the team folder of a seed.
+ * Users and groups, dashboards, the first visit and the team folder of a seed.
  *
  * @spec openspec/specs/demo-data-showcases/spec.md
  */
@@ -34,13 +34,13 @@ class DemoSeedParts {
 	 *
 	 * @param DemoSeedAccounts    $accounts    Demo users and groups.
 	 * @param DemoSeedDashboards  $dashboards  Seeded dashboards, placements and shares.
-	 * @param DemoSeedPreferences $preferences Which dashboard opens first; tour progress.
+	 * @param DemoSeedFirstRun    $firstRun    The first visit of the first-run user; tour progress of the others.
 	 * @param DemoSeedFiles       $files       The shared team folder.
 	 */
 	public function __construct(
 		public readonly DemoSeedAccounts $accounts,
 		public readonly DemoSeedDashboards $dashboards,
-		public readonly DemoSeedPreferences $preferences,
+		public readonly DemoSeedFirstRun $firstRun,
 		public readonly DemoSeedFiles $files,
 	) {
 	}//end __construct()

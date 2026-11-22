@@ -154,39 +154,44 @@ class DemoSeedContent {
 		foreach ($entries as $entry) {
 			try {
 				$announcement = $this->announcements->findByUuid(uuid: (string)$entry['uuid']);
-				$isNew = false;
+				$this->announcements->update(entity: $this->applyAnnouncement(announcement: $announcement, entry: $entry, now: $now));
 			} catch (DoesNotExistException) {
-				$announcement = new Announcement();
-				$isNew = true;
-			}
-
-			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$announcement->setUuid((string)$entry['uuid']);
-			$announcement->setKind((string)($entry['kind'] ?? Announcement::KIND_NEWS));
-			$announcement->setTitle((string)$entry['title']);
-			$announcement->setBody((string)($entry['body'] ?? ''));
-			$announcement->setCategory((string)($entry['category'] ?? ''));
-			$announcement->setLevel((string)($entry['level'] ?? 'info'));
-			$announcement->setDismissible((int)($entry['dismissible'] ?? 1));
-			$announcement->setTargetGroups((string)json_encode(value: array_values(array: (array)($entry['targetGroups'] ?? []))));
-			$announcement->setStatus(Announcement::STATUS_PUBLISHED);
-			$announcement->setPublishAt($now);
-			$announcement->setExpiresAt(null);
-			$announcement->setAllowComments(0);
-			$announcement->setAuthorId((string)($entry['author'] ?? 'admin'));
-			$announcement->setUpdatedAt($now);
-			// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-
-			if ($isNew === true) {
+				$announcement = $this->applyAnnouncement(announcement: new Announcement(), entry: $entry, now: $now);
 				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 				$announcement->setCreatedAt($now);
 				$this->announcements->insert(entity: $announcement);
-				continue;
 			}
-
-			$this->announcements->update(entity: $announcement);
-		}//end foreach
+		}
 
 		return count($entries);
 	}//end seedAnnouncements()
+
+	/**
+	 * Write a seeded announcement's fields, published from now without expiry.
+	 *
+	 * @param Announcement         $announcement The announcement.
+	 * @param array<string, mixed> $entry        The seed announcement.
+	 * @param DateTime             $now          The run time.
+	 *
+	 * @return Announcement The announcement.
+	 */
+	private function applyAnnouncement(Announcement $announcement, array $entry, DateTime $now): Announcement {
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$announcement->setUuid((string)$entry['uuid']);
+		$announcement->setKind((string)($entry['kind'] ?? Announcement::KIND_NEWS));
+		$announcement->setTitle((string)$entry['title']);
+		$announcement->setBody((string)($entry['body'] ?? ''));
+		$announcement->setCategory((string)($entry['category'] ?? ''));
+		$announcement->setLevel((string)($entry['level'] ?? 'info'));
+		$announcement->setDismissible((int)($entry['dismissible'] ?? 1));
+		$announcement->setTargetGroups((string)json_encode(value: array_values(array: (array)($entry['targetGroups'] ?? []))));
+		$announcement->setStatus(Announcement::STATUS_PUBLISHED);
+		$announcement->setPublishAt($now);
+		$announcement->setExpiresAt(null);
+		$announcement->setAllowComments(0);
+		$announcement->setAuthorId((string)($entry['author'] ?? 'admin'));
+		$announcement->setUpdatedAt($now);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		return $announcement;
+	}//end applyAnnouncement()
 }//end class

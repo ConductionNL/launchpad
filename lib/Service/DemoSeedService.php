@@ -60,7 +60,7 @@ class DemoSeedService {
 	/**
 	 * Constructor.
 	 *
-	 * @param DemoSeedParts        $parts      Accounts, dashboards, preferences and the team folder.
+	 * @param DemoSeedParts        $parts      Accounts, dashboards, the first visit and the team folder.
 	 * @param DemoSeedContent      $content    App catalogue, announcements and allowed sites.
 	 * @param DemoShowcasesService $showcases  Which widget types render; the bundled showcases.
 	 * @param IAppManager          $appManager Which apps are enabled.
@@ -121,17 +121,7 @@ class DemoSeedService {
 	 */
 	public function load(string $seedId, string $password = self::DEFAULT_PASSWORD): array {
 		$seed   = $this->definition(seedId: $seedId);
-		$groups = (array)($seed['groups'] ?? []);
-		$users  = (array)($seed['users'] ?? []);
-
-		$report = [
-			'createdGroups' => $this->parts->accounts->ensureGroups(groups: $groups),
-			'createdUsers'  => $this->parts->accounts->ensureUsers(
-				users: $users,
-				seedGroups: [...array_column(array: $groups, column_key: 'id'), 'admin'],
-				password: $password
-			),
-		];
+		$report = $this->seedAccounts(seed: $seed, password: $password);
 
 		$this->content->mergeAppConfig(values: (array)($seed['appConfig'] ?? []));
 		$report['catalogue']     = $this->content->seedCatalogue(tiles: (array)($seed['tiles'] ?? []));
@@ -139,12 +129,33 @@ class DemoSeedService {
 		$report['files']         = $this->parts->files->ensureSafely(definition: $seed['files'] ?? null);
 		$report['dashboards']    = $this->seedDashboards(seed: $seed);
 		$report['firstRun']      = $this->resetFirstRunUsers(
-			users: $users,
+			users: (array)($seed['users'] ?? []),
 			tourVersion: (string)($seed['walkthroughSeenVersion'] ?? '')
 		);
 
 		return $report;
 	}//end load()
+
+	/**
+	 * Ensure the seed's groups and users.
+	 *
+	 * @param array<string, mixed> $seed     The seed.
+	 * @param string               $password The password for users this run creates.
+	 *
+	 * @return array{createdGroups: array<int, string>, createdUsers: array<int, string>} What this run created.
+	 */
+	private function seedAccounts(array $seed, string $password): array {
+		$groups = (array)($seed['groups'] ?? []);
+
+		return [
+			'createdGroups' => $this->parts->accounts->ensureGroups(groups: $groups),
+			'createdUsers'  => $this->parts->accounts->ensureUsers(
+				users: (array)($seed['users'] ?? []),
+				seedGroups: [...array_column(array: $groups, column_key: 'id'), 'admin'],
+				password: $password
+			),
+		];
+	}//end seedAccounts()
 
 	/**
 	 * Uninstall every installed bundled showcase. Showcases are visible to
@@ -191,8 +202,7 @@ class DemoSeedService {
 				'key'       => (string)$definition['key'],
 				'board'     => (string)($definition['board'] ?? ''),
 				'name'      => (string)$definition['name'],
-				'uuid'      => $written['uuid'],
-				'created'   => $written['created'],
+				...$written,
 				'placed'    => count($expanded['placed']),
 				'skipped'   => $expanded['skipped'],
 				'fallbacks' => $expanded['fallbacks'],
@@ -216,12 +226,12 @@ class DemoSeedService {
 		foreach ($users as $user) {
 			$userId = (string)$user['id'];
 			if (($user['firstRun'] ?? false) === true) {
-				$removed[$userId] = $this->parts->dashboards->resetToFirstRun(userId: $userId);
+				$removed[$userId] = $this->parts->firstRun->resetToFirstRun(userId: $userId);
 				continue;
 			}
 
 			if ($tourVersion !== '') {
-				$this->parts->preferences->markTourSeen(userId: $userId, version: $tourVersion);
+				$this->parts->firstRun->markTourSeen(userId: $userId, version: $tourVersion);
 			}
 		}
 

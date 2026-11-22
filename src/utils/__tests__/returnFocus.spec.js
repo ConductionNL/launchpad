@@ -6,7 +6,7 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { dialogReturnFocus } from '../returnFocus.js'
+import { dialogReturnFocus, restoreLostFocus } from '../returnFocus.js'
 
 afterEach(() => {
 	document.body.innerHTML = ''
@@ -42,5 +42,39 @@ describe('dialogReturnFocus', () => {
 
 	it('leaves focus alone when there is no More menu', () => {
 		expect(dialogReturnFocus(null)).toBe(false)
+	})
+})
+
+describe('restoreLostFocus', () => {
+	it('moves focus that fell to the page to the More menu button when the opener is gone', async () => {
+		const button = moreMenuButton()
+		const removedPickerItem = document.createElement('button')
+		document.activeElement.blur()
+
+		await restoreLostFocus(removedPickerItem)
+
+		expect(document.activeElement).toBe(button)
+	})
+
+	it('moves focus that fell to the page back to an opener still on the page', async () => {
+		moreMenuButton()
+		const cog = document.createElement('button')
+		document.body.appendChild(cog)
+
+		await restoreLostFocus(cog)
+
+		expect(document.activeElement).toBe(cog)
+	})
+
+	it('leaves focus where a focus trap or the user already put it', async () => {
+		const button = moreMenuButton()
+		const field = document.createElement('input')
+		document.body.appendChild(field)
+		field.focus()
+
+		await restoreLostFocus(null)
+
+		expect(document.activeElement).toBe(field)
+		expect(document.activeElement).not.toBe(button)
 	})
 })

@@ -342,7 +342,7 @@
 			:discoveredApps="discoveredApps"
 			:placedAppIds="placedDiscoveredAppIds"
 			:catalogueApps="catalogueApps"
-			:customTypeTitles="customWidgetTypeTitles"
+			:customTypes="customWidgetTypes"
 			:requestAppFn="requestCatalogueApp"
 			@close="closeWidgetModal"
 			@add="addWidget"
@@ -357,6 +357,7 @@
 		<CnAddWidgetModal
 			:show="isCustomWidgetModalOpen"
 			:preselectedType="customWidgetPreselectedType"
+			:initialType="customWidgetInitialType"
 			:editingWidget="customWidgetEditing"
 			:notices="customWidgetNotices"
 			:uploadFn="iconUploadFn"
@@ -822,6 +823,9 @@ export default {
 			// type-specific deep-link from the toolbar.
 			isCustomWidgetModalOpen: false,
 			customWidgetPreselectedType: null,
+			// The type picked in the widget picker: the form opens on it and
+			// keeps its type select.
+			customWidgetInitialType: null,
 			customWidgetEditing: null,
 			// Per-widget conditional-visibility editor state. Non-null
 			// `visibilityPlacementId` + `isVisibilityModalOpen` opens the
@@ -1244,14 +1248,15 @@ export default {
 		},
 
 		/**
-		 * The names of the widget types Launchpad builds itself, for the
-		 * picker's search.
+		 * The widget types Launchpad builds itself, as the picker lists them.
 		 *
-		 * @return {Array<string>}
+		 * @return {Array<{type: string, title: string}>}
 		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
 		 */
-		customWidgetTypeTitles() {
-			return listWidgetTypes().map((type) => getWidgetTypeEntry(type)?.displayName || type)
+		customWidgetTypes() {
+			return listWidgetTypes()
+				.map((type) => ({ type, title: getWidgetTypeEntry(type)?.displayName || type }))
+				.sort((left, right) => left.title.localeCompare(right.title))
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -1391,7 +1396,7 @@ export default {
 		 * Editing makes the greeting row a draggable grid item: the controls
 		 * float while editing and dock again after.
 		 *
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 */
 		isEditMode() {
 			this.$nextTick(() => this.dockHeaderActions())
@@ -1476,16 +1481,17 @@ export default {
 			 * Fire a view-event when the active dashboard changes.
 			 *
 			 * @param {string|null} uuid UUID of the newly-active dashboard.
-			 * @param {string|null} prevUuid UUID that was active before.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
-			handler(uuid, prevUuid) {
+			handler(uuid) {
 				if (!uuid) {
 					return
 				}
 				// Filters belong to a dashboard: a switch starts a fresh
-				// session; only the first one reads a bookmarked `?f=`.
-				this.openFilterSession(prevUuid === undefined)
+				// session. Every session of the boot reads a bookmarked
+				// `?f=`: the boot can pass through more than one uuid (the
+				// stored active dashboard, then the one the address names).
+				this.openFilterSession(!this.historyBooted)
 				this.recordViewEventDebounced(uuid)
 				// Outbound URL sync — every uuid change after the boot pushes
 				// a new history entry so back/forward navigates between
@@ -1634,7 +1640,7 @@ export default {
 		 * Dock the top-right controls into the greeting row when the page
 		 * has one and is not being edited; float them otherwise.
 		 *
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 */
 		dockHeaderActions() {
 			const container = document.querySelector('.launchpad-container')
@@ -2450,15 +2456,16 @@ export default {
 		},
 
 		/**
-		 * "Custom widget" was picked: close the picker and open the custom
-		 * widget form, where the user chooses its type.
+		 * A Launchpad widget type was picked: close the picker and open the
+		 * custom widget form on that type, its type select still changeable.
 		 *
+		 * @param {string} type The registry key.
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
 		 */
-		async onPickCustomWidget() {
+		async onPickCustomWidget(type) {
 			this.closeWidgetModal()
-			await this.openCustomWidgetModal()
+			await this.openCustomWidgetModal(null, type)
 		},
 
 		/**
@@ -2467,13 +2474,16 @@ export default {
 		 * preselected-type scenario); omit it for the type-picker flow.
 		 *
 		 * @param {string|null} type registry key, or null for picker flow
+		 * @param {string|null} initialType registry key the form opens on while
+		 *   its type select stays visible
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		async openCustomWidgetModal(type = null) {
+		async openCustomWidgetModal(type = null, initialType = null) {
 			if (!(await this.enterEditMode())) {
 				return
 			}
 			this.customWidgetPreselectedType = type
+			this.customWidgetInitialType = initialType
 			this.customWidgetEditing = null
 			this.isCustomWidgetModalOpen = true
 		},
@@ -2489,6 +2499,7 @@ export default {
 		openCustomWidgetEdit(placement) {
 			this.customWidgetEditing = placement
 			this.customWidgetPreselectedType = null
+			this.customWidgetInitialType = null
 			this.isCustomWidgetModalOpen = true
 		},
 
@@ -2496,6 +2507,7 @@ export default {
 		closeCustomWidgetModal() {
 			this.isCustomWidgetModalOpen = false
 			this.customWidgetPreselectedType = null
+			this.customWidgetInitialType = null
 			this.customWidgetEditing = null
 		},
 

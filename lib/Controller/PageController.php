@@ -185,7 +185,6 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
-			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
 			->setTileLaunchOptions(

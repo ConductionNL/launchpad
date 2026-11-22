@@ -115,14 +115,16 @@ async function moreMenu(page: Page, id: string): Promise<void> {
 }
 
 /**
- * Open the custom-widget modal in create mode.
+ * Open the custom-widget modal in create mode by picking a Launchpad type in
+ * the widget picker.
  *
  * @param page the page.
+ * @param type the registry key picked in the picker.
  * @return the dialog.
  */
-async function openCustomModal(page: Page): Promise<Locator> {
+async function openCustomModal(page: Page, type = 'text'): Promise<Locator> {
 	await moreMenu(page, 'add-widget')
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 	const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog
@@ -223,11 +225,11 @@ test.afterEach(async () => {
 
 test.describe('REQ-WDG-010 the add/edit modal', () => {
 	// @e2e widgets::open-in-create-mode-without-preselected-type
-	test("create mode shows the type select, the first type's sub-form and an Add button", async ({
+	test("create mode shows the type select, the picked type's sub-form and an Add button", async ({
 		page,
 	}) => {
 		await openLaunchPad(page)
-		const dialog = await openCustomModal(page)
+		const dialog = await openCustomModal(page, 'image')
 
 		const select = dialog.locator(TYPE_SELECT)
 		await expect(select).toBeVisible()
@@ -244,8 +246,9 @@ test.describe('REQ-WDG-010 the add/edit modal', () => {
 		for (const option of options) {
 			expect(option.label, `${option.value} has no label`).not.toBe('')
 		}
-		// The form opens on the first registered type.
-		await expect(select).toHaveValue(values[0])
+		// The form opens on the type picked in the picker, and the select
+		// still offers every other type.
+		await expect(select).toHaveValue('image')
 		await expect(dialog.locator('.cn-add-widget-modal__form')).toBeVisible()
 		await expect(dialog.locator('.cn-add-widget-modal__empty')).toHaveCount(0)
 		await expect(page.locator(PRIMARY)).toHaveText('Add')
@@ -318,8 +321,7 @@ test.describe('REQ-WDG-010 the add/edit modal', () => {
 		page,
 	}) => {
 		await openLaunchPad(page)
-		const dialog = await openCustomModal(page)
-		await dialog.locator(TYPE_SELECT).selectOption('text')
+		const dialog = await openCustomModal(page, 'text')
 		// Font size applies to the HTML mode only (CnTextWidgetForm).
 		await dialog.getByLabel('Mode', { exact: true }).click()
 		await page.getByRole('option', { name: 'HTML', exact: true }).click()
@@ -380,7 +382,7 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 	}
 
 	// @e2e widgets::one-entry-point-adds-every-kind-of-widget
-	test('one "Add widget" entry: the picker offers "Custom widget", which opens the custom widget form', async ({
+	test('one "Add widget" entry: the picker lists the Launchpad types, and one opens its form with the type select', async ({
 		page,
 	}) => {
 		await openLaunchPad(page)
@@ -392,15 +394,19 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 		await page.keyboard.press('Escape')
 
 		await openPicker(page)
-		const custom = page.locator('[data-testid="widget-picker-custom-widget"]')
+		const section = page.locator('[data-testid="widget-picker-custom"]')
+		await expect(section.locator('[data-testid="widget-picker-type-text"]')).toBeVisible()
 		await page.locator('.widget-picker input').first().fill('image')
-		await expect(custom).toBeVisible()
-		await custom.click()
+		const image = section.locator('[data-testid="widget-picker-type-image"]')
+		await expect(image).toBeVisible()
+		await expect(section.locator('[data-testid="widget-picker-type-text"]')).toHaveCount(0)
+		await image.click()
 
 		await expect(page.locator('.widget-picker')).toHaveCount(0)
 		const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
 		await expect(dialog.locator(TYPE_SELECT)).toBeVisible()
+		await expect(dialog.locator(TYPE_SELECT)).toHaveValue('image')
 		await page.keyboard.press('Escape')
 	})
 
@@ -675,8 +681,7 @@ test.describe('REQ-WDG-012 per-type validation', () => {
 		page,
 	}) => {
 		await openLaunchPad(page)
-		const dialog = await openCustomModal(page)
-		await dialog.locator(TYPE_SELECT).selectOption('text')
+		const dialog = await openCustomModal(page, 'text')
 		await expect(
 			dialog.locator('[data-testid="cn-markdown-textarea"]'),
 		).toHaveValue('')
@@ -690,8 +695,7 @@ test.describe('REQ-WDG-012 per-type validation', () => {
 	// @e2e widgets::filling-required-field-enables-submit
 	test('typing the required text enables the Add button', async ({ page }) => {
 		await openLaunchPad(page)
-		const dialog = await openCustomModal(page)
-		await dialog.locator(TYPE_SELECT).selectOption('text')
+		const dialog = await openCustomModal(page, 'text')
 		await expect(page.locator(PRIMARY)).toBeDisabled()
 		await dialog.locator('[data-testid="cn-markdown-textarea"]').fill('Hello')
 		await expect(page.locator(PRIMARY)).toBeEnabled()
@@ -755,8 +759,7 @@ test.describe('REQ-WDG-013 modal close discipline', () => {
 		expect(await placementsOf(admin, dashboard!.id)).toHaveLength(0)
 
 		// Reopening starts from defaults, not from what was typed.
-		const again = await openCustomModal(page)
-		await again.locator(TYPE_SELECT).selectOption('text')
+		const again = await openCustomModal(page, 'text')
 		await expect(
 			again.locator('[data-testid="cn-markdown-textarea"]'),
 		).toHaveValue('')

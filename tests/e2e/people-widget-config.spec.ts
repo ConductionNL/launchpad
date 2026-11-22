@@ -82,9 +82,8 @@ test.afterAll(async () => {
  * @return the dialog.
  */
 async function openPeopleForm(page: Page): Promise<Locator> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'people')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'People' })
 	await expect(dialog.getByLabel(/group filter/i)).toBeVisible({ timeout: 10_000 })
 	return dialog
 }

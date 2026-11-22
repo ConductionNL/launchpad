@@ -5,7 +5,7 @@
  * The top-right controls dock into a greeting row on the page ground and
  * float otherwise (LpStart; they covered "Startpagina aanpassen" floating).
  *
- * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  */
 
 import { beforeEach, describe, expect, it } from 'vitest'

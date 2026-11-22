@@ -9,8 +9,9 @@
 		"npm": "^11.0.0"
 	},
 	"scripts": {
-		"build": "webpack --config webpack.config.js --progress --mode production && npm run build:embed-sdk",
+		"build": "webpack --config webpack.config.js --progress --mode production && npm run build:embed-sdk && npm run check:a11y",
 		"build:embed-sdk": "webpack --config src/embed-sdk/webpack.config.cjs",
+		"check:a11y": "vitest run src/__tests__/axe-core-check.spec.js",
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
 		"check:schema-l10n": "node scripts/check-schema-l10n.js",
@@ -36,7 +37,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^2.187.1",
+		"@conduction/nextcloud-vue": "^2.190.0",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^8.0.0",
@@ -74,6 +75,7 @@
 		"@vue/server-renderer": "^3.5.43",
 		"@vue/test-utils": "^2.5.1",
 		"@vue/tsconfig": "^0.9.1",
+		"axe-core": "~4.14.1",
 		"eslint": "^10.11.0",
 		"eslint-config-prettier": "^10.1.8",
 		"jsdom": "^31.0.1",

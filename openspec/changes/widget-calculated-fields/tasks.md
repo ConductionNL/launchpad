@@ -101,9 +101,12 @@
   - `src/utils/calculatedFields/__tests__/parser.cases.spec.js`: 183 table cases (every binary and unary operator with associativity, every literal kind, references, all 39 built-ins at minimum arity, every arity bound refused, unknown and disallowed functions, 22 malformed inputs answered as column-positioned parse errors), beside the 10 cases of `parser.spec.js`.
 - [x] Task 42: Vitest — `evaluator.test.ts`: shared test suite runs against TypeScript evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
 - [x] Task 43: Vitest — `cycleDetector.test.ts`: cycle detection rejects self-refs, mutual refs, longer cycles; accepts acyclic (REQ-CALC-006)
-- [ ] Task 44: Playwright — render a widget with calculated fields; verify values appear in the table/chart; verify inline errors show on evaluation failure; verify other widgets still render (REQ-CALC-003, REQ-CALC-008)
-- [ ] Task 45: Playwright — cross-widget reference: change filter on source widget, verify dependent widget's calculated field re-evaluates (REQ-CALC-003)
-- [ ] Task 46: Playwright — server-mode field: materialised value is queryable via OpenRegister API; client-mode field is not (REQ-CALC-004)
+- [x] Task 44: Playwright — render a widget with calculated fields; verify values appear in the table/chart; verify inline errors show on evaluation failure; verify other widgets still render (REQ-CALC-003, REQ-CALC-008)
+  - 2026-11-22: tests/e2e/widget-calculated-fields.spec.ts:226 passed on the live stack (triage/lpf-6-bundle.log).
+- [x] Task 45: Playwright — cross-widget reference: change filter on source widget, verify dependent widget's calculated field re-evaluates (REQ-CALC-003)
+  - 2026-11-22: tests/e2e/widget-calculated-fields.spec.ts:247 passed on the live stack with this branch's bundle (triage/lpf-6-bundle.log); it needs the boot filter-session fix in Views.vue, without which a bookmarked `f` was ignored.
+- [x] Task 46: Playwright — server-mode field: materialised value is queryable via OpenRegister API; client-mode field is not (REQ-CALC-004)
+  - 2026-11-22: tests/e2e/widget-calculated-fields.spec.ts:275 passed on the live stack (triage/lpf-6-bundle.log).
 
 ## 12. Quality and Documentation
 

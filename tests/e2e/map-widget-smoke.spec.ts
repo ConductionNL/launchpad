@@ -147,7 +147,7 @@ test('the map draws the register objects and a clicked one opens its detail link
 		await page.setViewportSize({ width: 1600, height: 1000 })
 		const read = page.waitForResponse((res) =>
 			res.url().includes(`/apps/openregister/api/objects/${SLUG}/${SLUG}`)
-			&& res.request().method() === 'GET')
+			&& res.request().method() === 'GET', { timeout: 30_000 })
 		await page.goto('/index.php/apps/launchpad/')
 		expect((await read).status()).toBe(200)
 
@@ -173,7 +173,8 @@ test('the map draws the register objects and a clicked one opens its detail link
 		])
 		await detail.waitForURL(/map-smoke/)
 		const opened = new URL(detail.url())
-		expect(opened.pathname).toMatch(/\/apps\/launchpad\/?$/)
+		// The detail link keeps the page's own address, which is the dashboard's canonical slug path.
+		expect(opened.pathname).toMatch(/\/apps\/launchpad(\/[a-z0-9-]+)?\/?$/)
 		expect(opened.hash).toBe(`#/map-smoke/${encodeURIComponent(clicked!.id)}`)
 		// The dashboard tab stays where it was.
 		expect(new URL(page.url()).hash).not.toContain('map-smoke')

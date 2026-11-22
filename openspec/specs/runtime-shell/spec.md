@@ -120,7 +120,7 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 
 ### Requirement: Empty state (REQ-SHELL-005)
 
-When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
+When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container, directly on the page ground with no card or panel of its own, as board LpEersteKeer draws it, with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
 
 #### Scenario: Empty state with creation enabled
 
@@ -186,7 +186,7 @@ The shared library's first-open support note (`CnSupportDialog`: donate, get sup
 
 **Why.** Every new user got the note on top of the start page an administrator had just set for their group (#782, seen for three fresh users on 5 October 2026). The note asks for things only an administrator can act on.
 
-**What this does not change.** The first-visit tour ("Welcome to Launchpad") is the library's walkthrough and is declared in `src/manifest.json`. Its first step is `placement: center`, which dims the whole page, header included, on purpose; the library withholds the tour while the support note is open, so the two never stack.
+**What this does not change.** The first-visit tour (REQ-SHELL-010) is the library's walkthrough and is declared in `src/manifest.json`. The library withholds the tour while the support note is open, so the two never stack.
 
 #### Scenario: A member's first visit shows no support note
 - GIVEN Pieter is not an administrator and has never opened LaunchPad
@@ -198,61 +198,76 @@ The shared library's first-open support note (`CnSupportDialog`: donate, get sup
 - WHEN he opens LaunchPad
 - THEN the note MUST open once, as before
 
-### Requirement: REQ-SHELL-009 Start page without navigation panel
+### Requirement: REQ-SHELL-009 No navigation panel; the destinations are in the More menu
 
-An administrator MUST be able to turn on the option "Start page without navigation panel" (`start_page_without_navigation`, API key `startPageWithoutNavigation`, default `false`) on the admin settings page beside the other layout options. The option is stored with the other admin settings and pushed to the workspace initial state as the optional key `startPageWithoutNavigation`.
+LaunchPad MUST NOT render a left navigation panel on any page. `App.vue` passes `hideMenu` to `CnAppRoot`, so neither `CnAppNav` nor the `#menu` slot renders and `NcAppContent` takes the full width. LaunchPad is a dashboard app whose canvas is the page; hydra ADR-114 Decision 10 exempts it from rendering the app chrome in a left panel.
 
-When the option is on, the dashboard view (`/` and `/dashboards/:id`) MUST render without the left navigation panel: `App.vue` overrides `CnAppRoot`'s `#menu` slot with a hidden, empty node, so `CnAppNav` is not rendered and `NcAppContent` takes the full width. Every other page (Store, Reports, Flows, the admin pages) keeps the panel.
+Everything the panel offered MUST stay reachable through the More menu: the panel's entries (`manifest.menu` in the sections main, footer and settings, after the same permission filter the panel applied), the personal settings dialog, and for an administrator the link to Nextcloud's admin settings. That covers Documentation, Marketplace and Features & roadmap (the panel's footer) and Reports, Flows, Templates and the settings (its Advanced foldout).
 
-Everything the panel offered MUST stay reachable on the dashboard view: the dashboards through the dashboard switcher that is already in the workspace's top-right controls, and the panel's other entries (`manifest.menu` in the sections main, footer and settings, after the same permission filter the panel applies; the personal settings dialog; for an administrator the link to Nextcloud's admin settings) through a "Menu" button (`StartPageMenu`) beside the switcher. A member without an active dashboard gets the same button in the empty state. The menu is keyboard reachable with visible focus and uses no colour of its own. An external destination opens in a new tab, as the panel's did.
+- On the dashboard view (`/` and `/dashboards/:id`) the workspace's own More menu (`DashboardMoreMenu`) carries them in its Launchpad and Settings groups, beside the dashboards and the open dashboard's actions. A member without an active dashboard gets the compact More menu (`StartPageMenu`) in the empty state.
+- Both menus MUST use the groups and order of boards LpVandaag and LpWerkplek: Dashboards; Settings ("Instellingen": Personal settings, then Admin settings for an administrator); This dashboard ("Dit dashboard", dashboard view only); Launchpad (Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features & roadmap, in that order; nl Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap). An entry the boards do not name follows at the end of the Launchpad group. The in-app admin settings route (`admin-settings`) only redirects to Nextcloud's admin settings, so the menus offer that destination once, as the Settings group's admin settings link.
+- On every other page (Marketplace, Reports, Flows, Features & roadmap, the admin pages) `App.vue` renders the compact More menu at the top end of the content, through `CnAppRoot`'s `#header-actions` slot, and keeps that column free so a page's own header actions are never covered. Its first entry is Dashboards, which is how a member gets back.
+- A kiosk view (`?kiosk=1`, REQ-KIOSK-001) renders neither.
 
-When the option is off, or the initial state does not carry the key, nothing changes: the panel renders as before and the menu button is not rendered.
+The menus are keyboard reachable with visible focus and use no colour of their own. An external destination opens in a new tab, as the panel's did.
 
-**Why.** The Zuiddrecht design (`LpStart`) is a full-width start page under the top bar; the shared library has no prop to leave the panel out (`CnAppRoot.vue`: the `#menu` slot is the override, and Vue renders the slot's default content when the override holds no real node), and hiding the panel with CSS keeps a landmark nobody can see and takes the footer destinations with it.
+The admin option "Start page without navigation panel" is no longer offered: with no panel anywhere there is nothing to switch. Neither the frontend nor the backend reads or writes it any more; a stored `start_page_without_navigation` row stays unread (admin-settings REQ-ASET-001).
 
-#### Scenario: The option is off
-- GIVEN the option is off (the default)
-- WHEN a member opens the dashboard view
-- THEN the navigation panel MUST render with its dashboards, footer destinations and settings foldout, and no "Menu" button MUST be rendered
+**Why.** Ruben's review of 22 Nov 2026: the left panel makes no sense for LaunchPad, and the board grid should have the full width. The drawn boards (`launchpad/LpVandaag`, `launchpad/LpStore` and the others) draw no side bar and a Meer button in the top row.
 
-@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
-
-#### Scenario: The option is on
-- GIVEN an administrator turned the option on
-- WHEN a member opens the dashboard view
-- THEN no navigation panel MUST be rendered, the content MUST take the full width, and the "Menu" button MUST offer Documentation, Store, Reports, Features & roadmap and the personal settings; the dashboard switcher MUST still be beside it
+#### Scenario: No route renders the panel
+- GIVEN a member opens LaunchPad
+- WHEN they visit the dashboard view, the Marketplace, Reports, Flows or an admin page
+- THEN no navigation panel MUST be rendered and the content MUST take the full width
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
 
-#### Scenario: Other pages keep the panel
-- GIVEN the option is on
-- WHEN a member opens the Marketplace page
-- THEN the navigation panel MUST render
+#### Scenario: The dashboard view carries its destinations in More
+- GIVEN a member with an active dashboard
+- WHEN they open More
+- THEN the menu MUST offer Documentation, Marketplace, Reports, Flows, Features & roadmap and the personal settings, beside the dashboards
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: Another page carries More at its top
+- GIVEN a member on the Marketplace page
+- WHEN the page renders
+- THEN the More menu MUST be at the top end of the content, and its Dashboards entry MUST lead back to the dashboard view
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
 
 #### Scenario: No destination is lost
-- GIVEN the option is on
-- WHEN the menu is built from the app's manifest for a member and for an administrator
+- GIVEN the app's manifest
+- WHEN the menu is built for a member and for an administrator
 - THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
 
 ### Requirement: REQ-SHELL-010 First-visit tour
 
-LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`, lines 470-525), and the shell MUST hand that manifest to the shared library's `CnAppRoot` (`src/App.vue:16-17`), which draws the tour with `CnWalkthrough`. The tour SHALL be `launchpad:getting-started`, titled "Getting started", triggered on a user's first visit, with three steps in this order: "Welcome to Launchpad" centred on the Workspace page, "Open Dashboards from the menu" pointing at the `dashboards` menu item, and a step pointing at the Flows menu item that the user may skip. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
+LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`), and the shell MUST hand that manifest to the shared library's `CnAppRoot` (`src/App.vue`), which draws the tour with `CnWalkthrough`. The tour SHALL be `launchpad:getting-started`, titled "Getting started", triggered on a user's first visit, with two steps in this order, both pointing at the More menu (`launchpad-more-menu`):
+
+1. As board LpEersteKeer draws step 1: the title "Here you switch between dashboards" (nl "Hier wisselt u tussen dashboards") and the body "Your own dashboards, what colleagues share with you and the organisation's group dashboards are under More, next to the marketplace and the settings. Pick one to open it." (nl "Uw eigen dashboards, wat collega's met u delen en de groepsdashboards van de organisatie staan onder Meer, naast de marktplaats en de instellingen. Kies er een om hem te openen."). It moves on with Next.
+2. "Reports and Flows are under More as well.", which asks the user to open Flows from More, moves on when the Flows route matches and may be skipped.
+
+The More menu is the target with or without an active dashboard: `DashboardMoreMenu` carries `data-testid="launchpad-more-menu"` and the empty state's `StartPageMenu` carries `data-walkthrough-id="launchpad-more-menu"`. With no navigation panel (REQ-SHELL-009) the tour has no menu items to point at. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
 
 Written on 2026-10-07 after the fact, from the code on `development`; covers parity row `d-tour`. The tour does not visit the admin settings.
 
 #### Scenario: A first visit starts the tour
 - GIVEN Pieter has never completed the LaunchPad tour
 - WHEN he opens LaunchPad
-- THEN the "Welcome to Launchpad" step MUST open in the centre of the Workspace page
+- THEN step 1, "Here you switch between dashboards", MUST open on the Workspace page
 
-#### Scenario: Opening Dashboards advances the tour
-- GIVEN the tour shows the step "Open Dashboards from the menu"
-- WHEN Pieter clicks Dashboards in the menu and the Workspace route matches
-- THEN the tour MUST move on to the Flows step
+#### Scenario: The tour points at More
+- GIVEN the tour shows step 1
+- WHEN Pieter reads it
+- THEN the step MUST ring the More menu, not the centre of the page, and say the dashboards are under More
+
+#### Scenario: Opening Flows from More ends the tour
+- GIVEN the tour shows the Flows step
+- WHEN Pieter opens Flows from More and the Flows route matches
+- THEN the tour MUST end
 
 #### Scenario: A finished tour stays closed
 - GIVEN Pieter completed tour version 1
@@ -274,3 +289,16 @@ LaunchPad MUST declare a second guided tour, `launchpad:admin-getting-started`, 
 - **GIVEN** Noor completed the admin tour
 - **WHEN** she opens the admin page again
 - **THEN** the admin tour does not start
+
+### Requirement: The board grid sits on the page ground (REQ-SHELL-012)
+
+LaunchPad MUST draw its pages on the page ground, not on the white content panel. `App.vue` passes `pageGround` to `CnAppRoot`, which paints the content area with the NL Design System content-surface token (`--nldesign-component-content-surface-background-color`), falling back to Nextcloud's `--color-background-hover`, in light and dark mode alike. Widgets keep their own surfaces (`.grid-stack-item-content` and the widget wrappers). LaunchPad adds no colour of its own for this.
+
+**Why.** Ruben's review of 22 Nov 2026: the grid sat on a white card. The drawn boards (`launchpad/LpVandaag`, `launchpad/LpWerkplek`) put the grid on the page ground with white widget cards.
+
+#### Scenario: The grid on the page ground
+- GIVEN a member opens a dashboard
+- WHEN the page renders
+- THEN the content area MUST carry the page ground token, not the main background, and each widget MUST keep its own surface
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-012

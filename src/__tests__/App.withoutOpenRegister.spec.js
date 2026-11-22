@@ -30,7 +30,7 @@ describe('App without OpenRegister', () => {
 	it('tells the app root that no app is required, so a missing OpenRegister does not block the shell', () => {
 		const wrapper = mount(App, {
 			props: { manifest: bundledStub, registry: {}, pageTypes: {}, permissions: ['user'] },
-			global: { provide: { startPageWithoutNavigation: false }, mocks: { $route: { name: 'Workspace' } } },
+			global: { mocks: { $route: { name: 'Workspace' } } },
 		})
 		expect(wrapper.findComponent({ name: 'CnAppRoot' }).props('requiresApps')).toEqual([])
 	})

@@ -122,6 +122,28 @@ describe('buildWidgetDataProvide people source', () => {
 
 		expect(axios.get.mock.calls[0][0]).toContain('showBirthdays=1')
 	})
+
+	it('searches the whole directory with q, keeping the widget filters', async () => {
+		const provided = buildWidgetDataProvide(() => 1)
+		axios.get.mockResolvedValue({ data: { users: [{ uid: 'pieter' }], total: 1, hasMore: false } })
+		const filters = [{ fieldName: 'group', operator: 'in', values: ['gw'] }]
+
+		const page = await provided.cnPeopleSource.searchPeople({ q: 'subsidie', filters, offset: 0, limit: 50 })
+
+		const query = new URLSearchParams(axios.get.mock.calls[0][0].split('?')[1])
+		expect(query.get('q')).toBe('subsidie')
+		expect(JSON.parse(query.get('filters'))).toEqual(filters)
+		expect(page.users).toEqual([{ uid: 'pieter' }])
+	})
+
+	it('sends no q on a plain page request', async () => {
+		const provided = buildWidgetDataProvide(() => 1)
+		axios.get.mockResolvedValue({ data: { users: [], total: 0, hasMore: false } })
+
+		await provided.cnPeopleSource.fetchPeople({ offset: 0, limit: 50 })
+
+		expect(axios.get.mock.calls[0][0]).not.toContain('q=')
+	})
 })
 
 describe('buildRendererExtraProps', () => {

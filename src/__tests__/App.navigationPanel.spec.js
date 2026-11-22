@@ -2,12 +2,11 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The start page without the navigation panel (runtime-shell REQ-SHELL-009).
+ * LaunchPad without the navigation panel (runtime-shell REQ-SHELL-009).
  *
- * Off, the panel renders; on, it is not rendered on the dashboard view and
- * still is on every other page. The stand-in `CnAppRoot` keeps the real
- * slot semantics: Vue renders a slot's default content when the override
- * holds no real node, which is exactly what the override must not rely on.
+ * No route renders the panel. The dashboard view carries the workspace's own
+ * More menu; every other page carries the app's More menu at its top. The
+ * stand-in `CnAppRoot` honours `hideMenu` as the library does.
  *
  * The route-no-loss rule: every entry the panel would have shown has a
  * destination in the start-page menu, and every router destination is a
@@ -22,8 +21,9 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnAppRoot: {
 		name: 'CnAppRoot',
+		props: ['hideMenu', 'pageGround'],
 		template:
-			'<div><slot name="menu"><nav data-testid="cn-nav" /></slot><main /></div>',
+			'<div><slot v-if="!hideMenu" name="menu"><nav data-testid="cn-nav" /></slot><main /><slot name="header-actions" /></div>',
 	},
 	// The user settings dialog's library sections (src/views/settings/UserSettings.vue).
 	CnCredentials: { name: 'CnCredentials', template: '<div />' },
@@ -57,7 +57,7 @@ function mergedManifest() {
 	return applyManifestFragments(bundledStub, fragments)
 }
 
-function mountApp({ option, routeName, permissions = ['user'] }) {
+function mountApp({ routeName, permissions = ['user'] }) {
 	return mount(App, {
 		props: {
 			manifest: mergedManifest(),
@@ -66,45 +66,28 @@ function mountApp({ option, routeName, permissions = ['user'] }) {
 			permissions,
 		},
 		global: {
-			provide: { startPageWithoutNavigation: option },
 			mocks: { $route: { name: routeName } },
 		},
 	})
 }
 
 describe('App without the navigation panel (REQ-SHELL-009)', () => {
-	it('renders the panel when the option is off', () => {
-		const wrapper = mountApp({ option: false, routeName: 'Workspace' })
-		expect(wrapper.find('[data-testid="cn-nav"]').exists()).toBe(true)
-		// Off is today's shell exactly: the root receives no `menu` slot, so
-		// the library renders its own panel as it did before this option.
-		expect(
-			wrapper.findComponent({ name: 'CnAppRoot' }).vm.$slots.menu,
-		).toBeUndefined()
-		expect(
-			wrapper.find('[data-testid="launchpad-rail-suppressed"]').exists(),
-		).toBe(false)
-	})
-
-	it('renders the panel when the option is missing from the initial state', () => {
-		const wrapper = mount(App, {
-			props: { manifest: mergedManifest(), registry: {}, pageTypes: {} },
-			global: { mocks: { $route: { name: 'Workspace' } } },
-		})
-		expect(wrapper.find('[data-testid="cn-nav"]').exists()).toBe(true)
-	})
-
-	it.each(DASHBOARD_ROUTES)(
-		'does not render the panel on the %s route when the option is on',
+	it.each([...DASHBOARD_ROUTES, 'Store', 'Reports', 'Flows', 'admin-settings'])(
+		'renders no panel on the %s route',
 		(routeName) => {
-			const wrapper = mountApp({ option: true, routeName })
+			const wrapper = mountApp({ routeName })
 			expect(wrapper.find('[data-testid="cn-nav"]').exists()).toBe(false)
 			expect(wrapper.find('nav').exists()).toBe(false)
-			const placeholder = wrapper.find(
-				'[data-testid="launchpad-rail-suppressed"]',
-			)
-			expect(placeholder.exists()).toBe(true)
-			expect(placeholder.attributes('hidden')).toBeDefined()
+		},
+	)
+
+	it.each(DASHBOARD_ROUTES)(
+		'leaves the More menu to the workspace on the %s route',
+		(routeName) => {
+			const wrapper = mountApp({ routeName })
+			expect(
+				wrapper.find('[data-testid="launchpad-page-menu"]').exists(),
+			).toBe(false)
 		},
 	)
 
@@ -112,21 +95,33 @@ describe('App without the navigation panel (REQ-SHELL-009)', () => {
 		'Store',
 		'Reports',
 		'Flows',
+		'FeaturesRoadmap',
 		'admin-settings',
 		'admin-templates-index',
-	])('keeps the panel on the %s page when the option is on', (routeName) => {
-		const wrapper = mountApp({ option: true, routeName })
-		expect(wrapper.find('[data-testid="cn-nav"]').exists()).toBe(true)
+	])('puts the More menu at the top of the %s page', (routeName) => {
+		const wrapper = mountApp({ routeName })
+		const holder = wrapper.find('[data-testid="launchpad-page-menu"]')
+		expect(holder.exists()).toBe(true)
+		expect(holder.findComponent({ name: 'StartPageMenu' }).exists()).toBe(
+			true,
+		)
 	})
 
-	it('is what the root receives', () => {
-		// The template binding is the wiring; a computed nobody binds is a
-		// guard with no call site.
-		const render = App.render?.toString() ?? ''
-		expect(render).toContain('railSuppressed')
+	it('tells the menus the panel is left out, on every route', () => {
+		const wrapper = mountApp({ routeName: 'Store' })
+		expect(wrapper.vm.chromeState.railSuppressed).toBe(true)
 		expect(App.provide.call({ chromeState: {} })).toHaveProperty(
 			'launchpadChrome',
 		)
+	})
+})
+
+describe('App on the page ground (REQ-SHELL-012)', () => {
+	it('asks the root to draw its pages on the page ground', () => {
+		const wrapper = mountApp({ routeName: 'Workspace' })
+		expect(
+			wrapper.findComponent({ name: 'CnAppRoot' }).props('pageGround'),
+		).toBe(true)
 	})
 })
 

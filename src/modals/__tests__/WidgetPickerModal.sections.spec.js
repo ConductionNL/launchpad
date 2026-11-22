@@ -36,7 +36,7 @@ function mountPicker(props = {}) {
 			widgets: [{ id: 'notes', title: 'Notes' }],
 			discoveredApps: [FILES],
 			catalogueApps: [MAIL],
-			customTypeTitles: ['Text', 'Image'],
+			customTypes: [{ type: 'text', title: 'Text' }, { type: 'image', title: 'Image' }],
 			...props,
 		},
 		global: { stubs, mocks: { t: (_app, text) => text } },
@@ -44,7 +44,7 @@ function mountPicker(props = {}) {
 }
 
 describe('WidgetPickerModal sections', () => {
-	it('shows the catalogue, the custom widget, the office pack and the discovered apps, in that order', () => {
+	it('shows the catalogue, the Launchpad widget types, the office pack and the discovered apps, in that order', () => {
 		const wrapper = mountPicker()
 		const ids = wrapper
 			.findAll('section[data-testid]')
@@ -73,25 +73,24 @@ describe('WidgetPickerModal sections', () => {
 		expect(wrapper.emitted('addApp')).toEqual([[FILES]])
 	})
 
-	it('asks for the custom widget form when "Custom widget" is picked', async () => {
+	it('lists each Launchpad type and asks for its form when one is picked', async () => {
 		const wrapper = mountPicker()
 
-		await wrapper.find('[data-testid="widget-picker-custom-widget"]').trigger('click')
+		expect(wrapper.findAll('[data-testid="widget-picker-custom"] button').map((row) => row.text())).toEqual(['Text', 'Image'])
+		await wrapper.find('[data-testid="widget-picker-type-image"]').trigger('click')
 
-		expect(wrapper.emitted('addCustom')).toEqual([[]])
+		expect(wrapper.emitted('addCustom')).toEqual([['image']])
 		expect(wrapper.emitted('add')).toBeUndefined()
 	})
 
-	it('finds "Custom widget" by its name or a type it builds, and leaves it out otherwise', async () => {
+	it('searches the Launchpad types by title and leaves the section out without a match', async () => {
 		const wrapper = mountPicker({ discoveredApps: [], catalogueApps: [] })
-		const custom = () => wrapper.find('[data-testid="widget-picker-custom-widget"]')
 
-		await wrapper.find('.nc-text').setValue('CUSTOM')
-		expect(custom().exists()).toBe(true)
-		await wrapper.find('.nc-text').setValue('ima')
-		expect(custom().exists()).toBe(true)
+		await wrapper.find('.nc-text').setValue('IMA')
+		expect(wrapper.findAll('[data-testid="widget-picker-custom"] button').map((row) => row.text())).toEqual(['Image'])
+
 		await wrapper.find('.nc-text').setValue('nothing like it')
-		expect(custom().exists()).toBe(false)
+		expect(wrapper.find('[data-testid="widget-picker-custom"]').exists()).toBe(false)
 	})
 
 	it('renders nothing while closed', () => {

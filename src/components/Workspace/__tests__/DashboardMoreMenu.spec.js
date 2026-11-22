@@ -28,7 +28,8 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	},
 }))
 
-import DashboardMoreMenu, { orderDestinations } from '../DashboardMoreMenu.vue'
+import DashboardMoreMenu from '../DashboardMoreMenu.vue'
+import { orderDestinations } from '../StartPageMenu.vue'
 
 const ENTRIES = [
 	{ id: 'dashboards', label: 'Dashboards', route: 'Workspace' },

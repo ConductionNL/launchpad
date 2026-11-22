@@ -203,10 +203,9 @@ export async function openAddLinkForm(page: Page, dashboardName: string): Promis
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.locator('[data-testid="cog-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-link"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	await dialog.getByLabel(/widget type/i).selectOption('link')
 	await expect(dialog.locator('.cn-link-button-widget-form')).toBeVisible({ timeout: 10_000 })
 	return dialog
 }

@@ -32,7 +32,8 @@
   - The map's form is the library's `CnMapWidgetForm`, so there is no `MapWidgetConfig.vue`; the save-time rules are unit-tested in `tests/Unit/Service/MapContentValidatorTest.php` (18 cases).
 - [x] Unit test for the spatial-filter to API-query translator in the store.
   - The translator is nextcloud-vue's `spatialFilterRequest()`, tested in its `tests/components/CnMapWidgetSpatialFilter.spec.js` (bbox, radius, polygon, unreadable filters, and the requests the widget makes).
-- [ ] Playwright smoke: drop a `map` widget on a fresh dashboard, configure it against a register/schema with geo data, confirm features render and click-to-detail navigates correctly.
+- [x] Playwright smoke: drop a `map` widget on a fresh dashboard, configure it against a register/schema with geo data, confirm features render and click-to-detail navigates correctly.
+  - 2026-11-22: tests/e2e/map-widget-smoke.spec.ts passed on the live stack (triage/lpf-6-bundle.log): three markers, tooltip, and the detail link opens in a new tab at the dashboard's slug address.
 
 ## Documentation
 

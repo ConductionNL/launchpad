@@ -70,9 +70,10 @@ export async function closeSidebar(page: Page): Promise<void> {
 
 /**
  * Open the Add Widget modal via the cog menu of the active personal dashboard's
- * row (the first personal row when none is active). Leaves the modal visible.
+ * row (the first personal row when none is active), picking `type` in the
+ * widget picker. Leaves the modal visible, opened on that type.
  */
-export async function openAddWidgetModal(page: Page): Promise<void> {
+export async function openAddWidgetModal(page: Page, type = 'label'): Promise<void> {
 	await openSidebar(page)
 	const personalRows = page.locator('[data-source="user"].dashboard-switcher-sidebar__item')
 	const activeRow = personalRows.and(page.locator('.active'))
@@ -82,7 +83,7 @@ export async function openAddWidgetModal(page: Page): Promise<void> {
 	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
 	).toBeVisible({ timeout: 10_000 })

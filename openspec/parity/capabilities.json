@@ -1952,11 +1952,11 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "src/App.vue:165 (startPageWithoutNavigation); src/components/Workspace/DashboardMoreMenu.vue (the More menu holds the destinations while the panel is left out); live pass 17 Nov 2026: tests/e2e/start-page-without-navigation.spec.ts 3 passed on NC 34",
+				"evidence": "src/App.vue renders no navigation panel on any route since #1528, so the admin option was retired; src/components/Workspace/DashboardMoreMenu.vue holds the destinations; live pass 17 Nov 2026: tests/e2e/start-page-without-navigation.spec.ts 3 passed on NC 34",
 				"change": "openspec/changes/archive/2026-11-17-start-page-without-navigation-panel",
 				"requirement": "openspec/specs/runtime-shell :: REQ-SHELL-009 Start page without navigation panel"
 			},
-			"reachedOn": "Admin settings, layout options: Start page without navigation panel; the start page then shows its destinations in a Menu button",
+			"reachedOn": "Always on: the start page has the full width and shows its destinations in the More menu",
 			"evidence": {
 				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
 				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
@@ -6957,7 +6957,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
+				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); @conduction/nextcloud-vue CnPeopleWidget (searchPeople via src/services/widgetDataAdapters.js); src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields",
 				"requirement": "openspec/specs/people-widget :: Administrators define custom profile fields (REQ-PEX-001)"
@@ -7277,7 +7277,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
+				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); @conduction/nextcloud-vue CnPeopleWidget (searchPeople via src/services/widgetDataAdapters.js); src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields",
 				"requirement": "openspec/specs/people-widget :: Search finds people across the directory by profile and expertise (REQ-PEX-003)"

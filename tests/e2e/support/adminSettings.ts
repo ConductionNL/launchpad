@@ -30,7 +30,7 @@ export const SETTINGS = `${API}/admin/settings`
 export const GROUPS = `${API}/admin/groups`
 
 /**
- * The fourteen keys REQ-ASET-001 lists under "Defined Settings", in the order
+ * The thirteen keys REQ-ASET-001 lists under "Defined Settings", in the order
  * the spec gives them.
  */
 export const DOCUMENTED_KEYS = [
@@ -47,7 +47,6 @@ export const DOCUMENTED_KEYS = [
 	'maxDashboardsPerUser',
 	'maxWidgetsPerDashboard',
 	'quicksearchFallbackTarget',
-	'startPageWithoutNavigation',
 ] as const
 
 /**

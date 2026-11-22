@@ -115,11 +115,8 @@ async function serveCatalog(page: Page, widgets: CatalogEntry[]): Promise<void> 
  * @return the modal dialog.
  */
 async function openNcWidgetPicker(page: Page): Promise<Locator> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'nc-widget')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog
-		.getByLabel(/widget type/i)
-		.selectOption({ label: 'Nextcloud widget' })
 	await expect(dialog.locator('.cn-nc-widget-grid-picker')).toBeVisible({
 		timeout: 8_000,
 	})

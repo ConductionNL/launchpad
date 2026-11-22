@@ -36,7 +36,7 @@ const PINNED: Clause = {
 	dimension: 'provincieCode',
 	operator: 'eq',
 	value: 'PV26',
-	source: 'pinned',
+	source: 'userExplicit',
 	pinned: true,
 }
 
@@ -180,7 +180,7 @@ test.describe('cross-widget filter (REQ-CWF-003, REQ-CWF-006, REQ-CWF-007)', () 
 		const value = filterParam([PINNED])
 		expect(value).not.toMatch(/[+/=]/)
 		expect(decodeFilterParam(value)).toEqual([
-			{ d: 'provincieCode', o: 'eq', v: 'PV26', s: 'pinned', p: true },
+			{ d: 'provincieCode', o: 'eq', v: 'PV26', s: 'userExplicit', p: true },
 		])
 	})
 })

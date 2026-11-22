@@ -218,7 +218,7 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 			await expectWijkenOf(page, board, first)
 
 			await gridItem(page, board.a2.id).locator(ROW).filter({ hasText: second }).click()
-			await expect(page.locator('.toastify').filter({ hasText: `Municipality filter changed: ${first} → ${second}` })).toBeVisible({ timeout: 10_000 })
+			await expect(page.getByText(`Municipality filter changed: ${first} → ${second}`)).toBeVisible({ timeout: 10_000 })
 			await expect(page.locator('[data-testid="active-filters"] [data-dimension]')).toHaveCount(1)
 			await expect(chip(page, 'gemeenteCode')).toContainText(second)
 			await expect(chip(page, 'gemeenteCode').locator('[data-testid="active-filter-source"]')).toContainText('Gemeenten twee')

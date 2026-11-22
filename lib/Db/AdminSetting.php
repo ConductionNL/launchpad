@@ -240,15 +240,6 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_SSO_LAUNCH_TEMPLATES = AdminSettingKey::SSO_LAUNCH_TEMPLATES->value;
 
 	/**
-	 * BC alias for AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION (runtime-shell REQ-SHELL-009).
-	 *
-	 * @var string
-	 *
-	 * @see AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION
-	 */
-	public const KEY_START_PAGE_WITHOUT_NAVIGATION = AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION->value;
-
-	/**
 	 * The office networks, as a list of IPv4 and IPv6 CIDR ranges
 	 * (launcher-tile-internal-address REQ-TIA-001).
 	 *

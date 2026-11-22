@@ -364,30 +364,9 @@ class InitialStateBuilder {
 	}//end setSearchShortcuts()
 
 	/**
-	 * Set whether the dashboard view renders without the left navigation
-	 * panel (workspace).
-	 *
-	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: NOT
-	 * in {@see self::REQUIRED_KEYS}, so a server that has not called this
-	 * setter still passes {@see self::apply()}, and the JS reader's `false`
-	 * default keeps the rail for an older deploy (runtime-shell
-	 * REQ-SHELL-009).
-	 *
-	 * @param bool $withoutNavigation True to leave the panel out of the dashboard view.
-	 *
-	 * @return self Fluent.
-	 *
-	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
-	 */
-	public function setStartPageWithoutNavigation(bool $withoutNavigation): self {
-		$this->values['startPageWithoutNavigation'] = $withoutNavigation;
-		return $this;
-	}//end setStartPageWithoutNavigation()
-
-	/**
 	 * Set the administrator CSS for all of LaunchPad (workspace).
 	 *
-	 * Optional key, like {@see self::setStartPageWithoutNavigation()}. The
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}. The
 	 * value is the cleaned and scoped CSS the server stored; the page inserts
 	 * it as the text of a style element, never as markup (REQ-THM-003).
 	 *
@@ -451,7 +430,7 @@ class InitialStateBuilder {
 	/**
 	 * Set whether this request comes from inside the office networks.
 	 *
-	 * Optional key, like {@see self::setStartPageWithoutNavigation()}: a
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: a
 	 * server that never calls it leaves the JS reader's `false` default, so
 	 * every tile opens its main address (launcher-tile-internal-address D1).
 	 *

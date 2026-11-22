@@ -449,7 +449,6 @@ class AdminController extends Controller {
 	 * @param bool|null $allowMultipleDashboards Alias of `$allowMultiDash`.
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
-	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
 	 * @param array|null $sharingAllowedGroups The groups whose members may share; empty means everyone (REQ-SHARE-014).
 	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
@@ -483,7 +482,7 @@ class AdminController extends Controller {
 		bool|null $allowUserDashboards = null,
 		bool|null $allowMultipleDashboards = null,
 		int|null $defaultGridColumns = null,
-		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
+		array|null $linkCreateFileExtensions = null,
 		array|null $sharingAllowedGroups = null,
 		string|null $sharingRecipientScope = null,
 		array|null $tileAllowedSchemes = null,
@@ -515,7 +514,6 @@ class AdminController extends Controller {
 					'maxDashboardsPerUser'        => $maxDashboardsPerUser,
 					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
 					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
-					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
 					'sharingAllowedGroups'        => $sharingAllowedGroups,
 					'sharingRecipientScope'       => $sharingRecipientScope,
 					'tileAllowedSchemes'          => $tileAllowedSchemes,

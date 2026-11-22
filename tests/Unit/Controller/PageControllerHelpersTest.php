@@ -57,6 +57,7 @@ class PageControllerHelpersTest extends TestCase {
 	private IUserSession&MockObject $session;
 	private DashboardTreeService&MockObject $tree;
 	private LoggerInterface&MockObject $logger;
+	private RoleFeaturePermissionService&MockObject $roles;
 	private PageController $controller;
 
 	protected function setUp(): void {
@@ -66,6 +67,7 @@ class PageControllerHelpersTest extends TestCase {
 		$this->session = $this->createMock(IUserSession::class);
 		$this->tree = $this->createMock(DashboardTreeService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->roles = $this->createMock(RoleFeaturePermissionService::class);
 		$this->controller = new PageController(
 			request: $this->createMock(IRequest::class),
 			sources: new PageSources(
@@ -76,7 +78,7 @@ class PageControllerHelpersTest extends TestCase {
 			),
 			userSession: $this->session,
 			settings: new PageSettingsSources(
-				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				roleFeaturePerm: $this->roles,
 				treeService: $this->tree,
 				logger: $this->logger,
 				adminSettingsService: $this->createMock(AdminSettingsService::class),
@@ -225,7 +227,7 @@ class PageControllerHelpersTest extends TestCase {
 			'dashboardSource' => Dashboard::SOURCE_GROUP,
 			'layout' => [],
 			'deepLinkPath' => '',
-		], $this->call('describeActive', null));
+		], $this->call('describeActive', null, 'alice'));
 	}
 
 	public function testActiveDashboardCarriesItsLayoutAndPath(): void {
@@ -235,13 +237,31 @@ class PageControllerHelpersTest extends TestCase {
 		$this->widgets->expects($this->once())->method('getDashboardPlacements')->with(5)->willReturn([$placement]);
 		$this->tree->expects($this->once())->method('computePath')->with('uuid-5')->willReturn('team/ops');
 
-		$state = $this->call('describeActive', ['dashboard' => $this->dashboard(5, 'uuid-5'), 'source' => Dashboard::SOURCE_USER]);
+		$this->roles->expects($this->never())->method('hideUnpermittedPlacements');
+
+		$state = $this->call('describeActive', ['dashboard' => $this->dashboard(5, 'uuid-5'), 'source' => Dashboard::SOURCE_USER], '');
 
 		$this->assertSame('uuid-5', $state['activeDashboardId']);
 		$this->assertSame(Dashboard::SOURCE_USER, $state['dashboardSource']);
 		$this->assertEquals([$placement->jsonSerialize()], $state['layout']);
 		$this->assertSame('notes', $state['layout'][0]['widgetId']);
 		$this->assertSame('team/ops', $state['deepLinkPath']);
+	}
+
+	public function testTheLayoutMarksAWidgetTheRoleDoesNotPermit(): void {
+		$placement = new WidgetPlacement();
+		$placement->setId(70);
+		$placement->setWidgetId('notes');
+		$this->widgets->method('getDashboardPlacements')->willReturn([$placement]);
+		$hidden = [['id' => 70, 'widgetId' => 'notes', 'isVisible' => 0]];
+		$this->roles->expects($this->once())
+			->method('hideUnpermittedPlacements')
+			->with([$placement->jsonSerialize()], 'alice')
+			->willReturn($hidden);
+
+		$state = $this->call('describeActive', ['dashboard' => $this->dashboard(5, 'uuid-5'), 'source' => Dashboard::SOURCE_GROUP], 'alice');
+
+		$this->assertSame($hidden, $state['layout']);
 	}
 
 	public function testPathFailureIsLoggedAndGivesAnEmptyPath(): void {

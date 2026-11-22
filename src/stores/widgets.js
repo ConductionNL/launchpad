@@ -6,6 +6,7 @@
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
 import { widgetBridge } from '../services/widgetBridge.js'
+import { initialWidgetCatalogue } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 
 /**
@@ -58,8 +59,22 @@ export const useWidgetStore = defineStore('widgets', {
 	},
 
 	actions: {
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * Fill the card library's widget list: from the page's initial state
+		 * when it carries one, so no `GET /api/widgets` is needed
+		 * (REQ-RFP-010), otherwise from that call.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
+		 */
 		async loadAvailableWidgets() {
+			const catalogue = initialWidgetCatalogue()
+			if (catalogue.length > 0) {
+				this.availableWidgets = catalogue
+				widgetBridge.setWidgetMetadata(this.availableWidgets)
+				return
+			}
+
 			this.loading = true
 			try {
 				const response = await api.getAvailableWidgets()

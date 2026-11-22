@@ -110,6 +110,7 @@ OC.L10N.register(
     "Missing tile ID" : "Missing tile ID",
     "Multiple dashboards not allowed" : "Multiple dashboards not allowed",
     "My dashboard" : "My dashboard",
+    "My workspace" : "My workspace",
     "My Dashboards" : "My Dashboards",
     "My template" : "My template",
     "LaunchPad settings" : "LaunchPad settings",

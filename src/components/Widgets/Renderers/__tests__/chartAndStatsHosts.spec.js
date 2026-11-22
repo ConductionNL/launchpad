@@ -18,6 +18,9 @@ import { logger } from '../../../../utils/logger.js'
 const dialogs = vi.hoisted(() => ({ showInfo: vi.fn(), showWarning: vi.fn() }))
 vi.mock('@nextcloud/dialogs', () => dialogs)
 
+const clickedRowMock = vi.hoisted(() => vi.fn())
+vi.mock('../../../../utils/clickedRow.js', async (importOriginal) => ({ ...(await importOriginal()), clickedRow: clickedRowMock }))
+
 const ChartStub = {
 	name: 'CnChartWidget',
 	inheritAttrs: false,
@@ -305,6 +308,30 @@ describe('ChartHost publishing a pick (REQ-CWF-001, REQ-CWF-005)', () => {
 
 		expect(bus.clauses.value).toEqual([])
 		expect(dialogs.showWarning).toHaveBeenCalledWith('You have no access to this scope: Gemeente')
+	})
+})
+
+describe('ChartHost drilling down a hierarchy (REQ-CWF-004)', () => {
+	const NL = { id: 'nl', levels: [{ dimension: 'provincieCode', label: 'Provincie' }, { dimension: 'gemeenteCode', label: 'Gemeente' }, { dimension: 'wijkCode', label: 'Wijk' }] }
+	const WIJKEN = { dataSource: { register: 'cwf', schema: 'melding', groupBy: 'wijkCode' }, publishes: [{ dimension: 'wijkCode', fromField: 'wijkCode' }] }
+
+	it('a pick on a wijk reads its gemeente and provincie from a record, and the bus infers them', async () => {
+		clickedRowMock.mockResolvedValue({ wijkCode: 'WK035501', gemeenteCode: 'GM0355', provincieCode: 'PV26' })
+		const bus = useFilterBus({ hierarchies: [NL] })
+		const host = mount(ChartHost, {
+			props: { content: WIJKEN, placement: { id: 9 } },
+			global: { stubs: { CnChartWidget: ChartStub }, provide: { dashboardFilterBus: computed(() => bus) } },
+		})
+
+		host.findComponent(ChartStub).vm.$emit('select', { field: 'wijkCode', value: 'WK035501' })
+		await flushPromises()
+
+		expect(clickedRowMock).toHaveBeenCalledWith(expect.objectContaining({
+			selection: { field: 'wijkCode', value: 'WK035501' },
+			hierarchies: [NL],
+			dataSource: WIJKEN.dataSource,
+		}))
+		expect(bus.breadcrumb('nl').map((step) => step.value)).toEqual(['PV26', 'GM0355', 'WK035501'])
 	})
 })
 

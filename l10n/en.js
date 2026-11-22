@@ -1657,6 +1657,8 @@ OC.L10N.register(
     "Pinned filter" : "Pinned filter",
     "Remove filter: {label}" : "Remove filter: {label}",
     "Reset filters" : "Reset filters",
+    "Drill-down path" : "Drill-down path",
+    "Back to {step}" : "Back to {step}",
     "Shown in the email and on the cover page of the PDF." : "Shown in the email and on the cover page of the PDF.",
     "What to export" : "What to export",
     "Run on schedule" : "Run on schedule",
@@ -1854,7 +1856,10 @@ OC.L10N.register(
     "Publication schedule" : "Publication schedule",
     "Colleagues see this dashboard only while it is published." : "Colleagues see this dashboard only while it is published.",
     "Contents" : "Contents",
-    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP."
+    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.",
+    "App tiles" : "App tiles",
+    "One tile per app this server runs for you. One click places it." : "One tile per app this server runs for you. One click places it.",
+    "Custom tile" : "Custom tile"
 },
 "nplurals=2; plural=(n != 1);"
 );

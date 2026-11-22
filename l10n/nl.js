@@ -2027,6 +2027,8 @@ OC.L10N.register(
     "Pinned filter" : "Vastgezet filter",
     "Remove filter: {label}" : "Filter verwijderen: {label}",
     "Reset filters" : "Filters wissen",
+    "Drill-down path" : "Inzoompad",
+    "Back to {step}" : "Terug naar {step}",
     "Shown in the email and on the cover page of the PDF." : "Staat in de e-mail en op het voorblad van de pdf.",
     "What to export" : "Wat je exporteert",
     "Run on schedule" : "Volgens schema uitvoeren",
@@ -2301,7 +2303,10 @@ OC.L10N.register(
     "Publication schedule" : "Publicatieschema",
     "Colleagues see this dashboard only while it is published." : "Collega's zien dit dashboard alleen als het gepubliceerd is.",
     "Contents" : "Inhoud",
-    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP."
+    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP.",
+    "App tiles" : "App-tegels",
+    "One tile per app this server runs for you. One click places it." : "Een tegel per app die deze server voor u draait. Met een klik staat hij erop.",
+    "Custom tile" : "Eigen tegel"
 },
 "nplurals=2; plural=(n != 1);"
 );

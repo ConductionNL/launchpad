@@ -1594,6 +1594,8 @@
         "Pinned filter": "Pinned filter",
         "Remove filter: {label}": "Remove filter: {label}",
         "Reset filters": "Reset filters",
+        "Drill-down path": "Drill-down path",
+        "Back to {step}": "Back to {step}",
         "Discussion": "Discussion",
         "No conversation linked to this dashboard yet": "No conversation linked to this dashboard yet",
         "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.": "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.",
@@ -1615,6 +1617,9 @@
         "Publication schedule": "Publication schedule",
         "Colleagues see this dashboard only while it is published.": "Colleagues see this dashboard only while it is published.",
         "Contents": "Contents",
-        "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.": "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP."
+        "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.": "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.",
+        "App tiles": "App tiles",
+        "One tile per app this server runs for you. One click places it.": "One tile per app this server runs for you. One click places it.",
+        "Custom tile": "Custom tile"
     }
 }

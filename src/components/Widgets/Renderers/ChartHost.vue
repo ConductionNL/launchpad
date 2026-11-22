@@ -21,6 +21,7 @@ import { showInfo, showWarning } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
 import { levelLabels as hierarchyLevelLabels } from '../../../composables/useDashboardFilterSession.js'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
+import { clickedRow, missingAncestors } from '../../../utils/clickedRow.js'
 import { logger } from '../../../utils/logger.js'
 import { busDeclarationsOf, consumedFilter, filterBusOf, publishedClauses, refetchClock, withBusFilter } from '../../../utils/widgetBusConsumption.js'
 import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
@@ -63,8 +64,11 @@ const CHART_PROP_KEYS = [
  * CnChartWidget's `select` names the grouped field and the raw key, and the
  * host publishes a `widgetClick` clause for each dimension published from
  * that field (REQ-CWF-001). A replaced filter from another widget is named
- * in a toast (REQ-CWF-005). The chart marks the categories of the clauses it
- * published as selected, so the mark follows the bus (REQ-CWF-005, -007).
+ * in a toast (REQ-CWF-005). A pick on a hierarchy level whose ancestors the
+ * click does not name reads them from one record of that category first, so
+ * the bus can infer the levels above it (REQ-CWF-004). The chart marks the
+ * categories of the clauses it published as selected, so the mark follows
+ * the bus (REQ-CWF-005, -007).
  */
 export default {
 	name: 'ChartHost',
@@ -270,9 +274,29 @@ export default {
 			if (!this.publishing) {
 				return
 			}
+			const clauses = publishedClauses(this.busDeclarations.publishes, selection, this.widgetId)
+			const row = { [selection.field]: selection.value }
+			if (missingAncestors(this.bus.hierarchies || [], clauses, row).length === 0) {
+				this.publishPick(clauses, row)
+				return
+			}
+			clickedRow({ selection, clauses, hierarchies: this.bus.hierarchies || [], dataSource: this.dataSource })
+				.then((completed) => this.publishPick(clauses, completed))
+		},
+
+		/**
+		 * Publish the clauses of a pick with the clicked row, and say so when
+		 * one replaced another widget's filter or was refused.
+		 *
+		 * @param {Array<object>} clauses The clauses the pick publishes.
+		 * @param {object} row The clicked row, ancestor levels included where known.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		publishPick(clauses, row) {
 			const labels = this.levelLabels
-			for (const clause of publishedClauses(this.busDeclarations.publishes, selection, this.widgetId)) {
-				const answer = this.bus.publish(clause, { row: { [selection.field]: selection.value } })
+			for (const clause of clauses) {
+				const answer = this.bus.publish(clause, { row })
 				const name = labels[clause.dimension] || clause.dimension
 				if (answer.reason === 'forbidden') {
 					showWarning(t('launchpad', 'You have no access to this scope: {name}', { name }))

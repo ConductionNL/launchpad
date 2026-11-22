@@ -72,4 +72,18 @@ describe('Views schedule', () => {
 		expect(host.publicationNote).toContain('Goes live on')
 		expect(host.publicationNote).toContain('Comes down on')
 	})
+
+	it('REQ-SCHEDUI-001: shows the stored UTC time in the viewer\'s own time', () => {
+		const host = makeHost({
+			uuid: 'd',
+			isOwner: true,
+			publicationStatus: 'scheduled',
+			publishAt: '2026-11-23 08:00:00',
+		})
+		const local = new Date(Date.UTC(2026, 10, 23, 8, 0)).toLocaleString(undefined, {
+			dateStyle: 'medium',
+			timeStyle: 'short',
+		})
+		expect(host.publicationNote).toBe(`Goes live on ${local}.`)
+	})
 })

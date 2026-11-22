@@ -2038,6 +2038,8 @@
         "Pinned filter": "Vastgezet filter",
         "Remove filter: {label}": "Filter verwijderen: {label}",
         "Reset filters": "Filters wissen",
+        "Drill-down path": "Inzoompad",
+        "Back to {step}": "Terug naar {step}",
         "Discussion": "Gesprek",
         "No conversation linked to this dashboard yet": "Nog geen gesprek gekoppeld aan dit dashboard",
         "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.": "Deze widget publiceert {dimension} uit {field}, maar dat veld zit niet in de gegevens. Een klik erop filtert het dashboard niet.",
@@ -2063,6 +2065,9 @@
         "Publication schedule": "Publicatieschema",
         "Colleagues see this dashboard only while it is published.": "Collega's zien dit dashboard alleen als het gepubliceerd is.",
         "Contents": "Inhoud",
-        "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.": "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP."
+        "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.": "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP.",
+        "App tiles": "App-tegels",
+        "One tile per app this server runs for you. One click places it.": "Een tegel per app die deze server voor u draait. Met een klik staat hij erop.",
+        "Custom tile": "Eigen tegel"
     }
 }

@@ -214,6 +214,12 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<FilterBreadcrumb
+				v-if="activeDashboard && filterSession"
+				:hierarchies="filterSession.bus.hierarchies"
+				:clauses="filterClauses"
+				:labels="filterSession.labels"
+				@pop="onFilterPop" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -497,6 +503,7 @@ import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
+import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
@@ -532,7 +539,7 @@ import { useWidgetStore } from '../stores/widgets.js'
 import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
-import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
+import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -540,6 +547,7 @@ import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
+import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -649,6 +657,7 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		FilterBreadcrumb,
 		DeleteDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
@@ -1987,8 +1996,8 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		formatStamp(value) {
-			const parsed = new Date(String(value).replace(' ', 'T'))
-			return Number.isNaN(parsed.getTime())
+			const parsed = parseServerStamp(value)
+			return parsed === null
 				? String(value)
 				: parsed.toLocaleString(undefined, {
 						dateStyle: 'medium',
@@ -2408,9 +2417,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Place a discovered app as its own app tile.
+		 *
+		 * @param {{appId: string}} app The discovered app.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
 		async addDiscoveredApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+				await this.addWidgetToDashboard(appTileFromDiscoveredApp(app))
 			} catch (error) {
 				logger.error('[Views] Failed to place a discovered app:', error)
 			}
@@ -3255,6 +3271,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * A drill-down breadcrumb step was chosen: go back up to that level.
+		 *
+		 * @param {string} dimension The level's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		onFilterPop(dimension) {
+			this.filterSession?.popTo(dimension)
 		},
 
 		/**

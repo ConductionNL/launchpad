@@ -79,7 +79,7 @@ The system SHALL serialise the active filter state into a URL query parameter an
 
 ### Requirement: REQ-CWF-004 Drill-down hierarchies update breadcrumb and descendant filters
 
-When a click publishes a clause for a dimension that is part of a `hierarchy_descriptor`, the system SHALL update the breadcrumb UI to show the active path and SHALL clear any descendant-level clauses from the bus before applying the new clause.
+When a click publishes a clause for a dimension that is part of a `hierarchy_descriptor`, the system SHALL update the breadcrumb UI to show the active path and SHALL clear any descendant-level clauses from the bus before applying the new clause. The breadcrumb SHALL show one step per active level of each hierarchy, broadest first, as the level's label in the reader's language and its value ("Provincie PV26 > Gemeente GM0355 > Wijk WK035501"); each step above the deepest SHALL go back up to that level. A chart click names only the field the chart groups by, so the ancestor values SHALL be read from the clicked row when it carries them, and otherwise from one record of the clicked category in the chart's register and schema, in the record's field named like the ancestor's dimension; an ancestor that cannot be read is skipped with a console warning.
 
 #### Scenario: Drilling up clears descendant filters
 
@@ -92,6 +92,12 @@ When a click publishes a clause for a dimension that is part of a `hierarchy_des
 - **GIVEN** the same dashboard with no active filters
 - **WHEN** the user clicks a wijk on a wijk-level widget (publishing `wijkCode=WK0355001`)
 - **THEN** the bus SHALL contain `{wijkCode=WK0355001}` AND the hierarchy resolver SHALL infer and add ancestor clauses (`gemeenteCode=GM0355`, `provincieCode=PV09`) marked with `source=parentScope` so the breadcrumb shows the full path
+
+#### Scenario: Going back up the breadcrumb clears the levels below
+
+- **GIVEN** the breadcrumb shows "Provincie PV26 > Gemeente GM0355 > Wijk WK035501" after a wijk click
+- **WHEN** the user chooses the "Provincie PV26" step
+- **THEN** the gemeente and wijk clauses SHALL be cleared (pinned ones stay), the provincie clause SHALL stay as the user's own (`source=userExplicit`), the breadcrumb SHALL show "Provincie PV26", and a later click on a wijk in another gemeente SHALL replace the provincie and gemeente with that wijk's ancestors
 
 #### Scenario: Permission-denied on hierarchy level
 

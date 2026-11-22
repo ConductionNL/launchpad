@@ -1903,7 +1903,26 @@ OC.L10N.register(
     "Name the register and the schema" : "Name the register and the schema",
     "Show 1 to 20 cases" : "Show 1 to 20 cases",
     "My cases" : "My cases",
-    "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"]
+    "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"],
+    "Total" : "Total",
+    "Data source" : "Data source",
+    "A register query" : "A register query",
+    "Values you enter" : "Values you enter",
+    "Colour (optional)" : "Colour (optional)",
+    "Remove this value" : "Remove this value",
+    "Add a value" : "Add a value",
+    "Labels on the horizontal axis, separated by commas" : "Labels on the horizontal axis, separated by commas",
+    "Series name" : "Series name",
+    "Drawn as" : "Drawn as",
+    "Values, separated by commas" : "Values, separated by commas",
+    "Remove this series" : "Remove this series",
+    "Add a series" : "Add a series",
+    "Line" : "Line",
+    "Bars" : "Bars",
+    "Enter at least one value with a label" : "Enter at least one value with a label",
+    "Enter the axis labels and at least one named series with values" : "Enter the axis labels and at least one named series with values",
+    "Pie chart" : "Pie chart",
+    "Graph" : "Graph"
 },
 "nplurals=2; plural=(n != 1);"
 );

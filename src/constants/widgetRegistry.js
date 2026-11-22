@@ -79,6 +79,10 @@ import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCas
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+// `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
+// CnChartWidget) with a source form for a register query or entered values
+// (openspec/changes/chart-presets).
+import ChartSourceForm from '../components/Widgets/Renderers/ChartSourceForm.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
@@ -401,6 +405,46 @@ registerDashboardWidget('assigned-cases', {
 	displayName: 'My cases',
 	icon: 'BriefcaseOutline',
 	requiresApp: 'dossiq',
+})
+
+// chart-presets REQ-CHARTP-001..003: "Cirkeldiagram" and "Grafiek" of board
+// LpManagement as presets of the chart stack, not a second one.
+registerDashboardWidget('pie-chart', {
+	renderer: ChartHost,
+	form: ChartSourceForm,
+	defaultContent: {
+		chartKind: 'donut',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			groupBy: { field: '', metric: 'count', metricField: '', sort: 'desc', limit: 8 },
+		},
+		showTotal: true,
+		legendValues: true,
+		legendPosition: 'right',
+	},
+	displayName: 'Pie chart',
+	icon: 'ChartDonut',
+})
+
+registerDashboardWidget('graph', {
+	renderer: ChartHost,
+	form: ChartSourceForm,
+	defaultContent: {
+		chartKind: 'bar',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			bucket: { field: '', interval: 'month', metric: 'count', metricField: '' },
+		},
+		legendPosition: 'bottom',
+	},
+	displayName: 'Graph',
+	icon: 'ChartBar',
 })
 
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,

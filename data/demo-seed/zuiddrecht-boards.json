@@ -1783,64 +1783,27 @@
 					"content": {
 						"chartKind": "donut",
 						"source": "manual",
-						"props": {
-							"series": [
-								138,
-								74,
-								46,
-								54
-							],
-							"labels": [
-								"In behandeling",
-								"Wacht op aanvrager",
-								"Wacht op advies",
-								"Afgerond deze maand"
-							],
-							"legend": {
-								"position": "bottom"
-							},
-							"colors": [
-								"var(--sc-primary, #3669a5)",
-								"var(--sc-accent, #cc0000)",
-								"var(--sc-work-field, #828a95)",
-								"var(--sc-primary-deep, #234a78)"
-							]
-						}
-					},
-					"fallback": {
-						"widgetId": "chart",
-						"gridX": 0,
-						"gridY": 3,
-						"gridWidth": 4,
-						"gridHeight": 6,
-						"showTitle": 1,
-						"customTitle": "Zaken per status",
-						"content": {
-							"chartKind": "donut",
-							"props": {
-								"series": [
-									138,
-									74,
-									46,
-									54
-								],
-								"labels": [
-									"In behandeling",
-									"Wacht op aanvrager",
-									"Wacht op advies",
-									"Afgerond deze maand"
-								],
-								"legend": {
-									"position": "bottom"
-								},
-								"colors": [
-									"var(--sc-primary, #3669a5)",
-									"var(--sc-accent, #cc0000)",
-									"var(--sc-work-field, #828a95)",
-									"var(--sc-primary-deep, #234a78)"
-								]
-							}
-						}
+						"labels": [
+							"In behandeling",
+							"Wacht op aanvrager",
+							"Wacht op advies",
+							"Afgerond deze maand"
+						],
+						"series": [
+							138,
+							74,
+							46,
+							54
+						],
+						"showTotal": true,
+						"legendValues": true,
+						"legendPosition": "bottom",
+						"colors": [
+							"var(--sc-primary, #3669a5)",
+							"var(--sc-accent, #cc0000)",
+							"var(--sc-work-field, #828a95)",
+							"var(--sc-primary-deep, #234a78)"
+						]
 					}
 				},
 				{
@@ -1854,100 +1817,45 @@
 					"content": {
 						"chartKind": "bar",
 						"source": "manual",
-						"props": {
-							"series": [
-								{
-									"name": "Aanvragen",
-									"type": "column",
-									"data": [
-										112,
-										98,
-										130,
-										121,
-										142,
-										136
-									]
-								},
-								{
-									"name": "Besluiten",
-									"type": "line",
-									"data": [
-										95,
-										104,
-										118,
-										110,
-										125,
-										140
-									]
-								}
-							],
-							"categories": [
-								"apr",
-								"mei",
-								"jun",
-								"jul",
-								"aug",
-								"sep"
-							],
-							"options": {
-								"yaxis": {
-									"min": 0,
-									"max": 150
-								}
+						"categories": [
+							"apr",
+							"mei",
+							"jun",
+							"jul",
+							"aug",
+							"sep"
+						],
+						"series": [
+							{
+								"name": "Aanvragen",
+								"type": "column",
+								"data": [
+									112,
+									98,
+									130,
+									121,
+									142,
+									136
+								]
+							},
+							{
+								"name": "Besluiten",
+								"type": "line",
+								"data": [
+									95,
+									104,
+									118,
+									110,
+									125,
+									140
+								]
 							}
-						}
-					},
-					"fallback": {
-						"widgetId": "chart",
-						"gridX": 4,
-						"gridY": 3,
-						"gridWidth": 8,
-						"gridHeight": 6,
-						"showTitle": 1,
-						"customTitle": "Aanvragen en besluiten per maand",
-						"content": {
-							"chartKind": "bar",
-							"props": {
-								"series": [
-									{
-										"name": "Aanvragen",
-										"type": "column",
-										"data": [
-											112,
-											98,
-											130,
-											121,
-											142,
-											136
-										]
-									},
-									{
-										"name": "Besluiten",
-										"type": "line",
-										"data": [
-											95,
-											104,
-											118,
-											110,
-											125,
-											140
-										]
-									}
-								],
-								"categories": [
-									"apr",
-									"mei",
-									"jun",
-									"jul",
-									"aug",
-									"sep"
-								],
-								"options": {
-									"yaxis": {
-										"min": 0,
-										"max": 150
-									}
-								}
+						],
+						"legendPosition": "bottom",
+						"options": {
+							"yaxis": {
+								"min": 0,
+								"max": 150
 							}
 						}
 					}

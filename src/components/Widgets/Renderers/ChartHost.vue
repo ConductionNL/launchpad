@@ -42,7 +42,52 @@ const CHART_PROP_KEYS = [
 	'stacked',
 	'horizontal',
 	'colorScheme',
+	'legendValues',
+	'legendPosition',
+	'colorMap',
 ]
+
+/**
+ * Whether manual series mix bars and lines (board LpManagement "Grafiek":
+ * bars for applications, a line for decisions). ApexCharts draws a mixed
+ * chart as type `line` with a `type` per series.
+ *
+ * @param {object} content The placement content.
+ * @return {boolean}
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-graph-draws-bars-and-lines-req-chartp-002
+ */
+export function isMixedSeries(content) {
+	const series = content?.source === 'manual' && Array.isArray(content.series) ? content.series : []
+	const types = new Set(series.map((entry) => entry?.type).filter(Boolean))
+	return types.has('line') && types.has('column')
+}
+
+/**
+ * Chart options with the donut's total written in its centre.
+ *
+ * @param {object|undefined} options The placement's own options.
+ * @param {string} label The total's label.
+ * @return {object}
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-pie-chart-is-a-donut-with-its-total-in-the-centre-req-chartp-001
+ */
+export function withDonutTotal(options, label) {
+	const own = options && typeof options === 'object' ? options : {}
+	const pie = own.plotOptions?.pie || {}
+	const donut = pie.donut || {}
+	return {
+		...own,
+		plotOptions: {
+			...own.plotOptions,
+			pie: {
+				...pie,
+				donut: {
+					...donut,
+					labels: { show: true, ...donut.labels, total: { show: true, label, ...donut.labels?.total } },
+				},
+			},
+		},
+	}
+}
 
 /**
  * ChartHost — thin LaunchPad wrapper adapting the registry's `content` shape
@@ -88,8 +133,16 @@ export default {
 	emits: ['data'],
 
 	computed: {
-		/** apexcharts chart type, from `chartKind` (content or nested props). */
+		/**
+		 * apexcharts chart type, from `chartKind` (content or nested props);
+		 * `line` for entered bars and lines together.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-graph-draws-bars-and-lines-req-chartp-002
+		 */
 		chartType() {
+			if (isMixedSeries(this.content)) {
+				return 'line'
+			}
 			return this.content.chartKind || this.content.props?.chartKind || 'area'
 		},
 
@@ -99,6 +152,9 @@ export default {
 		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		dataSource() {
+			if (this.content.source === 'manual') {
+				return null
+			}
 			return withBusFilter(this.content.dataSource || this.content.props?.dataSource || null, this.busFilter)
 		},
 
@@ -182,7 +238,12 @@ export default {
 			return String(this.placement?.id ?? this.placement?.widgetId ?? 'chart')
 		},
 
-		/** Optional apexcharts overrides forwarded verbatim when present. */
+		/**
+		 * Optional apexcharts overrides forwarded verbatim when present, and
+		 * the donut's total in its centre when `showTotal` is set.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-pie-chart-is-a-donut-with-its-total-in-the-centre-req-chartp-001
+		 */
 		passthroughProps() {
 			const src = { ...(this.content.props || {}), ...this.content }
 			const out = {}
@@ -190,6 +251,9 @@ export default {
 				if (src[key] !== undefined) {
 					out[key] = src[key]
 				}
+			}
+			if (src.showTotal === true && this.chartType === 'donut') {
+				out.options = withDonutTotal(out.options, t('launchpad', 'Total'))
 			}
 			return out
 		},

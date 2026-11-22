@@ -2114,6 +2114,25 @@
         "_All %n open case_::_All %n open cases_": [
             "Alle %n open zaak",
             "Alle %n open zaken"
-        ]
+        ],
+        "Total": "Totaal",
+        "Data source": "Gegevensbron",
+        "A register query": "Een registerquery",
+        "Values you enter": "Waarden die u invult",
+        "Colour (optional)": "Kleur (optioneel)",
+        "Remove this value": "Deze waarde verwijderen",
+        "Add a value": "Waarde toevoegen",
+        "Labels on the horizontal axis, separated by commas": "Labels op de horizontale as, gescheiden door komma's",
+        "Series name": "Naam van de reeks",
+        "Drawn as": "Getekend als",
+        "Values, separated by commas": "Waarden, gescheiden door komma's",
+        "Remove this series": "Deze reeks verwijderen",
+        "Add a series": "Reeks toevoegen",
+        "Line": "Lijn",
+        "Bars": "Staven",
+        "Enter at least one value with a label": "Vul minstens een waarde met een label in",
+        "Enter the axis labels and at least one named series with values": "Vul de aslabels en minstens een benoemde reeks met waarden in",
+        "Pie chart": "Cirkeldiagram",
+        "Graph": "Grafiek"
     }
 }

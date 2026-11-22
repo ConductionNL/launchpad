@@ -41,7 +41,7 @@ describe('Views boot address', () => {
 
 		const openDeepLinkedDashboard = vi.fn(async () => {})
 		const openHashLinkedDashboard = vi.fn(async () => {})
-		const host = { grid: {}, canEdit: false, openDeepLinkedDashboard, openHashLinkedDashboard }
+		const host = { grid: {}, canEdit: false, openDeepLinkedDashboard, openHashLinkedDashboard, replaceUrlAfterBoot: vi.fn(async () => {}) }
 		await Views.created.call(host)
 
 		expect(openDeepLinkedDashboard).toHaveBeenCalledWith(

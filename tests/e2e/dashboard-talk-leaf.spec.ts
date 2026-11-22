@@ -301,13 +301,6 @@ test.describe('Task 14: a non-viewer is refused the dashboard and its discussion
 	})
 
 	test('the discussion\'s access path refuses the same way', async () => {
-		test.fail(
-			true,
-			'Known defect, measured 2026-11-22 on the live stack: the imported Dashboard schema has '
-				+ '`authorization: null` although register.d/dashboard-talk-leaf.json declares the audience read rule, '
-				+ 'so OpenRegister serves the dashboard object (200, with update and delete actions) to any signed-in user. '
-				+ 'This test flips to an unexpected pass, and must lose this mark, once the read rule is imported.',
-		)
 		const dashboard = await stranger.api.get(`${API}/dashboard/${own.id}`)
 		const object = await stranger.api.get(`${OR_OBJECTS}/${own.uuid}`)
 		const talk = await stranger.api.get(`${OR_OBJECTS}/${own.uuid}/integrations/talk`)

@@ -41,7 +41,8 @@
   - 2026-11-22: tests/e2e/dashboard-talk-leaf.spec.ts (Task 12), passed on the live stack (triage/lpf-6-bundle.log): owner and recipient both see the discussion, the talk integration read answers 200.
 - [x] Task 13: Playwright test — unshared personal dashboard: no discussion affordance in the DOM
   - 2026-11-22: tests/e2e/dashboard-talk-leaf.spec.ts (Task 13), passed on the live stack (triage/lpf-6-bundle.log): no discussion node and no talk integration request.
-- [ ] Task 14: Playwright test — non-viewer attempting the dashboard (and its discussion) is denied identically for both
+- [x] Task 14: Playwright test — non-viewer attempting the dashboard (and its discussion) is denied identically for both
+  - 2026-11-22: tests/e2e/dashboard-talk-leaf.spec.ts (Task 14), 2/2 on the live stack (:8076) once an administrator took launchpad's shipped Dashboard authorization (`occ openregister:descriptors:list --import=launchpad --app=launchpad`, which reported `dashboard: authorization` taken over a local change): the stranger gets 403/404 on the dashboard, its OpenRegister object and its talk integration alike.
 - [x] Task 15: Test with Talk disabled — dashboard renders fully, no error surfaced
   - `src/views/__tests__/ViewsTalkDisabled.spec.js` mounts the page on a group dashboard with the real `DashboardDiscussion`: without Talk (and, separately, without OpenRegister) the dashboard region and its widgets render, the discussion leaves no node in the DOM, no shares or Talk integration request is made, and neither `console.error` nor an error toast fires. The same mount with Talk installed shows the discussion, so the test tells the two apart.
 

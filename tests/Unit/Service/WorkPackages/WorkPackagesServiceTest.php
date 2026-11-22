@@ -23,11 +23,13 @@ use OCA\LaunchPad\Service\WorkPackages\WorkPackagesService;
 use OCA\OpenProject\Service\OpenProjectAPIService;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
+use OCP\ICacheFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 require_once __DIR__ . '/OpenProjectAPIServiceDouble.php';
+require_once __DIR__ . '/ArrayCacheDouble.php';
 
 /**
  * Unit tests for the work packages reader.
@@ -39,6 +41,13 @@ class WorkPackagesServiceTest extends TestCase {
 	 * @var OpenProjectAPIService
 	 */
 	private OpenProjectAPIService $api;
+
+	/**
+	 * The in-memory cache.
+	 *
+	 * @var ArrayCacheDouble|null
+	 */
+	private ?ArrayCacheDouble $cache = null;
 
 	/**
 	 * Build the service with the integration enabled or not.
@@ -54,7 +63,12 @@ class WorkPackagesServiceTest extends TestCase {
 		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('getValueString')->willReturn('https://op.zuiddrecht.example/');
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
-		$container->method('get')->willReturn($this->api);
+		$container->method('get')->willReturnMap(
+			[
+				[ICacheFactory::class, $this->cacheFactory()],
+				['OCA\\OpenProject\\Service\\OpenProjectAPIService', $this->api],
+			]
+		);
 
 		return new WorkPackagesService(
 			appManager: $apps,
@@ -63,6 +77,39 @@ class WorkPackagesServiceTest extends TestCase {
 			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);
 	}//end service()
+
+	/**
+	 * A cache factory whose cache keeps values in memory.
+	 *
+	 * @return ICacheFactory
+	 */
+	private function cacheFactory(): ICacheFactory {
+		$this->cache = $this->cache ?? new ArrayCacheDouble();
+		$factory = $this->createMock(originalClassName: ICacheFactory::class);
+		$factory->method('createDistributed')->willReturn($this->cache);
+		return $factory;
+	}//end cacheFactory()
+
+	/**
+	 * A second read within the cache time answers from the cache; a failure is not kept.
+	 *
+	 * @return void
+	 */
+	public function testAnOkAnswerIsKeptAndAFailureIsNot(): void {
+		$service = $this->service();
+		$this->api->response = ['_embedded' => ['elements' => [['id' => 1, 'subject' => 'A']]]];
+		$service->openWorkPackages(userId: 'pieter', scope: 'mine', project: '', limit: 4);
+		$this->api->lastRequest = [];
+		$again = $service->openWorkPackages(userId: 'pieter', scope: 'mine', project: '', limit: 4);
+		$this->assertSame(expected: 'A', actual: $again['workPackages'][0]['subject']);
+		$this->assertSame(expected: [], actual: $this->api->lastRequest);
+
+		$this->api->response = ['error' => 'down', 'statusCode' => 500];
+		$service->openWorkPackages(userId: 'sanne', scope: 'mine', project: '', limit: 4);
+		$this->api->lastRequest = [];
+		$service->openWorkPackages(userId: 'sanne', scope: 'mine', project: '', limit: 4);
+		$this->assertNotSame(expected: [], actual: $this->api->lastRequest);
+	}//end testAnOkAnswerIsKeptAndAFailureIsNot()
 
 	/**
 	 * The person's own open work packages, due date first, as the widget shows them.

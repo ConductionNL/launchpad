@@ -131,11 +131,52 @@ function numbersOf(text) {
 }
 
 /**
+ * Whether content is a pie chart or a graph, by its chart kind.
+ *
+ * @param {object} content The content.
+ * @return {string} `pie` or `graph`.
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+ */
+export function kindOf(content) {
+	return ['donut', 'pie'].includes(content?.chartKind) ? 'pie' : 'graph'
+}
+
+/**
+ * The entered slices of a pie chart's content, for the form.
+ *
+ * @param {object} content The content.
+ * @return {Array<{label: string, value: number, colour: string}>}
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+ */
+function slicesOf(content) {
+	const labels = Array.isArray(content.labels) ? content.labels : []
+	const values = Array.isArray(content.series) ? content.series : []
+	const colours = content.colorMap && typeof content.colorMap === 'object' ? content.colorMap : {}
+	return labels.map((label, index) => ({ label: String(label), value: Number(values[index]) || 0, colour: String(colours[label] || '') }))
+}
+
+/**
+ * The entered series of a graph's content, for the form.
+ *
+ * @param {object} content The content.
+ * @return {Array<{name: string, type: string, valuesText: string}>}
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+ */
+function linesOf(content) {
+	return (Array.isArray(content.series) ? content.series : []).map((line) => ({
+		name: String(line?.name || ''),
+		type: line?.type === 'line' ? 'line' : 'column',
+		valuesText: Array.isArray(line?.data) ? line.data.join(', ') : '',
+	}))
+}
+
+/**
  * ChartSourceForm: the data source of a pie chart or a graph (boards
  * LpManagement "Cirkeldiagram" and "Grafiek"). The source is a register
  * query, edited by the shared chart form, or values the author enters: label,
  * value and colour per slice for a pie chart; axis labels and named series,
- * each drawn as bars or a line, for a graph.
+ * each drawn as bars or a line, for a graph. Whether it edits a pie chart or a
+ * graph follows the content's chart kind, so both widget types use this form.
  *
  * Emits the whole content: the preset keys of the widget kept, `source`, and
  * either `chartKind` with `dataSource`, or the manual `labels`/`series`/
@@ -149,13 +190,6 @@ export default {
 	components: { CnChartWidgetForm, Delete, NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextField },
 
 	props: {
-		/** `pie` or `graph`. */
-		kind: {
-			type: String,
-			default: 'pie',
-			validator: (value) => ['pie', 'graph'].includes(value),
-		},
-
 		/**
 		 * The placement being edited, or `null` in create mode.
 		 *
@@ -175,27 +209,25 @@ export default {
 
 	data() {
 		const initial = this.editingWidget?.content || this.value || {}
-		const labels = Array.isArray(initial.labels) ? initial.labels : []
-		const values = Array.isArray(initial.series) && this.kind === 'pie' ? initial.series : []
-		const colours = initial.colorMap && typeof initial.colorMap === 'object' ? initial.colorMap : {}
-		const lines = Array.isArray(initial.series) && this.kind === 'graph' ? initial.series : []
+		const kind = kindOf(initial)
 		return {
 			domId: `chart-source-${++domIdCounter}`,
+			kind,
 			initial,
 			source: initial.source === 'manual' ? 'manual' : 'register',
 			registerContent: { chartKind: initial.chartKind, dataSource: initial.dataSource },
-			slices: labels.map((label, index) => ({ label: String(label), value: Number(values[index]) || 0, colour: String(colours[label] || '') })),
+			slices: kind === 'pie' ? slicesOf(initial) : [],
 			categoriesText: Array.isArray(initial.categories) ? initial.categories.join(', ') : '',
-			lines: lines.map((line) => ({
-				name: String(line?.name || ''),
-				type: line?.type === 'line' ? 'line' : 'column',
-				valuesText: Array.isArray(line?.data) ? line.data.join(', ') : '',
-			})),
+			lines: kind === 'graph' ? linesOf(initial) : [],
 		}
 	},
 
 	computed: {
-		/** @return {object} What the shared chart form starts from. */
+		/**
+		 * @return {object} What the shared chart form starts from.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		registerValue() {
 			return { chartKind: this.initial.chartKind, dataSource: this.initial.dataSource }
 		},
@@ -236,12 +268,17 @@ export default {
 		/**
 		 * @param {string} type `column` or `line`.
 		 * @return {string} How the series is drawn, in words.
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
 		 */
 		seriesTypeLabel(type) {
 			return type === 'line' ? t('launchpad', 'Line') : t('launchpad', 'Bars')
 		},
 
-		/** Tell the modal the whole content. */
+		/**
+		 * Tell the modal the whole content.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		emitContent() {
 			this.$emit('update:content', this.assembledContent)
 		},
@@ -263,13 +300,21 @@ export default {
 			this.emitContent()
 		},
 
-		/** @param {object} content What the shared chart form emits. */
+		/**
+		 * @param {object} content What the shared chart form emits.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		onRegisterContent(content) {
 			this.registerContent = { chartKind: content.chartKind, dataSource: content.dataSource }
 			this.emitContent()
 		},
 
-		/** Add an empty slice. */
+		/**
+		 * Add an empty slice.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		addSlice() {
 			this.slices.push({ label: '', value: 0, colour: '' })
 			this.emitContent()
@@ -278,25 +323,38 @@ export default {
 		/**
 		 * @param {number} index The slice.
 		 * @param {object} change The changed keys.
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
 		 */
 		setSlice(index, change) {
 			Object.assign(this.slices[index], change)
 			this.emitContent()
 		},
 
-		/** @param {number} index The slice. */
+		/**
+		 * @param {number} index The slice.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		removeSlice(index) {
 			this.slices.splice(index, 1)
 			this.emitContent()
 		},
 
-		/** @param {string} text The comma-separated axis labels. */
+		/**
+		 * @param {string} text The comma-separated axis labels.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		setCategories(text) {
 			this.categoriesText = text
 			this.emitContent()
 		},
 
-		/** Add an empty series, as bars. */
+		/**
+		 * Add an empty series, as bars.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		addLine() {
 			this.lines.push({ name: '', type: 'column', valuesText: '' })
 			this.emitContent()
@@ -305,13 +363,18 @@ export default {
 		/**
 		 * @param {number} index The series.
 		 * @param {object} change The changed keys.
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
 		 */
 		setLine(index, change) {
 			Object.assign(this.lines[index], change)
 			this.emitContent()
 		},
 
-		/** @param {number} index The series. */
+		/**
+		 * @param {number} index The series.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-chart-reads-a-register-query-or-entered-values-req-chartp-003
+		 */
 		removeLine(index) {
 			this.lines.splice(index, 1)
 			this.emitContent()

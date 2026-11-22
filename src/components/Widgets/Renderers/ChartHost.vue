@@ -130,7 +130,12 @@ export default {
 	emits: ['data'],
 
 	computed: {
-		/** apexcharts chart type, from `chartKind` (content or nested props). */
+		/**
+		 * apexcharts chart type, from `chartKind` (content or nested props);
+		 * `line` for entered bars and lines together.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-graph-draws-bars-and-lines-req-chartp-002
+		 */
 		chartType() {
 			if (isMixedSeries(this.content)) {
 				return 'line'
@@ -230,7 +235,12 @@ export default {
 			return String(this.placement?.id ?? this.placement?.widgetId ?? 'chart')
 		},
 
-		/** Optional apexcharts overrides forwarded verbatim when present. */
+		/**
+		 * Optional apexcharts overrides forwarded verbatim when present, and
+		 * the donut's total in its centre when `showTotal` is set.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-pie-chart-is-a-donut-with-its-total-in-the-centre-req-chartp-001
+		 */
 		passthroughProps() {
 			const src = { ...(this.content.props || {}), ...this.content }
 			const out = {}

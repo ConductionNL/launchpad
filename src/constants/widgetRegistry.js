@@ -132,8 +132,7 @@ import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCas
 // `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
 // CnChartWidget) with a source form for a register query or entered values
 // (openspec/changes/chart-presets).
-import GraphWidgetForm from '../components/Widgets/Renderers/GraphWidgetForm.vue'
-import PieChartWidgetForm from '../components/Widgets/Renderers/PieChartWidgetForm.vue'
+import ChartSourceForm from '../components/Widgets/Renderers/ChartSourceForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -412,7 +411,7 @@ registerDashboardWidget('assigned-cases', {
 // LpManagement as presets of the chart stack, not a second one.
 registerDashboardWidget('pie-chart', {
 	renderer: ChartHost,
-	form: PieChartWidgetForm,
+	form: ChartSourceForm,
 	defaultContent: {
 		chartKind: 'donut',
 		source: 'register',
@@ -432,7 +431,7 @@ registerDashboardWidget('pie-chart', {
 
 registerDashboardWidget('graph', {
 	renderer: ChartHost,
-	form: GraphWidgetForm,
+	form: ChartSourceForm,
 	defaultContent: {
 		chartKind: 'bar',
 		source: 'register',

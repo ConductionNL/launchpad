@@ -69,8 +69,14 @@ const CONFIRMATIONS = {
 let wrapper = null
 
 // jsdom has no layout: tabbable takes an element without client rects for hidden,
-// and the dialog's focus trap would find nothing to focus.
+// and the dialog's focus trap would find nothing to focus. An element under
+// `display: none` keeps no rects, as in a browser, because jsdom refuses to focus it.
 Element.prototype.getClientRects = function () {
+	for (let node = this; node instanceof Element; node = node.parentElement) {
+		if (getComputedStyle(node).display === 'none') {
+			return []
+		}
+	}
 	return [{ width: 10, height: 10, top: 0, left: 0, bottom: 10, right: 10 }]
 }
 

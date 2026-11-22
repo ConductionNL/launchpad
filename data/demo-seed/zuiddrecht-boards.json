@@ -973,9 +973,8 @@
 					"showTitle": 1,
 					"customTitle": "Mijn werkpakketten",
 					"content": {
+						"scope": "mine",
 						"project": "",
-						"assignee": "@me",
-						"sortBy": "dueDate",
 						"limit": 4
 					}
 				},
@@ -1699,9 +1698,8 @@
 					"showTitle": 1,
 					"customTitle": "Werkpakketten van het team",
 					"content": {
-						"project": "Havenpark",
-						"assignee": "",
-						"sortBy": "dueDate",
+						"scope": "project",
+						"project": "havenpark",
 						"limit": 4
 					}
 				},

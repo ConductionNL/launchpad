@@ -111,4 +111,21 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: self::placementsOf(type: 'wiki'));
 	}//end testWikiWidgetsReadASpace()
+
+	/**
+	 * The work package widgets name their scope; a project list names its project.
+	 *
+	 * @return void
+	 */
+	public function testWorkPackageWidgetsNameTheirScope(): void {
+		$widgets = self::placementsOf(type: 'work-packages');
+		$this->assertCount(expectedCount: 2, haystack: $widgets);
+		foreach ($widgets as $widget) {
+			$this->assertSame(expected: ['scope', 'project', 'limit'], actual: array_keys($widget['content']));
+			$this->assertContains(needle: $widget['content']['scope'], haystack: ['mine', 'project']);
+			if ($widget['content']['scope'] === 'project') {
+				$this->assertSame(expected: 'havenpark', actual: $widget['content']['project']);
+			}
+		}
+	}//end testWorkPackageWidgetsNameTheirScope()
 }//end class

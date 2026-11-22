@@ -6,10 +6,10 @@ declare(strict_types=1);
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The saved-view and filter-event schemas of drill-down-cross-widget-filter,
- * as the register import hands them to OpenRegister.
+ * The filter-event schema of drill-down-cross-widget-filter, as the register
+ * import hands it to OpenRegister.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
  */
 
 namespace Unit\Repair;
@@ -81,51 +81,30 @@ class CrossWidgetFilterSchemasTest extends TestCase {
 		return (new Validator())->validate(json_decode((string)json_encode($row)), $this->schema($slug))->isValid();
 	}
 
-	public function testBothSchemasJoinTheRegisterUnderANewVersion(): void {
+	/**
+	 * The register lists filter_event and no longer ships a saved_view schema.
+	 *
+	 * @return void
+	 */
+	public function testTheFilterEventSchemaJoinsTheRegisterAndNoSavedViewSchemaShips(): void {
 		[$data, $version] = $this->imported;
 
 		$this->assertSame(expected: '1.0.8', actual: $version, message: 'existing installs only take new schemas on a version change');
 		$this->assertSame(
-			['dashboard', 'scheduled_export', 'render_target', 'recipient', 'scheduled_export_run', 'status_report', 'saved_view', 'filter_event', 'embed_token', 'tenant_theme', 'embed_usage_event', 'signing_key'],
-			$data['components']['registers']['launchpad']['schemas']
-		);
-		foreach (['saved_view', 'filter_event'] as $slug) {
-			$this->assertSame($slug, $data['components']['schemas'][$slug]['slug']);
-			$this->assertSame('1.0.0', $data['components']['schemas'][$slug]['version']);
-			foreach ($data['components']['schemas'][$slug]['properties'] as $name => $property) {
-				$this->assertNotSame('', $property['title'] ?? '', $slug . '.' . $name . ' has a title');
-				$this->assertNotSame('', $property['description'] ?? '', $slug . '.' . $name . ' has a description');
-			}
-		}
-	}
-
-	public function testTheSpecsSavedViewsAreValidAndAViewNeedsItsDashboardNameAndFilters(): void {
-		$view = [
-			'dashboardId' => 'd1a2b3c4-5678-90ab-cdef-1234567890ab',
-			'name' => 'Open bezwaren Zeist > 6w',
-			'description' => 'All open complaints in Zeist older than 6 weeks',
-			'filters' => [
-				['dimension' => 'gemeenteCode', 'operator' => 'eq', 'value' => 'GM0355', 'source' => 'savedView'],
-				['dimension' => 'status', 'operator' => 'eq', 'value' => 'open', 'source' => 'savedView'],
-				['dimension' => 'ageInDays', 'operator' => 'gte', 'value' => 42, 'source' => 'savedView'],
-				['dimension' => 'period.quarter', 'operator' => 'between', 'value' => ['2026-Q1', '2026-Q2'], 'source' => 'savedView', 'pinned' => true],
+			expected: [
+				'dashboard', 'scheduled_export', 'render_target', 'recipient', 'scheduled_export_run', 'status_report',
+				'filter_event', 'embed_token', 'tenant_theme', 'embed_usage_event', 'signing_key',
 			],
-			'isShared' => true,
-			'sharedWith' => ['team-bezwaar'],
-			'createdBy' => 'u-analyst-01',
-			'createdAt' => '2026-05-15T10:00:00Z',
-		];
-		$this->assertTrue($this->valid($view, 'saved_view'));
-
-		foreach (['dashboardId', 'name', 'filters', 'createdBy'] as $field) {
-			$without = $view;
-			unset($without[$field]);
-			$this->assertFalse($this->valid($without, 'saved_view'), 'a view without ' . $field . ' is refused');
+			actual: $data['components']['registers']['launchpad']['schemas']
+		);
+		$this->assertArrayNotHasKey(key: 'saved_view', array: $data['components']['schemas']);
+		$schema = $data['components']['schemas']['filter_event'];
+		$this->assertSame(expected: 'filter_event', actual: $schema['slug']);
+		$this->assertSame(expected: '1.0.0', actual: $schema['version']);
+		foreach ($schema['properties'] as $name => $property) {
+			$this->assertNotSame(expected: '', actual: $property['title'] ?? '', message: 'filter_event.' . $name . ' has a title');
+			$this->assertNotSame(expected: '', actual: $property['description'] ?? '', message: 'filter_event.' . $name . ' has a description');
 		}
-
-		$this->assertFalse($this->valid(['name' => ''] + $view, 'saved_view'), 'an empty name is refused');
-		$this->assertFalse($this->valid(['filters' => [['dimension' => 'status', 'operator' => 'like', 'value' => 'o']]] + $view, 'saved_view'));
-		$this->assertFalse($this->valid(['filters' => [['dimension' => 'status', 'operator' => 'eq', 'source' => 'guess']]] + $view, 'saved_view'));
 	}
 
 	public function testAFilterEventHoldsDimensionsAndOperatorsButNeverAValue(): void {

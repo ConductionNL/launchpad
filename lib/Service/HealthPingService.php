@@ -18,13 +18,15 @@
  *    reading exists (REQ-HPING-002 "Allow-list enforced at ping time").
  *  - When the request IS attempted, a transport failure (timeout,
  *    connection refused) or a response whose status does not match
- *    `expectedStatus` is itself a DEFINITIVE, cacheable `offline` reading
- *    (REQ-HPING-002 "Offline on failure or unexpected status") — this is
- *    distinct from the allow-list-refusal case above, which never
- *    produces a reading at all.
- *  - Results are cached in `ICache`, keyed on placement id, with a TTL
- *    equal to the tile's configured interval (default 60s, clamped to a
- *    15s minimum).
+ *    `expectedStatus` is a FAILED ping. A failed ping serves the
+ *    last-known badge marked `stale`; only after
+ *    `healthping_offline_after_failures` consecutive failed pings (default
+ *    3) is the badge classified `offline` (REQ-HPING-002, REQ-HPING-003).
+ *    A successful ping resets the count.
+ *  - Results are cached in `ICache`, keyed on placement id. The tile's
+ *    interval (default 60s, clamped to a 15s minimum) decides when the
+ *    next ping is due; the entry itself is kept for a day so the
+ *    last-known badge and the failure count outlive the interval.
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -136,6 +138,30 @@ class HealthPingService {
 	public const DEFAULT_LATENCY_THRESHOLD_MS = 2000;
 
 	/**
+	 * IAppConfig key — the number of consecutive failed pings after which
+	 * a badge is classified `offline`; fewer failed pings serve the
+	 * last-known badge marked stale (REQ-HPING-002).
+	 *
+	 * @var string
+	 */
+	public const CONFIG_KEY_OFFLINE_AFTER_FAILURES = 'healthping_offline_after_failures';
+
+	/**
+	 * Default number of consecutive failed pings before `offline`.
+	 *
+	 * @var integer
+	 */
+	public const DEFAULT_OFFLINE_AFTER_FAILURES = 3;
+
+	/**
+	 * How long a cached badge is kept, in seconds, independent of the
+	 * ping interval.
+	 *
+	 * @var integer
+	 */
+	public const CACHE_TTL_SECONDS = 86400;
+
+	/**
 	 * Badge states, in priority order — the only three values REQ-HPING-002
 	 * and REQ-HPING-004 recognise.
 	 *
@@ -213,39 +239,88 @@ class HealthPingService {
 		$cache = $this->getCache();
 		$cached = $this->readCache(cache: $cache, cacheKey: $cacheKey);
 
-		if ($cached !== null) {
-			$age = (time() - (int)($cached['checkedAtTs'] ?? 0));
-			if ($age >= 0 && $age < $interval) {
-				return $this->publicShape(reading: $cached, stale: false);
-			}
+		if ($cached !== null && $this->isFresh(reading: $cached, interval: $interval) === true) {
+			return $this->publicShape(reading: $cached, stale: ($cached['stale'] ?? false) === true);
 		}
 
-		$fresh = $this->attemptPing(config: $config);
+		$attempt = $this->attemptPing(config: $config);
 
-		if ($fresh !== null) {
-			$fresh['checkedAtTs'] = time();
-			if ($cache !== null) {
-				$cache->set(key: $cacheKey, value: json_encode($fresh), ttl: $interval);
-			}
-
-			return $this->publicShape(reading: $fresh, stale: false);
-		}
-
-		if ($cached !== null) {
+		if ($attempt === null) {
 			// Allow-list refused the ping — REQ-HPING-002 "no ping was
-			// performed rather than a false 'up' state" / REQ-HPING-003
-			// "Stale fallback on refresh failure": degrade gracefully to
-			// the last-known reading rather than fabricate a new one.
-			return $this->publicShape(reading: $cached, stale: true);
+			// performed rather than a false 'up' state": degrade to the
+			// last-known reading rather than fabricate a new one.
+			return $this->publicShape(reading: $cached ?? [], stale: true);
+		}
+
+		$reading = $this->nextReading(previous: $cached, attempt: $attempt);
+		$cache?->set(key: $cacheKey, value: json_encode($reading), ttl: self::CACHE_TTL_SECONDS);
+
+		return $this->publicShape(reading: $reading, stale: $reading['stale']);
+	}//end resolveForConfig()
+
+	/**
+	 * The reading after a ping attempt. A successful ping is a fresh
+	 * reading and resets the failure count. A failed ping keeps the
+	 * last-known reading, marked stale, until the configured number of
+	 * consecutive failed pings is reached; then it is an `offline` reading
+	 * (REQ-HPING-002, REQ-HPING-003 "Stale fallback on refresh failure").
+	 *
+	 * @param array<string,mixed>|null $previous The cached reading, or null.
+	 * @param array<string,mixed>      $attempt  `{state, latencyMs, failed}` from {@see self::attemptPing()}.
+	 *
+	 * @return array{state: string|null, latencyMs: int|null, checkedAtTs: int|null,
+	 *               attemptedAtTs: int, failures: int, stale: bool}
+	 */
+	private function nextReading(?array $previous, array $attempt): array {
+		$now = time();
+		$failures = 0;
+		if ($attempt['failed'] === true) {
+			$failures = ((int)($previous['failures'] ?? 0) + 1);
+		}
+
+		if ($attempt['failed'] === false || $failures >= $this->offlineAfterFailures()) {
+			return [
+				'state' => $attempt['state'],
+				'latencyMs' => $attempt['latencyMs'],
+				'checkedAtTs' => $now,
+				'attemptedAtTs' => $now,
+				'failures' => $failures,
+				'stale' => false,
+			];
+		}
+
+		$checkedAtTs = null;
+		if (isset($previous['checkedAtTs']) === true) {
+			$checkedAtTs = (int)$previous['checkedAtTs'];
+		}
+
+		$latencyMs = null;
+		if (isset($previous['latencyMs']) === true) {
+			$latencyMs = (int)$previous['latencyMs'];
 		}
 
 		return [
-			'state' => null,
-			'checkedAt' => null,
-			'latencyMs' => null,
+			'state' => $previous['state'] ?? null,
+			'latencyMs' => $latencyMs,
+			'checkedAtTs' => $checkedAtTs,
+			'attemptedAtTs' => $now,
+			'failures' => $failures,
 			'stale' => true,
 		];
-	}//end resolveForConfig()
+	}//end nextReading()
+
+	/**
+	 * Whether a cached reading was attempted less than one interval ago.
+	 *
+	 * @param array<string,mixed> $reading  The cached reading.
+	 * @param integer             $interval The clamped ping interval in seconds.
+	 *
+	 * @return boolean
+	 */
+	private function isFresh(array $reading, int $interval): bool {
+		$age = (time() - (int)($reading['attemptedAtTs'] ?? $reading['checkedAtTs'] ?? 0));
+		return ($age >= 0 && $age < $interval);
+	}//end isFresh()
 
 	/**
 	 * Refresh every due, ping-enabled placement in the instance
@@ -383,20 +458,20 @@ class HealthPingService {
 			return true;
 		}
 
-		$age = (time() - (int)($cached['checkedAtTs'] ?? 0));
-		return ($age < 0 || $age >= $interval);
+		return $this->isFresh(reading: $cached, interval: $interval) === false;
 	}//end isDue()
 
 	/**
 	 * Attempt the allow-listed, server-side health request and classify
 	 * the outcome (REQ-HPING-002). Returns `null` — WITHOUT ever opening a
-	 * connection — when the host is not on the allow-list (fail-closed);
-	 * every other outcome (success, wrong status, transport failure) is a
-	 * definitive, cacheable classification.
+	 * connection — when the host is not on the allow-list (fail-closed).
+	 * A wrong status or a transport failure is a failed ping (`failed:
+	 * true`, state `offline`); {@see self::nextReading()} decides whether
+	 * the badge shows it yet.
 	 *
 	 * @param array<string,mixed> $config The placement's health-ping config.
 	 *
-	 * @return array<string,mixed>|null `{state, latencyMs}` or `null` when refused.
+	 * @return array{state: string, latencyMs: int, failed: bool}|null The attempt, or `null` when refused.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
@@ -424,15 +499,13 @@ class HealthPingService {
 			$response = (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
 				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
-			// REQ-HPING-002 "Offline on failure" — a connection failure or
-			// timeout IS a definitive reading, not a missed attempt.
 			$latencyMs = (int)round((microtime(as_float: true) - $startedAt) * 1000);
 			$this->settings->logger->info(
-				message: 'HealthPingService: ping transport failure, classifying offline',
+				message: 'HealthPingService: ping transport failure, counting a failed ping',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
 			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_HEALTH_PING, url: $url, httpStatus: null);
-			return ['state' => 'offline', 'latencyMs' => $latencyMs];
+			return ['state' => 'offline', 'latencyMs' => $latencyMs, 'failed' => true];
 		}//end try
 
 		$latencyMs = (int)round((microtime(as_float: true) - $startedAt) * 1000);
@@ -440,14 +513,14 @@ class HealthPingService {
 		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_HEALTH_PING, url: $url, httpStatus: $status);
 
 		if ($this->matchesExpectedStatus(status: $status, expectedStatus: $expectedStatus) === false) {
-			return ['state' => 'offline', 'latencyMs' => $latencyMs];
+			return ['state' => 'offline', 'latencyMs' => $latencyMs, 'failed' => true];
 		}
 
 		if ($latencyMs > $threshold) {
-			return ['state' => 'degraded', 'latencyMs' => $latencyMs];
+			return ['state' => 'degraded', 'latencyMs' => $latencyMs, 'failed' => false];
 		}
 
-		return ['state' => 'online', 'latencyMs' => $latencyMs];
+		return ['state' => 'online', 'latencyMs' => $latencyMs, 'failed' => false];
 	}//end attemptPing()
 
 	/**
@@ -488,6 +561,26 @@ class HealthPingService {
 
 		return self::DEFAULT_LATENCY_THRESHOLD_MS;
 	}//end latencyThreshold()
+
+	/**
+	 * Resolve the configured number of consecutive failed pings after
+	 * which a badge reads `offline`, at least 1.
+	 *
+	 * @return integer
+	 */
+	private function offlineAfterFailures(): int {
+		$failures = $this->settings->appConfig->getValueInt(
+			app: Application::APP_ID,
+			key: self::CONFIG_KEY_OFFLINE_AFTER_FAILURES,
+			default: self::DEFAULT_OFFLINE_AFTER_FAILURES
+		);
+
+		if ($failures > 0) {
+			return $failures;
+		}
+
+		return self::DEFAULT_OFFLINE_AFTER_FAILURES;
+	}//end offlineAfterFailures()
 
 	/**
 	 * Check a URL's host against `healthping_allowed_hosts`. FAIL-CLOSED:
@@ -532,7 +625,10 @@ class HealthPingService {
 	 * @return array<string,mixed>
 	 */
 	private function publicShape(array $reading, bool $stale): array {
-		$checkedAtTs = (int)($reading['checkedAtTs'] ?? time());
+		$checkedAt = null;
+		if (isset($reading['checkedAtTs']) === true) {
+			$checkedAt = (new DateTime('@' . (int)$reading['checkedAtTs']))->format(format: DATE_ATOM);
+		}
 
 		$latencyMs = null;
 		if (isset($reading['latencyMs']) === true) {
@@ -541,7 +637,7 @@ class HealthPingService {
 
 		return [
 			'state' => $reading['state'] ?? null,
-			'checkedAt' => (new DateTime('@' . $checkedAtTs))->format(format: DATE_ATOM),
+			'checkedAt' => $checkedAt,
 			'latencyMs' => $latencyMs,
 			'stale' => $stale,
 		];

@@ -13,10 +13,12 @@
  * colleagues; alice, bob, carol and dave fork it, which copies the widget with
  * its `announcementKey` (WidgetPlacementMapper::cloneToDashboard). Without a
  * template the audience is the owners of the dashboards holding a copy
- * (tom, alice, bob, carol, dave), and the author is tom, the owner of the
- * first placement that carried the key. Erin forks only after tom bumps the
- * content version; pieter can see tom's dashboard but holds no copy, so he
- * is outside the audience.
+ * (tom, alice, bob, carol, dave) plus everyone tom's dashboard is shared
+ * with (erin and pieter too), and the author is tom, the owner of the first
+ * placement that carried the key. Erin forks only after tom bumps the
+ * content version; pieter can see tom's dashboard but holds no copy, and
+ * must confirm all the same (REQ-ACK-003). Olaf has no share and no copy, so
+ * he is outside the audience.
  *
  * Everything is seeded over the API as the person it belongs to; what a
  * person does on screen (reading the prompt, signing off, opening the
@@ -35,6 +37,7 @@
  *   @e2e dashboard-acknowledgements::repeated-acknowledgement-is-idempotent
  *   @e2e dashboard-acknowledgements::a-user-cannot-acknowledge-on-behalf-of-another-user
  *   @e2e dashboard-acknowledgements::only-the-announcements-audience-can-acknowledge-it
+ *   @e2e dashboard-acknowledgements::a-share-recipient-of-a-personal-dashboard-must-confirm
  *   @e2e dashboard-acknowledgements::non-author-cannot-read-the-report
  *   @e2e dashboard-acknowledgements::a-version-that-is-not-published-yet-cannot-be-acknowledged
  *   @e2e dashboard-acknowledgements::without-a-template-the-users-own-copy-sets-the-current-version
@@ -93,6 +96,7 @@ let carol: Principal | null = null
 let dave: Principal | null = null
 let erin: Principal | null = null
 let pieter: Principal | null = null
+let olaf: Principal | null = null
 
 let source: DashboardRef | null = null
 let original: AckPlacement
@@ -131,6 +135,7 @@ test.beforeAll(async () => {
 	dave = await createPrincipal(admin, 'e2e-ack-dave')
 	erin = await createPrincipal(admin, 'e2e-ack-erin')
 	pieter = await createPrincipal(admin, 'e2e-ack-pieter')
+	olaf = await createPrincipal(admin, 'e2e-ack-olaf')
 
 	source = await createPersonalDashboard(tom, `Intranet ${RUN}`)
 	await activate(tom.api, source.uuid)
@@ -171,7 +176,7 @@ test.afterAll(async () => {
 	if (tom !== null && source !== null) {
 		await tom.api.delete(`/index.php/apps/launchpad/api/dashboard/${source.id}`)
 	}
-	for (const who of [tom, alice, bob, carol, dave, erin, pieter]) {
+	for (const who of [tom, alice, bob, carol, dave, erin, pieter, olaf]) {
 		await removePrincipal(admin, who)
 	}
 	if (userDashboardsBefore !== null) {
@@ -395,11 +400,24 @@ test('alice cannot sign off for bob', async () => {
 	expect((await own.json()).userId).toBe(alice!.username)
 })
 
+// @e2e dashboard-acknowledgements::a-share-recipient-of-a-personal-dashboard-must-confirm
+test('pieter, who sees tom\'s dashboard through a share but holds no copy, must confirm', async () => {
+	// THEN: the notice is pending for pieter …
+	const pending = await pendingFor(pieter!.api)
+	expect(pending.items.map((i) => i.announcementKey)).toContain(KEY)
+	expect(pending.items.filter((i) => i.announcementKey === KEY)).toHaveLength(1)
+
+	// AND: … and he is pending in tom's read-receipt report.
+	const report = await reportOf(tom!.api, KEY)
+	expect(report.pending).toContain(pieter!.username)
+	expect(report.rows.map((r) => r.userId)).not.toContain(olaf!.username)
+})
+
 // @e2e dashboard-acknowledgements::only-the-announcements-audience-can-acknowledge-it
 test('someone outside the audience cannot acknowledge, not even by naming a member', async () => {
-	// Pieter can SEE tom's dashboard (view-only share) but holds no copy of the
-	// notice, so he is not in its audience.
-	const outsider = await postAcknowledgement(pieter!.api, {
+	// Olaf has no share of tom's dashboard and holds no copy of the notice, so
+	// he is not in its audience.
+	const outsider = await postAcknowledgement(olaf!.api, {
 		announcementKey: KEY,
 		contentVersion: 1,
 	})
@@ -409,7 +427,7 @@ test('someone outside the audience cannot acknowledge, not even by naming a memb
 	)
 
 	// … nor for a key no placement carries …
-	const unknown = await postAcknowledgement(pieter!.api, {
+	const unknown = await postAcknowledgement(olaf!.api, {
 		announcementKey: randomUUID(),
 		contentVersion: 1,
 	})
@@ -417,16 +435,16 @@ test('someone outside the audience cannot acknowledge, not even by naming a memb
 
 	// … and naming a member of the audience does not borrow her membership:
 	// the audience is resolved for the session user.
-	const borrowed = await postAcknowledgement(pieter!.api, {
+	const borrowed = await postAcknowledgement(olaf!.api, {
 		announcementKey: KEY,
 		contentVersion: 1,
 		userId: alice!.username,
 	})
 	expect(borrowed.status(), await borrowed.text()).toBe(403)
 
-	// AND: no receipt was written — none for pieter, alice's unchanged.
+	// AND: no receipt was written — none for olaf, alice's unchanged.
 	const report = await reportOf(tom!.api, KEY)
-	expect(report.rows.map((r) => r.userId)).not.toContain(pieter!.username)
+	expect(report.rows.map((r) => r.userId)).not.toContain(olaf!.username)
 	expect(
 		report.acknowledged.find((a) => a.userId === alice!.username)
 			?.acknowledgedAt,
@@ -503,7 +521,9 @@ test('the report exports as CSV with one row per audience member', async () => {
 
 	// THEN: one row per audience member.
 	const rows = lines.slice(1)
-	const audience = [tom, alice, bob, carol, dave].map((p) => p!.username).sort()
+	const audience = [tom, alice, bob, carol, dave, erin, pieter]
+		.map((p) => p!.username)
+		.sort()
 	expect(rows.map((l) => JSON.parse(`[${l}]`)[0]).sort()).toEqual(audience)
 
 	const row = (user: string) => rows.find((l) => l.startsWith(`"${user}",`))
@@ -521,7 +541,7 @@ test('the report exports as CSV with one row per audience member', async () => {
 })
 
 // @e2e dashboard-acknowledgements::read-the-report
-test('the author opens Read receipts on the dashboard: 3 confirmed, the 2 pending names, a CSV', async ({
+test('the author opens Read receipts on the dashboard: 3 confirmed, the 4 pending names, a CSV', async ({
 	browser,
 }) => {
 	const { context, page } = await loginAs(browser, tom!.username, tom!.password)
@@ -540,11 +560,12 @@ test('the author opens Read receipts on the dashboard: 3 confirmed, the 2 pendin
 		await expect(report.locator('[data-testid="ack-count"]')).toHaveText(
 			/Acknowledged:\s*3\b/,
 		)
-		// … and the 2 pending names (bob, tom).
+		// … and the 4 pending names (bob, tom, and the share recipients erin
+		// and pieter).
 		await expect(report.locator('[data-testid="pending-count"]')).toHaveText(
-			/Pending:\s*2\b/,
+			/Pending:\s*4\b/,
 		)
-		for (const who of [bob, tom]) {
+		for (const who of [bob, tom, erin, pieter]) {
 			const row = report.locator(`[data-testid="ack-row-${who!.username}"]`)
 			await expect(row).toContainText(who!.username)
 			await expect(row).toContainText('Pending')
@@ -561,7 +582,7 @@ test('the author opens Read receipts on the dashboard: 3 confirmed, the 2 pendin
 		const download = await downloading
 		const csv = fs.readFileSync((await download.path())!, 'utf-8')
 		const lines = csv.split('\r\n').filter((l) => l !== '')
-		expect(lines).toHaveLength(6)
+		expect(lines).toHaveLength(8)
 		expect(lines).toContain(`"${bob!.username}","pending",""`)
 	} finally {
 		await context.close()

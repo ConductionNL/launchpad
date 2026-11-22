@@ -1,7 +1,7 @@
 # dashboard-acknowledgements Specification
 
 ## Purpose
-TBD - created by archiving change dashboard-acknowledgements. Update Purpose after archive.
+Mandatory-read announcements: an author asks the readers of a widget to confirm they have read it, every reader in the announcement's audience is blocked by a sign-off prompt until they do, and the author gets a read-receipt report (with CSV export) of who confirmed which version.
 ## Requirements
 ### Requirement: REQ-ACK-001 Declare an acknowledgement requirement on a placement
 
@@ -97,6 +97,16 @@ create a second row and MUST return success. A recipient MUST be able to write a
 receipt **only for their own** `userId`; any attempt to write a receipt on
 behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
+Only the announcement's audience MAY acknowledge it. The audience is the live
+members of the groups its template routes to or, without group routing, the
+owners of the dashboards holding a copy. In both cases the recipients of a
+share of a personal dashboard holding the announcement (every user it is
+shared with and every live member of a group it is shared with) MUST be in the
+audience: they see the widget, so they MUST confirm it like the owner, the
+announcement MUST be pending for them (REQ-ACK-002), and they MUST appear in
+the read-receipt report (REQ-ACK-004). A user reached through several
+dashboards MUST be asked once per announcement.
+
 #### Scenario: First acknowledgement writes exactly one receipt
 
 - **GIVEN** user "alice" with no receipt for `announcementKey` `ak-1` at version `1`
@@ -125,6 +135,14 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 - **THEN** the system MUST return `403`
 - **AND** MUST NOT write any receipt
 - **AND** the audience MUST be resolved for the session user, never for a user named in the request
+
+#### Scenario: A share recipient of a personal dashboard must confirm
+
+- **GIVEN** user "tom" asks for a read confirmation on a widget of his personal dashboard and shares the dashboard view-only with "pieter", who holds no copy
+- **WHEN** pieter's outstanding items are listed
+- **THEN** the announcement MUST be pending for pieter and his view of tom's dashboard MUST show the blocking prompt
+- **AND** pieter MUST appear as pending in tom's read-receipt report
+- **AND** a user the dashboard is not shared with, and who holds no copy, MUST still be rejected with `403`
 
 ### Requirement: REQ-ACK-004 Admin read-receipt report scoped to the audience
 

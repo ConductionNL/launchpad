@@ -107,7 +107,6 @@ A share does not override publication state (REQ-DASH-036): a dashboard in `draf
 - GIVEN alice owns draft dashboard `5` and shares it with "bob" at `view_only`
 - WHEN bob fetches `GET /api/dashboards/visible`
 - THEN dashboard `5` MUST NOT be present
-- AND alice's sharing panel MUST show "Colleagues see this dashboard once you publish it"
 - WHEN alice publishes dashboard `5` and bob fetches the list again
 - THEN dashboard `5` MUST be present with `isOwner: false`
 

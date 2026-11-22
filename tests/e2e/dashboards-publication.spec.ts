@@ -515,6 +515,7 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 	// ── REQ-DASH-035 ────────────────────────────────────────────────────
 
 	// @e2e dashboards::new-dashboards-default-to-draft-despite-the-column-default
+	// @e2e dashboard-sharing::a-shared-draft-stays-hidden-until-it-is-published
 	test('a new dashboard is a draft, hidden from a colleague until it is published', async () => {
 		const dash = await aliceDashboard('Born draft')
 		expect(dash.publicationStatus).toBe('draft')

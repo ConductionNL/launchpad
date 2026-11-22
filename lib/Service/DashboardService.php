@@ -1275,7 +1275,7 @@ class DashboardService {
 	 * @return Dashboard The activated dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/specs/dashboard-sharing/spec.md#requirement-req-share-005
+	 * @spec openspec/specs/dashboard-sharing/spec.md#requirement-owner-only-metadata-and-lifecycle-operations-req-share-005
 	 */
 	public function activateDashboard(
 		int $dashboardId,

@@ -13,14 +13,15 @@ Every app the person can open is its own square, coloured tile on the dashboard.
 
 ### Requirement: The add flow offers every app as its own tile (REQ-APPTILE-001)
 
-The add flow's "Discovered on this server" section SHALL list one entry per app in the user's app menu. Picking an
-entry SHALL place an `app-tile` widget with `content: { appId, colour: '', showCount: true }`. An app that has an
+The add flow's "App tiles" section (board LpWidgetKiezen, "App-tegels") SHALL list one entry per app in the user's
+app menu, each drawn in the colour its tile gets, followed by "Custom tile", which opens the tile form. Picking an
+app SHALL place an `app-tile` widget with `content: { appId, colour: '', showCount: true }`. An app that has an
 `app-tile` on the dashboard SHALL be marked "On this dashboard".
 
 #### Scenario: Files in the picker
 
 - **GIVEN** a user whose app menu holds Files
-- **WHEN** they open the add flow and pick Files under "Discovered on this server"
+- **WHEN** they open the add flow and pick Files under "App tiles"
 - **THEN** an `app-tile` widget for `files` is stored
 - **AND** the dashboard shows a square link named "Files" to `/apps/files/` with no visible text
 - **AND** the next time the add flow opens, Files is marked "On this dashboard"

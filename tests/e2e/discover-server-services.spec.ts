@@ -4,7 +4,7 @@
  *
  * Playwright end-to-end test for discovering the server's apps
  * (launcher-discover-server-services, task 5): Deck is listed under
- * "Discovered on this server", one click places it as its own app tile
+ * "App tiles", one click places it as its own app tile
  * (a square, coloured link named "Deck" with no visible text) that opens
  * /apps/deck/, and the next time the add flow opens it is marked
  * "On this dashboard". LaunchPad itself is never listed.
@@ -131,10 +131,10 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 	try {
 		const picker = await openAddFlow(page)
 		const section = picker.locator('[data-testid="widget-picker-discovered"]')
-		await expect(section).toContainText('Discovered on this server')
+		await expect(section).toContainText('App tiles')
 		const entry = section.getByRole('button', { name: new RegExp(`^\\s*${deck!.name}`) })
 		await expect(entry).toBeVisible()
-		await expect(entry.locator('img')).toHaveAttribute('src', /.+/)
+		await expect(entry.locator('.widget-picker__tile-glyph')).toHaveAttribute('style', /url\(/)
 		await expect(entry).not.toContainText('On this dashboard')
 
 		const placed = page.waitForResponse((res) =>

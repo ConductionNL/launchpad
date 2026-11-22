@@ -279,6 +279,7 @@ export const CnAppTile = stub('CnAppTile')
 export const CnAppTileWidget = stub('CnAppTileWidget')
 export const CnAppTileWidgetForm = stub('CnAppTileWidgetForm')
 export const CnStatusList = stub('CnStatusList')
+export const appTileColourValue = (key, appId = '') => `var(--cn-app-tile-${key || appId})`
 export const CnGroupedMenu = stub('CnGroupedMenu')
 export const CnStatWidgetForm = stub('CnStatWidgetForm')
 export const CnDeltaWidget = stub('CnDeltaWidget')
@@ -524,6 +525,7 @@ export default {
 	CnAppTileWidget,
 	CnAppTileWidgetForm,
 	CnStatusList,
+	appTileColourValue,
 	CnGroupedMenu,
 	CnDeltaWidget,
 	CnDeltaWidgetForm,

@@ -12,7 +12,8 @@ holds all apps in one card.
 - The `app-tile` widget type from nextcloud-vue (`CnAppTileWidget`) is offered and rendered. It is configured with one
   app id and reads the app's name, icon and address from the viewer's own app menu, so an app the viewer may not open
   never shows as a link.
-- "Discovered on this server" in the add flow places a picked app as an `app-tile`, one entry per app.
+- The add flow's "Discovered on this server" section becomes "App tiles" (board LpWidgetKiezen): one entry per app,
+  drawn in its tile colour, placing an `app-tile`, plus "Custom tile" for a tile of one's own.
 - An app tile renders without the card frame or header and starts at two columns by four rows.
 - The first-run starter set places an app tile for each of up to four most-used apps in the person's app menu,
   instead of the one Apps widget. Without a known app menu it keeps the Apps widget.

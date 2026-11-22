@@ -10,7 +10,7 @@
  * many bookmarks is refused in the browser before anything is sent. The quota
  * is an admin setting, read first and put back.
  *
- * Discovery: the "Discovered on this server" section is compared with the
+ * Discovery: the "App tiles" section is compared with the
  * account's own Nextcloud app menu (`/ocs/v2.php/core/navigation/apps`), one
  * app is placed in one click, and an app restricted to a group the account is
  * not in stays out while a member of that group sees it. Deck is used when the
@@ -405,7 +405,7 @@ test.describe('discovery', () => {
 	})
 
 	// @e2e tiles::deck-is-discovered
-	test('every app in the account\'s app menu but LaunchPad is under "Discovered on this server" with its icon', async ({
+	test('every app in the account\'s app menu but LaunchPad is under "App tiles" with its icon', async ({
 		browser,
 	}) => {
 		const menu = (await appMenu(own.owner.api)).filter(
@@ -430,7 +430,7 @@ test.describe('discovery', () => {
 			const section = picker.locator(
 				'[data-testid="widget-picker-discovered"]',
 			)
-			await expect(section).toContainText('Discovered on this server')
+			await expect(section).toContainText('App tiles')
 			for (const entry of menu) {
 				await expect(discovered(picker, entry.name)).toBeVisible()
 			}
@@ -438,7 +438,7 @@ test.describe('discovery', () => {
 			const chosen = discovered(picker, app.name)
 			const icon = apps.find((a) => a.appId === app.id)?.icon ?? ''
 			expect(icon).not.toBe('')
-			await expect(chosen.locator('img')).toHaveAttribute('src', icon)
+			await expect(chosen.locator('.widget-picker__tile-glyph')).toHaveAttribute('style', new RegExp(icon.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
 		} finally {
 			await context.close()
 		}
@@ -461,19 +461,19 @@ test.describe('discovery', () => {
 			const placed = page.waitForResponse(
 				(res) =>
 					res.request().method() === 'POST'
-					&& /\/api\/dashboard\/\d+\/tile$/.test(res.url()),
+					&& /\/api\/dashboard\/\d+\/widgets$/.test(res.url()),
 			)
 			await entry.click()
 			const response = await placed
-			expect(response.status(), await response.text()).toBe(201)
+			expect(response.status(), await response.text()).toBeLessThan(300)
 			const id = Number((await response.json()).id)
 			await page.keyboard.press('Escape')
 
 			const tileLink = page.locator(
-				`.grid-stack-item[gs-id="${id}"] a.tile-widget__link`,
+				`.grid-stack-item[gs-id="${id}"] a[data-testid="cn-app-tile"]`,
 			)
 			await expect(tileLink).toBeVisible({ timeout: 10_000 })
-			await expect(tileLink).toContainText(app.name)
+			await expect(tileLink).toHaveAttribute('title', app.name)
 			await expect(tileLink).toHaveAttribute(
 				'href',
 				new RegExp(`/apps/${app.id}/?$`),
@@ -481,7 +481,7 @@ test.describe('discovery', () => {
 
 			const stored = await readPlacements(own.owner.api, own.id)
 			const tile = stored.find((p) => Number(p.id) === id)!
-			expect(tile).toMatchObject({ tileType: 'custom', tileTitle: app.name })
+			expect(tile).toMatchObject({ widgetId: 'app-tile', content: { appId: app.id } })
 			const bottom = Math.max(
 				0,
 				...stored
@@ -543,7 +543,7 @@ test.describe('discovery', () => {
 				const picker = await openAddFlow(page)
 				await expect(
 					picker.locator('[data-testid="widget-picker-discovered"]'),
-				).toContainText('Discovered on this server')
+				).toContainText('App tiles')
 				await expect(discovered(picker, target!.name)).toHaveCount(0)
 			} finally {
 				await context.close()

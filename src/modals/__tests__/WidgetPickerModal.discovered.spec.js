@@ -34,16 +34,17 @@ function mountPicker(props = {}) {
 	})
 }
 
-describe('Discovered on this server', () => {
+describe('App tiles', () => {
 	it('lists the discovered apps with their names', () => {
 		const wrapper = mountPicker()
 		const section = wrapper.find('[data-testid="widget-picker-discovered"]')
 		expect(section.exists()).toBe(true)
-		expect(section.text()).toContain('Discovered on this server')
-		expect(section.findAll('.widget-picker__widget').map((row) => row.text())).toEqual([
+		expect(section.text()).toContain('App tiles')
+		expect(section.findAll('[data-testid^="widget-picker-app-tile-"]').map((row) => row.text())).toEqual([
 			expect.stringContaining('Deck'),
 			expect.stringContaining('Context Chat'),
 		])
+		expect(section.find('[data-testid="widget-picker-custom-tile"]').text()).toContain('Custom tile')
 	})
 
 	it('marks an app already on the dashboard', () => {
@@ -66,8 +67,21 @@ describe('Discovered on this server', () => {
 		expect(wrapper.emitted('addApp')[0]).toEqual([DECK])
 	})
 
-	it('draws no section when nothing was discovered', () => {
-		expect(mountPicker({ discoveredApps: [] }).find('[data-testid="widget-picker-discovered"]').exists()).toBe(false)
+	it('draws each app entry in the colour its tile gets', () => {
+		const swatch = mountPicker().get('[data-testid="widget-picker-app-tile-deck"] .widget-picker__tile-swatch')
+		expect(swatch.attributes('style')).toContain('--cn-app-tile-deck')
+	})
+
+	it('offers a custom tile that opens the tile form', async () => {
+		const wrapper = mountPicker({ discoveredApps: [] })
+		await wrapper.get('[data-testid="widget-picker-custom-tile"]').trigger('click')
+		expect(wrapper.emitted('addCustom')[0]).toEqual(['tile'])
+	})
+
+	it('leaves the custom tile out when the search does not match it', async () => {
+		const wrapper = mountPicker({ discoveredApps: [] })
+		await wrapper.find('.nc-text').setValue('weather')
+		expect(wrapper.find('[data-testid="widget-picker-discovered"]').exists()).toBe(false)
 	})
 })
 

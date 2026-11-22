@@ -9,8 +9,8 @@
  *  - the `initialTab` prop lands the modal on the requested tab
  */
 
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
 import DashboardConfigModal from '../DashboardConfigModal.vue'
 
@@ -70,8 +70,11 @@ const ownedDashboard = {
 	permissionLevel: 'full',
 }
 
+// Attached, because jsdom computes no style for a detached element and
+// `isVisible()` would then miss the panels' `v-show`.
 function mountModal(props = {}) {
 	return mount(DashboardConfigModal, {
+		attachTo: document.body,
 		propsData: {
 			open: true,
 			dashboard: ownedDashboard,
@@ -89,6 +92,8 @@ function mountModal(props = {}) {
 		},
 	})
 }
+
+enableAutoUnmount(afterEach)
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key

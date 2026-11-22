@@ -428,6 +428,23 @@ describe('DashboardSwitcherSidebar', () => {
 		})
 	})
 
+	describe('Escape', () => {
+		it('closes the sidebar', async () => {
+			const wrapper = mountSidebar({ userDashboards: [userRow] })
+			await wrapper.find('aside').trigger('keydown', { key: 'Escape' })
+			expect(wrapper.emitted('update:open')).toEqual([[false]])
+		})
+
+		it('leaves the sidebar open when it closes a menu that holds focus', async () => {
+			const wrapper = mountSidebar({ userDashboards: [userRow] })
+			const toggle = document.createElement('button')
+			toggle.setAttribute('aria-expanded', 'true')
+			wrapper.find('aside').element.appendChild(toggle)
+			toggle.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+			expect(wrapper.emitted('update:open')).toBeUndefined()
+		})
+	})
+
 	describe('REQ-SWITCH-007 icon rendering via shared renderer', () => {
 		it('renders one IconRenderer per dashboard row', () => {
 			const wrapper = mountSidebar({

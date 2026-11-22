@@ -158,26 +158,6 @@
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
-				<!-- runtime-shell REQ-SHELL-009: off by default so an existing
-				     instance keeps its navigation panel. -->
-				<NcCheckboxRadioSwitch
-					type="switch"
-					:modelValue="settings.startPageWithoutNavigation"
-					data-testid="admin-start-page-without-navigation"
-					@update:modelValue="
-						updateSetting('startPageWithoutNavigation', $event)
-					">
-					{{ t('launchpad', 'Start page without navigation panel') }}
-				</NcCheckboxRadioSwitch>
-				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-					{{
-						t(
-							'launchpad',
-							'When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Marketplace, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.',
-						)
-					}}
-				</p>
-
 				<!-- REQ-PSP-003: on by default; switching it off gives the
 				     default app back. -->
 				<NcCheckboxRadioSwitch
@@ -513,8 +493,6 @@ export default {
 
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
-				// runtime-shell REQ-SHELL-009: off by default.
-				startPageWithoutNavigation: false,
 				// drill-down-cross-widget-filter REQ-CWF-010: off by default.
 				filterTelemetryEnabled: false,
 				// REQ-PSP-003: on by default.
@@ -785,8 +763,6 @@ export default {
 					defaultPermLevel: this.settings.defaultPermissionLevel?.id,
 					allowUserDash: this.settings.allowUserDashboards,
 					allowMultiDash: this.settings.allowMultipleDashboards,
-					startPageWithoutNavigation:
-						this.settings.startPageWithoutNavigation === true,
 					filterTelemetryEnabled:
 						this.settings.filterTelemetryEnabled === true,
 					defaultAppEnabled: this.settings.defaultAppEnabled !== false,

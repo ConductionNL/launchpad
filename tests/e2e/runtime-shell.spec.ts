@@ -271,6 +271,12 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		const dash = (await created.json()).dashboard
 		groupDashboard = { id: Number(dash.id), uuid: String(dash.uuid) }
 		groupPlacement = await addTextWidget(admin, groupDashboard.id)
+		// A new dashboard starts as a draft, which only its author sees
+		// (REQ-DASH-031): publish it so the member can open it.
+		const published = await admin.post(
+			`${API}/dashboards/${groupDashboard.uuid}/publish`,
+		)
+		expect(published.status(), await published.text()).toBe(200)
 		await quietFirstVisit(member.api)
 		const active = await member.api.post(`${API}/dashboards/active`, {
 			data: { uuid: groupDashboard.uuid },

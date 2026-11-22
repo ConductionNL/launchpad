@@ -107,6 +107,8 @@ Each widget placement MUST support configuration stored in the placement's `widg
 
 The frontend MUST validate `birthdayWindowDays` is between 0 and 30 (inclusive) before saving.
 
+**NOTE (2026-11-22, showFields semantics)**: When `showFields` is stored, the role, organisation, email and phone lines show only for keys set to `true`; a key that is left out counts as off. The avatar and each custom profile field show unless their key is explicitly `false`. With no `showFields` stored, every field shows. The form only offers `displayName` and `group` for `sortBy`; `recent-activity` is a planned follow-up and is treated as unknown until it is built.
+
 #### Scenario: Config saved to placement
 - **GIVEN** user configures widget layout to "card" with a group filter for "management"
 - **WHEN** they save
@@ -119,10 +121,10 @@ The frontend MUST validate `birthdayWindowDays` is between 0 and 30 (inclusive) 
 - **AND** the save MUST NOT proceed
 
 #### Scenario: Unknown sortBy value rejected
-- **GIVEN** user sets `sortBy: "unknown-field"`
-- **WHEN** they save
-- **THEN** the frontend MUST reject with error message
-- **AND** fall back to `displayName`
+- **GIVEN** a placement stores `sortBy: "unknown-field"`
+- **WHEN** the user opens it in the edit form and tries to save
+- **THEN** the form MUST show the sort control at `displayName` with a message naming the unknown key
+- **AND** Save MUST stay disabled until the user picks a sort key, which then saves as the fallback `displayName` or their choice
 
 #### Scenario: showFields subset validated
 - **GIVEN** user configures `showFields: {"displayName": true, "email": true}` (omitting others)
@@ -455,7 +457,7 @@ The widget MUST provide a search input that filters displayed users by substring
 
 ### Requirement: Client-side caching and refresh (REQ-PPL-012)
 
-The widget MUST cache results in memory for 60 seconds per placement. A force-refresh button MUST clear the cache and immediately re-fetch user list from the backend.
+The widget MUST cache results in memory for 60 seconds per placement configuration (two placements with the same filters, sort and switches share their pages), and the cache MUST survive the widget being unmounted and mounted again in the same page. A force-refresh button MUST clear the cache and immediately re-fetch user list from the backend.
 
 #### Scenario: Results cached for 60 seconds
 - **GIVEN** user fetches the people list (first load)
@@ -477,7 +479,7 @@ The widget MUST cache results in memory for 60 seconds per placement. A force-re
 - **AND** results MUST update to latest state
 
 #### Scenario: Tab/browser focus refreshes cache
-@e2e exclude optional behaviour (MAY / SHOULD) that was never built: neither CnPeopleWidget nor src/components/Widgets/Renderers/PeopleWidget.vue listens for focus or visibilitychange. No unit test exists.
+@e2e exclude optional behaviour (MAY / SHOULD) that was never built: CnPeopleWidget does not listen for focus or visibilitychange. No unit test exists.
 - **GIVEN** user switches away from browser tab and back
 - **WHEN** user returns to the tab
 - **THEN** cache MAY be invalidated (optional)

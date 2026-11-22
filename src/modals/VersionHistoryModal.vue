@@ -135,6 +135,7 @@ import {
 import { t } from '@nextcloud/l10n'
 import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
+import { parseServerStamp } from '../utils/serverStamp.js'
 
 /**
  * VersionHistoryModal: the saved versions of one dashboard, newest first,
@@ -317,8 +318,8 @@ export default {
 			if (!value) {
 				return ''
 			}
-			const parsed = new Date(String(value).replace(' ', 'T'))
-			if (Number.isNaN(parsed.getTime())) {
+			const parsed = parseServerStamp(value)
+			if (parsed === null) {
 				return String(value)
 			}
 			return parsed.toLocaleString(undefined, {

@@ -12,6 +12,7 @@ import {
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
 import { logger } from '../utils/logger.js'
+import { parseServerStamp } from '../utils/serverStamp.js'
 
 /**
  * Stable backend error code returned by `POST /api/dashboard` when the admin
@@ -338,8 +339,8 @@ function scheduledStatus(publishAt) {
 	if (!publishAt) {
 		return STATUS_SCHEDULED
 	}
-	const when = new Date(publishAt)
-	if (Number.isNaN(when.getTime())) {
+	const when = parseServerStamp(publishAt)
+	if (when === null) {
 		return STATUS_SCHEDULED
 	}
 	return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED

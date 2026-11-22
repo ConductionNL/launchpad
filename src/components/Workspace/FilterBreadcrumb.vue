@@ -94,7 +94,7 @@ export default {
 		 *
 		 * @param {{dimension: string, label: string, value: unknown}} step The step.
 		 * @return {string}
-		* @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 		 */
 		crumbText(step) {
 			const label = this.labels[step.dimension] || step.label || step.dimension

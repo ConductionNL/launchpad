@@ -14,7 +14,7 @@ holds all apps in one card.
   never shows as a link.
 - The add flow's "Discovered on this server" section becomes "App tiles" (board LpWidgetKiezen): one entry per app,
   drawn in its tile colour, placing an `app-tile`, plus "Custom tile" for a tile of one's own.
-- An app tile renders without the card frame or header and starts at two columns by four rows.
+- An app tile renders without the card frame or header and starts at two columns by two rows. Each tile is its own placement; a heading above tiles is its own label placement.
 - The first-run starter set places an app tile for each of up to four most-used apps in the person's app menu,
   instead of the one Apps widget. Without a known app menu it keeps the Apps widget.
 - The `app-tiles` widget keeps working for existing dashboards and stays in the picker under "Widgets from Launchpad".

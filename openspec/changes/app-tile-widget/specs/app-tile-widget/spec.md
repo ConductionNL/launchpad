@@ -30,7 +30,7 @@ app SHALL place an `app-tile` widget with `content: { appId, colour: '', showCou
 
 An `app-tile` placement SHALL render through nextcloud-vue's `CnAppTileWidget`, without the card frame or header. Its
 name, icon and address SHALL come from the viewer's own app menu, so an app the viewer may not open never renders as
-a link. A new app tile SHALL start at two columns by four rows.
+a link. A new app tile SHALL start as one cell of two columns by two rows and SHALL have no card, title or padding around it; the coloured tile is the widget, placed, moved and resized on its own. Headings above tiles are separate label placements with `groupHeading: true`.
 
 #### Scenario: A shared dashboard with an app the viewer may not open
 

@@ -163,7 +163,7 @@ final class StarterWidgetSeeds {
 					'gridX' => $index * 2,
 					'gridY' => 0,
 					'gridWidth' => 2,
-					'gridHeight' => 4,
+					'gridHeight' => 2,
 					'sortOrder' => 0,
 					'tile' => null,
 					'content' => ['appId' => $appId, 'colour' => '', 'showCount' => true],

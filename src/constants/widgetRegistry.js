@@ -125,6 +125,10 @@ import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidget
 // integration (openspec/changes/work-packages-widget).
 import WorkPackagesWidget from '../components/Widgets/Renderers/WorkPackagesWidget.vue'
 import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'
+// `assigned-cases` — the viewer's open cases from an OpenRegister register,
+// dossiq's by default (openspec/changes/assigned-cases-widget).
+import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
+import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -384,6 +388,21 @@ registerDashboardWidget('work-packages', {
 	requiresApp: 'integration_openproject',
 })
 
+// assigned-cases-widget REQ-CASES-001..004: the viewer's open cases, deadline
+// first, with counts per status; offered and shown only where dossiq is.
+registerDashboardWidget('assigned-cases', {
+	renderer: AssignedCasesWidget,
+	form: AssignedCasesWidgetForm,
+	defaultContent: {
+		register: 'dossiq',
+		schema: 'case',
+		limit: 4,
+	},
+	displayName: 'My cases',
+	icon: 'BriefcaseOutline',
+	requiresApp: 'dossiq',
+})
+
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,
 // comments and follow per category; notices show as banners instead.
 registerDashboardWidget('announcements', {
@@ -523,11 +542,12 @@ export function getDefaultContent(type) {
  * type reads through an app (`requiresApp`) that is not enabled for them.
  *
  * @param {WidgetRegistryEntry|null} entry The type's entry.
- * @param {Record<string, boolean>} integrationApps Which apps are enabled for the viewer.
+ * @param {Record<string, boolean|string>} integrationApps Which apps are enabled for the viewer; a renamed fleet app answers with its installed id.
  * @return {boolean} Whether to offer it.
  * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
  */
 export function offeredForViewer(entry, integrationApps) {
 	const app = entry?.requiresApp
-	return !app || integrationApps?.[app] === true
+	const enabled = integrationApps?.[app]
+	return !app || enabled === true || (typeof enabled === 'string' && enabled !== '')
 }

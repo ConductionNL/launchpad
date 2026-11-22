@@ -2337,7 +2337,17 @@ OC.L10N.register(
     "Number of work packages" : "Aantal werkpakketten",
     "Name the project" : "Noem het project",
     "Show 1 to 25 work packages" : "Toon 1 tot 25 werkpakketten",
-    "My work packages" : "Mijn werkpakketten"
+    "My work packages" : "Mijn werkpakketten",
+    "My cases needs dossiq. Ask your administrator to enable it." : "Mijn zaken heeft dossiq nodig. Vraag uw beheerder die aan te zetten.",
+    "The cases could not be loaded. Try again later." : "De zaken konden niet worden geladen. Probeer het later opnieuw.",
+    "No open cases are assigned to you" : "Er staan geen open zaken op uw naam",
+    "Shows the open cases assigned to the person viewing, from the register below. Each person sees what OpenRegister lets them see." : "Toont de open zaken op naam van wie kijkt, uit het register hieronder. Iedereen ziet wat OpenRegister hem laat zien.",
+    "Register" : "Register",
+    "Number of cases" : "Aantal zaken",
+    "Name the register and the schema" : "Noem het register en het schema",
+    "Show 1 to 20 cases" : "Toon 1 tot 20 zaken",
+    "My cases" : "Mijn zaken",
+    "_All %n open case_::_All %n open cases_" : ["Alle %n open zaak", "Alle %n open zaken"]
 },
 "nplurals=2; plural=(n != 1);"
 );

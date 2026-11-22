@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Support\FleetAppId;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -197,6 +198,7 @@ class PageController extends Controller {
 				[
 					'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
 					'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+					'dossiq'                  => $this->enabledFleetAppId(canonical: 'dossiq'),
 				]
 			)
 			->setUserTimezone($this->userTimezone(userId: $userId))
@@ -368,6 +370,30 @@ class PageController extends Controller {
 			return false;
 		}
 	}//end isAppEnabledForViewer()
+
+	/**
+	 * The id under which a renamed fleet app is installed and enabled for the
+	 * signed-in user, or false. The app is looked up by every name it has had
+	 * ({@see FleetAppId}), never by one spelling (assigned-cases-widget REQ-CASES-004).
+	 *
+	 * @param string $canonical The app's current name.
+	 *
+	 * @return string|false The installed id, or false.
+	 *
+	 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
+	 */
+	private function enabledFleetAppId(string $canonical): string|false {
+		if ($this->settings->appManager === null) {
+			return false;
+		}
+
+		$installed = FleetAppId::resolve(appManager: $this->settings->appManager, canonical: $canonical);
+		if ($installed === null || $this->isAppEnabledForViewer(appId: $installed) === false) {
+			return false;
+		}
+
+		return $installed;
+	}//end enabledFleetAppId()
 
 	/**
 	 * Resolve the active session's user id.

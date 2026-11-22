@@ -57,7 +57,8 @@ The form SHALL offer the space and the number of pages per list, 1 to 20.
 ### Requirement: The picker offers the wiki only where it can work (REQ-WIKI-004)
 
 The picker SHALL offer the Wiki widget only when OpenRegister is enabled for the viewer, as the initial state's
-`integrationApps` says. A placed Wiki widget SHALL still render for a viewer without OpenRegister and explain itself.
+`integrationApps` says. Outside edit mode a placed Wiki widget SHALL be left out for a viewer without OpenRegister; in
+edit mode it SHALL render and explain that OpenRegister is needed.
 
 #### Scenario: No OpenRegister
 

@@ -173,6 +173,33 @@ class PageControllerHelpersTest extends TestCase {
 	}
 
 	/**
+	 * Assigned-cases-widget REQ-CASES-004: dossiq answers with the id it is
+	 * installed under, or false when it is absent or not enabled for the viewer.
+	 *
+	 * @return void
+	 */
+	public function testARenamedFleetAppAnswersWithItsInstalledId(): void {
+		$user = $this->createMock(IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$check = new ReflectionMethod(PageController::class, 'enabledFleetAppId');
+
+		$legacy = $this->createMock(IAppManager::class);
+		$legacy->method('isInstalled')->willReturnCallback(static fn (string $appId): bool => $appId === 'procest');
+		$legacy->method('isEnabledForUser')->willReturn(true);
+		$this->assertSame('procest', $check->invoke($this->controllerWithApps(appManager: $legacy), 'dossiq'));
+
+		$disabled = $this->createMock(IAppManager::class);
+		$disabled->method('isInstalled')->willReturn(true);
+		$disabled->method('isEnabledForUser')->willReturn(false);
+		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $disabled), 'dossiq'));
+
+		$absent = $this->createMock(IAppManager::class);
+		$absent->method('isInstalled')->willReturn(false);
+		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $absent), 'dossiq'));
+		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null), 'dossiq'));
+	}
+
+	/**
 	 * Without a session, an app manager, or with a failing check, Talk is off.
 	 *
 	 * @return void

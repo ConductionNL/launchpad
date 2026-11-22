@@ -109,7 +109,7 @@ When a click publishes a clause for a dimension that is part of a `hierarchy_des
 
 ### Requirement: REQ-CWF-005 Filter conflict resolution is last-write-wins per dimension
 
-When a new clause is published for a dimension that already has an active clause from a different source or operator, the system SHALL replace (not append) the existing clause and SHALL show a one-line audit tooltip indicating which previous clause was replaced.
+When a new clause is published for a dimension that already has an active clause from a different source or operator, the system SHALL replace (not append) the existing clause and SHALL show a one-line audit tooltip indicating which previous clause was replaced. The chart that published a clause SHALL show its category as selected (a ringed, pressed bar-list row, or an outlined bar or slice), and SHALL drop that mark as soon as the clause leaves the bus or is replaced by another widget's clause.
 
 #### Scenario: Widget-click replaces widget-click
 
@@ -176,6 +176,12 @@ The widget loader SHALL read `publishes` and `consumes` from the widget manifest
 - **GIVEN** a widget manifest declaring `consumes: [{dimension: "wijkCode"}]` on a dashboard whose hierarchy descriptors do not include `wijkCode`
 - **WHEN** the widget is added to the dashboard
 - **THEN** the widget config UI SHALL show a non-fatal warning ("This widget consumes 'wijkCode' but no hierarchy on this dashboard publishes it") and the widget SHALL render as a non-bus-participant
+
+#### Scenario: Dismissing the warning
+
+- **GIVEN** the widget config UI shows that warning for a widget
+- **WHEN** the user chooses Dismiss on it
+- **THEN** the warning SHALL disappear and SHALL stay away for that widget when the config UI opens again during the same visit; the widget itself SHALL be unchanged and can still be removed with the ordinary Remove
 
 #### Scenario: Publishing from missing field
 

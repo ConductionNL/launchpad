@@ -120,6 +120,18 @@ async function labels(page: Page, placement: Placement): Promise<string[]> {
 }
 
 /**
+ * The labels of the rows a chart shows as selected.
+ *
+ * @param page the page.
+ * @param placement the chart.
+ * @return the labels.
+ */
+async function selectedLabels(page: Page, placement: Placement): Promise<string[]> {
+	const rows = gridItem(page, placement.id).locator(`${ROW}[aria-pressed="true"] ${LABEL}`)
+	return (await rows.allTextContents()).map((text) => text.trim())
+}
+
+/**
  * Wait until chart B shows only the wijken of one gemeente.
  *
  * @param page the page.
@@ -286,7 +298,8 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 	})
 
 	// @e2e cross-widget-filter::a-second-publisher-replaces-the-filter-with-a-toast
-	test('a pick on a second chart replaces the first chart\'s filter and says so in a toast', async ({ page }) => {
+	// @e2e cross-widget-filter::widget-click-replaces-widget-click
+	test('a pick on a second chart replaces the first chart\'s filter, moves the selection and says so in a toast', async ({ page }) => {
 		const seeds = new Seeds(await adminApi())
 		try {
 			const board = await seedBoard(seeds)
@@ -296,9 +309,15 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 			await gridItem(page, board.a.id).locator(ROW).nth(0).click()
 			await expect(chip(page, 'gemeenteCode')).toContainText(first)
 			await expectWijkenOf(page, board, first)
+			// A shows the pick as selected; A2 shows nothing.
+			await expect.poll(() => selectedLabels(page, board.a)).toEqual([first])
+			await expect.poll(() => selectedLabels(page, board.a2)).toEqual([])
 
 			await gridItem(page, board.a2.id).locator(ROW).filter({ hasText: second }).click()
 			await expect(page.getByText(`Municipality filter changed: ${first} → ${second}`, { exact: true })).toBeVisible({ timeout: 10_000 })
+			// A's selection clears and A2 shows its own.
+			await expect.poll(() => selectedLabels(page, board.a)).toEqual([])
+			await expect.poll(() => selectedLabels(page, board.a2)).toEqual([second])
 			await expect(page.locator('[data-testid="active-filters"] [data-dimension]')).toHaveCount(1)
 			await expect(chip(page, 'gemeenteCode')).toContainText(second)
 			await expect(chip(page, 'gemeenteCode').locator('[data-testid="active-filter-source"]')).toContainText('Gemeenten twee')
@@ -310,6 +329,7 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 	})
 
 	// @e2e cross-widget-filter::removing-a-clicked-clause-unfilters-the-consumers
+	// @e2e cross-widget-filter::remove-single-clause-from-panel
 	test('a clicked clause names its chart, and removing it unfilters the consumer and drops f', async ({ page }) => {
 		const seeds = new Seeds(await adminApi())
 		try {
@@ -321,9 +341,12 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 			await gridItem(page, board.a.id).locator(ROW).nth(0).click()
 			await expect(chip(page, 'gemeenteCode').locator('[data-testid="active-filter-source"]')).toContainText('Gemeenten')
 			await expectWijkenOf(page, board, first)
+			await expect.poll(() => selectedLabels(page, board.a)).toEqual([first])
 
 			await chip(page, 'gemeenteCode').locator('[data-testid="active-filter-remove"]').click()
 			await expect(page.locator('[data-testid="active-filters"]')).toHaveCount(0)
+			// The publishing chart's selection clears with the clause.
+			await expect.poll(() => selectedLabels(page, board.a)).toEqual([])
 			await expect.poll(() => currentFilterParam(page), { timeout: 5_000 }).toBeNull()
 			await expect.poll(() => labels(page, board.b), { timeout: 30_000 }).toEqual(unfiltered)
 		} finally {

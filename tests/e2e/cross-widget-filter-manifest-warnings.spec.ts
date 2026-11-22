@@ -23,6 +23,7 @@ import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import { adminApi, contentCentre, gridItem, openInEditMode, rightClickAt, Seeds } from './support/widgetPlacements.ts'
 
 // @e2e cross-widget-filter::the-widget-dialog-warns-about-an-unpublished-dimension
+// @e2e cross-widget-filter::dismissing-the-warning
 test('a chart consuming wijkCode without a hierarchy renders, stays off the bus and its dialog warns', async ({ page }) => {
 	const seeds = new Seeds(await adminApi())
 	try {

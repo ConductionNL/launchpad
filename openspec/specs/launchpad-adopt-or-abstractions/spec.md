@@ -18,7 +18,8 @@ The manifest MUST set:
 - `$schema` to the published nc-vue schema URL (for editor
   validation)
 - `version` to a semver string, bumped on shape change
-- `dependencies: []` (explicit empty array)
+- `dependencies` listing OpenRegister only as optional
+  (`[{"id": "openregister", "required": false, "name": "OpenRegister"}]`)
 - a `menu` array with at least the Dashboards entry
 - a `pages` array including the per-dashboard page
   (`type: "dashboard"`)
@@ -52,9 +53,10 @@ The manifest MUST set:
 
 - GIVEN the file `src/manifest.json`
 - WHEN `manifest.dependencies` is read
-- THEN it MUST be an empty array `[]`
-- AND no review MAY add `"openregister"`, `"openconnector"`, or any
-  other Conduction app ID to the array
+- THEN it MUST be an array whose only entry is OpenRegister marked
+  optional (`required: false`)
+- AND no review MAY add a required entry, a bare app-id string, or
+  `"openconnector"` or any other Conduction app ID to the array
 
 ### Requirement: LaunchPad MUST NOT declare an install-time dependency on OpenRegister or OpenConnector
 

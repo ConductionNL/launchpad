@@ -10,9 +10,9 @@ The filter bus is built around five core principles. First, filter state is pers
 - `src/composables/useFilterBus.js` (new) — pub/sub implementation, dimension compatibility checking, hierarchy traversal
 - `src/composables/useDashboardFilter.js` (new) — filter state serialization, URL encoding/decoding (base64url compact JSON)
 - `src/components/widgets/ChartWidget.vue` + table widgets — accept `filterContext` prop (already passed for share-links), emit click events with dimension + value
-- `lib/Register/DashboardFilterStateRegister.php` (new) — persists saved views and filter telemetry events
+- `lib/Register/DashboardFilterStateRegister.php` (new) — persists filter telemetry events
 - Manifest schema: `widget.manifest.json` adds `publishes[]`, `consumes[]`, `hierarchies[]` fields per ADR-005
-- Adds new capability `cross-widget-filter` with requirements REQ-CWF-001 through REQ-CWF-010
+- Adds new capability `cross-widget-filter` with requirements REQ-CWF-001 through REQ-CWF-011 (REQ-CWF-009, saved views, removed by decision on 22 Nov 2026)
 - Modifies dashboard routing to inject filter state on initial load (REQ-CWF-003)
 
 ## Why a new capability
@@ -30,7 +30,6 @@ Filter-driven collaboration between widgets is a top-level analytical feature, n
 - **Manifest integration** — widget manifests declare `publishes: [{dimension, operator, fromField}]` and `consumes: [{dimension, operator, intoFilter}]`. The dashboard validates at render time.
 - **Hierarchy support** — dash manifest declares `hierarchies: [{id, levels: [{dimension, parentDimension, label}]}]`. When a wijk-level click arrives, the bus infers ancestor clauses (`source=parentScope`) and clears descendants.
 - **URL persistence** — filter state serialized to `?f=<base64url>` parameter using compact JSON (`{d, o, v, s, w}` keys). Restores on page load with `source=urlBootstrap`.
-- **Saved views** — users with edit permission save the current filter set as a named view in the register; the dropdown applies them with one click, replacing non-pinned clauses.
 - **Telemetry** — org-level opt-in flag. `filter_event` rows record apply/reset/bookmark/share events, dimension paths, and widget IDs (never filter values). Aggregate report shows most-used drill-down paths.
 - **Conflict resolution** — new clause replacing an existing dimension shows a one-line audit toast (e.g., "Gemeente filter changed: Zeist → Houten"). Pinned clauses are immutable; replacements are silently dropped.
 - **Reset action** — single button clears all non-pinned clauses and removes the `f` URL parameter.

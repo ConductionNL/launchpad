@@ -34,9 +34,7 @@ All notable changes to this project will be documented in this file.
 - **Cross-widget filter bus** (`drill-down-cross-widget-filter`): add a
   cross-widget filter bus enabling drill-down exploration across dashboard
   widgets. Widgets publish filters on click; all consuming widgets
-  re-render. Filter state is bookmarkable via the URL (`?f=`) and saveable
-  as named views ("Saved views": my views and views others shared, kept as
-  `saved_view` objects in OpenRegister). An "Active filters" panel shows
+  re-render. Filter state is bookmarkable via the URL (`?f=`). An "Active filters" panel shows
   every clause with its source and offers "Reset filters"; pinned clauses
   survive a reset. Opt-in telemetry (an admin switch, off by default)
   records which dimensions are filtered, never the values, and

@@ -38,7 +38,8 @@ export const FILTER_PARAM = 'f'
 export const OPERATORS = ['eq', 'in', 'between', 'gte', 'lte', 'contains', 'notNull']
 
 /**
- * Where a clause can come from.
+ * Where a clause can come from. `savedView` is no longer written, but still
+ * decodes, so a link copied from an applied saved view keeps its filters.
  *
  * @type {string[]}
  */

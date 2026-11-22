@@ -72,6 +72,10 @@ import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWi
 // registration pattern as `clock`/`weather`.
 import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
+// `assigned-cases` — the viewer's open cases from an OpenRegister register,
+// dossiq's by default (openspec/changes/assigned-cases-widget).
+import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
+import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
@@ -125,10 +129,6 @@ import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidget
 // integration (openspec/changes/work-packages-widget).
 import WorkPackagesWidget from '../components/Widgets/Renderers/WorkPackagesWidget.vue'
 import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'
-// `assigned-cases` — the viewer's open cases from an OpenRegister register,
-// dossiq's by default (openspec/changes/assigned-cases-widget).
-import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
-import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

@@ -35,6 +35,7 @@ function isBlank(value) {
  * @param {Array<{dimension: string}>} clauses The clauses the click publishes.
  * @param {object} row The row so far.
  * @return {string[]}
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export function missingAncestors(hierarchies, clauses, row) {
 	const missing = new Set()

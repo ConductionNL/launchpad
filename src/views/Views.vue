@@ -279,6 +279,7 @@
 							:pingInterval="item.content && item.content.pingInterval"
 							:linkTarget="(item.content && item.content.linkTarget) || null"
 							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
+							:removeLocked="!isRemovablePlacement(item)"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -293,6 +294,7 @@
 							"
 							:canHideForMe="canHideForMe"
 							:embedHref="placementEmbedHref(item)"
+							:removeLocked="!isRemovablePlacement(item)"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"

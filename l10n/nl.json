@@ -2059,6 +2059,9 @@
         "Neighbourhood": "Buurt",
         "Province": "Provincie",
         "Municipality": "Gemeente",
-        "District": "Wijk"
+        "District": "Wijk",
+        "Add a news widget with a feed to one of your dashboards to see its articles here.": "Voeg een nieuwswidget met een feed toe aan een van je dashboards om de artikelen hier te zien.",
+        "No news articles right now.": "Er zijn nu geen nieuwsartikelen.",
+        "Add a links widget to one of your dashboards to see its links here.": "Voeg een linkswidget toe aan een van je dashboards om de links hier te zien."
     }
 }

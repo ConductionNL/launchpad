@@ -26,9 +26,9 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
-use OCP\Files\Node;
 use OCP\IURLGenerator;
 use Throwable;
 
@@ -69,11 +69,13 @@ class VideoFileService {
 	 * @param IRootFolder           $rootFolder The filesystem root.
 	 * @param WidgetPlacementMapper $placements The placement store.
 	 * @param IURLGenerator         $urls       Builds the WebDAV address.
+	 * @param IUserMountCache       $mounts     Says whose storages hold a file id.
 	 */
 	public function __construct(
 		private readonly IRootFolder $rootFolder,
 		private readonly WidgetPlacementMapper $placements,
 		private readonly IURLGenerator $urls,
+		private readonly IUserMountCache $mounts,
 	) {
 	}//end __construct()
 
@@ -163,19 +165,25 @@ class VideoFileService {
 	 * files (not accessible), or nowhere but a trash bin or nowhere at all
 	 * (not found).
 	 *
+	 * Asked per user whose storage holds the file id: a lookup from the
+	 * filesystem root only sees storages already set up in this request,
+	 * which another owner's never is.
+	 *
 	 * @param int $fileId The file id.
 	 *
 	 * @return string NOT_ACCESSIBLE or NOT_FOUND.
 	 */
 	private function absentStatus(int $fileId): string {
-		try {
-			$node = $this->rootFolder->getFirstNodeById(id: $fileId);
-		} catch (Throwable) {
-			$node = null;
-		}
+		foreach ($this->mounts->getMountsForFileId(fileId: $fileId) as $mount) {
+			try {
+				$node = $this->rootFolder->getUserFolder(userId: $mount->getUser()->getUID())->getFirstNodeById(id: $fileId);
+			} catch (Throwable) {
+				$node = null;
+			}
 
-		if ($node instanceof Node && preg_match(pattern: '#^/[^/]+/files/#', subject: $node->getPath()) === 1) {
-			return self::NOT_ACCESSIBLE;
+			if ($node !== null) {
+				return self::NOT_ACCESSIBLE;
+			}
 		}
 
 		return self::NOT_FOUND;

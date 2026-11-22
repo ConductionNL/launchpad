@@ -46,6 +46,7 @@
 		"text",
 		"tile",
 		"video",
-		"weather"
+		"weather",
+		"wiki-pages"
 	]
 }

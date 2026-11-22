@@ -513,7 +513,7 @@ import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
-import { getWidgetTypeEntry, listWidgetTypes } from '../constants/widgetRegistry.js'
+import { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import {
@@ -661,6 +661,13 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
+		},
+
+		// Which apps behind the integration widgets are enabled for the
+		// viewer (wiki-widget REQ-WIKI-004); the picker leaves out the rest.
+		integrationApps: {
+			from: 'integrationApps',
+			default: () => ({}),
 		},
 
 		primaryGroupName: {
@@ -1255,6 +1262,7 @@ export default {
 		 */
 		customWidgetTypes() {
 			return listWidgetTypes()
+				.filter((type) => offeredForViewer(getWidgetTypeEntry(type), this.integrationApps))
 				.map((type) => ({ type, title: getWidgetTypeEntry(type)?.displayName || type }))
 				.sort((left, right) => left.title.localeCompare(right.title))
 		},

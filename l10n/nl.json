@@ -2066,6 +2066,23 @@
         "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.": "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP.",
         "App tiles": "App-tegels",
         "One tile per app this server runs for you. One click places it.": "Een tegel per app die deze server voor u draait. Met een klik staat hij erop.",
-        "Custom tile": "Eigen tegel"
+        "Custom tile": "Eigen tegel",
+        "The wiki is not connected yet. Ask your administrator to connect XWiki.": "De wiki is nog niet gekoppeld. Vraag uw beheerder XWiki te koppelen.",
+        "The wiki needs OpenRegister. Ask your administrator to enable it.": "De wiki heeft OpenRegister nodig. Vraag uw beheerder die aan te zetten.",
+        "Search the wiki": "Zoek in de wiki",
+        "Search results": "Zoekresultaten",
+        "No page matches your search": "Geen pagina past bij uw zoekopdracht",
+        "Favourites": "Favorieten",
+        "Star a page to keep it here": "Geef een pagina een ster om hem hier te bewaren",
+        "Recent": "Recent",
+        "No pages yet": "Nog geen pagina's",
+        "Remove {title} from favourites": "{title} uit favorieten halen",
+        "Add {title} to favourites": "{title} aan favorieten toevoegen",
+        "Shows search, favourites and recent pages from XWiki, through the connection your administrator set up.": "Toont zoeken, favorieten en recente pagina's uit XWiki, via de koppeling die uw beheerder heeft ingesteld.",
+        "Wiki space": "Wikiruimte",
+        "Leave empty to show every space.": "Laat leeg om elke ruimte te tonen.",
+        "Pages per list": "Pagina's per lijst",
+        "Show 1 to 20 pages per list": "Toon 1 tot 20 pagina's per lijst",
+        "Wiki": "Wiki"
     }
 }

@@ -1858,7 +1858,24 @@ OC.L10N.register(
     "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.",
     "App tiles" : "App tiles",
     "One tile per app this server runs for you. One click places it." : "One tile per app this server runs for you. One click places it.",
-    "Custom tile" : "Custom tile"
+    "Custom tile" : "Custom tile",
+    "The wiki is not connected yet. Ask your administrator to connect XWiki." : "The wiki is not connected yet. Ask your administrator to connect XWiki.",
+    "The wiki needs OpenRegister. Ask your administrator to enable it." : "The wiki needs OpenRegister. Ask your administrator to enable it.",
+    "Search the wiki" : "Search the wiki",
+    "Search results" : "Search results",
+    "No page matches your search" : "No page matches your search",
+    "Favourites" : "Favourites",
+    "Star a page to keep it here" : "Star a page to keep it here",
+    "Recent" : "Recent",
+    "No pages yet" : "No pages yet",
+    "Remove {title} from favourites" : "Remove {title} from favourites",
+    "Add {title} to favourites" : "Add {title} to favourites",
+    "Shows search, favourites and recent pages from XWiki, through the connection your administrator set up." : "Shows search, favourites and recent pages from XWiki, through the connection your administrator set up.",
+    "Wiki space" : "Wiki space",
+    "Leave empty to show every space." : "Leave empty to show every space.",
+    "Pages per list" : "Pages per list",
+    "Show 1 to 20 pages per list" : "Show 1 to 20 pages per list",
+    "Wiki" : "Wiki"
 },
 "nplurals=2; plural=(n != 1);"
 );

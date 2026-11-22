@@ -192,7 +192,8 @@ class PageController extends Controller {
 				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
 			)
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
-			->setTalkEnabled($this->isTalkEnabled())
+			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
+			->setIntegrationApps(['openregister' => $this->isAppEnabledForViewer(appId: 'openregister')])
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
@@ -337,27 +338,31 @@ class PageController extends Controller {
 	}//end userTimezone()
 
 	/**
-	 * Whether Nextcloud Talk is enabled for the signed-in user. Talk is optional:
-	 * when it is absent, disabled for this user, or the check fails, the
-	 * Communities widget explains itself instead of calling Talk
-	 * (engagement-communities REQ-COMM-004).
+	 * Whether an app is enabled for the signed-in user. Talk and the apps
+	 * behind the integration widgets are optional: when one is absent,
+	 * disabled for this user, or the check fails, its widget explains itself
+	 * or stays out of the picker (engagement-communities REQ-COMM-004,
+	 * wiki-widget REQ-WIKI-004).
 	 *
-	 * @return bool True when Talk is enabled for the viewer.
+	 * @param string $appId The app id.
+	 *
+	 * @return bool True when the app is enabled for the viewer.
 	 *
 	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
 	 */
-	private function isTalkEnabled(): bool {
+	private function isAppEnabledForViewer(string $appId): bool {
 		$user = $this->userSession->getUser();
 		if ($user === null || $this->settings->appManager === null) {
 			return false;
 		}
 
 		try {
-			return $this->settings->appManager->isEnabledForUser(appId: 'spreed', user: $user);
+			return $this->settings->appManager->isEnabledForUser(appId: $appId, user: $user);
 		} catch (Throwable) {
 			return false;
 		}
-	}//end isTalkEnabled()
+	}//end isAppEnabledForViewer()
 
 	/**
 	 * Resolve the active session's user id.

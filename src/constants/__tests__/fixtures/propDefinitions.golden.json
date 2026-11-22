@@ -872,6 +872,36 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/WikiPagesWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/WikiPagesWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/WikiPagesWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/WikiPagesWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"space": "",
+			"limit": 3
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/VisibilityRuleRow.vue | rule": {
 		"type": "Object",
 		"required": true,

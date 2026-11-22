@@ -198,19 +198,49 @@ class DashboardApiControllerVisibilityTest extends TestCase {
 	}//end testShowHidesUnpermittedWidgetsOnOwnDashboard()
 
 	/**
-	 * Someone else's dashboard is not narrowed by the caller's role.
+	 * A dashboard someone else owns, shared with or published to the caller,
+	 * is narrowed by the caller's role too, so a view-only viewer never gets
+	 * the unpermitted widget (REQ-RFP-001).
 	 *
 	 * @return void
 	 */
-	public function testShowLeavesAnotherOwnersDashboardToItsOwner(): void {
+	public function testShowHidesUnpermittedWidgetsOnAnotherOwnersDashboard(): void {
 		$this->dashboards->method('getDashboardForUser')
 			->willReturn(self::readResult(level: Dashboard::PERMISSION_VIEW_ONLY));
 		$roleWidgets = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
-		$roleWidgets->expects($this->never())->method('hideUnpermittedPlacements');
+		$roleWidgets->expects($this->once())
+			->method('hideUnpermittedPlacements')
+			->with($this->anything(), 'alice')
+			->willReturn([['id' => 3, 'isVisible' => 0]]);
+		$this->visibility->expects($this->once())
+			->method('visiblePlacements')
+			->with([['id' => 3, 'isVisible' => 0]], 'alice', false)
+			->willReturn([]);
+
+		$data = $this->controller(roleWidgets: $roleWidgets)->show(id: 7)->getData();
+
+		$this->assertSame(expected: [], actual: $data['placements']);
+	}//end testShowHidesUnpermittedWidgetsOnAnotherOwnersDashboard()
+
+	/**
+	 * getActive() narrows a group dashboard the caller does not own.
+	 *
+	 * @return void
+	 */
+	public function testGetActiveHidesUnpermittedWidgetsOnAGroupDashboard(): void {
+		$this->dashboards->method('getEffectiveDashboard')
+			->willReturn(self::readResult(level: Dashboard::PERMISSION_VIEW_ONLY, owner: ''));
+		$roleWidgets = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
+		$roleWidgets->expects($this->once())
+			->method('hideUnpermittedPlacements')
+			->with($this->anything(), 'alice')
+			->willReturn([['id' => 3, 'isVisible' => 0]]);
 		$this->visibility->method('visiblePlacements')->willReturnArgument(0);
 
-		$this->controller(roleWidgets: $roleWidgets)->show(id: 7);
-	}//end testShowLeavesAnotherOwnersDashboardToItsOwner()
+		$data = $this->controller(roleWidgets: $roleWidgets)->getActive()->getData();
+
+		$this->assertSame(expected: [['id' => 3, 'isVisible' => 0]], actual: $data['placements']);
+	}//end testGetActiveHidesUnpermittedWidgetsOnAGroupDashboard()
 
 	/**
 	 * getActive() narrows the caller's own dashboard the same way.

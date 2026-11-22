@@ -34,8 +34,14 @@ vi.mock('../../services/widgetBridge.js', () => ({
 	widgetBridge: { setWidgetMetadata: vi.fn() },
 }))
 
+const initialState = vi.hoisted(() => ({ values: {} }))
+vi.mock('@nextcloud/initial-state', () => ({
+	loadState: (app, key, fallback) => (key in initialState.values ? initialState.values[key] : fallback),
+}))
+
 beforeEach(() => {
 	vi.clearAllMocks()
+	initialState.values = {}
 	setActivePinia(createPinia())
 })
 
@@ -103,6 +109,29 @@ describe('widgets store', () => {
 		expect(store.getWidgetById('weather')).toEqual(widgets[0])
 		expect(store.getWidgetById('nope')).toBeUndefined()
 		expect(store.loading).toBe(false)
+	})
+
+	it('takes the catalogue from the initial state without calling GET /api/widgets', async () => {
+		const store = useWidgetStore()
+		const widgets = [{ id: 'activity', title: 'Activity' }]
+		initialState.values = { widgets }
+
+		await store.loadAvailableWidgets()
+
+		expect(api.getAvailableWidgets).not.toHaveBeenCalled()
+		expect(store.availableWidgets).toEqual(widgets)
+		expect(widgetBridge.setWidgetMetadata).toHaveBeenCalledWith(widgets)
+	})
+
+	it('falls back to GET /api/widgets when the initial state carries no catalogue', async () => {
+		const store = useWidgetStore()
+		initialState.values = { widgets: [] }
+		api.getAvailableWidgets.mockResolvedValueOnce({ data: [{ id: 'notes' }] })
+
+		await store.loadAvailableWidgets()
+
+		expect(api.getAvailableWidgets).toHaveBeenCalledTimes(1)
+		expect(store.availableWidgets).toEqual([{ id: 'notes' }])
 	})
 
 	it('logs a failed catalogue load', async () => {

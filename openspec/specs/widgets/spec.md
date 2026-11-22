@@ -374,6 +374,17 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - THEN the modal MUST emit `submit({type: 'text', content: {text: 'Hello', fontSize: '16px'}})`
 - AND `content` MUST NOT contain image fields like `url`, `alt`, etc.
 
+#### Scenario: One entry point adds every kind of widget
+
+- GIVEN a user who may edit the dashboard
+- WHEN they open the More menu or a dashboard's row menu
+- THEN there MUST be one "Add widget" entry, and no separate "Add custom widget" entry
+- AND "Add widget" MUST open the widget picker, which lists the Nextcloud widgets, the apps and a "Custom widget" choice
+- AND picking "Custom widget" MUST close the picker and open the custom widget form in create mode, with its type select
+- AND a search for a custom widget type's name, such as "Image", MUST keep "Custom widget" in the list
+
+Decided on 22 Nov 2026 (Ruben): two add buttons for one job confused people; the board LpWidgetKiezen draws one "Add widget" window.
+
 #### Scenario: Widget picker displays available widgets
 - GIVEN the user wants to add a widget
 - WHEN the widget picker opens via `WidgetPicker.vue`
@@ -692,7 +703,7 @@ The widget registry (`src/constants/widgetRegistry.js`) MUST include a `tile` wi
 - Suppresses click handling while the dashboard is in edit mode (consistent with REQ-WDG-014)
 - Has `defaultContent: {title:'', icon:'', iconType:'class', backgroundColor:'#3b82f6', textColor:'#ffffff', linkType:'app', linkValue:''}`
 
-The tile widget type MUST be selectable from the unified "Add custom widget" picker (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
+The tile widget type MUST be selectable from the custom widget form that "Custom widget" in the widget picker opens (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
 
 #### Scenario: Tile widget appears in the picker
 

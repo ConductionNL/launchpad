@@ -116,9 +116,10 @@ async function openAddWidgetModal(page: any) {
 	await expect(personalRow).toBeVisible({ timeout: 5_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 
-	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
+	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
+	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),

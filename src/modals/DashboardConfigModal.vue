@@ -485,6 +485,28 @@
 			</div>
 			<!-- /sharing panel -->
 
+			<!-- REQ-SCHEDUI-001: publish, unpublish and the schedule. -->
+			<div
+				v-if="!isCreate && currentTab === 'publication'"
+				id="config-panel-publication"
+				role="tabpanel"
+				data-test="config-panel-publication"
+				class="dashboard-config__panel">
+				<PublicationTab :dashboard="dashboard" />
+			</div>
+
+			<!-- REQ-SCH-011: the scheduled exports of this dashboard. -->
+			<div
+				v-if="!isCreate && currentTab === 'exports'"
+				id="config-panel-exports"
+				role="tabpanel"
+				data-test="config-panel-exports"
+				class="dashboard-config__panel">
+				<ExportsTab
+					:subjects="exportSubjects"
+					:defaultSubject="{ type: 'dashboard', id: dashboard.uuid }" />
+			</div>
+
 			<div class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
@@ -532,8 +554,11 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@nextcloud/vue'
+import { defineAsyncComponent } from 'vue'
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
+import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
@@ -557,6 +582,10 @@ import { hierarchyPresets } from '../utils/hierarchyPresets.js'
 import { logger } from '../utils/logger.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
+/* Loaded when their tab opens: they bring the export editor and the store. */
+const ExportsTab = defineAsyncComponent(() => import('../components/Workspace/config/ExportsTab.vue'))
+const PublicationTab = defineAsyncComponent(() => import('../components/Workspace/config/PublicationTab.vue'))
+
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
 	{ value: 'add_only', label: 'Add only' },
@@ -579,7 +608,9 @@ export default {
 
 	components: {
 		DetailsTab,
+		ExportsTab,
 		LanguagesTab,
+		PublicationTab,
 		NcModal,
 		NcButton,
 		NcTextField,
@@ -630,6 +661,15 @@ export default {
 		/** Why the last save was refused, shown in the General tab. */
 		saveError: TEXT_PROP,
 
+		/** Whether the Publication tab is offered: the owner or an administrator. */
+		canManagePublication: FLAG_PROP,
+
+		/** Whether the Exports tab is offered. */
+		canScheduleExports: FLAG_PROP,
+
+		/** This dashboard and its widgets as export subjects: `{type, id, label}`. */
+		exportSubjects: LIST_PROP,
+
 		/**
 		 * Tab to land on when the modal opens (dashboard-sharing spec). The
 		 * top-bar share action passes `'sharing'` so the share button lands
@@ -638,7 +678,7 @@ export default {
 		initialTab: {
 			type: String,
 			default: 'general',
-			validator: (v) => ['general', 'sharing', 'default'].includes(v),
+			validator: (v) => ['general', 'sharing', 'default', 'publication', 'exports'].includes(v),
 		},
 	},
 
@@ -784,8 +824,11 @@ export default {
 		 * Config-drawer tab descriptors. The Sharing tab is only offered when
 		 * the user can manage shares — REQ-SHARE-001 is owner-only, so a
 		 * recipient must not be shown a share-management surface at all.
+		 * Publication is for the owner or an administrator (REQ-SCHEDUI-001).
 		 *
 		 * @spec openspec/specs/dashboard-sharing/spec.md#req-share-001
+		 * @spec openspec/specs/dashboards/spec.md#requirement-a-manager-can-publish-unpublish-and-schedule-a-dashboard-req-schedui-001
+		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		tabs() {
@@ -820,6 +863,20 @@ export default {
 					label: t('launchpad', 'Sharing'),
 					icon: ShareVariant,
 					count: this.localShares.length,
+				})
+			}
+			if (this.canManagePublication && this.dashboard?.uuid) {
+				list.push({
+					id: 'publication',
+					label: t('launchpad', 'Publication'),
+					icon: CalendarClock,
+				})
+			}
+			if (this.canScheduleExports && this.dashboard?.uuid) {
+				list.push({
+					id: 'exports',
+					label: t('launchpad', 'Exports'),
+					icon: CalendarExport,
 				})
 			}
 			return list

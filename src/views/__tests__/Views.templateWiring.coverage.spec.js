@@ -100,14 +100,8 @@ const stubs = {
 	CnConfirmDialog: passthrough('CnConfirmDialog', {
 		template: '<div class="stub-confirm" />',
 	}),
-	ScheduleDashboardDialog: passthrough('ScheduleDashboardDialog', {
-		template: '<div class="stub-schedule" />',
-	}),
 	VersionHistoryModal: passthrough('VersionHistoryModal', {
 		props: { open: Boolean },
-	}),
-	ScheduledExportsModal: passthrough('ScheduledExportsModal', {
-		props: { open: Boolean, subjects: Array, defaultSubject: Object },
 	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
@@ -347,13 +341,21 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(false)
 	}, 90000)
 
-	it('the Meer menu\'s "Add custom widget…" opens the custom-widget modal for the active dashboard', async () => {
+	it('"Custom widget" in the picker opens the custom widget form, with no second menu entry', async () => {
 		const { wrapper, dashStore } = await mountViews()
-		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addCustomWidget')
+		const picker = () => wrapper.findComponent({ name: 'WidgetPickerModal' })
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
+		await flushPromises()
+
+		expect(picker().vm.$attrs.customTypeTitles.length).toBeGreaterThan(0)
+		picker().vm.$emit('addCustom')
 		await flushPromises()
 
 		expect(dashStore.switchDashboard).not.toHaveBeenCalled()
-		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(true)
+		expect(picker().vm.$attrs.open).toBe(false)
+		const form = wrapper.findComponent({ name: 'CnAddWidgetModal' })
+		expect(form.props('show')).toBe(true)
+		expect(wrapper.vm.customWidgetPreselectedType).toBeNull()
 	}, 90000)
 
 	it('the Meer menu\'s "Set as default" toggles the pinned default dashboard over HTTP', async () => {
@@ -369,38 +371,20 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(wrapper.vm.defaultDashboardUuid).toBe('u-7')
 	}, 90000)
 
-	it('the Meer menu\'s "Schedule" opens the schedule dialog, which closing hides again', async () => {
-		const { wrapper } = await mountViews()
-		expect(wrapper.find('.stub-schedule').exists()).toBe(false)
-
-		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('schedule')
-		expect(wrapper.find('.stub-schedule').exists()).toBe(true)
-
-		const dialog = wrapper.findComponent({ name: 'ScheduleDashboardDialog' })
-		await dialog.vm.$emit('update:open', true)
-		expect(wrapper.find('.stub-schedule').exists()).toBe(true)
-		await dialog.vm.$emit('update:open', false)
-		expect(wrapper.find('.stub-schedule').exists()).toBe(false)
-	}, 90000)
-
-	it('the Meer menu\'s "Scheduled exports" opens the export list with the dashboards and widgets to export', async () => {
+	it('REQ-SCH-011 and REQ-SCHEDUI-001: the settings get the Publication and Exports tabs with this dashboard and its widgets', async () => {
 		const { wrapper } = await mountViews({
 			widgetPlacements: [{ id: 41, widgetId: 'launchpad_text', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2, customTitle: 'KPI' }],
 		})
-		const modal = () => wrapper.findComponent({ name: 'ScheduledExportsModal' })
-		expect(modal().props('open')).toBe(false)
-		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canScheduleExports).toBe(true)
+		const menu = wrapper.findComponent({ name: 'DashboardMoreMenu' })
+		expect(menu.vm.$attrs.canScheduleExports).toBeUndefined()
 
-		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('scheduledExports')
-		expect(modal().props('open')).toBe(true)
-		expect(modal().props('defaultSubject')).toEqual({ type: 'dashboard', id: 'u-7' })
-		expect(modal().props('subjects')).toEqual([
+		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
+		expect(config.vm.$attrs.canManagePublication).toBe(true)
+		expect(config.vm.$attrs.canScheduleExports).toBe(true)
+		expect(config.vm.$attrs.exportSubjects).toEqual([
 			{ type: 'dashboard', id: 'u-7', label: 'Home' },
 			{ type: 'widget', id: '41', label: expect.any(String) },
 		])
-
-		await modal().vm.$emit('close')
-		expect(modal().props('open')).toBe(false)
 	}, 90000)
 
 	it('the Meer menu\'s "Version history" opens the modal, and its close event shuts it', async () => {

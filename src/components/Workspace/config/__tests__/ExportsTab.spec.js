@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * ScheduledExportsModal (scheduled-exports tasks 13-14): the list is read
+ * ExportsTab (scheduled-exports tasks 13-14, REQ-SCH-011): the list is read
  * from GET /api/exports and shows name, subject, next run and last-run
  * status; Run now, Delete, Edit and View runs reach the API; the run
  * history lists GET /api/exports/{id}/runs with a delivery summary and a
@@ -14,7 +14,7 @@ import { showSuccess, showWarning } from '@nextcloud/dialogs'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import ScheduledExportsModal from '../ScheduledExportsModal.vue'
+import ExportsTab from '../ExportsTab.vue'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
@@ -35,7 +35,7 @@ vi.mock('@nextcloud/dialogs', () => ({
 }))
 vi.mock(
 	'@conduction/nextcloud-vue',
-	() => import('./helpers/scheduledExportStubs.js'),
+	() => import('../../../../modals/__tests__/helpers/scheduledExportStubs.js'),
 )
 
 const BASE = '/index.php/apps/launchpad/api/exports'
@@ -120,6 +120,14 @@ const runs = [
 	},
 ]
 
+/** An export of another dashboard, which this dashboard's tab leaves out. */
+const otherDashboardExport = {
+	...exports[0],
+	id: 'e3',
+	name: 'Other dashboard export',
+	subjectId: 'd-2',
+}
+
 /**
  * Mount the list with GET /api/exports answering the two exports.
  *
@@ -128,7 +136,7 @@ const runs = [
 async function mountList() {
 	axios.get.mockImplementation(async (url) => {
 		if (url === BASE) {
-			return { data: { results: exports.map((e) => ({ ...e })), total: 2 } }
+			return { data: { results: [...exports, otherDashboardExport].map((e) => ({ ...e })), total: 3 } }
 		}
 		if (url === `${BASE}/e1/runs`) {
 			return { data: { results: runs, total: 2 } }
@@ -138,9 +146,8 @@ async function mountList() {
 		}
 		throw new Error(`unexpected GET ${url}`)
 	})
-	const wrapper = mount(ScheduledExportsModal, {
+	const wrapper = mount(ExportsTab, {
 		props: {
-			open: true,
 			subjects: [
 				{ type: 'dashboard', id: 'd-1', label: 'Bezwaren' },
 				{ type: 'widget', id: '7', label: 'KPI' },
@@ -152,7 +159,7 @@ async function mountList() {
 	return wrapper
 }
 
-describe('ScheduledExportsModal', () => {
+describe('ExportsTab', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		setActivePinia(createPinia())
@@ -184,6 +191,13 @@ describe('ScheduledExportsModal', () => {
 		expect(rows[1].find('[data-testid="export-status"]').text()).toBe(
 			'Partly failed',
 		)
+	})
+
+	it('REQ-SCH-011: lists only the exports of this dashboard and its widgets', async () => {
+		const wrapper = await mountList()
+
+		expect(wrapper.text()).not.toContain('Other dashboard export')
+		expect(wrapper.findAll('tr.row')).toHaveLength(2)
 	})
 
 	it('"Run now" POSTs the run, reports how it went and reads the list again', async () => {

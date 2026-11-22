@@ -7,7 +7,7 @@
  * -007), written for the e2e-coverage-programme change.
  *
  * "Config stores X" is proven the way the user causes it: the widget is added
- * through the Add Widget modal (dashboard row cog → "Add custom widget…" →
+ * through the Add Widget modal (dashboard row cog → "Add widget" → "Custom widget" →
  * Links), and the placement is then read back from
  * `GET /api/dashboard/{id}`. Each option is saved twice, once untouched (the
  * default the scenario names) and once changed (that the change is what is

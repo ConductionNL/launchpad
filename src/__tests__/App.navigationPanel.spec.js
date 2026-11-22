@@ -21,7 +21,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnAppRoot: {
 		name: 'CnAppRoot',
-		props: ['hideMenu'],
+		props: ['hideMenu', 'pageGround'],
 		template:
 			'<div><slot v-if="!hideMenu" name="menu"><nav data-testid="cn-nav" /></slot><main /><slot name="header-actions" /></div>',
 	},
@@ -113,6 +113,15 @@ describe('App without the navigation panel (REQ-SHELL-009)', () => {
 		expect(App.provide.call({ chromeState: {} })).toHaveProperty(
 			'launchpadChrome',
 		)
+	})
+})
+
+describe('App on the page ground (REQ-SHELL-012)', () => {
+	it('asks the root to draw its pages on the page ground', () => {
+		const wrapper = mountApp({ routeName: 'Workspace' })
+		expect(
+			wrapper.findComponent({ name: 'CnAppRoot' }).props('pageGround'),
+		).toBe(true)
 	})
 })
 

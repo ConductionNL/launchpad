@@ -47,31 +47,15 @@ import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
 import { embedAdminHref, isOwnedDashboard } from './DashboardRowActions.vue'
-import { readChrome, startPageSections } from './StartPageMenu.vue'
+import {
+	launchpadItems,
+	readChrome,
+	settingsItems,
+	startPageSections,
+} from './StartPageMenu.vue'
 
 /** How many dashboards the menu lists before "All dashboards". */
 const DASHBOARD_LIMIT = 8
-
-/**
- * The order of the app's own destinations, as the board lists them. An
- * entry not named here follows, in the panel's order.
- */
-const LAUNCHPAD_ORDER = [
-	'StoreMenu',
-	'admin-templates',
-	'ReportsMenu',
-	'FlowsMenu',
-	'IntegrationsMenu',
-	'Documentation',
-	'FeaturesRoadmapMenu',
-]
-
-/**
- * Panel entries the menu leaves out because another item already offers
- * them: the dashboards (the Dashboards group) and the in-app admin settings
- * route (the Settings group links to the admin settings).
- */
-const OFFERED_ELSEWHERE = ['dashboards', 'admin-settings']
 
 /** Icons of the app's own destinations, by menu entry id. */
 const DESTINATION_ICONS = {
@@ -84,24 +68,6 @@ const DESTINATION_ICONS = {
 	FeaturesRoadmapMenu: MapMarkerPath,
 	'personal-settings': AccountOutline,
 	'admin-settings-link': ShieldAccountOutline,
-}
-
-/**
- * The app's own destinations in the board's order.
- *
- * @param {object[]} items The resolved panel items.
- * @return {object[]} The items, ordered.
- * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
- */
-export function orderDestinations(items) {
-	const rank = (item) => {
-		const at = LAUNCHPAD_ORDER.indexOf(item.id)
-		return at === -1 ? LAUNCHPAD_ORDER.length : at
-	}
-	return items
-		.map((item, index) => ({ item, index }))
-		.sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index)
-		.map(({ item }) => item)
 }
 
 /**
@@ -334,11 +300,7 @@ export default {
 		 * @return {object}
 		 */
 		settingsGroup() {
-			const items = this.sections.settings
-				.filter((item) =>
-					['personal-settings', 'admin-settings-link'].includes(item.id),
-				)
-				.map(destinationItem)
+			const items = settingsItems(this.sections).map(destinationItem)
 			return { id: 'settings', title: t('launchpad', 'Settings'), items }
 		},
 
@@ -350,22 +312,10 @@ export default {
 		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 */
 		launchpadGroup() {
-			const items = [
-				...this.sections.main,
-				...this.sections.footer,
-				...this.sections.settings,
-			]
-				.filter((item) => !OFFERED_ELSEWHERE.includes(item.id))
-				.filter(
-					(item) =>
-						!['personal-settings', 'admin-settings-link'].includes(
-							item.id,
-						),
-				)
 			return {
 				id: 'launchpad',
 				title: t('launchpad', 'Launchpad'),
-				items: orderDestinations(items).map(destinationItem),
+				items: launchpadItems(this.sections).map(destinationItem),
 			}
 		},
 

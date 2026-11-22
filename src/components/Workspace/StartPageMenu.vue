@@ -8,10 +8,11 @@
   - dashboard view (App.vue) and in the workspace's empty state.
   -
   - Renders nothing while a panel is rendered, so the destinations are never
-  - offered twice. Otherwise every entry the panel would have shown is here:
-  - the app's menu entries by section (main, footer, settings), the personal
-  - settings dialog and, for an administrator, the link to Nextcloud's admin
-  - settings.
+  - offered twice. Otherwise every entry the panel would have shown is here,
+  - grouped and ordered like the dashboard view's More menu (LpVandaag,
+  - LpWerkplek): Dashboards, then Settings (the personal settings dialog and,
+  - for an administrator, the link to Nextcloud's admin settings), then the
+  - app's own destinations.
 -->
 
 <template>
@@ -20,6 +21,7 @@
 		:ariaLabel="t('launchpad', 'More')"
 		:forceMenu="true"
 		class="launchpad-start-page-menu"
+		data-walkthrough-id="launchpad-more-menu"
 		data-testid="launchpad-start-page-menu">
 		<template v-for="(group, index) in groups" :key="group.id">
 			<NcActionSeparator v-if="index > 0" />
@@ -63,6 +65,80 @@ import {
  * The sections of the navigation panel, in the panel's order.
  */
 const SECTIONS = ['main', 'footer', 'settings']
+
+/** The items of the Settings group, in the board's order. */
+const SETTINGS_ITEMS = ['personal-settings', 'admin-settings-link']
+
+/**
+ * The order of the app's own destinations, as the boards list them. An
+ * entry not named here follows, in the panel's order.
+ */
+const LAUNCHPAD_ORDER = [
+	'StoreMenu',
+	'admin-templates',
+	'ReportsMenu',
+	'FlowsMenu',
+	'IntegrationsMenu',
+	'Documentation',
+	'FeaturesRoadmapMenu',
+]
+
+/**
+ * Panel entries the Launchpad group leaves out because another item already
+ * offers them: the dashboards (the Dashboards group) and the in-app admin
+ * settings route (the Settings group links to the admin settings).
+ */
+const OFFERED_ELSEWHERE = ['dashboards', 'admin-settings']
+
+/**
+ * The app's own destinations in the board's order.
+ *
+ * @param {object[]} items The resolved panel items.
+ * @return {object[]} The items, ordered.
+ * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ */
+export function orderDestinations(items) {
+	const rank = (item) => {
+		const at = LAUNCHPAD_ORDER.indexOf(item.id)
+		return at === -1 ? LAUNCHPAD_ORDER.length : at
+	}
+	return items
+		.map((item, index) => ({ item, index }))
+		.sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index)
+		.map(({ item }) => item)
+}
+
+/**
+ * The Settings group's items: the personal settings and, for an
+ * administrator, the admin settings link.
+ *
+ * @param {Record<string, object[]>} sections The menu items by section.
+ * @return {object[]} The items.
+ * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ */
+export function settingsItems(sections) {
+	return SETTINGS_ITEMS.map((id) =>
+		sections.settings.find((item) => item.id === id),
+	).filter(Boolean)
+}
+
+/**
+ * The Launchpad group's items: the app's own destinations in the board's
+ * order, without the ones another group already offers.
+ *
+ * @param {Record<string, object[]>} sections The menu items by section.
+ * @return {object[]} The items.
+ * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ */
+export function launchpadItems(sections) {
+	return orderDestinations(
+		[...sections.main, ...sections.footer, ...sections.settings].filter(
+			(item) =>
+				!OFFERED_ELSEWHERE.includes(item.id)
+				&& !SETTINGS_ITEMS.includes(item.id),
+		),
+	)
+}
 
 /**
  * Whether a destination leaves the instance (scheme-prefixed), which is
@@ -226,18 +302,23 @@ export default {
 		},
 
 		/**
-		 * The menu's groups, one per panel section that has anything to
-		 * show. The settings group opens with the personal settings and
-		 * the admin settings link, as the panel's settings foldout does.
+		 * The menu's groups in the order of the dashboard view's More menu:
+		 * Dashboards, Settings, then the app's own destinations. A group
+		 * with nothing to show is left out.
 		 *
 		 * @return {Array<{ id: string, items: object[] }>}
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
 		 */
 		groups() {
 			const sections = startPageSections(this.chrome, this.cnOpenUserSettings)
-			return SECTIONS.map((id) => ({ id, items: sections[id] })).filter(
-				(group) => group.items.length > 0,
-			)
+			return [
+				{
+					id: 'dashboards',
+					items: sections.main.filter((item) => item.id === 'dashboards'),
+				},
+				{ id: 'settings', items: settingsItems(sections) },
+				{ id: 'launchpad', items: launchpadItems(sections) },
+			].filter((group) => group.items.length > 0)
 		},
 	},
 

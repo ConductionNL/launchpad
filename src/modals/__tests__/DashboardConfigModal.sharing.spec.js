@@ -109,6 +109,41 @@ beforeEach(() => {
 	store.revokeShare.mockResolvedValue({})
 })
 
+describe('DashboardConfigModal: sharing an unpublished dashboard', () => {
+	const hint = (wrapper) => wrapper.find('[data-test="share-unpublished-hint"]')
+
+	it('tells the owner that colleagues see a shared draft once it is published', async () => {
+		const wrapper = mountModal({ dashboard: dashboard({ publicationStatus: 'draft' }) })
+		await flushPromises()
+
+		expect(hint(wrapper).text()).toBe('Colleagues see this dashboard once you publish it')
+	})
+
+	it('shows the hint for a scheduled dashboard too', async () => {
+		const wrapper = mountModal({ dashboard: dashboard({ publicationStatus: 'scheduled' }) })
+		await flushPromises()
+
+		expect(hint(wrapper).exists()).toBe(true)
+	})
+
+	it('shows no hint once the dashboard is published, or for a legacy row', async () => {
+		const published = mountModal({ dashboard: dashboard({ publicationStatus: 'published' }) })
+		const legacy = mountModal()
+		await flushPromises()
+
+		expect(hint(published).exists()).toBe(false)
+		expect(hint(legacy).exists()).toBe(false)
+	})
+
+	it('shows no hint while the draft is not shared with anyone', async () => {
+		api.listShares.mockResolvedValue({ data: [] })
+		const wrapper = mountModal({ dashboard: dashboard({ publicationStatus: 'draft' }) })
+		await flushPromises()
+
+		expect(hint(wrapper).exists()).toBe(false)
+	})
+})
+
 describe('DashboardConfigModal: opening', () => {
 	it('seeds the form from the dashboard and loads shares, suggestions and links', async () => {
 		const wrapper = mountModal({ defaultUuid: 'uuid-3' })

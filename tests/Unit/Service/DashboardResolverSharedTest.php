@@ -106,68 +106,6 @@ class DashboardResolverSharedTest extends TestCase {
 	}//end makeDashboard()
 
 	/**
-	 * REQ-SHARE-002: a dashboard shared with the user IS a resolution
-	 * candidate. Without the fix `tryGetSharedDashboard()` does not exist
-	 * at all and the recipient resolves to nothing.
-	 *
-	 * @return void
-	 */
-	public function testTryGetSharedDashboardResolvesASharedDashboard(): void {
-		$shared = $this->makeDashboard(7, 'uuid-shared', 'Team board', 'owner');
-
-		$this->shareService
-			->method('resolveSharedDashboards')
-			->with('recipient', ['staff'])
-			->willReturn([7 => Dashboard::PERMISSION_VIEW_ONLY]);
-
-		$this->dashboardMapper->method('find')->with(7)->willReturn($shared);
-		$this->placementMapper->method('findByDashboardId')->willReturn([]);
-
-		$result = $this->resolver->tryGetSharedDashboard(
-			userId: 'recipient',
-			userGroupIds: ['staff']
-		);
-
-		$this->assertNotNull($result, 'A shared dashboard must be resolvable.');
-		$this->assertSame($shared, $result['dashboard']);
-	}//end testTryGetSharedDashboardResolvesASharedDashboard()
-
-	/**
-	 * REQ-SHARE-004: the returned permissionLevel comes from the SHARE, not
-	 * from the dashboard row — the row carries the OWNER's level, which
-	 * would advertise edit rights to a view-only recipient.
-	 *
-	 * @return void
-	 */
-	public function testSharedResultCarriesTheSharePermissionNotTheOwners(): void {
-		// Owner's row says "full"; the share grants only "view_only".
-		$shared = $this->makeDashboard(
-			7,
-			'uuid-shared',
-			'Team board',
-			'owner',
-			Dashboard::PERMISSION_FULL
-		);
-
-		$this->shareService
-			->method('resolveSharedDashboards')
-			->willReturn([7 => Dashboard::PERMISSION_VIEW_ONLY]);
-		$this->dashboardMapper->method('find')->willReturn($shared);
-		$this->placementMapper->method('findByDashboardId')->willReturn([]);
-
-		$result = $this->resolver->tryGetSharedDashboard(
-			userId: 'recipient',
-			userGroupIds: []
-		);
-
-		$this->assertSame(
-			Dashboard::PERMISSION_VIEW_ONLY,
-			$result['permissionLevel'],
-			'The share level must win over the owning row permission level.'
-		);
-	}//end testSharedResultCarriesTheSharePermissionNotTheOwners()
-
-	/**
 	 * A dashboard the user already OWNS is never re-surfaced as "shared" —
 	 * ownership is the stronger claim.
 	 *
@@ -181,12 +119,6 @@ class DashboardResolverSharedTest extends TestCase {
 			->willReturn([7 => Dashboard::PERMISSION_FULL]);
 		$this->dashboardMapper->method('find')->willReturn($own);
 
-		$this->assertNull(
-			$this->resolver->tryGetSharedDashboard(
-				userId: 'recipient',
-				userGroupIds: []
-			)
-		);
 		$this->assertSame(
 			[],
 			$this->resolver->findSharedDashboards(
@@ -235,8 +167,9 @@ class DashboardResolverSharedTest extends TestCase {
 			->method('find')
 			->willThrowException(new DoesNotExistException('gone'));
 
-		$this->assertNull(
-			$this->resolver->tryGetSharedDashboard(
+		$this->assertSame(
+			expected: [],
+			actual: $this->resolver->findSharedDashboards(
 				userId: 'recipient',
 				userGroupIds: []
 			)
@@ -258,6 +191,5 @@ class DashboardResolverSharedTest extends TestCase {
 
 		$this->assertSame([], $resolver->findSharedLevels('recipient', []));
 		$this->assertSame([], $resolver->findSharedDashboards('recipient', []));
-		$this->assertNull($resolver->tryGetSharedDashboard('recipient', []));
 	}//end testMissingShareServiceYieldsNoSharedDashboards()
 }//end class

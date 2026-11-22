@@ -69,6 +69,7 @@ import {
 	shareWithUser,
 	unshare,
 } from './support/filesWidget.ts'
+import { publishForRecipients } from './support/principals.ts'
 
 const RUN = Date.now()
 const ROOT = `E2E-FW-access-${RUN}`
@@ -253,6 +254,7 @@ test('a viewer who cannot read the configured folder gets 403 no_access and the 
 	expect(created.status(), await created.text()).toBeLessThan(300)
 	const dash = (await created.json()).dashboard
 	extraDashboards.push(Number(dash.id))
+	await publishForRecipients(admin, Number(dash.id))
 	const share = await admin.post(`${API}/dashboard/${dash.id}/shares`, {
 		data: { shareType: 'user', shareWith: reader!.username, permissionLevel: 'full' },
 	})

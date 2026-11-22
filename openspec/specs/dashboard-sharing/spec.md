@@ -100,6 +100,17 @@ Only the owner of a dashboard MUST be allowed to list, create, update, or delete
 
 `GET /api/dashboards` MUST return both dashboards owned by the caller AND dashboards the caller has access to via a direct or group share. Each entry MUST be decorated with `isOwner: bool`, `sharedBy: string|null` (the owner's userId when not the caller's own dashboard), and `effectivePermissionLevel: 'view_only'|'add_only'|'full'`.
 
+A share does not override publication state (REQ-DASH-036): a dashboard in `draft`, or `scheduled` with `publishAt` still in the future, MUST NOT reach a recipient through any read (`GET /api/dashboards`, `GET /api/dashboards/visible`, `GET /api/dashboard`, `GET /api/dashboard/{id}`) until it is published, unless the recipient is a Nextcloud administrator. When the owner shares a dashboard that is not published yet, the sharing panel MUST say so: "Colleagues see this dashboard once you publish it" ("Collega's zien dit dashboard zodra u het publiceert").
+
+#### Scenario: A shared draft stays hidden until it is published
+
+- GIVEN alice owns draft dashboard `5` and shares it with "bob" at `view_only`
+- WHEN bob fetches `GET /api/dashboards/visible`
+- THEN dashboard `5` MUST NOT be present
+- AND alice's sharing panel MUST show "Colleagues see this dashboard once you publish it"
+- WHEN alice publishes dashboard `5` and bob fetches the list again
+- THEN dashboard `5` MUST be present with `isOwner: false`
+
 #### Scenario: Recipient sees a shared dashboard in their list
 
 - GIVEN dashboard `5` ("My Dashboard", owned by "alice") is shared with "bob" at `add_only`

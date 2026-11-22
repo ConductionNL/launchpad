@@ -5,10 +5,6 @@
 
 <template>
 	<div class="wiki-pages-widget-form">
-		<p class="wiki-pages-widget-form__hint">
-			{{ t('launchpad', 'Shows search, favourites and recent pages from XWiki, through the connection your administrator set up.') }}
-		</p>
-
 		<NcTextField
 			:modelValue="String(limit)"
 			type="number"
@@ -24,6 +20,9 @@
 			data-testid="wiki-pages-form-space"
 			@update:modelValue="update({ space: String($event) })" />
 
+		<p class="wiki-pages-widget-form__hint">
+			{{ t('launchpad', 'Shows search, favourites and recent pages from XWiki, through the connection your administrator set up.') }}
+		</p>
 	</div>
 </template>
 

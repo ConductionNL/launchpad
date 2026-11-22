@@ -199,6 +199,60 @@ describe('Views deep-link history', () => {
 		expect(logger.warn).toHaveBeenCalledWith('[Views] history.replaceState failed:', error)
 	})
 
+	it('writes the address of a dashboard the route opened over the one the server rendered', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		const push = vi.spyOn(window.history, 'pushState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: '/linked' } })
+		at('/index.php/apps/launchpad/other?f=x')
+		replace.mockClear()
+		const host = makeHost({
+			injectedActiveDashboardId: 'u-other',
+			activeDashboard: { id: 7, uuid: 'u-linked' },
+		})
+
+		await host.replaceUrlAfterBoot()
+
+		expect(api.getDashboardPath).toHaveBeenCalledWith('u-linked')
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-linked', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/linked?f=x',
+		)
+		expect(push).not.toHaveBeenCalled()
+	})
+
+	it('falls back to the id address after the boot when the dashboard has no path', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: '' } })
+		at('/index.php/apps/launchpad/other')
+		replace.mockClear()
+
+		await makeHost({
+			injectedActiveDashboardId: 'u-other',
+			activeDashboard: { id: 7, uuid: 'u-linked' },
+		}).replaceUrlAfterBoot()
+
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-linked', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/dashboards/7',
+		)
+	})
+
+	it('leaves the address alone after the boot when the server rendered the open dashboard', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		replace.mockClear()
+
+		await makeHost({
+			injectedActiveDashboardId: 'u-a',
+			activeDashboard: { id: 1, uuid: 'u-a' },
+		}).replaceUrlAfterBoot()
+		await makeHost({ injectedActiveDashboardId: 'u-a', activeDashboard: null }).replaceUrlAfterBoot()
+
+		expect(api.getDashboardPath).not.toHaveBeenCalled()
+		expect(replace).not.toHaveBeenCalled()
+	})
+
 	it('pushes the active dashboard\'s path, once, and nothing without a uuid or path', async () => {
 		const push = vi.spyOn(window.history, 'pushState')
 		api.getDashboardPath.mockResolvedValue({ data: { path: 'team/hr' } })

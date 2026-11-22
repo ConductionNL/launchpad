@@ -12,7 +12,7 @@ Launchpad already has the chart stack: the `chart` type renders through `ChartHo
 `CnChartWidget`, which draws donut, bar and line charts from an OpenRegister query. So no second chart stack is built.
 
 - Two types on that stack, `pie-chart` ("Pie chart") and `graph` ("Graph"), each with its own preset.
-- `ChartSourceForm`: the data source is "A register query" (the shared `CnChartWidgetForm`) or "Values you enter":
+- `ChartSourceForm`, the form of both types: the data source is "A register query" (the shared `CnChartWidgetForm`) or "Values you enter":
   label, value and colour per slice for a pie chart; axis labels and named series, each drawn as bars or a line, for a
   graph.
 - `ChartHost` passes `legendValues`, `legendPosition` and `colorMap` to `CnChartWidget`, writes the donut total in the

@@ -27,35 +27,32 @@
  */
 
 import type { Page, Request, Response } from '@playwright/test'
-import type { SeededUser } from './support/filterBus.ts'
+import type { OwnDashboard } from './support/ownDashboard.ts'
+import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { API, apiAs } from './support/filterBus.ts'
 import {
-	API,
-	apiAs,
-	provisionUserWithDashboard,
-	putAdminSettings,
-	removeUser,
-} from './support/filterBus.ts'
-import {
-	addObjectList,
 	degradedLabel,
 	isOrListUrl,
 	objectListWidget,
 	openRegisterEnabled,
+	OR_REGISTER,
+	OR_SCHEMA,
 	RAW_ERROR,
 	readServedManifest,
 	readShippedManifest,
 	setLanguage,
 } from './support/orWidget.ts'
+import { setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 
 const APP = '/index.php/apps/launchpad'
 const RUN = Date.now()
 const ROW_MARKER = `E2E OR row ${RUN}`
 
-let owner: SeededUser | null = null
-let allowBefore: boolean | null = null
+let own: OwnDashboard | undefined
+let owner: Principal | null = null
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(180_000)
@@ -65,22 +62,29 @@ test.beforeAll(async () => {
 		!(await openRegisterEnabled()),
 		'OpenRegister is not enabled here; these scenarios need it present',
 	)
-	const admin = await apiAs()
-	try {
-		const settings = await admin.get(`${API}/admin/settings`)
-		allowBefore = (await settings.json()).allowUserDashboards === true
-	} finally {
-		await admin.dispose()
-	}
-	owner = await provisionUserWithDashboard('e2e-orc')
-	await addObjectList(owner, owner.dashboardId)
+	// The account's own context places the list, so it lands on the account's
+	// dashboard (filterBus `apiAs(account)` rides the admin session).
+	own = await setUpOwnDashboard('e2e-orc', `E2E OR ${RUN}`)
+	owner = own.owner
+	const placed = await owner.api.post(`${API}/dashboard/${own.id}/widgets`, {
+		data: {
+			widgetId: 'object-list',
+			gridX: 0,
+			gridY: 0,
+			gridWidth: 8,
+			gridHeight: 5,
+			content: {
+				register: OR_REGISTER,
+				schema: OR_SCHEMA,
+				columns: [{ key: 'title', label: 'Title' }],
+			},
+		},
+	})
+	expect(placed.status(), await placed.text()).toBeLessThan(300)
 })
 
 test.afterAll(async () => {
-	await removeUser(owner)
-	if (allowBefore !== null) {
-		await putAdminSettings({ allowUserDash: allowBefore })
-	}
+	await tearDownOwnDashboard(own)
 })
 
 /**
@@ -340,7 +344,9 @@ test('the OR request carries the session CSRF token and no Authorization header'
 		expect([token, await page.evaluate(() =>
 			(window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken ?? '')])
 			.toContain(headers.requesttoken)
-		expect(headers['x-requested-with']).toBe('XMLHttpRequest')
+		// Nextcloud's own request patcher can stamp the header a second time,
+		// which the browser reports as one comma-joined value.
+		expect(headers['x-requested-with']).toMatch(/^XMLHttpRequest(, XMLHttpRequest)*$/)
 		expect(headers.authorization, 'no custom Authorization header').toBeUndefined()
 	} finally {
 		await context.close()

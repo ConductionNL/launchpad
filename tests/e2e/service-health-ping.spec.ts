@@ -242,6 +242,27 @@ async function pingTile(title: string, healthUrl: string, overrides: Record<stri
 }
 
 /**
+ * Wait until Nextcloud reaches a fixture server that just started. On a
+ * runner where the fixture host is forwarded (WSL), a new port answers
+ * Nextcloud only after about a second, and a ping before that reads offline
+ * and is cached for the interval. Each probe is a fresh tile, so no cached
+ * reading answers it.
+ *
+ * @param base the server's base URL.
+ * @return resolves once a ping of it reads online.
+ */
+async function awaitReachable(base: string): Promise<void> {
+	await expect
+		.poll(async () => {
+			const probe = await pingTile(`Reach ${STAMP}`, `${base}/ok?p=reach-${Date.now()}`)
+			const reading = await badge(author!.api, probe)
+			await author!.api.delete(`${API}/widgets/${probe}`)
+			return reading.body?.state
+		}, { message: 'Nextcloud must reach the new fixture server', timeout: 20_000, intervals: [500, 1_000] })
+		.toBe('online')
+}
+
+/**
  * Read one placement of the author's dashboard, as the author.
  *
  * @param placementId the placement.
@@ -651,6 +672,7 @@ test('when a refresh cannot reach the upstream the last-known badge comes back m
 	test.setTimeout(120_000)
 	await allowFixtureHost()
 	const own = await startServer(upstreamHandler)
+	await awaitReachable(own.base)
 	const title = `Stale ${STAMP}`
 	const url = `${own.base}/ok?p=stale`
 	const id = await pingTile(title, url, { pingInterval: 15 })

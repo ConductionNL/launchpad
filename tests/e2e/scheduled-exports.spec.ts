@@ -152,7 +152,13 @@ async function rowAction(page: Page, name: string, action: string): Promise<void
  */
 async function choose(page: Page, scope: Locator, label: string, option: string): Promise<void> {
 	const combobox = scope.getByRole('combobox', { name: label })
-	await combobox.click()
+	// The dialog's focus trap can take focus back to its first field just
+	// after it opens, and the typing below would then land in Name. Type only
+	// once the select itself holds focus.
+	await expect(async () => {
+		await combobox.click()
+		await expect(combobox).toBeFocused({ timeout: 1_000 })
+	}).toPass({ timeout: 10_000 })
 	// Typing narrows the list to the one option, which Enter then picks; clicking
 	// the option by role did not resolve for every select of this editor.
 	await page.keyboard.type(option)

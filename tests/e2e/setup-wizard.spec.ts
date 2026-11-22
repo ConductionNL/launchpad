@@ -908,6 +908,13 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			`[data-test="group-priority-inactive"] li[data-test-id="${GROUP_B}"]`,
 		)
 		await expect(inactiveB).toBeVisible()
+		// Narrow the inactive column to B, as a person looking for one group
+		// among many does: with every leftover group listed, B sits below
+		// the fold and the drag starts after the dialog scrolled away from it.
+		await root.getByLabel('Filter inactive groups').fill(GROUP_B)
+		await expect(
+			root.locator('[data-test="group-priority-inactive"] li[data-test-id]'),
+		).toHaveCount(1)
 
 		const saved = groupSave(page)
 		await inactiveB.dragTo(root.locator('[data-test="group-priority-active"]'))

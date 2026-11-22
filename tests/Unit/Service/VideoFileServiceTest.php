@@ -26,10 +26,13 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\VideoFileService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\Files\Config\ICachedMountInfo;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
+use OCP\IUser;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -70,20 +73,38 @@ class VideoFileServiceTest extends TestCase {
 			static fn (string $path): string => substr($path, strlen('/bob/files'))
 		);
 
-		$elsewhere = null;
-		if ($anywhere !== null) {
-			$elsewhere = $this->createMock(File::class);
-			$elsewhere->method('getPath')->willReturn($anywhere);
+		// The owner's folder holds the file only when it is in their files,
+		// not when it sits in their trash bin.
+		$ownerFolder = $this->createMock(Folder::class);
+		$inFiles = null;
+		if ($anywhere !== null && str_starts_with($anywhere, '/admin/files/') === true) {
+			$inFiles = $this->createMock(File::class);
+			$inFiles->method('getPath')->willReturn($anywhere);
 		}
+		$ownerFolder->method('getFirstNodeById')->with(42)->willReturn($inFiles);
 
 		$root = $this->createMock(IRootFolder::class);
-		$root->method('getUserFolder')->with('bob')->willReturn($userFolder);
-		$root->method('getFirstNodeById')->with(42)->willReturn($elsewhere);
+		$root->method('getUserFolder')->willReturnCallback(
+			static fn (string $uid): Folder => $uid === 'bob' ? $userFolder : $ownerFolder
+		);
+		// A lookup from the root sees no other owner's storage, as in a real request.
+		$root->method('getFirstNodeById')->willReturn(null);
+
+		$mountsFor = [];
+		if ($anywhere !== null) {
+			$owner = $this->createMock(IUser::class);
+			$owner->method('getUID')->willReturn('admin');
+			$mount = $this->createMock(ICachedMountInfo::class);
+			$mount->method('getUser')->willReturn($owner);
+			$mountsFor = [$mount];
+		}
+		$mounts = $this->createMock(IUserMountCache::class);
+		$mounts->method('getMountsForFileId')->with(42)->willReturn($mountsFor);
 
 		$urls = $this->createMock(IURLGenerator::class);
 		$urls->method('getWebroot')->willReturn('/nc');
 
-		return new VideoFileService(rootFolder: $root, placements: $placements, urls: $urls);
+		return new VideoFileService(rootFolder: $root, placements: $placements, urls: $urls, mounts: $mounts);
 	}//end service()
 
 	/**

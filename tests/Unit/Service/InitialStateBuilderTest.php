@@ -58,6 +58,36 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testSearchShortcutsReachTheWorkspace()
 
 	/**
+	 * REQ-RFP-010: an unconfigured allow-list reaches the page as JSON null.
+	 * Nextcloud's initial-state service drops a plain PHP null, so the value
+	 * must be something it accepts that still encodes as `null`.
+	 *
+	 * @return void
+	 */
+	public function testANullAllowListIsPushedAsJsonNull(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+
+		(new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('g')
+			->setPrimaryGroupName('G')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->apply();
+
+		$this->assertArrayHasKey('allowedWidgets', $sink);
+		$this->assertTrue(is_scalar($sink['allowedWidgets']) || is_array($sink['allowedWidgets']) || $sink['allowedWidgets'] instanceof \JsonSerializable);
+		$this->assertSame('null', json_encode($sink['allowedWidgets']));
+	}//end testANullAllowListIsPushedAsJsonNull()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject

@@ -114,6 +114,18 @@ describe('WorkspaceApp sidebar', () => {
 		wrapper.unmount()
 	})
 
+	it('leaves the sidebar open when a menu already handled the Escape', async () => {
+		const wrapper = mountShell()
+		await wrapper.setData({ sidebarOpen: true })
+
+		const handled = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })
+		handled.preventDefault()
+		document.dispatchEvent(handled)
+
+		expect(wrapper.vm.sidebarOpen).toBe(true)
+		wrapper.unmount()
+	})
+
 	it('stops listening for Escape once unmounted', () => {
 		const removed = vi.spyOn(document, 'removeEventListener')
 		const wrapper = mountShell()

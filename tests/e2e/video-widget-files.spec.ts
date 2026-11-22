@@ -363,7 +363,9 @@ test.describe('video widget: HTML5 playback options (REQ-VID-008, REQ-VID-011)',
 		// `muted` is not a reflected attribute: the framework sets the DOM
 		// property, which is exactly what the browser's autoplay policy reads.
 		expect(await video.evaluate((v: HTMLVideoElement) => v.muted), 'the video is muted').toBe(true)
-		await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused), {
+		// The two-second clip can play to its end before the first poll, after
+		// which it is paused again: `played` keeps the ranges it played.
+		await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused || v.played.length > 0), {
 			message: 'a muted autoplay video must start on its own',
 			timeout: 15_000,
 		}).toBe(true)

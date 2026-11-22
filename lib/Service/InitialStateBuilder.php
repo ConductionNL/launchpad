@@ -63,6 +63,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use JsonSerializable;
 use OCA\LaunchPad\Exception\MissingInitialStateException;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCP\AppFramework\Services\IInitialState;
@@ -603,7 +604,7 @@ class InitialStateBuilder {
 		}
 
 		foreach ($this->values as $key => $value) {
-			$this->initialState->provideInitialState($key, $value);
+			$this->initialState->provideInitialState($key, $value ?? self::jsonNull());
 		}
 
 		$this->initialState->provideInitialState(
@@ -611,4 +612,29 @@ class InitialStateBuilder {
 			self::INITIAL_STATE_SCHEMA_VERSION
 		);
 	}//end apply()
+
+	/**
+	 * A value that encodes as JSON `null`. Nextcloud's initial-state service
+	 * drops a plain PHP `null` with a warning, so a key whose value is
+	 * `null` (e.g. `allowedWidgets` when nothing is configured, REQ-RFP-010)
+	 * would never reach the page.
+	 *
+	 * @return JsonSerializable The JSON null.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	private static function jsonNull(): JsonSerializable {
+		return new class implements JsonSerializable {
+			/**
+			 * The JSON value.
+			 *
+			 * @return null Always null.
+			 *
+			 * @spec openspec/specs/role-feature-permissions/spec.md
+			 */
+			public function jsonSerialize(): mixed {
+				return null;
+			}//end jsonSerialize()
+		};
+	}//end jsonNull()
 }//end class

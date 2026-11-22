@@ -23,8 +23,6 @@ use OCA\LaunchPad\Service\WorkPackages\WorkPackagesService;
 use OCA\OpenProject\Service\OpenProjectAPIService;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
-use OCP\IUser;
-use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -55,15 +53,12 @@ class WorkPackagesServiceTest extends TestCase {
 		$apps->method('isEnabledForUser')->willReturn($enabled);
 		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('getValueString')->willReturn('https://op.zuiddrecht.example/');
-		$users = $this->createMock(originalClassName: IUserManager::class);
-		$users->method('get')->willReturn($this->createMock(originalClassName: IUser::class));
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturn($this->api);
 
 		return new WorkPackagesService(
 			appManager: $apps,
 			appConfig: $config,
-			userManager: $users,
 			container: $container,
 			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);

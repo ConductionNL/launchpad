@@ -29,7 +29,6 @@ namespace OCA\LaunchPad\Service\WorkPackages;
 
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
-use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -65,14 +64,12 @@ class WorkPackagesService {
 	 *
 	 * @param IAppManager        $appManager  Whether the integration is enabled.
 	 * @param IAppConfig         $appConfig   The integration's OpenProject address.
-	 * @param IUserManager       $userManager The signed-in person.
 	 * @param ContainerInterface $container   The integration's API service.
 	 * @param LoggerInterface    $logger      Failures of the integration.
 	 */
 	public function __construct(
 		private readonly IAppManager $appManager,
 		private readonly IAppConfig $appConfig,
-		private readonly IUserManager $userManager,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -96,7 +93,7 @@ class WorkPackagesService {
 	 * @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-the-widget-lists-open-work-packages-due-date-first-req-wp-001
 	 */
 	public function openWorkPackages(string $userId, string $scope, string $project, int $limit): array {
-		$service = $this->apiService(userId: $userId);
+		$service = $this->apiService();
 		if ($service === null || is_callable([$service, 'getAccessToken']) === false || is_callable([$service, 'request']) === false) {
 			return ['state' => 'not-installed', 'workPackages' => []];
 		}
@@ -160,16 +157,13 @@ class WorkPackagesService {
 
 	/**
 	 * The integration's API service, or null when the app is not enabled for
-	 * the person or its service cannot be built.
-	 *
-	 * @param string $userId The person.
+	 * the signed-in person or its service cannot be built.
 	 *
 	 * @return object|null
 	 */
-	private function apiService(string $userId): ?object {
+	private function apiService(): ?object {
 		try {
-			$user = $this->userManager->get($userId);
-			if ($user === null || $this->appManager->isEnabledForUser(appId: self::INTEGRATION_APP, user: $user) === false) {
+			if ($this->appManager->isEnabledForUser(appId: self::INTEGRATION_APP) === false) {
 				return null;
 			}
 
@@ -214,6 +208,8 @@ class WorkPackagesService {
 	 * @param int    $limit How many.
 	 *
 	 * @return array<string, string|int>
+	 *
+	 * @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-the-widget-lists-open-work-packages-due-date-first-req-wp-001
 	 */
 	public static function query(string $scope, int $limit): array {
 		$filters = [['status' => ['operator' => 'o', 'values' => []]]];
@@ -235,6 +231,8 @@ class WorkPackagesService {
 	 * @param string               $base    The OpenProject address.
 	 *
 	 * @return array{id: int, subject: string, status: string, project: string, assignee: string, dueDate: string, url: string}
+	 *
+	 * @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-the-widget-lists-open-work-packages-due-date-first-req-wp-001
 	 */
 	public static function workPackage(array $element, string $base): array {
 		$links = $element['_links'] ?? [];

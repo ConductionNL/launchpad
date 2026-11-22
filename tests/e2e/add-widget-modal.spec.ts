@@ -19,11 +19,11 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import { BASE_URL } from './support/baseUrl.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',

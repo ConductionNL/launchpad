@@ -283,3 +283,16 @@ LaunchPad MUST declare a second guided tour, `launchpad:admin-getting-started`, 
 - **GIVEN** Noor completed the admin tour
 - **WHEN** she opens the admin page again
 - **THEN** the admin tour does not start
+
+### Requirement: The board grid sits on the page ground (REQ-SHELL-012)
+
+LaunchPad MUST draw its pages on the page ground, not on the white content panel. `App.vue` passes `pageGround` to `CnAppRoot`, which paints the content area with the NL Design System content-surface token (`--nldesign-component-content-surface-background-color`), falling back to Nextcloud's `--color-background-hover`, in light and dark mode alike. Widgets keep their own surfaces (`.grid-stack-item-content` and the widget wrappers). LaunchPad adds no colour of its own for this.
+
+**Why.** Ruben's review of 22 Nov 2026: the grid sat on a white card. The drawn boards (`launchpad/LpVandaag`, `launchpad/LpWerkplek`) put the grid on the page ground with white widget cards.
+
+#### Scenario: The grid on the page ground
+- GIVEN a member opens a dashboard
+- WHEN the page renders
+- THEN the content area MUST carry the page ground token, not the main background, and each widget MUST keep its own surface
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-012

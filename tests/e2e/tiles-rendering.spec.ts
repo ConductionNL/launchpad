@@ -547,10 +547,9 @@ test('a tile added through "Add widget" → "Custom widget" stores its data in c
 		await page
 			.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+		await page.locator('[data-testid="widget-picker-type-tile"]').click()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
-		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Tile' })
 		await dialog.getByLabel('Title', { exact: true }).fill(title)
 		await dialog.getByLabel(/^(App route|URL)$/).fill('/apps/files')
 

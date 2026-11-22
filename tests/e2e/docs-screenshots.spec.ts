@@ -187,7 +187,7 @@ test.describe('docs: user track', () => {
 		// Open the AddWidgetModal via the cog → Add widget → Custom widget
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-add-widget"]').click()
-		await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+		await page.locator('[data-testid="widget-picker-type-text"]').click()
 		await page
 			.locator('[data-testid="widget-type-select"]')
 			.waitFor({ state: 'visible', timeout: 5000 })
@@ -197,7 +197,6 @@ test.describe('docs: user track', () => {
 		// Switch to the text widget type — its sub-form has a markdown
 		// body that's easy to fill. The select drives the per-type form
 		// swap via the registry (REQ-WDG-014).
-		await page.locator('[data-testid="widget-type-select"]').selectOption('text')
 		await page.waitForTimeout(300)
 		const body = page
 			.locator(

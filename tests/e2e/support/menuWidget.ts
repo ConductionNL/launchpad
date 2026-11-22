@@ -268,7 +268,7 @@ export async function openMenuForm(page: Page): Promise<Locator> {
 	await expect(row).toBeVisible({ timeout: 8_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-menu"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	const typeSelect = dialog.getByLabel(/widget type/i)

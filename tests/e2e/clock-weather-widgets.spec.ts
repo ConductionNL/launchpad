@@ -256,14 +256,14 @@ async function loginInZone(
  *
  * @param page A page on the LaunchPad workspace.
  */
-async function openAddCustomWidget(page: Page) {
+async function openAddCustomWidget(page: Page, type = 'clock') {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
 	await page
 		.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 		.click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog
@@ -397,8 +397,7 @@ test.describe('clock widget', () => {
 		page,
 	}) => {
 		await gotoLaunchPad(page)
-		const dialog = await openAddCustomWidget(page)
-		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Clock' })
+		const dialog = await openAddCustomWidget(page, 'clock')
 
 		await pick(page, dialog, 'Style', 'Digital')
 		await pick(page, dialog, 'Hour format', '24-hour')
@@ -422,8 +421,7 @@ test.describe('clock widget', () => {
 		page,
 	}) => {
 		await gotoLaunchPad(page)
-		const dialog = await openAddCustomWidget(page)
-		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Clock' })
+		const dialog = await openAddCustomWidget(page, 'clock')
 		await pick(page, dialog, 'Style', 'Analog')
 		await expect(dialog.getByLabel('Hour format', { exact: true })).toHaveCount(
 			0,

@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Brak dostępnych pulpitów",
     "Contact your administrator" : "Skontaktuj się z administratorem",
     "Create your first dashboard" : "Utwórz swój pierwszy pulpit",
-    "Open menu" : "Otwórz menu",
     "Save failed" : "Zapisywanie nie powiodło się",
     "My dashboards" : "Moje pulpity",
     "Group dashboards" : "Pulpity grupowe",

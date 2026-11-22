@@ -234,11 +234,16 @@ test.describe('REQ-PEX-002: a person lists their own expertise', () => {
 		try {
 			const settings = session.page
 			await settings.goto('/index.php/apps/launchpad/#user-settings')
-			const section = settings.locator('#launchpad-profile-fields')
+			// NcAppSettingsSection prefixes the section id with `settings-section_`.
+			const section = settings.locator('#settings-section_launchpad-profile-fields')
 			await expect(section).toBeVisible({ timeout: 30_000 })
 
-			const tags = section.locator('.v-select').filter({ has: settings.getByText('Expertise') }).first()
-			const input = tags.locator('input.vs__search')
+			// NcSelect draws its inputLabel outside the `.v-select` box; the
+			// search input is the combobox it names.
+			const input = section.getByRole('combobox', { name: 'Expertise' })
+			const tags = section
+				.locator('.v-select')
+				.filter({ has: settings.getByRole('combobox', { name: 'Expertise' }) })
 			for (const tag of ['subsidies', 'Omgevingswet']) {
 				await input.click()
 				await input.fill(tag)

@@ -918,10 +918,12 @@ test.describe('quota in the list and the switcher (REQ-QUOTA-006)', () => {
 				expect(res.status()).toBe(409)
 				expect((await res.json()).error).toBe('quota_exceeded')
 
+				// @nextcloud/dialogs 8 renders an error toast as role="alert"
+				// with hashed CSS-module classes, no `.toastify` any more.
 				await expect(
-					page.locator('.toastify').filter({
+					page.getByRole('alert').filter({
 						hasText: 'You have reached the limit of 5 dashboards',
-					}),
+					}).first(),
 				).toBeVisible({ timeout: 10_000 })
 
 				// The envelope was read again, so the affordance now disables.

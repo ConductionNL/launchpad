@@ -86,6 +86,16 @@ class LiveTileService {
 	public const DEFAULT_REFRESH_SECONDS = 300;
 
 	/**
+	 * How long a reading stays in the cache, in seconds. Freshness is judged
+	 * by the reading's own `fetchedAtTs` against the refresh interval; the
+	 * entry outlives that interval so a failed refetch can still serve the
+	 * last-known value as stale (REQ-LIVETILE-003).
+	 *
+	 * @var integer
+	 */
+	public const LAST_KNOWN_TTL_SECONDS = 86400;
+
+	/**
 	 * Minimum permitted refresh interval in seconds — any configured value
 	 * below this is clamped up (REQ-LIVETILE-002).
 	 *
@@ -240,7 +250,7 @@ class LiveTileService {
 		}
 
 		$fresh['fetchedAtTs'] = time();
-		$cache?->set(key: $cacheKey, value: json_encode($fresh), ttl: $this->refreshOf(config: $config));
+		$cache?->set(key: $cacheKey, value: json_encode($fresh), ttl: max(self::LAST_KNOWN_TTL_SECONDS, $this->refreshOf(config: $config)));
 
 		return $this->publicShape(reading: $fresh, config: $config, stale: false);
 	}//end valueFor()

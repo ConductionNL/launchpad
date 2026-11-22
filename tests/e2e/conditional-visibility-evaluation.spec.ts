@@ -19,27 +19,17 @@
  *     owner-only read, so each principal owns a dashboard of their own and the
  *     same rule is put on a tile on each.
  *  2. The rendered dashboard: each principal is logged in once, in a browser,
- *     and the tile must be in the grid for one and absent from the DOM for the
- *     other (the spec's accessibility requirement says hidden widgets are
- *     removed from the DOM, not hidden with CSS). Every page is gated on an
- *     anchor tile without rules before an absence is asserted, so "not there"
- *     is never read off a page that has not rendered.
+ *     on their own dashboard. As its owner they still get a tile the rules
+ *     hide, dimmed with the "Hidden for viewers" badge (REQ-VIS-013), so a
+ *     shown tile is one without that badge and a hidden one carries it. Every
+ *     page is gated on an anchor tile without rules first, so a verdict is
+ *     never read off a page that has not rendered.
  *
  * Time and date rules cannot wait for the server clock to reach 14:30 or 15
  * December. For those the exact moment comes from `POST /api/visibility/preview`,
  * which takes a `datetime` and runs the same VisibilityChecker and
  * RuleEvaluatorService pipeline; the rendered half uses rules that match, or
  * cannot match, at any moment.
- *
- * SUSPECTED BUG THAT TURNS MOST OF THIS FILE RED: NOTHING FILTERS THE RENDER
- * ========================================================================
- * No render path consults the rules. `ConditionalService::checkRulesForPlacement()`
- * has one caller, `RuleApiController::getRules()`; the old `isWidgetVisible()`
- * was removed as "orphaned" in 7199ee54; and the logged-in grid draws every
- * placement (only PublicDashboardGrid.vue:216 even reads `isVisible`). So the
- * server can say `isVisible: false` while the tile is on screen. Each test
- * checks the server's verdict first, so a red run says which half failed.
- * Other suspected bugs are marked where they bite.
  *
  * @spec openspec/specs/conditional-visibility/spec.md
  */
@@ -188,10 +178,17 @@ async function expectRendered(
 		`${viewer.who.username}'s own dashboard must have rendered (anchor tile)`,
 	).toHaveCount(1, { timeout: 30_000 })
 	for (const tile of tiles) {
+		const item = page
+			.locator('.launchpad-grid-item')
+			.filter({ hasText: tile.title })
 		await expect(
-			page.locator('.launchpad-grid-item').filter({ hasText: tile.title }),
-			`rendered for ${viewer.who.username}: ${tile.why}`,
-		).toHaveCount(tile.shown ? 1 : 0)
+			item,
+			`${viewer.who.username} owns the dashboard, so the tile is rendered: ${tile.why}`,
+		).toHaveCount(1)
+		await expect(
+			item.getByTestId('hidden-for-viewers-badge'),
+			`${tile.shown ? 'no' : 'a'} "Hidden for viewers" badge for ${viewer.who.username}: ${tile.why}`,
+		).toHaveCount(tile.shown ? 0 : 1)
 	}
 }
 
@@ -412,9 +409,6 @@ test.describe('REQ-VIS-006 time rules', () => {
 				datetime: '2026-11-18T12:00:00',
 			}),
 		).toBe(false)
-		// SUSPECTED BUG (the scenario's own KNOWN LIMITATION): the string
-		// comparison `>= '22:00' && <= '06:00'` is never true, so the widget is
-		// hidden at 02:00 too.
 		expect(
 			await previewVisible(v('bob').who.api, night, {
 				datetime: '2026-11-18T02:00:00',
@@ -667,9 +661,6 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forBob = await tileWith(v('bob'), 'language nl', [rule])
 
 		await expectVerdict(v('bob'), forBob, false, 'bob has language en')
-		// SUSPECTED BUG: UserAttributeResolver has no `language` attribute (the
-		// language is resolved under the name `locale`), so this rule matches
-		// nobody. The editor's own placeholder for the field is "language".
 		await expectVerdict(v('alice'), forAlice, true, 'alice has language nl')
 		await expectRendered(v('alice'), [
 			{ ...forAlice, shown: true, why: 'alice has language nl' },
@@ -690,7 +681,6 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forBob = await tileWith(v('bob'), 'language not en', [rule])
 
 		await expectVerdict(v('bob'), forBob, false, 'bob has language en')
-		// SUSPECTED BUG: as above, `language` resolves to null and never matches.
 		await expectVerdict(v('carol'), forCarol, true, 'carol has language de')
 		await expectRendered(v('carol'), [
 			{ ...forCarol, shown: true, why: 'de is not en' },
@@ -956,8 +946,6 @@ test.describe('REQ-VIS-010 evaluation pipeline', () => {
 			true,
 			'CONTROL: the same three rules show a visible placement',
 		)
-		// SUSPECTED BUG: checkRulesForPlacement() never reads the placement's
-		// own flag, so the verdict for isVisible 0 is still the rules' verdict.
 		await expectVerdict(
 			v('bob'),
 			off,

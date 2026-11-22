@@ -29,7 +29,7 @@
  * @spec openspec/specs/files-widget/spec.md
  */
 
-import type { APIRequestContext, Page, Request, Route } from '@playwright/test'
+import type { APIRequestContext, Locator, Page, Request, Route } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
@@ -194,6 +194,18 @@ test('dropping three files uploads all three, each with its own progress, and li
 	}
 })
 
+/**
+ * One file's entry in the upload list (the widget's upload status region),
+ * where its name and its status sit side by side.
+ *
+ * @param widget the files widget.
+ * @param name the file name.
+ * @return the list item.
+ */
+function uploadEntry(widget: Locator, name: string): Locator {
+	return widget.getByRole('status').getByRole('listitem').filter({ hasText: name })
+}
+
 // @e2e files-widget::upload-progress-indication
 test('a 50 MB upload shows how far it is and which files are queued, uploading or done', async ({ page }, testInfo) => {
 	const { dir, id } = await folderWidget('progress', { 'existing.txt': 'x' }, { allowUpload: true })
@@ -218,7 +230,7 @@ test('a 50 MB upload shows how far it is and which files are queued, uploading o
 	// …and each file says where it is in the queue.
 	for (const name of [`big-${RUN}.bin`, `small-${RUN}.txt`]) {
 		await expect.soft(
-			widget.getByText(new RegExp(`${name.replace(/\./g, '\\.')}`)).filter({ hasText: /queued|in progress|uploading|completed|uploaded|done/i }).first(),
+			uploadEntry(widget, name).filter({ hasText: /queued|in progress|uploading|completed|uploaded|sent|done/i }),
 			`status of ${name}`,
 		).toBeVisible({ timeout: 3_000 })
 	}
@@ -230,7 +242,7 @@ test('a 50 MB upload shows how far it is and which files are queued, uploading o
 	// Once finished, both read as completed.
 	for (const name of [`big-${RUN}.bin`, `small-${RUN}.txt`]) {
 		await expect.soft(
-			widget.getByText(/completed|uploaded|done/i).filter({ hasText: name }).first(),
+			uploadEntry(widget, name).filter({ hasText: /completed|uploaded|done/i }),
 			`completed state of ${name}`,
 		).toBeVisible({ timeout: 3_000 })
 	}

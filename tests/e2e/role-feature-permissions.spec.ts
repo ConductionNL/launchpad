@@ -637,12 +637,7 @@ test('removing a user from the granting group drops the widget and hides, not de
 		(pl: any) => Number(pl.id) === placementId,
 	)
 	expect(placement, 'the placement must be kept, not deleted').toBeDefined()
-	// SUSPECTED BUG: nothing in the render path consults the allow-list —
-	// the only consumers of RoleFeaturePermissionService are the widget list,
-	// getItems, addWidget, the MCP add tool and the initial state
-	// (grep isWidgetAllowed|getAllowedWidgetIds in lib/). The placement comes
-	// back with isVisible 1 (DashboardApiController::show, WidgetPlacement::
-	// jsonSerialize), where the spec says 0 at render time.
+	// Hidden at render time (DashboardApiController::renderedPlacements).
 	expect(placement.isVisible).toBe(0)
 })
 
@@ -798,10 +793,7 @@ test('a layout default the role may not use is not rendered, and the next widget
 			(a, b) =>
 				a.sortOrder - b.sortOrder || a.gridY - b.gridY || a.gridX - b.gridX,
 		)
-	// SUSPECTED BUG: RoleFeaturePermissionService::seedLayoutFromRoleDefaults()
-	// copies every RoleLayoutDefault row without asking isWidgetAllowed(), and
-	// nothing hides the placement at render time, so the restricted widget is
-	// seeded visible in the first slot.
+	// The restricted default is seeded, then hidden when the dashboard is read.
 	expect(visible.map((pl) => pl.widgetId)).not.toContain(RESTRICTED)
 	expect(visible[0]?.widgetId).toBe(SHARED)
 })
@@ -858,7 +850,11 @@ test('joining a higher-priority role mid-session shows its widgets after a reloa
 
 		// The same browser session, reloaded.
 		await page.reload()
-		const res = await page.request.get(`${API}/widgets`)
+		// The page's own cookies; the header passes Nextcloud's CSRF check
+		// (without it the session-cookie request answers 412).
+		const res = await page.request.get(`${API}/widgets`, {
+			headers: { 'OCS-APIRequest': 'true' },
+		})
 		expect(res.status()).toBe(200)
 		const ids = ((await res.json()) as any[]).map((w) => String(w.id))
 		expect(ids).toEqual(registryIdsIn([SHARED, RESTRICTED, EMPLOYEE_ONLY]))
@@ -912,10 +908,11 @@ test('interest in a widget without the role is refused, and nothing is saved or 
 	expect(content.status(), await content.text()).toBe(403)
 	expect(await content.json()).toEqual({ message: 'Not authorized' })
 
-	// Nothing landed, read back as the admin.
-	const asAdmin = await admin.get(`${API}/dashboard/${dashboardId}`)
-	expect(asAdmin.status(), await asAdmin.text()).toBe(200)
-	const placements = (await asAdmin.json()).placements ?? []
+	// Nothing landed, read back as jan: his personal dashboard is not
+	// shared, so an admin read of it is refused like anyone else's.
+	const asOwner = await jan.api.get(`${API}/dashboard/${dashboardId}`)
+	expect(asOwner.status(), await asOwner.text()).toBe(200)
+	const placements = (await asOwner.json()).placements ?? []
 	expect(placements.map((pl: any) => pl.widgetId)).not.toContain(RESTRICTED)
 
 	// Control: the same save for a widget the role has succeeds.

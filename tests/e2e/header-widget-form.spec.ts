@@ -317,16 +317,27 @@ test.describe('REQ-HDR-002 placement configuration', () => {
 		}))
 		expect(chosen.overlayMode).toBe('gradient-bottom')
 
-		const withImage = contentOf(await addHeader(page, async (d) => {
+		// An untouched mode is stored as no value, so the default keeps
+		// following the image; the banner is where the default shows.
+		const withImageRow = await addHeader(page, async (d) => {
 			await titleField(d).fill('Image, mode untouched')
 			await d.getByLabel('Background image URL').fill(LOGO_URL)
-		}))
-		expect(withImage.overlayMode, 'default with an image').toBe('tint')
+		})
+		expect([undefined, 'tint'], 'stored default with an image').toContain(contentOf(withImageRow).overlayMode)
+		const tinted = banner(page, withImageRow.id)
+		await expect(tinted).toBeVisible({ timeout: 15_000 })
+		const overlay = tinted.locator('.cn-header-widget__overlay')
+		await expect(overlay, 'default with an image: a tint overlay').toHaveCount(1)
+		expect(await cssOf(overlay, 'background-image'), 'a tint, not a gradient').toBe('none')
+		expect(await cssOf(overlay, 'opacity')).toBe('0.4')
 
-		const without = contentOf(await addHeader(page, async (d) => {
+		const withoutRow = await addHeader(page, async (d) => {
 			await titleField(d).fill('No image, mode untouched')
-		}))
-		expect(without.overlayMode, 'default without an image').toBe('none')
+		})
+		expect([undefined, 'none'], 'stored default without an image').toContain(contentOf(withoutRow).overlayMode)
+		const plain = banner(page, withoutRow.id)
+		await expect(plain).toBeVisible({ timeout: 15_000 })
+		await expect(plain.locator('.cn-header-widget__overlay'), 'default without an image: no overlay').toHaveCount(0)
 	})
 
 	// @e2e header-widget::config-for-overlay-opacity
@@ -450,7 +461,8 @@ test.describe('REQ-HDR-002 placement configuration', () => {
 		expect(JSON.parse(JSON.stringify(content)), 'it round-trips unchanged').toEqual(content)
 		expect(content.title, 'no spurious whitespace or encoding damage').toBe(title)
 		expect(content.subtitle).toBe(subtitle)
-		for (const key of ['title', 'overlayMode', 'overlayOpacity', 'textAlign', 'verticalAlign', 'height']) {
+		// overlayMode is absent until chosen (see the overlay mode test).
+		for (const key of ['title', 'overlayOpacity', 'textAlign', 'verticalAlign', 'height']) {
 			expect(content, `field ${key} is present`).toHaveProperty(key)
 		}
 	})

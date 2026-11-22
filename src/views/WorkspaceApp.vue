@@ -412,14 +412,16 @@ export default {
 		 *
 		 * Guarded on `sidebarOpen` so this does not swallow Escape from the
 		 * quick-search bar (REQ-QSEARCH-003), which owns its own Escape
-		 * contract and is only reachable while the sidebar is closed.
+		 * contract and is only reachable while the sidebar is closed. An
+		 * Escape a menu already handled (it calls `preventDefault()`) closed
+		 * that menu and leaves the sidebar open.
 		 *
 		 * @param {KeyboardEvent} event the document keydown.
 		 * @return {void}
 		 * @spec openspec/specs/runtime-shell/spec.md
 		 */
 		onDocumentKeydown(event) {
-			if (event.key === 'Escape' && this.sidebarOpen) {
+			if (event.key === 'Escape' && !event.defaultPrevented && this.sidebarOpen) {
 				this.closeSidebar()
 			}
 		},

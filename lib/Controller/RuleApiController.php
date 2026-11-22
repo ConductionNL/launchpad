@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Service\PermissionService;
@@ -141,6 +142,10 @@ class RuleApiController extends Controller {
 			);
 		}
 
+		if (self::isAllowedRuleType(ruleType: $ruleType) === false) {
+			return $this->invalidRuleType();
+		}
+
 		try {
 			$this->permissionService->verifyPlacementOwnership(
 				userId: $this->context->userId,
@@ -193,6 +198,12 @@ class RuleApiController extends Controller {
 		$refusal = $this->actionRefusal(action: 'rule.update-rule');
 		if ($refusal !== null) {
 			return $refusal;
+		}
+
+		if ($ruleType !== null
+			&& self::isAllowedRuleType(ruleType: $ruleType) === false
+		) {
+			return $this->invalidRuleType();
 		}
 
 		try {
@@ -266,6 +277,28 @@ class RuleApiController extends Controller {
 			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end deleteRule()
+
+	/**
+	 * Whether a rule type is one the evaluator knows.
+	 *
+	 * @param string $ruleType The rule type.
+	 *
+	 * @return bool True for group, time, date and attribute.
+	 */
+	private static function isAllowedRuleType(string $ruleType): bool {
+		return in_array($ruleType, ConditionalRule::ALLOWED_TYPES, true);
+	}//end isAllowedRuleType()
+
+	/**
+	 * The 400 answer for a rule type outside the allowed set.
+	 *
+	 * @return JSONResponse The invalid-argument response.
+	 */
+	private function invalidRuleType(): JSONResponse {
+		return $this->context->responseHelper->invalidArgument(
+			message: 'Invalid ruleType: only group, time, date and attribute are accepted'
+		);
+	}//end invalidRuleType()
 
 	/**
 	 * Build rule update data from nullable parameters.

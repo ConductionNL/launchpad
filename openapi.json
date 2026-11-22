@@ -11399,7 +11399,7 @@
                         "name": "limit",
                         "in": "query",
                         "required": false,
-                        "description": "Page size.",
+                        "description": "Page size. Not declared `int`: Nextcloud casts an int `limit` itself and answers a non-number with a 500 before this runs.",
                         "schema": {
                             "type": "integer"
                         }

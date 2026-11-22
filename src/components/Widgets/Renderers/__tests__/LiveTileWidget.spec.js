@@ -185,6 +185,8 @@ describe('LiveTileWidget — REQ-LIVETILE-005 connector-absent leaf consumption'
 		expect(wrapper.find('.live-tile-widget__state--unavailable').exists()).toBe(
 			false,
 		)
+		expect(wrapper.find('.live-tile-widget__state--error').exists()).toBe(true)
+		expect(wrapper.text()).not.toContain('Showing last known value')
 	})
 })
 

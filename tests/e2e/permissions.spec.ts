@@ -67,6 +67,7 @@ interface Placement {
 	gridHeight: number
 	customTitle?: string | null
 	showTitle?: number
+	content?: Record<string, unknown>
 }
 
 interface Envelope {
@@ -661,9 +662,16 @@ test.describe('permission levels on a template copy the user owns', () => {
 		expect(copy.permissionLevel).toBe('view_only')
 		expect(copy.placements.length).toBeGreaterThan(0)
 
+		// A list or number whose register is not installed here hides itself
+		// by design (REQ-TMPL-022): the template's dossiq tile on this stack.
+		const shown = copy.placements.filter(
+			(p) => !(['object-list', 'stat'].includes(p.widgetId) && p.content?.hideWhenUnavailable === true),
+		)
+		expect(shown.length).toBeGreaterThan(0)
+
 		const { context, page } = await openAs(browser, dave!.principal)
 		try {
-			for (const p of copy.placements) {
+			for (const p of shown) {
 				const cell = page.locator(
 					`.launchpad-grid-item[data-placement-id="${p.id}"]`,
 				)

@@ -58,6 +58,29 @@ type NavApp = { id: string; name: string; href: string; icon: string }
 
 let admin: APIRequestContext
 
+/**
+ * Enable an app for some groups only, or for everyone with `[]`. Nextcloud
+ * 34 moved the app management into the `appstore` app's OCS API; older
+ * servers keep the settings route.
+ *
+ * @param api an admin context.
+ * @param appId the app.
+ * @param groups the groups, or none for everyone.
+ * @return the response.
+ */
+async function enableAppFor(api: APIRequestContext, appId: string, groups: string[]) {
+	const ocs = await api.post('/ocs/v2.php/apps/appstore/api/v1/apps/enable', {
+		headers: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
+		data: { appId, groups },
+	})
+	if (ocs.status() !== 404) {
+		return ocs
+	}
+	return api.post('/index.php/settings/apps/enable', {
+		data: { appIds: [appId], groups },
+	})
+}
+
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(180_000)
 
@@ -491,9 +514,7 @@ test.describe('discovery', () => {
 		try {
 			member = await createPrincipal(admin, 'e2e-disc-member')
 			await addToGroup(admin, member.username, group)
-			const restrict = await admin.post('/index.php/settings/apps/enable', {
-				data: { appIds: [target!.id], groups: [group] },
-			})
+			const restrict = await enableAppFor(admin, target!.id, [group])
 			expect(restrict.status(), await restrict.text()).toBe(200)
 
 			// The member still sees it, so the hiding is about the group.
@@ -528,9 +549,7 @@ test.describe('discovery', () => {
 				await context.close()
 			}
 		} finally {
-			await admin.post('/index.php/settings/apps/enable', {
-				data: { appIds: [target!.id], groups: [] },
-			})
+			await enableAppFor(admin, target!.id, [])
 			await removePrincipal(admin, member)
 			await removeGroup(admin, group)
 		}

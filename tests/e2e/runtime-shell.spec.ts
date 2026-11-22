@@ -271,6 +271,12 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		const dash = (await created.json()).dashboard
 		groupDashboard = { id: Number(dash.id), uuid: String(dash.uuid) }
 		groupPlacement = await addTextWidget(admin, groupDashboard.id)
+		// A new dashboard starts as a draft, which only its author sees
+		// (REQ-DASH-031): publish it so the member can open it.
+		const published = await admin.post(
+			`${API}/dashboards/${groupDashboard.uuid}/publish`,
+		)
+		expect(published.status(), await published.text()).toBe(200)
 		await quietFirstVisit(member.api)
 		const active = await member.api.post(`${API}/dashboards/active`, {
 			data: { uuid: groupDashboard.uuid },
@@ -638,8 +644,10 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 				'Welcome to Launchpad',
 				{ timeout: 30_000 },
 			)
-			// On the Workspace page: the `/` route, whose view is WorkspaceApp.
-			expect(new URL(page.url()).pathname).toMatch(/\/apps\/launchpad\/?$/)
+			// On the Workspace page, whose view is WorkspaceApp. The address
+			// may carry the active dashboard's slug (dashboard deep links
+			// replace `/` with it), so the view is what identifies the page.
+			expect(new URL(page.url()).pathname).toMatch(/\/apps\/launchpad(\/|$)/)
 			await expect(page.locator('.workspace-shell')).toBeAttached()
 
 			// In the centre: the centred layout, over a full-page dim, and

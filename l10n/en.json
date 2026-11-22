@@ -1636,6 +1636,22 @@
         "Leave empty to show every space.": "Leave empty to show every space.",
         "Pages per list": "Pages per list",
         "Show 1 to 20 pages per list": "Show 1 to 20 pages per list",
-        "Wiki": "Wiki"
+        "Wiki": "Wiki",
+        "Work packages need the OpenProject integration. Ask your administrator to enable it.": "Work packages need the OpenProject integration. Ask your administrator to enable it.",
+        "Connect your OpenProject account to see your work packages.": "Connect your OpenProject account to see your work packages.",
+        "Connect OpenProject": "Connect OpenProject",
+        "The work packages could not be loaded. Try again later.": "The work packages could not be loaded. Try again later.",
+        "This project has no open work packages": "This project has no open work packages",
+        "You have no open work packages": "You have no open work packages",
+        "Shows open OpenProject work packages, due date first. Each person sees what OpenProject lets them see.": "Shows open OpenProject work packages, due date first. Each person sees what OpenProject lets them see.",
+        "Which work packages": "Which work packages",
+        "Assigned to the person viewing": "Assigned to the person viewing",
+        "Everyone in one project": "Everyone in one project",
+        "Project identifier": "Project identifier",
+        "The identifier in the project address, such as havenpark.": "The identifier in the project address, such as havenpark.",
+        "Number of work packages": "Number of work packages",
+        "Name the project": "Name the project",
+        "Show 1 to 25 work packages": "Show 1 to 25 work packages",
+        "My work packages": "My work packages"
     }
 }

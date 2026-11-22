@@ -193,7 +193,12 @@ class PageController extends Controller {
 			)
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
-			->setIntegrationApps(['openregister' => $this->isAppEnabledForViewer(appId: 'openregister')])
+			->setIntegrationApps(
+				[
+					'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
+					'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+				]
+			)
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();

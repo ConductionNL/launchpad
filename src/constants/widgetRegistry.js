@@ -121,6 +121,10 @@ import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm
 // OpenRegister's XWiki integration (openspec/changes/wiki-widget).
 import WikiPagesWidget from '../components/Widgets/Renderers/WikiPagesWidget.vue'
 import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidgetForm.vue'
+// `work-packages` — open OpenProject work packages through the official
+// integration (openspec/changes/work-packages-widget).
+import WorkPackagesWidget from '../components/Widgets/Renderers/WorkPackagesWidget.vue'
+import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -363,6 +367,21 @@ registerDashboardWidget('wiki-pages', {
 	displayName: 'Wiki',
 	icon: 'BookOpenPageVariantOutline',
 	requiresApp: 'openregister',
+})
+
+// work-packages-widget REQ-WP-001..004: open OpenProject work packages, read
+// through integration_openproject with the viewer's own token.
+registerDashboardWidget('work-packages', {
+	renderer: WorkPackagesWidget,
+	form: WorkPackagesWidgetForm,
+	defaultContent: {
+		scope: 'mine',
+		project: '',
+		limit: 4,
+	},
+	displayName: 'My work packages',
+	icon: 'ClipboardCheckOutline',
+	requiresApp: 'integration_openproject',
 })
 
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,

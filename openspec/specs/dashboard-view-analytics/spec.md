@@ -469,7 +469,7 @@ The system MUST call the view-event endpoint from the Vue frontend when a dashbo
 - WHEN both tabs load and try to post view events within 1 second
 - THEN only ONE `POST /api/dashboards/{uuid}/view-event` MUST be sent
 - AND the second tab's event MUST be debounced/cancelled
-- NOTE: Debounce window is 1 second per dashboard instance; debounce is per-tab-session, not cross-tab
+- NOTE: The debounce holds across the open tabs of one browser: the tab that sends holds a Web Lock named after the dashboard for 1 second, and another tab that finds it held sends nothing. Within one tab the window is 1 second per dashboard. A browser without the Locks API sends from every tab.
 
 #### Scenario: Different dashboards are not debounced against each other
 

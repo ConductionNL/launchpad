@@ -88,16 +88,16 @@ async function openWidget(page: Page): Promise<Locator> {
 }
 
 // @e2e launchpad-adopt-or-abstractions::manifest-declares-no-install-time-or-dependency
-test('src/manifest.json declares an empty dependencies array', async ({ page }) => {
+test('src/manifest.json lists OpenRegister only as an optional dependency', async ({ page }) => {
 	await page.goto(APP)
 	const manifest = await readShippedManifest(page)
 	expect(Array.isArray(manifest.dependencies), 'dependencies must be an array').toBe(true)
-	expect(manifest.dependencies, 'manifest.dependencies MUST be []').toEqual([])
-	// The reviewer rule's enforceable form: no Conduction app id, in either
-	// the string or the `{ id }` object shape.
-	const declared = JSON.stringify(manifest.dependencies)
-	expect(declared).not.toContain('openregister')
-	expect(declared).not.toContain('openconnector')
+	// The reviewer rule's enforceable form: OpenRegister is the only entry and
+	// it is optional; no bare app-id string, no required entry, no OpenConnector.
+	expect(manifest.dependencies, 'manifest.dependencies lists OpenRegister as optional').toEqual([
+		{ id: 'openregister', required: false, name: 'OpenRegister' },
+	])
+	expect(JSON.stringify(manifest.dependencies)).not.toContain('openconnector')
 })
 
 test.describe('an OR-backed widget', () => {

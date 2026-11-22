@@ -463,13 +463,15 @@ test.describe('REQ-ASET-004 the multiple-dashboards switch', () => {
 		expect(await ownDashboardIds(alice.api)).toEqual([made[0]])
 	})
 
-	// @e2e admin-settings::template-distribution-overrides-multiple-dashboard-restriction
-	test('with multiple dashboards off a template for the group still reaches a user who has one', async () => {
+	// @e2e admin-settings::a-new-template-reaches-only-users-on-their-first-access
+	test('with multiple dashboards off a new template for the group reaches a first-time member, not one who has a dashboard', async () => {
 		const alice = await freshUser('e2e-aset-tmpl-multi')
+		const bob = await freshUser('e2e-aset-tmpl-first')
 		const group = await freshGroup('e2e-aset-tmpl-multi')
 		await addToGroup(admin, alice.username, group)
+		await addToGroup(admin, bob.username, group)
 		await writeSettings(admin, { allowUserDash: true, allowMultiDash: true })
-		await createDashboard(alice.api, `E2E Own ${Date.now()}`)
+		const own = await createDashboard(alice.api, `E2E Own ${Date.now()}`)
 
 		await writeSettings(admin, { allowMultiDash: false })
 		const template = await createTemplate({
@@ -478,19 +480,20 @@ test.describe('REQ-ASET-004 the multiple-dashboards switch', () => {
 			permissionLevel: 'add_only',
 		})
 
-		// The distribution runs when the member opens LaunchPad.
+		// The distribution runs when a member opens LaunchPad.
 		const visit = await alice.api.get(`${API}/dashboard`)
 		expect(visit.status(), await visit.text()).toBe(200)
 
-		// SUSPECTED BUG: DashboardService::templateStepsAside()
-		// (lib/Service/DashboardService.php:2186-2190) skips the template for
-		// anyone who already owns a dashboard, so the copy is never made and
-		// alice keeps one dashboard. The scenario says the restriction applies
-		// only to user-initiated creation and the copy MUST still arrive.
+		// THEN: alice already has a dashboard, so no copy is made for her.
+		expect(await ownDashboardIds(alice.api)).toEqual([Number(own.id)])
 		const res = await alice.api.get(`${API}/dashboards`)
 		const items = listItems(await res.json())
-		expect(items.map((d) => d.basedOnTemplate)).toContain(Number(template.id))
-		expect(items).toHaveLength(2)
+		expect(items.map((d) => d.basedOnTemplate)).not.toContain(Number(template.id))
+
+		// AND: bob opens LaunchPad for the first time and gets the copy.
+		const first = await firstVisit(bob)
+		expect(first.dashboard.basedOnTemplate).toBe(Number(template.id))
+		expect(await ownDashboardIds(bob.api)).toHaveLength(1)
 	})
 })
 

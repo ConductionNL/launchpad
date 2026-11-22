@@ -227,15 +227,11 @@ test.describe('REQ-WDG-006 placement visibility', () => {
 	})
 
 	// @e2e widgets::hidden-widget-never-renders
-	test.fixme('a placement with isVisible 0 is not displayed and leaves no placeholder', async ({
+	test('a placement with isVisible 0 is not displayed and leaves no placeholder', async ({
 		page,
 	}) => {
-		// SUSPECTED DEFECT: the workspace never reads isVisible. Views.vue
-		// shownPlacements (src/views/Views.vue:894) filters only on
-		// unavailable sources, and the dashboard read
-		// (DashboardService::getDashboardForUser, lib/Service/DashboardService.php:299)
-		// returns every placement. Only the public share grid filters it
-		// (src/components/PublicDashboardGrid.vue:216).
+		// Views.vue shownPlacements leaves out a placement with isVisible 0
+		// in view and edit mode, as the public share grid does.
 		const widget = stockWidget()
 		const shown = await seedPlacement(admin, dashboard!.id, {
 			widgetId: widget.id,
@@ -324,11 +320,9 @@ test.describe('REQ-WDG-006 placement visibility', () => {
 	})
 
 	// @e2e widgets::visibility-toggle-via-api
-	test.fixme('PUT isVisible 0 stores it and the next render hides the widget even with matching rules', async ({
+	test('PUT isVisible 0 stores it and the next render hides the widget even with matching rules', async ({
 		page,
 	}) => {
-		// SUSPECTED DEFECT: as hidden-widget-never-renders — the store half
-		// works, the render half does not (src/views/Views.vue:894).
 		const widget = stockWidget()
 		const placement = await seedPlacement(admin, dashboard!.id, {
 			widgetId: widget.id,

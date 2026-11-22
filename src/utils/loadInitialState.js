@@ -155,6 +155,19 @@ export function isOnOfficeNetwork() {
 }
 
 /**
+ * The Nextcloud dashboard widgets the page carries for the card library,
+ * already narrowed to the user's role (REQ-RFP-010). Empty when the server
+ * could not list them without loading them, or on a page without the key.
+ *
+ * @return {object[]} The widget descriptors.
+ * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
+ */
+export function initialWidgetCatalogue() {
+	const widgets = readKey('widgets', [])
+	return Array.isArray(widgets) ? widgets : []
+}
+
+/**
  * Wrap loadState so a missing key (the helper throws) silently degrades
  * to the documented default. The reader contract guarantees no
  * `undefined` reads — the JS bundle never crashes when PHP omits a key.

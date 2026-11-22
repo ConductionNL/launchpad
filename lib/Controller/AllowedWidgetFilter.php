@@ -61,16 +61,30 @@ final class AllowedWidgetFilter {
 			return $widgets;
 		}
 
-		$allowed = $this->roleFeaturePerm->getAllowedWidgetIds(
-			userId: $this->userId
+		return self::permitted(
+			widgets: $widgets,
+			allowed: $this->roleFeaturePerm->getAllowedWidgetIds(userId: $this->userId)
 		);
+	}//end filter()
+
+	/**
+	 * The widgets an already resolved allow-list permits; every widget when
+	 * the list is null (nothing configured, backwards-compat).
+	 *
+	 * @param array<int, array<string, mixed>> $widgets The available widgets.
+	 * @param array<int, string>|null          $allowed The allowed widget ids, or null.
+	 *
+	 * @return array<int, array<string, mixed>> The permitted widgets.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	public static function permitted(array $widgets, ?array $allowed): array {
 		if ($allowed === null) {
-			// Backwards-compat: nothing configured, return everything.
 			return $widgets;
 		}
 
 		return self::widgetsWithIdIn(widgets: $widgets, allowed: $allowed);
-	}//end filter()
+	}//end permitted()
 
 	/**
 	 * The widgets whose non-empty id is in the allowed list, in order.

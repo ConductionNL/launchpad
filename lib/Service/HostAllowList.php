@@ -85,6 +85,30 @@ final class HostAllowList {
 	}//end permits()
 
 	/**
+	 * The hosts on the list: trimmed, deduplicated, non-string and blank
+	 * entries dropped. Empty when the list is unset or unparseable.
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 */
+	public function hosts(): array {
+		$decoded = json_decode(json: $this->rawList(), associative: true);
+		if (is_array(value: $decoded) === false) {
+			return [];
+		}
+
+		$hosts = [];
+		foreach ($decoded as $entry) {
+			if (is_string(value: $entry) === true && trim(string: $entry) !== '') {
+				$hosts[] = trim(string: $entry);
+			}
+		}
+
+		return array_values(array: array_unique(array: $hosts));
+	}//end hosts()
+
+	/**
 	 * The stored JSON list, '' when unset.
 	 *
 	 * @return string The raw list.

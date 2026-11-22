@@ -5,7 +5,8 @@
  *
  * Contributes every admin-allow-listed `iframe` host to LaunchPad's own
  * `frame-src` Content-Security-Policy directive so Nextcloud's instance CSP
- * does not itself block an otherwise-permitted embed (REQ-IFRAME-003).
+ * does not itself block an otherwise-permitted embed (REQ-IFRAME-003), and
+ * every allow-listed external image host to `img-src` (REQ-IMG-006).
  *
  * This is deliberately the ONLY side of the CSP the app touches: the
  * event fires for every Nextcloud response, so the policy is only added to
@@ -34,6 +35,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Service\IframeService;
+use OCA\LaunchPad\Service\ImageHostService;
 use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -44,7 +46,8 @@ use Throwable;
 
 /**
  * Adds allow-listed `iframe` embed hosts to the app-scoped `frame-src` CSP
- * directive. REQ-IFRAME-003.
+ * directive (REQ-IFRAME-003) and allow-listed image hosts to `img-src`
+ * (REQ-IMG-006).
  *
  * @implements IEventListener<AddContentSecurityPolicyEvent>
  */
@@ -53,6 +56,7 @@ class CspListener implements IEventListener {
 	 * Constructor.
 	 *
 	 * @param IframeService $iframeService The allow-list source of truth.
+	 * @param ImageHostService $imageHosts The image host allow-list.
 	 * @param LoggerInterface $logger PSR-3 logger for log-and-continue
 	 *                                failure handling — a CSP
 	 *                                contribution failure must never
@@ -61,6 +65,7 @@ class CspListener implements IEventListener {
 	 */
 	public function __construct(
 		private readonly IframeService $iframeService,
+		private readonly ImageHostService $imageHosts,
 		private readonly LoggerInterface $logger,
 		private readonly IRequest $request,
 	) {
@@ -74,6 +79,7 @@ class CspListener implements IEventListener {
 	 * @return void
 	 *
 	 * @spec openspec/specs/iframe-embed-widget/spec.md
+	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof AddContentSecurityPolicyEvent) === false || $this->isLaunchPadRequest() === false) {
@@ -81,26 +87,30 @@ class CspListener implements IEventListener {
 		}
 
 		try {
-			$hosts = $this->iframeService->getAllowedHosts();
-			if ($hosts === []) {
-				// FAIL-CLOSED — no configured host means nothing is added
-				// to frame-src, matching the save/render-time allow-list
-				// behaviour (REQ-IFRAME-002, REQ-IFRAME-003).
+			$frameHosts = $this->iframeService->getAllowedHosts();
+			$imageHosts = $this->imageHosts->getAllowedHosts();
+			if ($frameHosts === [] && $imageHosts === []) {
+				// FAIL-CLOSED — no configured host means nothing is added,
+				// matching the save/render-time allow-list behaviour
+				// (REQ-IFRAME-002, REQ-IFRAME-003, REQ-IMG-006).
 				return;
 			}
 
+			// Exact hosts, HTTPS only, never a wildcard (REQ-IFRAME-003
+			// "the app MUST NOT add a wildcard (*) to frame-src").
 			$policy = new EmptyContentSecurityPolicy();
-			foreach ($hosts as $host) {
-				// Exact host, HTTPS only, never a wildcard
-				// (REQ-IFRAME-003 "the app MUST NOT add a wildcard (*) to
-				// frame-src").
+			foreach ($frameHosts as $host) {
 				$policy->addAllowedFrameDomain(domain: 'https://' . $host);
+			}
+
+			foreach ($imageHosts as $host) {
+				$policy->addAllowedImageDomain(domain: 'https://' . $host);
 			}
 
 			$event->addPolicy(csp: $policy);
 		} catch (Throwable $exception) {
 			$this->logger->warning(
-				message: 'launchpad CspListener: failed to contribute iframe allow-list to frame-src',
+				message: 'launchpad CspListener: failed to contribute the allow-lists to the CSP',
 				context: ['app' => 'launchpad', 'exception' => $exception->getMessage()]
 			);
 		}//end try

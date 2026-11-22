@@ -1853,7 +1853,10 @@ OC.L10N.register(
     "Neighbourhood" : "Neighbourhood",
     "Province" : "Province",
     "Municipality" : "Municipality",
-    "District" : "District"
+    "District" : "District",
+    "Add a news widget with a feed to one of your dashboards to see its articles here." : "Add a news widget with a feed to one of your dashboards to see its articles here.",
+    "No news articles right now." : "No news articles right now.",
+    "Add a links widget to one of your dashboards to see its links here." : "Add a links widget to one of your dashboards to see its links here."
 },
 "nplurals=2; plural=(n != 1);"
 );

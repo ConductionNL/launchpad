@@ -307,21 +307,18 @@ describe('Views server-app discovery', () => {
 		expect(logger.warn).toHaveBeenCalledWith('[Views] Could not discover the server apps:', error)
 	})
 
-	it('places a discovered app as a tile, logging a failure instead of throwing', async () => {
-		const addTileToDashboard = vi.fn().mockResolvedValue({ id: 1 })
-		const host = makeHost({ addTileToDashboard })
+	it('places a discovered app as its own app tile, logging a failure instead of throwing', async () => {
+		const addWidgetToDashboard = vi.fn().mockResolvedValue({ id: 1 })
+		const host = makeHost({ addWidgetToDashboard })
 
 		await host.addDiscoveredApp({ appId: 'deck', name: 'Deck', href: 'https://elders.example.nl/', icon: '/deck.svg' })
-		expect(addTileToDashboard).toHaveBeenCalledWith({
-			title: 'Deck',
-			icon: '/deck.svg',
-			iconType: 'url',
-			linkType: 'url',
-			linkValue: 'https://elders.example.nl/',
+		expect(addWidgetToDashboard).toHaveBeenCalledWith({
+			type: 'app-tile',
+			content: { appId: 'deck', colour: '', showCount: true },
 		})
 
 		const error = new Error('quota')
-		addTileToDashboard.mockRejectedValueOnce(error)
+		addWidgetToDashboard.mockRejectedValueOnce(error)
 		await expect(host.addDiscoveredApp({ appId: 'deck', name: 'Deck', href: '/x', icon: '' })).resolves.toBeUndefined()
 		expect(logger.error).toHaveBeenCalledWith('[Views] Failed to place a discovered app:', error)
 	})

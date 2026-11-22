@@ -32,14 +32,23 @@ Two admin-config settings are read on demand (created lazily by `IAppConfig`):
 
 ### Requirement: REQ-NEWS-001 Widget Registration
 
-The system MUST register a new dashboard widget with id `launchpad_news` via `OCP\Dashboard\IManager` that appears in the widget picker alongside other discovered Nextcloud dashboard widgets.
+The system MUST register a new dashboard widget with id `launchpad_news` with Nextcloud's dashboard (`OCP\Dashboard\IManager`) that appears in the widget picker alongside other discovered Nextcloud dashboard widgets. On Nextcloud's own dashboard it serves the newest articles from the feeds of the news widgets on the dashboards the user owns.
 
 #### Scenario: Widget registration on bootstrap
 - GIVEN LaunchPad is installed and enabled
-- WHEN the application bootstraps (AppInfo/Bootstrap.php or equivalent lifecycle hook)
-- THEN the system MUST call `IManager::registerWidget()` with widget metadata
-- AND the widget MUST have id `launchpad_news`, translatable title (e.g., `app.launchpad.news_widget_title`), and a feed/newspaper icon URL
+- WHEN the application bootstraps (`Application::register()`)
+- THEN the system MUST register the widget class `OCA\LaunchPad\Dashboard\NewsWidget` through `IRegistrationContext::registerDashboardWidget()`, which hands it to `IManager` lazily
+- AND the widget MUST have id `launchpad_news`, the translated title "News", and a newspaper icon URL
 - AND the widget MUST support Nextcloud Dashboard Widget API v2 (`IAPIWidgetV2`) for item loading
+
+#### Scenario: Nextcloud dashboard items come from own news widgets
+- GIVEN a user owns dashboards with `news` placements
+- WHEN Nextcloud's dashboard asks `launchpad_news` for items (`GET /ocs/v2.php/apps/dashboard/api/v2/widget-items`)
+- THEN the items MUST be the newest articles across the distinct feed URLs of those placements, read in one query and each feed fetched once, through the same allow-list, SSRF guard and cache as REQ-NEWS-003 to REQ-NEWS-008
+- AND a placement whose metadata filter does not match its dashboard MUST contribute no feeds (REQ-NEWS-007)
+- AND placements on dashboards of other users MUST NOT be read
+- AND each item MUST carry the article title, the feed title as subtitle, a web link (the feed URL when the article link is not http(s)) and the thumbnail or the news icon
+- AND without any feed the empty state MUST tell the user to add a news widget with a feed, and with feeds but no articles it MUST say there are no articles right now, in the user's language
 
 #### Scenario: Widget picker includes news widget
 - GIVEN a user opens the widget picker dialog

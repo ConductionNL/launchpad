@@ -145,15 +145,9 @@ class DemoSeedService {
 	 * @return array{createdGroups: array<int, string>, createdUsers: array<int, string>} What this run created.
 	 */
 	private function seedAccounts(array $seed, string $password): array {
-		$groups = (array)($seed['groups'] ?? []);
-
 		return [
-			'createdGroups' => $this->parts->accounts->ensureGroups(groups: $groups),
-			'createdUsers'  => $this->parts->accounts->ensureUsers(
-				users: (array)($seed['users'] ?? []),
-				seedGroups: [...array_column(array: $groups, column_key: 'id'), 'admin'],
-				password: $password
-			),
+			'createdGroups' => $this->parts->accounts->ensureGroups(groups: (array)($seed['groups'] ?? [])),
+			'createdUsers'  => $this->parts->accounts->ensureUsers(seed: $seed, password: $password),
 		];
 	}//end seedAccounts()
 

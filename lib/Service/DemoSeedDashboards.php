@@ -151,7 +151,7 @@ class DemoSeedDashboards {
 			// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		}
 
-		$this->applyFields(dashboard: $dashboard, definition: $definition, now: $now);
+		$this->applyFields(dashboard: $dashboard, definition: $definition);
 
 		if ($created === true) {
 			return [$this->stores->dashboardMapper->insert(entity: $dashboard), true];
@@ -165,11 +165,10 @@ class DemoSeedDashboards {
 	 *
 	 * @param Dashboard            $dashboard  The dashboard.
 	 * @param array<string, mixed> $definition The seed dashboard.
-	 * @param string               $now        The write time.
 	 *
 	 * @return void
 	 */
-	private function applyFields(Dashboard $dashboard, array $definition, string $now): void {
+	private function applyFields(Dashboard $dashboard, array $definition): void {
 		$this->applyOwnership(dashboard: $dashboard, definition: $definition);
 
 		// Entity setters resolve through __call, which reads $args[0].
@@ -182,7 +181,7 @@ class DemoSeedDashboards {
 		$dashboard->setSortOrder((int)($definition['sortOrder'] ?? 0));
 		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
 		$dashboard->setReactionsEnabled((int)($definition['reactionsEnabled'] ?? 0));
-		$dashboard->setUpdatedAt($now);
+		$dashboard->setUpdatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 	}//end applyFields()
 

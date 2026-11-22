@@ -77,13 +77,13 @@ class DemoSeedAccountsTest extends TestCase {
 		];
 
 		$this->assertSame(expected: ['vergunningen', 'medewerkers'], actual: $this->accounts->ensureGroups(groups: $groups));
-		$seedGroups = ['vergunningen', 'medewerkers'];
-		$this->assertSame(expected: ['pieter', 'nieuw'], actual: $this->accounts->ensureUsers(users: $users, seedGroups: $seedGroups, password: 'pw'));
+		$seed = ['groups' => $groups, 'users' => $users];
+		$this->assertSame(expected: ['pieter', 'nieuw'], actual: $this->accounts->ensureUsers(seed: $seed, password: 'pw'));
 
 		$this->members['medewerkers']['nieuw'] = true;
 
 		$this->assertSame(expected: [], actual: $this->accounts->ensureGroups(groups: $groups));
-		$this->assertSame(expected: [], actual: $this->accounts->ensureUsers(users: $users, seedGroups: $seedGroups, password: 'pw'));
+		$this->assertSame(expected: [], actual: $this->accounts->ensureUsers(seed: $seed, password: 'pw'));
 		$this->assertSame(expected: ['pieter' => true], actual: $this->members['vergunningen']);
 		$this->assertSame(expected: ['pieter' => true], actual: $this->members['medewerkers']);
 	}//end testUsersAndGroupsAreCreatedOnceWithTheirMemberships()

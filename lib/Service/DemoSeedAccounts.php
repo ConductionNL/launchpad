@@ -83,9 +83,10 @@ class DemoSeedAccounts {
 	 * Memberships of groups outside the seed are left alone, so an
 	 * administrator's own grouping survives a re-run.
 	 *
-	 * @param array<int, array<string, mixed>> $users       The seed users.
-	 * @param array<int, string>               $seedGroups  The ids of the seed's groups (plus `admin`).
-	 * @param string                           $password    The password for users this run creates.
+	 * The seed manages its own groups and `admin`.
+	 *
+	 * @param array<string, mixed> $seed     The seed, with its `users` and `groups`.
+	 * @param string               $password The password for users this run creates.
 	 *
 	 * @return array<int, string> The ids of the users created by this run.
 	 *
@@ -93,9 +94,10 @@ class DemoSeedAccounts {
 	 *
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
-	public function ensureUsers(array $users, array $seedGroups, string $password): array {
+	public function ensureUsers(array $seed, string $password): array {
+		$managed = [...array_column(array: (array)($seed['groups'] ?? []), column_key: 'id'), 'admin'];
 		$created = [];
-		foreach ($users as $definition) {
+		foreach ((array)($seed['users'] ?? []) as $definition) {
 			$userId = (string)$definition['id'];
 			$user   = $this->userManager->get(uid: $userId);
 			if ($user === null) {
@@ -104,11 +106,7 @@ class DemoSeedAccounts {
 			}
 
 			$this->applyProfile(user: $user, definition: $definition);
-			$this->applyMemberships(
-				user: $user,
-				wanted: array_map(callback: 'strval', array: (array)($definition['groups'] ?? [])),
-				seedGroups: $seedGroups
-			);
+			$this->applyMemberships(user: $user, membership: ['wanted' => (array)($definition['groups'] ?? []), 'managed' => $managed]);
 		}
 
 		return $created;
@@ -157,15 +155,16 @@ class DemoSeedAccounts {
 	 * Add the user to its seeded groups and remove it from the other seed
 	 * groups.
 	 *
-	 * @param IUser              $user       The user.
-	 * @param array<int, string> $wanted     The groups the seed gives the user.
-	 * @param array<int, string> $seedGroups The groups the seed manages.
+	 * @param IUser                               $user       The user.
+	 * @param array<string, array<int, string>>   $membership `wanted`: the groups the seed gives the user;
+	 *                                                        `managed`: the groups the seed manages.
 	 *
 	 * @return void
 	 */
-	private function applyMemberships(IUser $user, array $wanted, array $seedGroups): void {
-		foreach ($seedGroups as $groupId) {
-			$group = $this->groupManager->get(gid: $groupId);
+	private function applyMemberships(IUser $user, array $membership): void {
+		$wanted = array_map(callback: 'strval', array: $membership['wanted']);
+		foreach ($membership['managed'] as $groupId) {
+			$group = $this->groupManager->get(gid: (string)$groupId);
 			if ($group === null) {
 				continue;
 			}

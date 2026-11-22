@@ -107,7 +107,7 @@ class DemoSeedFiles {
 		$group  = (string)($definition['shareWithGroup'] ?? '');
 		$shared = false;
 		if ($group !== '') {
-			$shared = $this->shareWithGroup(folder: $folder, owner: $owner, group: $group);
+			$shared = $this->shareWithGroup(folder: $folder, share: ['owner' => $owner, 'group' => $group]);
 		}
 
 		return ['createdFiles' => $createdFiles, 'shared' => $shared];
@@ -135,13 +135,13 @@ class DemoSeedFiles {
 	/**
 	 * Share the folder with a group unless that share exists.
 	 *
-	 * @param Folder $folder The folder.
-	 * @param string $owner  The owner.
-	 * @param string $group  The group.
+	 * @param Folder                $folder The folder.
+	 * @param array<string, string> $share  `{owner, group}`: who shares it, and with which group.
 	 *
 	 * @return bool True when this run created the share.
 	 */
-	private function shareWithGroup(Folder $folder, string $owner, string $group): bool {
+	private function shareWithGroup(Folder $folder, array $share): bool {
+		['owner' => $owner, 'group' => $group] = $share;
 		$existing = $this->shareManager->getSharesBy(
 			userId: $owner,
 			shareType: IShare::TYPE_GROUP,

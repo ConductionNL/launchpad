@@ -154,9 +154,9 @@ class DemoSeedContent {
 		foreach ($entries as $entry) {
 			try {
 				$announcement = $this->announcements->findByUuid(uuid: (string)$entry['uuid']);
-				$this->announcements->update(entity: $this->applyAnnouncement(announcement: $announcement, entry: $entry, now: $now));
+				$this->announcements->update(entity: $this->applyAnnouncement(announcement: $announcement, entry: $entry));
 			} catch (DoesNotExistException) {
-				$announcement = $this->applyAnnouncement(announcement: new Announcement(), entry: $entry, now: $now);
+				$announcement = $this->applyAnnouncement(announcement: new Announcement(), entry: $entry);
 				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 				$announcement->setCreatedAt($now);
 				$this->announcements->insert(entity: $announcement);
@@ -171,11 +171,11 @@ class DemoSeedContent {
 	 *
 	 * @param Announcement         $announcement The announcement.
 	 * @param array<string, mixed> $entry        The seed announcement.
-	 * @param DateTime             $now          The run time.
 	 *
 	 * @return Announcement The announcement.
 	 */
-	private function applyAnnouncement(Announcement $announcement, array $entry, DateTime $now): Announcement {
+	private function applyAnnouncement(Announcement $announcement, array $entry): Announcement {
+		$now = new DateTime();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$announcement->setUuid((string)$entry['uuid']);
 		$announcement->setKind((string)($entry['kind'] ?? Announcement::KIND_NEWS));

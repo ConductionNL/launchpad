@@ -902,6 +902,37 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/WorkPackagesWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/WorkPackagesWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/WorkPackagesWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/WorkPackagesWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"scope": "mine",
+			"project": "",
+			"limit": 4
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/VisibilityRuleRow.vue | rule": {
 		"type": "Object",
 		"required": true,

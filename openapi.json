@@ -302,6 +302,10 @@
         {
             "name": "widget-api",
             "description": "Controller for managing dashboard widgets."
+        },
+        {
+            "name": "work-packages",
+            "description": "Open work packages for the signed-in person."
         }
     ],
     "paths": {
@@ -14451,6 +14455,64 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/work-packages": {
+            "get": {
+                "operationId": "work-packages-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the open work packages: the person's own (`scope=mine`) or a project's (`scope=project&project=<identifier>`), due date first",
+                "description": "GET the open work packages: the person's own (`scope=mine`) or a project's (`scope=project&project=<identifier>`), due date first. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "work-packages"
+                ],
+                "parameters": [
+                    {
+                        "name": "scope",
+                        "in": "query",
+                        "required": false,
+                        "description": "`mine` or `project`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": false,
+                        "description": "The project identifier for scope `project`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many to list.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     }
                 }
             }

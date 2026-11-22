@@ -2323,7 +2323,23 @@ OC.L10N.register(
     "Leave empty to show every space." : "Laat leeg om elke ruimte te tonen.",
     "Pages per list" : "Pagina's per lijst",
     "Show 1 to 20 pages per list" : "Toon 1 tot 20 pagina's per lijst",
-    "Wiki" : "Wiki"
+    "Wiki" : "Wiki",
+    "Work packages need the OpenProject integration. Ask your administrator to enable it." : "Werkpakketten hebben de OpenProject-koppeling nodig. Vraag uw beheerder die aan te zetten.",
+    "Connect your OpenProject account to see your work packages." : "Koppel uw OpenProject-account om uw werkpakketten te zien.",
+    "Connect OpenProject" : "OpenProject koppelen",
+    "The work packages could not be loaded. Try again later." : "De werkpakketten konden niet worden geladen. Probeer het later opnieuw.",
+    "This project has no open work packages" : "Dit project heeft geen open werkpakketten",
+    "You have no open work packages" : "U heeft geen open werkpakketten",
+    "Shows open OpenProject work packages, due date first. Each person sees what OpenProject lets them see." : "Toont open werkpakketten uit OpenProject, eerst op datum. Iedereen ziet wat OpenProject hem laat zien.",
+    "Which work packages" : "Welke werkpakketten",
+    "Assigned to the person viewing" : "Toegewezen aan wie kijkt",
+    "Everyone in one project" : "Iedereen in een project",
+    "Project identifier" : "Projectcode",
+    "The identifier in the project address, such as havenpark." : "De code in het projectadres, zoals havenpark.",
+    "Number of work packages" : "Aantal werkpakketten",
+    "Name the project" : "Noem het project",
+    "Show 1 to 25 work packages" : "Toon 1 tot 25 werkpakketten",
+    "My work packages" : "Mijn werkpakketten"
 },
 "nplurals=2; plural=(n != 1);"
 );

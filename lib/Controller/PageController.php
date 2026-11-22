@@ -343,7 +343,10 @@ class PageController extends Controller {
 	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
 	 */
 	private function integrationApps(): array {
-		return ['openregister' => $this->isAppEnabledForViewer(appId: 'openregister')];
+		return [
+			'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
+			'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+		];
 	}//end integrationApps()
 
 	/**

@@ -45,24 +45,26 @@ export default {
 	components: { CnStatusList },
 
 	props: {
-		/** Persisted widget content: `{ scope, project, limit }`. */
-		content: OBJECT_PROP,
-
-		/** The placement row; declared so it does not fall through as an attribute. */
+		/**
+		 * The placement row, which the widget does not read; declared so the
+		 * binding every renderer gets does not fall through as an attribute.
+		 */
 		// eslint-disable-next-line vue/no-unused-properties
 		placement: OBJECT_PROP,
+
+		/** Persisted widget content: `{ scope, project, limit }`. */
+		content: OBJECT_PROP,
 	},
 
 	data() {
-		return {
-			state: 'loading',
-			workPackages: [],
-			connectUrl: '',
-		}
+		return { state: 'loading', workPackages: [], connectUrl: '' }
 	},
 
 	computed: {
-		/** @return {string} `mine` or `project`. */
+		/**
+		 * @return {string} `mine` or `project`.
+		 * @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-a-team-page-lists-one-projects-work-packages-req-wp-003
+		 */
 		scope() {
 			return this.content?.scope === 'project' ? 'project' : 'mine'
 		},
@@ -89,6 +91,7 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-the-widget-lists-open-work-packages-due-date-first-req-wp-001 */
 	async created() {
 		const limit = Number(this.content?.limit)
 		const result = await loadWorkPackages({

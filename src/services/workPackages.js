@@ -18,6 +18,7 @@ import { generateUrl } from '@nextcloud/router'
  * @param {{scope: string, project: string, limit: number}} query What to list.
  * @return {Promise<{state: string, workPackages: Array<object>, connectUrl?: string}>}
  *   `state` is `ok`, `not-installed`, `not-connected` or `error`.
+ * @spec openspec/changes/work-packages-widget/specs/work-packages-widget/spec.md#requirement-the-widget-lists-open-work-packages-due-date-first-req-wp-001
  */
 export async function loadWorkPackages({ scope, project, limit }) {
 	try {

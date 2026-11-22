@@ -11,19 +11,22 @@
  * `filterParam()` below is that encoder, so a spec can open a dashboard with
  * a known filter state (including a pinned clause) without a widget click.
  *
- * Every account is a throwaway NON-ADMIN account with its own dashboard,
- * logged in through `loginAs()` from an empty storage state.
+ * Every account is a throwaway NON-ADMIN account with its own dashboard, which
+ * stores the nl-administrative hierarchy, logged in through `loginAs()` from an
+ * empty storage state. API calls go through `contextFor()`, so they act as
+ * that account and never as the admin whose session the config stores.
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Page } from '@playwright/test'
 
-import { expect, request } from '@playwright/test'
+import { expect } from '@playwright/test'
 import {
 	deprovisionUser,
 	loginAs,
 	provisionThrowawayUser,
 } from '../fixtures/secondary-user.ts'
-import { BASE_URL } from './baseUrl.ts'
+import { NL_ADMINISTRATIVE, storeHierarchies } from './hierarchies.ts'
+import { assertActingAs, contextFor } from './principals.ts'
 
 export const API = '/index.php/apps/launchpad/api'
 export const OBJECTS = '/index.php/apps/openregister/api/objects/launchpad'
@@ -47,22 +50,16 @@ export type Clause = {
 export type SeededUser = Account & { dashboardId: number; dashboardUuid: string }
 
 /**
- * An API context as the administrator, or as the given account.
+ * An API context as the administrator, or as the given account, that does
+ * not ride the admin's stored session (see `contextFor`).
  *
  * @param account the account; the administrator when omitted.
  * @return the context; the caller disposes it.
  */
 export async function apiAs(account?: Account): Promise<APIRequestContext> {
-	// Without both, the context carries the config's admin cookie and never
-	// sends the account's credentials: see the header of principals.ts.
-	return request.newContext({
-		baseURL: BASE_URL,
-		storageState: undefined,
-		httpCredentials: account
-			? { username: account.username, password: account.password, send: 'always' }
-			: { username: ADMIN.user, password: ADMIN.pass, send: 'always' },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return account
+		? contextFor(account.username, account.password)
+		: contextFor(ADMIN.user, ADMIN.pass)
 }
 
 /**
@@ -93,6 +90,7 @@ export async function provisionUserWithDashboard(prefix: string): Promise<Seeded
 	const api = await apiAs(account)
 	try {
 		// The account's first request sets up its home, which can take a while.
+		await assertActingAs(api, account.username)
 		const created = await api.post(`${API}/dashboard`, {
 			data: { name: `E2E filters ${Date.now()}` },
 			timeout: 60_000,
@@ -106,6 +104,8 @@ export async function provisionUserWithDashboard(prefix: string): Promise<Seeded
 			data: { uuid: dash.uuid },
 		})
 		expect(preference.status(), await preference.text()).toBeLessThan(300)
+		// The dashboard joins widgets on the stored nl-administrative hierarchy (REQ-CWF-011).
+		await storeHierarchies(api, Number(dash.id), [NL_ADMINISTRATIVE])
 		return { ...account, dashboardId: Number(dash.id), dashboardUuid: dash.uuid }
 	} finally {
 		await api.dispose()

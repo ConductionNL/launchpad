@@ -7,9 +7,8 @@
  * Task 25 and the active-filters panel of Task 26.
  *
  * The filter state is set through the `f` URL parameter, the way a bookmark
- * restores it. The widget-click halves of these tasks wait for a chart to
- * emit its selection (Task 7, blocked on @conduction/nextcloud-vue) and are
- * not covered here.
+ * restores it. The widget-click halves of these tasks are in
+ * cross-widget-filter-clicks.spec.ts.
  *
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::url-restores-in-a-fresh-browser
@@ -37,7 +36,7 @@ const PINNED: Clause = {
 	dimension: 'provincieCode',
 	operator: 'eq',
 	value: 'PV26',
-	source: 'pinned',
+	source: 'userExplicit',
 	pinned: true,
 }
 
@@ -64,6 +63,8 @@ test.describe('cross-widget filter (REQ-CWF-003, REQ-CWF-006, REQ-CWF-007)', () 
 	test('a filtered URL restores the same filters in a fresh browser context', async ({
 		browser,
 	}) => {
+		// Two separate logins of a new account do not fit the default 60 s on a loaded box.
+		test.setTimeout(120_000)
 		const clauses: Clause[] = [
 			{ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355' },
 			{ dimension: 'status', operator: 'in', value: ['open'] },
@@ -181,7 +182,7 @@ test.describe('cross-widget filter (REQ-CWF-003, REQ-CWF-006, REQ-CWF-007)', () 
 		const value = filterParam([PINNED])
 		expect(value).not.toMatch(/[+/=]/)
 		expect(decodeFilterParam(value)).toEqual([
-			{ d: 'provincieCode', o: 'eq', v: 'PV26', s: 'pinned', p: true },
+			{ d: 'provincieCode', o: 'eq', v: 'PV26', s: 'userExplicit', p: true },
 		])
 	})
 })

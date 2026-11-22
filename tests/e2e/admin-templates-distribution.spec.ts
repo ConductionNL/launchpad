@@ -216,7 +216,7 @@ async function openAndSee(
 		await expect(page.getByText(text, { exact: true }).first()).toBeVisible({
 			timeout: 45_000,
 		})
-		await expect(page.getByText('No dashboards available')).toHaveCount(0)
+		await expect(page.getByText('You have no dashboard yet')).toHaveCount(0)
 	} finally {
 		await context.close()
 	}

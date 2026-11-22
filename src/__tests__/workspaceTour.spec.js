@@ -21,6 +21,11 @@ describe('the Workspace tour in src/manifest.json', () => {
 		expect(first.advanceOn).toEqual({ type: 'manual' })
 	})
 
+	it('is version 2, so a person who finished the side-bar tour sees the More tour once', () => {
+		expect(manifest.walkthrough.version).toBe(2)
+		expect(manifest.walkthrough.completionConfigKey).toBe('walkthrough_completed_version')
+	})
+
 	it('then asks to open Flows from More', () => {
 		expect(tour.steps.map((step) => step.id)).toEqual(['dashboards', 'more-menu'])
 		const second = tour.steps[1]

@@ -70,7 +70,7 @@ test.beforeAll(async () => {
 	 * SEED A DASHBOARD. `gotoLaunchPad()` needs the workspace shell, which only
 	 * renders once a dashboard is ACTIVE — `tests/e2e/seed.sh` creates the
 	 * `e2e-grantee` user and nothing else. On a fresh instance LaunchPad shows
-	 * "No dashboards available" instead and every locator here misses.
+	 * "You have no dashboard yet" instead and every locator here misses.
 	 */
 	api = await request.newContext({
 		baseURL: BASE_URL,

@@ -84,24 +84,53 @@
 				<div class="workspace-shell__empty-menu">
 					<StartPageMenu />
 				</div>
-				<p class="workspace-shell__empty-title">
-					{{ t('launchpad', 'No dashboards available') }}
-				</p>
-				<p
-					v-if="injectedAllowUserDashboards"
-					class="workspace-shell__empty-hint">
-					{{ t('launchpad', 'Create your first dashboard') }}
-				</p>
-				<p v-else class="workspace-shell__empty-hint">
-					{{ t('launchpad', 'Contact your administrator') }}
-				</p>
-				<button
-					v-if="injectedAllowUserDashboards"
-					type="button"
-					class="workspace-shell__empty-cta"
-					@click="onCreateFirstDashboard">
-					{{ t('launchpad', 'Create your first dashboard') }}
-				</button>
+				<!-- REQ-SHELL-005, board LpEersteKeer: on the page ground, the
+				     starter widgets the first dashboard gets, then the choice to
+				     start with them or empty. -->
+				<section class="workspace-shell__empty-body" aria-labelledby="workspace-shell-empty-title">
+					<span class="workspace-shell__empty-icon" aria-hidden="true">
+						<ViewDashboardOutline :size="36" />
+					</span>
+					<h2 id="workspace-shell-empty-title" class="workspace-shell__empty-title">
+						{{ t('launchpad', 'You have no dashboard yet') }}
+					</h2>
+					<template v-if="injectedAllowUserDashboards">
+						<p class="workspace-shell__empty-hint">
+							{{ t('launchpad', 'A dashboard puts your apps, messages and appointments in one place. Start with a few starter widgets and then adjust it as you like.') }}
+						</p>
+						<ul class="workspace-shell__starters" data-testid="workspace-starter-widgets">
+							<li
+								v-for="starter in starterWidgets"
+								:key="starter.id"
+								class="workspace-shell__starter">
+								<component :is="starter.icon" :size="18" />
+								{{ starter.label }}
+							</li>
+						</ul>
+						<p class="workspace-shell__empty-note">
+							{{ t('launchpad', 'These {count} starter widgets go on it. You can move or remove them later.', { count: starterWidgets.length }) }}
+						</p>
+						<div class="workspace-shell__empty-actions">
+							<NcButton
+								variant="primary"
+								class="workspace-shell__empty-cta"
+								data-testid="workspace-create-with-starters"
+								@click="onCreateFirstDashboard('starters')">
+								{{ t('launchpad', 'Create my first dashboard (with starter widgets)') }}
+							</NcButton>
+							<NcButton
+								variant="secondary"
+								class="workspace-shell__empty-blank"
+								data-testid="workspace-create-empty"
+								@click="onCreateFirstDashboard('none')">
+								{{ t('launchpad', 'Start empty') }}
+							</NcButton>
+						</div>
+					</template>
+					<p v-else class="workspace-shell__empty-hint">
+						{{ t('launchpad', 'Contact your administrator') }}
+					</p>
+				</section>
 			</div>
 		</div>
 		<TileSidePanel />
@@ -118,7 +147,15 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
+import { markRaw } from 'vue'
+import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
+import CalendarOutline from 'vue-material-design-icons/CalendarOutline.vue'
+import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
+import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
+import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
+import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
+import WeatherPartlyCloudy from 'vue-material-design-icons/WeatherPartlyCloudy.vue'
 import NoticeBannerRegion from '../components/Announcements/NoticeBannerRegion.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
@@ -129,6 +166,19 @@ import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 import { logger } from '../utils/logger.js'
+
+/**
+ * The starter widgets a first dashboard gets, in the order the server seeds
+ * them (`lib/Service/StarterWidgetSeeds.php`).
+ */
+const STARTER_WIDGETS = [
+	{ id: 'app-tiles', label: 'Apps', icon: ViewGridOutline },
+	{ id: 'calendar', label: 'Calendar', icon: CalendarOutline },
+	{ id: 'mail', label: 'Mail', icon: EmailOutline },
+	{ id: 'files', label: 'Files', icon: FolderOutline },
+	{ id: 'weather', label: 'Weather', icon: WeatherPartlyCloudy },
+	{ id: 'announcements', label: 'News from the organisation', icon: BullhornOutline },
+]
 
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
@@ -162,6 +212,7 @@ export default {
 		NoticeBannerRegion,
 		NcButton,
 		MenuIcon,
+		ViewDashboardOutline,
 		Views,
 		DashboardFooter,
 		OrgNavigationPanel,
@@ -238,6 +289,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The starter widgets the empty state lists, labelled.
+		 *
+		 * @return {Array<{id: string, label: string, icon: object}>}
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+		 */
+		starterWidgets() {
+			return STARTER_WIDGETS.map((starter) => ({
+				id: starter.id,
+				label: this.t('launchpad', starter.label),
+				icon: markRaw(starter.icon),
+			}))
+		},
+
 		/**
 		 * REQ-SHELL-002 — admins can edit any dashboard; regular users
 		 * can edit only their own personal dashboards.
@@ -441,14 +506,16 @@ export default {
 		 * CTA (REQ-SHELL-005 enabled scenario). Delegates to the dashboard
 		 * store so the existing `POST /api/dashboard` flow is reused.
 		 *
+		 * @param {string} widgets `starters` for the starter widgets, `none` to start empty.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-6
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
 		 */
-		async onCreateFirstDashboard() {
+		async onCreateFirstDashboard(widgets = 'starters') {
 			const store = useDashboardStore()
 			try {
 				await store.createDashboard({
 					name: this.t('launchpad', 'My dashboard'),
+					widgets,
 				})
 			} catch (error) {
 				logger.error(
@@ -607,25 +674,72 @@ export default {
 	margin-inline-end: 36px;
 }
 
+.workspace-shell__empty-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 14px;
+	padding: 56px 32px 48px;
+	max-width: 640px;
+	text-align: center;
+}
+
+.workspace-shell__empty-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	background: var(--color-primary-element-light, #eaf0f7);
+	color: var(--color-primary-element-light-text, #234a78);
+}
+
 .workspace-shell__empty-title {
-	font-size: 1.3em;
-	font-weight: 600;
+	font-size: 1.4em;
+	font-weight: 700;
 	margin: 0;
 }
 
 .workspace-shell__empty-hint {
 	color: var(--color-text-maxcontrast, #555);
 	margin: 0;
+	max-width: 440px;
+	line-height: 1.55;
 }
 
-.workspace-shell__empty-cta {
-	background: var(--color-primary-element, #1976d2);
-	color: var(--color-primary-element-text, #fff);
-	border: none;
-	border-radius: var(--border-radius, 4px);
-	padding: 8px 16px;
-	cursor: pointer;
-	font: inherit;
+.workspace-shell__starters {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin: 6px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.workspace-shell__starter {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border: 1px solid var(--color-border, #e4e6ea);
+	border-radius: var(--border-radius-pill, 16px);
+	background: var(--color-main-background, #fff);
+	color: var(--color-main-text, #222);
+}
+
+.workspace-shell__empty-note {
+	color: var(--color-text-maxcontrast, #555);
+	font-size: 0.9em;
+	margin: 0;
+}
+
+.workspace-shell__empty-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
 	margin-top: 8px;
 }
 </style>

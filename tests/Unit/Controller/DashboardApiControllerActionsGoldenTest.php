@@ -70,14 +70,22 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 	}
 
-	private function controller(?string $userId = 'alice'): DashboardApiController {
+	/**
+	 * The controller under test, acting as `$userId`.
+	 *
+	 * @param string|null   $userId  The signed-in user, or null.
+	 * @param IRequest|null $request The request, or a blank mock.
+	 *
+	 * @return DashboardApiController
+	 */
+	private function controller(?string $userId = 'alice', ?IRequest $request = null): DashboardApiController {
 		$session = $this->createMock(IUserSession::class);
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('alice');
 		$session->method('getUser')->willReturn($this->sessionUser ? $user : null);
 
 		return new DashboardApiController(
-			request: $this->createMock(originalClassName: IRequest::class),
+			request: $request ?? $this->createMock(originalClassName: IRequest::class),
 			services: new DashboardApiServices($this->dashboardService),
 			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				$this->treeService,
@@ -163,7 +171,7 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$this->dashboardService->expects($this->once())->method('createDashboard')->with(
 			'alice',
 			'Board',
-			['seedDefaults' => true, 'description' => 'D', 'icon' => 'star', 'parentUuid' => 'p-1', 'slug' => 's', 'sortOrder' => 3]
+			['seedDefaults' => true, 'seedSet' => 'default', 'description' => 'D', 'icon' => 'star', 'parentUuid' => 'p-1', 'slug' => 's', 'sortOrder' => 3]
 		)->willReturn($this->dashboard());
 		$this->dashboardService->method('findPlacements')->with(5)->willReturn([]);
 
@@ -171,6 +179,42 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 
 		$this->assertSame([201, ['dashboard', 'placements'], 'd-1', []], [$status, array_keys($data), $data['dashboard']['uuid'] ?? null, $data['placements'] ?? null]);
 	}
+
+	/**
+	 * The `widgets` choice picks the seed: the first-run starter widgets,
+	 * none at all, or the default bundle for anything else.
+	 *
+	 * @return void
+	 */
+	public function testCreateWidgetsChoicePicksTheSeed(): void {
+		$this->allowCreate();
+		$seen = [];
+		$this->dashboardService->method('createDashboard')->willReturnCallback(
+			function (string $userId, string $name, array $options) use (&$seen): Dashboard {
+				$seen[] = [$options['seedDefaults'], $options['seedSet'], array_key_exists(key: 'widgets', array: $options)];
+				return $this->dashboard();
+			}
+		);
+		$this->dashboardService->method('findPlacements')->willReturn([]);
+
+		foreach (['starters', 'none', 'other'] as $choice) {
+			$request = $this->createMock(originalClassName: IRequest::class);
+			$request->method('getParam')->willReturnMap([['widgets', null, $choice]]);
+			$this->controller(userId: 'alice', request: $request)->create(name: 'x');
+		}
+
+		$this->controller()->create(name: ['name' => 'x', 'widgets' => 'starters']);
+
+		$this->assertSame(
+			expected: [
+				[true, 'starters', false],
+				[false, 'default', false],
+				[true, 'default', false],
+				[true, 'starters', false],
+			],
+			actual: $seen
+		);
+	}//end testCreateWidgetsChoicePicksTheSeed()
 
 	public function testCreateMapsServiceErrors(): void {
 		$this->allowCreate();
@@ -212,11 +256,31 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 	 */
 	public static function createParams(): array {
 		return [
-			'flat defaults' => [null, [], ['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0]],
-			'flat values'   => ['B', ['description' => 'D', 'icon' => 7, 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 2], ['name' => 'B', 'description' => 'D', 'icon' => 7, 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 2]],
-			'body typed'    => [['name' => 'B', 'description' => 'D', 'icon' => 'i', 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => '4'], [], ['name' => 'B', 'description' => 'D', 'icon' => 'i', 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 4]],
-			'body untyped'  => [['icon' => 3, 'parentUuid' => 4, 'slug' => 5, 'sortOrder' => 'x'], ['slug' => 'ignored'], ['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0]],
-			'body empty'    => [[], [], ['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0]],
+			'flat defaults' => [
+				null,
+				[],
+				['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0, 'widgets' => null],
+			],
+			'flat values' => [
+				'B',
+				['description' => 'D', 'icon' => 7, 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 2],
+				['name' => 'B', 'description' => 'D', 'icon' => 7, 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 2, 'widgets' => null],
+			],
+			'body typed' => [
+				['name' => 'B', 'description' => 'D', 'icon' => 'i', 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => '4'],
+				[],
+				['name' => 'B', 'description' => 'D', 'icon' => 'i', 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 4, 'widgets' => null],
+			],
+			'body untyped' => [
+				['icon' => 3, 'parentUuid' => 4, 'slug' => 5, 'sortOrder' => 'x', 'widgets' => 1],
+				['slug' => 'ignored'],
+				['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0, 'widgets' => null],
+			],
+			'body empty' => [
+				[],
+				[],
+				['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0, 'widgets' => null],
+			],
 		];
 	}
 

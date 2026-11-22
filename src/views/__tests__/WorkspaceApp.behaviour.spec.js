@@ -159,8 +159,18 @@ describe('WorkspaceApp first dashboard', () => {
 
 		await wrapper.find('.workspace-shell__empty-cta').trigger('click')
 
-		expect(dashboardStore.createDashboard).toHaveBeenCalledWith({ name: 'My dashboard' })
+		expect(dashboardStore.createDashboard).toHaveBeenCalledWith({ name: 'My dashboard', widgets: 'starters' })
 		expect(logged).toEqual([])
+		wrapper.unmount()
+	})
+
+	it('creates an empty first dashboard from Start empty', async () => {
+		dashboardStore.createDashboard.mockResolvedValue({})
+		const wrapper = mountShell({ provide: { allowUserDashboards: true } })
+
+		await wrapper.find('.workspace-shell__empty-blank').trigger('click')
+
+		expect(dashboardStore.createDashboard).toHaveBeenCalledWith({ name: 'My dashboard', widgets: 'none' })
 		wrapper.unmount()
 	})
 

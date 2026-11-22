@@ -15,9 +15,13 @@
 /*
  * The board dialog frame (LpDashboardInstellingen, LpVersies): 720px wide,
  * the dashboard's name as a small line over a 20px title.
+ *
+ * Capped at the wrapper's width: this rule outranks NcModal's phone rule
+ * (full width at 512px and below), so a bare 720px left the frame wider
+ * than a phone screen, centred, with its left edge cut off.
  */
 .modal-mask.launchpad-modal--wide .modal-wrapper--normal > .modal-container {
-	width: 720px;
+	width: min(720px, 100%);
 }
 
 /*

@@ -372,7 +372,7 @@
 			:setReturnFocus="dialogReturnFocus"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget"
-			@dismiss-notice="dismissWidgetNotice" />
+			@dismissNotice="dismissWidgetNotice" />
 
 		<!-- Dashboard configuration modal (also used for creating a new dashboard) -->
 		<DashboardConfigModal

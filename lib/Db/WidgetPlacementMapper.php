@@ -110,6 +110,38 @@ class WidgetPlacementMapper extends QBMapper {
 	}//end findByWidgetId()
 
 	/**
+	 * Find the placements of one widget type on the dashboards a user owns,
+	 * in one query: the user's own sources for the Nextcloud dashboard
+	 * widgets.
+	 *
+	 * @param string $userId   The dashboard owner.
+	 * @param string $widgetId The widget type (e.g. `'news'`, `'links'`).
+	 *
+	 * @return WidgetPlacement[] The matching placements, active dashboard first.
+	 * @spec   openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
+	 * @spec   openspec/specs/links-widget/spec.md#requirement-req-lnks-001-widget-registration
+	 */
+	public function findOwnedByUserAndWidgetId(string $userId, string $widgetId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('p.*')
+			->from(from: $this->getTableName(), alias: 'p')
+			->innerJoin(
+				fromAlias: 'p',
+				join: 'launchpad_dashboards',
+				alias: 'd',
+				condition: 'd.id = p.dashboard_id'
+			)
+			->where($qb->expr()->eq(x: 'd.user_id', y: $qb->createNamedParameter(value: $userId)))
+			->andWhere($qb->expr()->eq(x: 'd.type', y: $qb->createNamedParameter(value: Dashboard::TYPE_USER)))
+			->andWhere($qb->expr()->eq(x: 'p.widget_id', y: $qb->createNamedParameter(value: $widgetId)))
+			->orderBy(sort: 'd.is_active', order: 'DESC')
+			->addOrderBy(sort: 'p.sort_order', order: 'ASC')
+			->addOrderBy(sort: 'p.id', order: 'ASC');
+
+		return $this->findEntities(query: $qb);
+	}//end findOwnedByUserAndWidgetId()
+
+	/**
 	 * Return every widget placement in the instance, unfiltered.
 	 *
 	 * Used by {@see \OCA\LaunchPad\Service\HealthPingService::refreshDuePlacements()}

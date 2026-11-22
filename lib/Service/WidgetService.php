@@ -153,9 +153,36 @@ class WidgetService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
 	 */
 	public function getAvailableWidgets(): array {
-		$widgets = $this->platform->dashboardManager->getWidgets();
-		$result = [];
+		return $this->describe(widgets: $this->platform->dashboardManager->getWidgets());
+	}//end getAvailableWidgets()
 
+	/**
+	 * The widgets getAvailableWidgets() describes, read without running any
+	 * widget's `load()`, so the workspace page can carry them in its initial
+	 * state without injecting every widget's scripts (REQ-RFP-010).
+	 *
+	 * @return array|null The widget descriptors, or null when the registry cannot be read that way.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
+	 */
+	public function getWidgetCatalogue(): ?array {
+		$widgets = $this->platform->registry?->widgetsWithoutLoading();
+		if ($widgets === null) {
+			return null;
+		}
+
+		return $this->describe(widgets: $widgets);
+	}//end getWidgetCatalogue()
+
+	/**
+	 * The descriptors of the given widgets for the current user, in widget order.
+	 *
+	 * @param array $widgets The widgets.
+	 *
+	 * @return array The widget descriptors.
+	 */
+	private function describe(array $widgets): array {
+		$result = [];
 		foreach ($widgets as $widget) {
 			$user = $this->platform->userSession->getUser();
 			$userId = '';
@@ -177,7 +204,7 @@ class WidgetService {
 		);
 
 		return $result;
-	}//end getAvailableWidgets()
+	}//end describe()
 
 	/**
 	 * Get widget items for multiple widgets.

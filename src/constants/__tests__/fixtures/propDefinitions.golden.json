@@ -180,6 +180,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/TileWidget.vue | removeLocked": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/TileWidget.vue | placementId": {
 		"type": [
 			"Number",
@@ -267,6 +273,12 @@
 		"default": false
 	},
 	"../../components/WidgetWrapper.vue | canHideForMe": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/WidgetWrapper.vue | removeLocked": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,

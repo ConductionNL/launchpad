@@ -3662,7 +3662,7 @@ class DashboardService {
 
 		$seeds = $this->defaultWidgetSeeds();
 		if ($seedSet === self::SEED_SET_STARTERS) {
-			$seeds = StarterWidgetSeeds::SEEDS;
+			$seeds = StarterWidgetSeeds::seeds(menuAppIds: $this->menuAppIds());
 		}
 
 		$placements = [];
@@ -3678,6 +3678,25 @@ class DashboardService {
 
 		return $placements;
 	}//end seedDefaultWidgets()
+
+	/**
+	 * The app ids in the current user's app menu, in menu order; empty when
+	 * the menu is unknown.
+	 *
+	 * @return array<int, string> The app ids.
+	 *
+	 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-a-first-dashboard-starts-with-a-tile-per-most-used-app-req-apptile-003
+	 */
+	private function menuAppIds(): array {
+		if ($this->outlets->appMenu === null) {
+			return [];
+		}
+
+		return array_map(
+			static fn (array $app): string => $app['appId'],
+			$this->outlets->appMenu->discover()
+		);
+	}//end menuAppIds()
 
 	/**
 	 * The declarative seed table for a brand-new dashboard's default

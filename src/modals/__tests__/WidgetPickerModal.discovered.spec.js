@@ -12,7 +12,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import WidgetPickerModal from '../WidgetPickerModal.vue'
-import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../../utils/discoveredTile.js'
+import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard } from '../../utils/discoveredTile.js'
 
 const stubs = {
 	NcModal: { template: '<div class="nc-modal"><slot /></div>' },
@@ -72,18 +72,22 @@ describe('Discovered on this server', () => {
 })
 
 describe('the tile a discovered app becomes', () => {
-	it('opens a Nextcloud app by its id', () => {
-		expect(tileFromDiscoveredApp(DECK)).toEqual({
-			title: 'Deck',
-			icon: '/apps/deck/img/deck.svg',
-			iconType: 'url',
-			linkType: 'app',
-			linkValue: 'deck',
+	it('is an app tile for that app, in its default colour, with its count', () => {
+		expect(appTileFromDiscoveredApp(DECK)).toEqual({
+			type: 'app-tile',
+			content: { appId: 'deck', colour: '', showCount: true },
 		})
 	})
 
-	it('opens another page by its address', () => {
-		expect(tileFromDiscoveredApp(CHAT)).toMatchObject({ linkType: 'url', linkValue: '/apps/app_api/embedded/context_chat_ui/' })
+	it('names an app without its own page by its menu id too', () => {
+		expect(appTileFromDiscoveredApp(CHAT).content.appId).toBe('context_chat_ui')
+	})
+
+	it('reads which apps are on the dashboard from its app-tile widgets', () => {
+		expect(discoveredAppIdsOnDashboard([
+			{ widgetId: 'app-tile', content: { appId: 'deck' } },
+			{ widgetId: 'app-tile', content: {} },
+		], [DECK, CHAT])).toEqual(['deck'])
 	})
 
 	it('reads which apps are on the dashboard from its app tiles', () => {

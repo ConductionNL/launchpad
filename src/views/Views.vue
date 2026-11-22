@@ -531,7 +531,7 @@ import { useWidgetStore } from '../stores/widgets.js'
 import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
-import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
+import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -2401,9 +2401,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Place a discovered app as its own app tile.
+		 *
+		 * @param {{appId: string}} app The discovered app.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
 		async addDiscoveredApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+				await this.addWidgetToDashboard(appTileFromDiscoveredApp(app))
 			} catch (error) {
 				logger.error('[Views] Failed to place a discovered app:', error)
 			}

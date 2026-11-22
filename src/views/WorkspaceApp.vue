@@ -172,7 +172,7 @@ import { logger } from '../utils/logger.js'
  * them (`lib/Service/StarterWidgetSeeds.php`).
  */
 const STARTER_WIDGETS = [
-	{ id: 'app-tiles', label: 'Apps', icon: ViewGridOutline },
+	{ id: 'app-tile', label: 'Apps', icon: ViewGridOutline },
 	{ id: 'calendar', label: 'Calendar', icon: CalendarOutline },
 	{ id: 'mail', label: 'Mail', icon: EmailOutline },
 	{ id: 'files', label: 'Files', icon: FolderOutline },

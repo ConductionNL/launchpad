@@ -275,6 +275,10 @@ export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 export const CnStatWidget = stub('CnStatWidget')
 export const CnAppTilesWidget = stub('CnAppTilesWidget')
 export const CnAppTilesWidgetForm = stub('CnAppTilesWidgetForm')
+export const CnAppTile = stub('CnAppTile')
+export const CnAppTileWidget = stub('CnAppTileWidget')
+export const CnAppTileWidgetForm = stub('CnAppTileWidgetForm')
+export const CnStatusList = stub('CnStatusList')
 export const CnGroupedMenu = stub('CnGroupedMenu')
 export const CnStatWidgetForm = stub('CnStatWidgetForm')
 export const CnDeltaWidget = stub('CnDeltaWidget')
@@ -392,6 +396,11 @@ const _DASH = {
 		renderer: CnAppTilesWidget,
 		form: CnAppTilesWidgetForm,
 		defaultContent: {},
+	},
+	'app-tile': {
+		renderer: CnAppTileWidget,
+		form: CnAppTileWidgetForm,
+		defaultContent: { appId: '', colour: '', showCount: true },
 	},
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
@@ -511,6 +520,10 @@ export default {
 	CnStatWidgetForm,
 	CnAppTilesWidget,
 	CnAppTilesWidgetForm,
+	CnAppTile,
+	CnAppTileWidget,
+	CnAppTileWidgetForm,
+	CnStatusList,
 	CnGroupedMenu,
 	CnDeltaWidget,
 	CnDeltaWidgetForm,

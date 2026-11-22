@@ -176,14 +176,15 @@ test('a project list asks for the project and names each assignee', async ({ bro
 // @e2e work-packages-widget::no-integration
 test('the real endpoint answers a known state, and without the integration the picker leaves the widget out', async ({ browser }) => {
 	const api = await apiAs(account!)
-	let state = ''
-	try {
-		const res = await api.get(`${API}/work-packages`)
-		expect(res.status(), await res.text()).toBe(200)
-		state = (await res.json()).state
-	} finally {
-		await api.dispose()
-	}
+	const state: string = await (async () => {
+		try {
+			const res = await api.get(`${API}/work-packages`)
+			expect(res.status(), await res.text()).toBe(200)
+			return (await res.json()).state
+		} finally {
+			await api.dispose()
+		}
+	})()
 	expect(['ok', 'not-installed', 'not-connected', 'error']).toContain(state)
 
 	const { context, page } = await loginAs(browser, account!.username, account!.password)

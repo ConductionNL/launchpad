@@ -11,16 +11,12 @@
  * "Read confirmation…", ticks "Ask readers to confirm they have read this"
  * and saves. Pieter then opens the dashboard and must see the prompt.
  *
- * KNOWN RED (suspected product defect, see the e2e-coverage-programme report):
- * the save lands (`requiresAcknowledgement: 1` and a fresh key on Sanne's
- * placement), but Pieter is never asked. AcknowledgementService::getPending()
- * walks only the dashboards the reader OWNS (DashboardMapper::findByUserId),
- * and without a template the audience is the owners of the dashboards holding
- * a copy (audienceFromRecipients), so a reader of a shared dashboard is
- * neither pending nor allowed to acknowledge. The test asserts the spec.
+ * Pieter holds no copy: he is asked because the recipients of a share of a
+ * personal dashboard are in the announcement's audience (REQ-ACK-003).
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboard-acknowledgements::ask-for-confirmation
+ *   @e2e dashboard-acknowledgements::a-share-recipient-of-a-personal-dashboard-must-confirm
  *
  * @spec openspec/specs/dashboard-acknowledgements/spec.md
  */

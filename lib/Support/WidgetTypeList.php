@@ -69,8 +69,26 @@ final class WidgetTypeList {
 	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
 	 */
 	public function defaultRuleWidgets(): array {
-		return array_values(array_unique(array_merge(self::DEFAULT_RULE_DASHBOARD_WIDGETS, $this->types())));
+		return $this->withOwnTypes(widgetIds: self::DEFAULT_RULE_DASHBOARD_WIDGETS);
 	}//end defaultRuleWidgets()
+
+	/**
+	 * The given Nextcloud dashboard widget ids followed by every LaunchPad
+	 * widget type, which is what a shipped widget rule allows: a rule lists
+	 * every widget its group may use, so a rule without LaunchPad's own types
+	 * would hide them on every dashboard (REQ-RFP-001, REQ-RFP-011).
+	 *
+	 * @param list<string> $widgetIds The Nextcloud dashboard widget ids.
+	 *
+	 * @return list<string> The widget ids.
+	 *
+	 * @throws RuntimeException When the list is missing or malformed.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
+	 */
+	public function withOwnTypes(array $widgetIds): array {
+		return array_values(array_unique(array_merge($widgetIds, $this->types())));
+	}//end withOwnTypes()
 
 	/**
 	 * The non-empty type names of the list, in file order.

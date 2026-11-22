@@ -112,6 +112,12 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/PublicDashboardGrid.vue | embedContext": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/RuntimeShellSearch.vue | items": {
 		"type": "Array",
 		"required": false,
@@ -224,6 +230,12 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/WidgetRenderer.vue | editMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/WidgetWrapper.vue | placement": {
 		"type": "Object",
 		"required": true,
@@ -259,6 +271,19 @@
 		"required": false,
 		"validator": false,
 		"default": false
+	},
+	"../../components/WidgetWrapper.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/CalculatedFields/CalculatedValues.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
 	},
 	"../../components/Widgets/ConditionalVisibilityEditor.vue | placementId": {
 		"type": [
@@ -497,6 +522,13 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/ContainerWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/ContainerWidget.vue | editMode": {
 		"type": "Boolean",
 		"required": false,
@@ -591,6 +623,18 @@
 		"validator": false,
 		"default": {},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/LinkButtonHost.vue | isAdmin": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/Renderers/LinkButtonHost.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/LiveTileWidget.vue | content": {
 		"type": "Object",
@@ -754,6 +798,39 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Widgets/Renderers/VideoHost.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/VideoHost.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/VideoHost.vue | canEdit": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/Renderers/VideoWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/VideoWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/WeatherWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -817,6 +894,12 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/Widgets/WidgetContextMenu.vue | removeLocked": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/WidgetRowFilter.vue | modelValue": {
 		"type": "String",
 		"required": false,
@@ -856,6 +939,25 @@
 		"required": false,
 		"validator": false,
 		"default": null
+	},
+	"../../components/Workspace/DashboardDiscussion.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Workspace/DashboardDiscussion.vue | sharedWithMe": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/DashboardDiscussion.vue | currentUserId": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
 	},
 	"../../components/Workspace/DashboardLanguageHeading.vue | dashboard": {
 		"type": "Object",
@@ -932,6 +1034,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardMoreMenu.vue | canEmbed": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardMoreMenu.vue | isEditMode": {
 		"type": "Boolean",
 		"required": false,
@@ -987,19 +1095,13 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardRowActions.vue | canManagePublication": {
+	"../../components/Workspace/DashboardRowActions.vue | canEmbed": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
 		"default": false
 	},
 	"../../components/Workspace/DashboardRowActions.vue | canViewHistory": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/Workspace/DashboardRowActions.vue | canScheduleExports": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
@@ -1016,38 +1118,6 @@
 		"required": false,
 		"validator": false,
 		"default": 18
-	},
-	"../../components/Workspace/DashboardSavedViews.vue | dashboardId": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
-	"../../components/Workspace/DashboardSavedViews.vue | userId": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
-	"../../components/Workspace/DashboardSavedViews.vue | canEdit": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/Workspace/DashboardSavedViews.vue | clauses": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../components/Workspace/DashboardSavedViews.vue | api": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": {},
-		"fresh": true
 	},
 	"../../components/Workspace/DashboardSwitcherSidebar.vue | filterFields": {
 		"type": "Array",
@@ -1166,35 +1236,34 @@
 		"default": [],
 		"fresh": true
 	},
-	"../../components/Workspace/SavedViewsMenu.vue | mine": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../components/Workspace/SavedViewsMenu.vue | shared": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../components/Workspace/SavedViewsMenu.vue | canSave": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,
 		"validator": false
 	},
+	"../../components/Workspace/config/ExportsTab.vue | subjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/config/ExportsTab.vue | defaultSubject": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Workspace/config/LanguagesTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,
 		"validator": false
+	},
+	"../../components/Workspace/config/PublicationTab.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
 		"type": "Array",
@@ -1264,6 +1333,57 @@
 		"validator": false,
 		"default": "30d"
 	},
+	"../../components/admin/embed/EmbedTokenForm.vue | token": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | dashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | themes": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | defaults": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedTokenForm.vue | saving": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/admin/embed/EmbedTokenManager.vue | defaults": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/admin/embed/EmbedUsageReport.vue | tokenId": {
+		"type": "String",
+		"required": true,
+		"validator": false
+	},
+	"../../components/admin/embed/EmbedUsageReport.vue | tokenName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -1309,6 +1429,23 @@
 		"default": ""
 	},
 	"../../dialogs/DeleteDashboardDialog.vue | childCount": {
+		"type": "Number",
+		"required": false,
+		"validator": false,
+		"default": 0
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/DeleteTenantThemeDialog.vue | tokenCount": {
 		"type": "Number",
 		"required": false,
 		"validator": false,
@@ -1394,6 +1531,17 @@
 		"validator": false,
 		"default": null
 	},
+	"../../dialogs/RevokeEmbedTokenDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/RevokeEmbedTokenDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../dialogs/RoleLayoutDefaultEditorDialog.vue | open": {
 		"type": "Boolean",
 		"required": true,
@@ -1409,17 +1557,6 @@
 		"required": false,
 		"validator": false,
 		"default": false
-	},
-	"../../dialogs/ScheduleDashboardDialog.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../dialogs/ScheduleDashboardDialog.vue | error": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
 	},
 	"../../dialogs/ShippedTemplateUpdateDialog.vue | open": {
 		"type": "Boolean",
@@ -1498,6 +1635,25 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../modals/DashboardConfigModal.vue | canManagePublication": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/DashboardConfigModal.vue | canScheduleExports": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/DashboardConfigModal.vue | exportSubjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../modals/DashboardConfigModal.vue | initialTab": {
 		"type": "String",
 		"required": false,
@@ -1555,24 +1711,6 @@
 		"validator": false,
 		"default": null
 	},
-	"../../modals/SaveViewModal.vue | open": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../modals/SaveViewModal.vue | view": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": null
-	},
-	"../../modals/SaveViewModal.vue | error": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
 	"../../modals/ScheduledExportModal.vue | open": {
 		"type": "Boolean",
 		"required": true,
@@ -1592,24 +1730,6 @@
 		"fresh": true
 	},
 	"../../modals/ScheduledExportModal.vue | defaultSubject": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": null
-	},
-	"../../modals/ScheduledExportsModal.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../modals/ScheduledExportsModal.vue | subjects": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/ScheduledExportsModal.vue | defaultSubject": {
 		"type": "Object",
 		"required": false,
 		"validator": false,
@@ -1747,6 +1867,13 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../modals/WidgetPickerModal.vue | customTypeTitles": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../modals/WidgetPickerModal.vue | catalogueApps": {
 		"type": "Array",
 		"required": false,
@@ -1775,96 +1902,5 @@
 		"type": "String",
 		"required": true,
 		"validator": false
-	},
-	"../../components/PublicDashboardGrid.vue | embedContext": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": null
-	},
-	"../../components/Workspace/DashboardRowActions.vue | canEmbed": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/admin/embed/EmbedTokenForm.vue | token": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": null
-	},
-	"../../components/admin/embed/EmbedTokenForm.vue | dashboards": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../components/admin/embed/EmbedTokenForm.vue | themes": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../components/admin/embed/EmbedTokenForm.vue | defaults": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": {},
-		"fresh": true
-	},
-	"../../components/admin/embed/EmbedTokenForm.vue | saving": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/admin/embed/EmbedTokenManager.vue | defaults": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": {},
-		"fresh": true
-	},
-	"../../components/admin/embed/EmbedUsageReport.vue | tokenId": {
-		"type": "String",
-		"required": true,
-		"validator": false
-	},
-	"../../components/admin/embed/EmbedUsageReport.vue | tokenName": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
-	"../../dialogs/DeleteTenantThemeDialog.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../dialogs/DeleteTenantThemeDialog.vue | name": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
-	"../../dialogs/DeleteTenantThemeDialog.vue | tokenCount": {
-		"type": "Number",
-		"required": false,
-		"validator": false,
-		"default": 0
-	},
-	"../../dialogs/RevokeEmbedTokenDialog.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../dialogs/RevokeEmbedTokenDialog.vue | name": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
 	}
 }

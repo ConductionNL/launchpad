@@ -7,7 +7,7 @@
  * 30) are in scheduled-exports-delivery.spec.ts.
  *
  * Task 27, the full workflow, is driven through the UI the way an author
- * works: More → "Scheduled exports…", a new weekly export, "Run now", the run
+ * works: More → Settings → Exports, a new weekly export, "Run now", the run
  * in the history, a PDF preview, an edit, and switching the schedule off. The
  * last step then lets the edited fire time pass and executes the background
  * runner: the switched-off export must not fire, while a control export due
@@ -42,6 +42,8 @@
  *   @e2e scheduled-exports::background-job-fires-and-updates-timestamps
  *   @e2e scheduled-exports::two-recipients-with-distinct-filter-contexts-produce-two-renders
  *   @e2e scheduled-exports::preview-without-dispatch
+ *   @e2e scheduled-exports::the-exports-tab-lists-this-dashboards-exports
+ *   @e2e scheduled-exports::the-meer-menu-no-longer-offers-scheduled-exports
  *
  * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md
  */
@@ -53,6 +55,7 @@ import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
+import { API } from './support/principals.ts'
 import {
 	addTableWidget,
 	createExport,
@@ -122,7 +125,8 @@ async function openExports(page: Page): Promise<Locator> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-scheduled-exports"]').click()
+	await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+	await page.locator('[data-test="config-tab-exports"]').click()
 	const list = page.getByTestId('scheduled-exports')
 	await expect(list).toBeVisible({ timeout: 15_000 })
 	return list
@@ -478,6 +482,80 @@ test.describe('scheduled exports: filter context per recipient (task 28)', () =>
 			expect(csv).toContain('gemeenteCode')
 			expect(csv).toContain(mine)
 			expect(csv).not.toContain(theirs)
+		}
+	})
+})
+
+test.describe('scheduled exports: the Exports tab of the dashboard settings (REQ-SCH-011)', () => {
+	let own: OwnDashboard | undefined
+	const exportIds: string[] = []
+
+	test.beforeAll(async () => {
+		own = await setUpOwnDashboard('e2e-schedtab', `Exports tab ${STAMP}`)
+	})
+
+	test.afterAll(async () => {
+		if (own) {
+			for (const id of exportIds) {
+				await removeExport(own.owner.api, id)
+			}
+		}
+		await tearDownOwnDashboard(own)
+	})
+
+	test('@e2e scheduled-exports::the-exports-tab-lists-this-dashboards-exports @e2e scheduled-exports::the-meer-menu-no-longer-offers-scheduled-exports the settings list this dashboard\'s exports only, and the Meer menu has no entry', async ({ browser }) => {
+		test.setTimeout(3 * 60_000)
+		const owner = own!.owner
+		const api = owner.api
+
+		// A second dashboard of the same owner, with an export of its own.
+		const other = await api.post(`${API}/dashboard`, { data: { name: `Other ${STAMP}` } })
+		expect(other.status(), await other.text()).toBeLessThan(300)
+		const otherJson = await other.json()
+		const otherUuid = String((otherJson.dashboard ?? otherJson.data?.dashboard ?? otherJson).uuid)
+		expect((await api.post(`${API}/dashboard/${own!.id}/activate`)).status()).toBeLessThan(300)
+		expect((await api.post(`${API}/dashboards/active`, { data: { uuid: own!.uuid } })).status()).toBeLessThan(300)
+
+		const recipients = [{ channel: 'nextcloudFiles', channelConfig: { targetPath: '/Exports e2e tab' } }]
+		const renderTargets = [{ format: 'csv' }]
+		const mine = await createExport(api, {
+			name: `This dashboard ${STAMP}`,
+			subjectType: 'dashboard',
+			subjectId: own!.uuid,
+			runTimezone: 'UTC',
+			recurrence: WEEKLY,
+			renderTargets,
+			recipients,
+		})
+		exportIds.push(String(mine.id))
+		const theirs = await createExport(api, {
+			name: `Other dashboard ${STAMP}`,
+			subjectType: 'dashboard',
+			subjectId: otherUuid,
+			runTimezone: 'UTC',
+			recurrence: WEEKLY,
+			renderTargets,
+			recipients,
+		})
+		exportIds.push(String(theirs.id))
+
+		const { context, page } = await loginAs(browser, owner.username, owner.password)
+		try {
+			await page.goto('/index.php/apps/launchpad')
+			const more = page.locator(MORE_MENU)
+			await expect(more).toBeVisible({ timeout: 30_000 })
+			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
+			await expect(page.locator('[data-testid="cn-grouped-menu-item-config"]')).toBeVisible()
+			for (const id of ['scheduled-exports', 'schedule', 'publish', 'unpublish']) {
+				await expect(page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`)).toHaveCount(0)
+			}
+			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+			await page.locator('[data-test="config-tab-exports"]').click()
+			const list = page.getByTestId('scheduled-exports')
+			await expect(list.getByTestId('scheduled-export-name').filter({ hasText: `This dashboard ${STAMP}` })).toBeVisible({ timeout: 15_000 })
+			await expect(list.getByTestId('scheduled-export-name').filter({ hasText: `Other dashboard ${STAMP}` })).toHaveCount(0)
+		} finally {
+			await context.close()
 		}
 	})
 })

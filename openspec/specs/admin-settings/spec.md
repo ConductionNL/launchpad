@@ -276,13 +276,14 @@ When `allow_multiple_dashboards` is false, users MUST be limited to one dashboar
 - AND alice MUST NOT be able to create additional dashboards
 - AND alice MUST be able to delete dashboards to get down to 1
 
-#### Scenario: Template distribution overrides multiple dashboard restriction
+#### Scenario: A new template reaches only users on their first access
 - GIVEN `allowMultipleDashboards` is set to `false`
 - AND user "alice" has 1 dashboard
-- AND a new admin template targets alice's group
-- WHEN the template distribution triggers for alice
-- THEN the system MUST still create the template copy for alice
-- AND alice MUST have 2 dashboards (the restriction applies to user-initiated creation, not admin-initiated distribution)
+- AND a new admin template targets the group of alice and of "bob", who has never opened LaunchPad
+- WHEN alice and bob open LaunchPad
+- THEN the system MUST NOT create a template copy for alice, who keeps her 1 dashboard: templates are distributed on first access only (REQ-TMPL-005), whatever this setting says
+- AND bob MUST receive the template copy as his first dashboard
+- AND an admin who wants the template on existing users' dashboards uses re-sync (REQ-TMPL-005 is unaffected by it)
 
 ### Requirement: Default Permission Level Setting (REQ-ASET-005)
 
@@ -376,7 +377,8 @@ Admin settings MUST be persisted across server restarts and app updates.
 
 ### Requirement: Admin Settings UI (REQ-ASET-008)
 
-The admin settings MUST be accessible via a Nextcloud admin panel page.
+The admin settings MUST be accessible via a Nextcloud admin panel page. The
+form MUST save each change as soon as it is made; it has no Save button.
 
 #### Scenario: Admin settings page is registered
 - GIVEN a Nextcloud admin user
@@ -397,13 +399,13 @@ The admin settings MUST be accessible via a Nextcloud admin panel page.
   - A toggle for "Allow multiple dashboards" (on/off)
   - A dropdown for "Default permission level" (view_only, add_only, full)
   - A select for "Default grid columns" offering 6, 8 and 12 (Ruben, 21 Nov 2026, following the product)
-  - A "Save" button
 - AND each setting MUST show its current value
+- AND the form MUST NOT show a Save button, since every change is saved at once
 
-#### Scenario: Settings saved via the UI
-- GIVEN the admin changes "Allow user dashboards" to off and clicks Save
-- WHEN the save completes
-- THEN the system MUST display a success notification
+#### Scenario: Each change is saved at once
+- GIVEN the admin opens the LaunchPad admin settings page
+- WHEN the admin switches "Allow user dashboards" off
+- THEN the page MUST send the change to PUT /api/admin/settings straight away, without a Save step
 - AND GET /api/admin/settings MUST reflect the change
 
 ### Requirement: Settings Impact on Existing Data (REQ-ASET-009)

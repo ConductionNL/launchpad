@@ -36,6 +36,9 @@
  * Gate-19 @e2e traceability:
  *   @e2e image-widget::cover-fit-fills-the-cell
  *   @e2e image-widget::contain-fit-preserves-aspect-ratio
+ *   @e2e image-widget::allow-listed-external-image-loads
+ *   @e2e image-widget::external-image-from-a-host-not-on-the-list-is-blocked
+ *   @e2e image-widget::an-entry-that-is-not-a-host-name-is-refused
  *   @e2e image-widget::default-fit-is-cover
  *   @e2e image-widget::empty-url-shows-placeholder
  *   @e2e image-widget::null-url-shows-placeholder
@@ -81,6 +84,7 @@ const APP = '/index.php/apps/launchpad'
 const API = `${APP}/api`
 const DAV = '/remote.php/dav'
 const SHARES = '/ocs/v2.php/apps/files_sharing/api/v1/shares'
+const IMAGE_HOSTS = `${API}/admin/image-hosts`
 const RUN = Date.now()
 
 // A same-origin asset that every Nextcloud serves, for the "other" cell that
@@ -104,6 +108,7 @@ let seeded: SeededDashboard[] = []
 let files: string[] = []
 let fileShares: number[] = []
 let counter = 0
+let previousImageHosts: string[] | null = null
 
 /**
  * A basic-auth API context with an explicitly empty cookie jar, so the
@@ -309,6 +314,22 @@ async function purgeAdminFile(name: string): Promise<void> {
 	}
 }
 
+/**
+ * Replace the image host allow-list (REQ-IMG-006) through the admin API,
+ * remembering the list it replaces so `afterEach` puts it back.
+ *
+ * @param hosts the host names image widgets may load from.
+ */
+async function allowImageHosts(hosts: string[]): Promise<void> {
+	if (previousImageHosts === null) {
+		const current = await admin.get(IMAGE_HOSTS)
+		expect(current.status(), await current.text()).toBe(200)
+		previousImageHosts = ((await current.json()).hosts ?? []) as string[]
+	}
+	const res = await admin.put(IMAGE_HOSTS, { data: { hosts } })
+	expect(res.status(), await res.text()).toBe(200)
+}
+
 test.beforeAll(async () => {
 	admin = await apiAs(ADMIN.user, ADMIN.pass)
 })
@@ -322,6 +343,10 @@ test.afterEach(async () => {
 	}
 	for (const dashboard of seeded) {
 		await removeSeededDashboard(admin, dashboard)
+	}
+	if (previousImageHosts !== null) {
+		await admin.put(IMAGE_HOSTS, { data: { hosts: previousImageHosts } })
+		previousImageHosts = null
 	}
 	fileShares = []
 	files = []
@@ -377,6 +402,7 @@ test.describe('image widget — rendering a placed cell', () => {
 	})
 
 	// @e2e image-widget::contain-fit-preserves-aspect-ratio
+	// @e2e image-widget::allow-listed-external-image-loads
 	test('REQ-IMG-001: fit contain on an external wide image letterboxes it', async ({
 		page,
 	}) => {
@@ -387,6 +413,9 @@ test.describe('image widget — rendering a placed cell', () => {
 		// image's origin shows up here as an image that never decodes.
 		const external = 'https://example.com/wide.png'
 		await servePng(page, external, 800, 40)
+		// REQ-IMG-006: external image hosts are fail-closed, so the
+		// administrator allow-lists this one first (restored afterwards).
+		await allowImageHosts(['example.com'])
 		const csp: string[] = []
 		page.on('console', (msg) => {
 			if (/content security policy/i.test(msg.text())) {
@@ -927,5 +956,43 @@ test.describe('image widget — a file-mode cell seen by someone who may not rea
 		} finally {
 			await context.close()
 		}
+	})
+})
+
+test.describe('image widget — external image host allow-list', () => {
+	test.describe.configure({ timeout: 90_000 })
+
+	// @e2e image-widget::external-image-from-a-host-not-on-the-list-is-blocked
+	test('REQ-IMG-006: an external image from a host not on the list is blocked and falls back', async ({
+		page,
+	}) => {
+		await allowImageHosts(['example.com'])
+		// Answered by `page.route`, so only the page's CSP can stop it.
+		const external = 'https://example.net/photo.png'
+		await servePng(page, external, 64, 48)
+		const csp: string[] = []
+		page.on('console', (msg) => {
+			if (/content security policy/i.test(msg.text())) {
+				csp.push(msg.text())
+			}
+		})
+
+		const { ids } = await seedImages([{ content: { url: external, fit: 'cover' } }])
+		const cell = await openWorkspace(page, ids[0])
+
+		await expectFailedFallback(cell)
+		expect(csp.join(' | '), 'the browser must name img-src for the refused image').toMatch(/img-src/)
+	})
+
+	// @e2e image-widget::an-entry-that-is-not-a-host-name-is-refused
+	test('REQ-IMG-006: an entry that is not a host name is refused and nothing is stored', async () => {
+		await allowImageHosts(['example.com'])
+
+		const res = await admin.put(IMAGE_HOSTS, { data: { hosts: ['https://example.org'] } })
+		expect(res.status()).toBe(400)
+		expect((await res.json()).message).toContain('https://example.org')
+
+		const stored = await admin.get(IMAGE_HOSTS)
+		expect((await stored.json()).hosts).toEqual(['example.com'])
 	})
 })

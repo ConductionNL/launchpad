@@ -1396,19 +1396,25 @@ A "Hidden (n)" control MUST list the widgets the person hid, each with "Show aga
 
 ### Requirement: A manager can publish, unpublish and schedule a dashboard (REQ-SCHEDUI-001)
 
-A person who may edit a dashboard MUST find "Publish", "Unpublish" and "Schedule..." in its menu. "Schedule..." MUST accept a go-live time, a take-down time or both, and MUST show the server's message when a time is in the past.
+The owner of a dashboard, or an administrator, MUST find publication in the dashboard settings ("Dashboard configuration", board LpDashboardInstellingen), on their own "Publication" tab ("Publicatie"), and nowhere else: the "Meer" menu and the dashboard row menu MUST NOT offer "Publish", "Unpublish" or "Schedule" (Ruben, 22 Nov 2026). The tab MUST show the status (Published, Draft or Scheduled) with the one action that fits it, "Publish" or "Unpublish", and a publication schedule that accepts a go-live time, a take-down time or both. It MUST show the server's message in the tab when a time is in the past. Because an administrator keeps the right on every dashboard, the "Meer" menu MUST offer "Settings" to an administrator on a dashboard they do not own; their settings show Details and Publication, without the owner's Languages, Look and Sharing tabs.
 
 #### Scenario: Schedule go-live
 
 - **GIVEN** Sanne manages the dashboard "Open day"
-- **WHEN** she schedules it to go live tomorrow at 09:00
-- **THEN** the header reads "Goes live on" with that date, and colleagues do not see the dashboard until then
+- **WHEN** she opens Settings, tab "Publication", and schedules it to go live tomorrow at 09:00
+- **THEN** the tab reads "Scheduled", the header reads "Goes live on" with that date, and colleagues do not see the dashboard until then
 
 #### Scenario: Past time refused
 
-- **GIVEN** Sanne opens "Schedule..."
+- **GIVEN** Sanne opens the "Publication" tab of the settings
 - **WHEN** she enters a go-live time in the past and saves
-- **THEN** the dialog shows the refusal and nothing changes
+- **THEN** the tab shows the refusal and nothing changes
+
+#### Scenario: Publish and unpublish from the settings
+
+- **GIVEN** Sanne's dashboard "Open day" is a draft
+- **WHEN** she opens the "Publication" tab and chooses "Publish", then "Unpublish"
+- **THEN** the status reads "Published" and then "Draft", and the "Meer" menu offers neither action
 
 ### Requirement: A dashboard can come down at a set time (REQ-SCHEDUI-002)
 

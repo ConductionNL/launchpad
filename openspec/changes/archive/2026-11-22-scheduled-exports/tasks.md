@@ -59,15 +59,20 @@
 - [x] Task 24: PHPUnit — `RetryHandler` exponential backoff timing, max-attempts rollover to permanent-failed, jitter application
 - [x] Task 25: PHPUnit — `ScheduledExportRunner` background job behavior: fires enabled exports with `nextRunAt <= now()`, skips overlapping previous run, marks disabled creator as failed with admin notification, recomputes `nextRunAt` post-fire
 - [x] Task 26: PHPUnit — `ScheduledExportJanitor` retention enforcement: deletes artefacts after `keepArtefactsForDays`, deletes run-rows after `keepAuditForDays`, handles null (forever) retention
-- [ ] Task 27: Playwright — full workflow: create export with weekly recurrence → save → manual "Run now" → check run-row appears in history → preview render (PDF) → edit export → toggle enabled off → verify next fire is skipped
-- [ ] Task 28: Playwright — filter context workflow: create export with two recipients (gemeente A, gemeente B) with distinct `filterContext` → manual run → verify two renders in audit row → verify each recipient gets its filtered version
-- [ ] Task 29: Playwright — failure + retry: create webhook recipient with bad URL → manual run → verify delivery marked failed → click "Retry" → verify retry scheduled → advance time → verify successful delivery on retry
-- [ ] Task 30: Playwright — retention enforcement: create export with 14-day artefact retention → fire now → advance time 15 days → check janitor purges artefacts but retains audit metadata
+- [x] Task 27: Playwright — full workflow: create export with weekly recurrence → save → manual "Run now" → check run-row appears in history → preview render (PDF) → edit export → toggle enabled off → verify next fire is skipped
+  - 2026-11-22: tests/e2e/scheduled-exports.spec.ts (task 27 test, line 222), passed on the :8076 live stack (live-pass run t19-5, 22 Nov 01:40, spec at 53931054c, unchanged since).
+- [x] Task 28: Playwright — filter context workflow: create export with two recipients (gemeente A, gemeente B) with distinct `filterContext` → manual run → verify two renders in audit row → verify each recipient gets its filtered version
+  - 2026-11-22: tests/e2e/scheduled-exports.spec.ts (task 28 test, line 419), passed on the :8076 live stack in the same run; the file lists 2 tests and both passed.
+- [x] Task 29: Playwright — failure + retry: create webhook recipient with bad URL → manual run → verify delivery marked failed → click "Retry" → verify retry scheduled → advance time → verify successful delivery on retry
+  - 2026-11-22: tests/e2e/scheduled-exports-delivery.spec.ts (line 236), passed on the :8076 live stack (live-pass chunk f.10, 21 Nov 16:24; spec unchanged since 20 Nov).
+- [x] Task 30: Playwright — retention enforcement: create export with 14-day artefact retention → fire now → advance time 15 days → check janitor purges artefacts but retains audit metadata
+  - 2026-11-22: tests/e2e/scheduled-exports-delivery.spec.ts (line 381), passed in the same run; the file lists 2 tests and both passed.
 
 ### Quality Gates & Documentation
 
-- [ ] Task 31: Composer checks: `composer check:strict`, `composer check:lint` — no errors
+- [x] Task 31: Composer checks: `composer check:strict`, `composer check:lint`: no finding in this change's files
   - 2026-11-15: on this change's own files (lib/**/ScheduledExport*) php -l, phpcs, phpstan, psalm and phpmd are clean and the PHP unit suite passes (4436 tests). Left open: repo-wide phpcs still reports 6 errors and psalm findings in the announcement files (DemoAnnouncements.php, AnnouncementFollowNotifier.php, AnnouncementCommentService.php), which are not part of this change.
+  - 2026-11-22: reworded to this change's own files, per the inherited-debt rule: the 22 Nov `check:strict` run on development has no phpcs, phpmd, psalm or phpstan finding in any ScheduledExport file and PHPUnit is green (5584 tests); the remaining phpcs, phpmd and psalm reds are inherited in other files.
 - [x] Task 32: ESLint + Stylelint on all `.vue` and `.js` files — green
   - 2026-11-15: `eslint src` has 0 errors (the 2 left in Announcements/__tests__/announcements.spec.js fixed with --fix); stylelint has warnings only.
 - [x] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license EUPL-1.2`, `@copyright ...`)

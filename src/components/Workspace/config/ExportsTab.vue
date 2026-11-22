@@ -4,12 +4,7 @@
 -->
 
 <template>
-	<NcModal
-		v-if="open"
-		class="launchpad-modal launchpad-modal--wide"
-		size="large"
-		:name="t('launchpad', 'Scheduled exports')"
-		@close="$emit('close')">
+	<div class="scheduled-exports-tab">
 		<div class="scheduled-exports" data-testid="scheduled-exports">
 			<ExportRunHistory
 				v-if="historyFor"
@@ -19,9 +14,9 @@
 
 			<template v-else>
 				<div class="scheduled-exports__head">
-					<h2 class="launchpad-modal__title">
-						{{ t('launchpad', 'Scheduled exports') }}
-					</h2>
+					<p class="scheduled-exports__hint">
+						{{ t('launchpad', 'Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP.') }}
+					</p>
 					<NcButton
 						variant="primary"
 						data-testid="scheduled-exports-new"
@@ -42,7 +37,7 @@
 				</p>
 				<CnDataTable
 					:columns="columns"
-					:rows="store.exports"
+					:rows="rows"
 					:loading="store.loading"
 					:emptyText="
 						t(
@@ -162,7 +157,7 @@
 			:confirmLabel="t('launchpad', 'Delete')"
 			@confirm="confirmDelete"
 			@close="deleteTarget = null" />
-	</NcModal>
+	</div>
 </template>
 
 <script>
@@ -172,7 +167,6 @@ import {
 	NcActionButton,
 	NcActions,
 	NcButton,
-	NcModal,
 } from '@conduction/nextcloud-vue'
 import { showError, showInfo, showSuccess, showWarning } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
@@ -182,30 +176,29 @@ import History from 'vue-material-design-icons/History.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Play from 'vue-material-design-icons/Play.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import ExportRunHistory from '../components/ScheduledExports/ExportRunHistory.vue'
-import ExportStatus from '../components/ScheduledExports/ExportStatus.vue'
-import PreviewModal from './PreviewModal.vue'
-import RunDetailModal from './RunDetailModal.vue'
-import ScheduledExportModal from './ScheduledExportModal.vue'
+import PreviewModal from '../../../modals/PreviewModal.vue'
+import RunDetailModal from '../../../modals/RunDetailModal.vue'
+import ScheduledExportModal from '../../../modals/ScheduledExportModal.vue'
+import ExportRunHistory from '../../ScheduledExports/ExportRunHistory.vue'
+import ExportStatus from '../../ScheduledExports/ExportStatus.vue'
 import {
 	LIST_PROP,
 	NULLABLE_OBJECT_PROP,
-	REQUIRED_FLAG_PROP,
-} from '../constants/propDefinitions.js'
-import { useExportsStore } from '../stores/scheduledExports.js'
-import { formatDateTime, serverMessage } from '../utils/scheduledExports.js'
+} from '../../../constants/propDefinitions.js'
+import { useExportsStore } from '../../../stores/scheduledExports.js'
+import { formatDateTime, serverMessage } from '../../../utils/scheduledExports.js'
 
 /**
- * ScheduledExportsModal: the scheduled exports the user may see, opened
- * from the dashboard menu. Each row shows the export's name, what it
+ * ExportsTab: the Exports tab of the dashboard settings, listing the
+ * scheduled exports of this dashboard and its widgets. Each row shows the export's name, what it
  * exports, its next run and how its last run went, with Edit, Run now,
  * Preview, View runs and Delete. View runs swaps the list for the run
  * history; a run opens its detail.
  *
- * @spec openspec/changes/scheduled-exports/tasks.md#task-13
+ * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
  */
 export default {
-	name: 'ScheduledExportsModal',
+	name: 'ExportsTab',
 
 	components: {
 		CnConfirmDialog,
@@ -218,7 +211,6 @@ export default {
 		NcActionButton,
 		NcActions,
 		NcButton,
-		NcModal,
 		Pencil,
 		Play,
 		Plus,
@@ -228,16 +220,12 @@ export default {
 	},
 
 	props: {
-		open: REQUIRED_FLAG_PROP,
-
-		/** What can be exported: `{type: 'dashboard'|'widget', id, label}`. */
+		/** This dashboard and its widgets: `{type: 'dashboard'|'widget', id, label}`. */
 		subjects: LIST_PROP,
 
 		/** The subject a new export starts with: `{type, id}`. */
 		defaultSubject: NULLABLE_OBJECT_PROP,
 	},
-
-	emits: ['close'],
 
 	/** @spec openspec/changes/scheduled-exports/tasks.md#task-13 */
 	data() {
@@ -262,35 +250,38 @@ export default {
 		},
 
 		/**
+		 * The exports whose subject is this dashboard or one of its widgets.
+		 *
+		 * @return {object[]} The rows.
+		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
+		 */
+		rows() {
+			return (this.store.exports || []).filter((row) => this.subjects.some(
+				(s) => s.type === row.subjectType && String(s.id) === String(row.subjectId),
+			))
+		},
+
+		/**
 		 * @return {object[]} The table columns.
 		 * @spec openspec/changes/scheduled-exports/tasks.md#task-13
 		 */
 		columns() {
 			return [
 				{ key: 'name', label: t('launchpad', 'Name') },
-				{ key: 'subject', label: t('launchpad', 'Exports') },
+				{ key: 'subject', label: t('launchpad', 'Contents') },
 				{ key: 'nextRunAt', label: t('launchpad', 'Next run') },
 				{ key: 'lastRunStatus', label: t('launchpad', 'Last run') },
 			]
 		},
 	},
 
-	watch: {
-		open: {
-			immediate: true,
-			/**
-			 * Read the list each time the dialog opens.
-			 *
-			 * @param {boolean} isOpen New open state.
-			 * @spec openspec/changes/scheduled-exports/tasks.md#task-13
-			 */
-			handler(isOpen) {
-				if (isOpen) {
-					this.historyFor = null
-					this.load()
-				}
-			},
-		},
+	/**
+	 * Read the list when the tab opens.
+	 *
+	 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
+	 */
+	mounted() {
+		this.load()
 	},
 
 	methods: {
@@ -460,7 +451,6 @@ export default {
 
 <style scoped>
 .scheduled-exports {
-	padding: 24px;
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
@@ -471,6 +461,10 @@ export default {
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
+}
+
+.scheduled-exports__hint {
+	color: var(--color-text-maxcontrast);
 }
 
 .scheduled-exports__error {

@@ -322,6 +322,7 @@ class ConnectionCallersTest extends TestCase {
 	 */
 	public function testAThrowingListenerLeavesThePingAnswerAlone(): void {
 		$this->configStore['healthping_allowed_hosts'] = '["svc.example.nl"]';
+		$this->configStore['healthping_offline_after_failures'] = '1';
 		$appConfig  = $this->backedAppConfig();
 		$dispatcher = $this->createMock(originalClassName: IEventDispatcher::class);
 		$dispatcher->expects($this->once())->method('dispatchTyped')->willThrowException(new RuntimeException('integriq down'));

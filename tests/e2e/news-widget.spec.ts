@@ -7,7 +7,7 @@
  * e2e-coverage-programme.
  *
  * Configuration goes through the product's own controls: the More menu's
- * "Add custom widget…" modal with the News type, and the edit-mode context
+ * "Add widget" → "Custom widget" modal with the News type, and the edit-mode context
  * menu's Edit for an existing placement. The API only seeds placements and
  * reads them back. Where a response has to carry items, the app's own items
  * endpoint is stubbed (see tests/e2e/support/newsWidget.ts for why the CI
@@ -19,6 +19,7 @@
  *
  * Gate-19 @e2e traceability:
  *   @e2e news-widget::widget-registration-on-bootstrap
+ *   @e2e news-widget::nextcloud-dashboard-items-come-from-own-news-widgets
  *   @e2e news-widget::widget-picker-includes-news-widget
  *   @e2e news-widget::multiple-news-widget-instances
  *   @e2e news-widget::widget-metadata-is-discoverable
@@ -150,6 +151,22 @@ test('Nextcloud\'s dashboard registry lists launchpad_news with a title, an icon
 	expect(String(news.title ?? '').trim()).not.toBe('')
 	expect(String(news.icon_url ?? '').trim()).not.toBe('')
 	expect(news.item_api_versions).toContain(2)
+})
+
+// @e2e news-widget::nextcloud-dashboard-items-come-from-own-news-widgets
+test('Nextcloud\'s dashboard asks launchpad_news for items and gets a list with an empty-state message', async () => {
+	// The CI fixture cannot reach a real feed (see support/newsWidget.ts), so
+	// this pins the contract: the widget answers the v2 items API for the
+	// user, every item links to a web page, and an empty list explains itself.
+	const res = await api.get(`/ocs/v2.php/apps/dashboard/api/v2/widget-items?format=json&limit=30&widgets[]=${NC_WIDGET_ID}`)
+	expect(res.status(), await res.text()).toBe(200)
+	const data = (await res.json()).ocs.data[NC_WIDGET_ID]
+	expect(data, `${NC_WIDGET_ID} is not among the widget items`).toBeTruthy()
+	expect(Array.isArray(data.items)).toBe(true)
+	for (const item of data.items) {
+		expect(String(item.link)).toMatch(/^https?:\/\//)
+	}
+	expect(String(data.emptyContentMessage).trim()).not.toBe('')
 })
 
 // @e2e news-widget::widget-picker-includes-news-widget

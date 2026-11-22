@@ -10,7 +10,7 @@
  * Rendering scenarios seed a placement through the API with exactly the
  * `content` the scenario names and assert the DOM the dashboard draws for it
  * (`.launchpad-grid-item[data-placement-id] .cn-text-widget`). Form scenarios
- * drive the real Add/Edit Widget modal: More → "Add custom widget…" for a new
+ * drive the real Add/Edit Widget modal: More → "Add widget" → "Custom widget" for a new
  * widget, edit mode → right-click → Edit for a placed one.
  *
  * Markdown mode lives in text-display-widget-markdown.spec.ts, table mode in

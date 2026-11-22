@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Golden test for the footers of ScheduleDashboardDialog and
- * ReadConfirmationDialog: per filled-in state, the footer buttons (label,
+ * Golden test for the footer of ReadConfirmationDialog: per filled-in state, the footer buttons (label,
  * disabled) and the events that Cancel and the primary button emit, compared
  * with fixtures/dialogActions.golden.json case by case. The CnDialogActions
  * double follows nc-vue's component: a cancel button and a primary button
@@ -16,7 +15,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import ReadConfirmationDialog from '../ReadConfirmationDialog.vue'
-import ScheduleDashboardDialog from '../ScheduleDashboardDialog.vue'
 
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
 vi.mock('@conduction/nextcloud-vue', () => ({
@@ -63,14 +61,6 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 }))
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/dialogActions.golden.json')
-
-const SCHEDULES = {
-	empty: {},
-	'go live only': { goLive: '2026-10-01T09:00' },
-	'take down only': { takeDown: '2026-11-01T18:00' },
-	both: { goLive: '2026-10-01T09:00', takeDown: '2026-11-01T18:00' },
-	'with error': { goLive: '2026-10-01T09:00', error: 'Refused' },
-}
 
 const CONFIRMATIONS = {
 	'no placement': { placement: null },
@@ -136,18 +126,6 @@ async function footer(make) {
 describe('dialog footers (golden)', () => {
 	it('matches the recorded outcomes case by case', async () => {
 		const actual = {}
-		for (const [name, state] of Object.entries(SCHEDULES)) {
-			actual[`schedule | ${name}`] = await footer(async () => {
-				const wrapper = mount(ScheduleDashboardDialog, {
-					props: { open: true, error: state.error ?? '' },
-				})
-				await wrapper.setData({
-					goLive: state.goLive ?? '',
-					takeDown: state.takeDown ?? '',
-				})
-				return wrapper
-			})
-		}
 		for (const [name, state] of Object.entries(CONFIRMATIONS)) {
 			actual[`read confirmation | ${name}`] = await footer(async () => {
 				const wrapper = mount(ReadConfirmationDialog, {

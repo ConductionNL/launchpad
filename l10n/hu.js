@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Nincsenek elérhető irányítópultok",
     "Contact your administrator" : "Vegye fel a kapcsolatot a rendszergazdával",
     "Create your first dashboard" : "Hozza létre első irányítópultját",
-    "Open menu" : "Menü megnyitása",
     "Save failed" : "A mentés nem sikerült",
     "My dashboards" : "Saját irányítópultjaim",
     "Group dashboards" : "Csoport-irányítópultok",

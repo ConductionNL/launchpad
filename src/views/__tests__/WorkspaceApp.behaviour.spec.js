@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for the behaviour of `WorkspaceApp.vue` beyond its
- * chrome: the `/dashboards/:id` route parameter selecting a dashboard, Escape
- * and the backdrop closing the sidebar, creating a first dashboard from the
- * empty state (and logging a failure), which footer the active dashboard
- * resolves to, its name in the title strip, and the org navigation rail.
+ * chrome: the `/dashboards/:id` route parameter selecting a dashboard,
+ * creating a first dashboard from the empty state (and logging a failure),
+ * which footer the active dashboard resolves to, and the org navigation rail.
  *
  * The two stores and the logger are doubled; child components are stubbed.
  */
@@ -51,7 +50,6 @@ function mountShell({ provide = {}, route = { params: {} } } = {}) {
 				Views: { name: 'Views', render: () => h('div', { class: 'views-stub' }) },
 				DashboardFooter: { name: 'DashboardFooter', props: ['footer', 'locale'], render: () => null },
 				OrgNavigationPanel: { name: 'OrgNavigationPanel', render: () => h('nav', { class: 'org-nav-stub' }) },
-				SidebarBackdrop: { name: 'SidebarBackdrop', emits: ['close'], render: () => h('div', { class: 'backdrop-stub' }) },
 				StartPageMenu: true,
 				TileSidePanel: true,
 				NcButton: {
@@ -98,57 +96,6 @@ describe('WorkspaceApp route parameter', () => {
 		}
 
 		expect(dashboardStore.openDashboard).not.toHaveBeenCalled()
-	})
-})
-
-describe('WorkspaceApp sidebar', () => {
-	it('closes an open sidebar on Escape only', async () => {
-		const wrapper = mountShell()
-		await wrapper.setData({ sidebarOpen: true })
-
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
-		expect(wrapper.vm.sidebarOpen).toBe(true)
-
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
-		expect(wrapper.vm.sidebarOpen).toBe(false)
-		wrapper.unmount()
-	})
-
-	it('leaves the sidebar open when a menu already handled the Escape', async () => {
-		const wrapper = mountShell()
-		await wrapper.setData({ sidebarOpen: true })
-
-		const handled = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })
-		handled.preventDefault()
-		document.dispatchEvent(handled)
-
-		expect(wrapper.vm.sidebarOpen).toBe(true)
-		wrapper.unmount()
-	})
-
-	it('stops listening for Escape once unmounted', () => {
-		const removed = vi.spyOn(document, 'removeEventListener')
-		const wrapper = mountShell()
-		const handler = wrapper.vm.onDocumentKeydown
-
-		wrapper.unmount()
-
-		expect(removed).toHaveBeenCalledWith('keydown', handler)
-		removed.mockRestore()
-	})
-
-	it('closes when the backdrop asks, and the hamburger toggles it', async () => {
-		const wrapper = mountShell()
-		await wrapper.setData({ sidebarOpen: true })
-
-		await wrapper.findComponent({ name: 'SidebarBackdrop' }).vm.$emit('close')
-		expect(wrapper.vm.sidebarOpen).toBe(false)
-		expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(false)
-
-		await wrapper.setData({ sidebarOpen: true })
-		await wrapper.find('.workspace-shell__hamburger').trigger('click')
-		expect(wrapper.vm.sidebarOpen).toBe(false)
-		wrapper.unmount()
 	})
 })
 
@@ -220,24 +167,6 @@ describe('WorkspaceApp active dashboard', () => {
 			expect(footerOf(wrapper)).toEqual(instanceFooter)
 			wrapper.unmount()
 		}
-	})
-
-	it('titles the strip with the active dashboard\'s name, or nothing when unknown', async () => {
-		const known = mountShell({ provide: { activeDashboardId: 'g1', groupDashboards: [{ id: 'g1', name: 'Team' }] } })
-		await known.setData({ sidebarOpen: true })
-		expect(known.find('.workspace-shell__title').text()).toBe('Team')
-		expect(known.find('.views-stub').exists()).toBe(true)
-		known.unmount()
-
-		const unknown = mountShell({ provide: { activeDashboardId: 'zz', groupDashboards: [{ id: 'g1' }] } })
-		await unknown.setData({ sidebarOpen: true })
-		expect(unknown.find('.workspace-shell__title').text()).toBe('')
-		unknown.unmount()
-
-		const nameless = mountShell({ provide: { activeDashboardId: 'g1', groupDashboards: [{ id: 'g1' }] } })
-		await nameless.setData({ sidebarOpen: true })
-		expect(nameless.find('.workspace-shell__title').text()).toBe('')
-		nameless.unmount()
 	})
 })
 

@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Aucun tableau de bord disponible",
     "Contact your administrator" : "Contactez votre administrateur",
     "Create your first dashboard" : "Créez votre premier tableau de bord",
-    "Open menu" : "Ouvrir le menu",
     "Save failed" : "Échec de l'enregistrement",
     "My dashboards" : "Mes tableaux de bord",
     "Group dashboards" : "Tableaux de bord de groupe",

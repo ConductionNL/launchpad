@@ -50,7 +50,8 @@
 			"email": "pieter@zuiddrecht.example",
 			"groups": [
 				"vergunningen",
-				"medewerkers"
+				"medewerkers",
+				"bedrijfsvoering"
 			]
 		},
 		{
@@ -1791,13 +1792,6 @@
 			"group": "bedrijfsvoering",
 			"gridColumns": 12,
 			"permissionLevel": "view_only",
-			"shares": [
-				{
-					"type": "user",
-					"with": "pieter",
-					"permissionLevel": "view_only"
-				}
-			],
 			"widgets": [
 				{
 					"widgetId": "container",

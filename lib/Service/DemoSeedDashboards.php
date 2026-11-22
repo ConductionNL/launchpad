@@ -28,8 +28,6 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardShare;
-use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCP\AppFramework\Db\DoesNotExistException;
 use RuntimeException;
@@ -52,13 +50,15 @@ class DemoSeedDashboards {
 	 * Constructor.
 	 *
 	 * @param ShowcaseStores       $stores      The dashboard and placement mappers and the database.
-	 * @param DashboardShareMapper $shareMapper The dashboard shares.
+	 * @param DashboardShareService $shares     Replaces a dashboard's shares and notifies new recipients.
 	 * @param DemoSeedPreferences  $preferences Which dashboard opens first; tour progress.
+	 * @param DashboardService     $dashboards  Deletes a first-run user's own dashboards with everything attached.
 	 */
 	public function __construct(
 		private readonly ShowcaseStores $stores,
-		private readonly DashboardShareMapper $shareMapper,
+		private readonly DashboardShareService $shares,
 		private readonly DemoSeedPreferences $preferences,
+		private readonly DashboardService $dashboards,
 	) {
 		$this->hydrator = new PlacementPayloadHydrator();
 	}//end __construct()
@@ -88,11 +88,6 @@ class DemoSeedDashboards {
 				$this->stores->placementMapper->insert(entity: $this->placementFor(dashboardId: $dashboardId, payload: $payload));
 			}
 
-			$this->shareMapper->deleteByDashboardId(dashboardId: $dashboardId);
-			foreach ((array)($definition['shares'] ?? []) as $share) {
-				$this->shareMapper->insert(entity: $this->shareFor(dashboardId: $dashboardId, share: (array)$share));
-			}
-
 			$this->stores->db->commit();
 		} catch (Throwable $e) {
 			$this->stores->db->rollBack();
@@ -102,6 +97,8 @@ class DemoSeedDashboards {
 				previous: $e
 			);
 		}//end try
+
+		$this->replaceShares(dashboard: $dashboard, shares: (array)($definition['shares'] ?? []));
 
 		foreach ((array)($definition['defaultFor'] ?? []) as $userId) {
 			$this->preferences->setDefaultDashboard(userId: (string)$userId, uuid: $uuid);
@@ -123,10 +120,7 @@ class DemoSeedDashboards {
 	public function resetToFirstRun(string $userId): int {
 		$removed = 0;
 		foreach ($this->stores->dashboardMapper->findByUserId(userId: $userId) as $dashboard) {
-			$dashboardId = (int)$dashboard->getId();
-			$this->stores->placementMapper->deleteByDashboardId(dashboardId: $dashboardId);
-			$this->shareMapper->deleteByDashboardId(dashboardId: $dashboardId);
-			$this->stores->dashboardMapper->delete(entity: $dashboard);
+			$this->dashboards->deleteDashboard(dashboardId: (int)$dashboard->getId(), userId: $userId, cascade: true);
 			$removed++;
 		}
 
@@ -248,24 +242,30 @@ class DemoSeedDashboards {
 	}//end placementFor()
 
 	/**
-	 * A share row for a seeded share.
+	 * Give a personal dashboard exactly the seeded shares, through the share
+	 * service, so a recipient who is new to the dashboard is notified once.
+	 * A group dashboard has no owner and reaches its audience through its group.
 	 *
-	 * @param integer              $dashboardId The dashboard id.
-	 * @param array<string, mixed> $share       `{type, with, permissionLevel}`.
+	 * @param Dashboard                        $dashboard The written dashboard.
+	 * @param array<int, array<string, mixed>> $shares    The seeded shares, `{type, with, permissionLevel}`.
 	 *
-	 * @return DashboardShare The share, not yet persisted.
+	 * @return void
 	 */
-	private function shareFor(int $dashboardId, array $share): DashboardShare {
-		$now   = (new DateTime())->format(format: 'Y-m-d H:i:s');
-		$entry = new DashboardShare();
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$entry->setDashboardId($dashboardId);
-		$entry->setShareType((string)$share['type']);
-		$entry->setShareWith((string)$share['with']);
-		$entry->setPermissionLevel((string)($share['permissionLevel'] ?? Dashboard::PERMISSION_VIEW_ONLY));
-		$entry->setCreatedAt($now);
-		$entry->setUpdatedAt($now);
-		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		return $entry;
-	}//end shareFor()
+	private function replaceShares(Dashboard $dashboard, array $shares): void {
+		$owner = (string)$dashboard->getUserId();
+		if ($owner === '') {
+			return;
+		}
+
+		$grants = [];
+		foreach ($shares as $share) {
+			$grants[] = [
+				'shareType'       => (string)$share['type'],
+				'shareWith'       => (string)$share['with'],
+				'permissionLevel' => (string)($share['permissionLevel'] ?? Dashboard::PERMISSION_VIEW_ONLY),
+			];
+		}
+
+		$this->shares->replaceShares(dashboardId: (int)$dashboard->getId(), shares: $grants, userId: $owner);
+	}//end replaceShares()
 }//end class

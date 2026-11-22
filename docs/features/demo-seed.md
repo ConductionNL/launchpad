@@ -27,7 +27,7 @@ Password of every account the seed creates: `Zuiddrecht-demo-2026!`
 
 | User | Name | Groups | What you see |
 |---|---|---|---|
-| `pieter` | Pieter Jansen | vergunningen, medewerkers | Vandaag (opens first), Mijn werkplek, Intranet, Team Vergunningen, Managementinformatie (view only) |
+| `pieter` | Pieter Jansen | vergunningen, medewerkers, bedrijfsvoering | Vandaag (opens first), Mijn werkplek, Intranet, Team Vergunningen, Managementinformatie (view only) |
 | `marieke` | Marieke Jansen | vergunningen, teamleiders, medewerkers | owns Team Vergunningen, shared with vergunningen |
 | `sanne` | Sanne de Vries | vergunningen, medewerkers | Team Vergunningen as a member who may add widgets |
 | `thomas` | Thomas Brouwer | vergunningen, bestuurszaken, medewerkers | |
@@ -37,7 +37,8 @@ Password of every account the seed creates: `Zuiddrecht-demo-2026!`
 | `beheer` | Functioneel beheerder | admin, launchpad-beheer | the admin pages |
 | `nieuw` | Noor Nieuw | none | the first visit |
 
-`nieuw` is in no group on purpose. Intranet Zuiddrecht is a dashboard of the group medewerkers, and a member of that
+Managementinformatie is a view-only dashboard of the group bedrijfsvoering, so Pieter sees it as a member of that
+group. `nieuw` is in no group on purpose. Intranet Zuiddrecht is a dashboard of the group medewerkers, and a member of that
 group never sees the first-visit page.
 
 ## What the seed writes

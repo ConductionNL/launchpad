@@ -29,11 +29,11 @@ use OCA\LaunchPad\Db\CatalogueApp;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
-use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\CatalogueService;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\DemoSeedAccounts;
 use OCA\LaunchPad\Service\DemoSeedDashboards;
 use OCA\LaunchPad\Service\DemoSeedContent;
@@ -98,8 +98,9 @@ class DemoSeedServiceTest extends TestCase {
 						db: $this->createMock(originalClassName: IDBConnection::class),
 						lockingProvider: $this->createMock(originalClassName: ILockingProvider::class)
 					),
-					shareMapper: $this->shareMapper(),
-					preferences: new DemoSeedPreferences(config: $this->config())
+					shares: $this->shareService(),
+					preferences: new DemoSeedPreferences(config: $this->config()),
+					dashboards: $this->createMock(originalClassName: DashboardService::class)
 				),
 				preferences: new DemoSeedPreferences(config: $this->config()),
 				files: $this->createMock(originalClassName: DemoSeedFiles::class)
@@ -288,24 +289,28 @@ class DemoSeedServiceTest extends TestCase {
 	}//end placementMapper()
 
 	/**
-	 * Share mapper.
+	 * Share service.
 	 *
-	 * @return DashboardShareMapper
+	 * @return DashboardShareService
 	 */
-	private function shareMapper(): DashboardShareMapper {
-		$mapper = $this->createMock(originalClassName: DashboardShareMapper::class);
-		$mapper->method('insert')->willReturnCallback(function (DashboardShare $share): DashboardShare {
-			$share->setId($this->nextId++);
-			$this->shares[$share->getId()] = $share;
-			return $share;
-		});
-		$mapper->method('deleteByDashboardId')->willReturnCallback(function (int $dashboardId): int {
-			$before = count($this->shares);
+	private function shareService(): DashboardShareService {
+		$service = $this->createMock(originalClassName: DashboardShareService::class);
+		$service->method('replaceShares')->willReturnCallback(function (int $dashboardId, array $shares, string $userId): array {
 			$this->shares = array_filter(array: $this->shares, callback: fn (DashboardShare $s): bool => $s->getDashboardId() !== $dashboardId);
-			return $before - count($this->shares);
+			foreach ($shares as $grant) {
+				$share = new DashboardShare();
+				$share->setId($this->nextId++);
+				$share->setDashboardId($dashboardId);
+				$share->setShareType($grant['shareType']);
+				$share->setShareWith($grant['shareWith']);
+				$share->setPermissionLevel($grant['permissionLevel']);
+				$this->shares[$share->getId()] = $share;
+			}
+
+			return array_values(array: $this->shares);
 		});
-		return $mapper;
-	}//end shareMapper()
+		return $service;
+	}//end shareService()
 
 	/**
 	 * Config.

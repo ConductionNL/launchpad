@@ -984,6 +984,29 @@ export const api = {
 	},
 
 	/**
+	 * Read the external hosts image widgets may load pictures from.
+	 * Admin-only on the server (REQ-IMG-006).
+	 *
+	 * @return {Promise} Axios response resolving to `{ hosts }`.
+	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 */
+	getImageHosts() {
+		return axios.get(`${baseUrl}/api/admin/image-hosts`)
+	},
+
+	/**
+	 * Replace the image host allow-list. Admin-only on the server; an entry
+	 * that is not a bare host name answers 400 with `{ message }` (REQ-IMG-006).
+	 *
+	 * @param {string[]} hosts The host names.
+	 * @return {Promise} Axios response resolving to the stored `{ hosts }`.
+	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 */
+	updateImageHosts(hosts) {
+		return axios.put(`${baseUrl}/api/admin/image-hosts`, { hosts })
+	},
+
+	/**
 	 * Read the dashboard registry connection. Admin-only on the server.
 	 *
 	 * The response never carries the token, only `tokenConfigured`.

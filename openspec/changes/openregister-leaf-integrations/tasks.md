@@ -5,8 +5,9 @@
 - [x] Task 1: REQ-LEAF-001 — Create `lib/Settings/register.d/dashboard-talk-leaf.json` with the fleet overlay shape: `{"components": {"schemas": {"Dashboard": {"configuration": {"linkedTypes": ["talk"]}}}}` (mirror larpingapp's `register.d/player-to-contacts-leaf.json`)
   - Done. `ImportLaunchpadRegister` read only the base file, so a fragment never reached OpenRegister; it now merges `register.d/*.json` the way OpenRegister's app host does, and its version moved to 1.0.2 because the importer does not compare `configuration` by content.
 - [x] Task 2: REQ-LEAF-001 — Do NOT touch `lib/Settings/launchpad_register.json`; verify with `git diff --stat` that the base register file is unchanged
-- [ ] Task 3: REQ-LEAF-001 — Verify the overlay actually imports: after `occ app:enable launchpad` (or the register repair step), fetch the Dashboard schema from OpenRegister and assert `configuration.linkedTypes == ["talk"]`. The register json itself warns that the importer can silently reject a schema — check the imported schema, not the file.
+- [x] Task 3: REQ-LEAF-001 — Verify the overlay actually imports: after `occ app:enable launchpad` (or the register repair step), fetch the Dashboard schema from OpenRegister and assert `configuration.linkedTypes == ["talk"]`. The register json itself warns that the importer can silently reject a schema — check the imported schema, not the file.
   - Left for a live instance. `ImportLaunchpadRegisterTest` asserts the merged document handed to the importer carries `linkedTypes: ["talk"]`.
+  - 2026-11-22: tests/e2e/dashboard-talk-leaf.spec.ts (Task 3), 1/1 passed on the live stack: the Dashboard schema read from OpenRegister's API has `configuration.linkedTypes == ["talk"]`. The same read shows `authorization: null`: the overlay's audience read rule did not survive the import (see Task 14).
 
 ## Frontend Wiring
 
@@ -34,7 +35,8 @@
 
 ## Testing
 
-- [ ] Task 11: Playwright test — group dashboard (member of the group): discussion surface present
+- [x] Task 11: Playwright test — group dashboard (member of the group): discussion surface present
+  - 2026-11-22: tests/e2e/dashboard-talk-leaf.spec.ts (Task 11), 1/1 passed on the live stack. Talk is not installed there, so an init script adds `spreed` to `_oc_appswebroots` before the app boots (what `discussionAvailable()` reads through `OC.appswebroots`) and only Talk's own routes (`/apps/spreed/`, `/ocs/v*.php/apps/spreed/`) are stubbed; LaunchPad's mount decision and the OpenRegister talk integration read of the real mirror object run unstubbed (200). Tasks 12 and 13 use the same arrangement.
 - [ ] Task 12: Playwright test — personal dashboard shared with a second user: discussion surface present for both owner and recipient
 - [ ] Task 13: Playwright test — unshared personal dashboard: no discussion affordance in the DOM
 - [ ] Task 14: Playwright test — non-viewer attempting the dashboard (and its discussion) is denied identically for both

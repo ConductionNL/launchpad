@@ -43,7 +43,6 @@ use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IGroupManager;
-use OCP\IUserManager;
 
 /**
  * Service for mandatory-read acknowledgements and read receipts.
@@ -70,8 +69,8 @@ class AcknowledgementService implements AcknowledgementServiceInterface {
 	 * @param DashboardShareMapper $shareMapper Shares of personal dashboards,
 	 *                                          whose recipients are in the
 	 *                                          audience.
-	 * @param IUserManager $userManager Group lookup for a share
-	 *                                  recipient.
+	 * @param AdminTemplateService $adminTemplateService The groups of a
+	 *                                                   share recipient.
 	 */
 	public function __construct(
 		private readonly AcknowledgementMapper $acknowledgementMapper,
@@ -80,7 +79,7 @@ class AcknowledgementService implements AcknowledgementServiceInterface {
 		private readonly IGroupManager $groupManager,
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly DashboardShareMapper $shareMapper,
-		private readonly IUserManager $userManager,
+		private readonly AdminTemplateService $adminTemplateService,
 	) {
 	}//end __construct()
 
@@ -627,11 +626,7 @@ class AcknowledgementService implements AcknowledgementServiceInterface {
 	 * @return Dashboard[] The shared dashboards.
 	 */
 	private function dashboardsSharedWith(string $userId): array {
-		$user = $this->userManager->get(uid: $userId);
-		$groupIds = [];
-		if ($user !== null) {
-			$groupIds = $this->groupManager->getUserGroupIds(user: $user);
-		}
+		$groupIds = $this->adminTemplateService->getUserGroupIdsFor(userId: $userId);
 
 		$dashboards = [];
 		foreach ($this->shareMapper->findForRecipient(userId: $userId, groupIds: $groupIds) as $share) {

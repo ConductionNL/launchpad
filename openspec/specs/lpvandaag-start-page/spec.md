@@ -26,8 +26,9 @@ the grid SHALL be the editable grid as before.
 The start page SHALL show "Startpagina aanpassen" and one "Meer" menu, and no other control for the dashboard's
 actions. The menu SHALL hold, left, Dashboards (every dashboard the person sees, the open one checked, and "Alle
 dashboards") and Instellingen (personal settings and, for an administrator only, the admin settings), and, right, Dit
-dashboard (Bewerken, Instellingen, Widget toevoegen, Delen, Als standaard instellen, Versies, Inplannen, Publiceren or
-Publicatie intrekken, Leesbevestigingen, and Verwijderen apart) and Launchpad (Store, Sjablonen, Rapporten, Flows,
+dashboard (Bewerken, Instellingen, Widget toevoegen, Delen, Als standaard instellen, Versies, Leesbevestigingen, and
+Verwijderen apart; publishing, its schedule and the scheduled exports are tabs of Instellingen, see REQ-SCHEDUI-001 and
+REQ-SCH-011) and Launchpad (Store, Sjablonen, Rapporten, Flows,
 Koppelingen, Documentatie, Functies en roadmap). Each action SHALL keep the gate it had in the dashboard cog menu.
 Instellingen and Launchpad SHALL only show while the navigation panel is left out. No action SHALL appear twice.
 

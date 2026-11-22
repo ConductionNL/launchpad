@@ -84,13 +84,28 @@ async function instrument(page: Page): Promise<void> {
 				w.__cwf.longtasks.push([entry.startTime, entry.duration])
 			}
 		}).observe({ type: 'longtask', buffered: true })
+		// A widget and the shadow roots inside it: CnChartWidget draws ApexCharts
+		// inside its canvas box's shadow root, which neither a MutationObserver
+		// nor querySelectorAll on the widget sees into.
+		w.__cwfRoots = (selector: string) => {
+			const host = document.querySelector(selector)!
+			const shadows = Array.from(host.querySelectorAll('.cn-chart-widget__canvas'))
+				.map((box) => (box as Element).shadowRoot)
+				.filter((root): root is ShadowRoot => root !== null)
+			return [host, ...shadows]
+		}
+		const observeAll = (observer: MutationObserver, selector: string) => {
+			for (const root of w.__cwfRoots(selector)) {
+				observer.observe(root, { subtree: true, childList: true, attributes: true, characterData: true })
+			}
+		}
 		w.__cwfWatch = (key: string, selector: string) => {
 			const log: number[] = []
 			w.__cwf.mutations[key] = log
-			new MutationObserver(() => log.push(performance.now()))
-				.observe(document.querySelector(selector)!, { subtree: true, childList: true, attributes: true, characterData: true })
+			observeAll(new MutationObserver(() => log.push(performance.now())), selector)
 		}
-		w.__cwfLabels = (selector: string, label: string) => Array.from(document.querySelectorAll(`${selector} ${label}`))
+		w.__cwfLabels = (selector: string, label: string) => (w.__cwfRoots(selector) as ParentNode[])
+			.flatMap((root) => Array.from(root.querySelectorAll(label)))
 			.map((node) => (node.querySelector('title')?.textContent ?? node.textContent ?? '').trim())
 		w.__cwfWaitLabels = (key: string, selector: string, label: string, prefix: string) => {
 			const observer = new MutationObserver(() => {
@@ -100,7 +115,7 @@ async function instrument(page: Page): Promise<void> {
 					w.__cwf[key] = performance.now()
 				}
 			})
-			observer.observe(document.querySelector(selector)!, { subtree: true, childList: true, characterData: true, attributes: true })
+			observeAll(observer, selector)
 		}
 	})
 }

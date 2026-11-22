@@ -128,4 +128,20 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 			}
 		}
 	}//end testWorkPackageWidgetsNameTheirScope()
+
+	/**
+	 * The case widgets read dossiq's register and schema.
+	 *
+	 * @return void
+	 */
+	public function testCaseWidgetsReadTheDossiqRegister(): void {
+		$widgets = self::placementsOf(type: 'assigned-cases');
+		$this->assertCount(expectedCount: 3, haystack: $widgets);
+		foreach ($widgets as $widget) {
+			$this->assertSame(expected: ['register' => 'dossiq', 'schema' => 'case', 'limit' => 4], actual: $widget['content']);
+			$this->assertArrayNotHasKey(key: 'fallback', array: $widget);
+		}
+
+		$this->assertSame(expected: [], actual: self::placementsOf(type: 'my-cases'));
+	}//end testCaseWidgetsReadTheDossiqRegister()
 }//end class

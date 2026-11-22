@@ -535,7 +535,7 @@
 					}
 				},
 				{
-					"widgetId": "my-cases",
+					"widgetId": "assigned-cases",
 					"gridX": 0,
 					"gridY": 14,
 					"gridWidth": 12,
@@ -545,51 +545,7 @@
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"assignee": "@me",
-						"showStatusCounts": true,
 						"limit": 4
-					},
-					"fallback": {
-						"widgetId": "object-list",
-						"gridX": 0,
-						"gridY": 14,
-						"gridWidth": 12,
-						"gridHeight": 5,
-						"showTitle": 1,
-						"customTitle": "dossiq · Mijn open werk",
-						"content": {
-							"title": "dossiq · Mijn open werk",
-							"register": "dossiq",
-							"schema": "case",
-							"filter": {
-								"isFinalStatus": false,
-								"assignee": "@me"
-							},
-							"sort": {
-								"field": "plannedEndDate",
-								"dir": "asc"
-							},
-							"limit": 4,
-							"columns": [
-								{
-									"key": "identifier",
-									"label": "Zaak"
-								},
-								{
-									"key": "title",
-									"label": "Omschrijving"
-								},
-								{
-									"key": "status",
-									"label": "Status"
-								},
-								{
-									"key": "plannedEndDate",
-									"label": "Termijn"
-								}
-							],
-							"emptyText": "Er zijn geen zaken aan u toegewezen."
-						}
 					}
 				}
 			]
@@ -907,7 +863,7 @@
 					}
 				},
 				{
-					"widgetId": "my-cases",
+					"widgetId": "assigned-cases",
 					"gridX": 8,
 					"gridY": 6,
 					"gridWidth": 4,
@@ -917,51 +873,7 @@
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"assignee": "@me",
-						"showStatusCounts": true,
 						"limit": 4
-					},
-					"fallback": {
-						"widgetId": "object-list",
-						"gridX": 8,
-						"gridY": 6,
-						"gridWidth": 4,
-						"gridHeight": 5,
-						"showTitle": 1,
-						"customTitle": "Mijn zaken",
-						"content": {
-							"title": "Mijn zaken",
-							"register": "dossiq",
-							"schema": "case",
-							"filter": {
-								"isFinalStatus": false,
-								"assignee": "@me"
-							},
-							"sort": {
-								"field": "plannedEndDate",
-								"dir": "asc"
-							},
-							"limit": 4,
-							"columns": [
-								{
-									"key": "identifier",
-									"label": "Zaak"
-								},
-								{
-									"key": "title",
-									"label": "Omschrijving"
-								},
-								{
-									"key": "status",
-									"label": "Status"
-								},
-								{
-									"key": "plannedEndDate",
-									"label": "Termijn"
-								}
-							],
-							"emptyText": "Er zijn geen zaken aan u toegewezen."
-						}
 					}
 				},
 				{
@@ -1632,7 +1544,7 @@
 					}
 				},
 				{
-					"widgetId": "my-cases",
+					"widgetId": "assigned-cases",
 					"gridX": 4,
 					"gridY": 7,
 					"gridWidth": 4,
@@ -1642,51 +1554,7 @@
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"assignee": "@me",
-						"showStatusCounts": true,
 						"limit": 4
-					},
-					"fallback": {
-						"widgetId": "object-list",
-						"gridX": 4,
-						"gridY": 7,
-						"gridWidth": 4,
-						"gridHeight": 5,
-						"showTitle": 1,
-						"customTitle": "Mijn zaken",
-						"content": {
-							"title": "Mijn zaken",
-							"register": "dossiq",
-							"schema": "case",
-							"filter": {
-								"isFinalStatus": false,
-								"assignee": "@me"
-							},
-							"sort": {
-								"field": "plannedEndDate",
-								"dir": "asc"
-							},
-							"limit": 4,
-							"columns": [
-								{
-									"key": "identifier",
-									"label": "Zaak"
-								},
-								{
-									"key": "title",
-									"label": "Omschrijving"
-								},
-								{
-									"key": "status",
-									"label": "Status"
-								},
-								{
-									"key": "plannedEndDate",
-									"label": "Termijn"
-								}
-							],
-							"emptyText": "Er zijn geen zaken aan u toegewezen."
-						}
 					}
 				},
 				{

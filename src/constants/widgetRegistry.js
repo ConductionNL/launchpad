@@ -72,9 +72,17 @@ import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWi
 // registration pattern as `clock`/`weather`.
 import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
+// `assigned-cases` — the viewer's open cases from an OpenRegister register,
+// dossiq's by default (openspec/changes/assigned-cases-widget).
+import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
+import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+// `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
+// CnChartWidget) with a source form for a register query or entered values
+// (openspec/changes/chart-presets).
+import ChartSourceForm from '../components/Widgets/Renderers/ChartSourceForm.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
@@ -125,14 +133,6 @@ import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidget
 // integration (openspec/changes/work-packages-widget).
 import WorkPackagesWidget from '../components/Widgets/Renderers/WorkPackagesWidget.vue'
 import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'
-// `assigned-cases` — the viewer's open cases from an OpenRegister register,
-// dossiq's by default (openspec/changes/assigned-cases-widget).
-import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
-import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
-// `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
-// CnChartWidget) with a source form for a register query or entered values
-// (openspec/changes/chart-presets).
-import ChartSourceForm from '../components/Widgets/Renderers/ChartSourceForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

@@ -37,6 +37,11 @@ use OCP\IURLGenerator;
  */
 abstract class LaunchPadApiWidget implements IAPIWidgetV2, IIconWidget {
 	/**
+	 * The id Nextcloud's dashboard registry knows the widget by; each subclass sets its own.
+	 */
+	public const ID = '';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IL10N         $l10n         Translates the title and empty states.
@@ -54,6 +59,17 @@ abstract class LaunchPadApiWidget implements IAPIWidgetV2, IIconWidget {
 	 * @return string
 	 */
 	abstract protected function iconFile(): string;
+
+	/**
+	 * The registry id, the subclass's `ID`.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
+	 */
+	public function getId(): string {
+		return static::ID;
+	}//end getId()
 
 	/**
 	 * No icon class: the widget ships an icon URL.

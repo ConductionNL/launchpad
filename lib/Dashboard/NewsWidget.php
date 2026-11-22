@@ -68,17 +68,6 @@ class NewsWidget extends LaunchPadApiWidget {
 	}//end __construct()
 
 	/**
-	 * The registry id.
-	 *
-	 * @return string
-	 *
-	 * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
-	 */
-	public function getId(): string {
-		return self::ID;
-	}//end getId()
-
-	/**
 	 * The translated title.
 	 *
 	 * @return string

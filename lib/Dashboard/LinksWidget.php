@@ -60,17 +60,6 @@ class LinksWidget extends LaunchPadApiWidget {
 	}//end __construct()
 
 	/**
-	 * The registry id.
-	 *
-	 * @return string
-	 *
-	 * @spec openspec/specs/links-widget/spec.md#requirement-req-lnks-001-widget-registration
-	 */
-	public function getId(): string {
-		return self::ID;
-	}//end getId()
-
-	/**
 	 * The translated title.
 	 *
 	 * @return string
@@ -193,8 +182,12 @@ class LinksWidget extends LaunchPadApiWidget {
 			$icon = $this->getIconUrl();
 		}
 
+		if ($label === '') {
+			$label = $url;
+		}
+
 		return new WidgetItem(
-			title: $label === '' ? $url : $label,
+			title: $label,
 			subtitle: $subtitle,
 			link: $url,
 			iconUrl: $icon

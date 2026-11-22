@@ -444,14 +444,24 @@ describe('Views row-cog actions', () => {
 		expect(openWidgetModal).toHaveBeenCalledWith()
 	})
 
-	it('closes the picker and opens the custom widget form when "Custom widget" is picked', async () => {
+	it('closes the picker and opens the custom widget form on the Launchpad type picked in it', async () => {
 		const openCustomWidgetModal = vi.fn()
 		const host = makeHost({ openCustomWidgetModal, isWidgetModalOpen: true })
 
-		await host.onPickCustomWidget()
+		await host.onPickCustomWidget('image')
 
 		expect(host.isWidgetModalOpen).toBe(false)
-		expect(openCustomWidgetModal).toHaveBeenCalledWith()
+		expect(openCustomWidgetModal).toHaveBeenCalledWith(null, 'image')
+	})
+
+	it('opens the form on an initial type without preselecting it, and forgets it on close', async () => {
+		const host = makeHost({ enterEditMode: vi.fn().mockResolvedValue(true) })
+
+		await host.openCustomWidgetModal(null, 'news')
+		expect(host).toMatchObject({ isCustomWidgetModalOpen: true, customWidgetPreselectedType: null, customWidgetInitialType: 'news' })
+
+		host.closeCustomWidgetModal()
+		expect(host.customWidgetInitialType).toBeNull()
 	})
 })
 

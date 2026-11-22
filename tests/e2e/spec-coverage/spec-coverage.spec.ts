@@ -131,11 +131,11 @@ async function openAddWidgetModal(page: any) {
 	await expect(personalRow).toBeVisible({ timeout: 5_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 
-	// Click "Add widget" in the dropdown, then "Custom widget" in the picker.
+	// Click "Add widget" in the dropdown, then the type in the picker.
 	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 
 	// Wait for the Add Widget dialog to be visible.
 	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
@@ -514,7 +514,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 			return
 		}
 		await addWidgetItem.click()
-		await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+		await page.locator('[data-testid="widget-picker-type-label"]').click()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
 	})

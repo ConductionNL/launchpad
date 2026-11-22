@@ -1882,7 +1882,7 @@
 		"default": [],
 		"fresh": true
 	},
-	"../../modals/WidgetPickerModal.vue | customTypeTitles": {
+	"../../modals/WidgetPickerModal.vue | customTypes": {
 		"type": "Array",
 		"required": false,
 		"validator": false,

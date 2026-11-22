@@ -194,7 +194,7 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 	})
 
 	// @e2e admin-settings::settings-form-layout
-	test('the form shows the four settings with their current values and a Save button', async ({
+	test('the form shows the four settings with their current values and no Save button', async ({
 		page,
 	}) => {
 		await writeSettings(admin, {
@@ -233,14 +233,12 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		await expect(options).toHaveText(['6', '8', '12'])
 		await page.keyboard.press('Escape')
 
-		// SUSPECTED BUG: the spec asks for a Save button. AdminSettings.vue
-		// saves every change at once, with no Save button. Soft, so the checks
-		// above still report.
-		await expect.soft(form.getByRole('button', { name: /^Save$/ })).toBeVisible()
+		// AND: no Save button, since every change is saved at once.
+		await expect(form.getByRole('button', { name: /^Save$/ })).toHaveCount(0)
 	})
 
-	// @e2e admin-settings::settings-saved-via-the-ui
-	test('switching "Allow user dashboards" off and saving shows a success notice and is stored', async ({
+	// @e2e admin-settings::each-change-is-saved-at-once
+	test('switching "Allow user dashboards" off is saved at once and is stored', async ({
 		page,
 	}) => {
 		await writeSettings(admin, { allowUserDash: true })
@@ -256,18 +254,10 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		await form
 			.getByText('Allow users to create custom dashboards', { exact: true })
 			.click()
-		const save = form.getByRole('button', { name: /^Save$/ })
-		// SUSPECTED BUG: there is no Save button and no success notice; the page
-		// saves on change and says nothing (AdminSettings.vue saveSettings(),
-		// src/components/admin/AdminSettings.vue:782-806).
-		await expect.soft(save).toBeVisible()
-		if (await save.isVisible()) {
-			await save.click()
-		}
-		expect((await put).status()).toBe(200)
-		await expect
-			.soft(page.locator('.toast-success'))
-			.toBeVisible({ timeout: 5_000 })
+		// THEN: the switch alone sends the change, with no Save step.
+		const res = await put
+		expect(res.status()).toBe(200)
+		expect(res.request().postDataJSON()).toMatchObject({ allowUserDash: false })
 
 		expect((await readSettings(admin)).allowUserDashboards).toBe(false)
 	})

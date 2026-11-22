@@ -47,12 +47,16 @@ final class HealthPingInMemoryFakeCache implements ICache {
 	/** @var array<string,mixed> */
 	private array $store = [];
 
+	/** @var array<string,int> The TTL of the last write per key. */
+	public array $ttls = [];
+
 	public function get($key): mixed {
 		return $this->store[$key] ?? null;
 	}
 
 	public function set($key, $value, $ttl = 0): bool {
 		$this->store[$key] = $value;
+		$this->ttls[$key] = $ttl;
 		return true;
 	}
 
@@ -137,10 +141,39 @@ class HealthPingServiceTest extends TestCase {
 	 * `usleep()`-delayed mock response deterministically classifies
 	 * `degraded`).
 	 */
-	private function allowHost(string $host, int $thresholdMs = HealthPingService::DEFAULT_LATENCY_THRESHOLD_MS): void {
+	private function allowHost(
+		string $host,
+		int $thresholdMs = HealthPingService::DEFAULT_LATENCY_THRESHOLD_MS,
+		int $offlineAfter = HealthPingService::DEFAULT_OFFLINE_AFTER_FAILURES,
+	): void {
 		$this->appConfig->method('getValueString')->willReturn(json_encode([$host]));
-		$this->appConfig->method('getValueInt')->willReturn($thresholdMs);
+		$this->appConfig->method('getValueInt')->willReturnCallback(
+			static fn (string $app, string $key, int $default = 0): int => match ($key) {
+				HealthPingService::CONFIG_KEY_LATENCY_THRESHOLD_MS => $thresholdMs,
+				HealthPingService::CONFIG_KEY_OFFLINE_AFTER_FAILURES => $offlineAfter,
+				default => $default,
+			}
+		);
 	}//end allowHost()
+
+	/**
+	 * A client whose successive GETs answer with the given statuses; `0`
+	 * throws a transport failure.
+	 *
+	 * @param list<int> $statuses The answers in order.
+	 */
+	private function clientAnswering(array $statuses): void {
+		$client = $this->createMock(originalClassName: IClient::class);
+		$client->method('get')->willReturnCallback(function () use (&$statuses) {
+			$status = array_shift($statuses);
+			if ($status === 0) {
+				throw new \Exception('connection refused');
+			}
+
+			return $this->mockHttpResponse(status: $status);
+		});
+		$this->clientService->method('newClient')->willReturn($client);
+	}//end clientAnswering()
 
 	private function mockHttpResponse(int $status): IResponse {
 		$response = $this->createMock(originalClassName: IResponse::class);
@@ -189,7 +222,7 @@ class HealthPingServiceTest extends TestCase {
 	}//end testDegradedWhenSlow()
 
 	public function testOfflineOnUnexpectedStatus(): void {
-		$this->allowHost(host: 'example.com');
+		$this->allowHost(host: 'example.com', offlineAfter: 1);
 		$placement = $this->placementWithConfig(id: 3, config: $this->baseConfig(overrides: ['expectedStatus' => 200]));
 		$this->placementMapper->method('find')->willReturn($placement);
 
@@ -200,11 +233,11 @@ class HealthPingServiceTest extends TestCase {
 		$result = $this->service->resolveForPlacement(placementId: 3);
 
 		$this->assertSame('offline', $result['state']);
-		$this->assertFalse($result['stale'], 'a completed ping IS a fresh reading, even when offline');
+		$this->assertFalse($result['stale'], 'reaching the threshold IS a fresh offline reading');
 	}//end testOfflineOnUnexpectedStatus()
 
 	public function testOfflineOnTransportFailure(): void {
-		$this->allowHost(host: 'example.com');
+		$this->allowHost(host: 'example.com', offlineAfter: 1);
 		$placement = $this->placementWithConfig(id: 4, config: $this->baseConfig());
 		$this->placementMapper->method('find')->willReturn($placement);
 
@@ -349,8 +382,93 @@ class HealthPingServiceTest extends TestCase {
 		$this->assertIsString($raw, 'precondition: a cache entry must exist to expire');
 		$decoded = json_decode($raw, true);
 		$decoded['checkedAtTs'] = time() - 3600;
+		$decoded['attemptedAtTs'] = time() - 3600;
 		$this->cache->set($key, json_encode($decoded));
 	}//end expireCacheEntryFor()
+
+	// -------------------------------------------------------------
+	// REQ-HPING-002 / REQ-HPING-003: a failed ping marks the badge
+	// stale; offline only after the configured consecutive failures.
+	// -------------------------------------------------------------
+
+	public function testAFailedPingServesTheLastKnownBadgeStale(): void {
+		$this->allowHost(host: 'example.com');
+		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 30, config: $this->baseConfig()));
+		$this->clientAnswering(statuses: [200, 0, 503]);
+
+		$first = $this->service->resolveForPlacement(placementId: 30);
+		$this->assertSame('online', $first['state']);
+
+		foreach (['transport failure', 'wrong status'] as $failure) {
+			$this->expireCacheEntryFor(placementId: 30);
+			$lastKnown = (new \DateTime('@' . json_decode($this->cache->get('badge_30'), true)['checkedAtTs']))->format(DATE_ATOM);
+			$failed = $this->service->resolveForPlacement(placementId: 30);
+			$this->assertSame('online', $failed['state'], $failure . ': the last-known state is served');
+			$this->assertSame($lastKnown, $failed['checkedAt'], $failure . ': with its own check time');
+			$this->assertTrue($failed['stale'], $failure);
+		}
+	}//end testAFailedPingServesTheLastKnownBadgeStale()
+
+	public function testOfflineAfterTheConfiguredNumberOfConsecutiveFailedPings(): void {
+		$this->allowHost(host: 'example.com', offlineAfter: 2);
+		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 31, config: $this->baseConfig()));
+		$this->clientAnswering(statuses: [200, 0, 0]);
+
+		$this->service->resolveForPlacement(placementId: 31);
+		$this->expireCacheEntryFor(placementId: 31);
+		$this->assertTrue($this->service->resolveForPlacement(placementId: 31)['stale']);
+		$this->expireCacheEntryFor(placementId: 31);
+		$offline = $this->service->resolveForPlacement(placementId: 31);
+
+		$this->assertSame('offline', $offline['state']);
+		$this->assertFalse($offline['stale']);
+	}//end testOfflineAfterTheConfiguredNumberOfConsecutiveFailedPings()
+
+	public function testASuccessfulPingResetsTheFailureCount(): void {
+		$this->allowHost(host: 'example.com', offlineAfter: 2);
+		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 32, config: $this->baseConfig()));
+		$this->clientAnswering(statuses: [200, 0, 200, 0]);
+
+		$readings = [];
+		for ($i = 0; $i < 4; $i++) {
+			if ($i > 0) {
+				$this->expireCacheEntryFor(placementId: 32);
+			}
+
+			$readings[] = $this->service->resolveForPlacement(placementId: 32);
+		}
+
+		$this->assertSame(['online', 'online', 'online', 'online'], array_column($readings, 'state'));
+		$this->assertSame([false, true, false, true], array_column($readings, 'stale'));
+	}//end testASuccessfulPingResetsTheFailureCount()
+
+	public function testAFailedFirstPingBelowTheThresholdHasNoStateYet(): void {
+		$this->allowHost(host: 'example.com');
+		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 33, config: $this->baseConfig()));
+		$this->clientAnswering(statuses: [0]);
+
+		$this->assertSame(
+			['state' => null, 'checkedAt' => null, 'latencyMs' => null, 'stale' => true],
+			$this->service->resolveForPlacement(placementId: 33)
+		);
+	}//end testAFailedFirstPingBelowTheThresholdHasNoStateYet()
+
+	public function testTheBadgeIsKeptBeyondTheIntervalAndTheIntervalStillThrottlesPings(): void {
+		$this->allowHost(host: 'example.com');
+		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 34, config: $this->baseConfig()));
+		$this->clientAnswering(statuses: [200, 0]);
+
+		$this->service->resolveForPlacement(placementId: 34);
+		$this->assertSame(HealthPingService::CACHE_TTL_SECONDS, $this->cache->ttls['badge_34']);
+
+		$this->expireCacheEntryFor(placementId: 34);
+		$this->service->resolveForPlacement(placementId: 34);
+		// The failed attempt is inside the interval now: no third GET (the
+		// client has no answer left for one).
+		$again = $this->service->resolveForPlacement(placementId: 34);
+		$this->assertSame('online', $again['state']);
+		$this->assertTrue($again['stale']);
+	}//end testTheBadgeIsKeptBeyondTheIntervalAndTheIntervalStillThrottlesPings()
 
 	// -------------------------------------------------------------
 	// REQ-HPING-001: interval bounds.

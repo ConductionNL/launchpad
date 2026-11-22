@@ -67,8 +67,9 @@ interface AcknowledgementServiceInterface {
 	/**
 	 * Whether a user may acknowledge an announcement: only its live
 	 * audience may, that is the members of the groups its template routes
-	 * to, or, without group routing, the recipients holding a copy. An
-	 * unknown announcement has no audience. Backs the acknowledge guard
+	 * to, or, without group routing, the recipients holding a copy, and in
+	 * both cases the recipients of a share of a personal dashboard holding
+	 * it. An unknown announcement has no audience. Backs the acknowledge guard
 	 * (REQ-ACK-003, ADR-005).
 	 *
 	 * @param string $announcementKey The announcement identity.
@@ -82,7 +83,8 @@ interface AcknowledgementServiceInterface {
 
 	/**
 	 * Return the current user's outstanding mandatory items across their
-	 * own dashboards, limited to announcements still addressed to them: a
+	 * own dashboards and the personal dashboards shared with them, one per
+	 * announcement, limited to announcements still addressed to them: a
 	 * copy kept after leaving the audience cannot be acknowledged, so it is
 	 * not pending. REQ-ACK-002 (outstanding-count indicator).
 	 *

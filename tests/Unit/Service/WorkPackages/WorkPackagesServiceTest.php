@@ -51,13 +51,13 @@ class WorkPackagesServiceTest extends TestCase {
 	 */
 	private function service(bool $enabled=true): WorkPackagesService {
 		$this->api = new OpenProjectAPIService();
-		$apps = $this->createMock(IAppManager::class);
+		$apps = $this->createMock(originalClassName: IAppManager::class);
 		$apps->method('isEnabledForUser')->willReturn($enabled);
-		$config = $this->createMock(IAppConfig::class);
+		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('getValueString')->willReturn('https://op.zuiddrecht.example/');
-		$users = $this->createMock(IUserManager::class);
-		$users->method('get')->willReturn($this->createMock(IUser::class));
-		$container = $this->createMock(ContainerInterface::class);
+		$users = $this->createMock(originalClassName: IUserManager::class);
+		$users->method('get')->willReturn($this->createMock(originalClassName: IUser::class));
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturn($this->api);
 
 		return new WorkPackagesService(
@@ -65,7 +65,7 @@ class WorkPackagesServiceTest extends TestCase {
 			appConfig: $config,
 			userManager: $users,
 			container: $container,
-			logger: $this->createMock(LoggerInterface::class)
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);
 	}//end service()
 

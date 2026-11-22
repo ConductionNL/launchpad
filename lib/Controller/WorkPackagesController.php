@@ -75,10 +75,15 @@ class WorkPackagesController extends Controller {
 			return $this->failure(message: 'not_logged_in', statusCode: Http::STATUS_UNAUTHORIZED);
 		}
 
+		$knownScope = 'mine';
+		if ($scope === 'project') {
+			$knownScope = 'project';
+		}
+
 		return new JSONResponse(
 			$this->workPackages->openWorkPackages(
 				userId: $this->userId,
-				scope: $scope === 'project' ? 'project' : 'mine',
+				scope: $knownScope,
 				project: $project,
 				limit: $limit
 			)

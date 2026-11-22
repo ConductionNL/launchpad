@@ -1531,6 +1531,25 @@ export default {
 	font-weight: 600;
 }
 
+/*
+ * Phone width (NcModal's own breakpoint): four labelled tabs need more room
+ * than the screen has, so the strip scrolls inside its own row instead of
+ * widening the modal body.
+ */
+@media only screen and (max-width: 512px) {
+	.dashboard-config__tabs {
+		overflow-x: auto;
+	}
+
+	.dashboard-config__tab-item {
+		flex: 1 0 auto;
+	}
+
+	.dashboard-config__tab {
+		white-space: nowrap;
+	}
+}
+
 .dashboard-config__panel {
 	display: flex;
 	flex-direction: column;
@@ -1663,6 +1682,7 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: 12px;
 	margin-top: 8px;
 }

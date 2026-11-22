@@ -173,8 +173,6 @@ describe('DashboardMoreMenu', () => {
 					'share',
 					'set-default',
 					'versions',
-					'schedule',
-					'unpublish',
 				],
 				delete: ['delete'],
 				launchpad: [
@@ -224,8 +222,6 @@ describe('DashboardMoreMenu', () => {
 			share: 'share',
 			'set-default': 'setDefault',
 			versions: 'versionHistory',
-			schedule: 'schedule',
-			unpublish: 'unpublish',
 			delete: 'delete',
 		}
 		for (const [id, event] of Object.entries(events)) {
@@ -248,27 +244,33 @@ describe('DashboardMoreMenu', () => {
 		expect(shape(wrapper)[1].delete).toBeUndefined()
 	})
 
-	it('offers Publish for an unpublished dashboard, Save while editing and the read receipts when there are any', () => {
+	it('REQ-SCHEDUI-001: leaves Publish, Unpublish, Schedule and Scheduled exports to the settings', () => {
+		for (const publicationStatus of ['draft', 'published']) {
+			const { wrapper } = mountMenu({ dashboard: { ...TODAY, publicationStatus } })
+			for (const id of ['publish', 'unpublish', 'schedule', 'scheduled-exports']) {
+				expect(item(wrapper, id), id).toBeUndefined()
+			}
+		}
+	})
+
+	it("REQ-SCHEDUI-001: offers Settings to an administrator on someone else's dashboard, for its Publication tab", () => {
 		const { wrapper } = mountMenu({
-			dashboard: { ...TODAY, publicationStatus: 'draft' },
+			dashboard: TEAM,
+			source: 'shared',
+			canManagePublication: true,
+		})
+		item(wrapper, 'config').onClick()
+		expect(wrapper.emitted('openConfig')).toHaveLength(1)
+	})
+
+	it('offers Save while editing and the read receipts when there are any', () => {
+		const { wrapper } = mountMenu({
 			isEditMode: true,
 			canViewReadReceipts: true,
 		})
-		expect(item(wrapper, 'publish')).toBeDefined()
-		expect(item(wrapper, 'unpublish')).toBeUndefined()
 		expect(item(wrapper, 'edit').label).toBe('Save dashboard')
 		item(wrapper, 'read-receipts').onClick()
 		expect(wrapper.emitted('readReceipts')).toHaveLength(1)
-	})
-
-	it('offers "Scheduled exports…" only when the host allows it, and emits scheduledExports', () => {
-		const { wrapper: without } = mountMenu({})
-		expect(item(without, 'scheduled-exports')).toBeUndefined()
-
-		const { wrapper } = mountMenu({ canScheduleExports: true })
-		expect(item(wrapper, 'scheduled-exports').label).toBe('Scheduled exports…')
-		item(wrapper, 'scheduled-exports').onClick()
-		expect(wrapper.emitted('scheduledExports')).toHaveLength(1)
 	})
 
 	it('offers "Create embed token" to an administrator, linking to Beheer ▸ Embeds with the dashboard', () => {

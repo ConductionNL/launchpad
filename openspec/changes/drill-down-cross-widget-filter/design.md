@@ -21,9 +21,9 @@ The OpenRegister API already supports multi-dimension filtering via `_filter` qu
 **Non-Goals:**
 
 - Rewrite the OpenRegister query layer. The bus translates to `_filter` parameters; OR's index strategy unchanged.
-- Create a new visual filter builder / query-construction UI. Filtering happens via widget clicks (app-driven) or saved views (one-click apply), not ad-hoc form building.
+- Create a new visual filter builder / query-construction UI. Filtering happens via widget clicks (app-driven), not ad-hoc form building.
 - Support cross-register filtering (e.g., filter one dashboard that pulls from Register A AND Register B). Scope is per-dashboard, per-register.
-- Implement cross-user collaboration features (e.g., "user A applied a filter, broadcast to user B's dashboard"). Each user has their own filter bus; persistence happens via bookmarkable URLs and shared saved views.
+- Implement cross-user collaboration features (e.g., "user A applied a filter, broadcast to user B's dashboard"). Each user has their own filter bus; persistence happens via bookmarkable URLs and shared dashboards.
 - Support stateful filter-history or "undo" beyond the browser's back button.
 
 ## Decisions
@@ -97,7 +97,9 @@ The OpenRegister API already supports multi-dimension filtering via `_filter` qu
 
 **Rationale**: Pinned clauses are the mechanism for org-scope constraints (e.g., "this dashboard always filters to the logged-in user's gemeente"). They need to survive user exploration (so the user can't accidentally scope up to provincial level) without being visible as a restriction in the UI.
 
-### D7: Saved views persist filter combinations in the register
+### D7: Saved views persist filter combinations in the register (withdrawn)
+
+**Withdrawn on 22 Nov 2026 (Ruben):** saved views make no sense in an app about boards; a board with its filters is the unit. REQ-CWF-009 is removed, and the saved-views UI and the `saved_view` schema with it. The text below is the original decision.
 
 **Decision**: Signed-in users with edit permission on a dashboard can save the current filter state as a named `saved_view` row in the launchpad register with fields `{id, dashboardId, name, description, filters, isShared, sharedWith, createdBy, createdAt}`. Saved views appear in a dropdown in the dashboard header; clicking one applies its clauses.
 
@@ -143,9 +145,8 @@ The OpenRegister API already supports multi-dimension filtering via `_filter` qu
 1. **Manifest schema + composables land first** — add `publishes`, `consumes`, `hierarchies` fields to widget manifests; implement `useFilterBus` and `useDashboardFilter` with unit tests. No UX change yet.
 2. **Dashboard host integration** — update `Dashboard.vue` to instantiate the bus, render the active-filters panel, expose "Reset filters". Wire widget clicks to publish events.
 3. **Widget adaptation** — update chart and table widgets to emit click events with dimension + value. No manifest changes needed for widgets already accepting `filterContext` prop.
-4. **Saved views UI** — add dropdown in dashboard header; "Save view" modal on the active-filters panel.
-5. **Register integration** — persist saved views and filter events to the register (REQ-CWF-009 + REQ-CWF-010).
-6. **Rollback:** Backend-persisted saved views and telemetry remain, but the filter bus ceases to function if the frontend is rolled back. This is acceptable because saved views are standalone (can be manually applied via the register) and telemetry is only for analytics, not operational.
+4. **Register integration** — persist filter events to the register (REQ-CWF-010).
+5. **Rollback:** Backend-persisted telemetry remains, but the filter bus ceases to function if the frontend is rolled back. This is acceptable because telemetry is only for analytics, not operational.
 
 ## Open Questions
 

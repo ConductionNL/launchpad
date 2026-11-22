@@ -97,7 +97,6 @@
 					:canEmbed="isAdmin === true"
 					:canManagePublication="canManagePublication"
 					:canViewHistory="canViewVersionHistory"
-					:canScheduleExports="canEdit"
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
@@ -121,11 +120,7 @@
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
-					@publish="onPublishActive"
-					@unpublish="onUnpublishActive"
-					@schedule="scheduleDialogOpen = true"
 					@versionHistory="versionHistoryOpen = true"
-					@scheduledExports="scheduledExportsOpen = true"
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
@@ -171,20 +166,6 @@
 			@confirm="confirmDeleteDashboard" />
 
 
-		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
-		<ScheduleDashboardDialog
-			v-if="scheduleDialogOpen"
-			:open="true"
-			:error="scheduleError"
-			@update:open="
-				(v) => {
-					if (!v) {
-						scheduleDialogOpen = false
-						scheduleError = ''
-					}
-				}
-			"
-			@save="onScheduleActive" />
 		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
 		<VersionHistoryModal
 			:open="versionHistoryOpen"
@@ -192,17 +173,6 @@
 			:dashboardName="activeDashboard?.name ?? ''"
 			@close="versionHistoryOpen = false"
 			@restored="onVersionRestored" />
-
-		<!-- Scheduled exports of this user (scheduled-exports tasks 13, 19). -->
-		<ScheduledExportsModal
-			:open="scheduledExportsOpen"
-			:subjects="exportSubjects"
-			:defaultSubject="
-				activeDashboard?.uuid
-					? { type: 'dashboard', id: activeDashboard.uuid }
-					: null
-			"
-			@close="scheduledExportsOpen = false" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -247,14 +217,6 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
-			<!-- drill-down-cross-widget-filter REQ-CWF-009. -->
-			<DashboardSavedViews
-				v-if="activeDashboard?.uuid"
-				:dashboardId="activeDashboard.uuid"
-				:userId="currentUserId"
-				:canEdit="canEdit"
-				:clauses="filterClauses"
-				@apply="onApplySavedView" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -413,6 +375,9 @@
 			:initialTab="configModalInitialTab"
 			:parentOptions="dashboards"
 			:saveError="configSaveError"
+			:canManagePublication="canManagePublication"
+			:canScheduleExports="canEdit"
+			:exportSubjects="exportSubjects"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
@@ -527,18 +492,15 @@ import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageH
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
-import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
-import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
-import ScheduledExportsModal from '../modals/ScheduledExportsModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
 import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
@@ -684,13 +646,10 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
-		DashboardSavedViews,
 		DeleteDashboardDialog,
-		ScheduleDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
 		VersionHistoryModal,
-		ScheduledExportsModal,
 		HiddenWidgetsControl,
 	},
 
@@ -917,16 +876,11 @@ export default {
 				onRefused: () => this.onPresenceRefused(),
 			}),
 
-			// sharing-dashboard-schedule-screen: the schedule dialog.
-			scheduleDialogOpen: false,
-			scheduleError: '',
 			// dashboard-version-history-ui: the history modal, and per
 			// dashboard uuid whether versioning is supported (read when the
 			// dashboard menu opens; absent means not known yet).
 			versionHistoryOpen: false,
 			versionSupport: {},
-			// scheduled-exports task 19: the export list opened from the menu.
-			scheduledExportsOpen: false,
 		}
 	},
 
@@ -966,20 +920,17 @@ export default {
 		},
 
 		/**
-		 * What a scheduled export can export: the dashboards the user sees
-		 * and the widgets on the active one.
+		 * What the Exports tab of the settings can export: the active
+		 * dashboard and its widgets.
 		 *
 		 * @return {object[]} `{type, id, label}` per subject.
-		 * @spec openspec/changes/scheduled-exports/tasks.md#task-19
+		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
 		 */
 		exportSubjects() {
-			const dashboards = (this.dashboards || [])
-				.filter((dashboard) => dashboard?.uuid)
-				.map((dashboard) => ({
-					type: 'dashboard',
-					id: dashboard.uuid,
-					label: dashboard.name || dashboard.uuid,
-				}))
+			const dashboard = this.activeDashboard
+			const dashboards = dashboard?.uuid
+				? [{ type: 'dashboard', id: dashboard.uuid, label: dashboard.name || dashboard.uuid }]
+				: []
 			const widgets = (this.widgetPlacements || []).map((placement) => ({
 				type: 'widget',
 				id: String(placement.id),
@@ -989,10 +940,10 @@ export default {
 		},
 
 		/**
-		 * The signed-in user's id, for the saved views they own.
+		 * The signed-in user's id, for the dashboard discussion.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 * @spec openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf/spec.md#requirement-req-leaf-002-discussion-surface-renders-only-on-shared-dashboards
 		 */
 		currentUserId() {
 			return typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : ''
@@ -2018,63 +1969,6 @@ export default {
 						dateStyle: 'medium',
 						timeStyle: 'short',
 					})
-		},
-
-		/**
-		 * Publish the active dashboard.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onPublishActive() {
-			await useDashboardStore().publishDashboard(this.activeDashboard.uuid)
-		},
-
-		/**
-		 * Unpublish the active dashboard.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onUnpublishActive() {
-			await useDashboardStore().unpublishDashboard(this.activeDashboard.uuid)
-		},
-
-		/**
-		 * Schedule the active dashboard; a refusal stays in the dialog.
-		 *
-		 * @param {{publishAt: (string|null), unpublishAt: (string|null)}} times The chosen times.
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onScheduleActive({ publishAt, unpublishAt }) {
-			this.scheduleError = ''
-			try {
-				await useDashboardStore().scheduleDashboard(
-					this.activeDashboard.uuid,
-					publishAt,
-					unpublishAt,
-				)
-				this.scheduleDialogOpen = false
-			} catch (error) {
-				const message = error?.response?.data?.message ?? ''
-				if (message === 'unpublishAt must be after publishAt') {
-					this.scheduleError = t(
-						'launchpad',
-						'The dashboard has to go live before it comes down.',
-					)
-				} else if (message === 'publishAt must be a future timestamp') {
-					this.scheduleError = t(
-						'launchpad',
-						'Choose a time in the future.',
-					)
-				} else {
-					this.scheduleError = t(
-						'launchpad',
-						'The dashboard could not be scheduled.',
-					)
-				}
-			}
 		},
 
 		/**
@@ -3285,17 +3179,6 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
-		},
-
-		/**
-		 * Apply a saved view: its clauses replace every non-pinned clause.
-		 *
-		 * @param {object} view The saved view.
-		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
-		 */
-		onApplySavedView(view) {
-			this.filterSession?.applyView(view?.filters ?? [])
 		},
 
 		async pushUrlForActiveDashboard() {

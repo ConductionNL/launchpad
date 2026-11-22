@@ -15,7 +15,7 @@
  * spec, not here.
  *
  * Gate-19 @e2e traceability:
- *   @e2e runtime-or-consumption::manifestjson-dependencies-array-is-empty
+ *   @e2e runtime-or-consumption::the-manifest-lists-openregister-only-as-optional
  *   @e2e runtime-or-consumption::widget-fetches-or-data-when-or-is-enabled
  *   @e2e runtime-or-consumption::widget-passes-current-user-locale
  *   @e2e runtime-or-consumption::widget-falls-back-to-en-when-lang-attribute-is-absent
@@ -130,17 +130,17 @@ async function awaitOrRequests(seen: Request[], count = 1): Promise<void> {
 		.toBeGreaterThanOrEqual(count)
 }
 
-// @e2e runtime-or-consumption::manifestjson-dependencies-array-is-empty
-test('the shipped and the served manifest declare no dependencies', async ({ page }) => {
+const OPTIONAL_OR = [{ id: 'openregister', required: false, name: 'OpenRegister' }]
+
+// @e2e runtime-or-consumption::the-manifest-lists-openregister-only-as-optional
+test('the shipped and the served manifest list OpenRegister only as optional', async ({ page }) => {
 	await page.goto(APP)
 	const shipped = await readShippedManifest(page)
 	expect(
 		shipped.dependencies,
-		'src/manifest.json must declare `dependencies: []` (REQ-OR-001)',
-	).toEqual([])
-	const shippedIds = JSON.stringify(shipped.dependencies)
-	expect(shippedIds).not.toContain('openregister')
-	expect(shippedIds).not.toContain('openconnector')
+		'src/manifest.json lists OpenRegister as optional (REQ-OR-001)',
+	).toEqual(OPTIONAL_OR)
+	expect(JSON.stringify(shipped.dependencies)).not.toContain('openconnector')
 
 	// The runtime manifest REPLACES the bundled one at boot (ADR-036
 	// Decision 8), so the declaration nc-vue actually reads is this one.
@@ -149,11 +149,9 @@ test('the shipped and the served manifest declare no dependencies', async ({ pag
 		const served = await readServedManifest(admin)
 		expect(
 			served.dependencies,
-			'GET /api/manifest must declare `dependencies: []` too',
-		).toEqual([])
-		const servedIds = JSON.stringify(served.dependencies)
-		expect(servedIds).not.toContain('openregister')
-		expect(servedIds).not.toContain('openconnector')
+			'GET /api/manifest lists OpenRegister as optional too',
+		).toEqual(OPTIONAL_OR)
+		expect(JSON.stringify(served.dependencies)).not.toContain('openconnector')
 	} finally {
 		await admin.dispose()
 	}

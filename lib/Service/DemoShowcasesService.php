@@ -613,8 +613,7 @@ class DemoShowcasesService {
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
 	public function partitionWidgets(array $widgets): array {
-		$registered = $this->registeredWidgetIds();
-		$known = $this->getLaunchpadWidgetTypes() + $registered;
+		$known = $this->renderableWidgetTypes();
 
 		$valid = [];
 		$skipped = [];
@@ -628,6 +627,18 @@ class DemoShowcasesService {
 
 		return [$valid, $skipped];
 	}//end partitionWidgets()
+
+	/**
+	 * The widget types this instance can render: LaunchPad's own types and
+	 * the Nextcloud dashboard widgets registered here, keyed for `isset()`.
+	 *
+	 * @return array<string, true> The renderable widget types.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	public function renderableWidgetTypes(): array {
+		return $this->getLaunchpadWidgetTypes() + $this->registeredWidgetIds();
+	}//end renderableWidgetTypes()
 
 	/**
 	 * The ids of the Nextcloud dashboard widgets registered on this

@@ -1657,6 +1657,8 @@ OC.L10N.register(
     "Pinned filter" : "Pinned filter",
     "Remove filter: {label}" : "Remove filter: {label}",
     "Reset filters" : "Reset filters",
+    "Drill-down path" : "Drill-down path",
+    "Back to {step}" : "Back to {step}",
     "Shown in the email and on the cover page of the PDF." : "Shown in the email and on the cover page of the PDF.",
     "What to export" : "What to export",
     "Run on schedule" : "Run on schedule",

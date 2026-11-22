@@ -1594,6 +1594,8 @@
         "Pinned filter": "Pinned filter",
         "Remove filter: {label}": "Remove filter: {label}",
         "Reset filters": "Reset filters",
+        "Drill-down path": "Drill-down path",
+        "Back to {step}": "Back to {step}",
         "Discussion": "Discussion",
         "No conversation linked to this dashboard yet": "No conversation linked to this dashboard yet",
         "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.": "This widget publishes {dimension} from {field}, which its data does not have. Clicks on it do not filter the dashboard.",

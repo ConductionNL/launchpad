@@ -4,8 +4,8 @@
  *
  * Playwright end-to-end tests for widget clicks on the cross-widget filter
  * bus (drill-down-cross-widget-filter): the click half of Task 22, the
- * conflict toast of Task 24, removing a clicked clause (Task 26) and the
- * `apply` telemetry row of a click (Task 28).
+ * hierarchy breadcrumb of Task 23, the conflict toast of Task 24, removing a
+ * clicked clause (Task 26) and the `apply` telemetry row of a click (Task 28).
  *
  * Needs the `cwf-perf` data set (see tests/e2e/support/cwfPerfSeed.ts):
  * without it every test here is skipped with that reason. Each test seeds its
@@ -16,6 +16,8 @@
  *
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::a-click-filters-the-consumers-and-the-url
+ *   @e2e cross-widget-filter::drilling-down-infers-ancestor-filters
+ *   @e2e cross-widget-filter::going-back-up-the-breadcrumb-clears-the-levels-below
  *   @e2e cross-widget-filter::a-second-publisher-replaces-the-filter-with-a-toast
  *   @e2e cross-widget-filter::removing-a-clicked-clause-unfilters-the-consumers
  *   @e2e cross-widget-filter::telemetry-records-an-apply-without-a-value
@@ -31,7 +33,7 @@ import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import { installBundleOverride } from './support/bundleOverride.ts'
-import { PERF_OBJECT_COUNT, PERF_REGISTER, PERF_SCHEMA, seededCount } from './support/cwfPerfSeed.ts'
+import { hierarchy, PERF_OBJECT_COUNT, PERF_REGISTER, PERF_SCHEMA, seededCount } from './support/cwfPerfSeed.ts'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import { chip, currentFilterParam, decodeFilterParam, OBJECTS, putAdminSettings } from './support/filterBus.ts'
 import { NL_ADMINISTRATIVE, storeHierarchies } from './support/hierarchies.ts'
@@ -47,6 +49,28 @@ const ADMIN_PASS = process.env.NC_ADMIN_PASS ?? 'admin'
 type Board = { dash: SeededDashboard; a: Placement; a2: Placement; b: Placement; c: Placement }
 
 /**
+ * Place a titled bar-list chart on a dashboard.
+ *
+ * @param seeds the admin's seeds.
+ * @param dash the dashboard.
+ * @param gridX the column.
+ * @param gridY the row.
+ * @param content the chart content, with the title the panel names it by.
+ * @return the placement.
+ */
+async function placeChart(seeds: Seeds, dash: SeededDashboard, gridX: number, gridY: number, content: { title: string } & object): Promise<Placement> {
+	const placement = await seeds.widget(dash, {
+		widgetId: 'chart', gridX, gridY, gridWidth: 6, gridHeight: 4,
+		content: { chartKind: 'bar-list', ...content },
+	})
+	// The placement's own title is the name the active-filters panel gives a click;
+	// the create call does not take one, so it is set afterwards.
+	const titled = await seeds.api.put(`${LP_API}/widgets/${placement.id}`, { data: { customTitle: content.title } })
+	expect(titled.status(), await titled.text()).toBeLessThan(300)
+	return placement
+}
+
+/**
  * Seed a dashboard with the nl-administrative hierarchy and four bar-list
  * charts: A and A2 publish gemeenteCode, B shows wijken and consumes
  * gemeenteCode, C shows statuses and consumes nothing.
@@ -58,17 +82,7 @@ async function seedBoard(seeds: Seeds): Promise<Board> {
 	const dash = await seeds.dashboard(`E2E filter clicks ${Date.now()}`)
 	await clearSeededWidgets(seeds.api, dash.id)
 	await storeHierarchies(seeds.api, dash.id, [NL_ADMINISTRATIVE])
-	const chart = async (gridX: number, gridY: number, content: { title: string } & object) => {
-		const placement = await seeds.widget(dash, {
-			widgetId: 'chart', gridX, gridY, gridWidth: 6, gridHeight: 4,
-			content: { chartKind: 'bar-list', ...content },
-		})
-		// The placement's own title is the name the active-filters panel gives a click;
-		// the create call does not take one, so it is set afterwards.
-		const titled = await seeds.api.put(`${LP_API}/widgets/${placement.id}`, { data: { customTitle: content.title } })
-		expect(titled.status(), await titled.text()).toBeLessThan(300)
-		return placement
-	}
+	const chart = (gridX: number, gridY: number, content: { title: string } & object) => placeChart(seeds, dash, gridX, gridY, content)
 	const publishes = [{ dimension: 'gemeenteCode', fromField: 'gemeenteCode' }]
 	const gemeenten = { ...SOURCE, groupBy: { field: 'gemeenteCode', sort: 'desc', limit: 5 } }
 	const a = await chart(0, 0, { title: 'Gemeenten', dataSource: gemeenten, publishes })
@@ -206,6 +220,66 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 			} finally {
 				await other.context.close()
 			}
+		} finally {
+			await seeds.cleanup()
+		}
+	})
+
+	// @e2e cross-widget-filter::drilling-down-infers-ancestor-filters
+	// @e2e cross-widget-filter::going-back-up-the-breadcrumb-clears-the-levels-below
+	test('a wijk click shows its provincie and gemeente in the breadcrumb; going back up clears the levels below; another wijk moves them', async ({ page }) => {
+		const seeds = new Seeds(await adminApi())
+		try {
+			const dash = await seeds.dashboard(`E2E filter breadcrumb ${Date.now()}`)
+			await clearSeededWidgets(seeds.api, dash.id)
+			await storeHierarchies(seeds.api, dash.id, [NL_ADMINISTRATIVE])
+			const wijkChart = await placeChart(seeds, dash, 0, 0, {
+				title: 'Wijken',
+				dataSource: { ...SOURCE, groupBy: { field: 'wijkCode', sort: 'desc', limit: 30 } },
+				publishes: [{ dimension: 'wijkCode', fromField: 'wijkCode' }],
+			})
+			const gemeenteChart = await placeChart(seeds, dash, 6, 0, {
+				title: 'Gemeenten',
+				dataSource: { ...SOURCE, groupBy: { field: 'gemeenteCode', sort: 'desc', limit: 60 } },
+				consumes: ['provincieCode', 'gemeenteCode'],
+			})
+			await installBundleOverride(page.context())
+			await openWorkspace(page, wijkChart.id)
+			for (const placement of [wijkChart, gemeenteChart]) {
+				await expect(gridItem(page, placement.id).locator(ROW).first()).toBeVisible({ timeout: 60_000 })
+			}
+
+			const provinceOf = new Map(hierarchy().map((gemeente) => [gemeente.code, gemeente.provincie]))
+			const gemeenteOf = (wijk: string) => `GM${wijk.slice(2, 6)}`
+			const steps = page.locator('[data-testid="filter-breadcrumb"] [data-testid="filter-breadcrumb-step"]')
+			const wijken = await labels(page, wijkChart)
+			const first = wijken[0]
+			const firstGemeente = gemeenteOf(first)
+			const firstProvince = provinceOf.get(firstGemeente)
+
+			await gridItem(page, wijkChart.id).locator(ROW).filter({ hasText: first }).click()
+			await expect(steps).toHaveText([`Province ${firstProvince}`, `Municipality ${firstGemeente}`, `District ${first}`], { timeout: 15_000 })
+			await expect(chip(page, 'gemeenteCode')).toContainText(firstGemeente)
+			await expect(chip(page, 'provincieCode')).toContainText(String(firstProvince))
+			await expect.poll(() => labels(page, gemeenteChart), { timeout: 30_000 }).toEqual([firstGemeente])
+
+			// Back up to the provincie: the gemeente and wijk go, the provincie stays.
+			await steps.filter({ hasText: `Province ${firstProvince}` }).click()
+			await expect(steps).toHaveText([`Province ${firstProvince}`])
+			await expect(chip(page, 'gemeenteCode')).toHaveCount(0)
+			await expect(chip(page, 'wijkCode')).toHaveCount(0)
+			await expect.poll(async () => {
+				const shown = await labels(page, gemeenteChart)
+				return shown.length > 1 && shown.every((code) => provinceOf.get(code) === firstProvince)
+			}, { timeout: 30_000 }).toBe(true)
+
+			// A wijk of another gemeente, in another provincie when the chart shows one, moves both ancestors.
+			const others = wijken.filter((wijk) => gemeenteOf(wijk) !== firstGemeente)
+			expect(others.length).toBeGreaterThan(0)
+			const other = others.find((wijk) => provinceOf.get(gemeenteOf(wijk)) !== firstProvince) ?? others[0]
+			await gridItem(page, wijkChart.id).locator(ROW).filter({ hasText: other }).click()
+			await expect(steps).toHaveText([`Province ${provinceOf.get(gemeenteOf(other))}`, `Municipality ${gemeenteOf(other)}`, `District ${other}`], { timeout: 15_000 })
+			await expect.poll(() => labels(page, gemeenteChart), { timeout: 30_000 }).toEqual([gemeenteOf(other)])
 		} finally {
 			await seeds.cleanup()
 		}

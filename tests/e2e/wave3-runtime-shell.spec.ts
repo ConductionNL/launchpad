@@ -139,36 +139,50 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 	test('PR #113: clicking a sidebar row switches the active dashboard server-side', async ({
 		page,
 	}) => {
-		await openDashboardSwitcher(page)
+		// Two personal dashboards of this account, the first one active, so
+		// the row clicked is an owned, inactive one whatever else the shared
+		// admin account holds. The activate endpoint only persists an active
+		// flag for owned dashboards (a group/default dashboard returns 400).
+		const api = page.request
+		const headers = { 'OCS-APIREQUEST': 'true' }
+		const stamp = Date.now()
+		const create = async (name: string) => {
+			const res = await api.post('/index.php/apps/launchpad/api/dashboard', { headers, data: { name } })
+			expect(res.status(), await res.text()).toBeLessThan(300)
+			return (await res.json()).dashboard as { id: number, uuid: string, name: string }
+		}
+		const open = await create(`Wave3 open ${stamp}`)
+		const target = await create(`Wave3 target ${stamp}`)
+		try {
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+				headers,
+				data: { uuid: open.uuid },
+			})
+			expect(active.status(), await active.text()).toBeLessThan(300)
+			await page.goto('/index.php/apps/launchpad')
+			await openDashboardSwitcher(page)
 
-		// Switching the active dashboard persists the choice via
-		// POST /api/dashboard/{id}/activate. Arm the listener before clicking.
-		const activateRequest = page.waitForRequest(
-			(req) =>
-				req.method() === 'POST'
-				&& /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
-			{ timeout: 8_000 },
-		)
-
-		// Click a NON-active PERSONAL (owned) dashboard row. The activate
-		// endpoint only persists an active flag for owned dashboards — a
-		// group/default dashboard returns 400 — so target a `data-source="user"`
-		// row that is not already active to assert the 200 success path.
-		const rows = page.locator(
-			'.dashboard-switcher-sidebar li.dashboard-switcher-sidebar__item',
-		)
-		expect(await rows.count()).toBeGreaterThan(1)
-		const ownedInactiveRow = page
-			.locator(
-				'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
+			// Switching the active dashboard persists the choice via
+			// POST /api/dashboard/{id}/activate. Arm the listener before clicking.
+			const activateRequest = page.waitForRequest(
+				(req) =>
+					req.method() === 'POST'
+					&& new RegExp(`/api/dashboard/${target.id}/activate(?:\\?|$)`).test(req.url()),
+				{ timeout: 8_000 },
 			)
-			.first()
-		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
-		await ownedInactiveRow.click()
+			const row = page.locator(
+				`[data-source="user"].dashboard-switcher-sidebar__item[aria-label="${target.name}"]`,
+			)
+			await expect(row).not.toHaveClass(/\bactive\b/)
+			await row.click()
 
-		const req = await activateRequest
-		const res = await req.response()
-		expect(res?.status()).toBe(200)
+			const req = await activateRequest
+			const res = await req.response()
+			expect(res?.status()).toBe(200)
+		} finally {
+			await api.delete(`/index.php/apps/launchpad/api/dashboard/${open.id}`, { headers })
+			await api.delete(`/index.php/apps/launchpad/api/dashboard/${target.id}`, { headers })
+		}
 	})
 
 	test('PR #111 + PR #113: footer renders Powered by + both Sendent and Conduction logos visible', async ({

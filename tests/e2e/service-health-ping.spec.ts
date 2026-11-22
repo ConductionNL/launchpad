@@ -30,7 +30,8 @@
  *   @e2e service-health-ping::interval-bounds
  *   @e2e service-health-ping::online-when-status-matches-within-latency-threshold
  *   @e2e service-health-ping::degraded-when-slow
- *   @e2e service-health-ping::offline-on-failure-or-unexpected-status
+ *   @e2e service-health-ping::offline-after-consecutive-failed-pings
+ *   @e2e service-health-ping::a-failed-ping-marks-the-badge-stale
  *   @e2e service-health-ping::allow-list-enforced-at-ping-time-fail-closed
  *   @e2e service-health-ping::endpoint-serves-the-cached-badge
  *   @e2e service-health-ping::caller-authorization
@@ -64,6 +65,7 @@ import {
 const CONFIG = '/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/launchpad'
 const ALLOWED_HOSTS = 'healthping_allowed_hosts'
 const LATENCY_THRESHOLD = 'healthping_latency_threshold_ms'
+const OFFLINE_AFTER = 'healthping_offline_after_failures'
 const FIXTURE_HOST = process.env.HEALTH_PING_FIXTURE_HOST || process.env.LIVE_TILE_FIXTURE_HOST || '127.0.0.1'
 const STAMP = `${Date.now()}`
 const UPSTREAM_BODY = `UPSTREAM-BODY-${STAMP}`
@@ -80,6 +82,7 @@ let gridY = 0
 let reachable = false
 let previousHosts: string | null = null
 let previousThreshold: string | null = null
+let previousOfflineAfter: string | null = null
 
 let upstream: Server
 let upstreamBase = ''
@@ -363,8 +366,12 @@ test.beforeAll(async () => {
 	await assertActingAs(admin, process.env.NC_ADMIN_USER ?? 'admin')
 	previousHosts = await readAppValue(ALLOWED_HOSTS)
 	previousThreshold = await readAppValue(LATENCY_THRESHOLD)
+	previousOfflineAfter = await readAppValue(OFFLINE_AFTER)
 	await allowFixtureHost()
 	await writeAppValue(LATENCY_THRESHOLD, '5000')
+	// One failed ping reads offline, so a tile on a failing URL shows its
+	// offline badge on the first read; the stale test sets its own count.
+	await writeAppValue(OFFLINE_AFTER, '1')
 
 	await allowPersonalDashboards(admin, true)
 	author = await createPrincipal(admin, 'e2e-hping-author')
@@ -392,6 +399,7 @@ test.afterAll(async () => {
 	if (admin) {
 		await writeAppValue(ALLOWED_HOSTS, previousHosts).catch(() => undefined)
 		await writeAppValue(LATENCY_THRESHOLD, previousThreshold).catch(() => undefined)
+		await writeAppValue(OFFLINE_AFTER, previousOfflineAfter).catch(() => undefined)
 		if (author && dashboardId) {
 			await author.api.delete(`${API}/dashboard/${dashboardId}`).catch(() => undefined)
 		}
@@ -550,8 +558,8 @@ test('the expected status slower than the threshold reads degraded', async () =>
 	}
 })
 
-// @e2e service-health-ping::offline-on-failure-or-unexpected-status
-test('a wrong status, a refused connection and a timeout each read offline', async () => {
+// @e2e service-health-ping::offline-after-consecutive-failed-pings
+test('with offline after one failed ping, a wrong status, a refused connection and a timeout each read offline', async () => {
 	test.skip(!reachable, UNREACHABLE)
 	test.setTimeout(120_000)
 	await allowFixtureHost()
@@ -667,40 +675,58 @@ test('a second read inside the interval is served from cache without a new upstr
 })
 
 // @e2e service-health-ping::stale-fallback-on-refresh-failure
+// @e2e service-health-ping::a-failed-ping-marks-the-badge-stale
 test('when a refresh cannot reach the upstream the last-known badge comes back marked stale', async ({ browser }) => {
 	test.skip(!reachable, UNREACHABLE)
-	test.setTimeout(120_000)
+	test.setTimeout(150_000)
 	await allowFixtureHost()
+	await writeAppValue(OFFLINE_AFTER, '3')
 	const own = await startServer(upstreamHandler)
 	await awaitReachable(own.base)
 	const title = `Stale ${STAMP}`
 	const url = `${own.base}/ok?p=stale`
-	const id = await pingTile(title, url, { pingInterval: 15 })
-
-	const first = await badge(author!.api, id)
-	expect(first.status, first.text).toBe(200)
-	expect(first.body.state).toBe('online')
-
-	// The upstream goes away, and the cached reading ages past the interval.
-	await stopServer(own.server)
-	await new Promise((resolve) => setTimeout(resolve, 16_500))
-
-	const second = await badge(author!.api, id)
-	expect(second.status, second.text).toBe(200)
-	expect(second.body.state, 'the last-known state was not served').toBe(first.body.state)
-	expect(second.body.checkedAt).toBe(first.body.checkedAt)
-	expect(second.body.stale).toBe(true)
-
-	// The tile still renders.
-	const { context, page } = await openDashboard(browser)
+	let id = 0
 	try {
-		const tile = tileNamed(page, title)
-		await expect(tile).toBeVisible({ timeout: 30_000 })
-		await expect(tile.locator('.tile-widget__link')).toBeVisible()
+		id = await pingTile(title, url, { pingInterval: 15 })
+
+		const first = await badge(author!.api, id)
+		expect(first.status, first.text).toBe(200)
+		expect(first.body.state).toBe('online')
+
+		// The upstream goes away, and the cached reading ages past the interval.
+		await stopServer(own.server)
+		await new Promise((resolve) => setTimeout(resolve, 16_500))
+
+		const second = await badge(author!.api, id)
+		expect(second.status, second.text).toBe(200)
+		expect(second.body.state, 'the last-known state was not served').toBe(first.body.state)
+		expect(second.body.checkedAt).toBe(first.body.checkedAt)
+		expect(second.body.stale).toBe(true)
+
+		// The tile still renders.
+		const { context, page } = await openDashboard(browser)
+		try {
+			const tile = tileNamed(page, title)
+			await expect(tile).toBeVisible({ timeout: 30_000 })
+			await expect(tile.locator('.tile-widget__link')).toBeVisible()
+		} finally {
+			await context.close()
+		}
+
+		// THEN: once the configured number of consecutive failed pings is
+		// reached (two here), the badge reads offline.
+		await writeAppValue(OFFLINE_AFTER, '2')
+		await new Promise((resolve) => setTimeout(resolve, 16_500))
+		const third = await badge(author!.api, id)
+		expect(third.status, third.text).toBe(200)
+		expect(third.body.state).toBe('offline')
+		expect(third.body.stale).toBe(false)
 	} finally {
-		await context.close()
+		await writeAppValue(OFFLINE_AFTER, '1')
+		if (id > 0) {
+			await author!.api.delete(`${API}/widgets/${id}`)
+		}
 	}
-	await author!.api.delete(`${API}/widgets/${id}`)
 })
 
 // @e2e service-health-ping::badge-is-not-colour-only

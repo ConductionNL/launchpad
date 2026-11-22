@@ -35,12 +35,12 @@ use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AcknowledgementService;
+use OCA\LaunchPad\Service\AdminTemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
-use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -91,11 +91,11 @@ class AcknowledgementServiceTest extends TestCase {
 	private DashboardShareMapper&MockObject $shareMapper;
 
 	/**
-	 * User manager double.
+	 * Admin template service double (a user's groups).
 	 *
-	 * @var IUserManager&MockObject
+	 * @var AdminTemplateService&MockObject
 	 */
-	private IUserManager&MockObject $userManager;
+	private AdminTemplateService&MockObject $adminTemplateService;
 
 	/**
 	 * The service under test.
@@ -116,7 +116,7 @@ class AcknowledgementServiceTest extends TestCase {
 		$this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
 		$this->activityPublisher = $this->createMock(originalClassName: ActivityPublisher::class);
 		$this->shareMapper = $this->createMock(originalClassName: DashboardShareMapper::class);
-		$this->userManager = $this->createMock(originalClassName: IUserManager::class);
+		$this->adminTemplateService = $this->createMock(originalClassName: AdminTemplateService::class);
 
 		$this->service = new AcknowledgementService(
 			acknowledgementMapper: $this->ackMapper,
@@ -125,7 +125,7 @@ class AcknowledgementServiceTest extends TestCase {
 			groupManager: $this->groupManager,
 			activityPublisher: $this->activityPublisher,
 			shareMapper: $this->shareMapper,
-			userManager: $this->userManager,
+			adminTemplateService: $this->adminTemplateService,
 		);
 	}
 
@@ -805,8 +805,7 @@ class AcknowledgementServiceTest extends TestCase {
 		$this->shareMapper->method('findForRecipient')->willReturnMap([
 			['pieter', [], [$toPieter]],
 		]);
-		$this->userManager->method('get')->willReturnCallback(fn (string $uid): IUser => $this->makeUser(uid: $uid));
-		$this->groupManager->method('getUserGroupIds')->willReturn([]);
+		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
 		$team = $this->createMock(originalClassName: IGroup::class);
 		$team->method('getUsers')->willReturn([$this->makeUser(uid: 'gina')]);
 		$this->groupManager->method('get')->willReturnMap([['g-team', $team]]);

@@ -187,18 +187,10 @@ class PageController extends Controller {
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
-			->setTileLaunchOptions(
-				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
-				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
-			)
+			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
-			->setIntegrationApps(
-				[
-					'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
-					'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
-				]
-			)
+			->setIntegrationApps($this->integrationApps())
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
@@ -341,6 +333,21 @@ class PageController extends Controller {
 
 		return $this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'timezone', default: '');
 	}//end userTimezone()
+
+	/**
+	 * Which apps behind the integration widgets are enabled for the
+	 * signed-in user, by app id (wiki-widget REQ-WIKI-004).
+	 *
+	 * @return array<string, bool|string> Whether each app is enabled, or the id it is installed under.
+	 *
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 */
+	private function integrationApps(): array {
+		return [
+			'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
+			'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+		];
+	}//end integrationApps()
 
 	/**
 	 * Whether an app is enabled for the signed-in user. Talk and the apps

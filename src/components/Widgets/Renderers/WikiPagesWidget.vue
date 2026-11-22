@@ -25,14 +25,18 @@
 				@update:modelValue="onQuery"
 				@trailingButtonClick="onQuery('')" />
 
-			<section v-if="query.trim() !== ''" class="wiki-pages-widget__section" data-testid="wiki-pages-results">
+			<section
+				v-for="section in sections"
+				:key="section.key"
+				class="wiki-pages-widget__section"
+				:data-testid="`wiki-pages-${section.key}`">
 				<h3 class="wiki-pages-widget__heading">
-					{{ t('launchpad', 'Search results') }}
+					{{ section.title }}
 				</h3>
 				<CnStatusList
-					:items="items(results)"
-					:loading="searching"
-					:emptyLabel="t('launchpad', 'No page matches your search')">
+					:items="items(section.pages)"
+					:loading="section.loading"
+					:emptyLabel="section.emptyLabel">
 					<template #actions="{ item }">
 						<NcButton
 							variant="tertiary"
@@ -47,51 +51,6 @@
 					</template>
 				</CnStatusList>
 			</section>
-
-			<template v-else>
-				<section class="wiki-pages-widget__section" data-testid="wiki-pages-favourites">
-					<h3 class="wiki-pages-widget__heading">
-						{{ t('launchpad', 'Favourites') }}
-					</h3>
-					<CnStatusList
-						:items="items(shownFavourites)"
-						:emptyLabel="t('launchpad', 'Star a page to keep it here')">
-						<template #actions="{ item }">
-							<NcButton
-								variant="tertiary"
-								:aria-label="favouriteLabel(item)"
-								:pressed="true"
-								@click="toggleFavourite(item.id)">
-								<template #icon>
-									<Star :size="18" />
-								</template>
-							</NcButton>
-						</template>
-					</CnStatusList>
-				</section>
-				<section class="wiki-pages-widget__section" data-testid="wiki-pages-recent">
-					<h3 class="wiki-pages-widget__heading">
-						{{ t('launchpad', 'Recent') }}
-					</h3>
-					<CnStatusList
-						:items="items(recent)"
-						:loading="state === 'loading'"
-						:emptyLabel="t('launchpad', 'No pages yet')">
-						<template #actions="{ item }">
-							<NcButton
-								variant="tertiary"
-								:aria-label="favouriteLabel(item)"
-								:pressed="isFavourite(item.id)"
-								@click="toggleFavourite(item.id)">
-								<template #icon>
-									<Star v-if="isFavourite(item.id)" :size="18" />
-									<StarOutline v-else :size="18" />
-								</template>
-							</NcButton>
-						</template>
-					</CnStatusList>
-				</section>
-			</template>
 		</template>
 	</div>
 </template>
@@ -103,8 +62,8 @@ import { NcButton, NcTextField } from '@nextcloud/vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
-import { logger } from '../../../utils/logger.js'
 import { readWikiFavourites, saveWikiFavourites, searchWikiPages } from '../../../services/wikiPages.js'
+import { logger } from '../../../utils/logger.js'
 
 /** How long the search waits after the last key before it asks the wiki. */
 const SEARCH_DELAY_MS = 300
@@ -149,23 +108,50 @@ export default {
 	},
 
 	computed: {
-		/** @return {number} How many favourites and recent pages show. */
+		/**
+		 * The lists the widget shows: the search results while a search runs,
+		 * else the favourites and the recent pages.
+		 *
+		 * @return {Array<{key: string, title: string, pages: Array<object>, loading: boolean, emptyLabel: string}>}
+		 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-wiki-widget-shows-favourites-recent-pages-and-search-req-wiki-001
+		 */
+		sections() {
+			if (this.query.trim() !== '') {
+				return [{ key: 'results', title: t('launchpad', 'Search results'), pages: this.results, loading: this.searching, emptyLabel: t('launchpad', 'No page matches your search') }]
+			}
+			return [
+				{ key: 'favourites', title: t('launchpad', 'Favourites'), pages: this.shownFavourites, loading: false, emptyLabel: t('launchpad', 'Star a page to keep it here') },
+				{ key: 'recent', title: t('launchpad', 'Recent'), pages: this.recent, loading: this.state === 'loading', emptyLabel: t('launchpad', 'No pages yet') },
+			]
+		},
+
+		/**
+		 * @return {number} How many favourites and recent pages show.
+		 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-a-team-wiki-shows-one-space-req-wiki-003
+		 */
 		limit() {
 			const limit = Number(this.content?.limit)
 			return Number.isInteger(limit) && limit > 0 ? Math.min(limit, 20) : 3
 		},
 
-		/** @return {string} The one space to show, '' for every space. */
+		/**
+		 * @return {string} The one space to show, '' for every space.
+		 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-a-team-wiki-shows-one-space-req-wiki-003
+		 */
 		space() {
 			return String(this.content?.space || '').trim()
 		},
 
-		/** @return {Array<object>} The favourites in this widget's space, at most `limit`. */
+		/**
+		 * @return {Array<object>} The favourites in this widget's space, at most `limit`.
+		 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-a-person-keeps-favourite-pages-req-wiki-002
+		 */
 		shownFavourites() {
 			return this.inSpace(this.favourites).slice(0, this.limit)
 		},
 	},
 
+	/** @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-wiki-widget-shows-favourites-recent-pages-and-search-req-wiki-001 */
 	async created() {
 		const [recent, favourites] = await Promise.all([
 			searchWikiPages('', this.space ? 50 : this.limit),

@@ -34,6 +34,7 @@ export const MAX_FAVOURITES = 20
  *
  * @param {object} row The row.
  * @return {WikiPage|null}
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-wiki-widget-shows-favourites-recent-pages-and-search-req-wiki-001
  */
 export function wikiPage(row) {
 	const reference = String(row?.reference || row?.id || '')
@@ -56,6 +57,7 @@ export function wikiPage(row) {
  * @return {Promise<{state: string, pages: Array<WikiPage>}>} `state` is
  *   `ok`, `not-connected` (OpenRegister answers that no XWiki source is set
  *   up or the wiki is down) or `unavailable` (OpenRegister is not there).
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-wiki-widget-shows-favourites-recent-pages-and-search-req-wiki-001
  */
 export async function searchWikiPages(query, limit) {
 	try {
@@ -74,6 +76,7 @@ export async function searchWikiPages(query, limit) {
  * The person's favourite pages; empty when none are kept or the read fails.
  *
  * @return {Promise<Array<WikiPage>>}
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-a-person-keeps-favourite-pages-req-wiki-002
  */
 export async function readWikiFavourites() {
 	try {
@@ -90,6 +93,7 @@ export async function readWikiFavourites() {
  *
  * @param {Array<WikiPage>} pages The favourites, newest first.
  * @return {Promise<Array<WikiPage>>} What was kept.
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-a-person-keeps-favourite-pages-req-wiki-002
  */
 export async function saveWikiFavourites(pages) {
 	const kept = pages.slice(0, MAX_FAVOURITES).map((page) => ({

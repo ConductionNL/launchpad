@@ -1,0 +1,53 @@
+{
+	"axeVersion": "4.14.1",
+	"tags": [
+		"wcag2a",
+		"wcag2aa",
+		"wcag21a",
+		"wcag21aa"
+	],
+	"shapes": [
+		{
+			"shape": "chart",
+			"violations": [],
+			"incomplete": [
+				"color-contrast"
+			]
+		},
+		{
+			"shape": "dashboard",
+			"violations": [],
+			"incomplete": [
+				"color-contrast"
+			]
+		},
+		{
+			"shape": "image",
+			"violations": [],
+			"incomplete": [
+				"color-contrast"
+			]
+		},
+		{
+			"shape": "table",
+			"violations": [],
+			"incomplete": [
+				"color-contrast"
+			]
+		},
+		{
+			"shape": "text",
+			"violations": [],
+			"incomplete": [
+				"color-contrast"
+			]
+		},
+		{
+			"shape": "tile",
+			"violations": [],
+			"incomplete": [
+				"color-contrast"
+			]
+		}
+	]
+}

@@ -7,7 +7,7 @@
  * change.
  *
  * Drives the real runtime-shell add-widget flow (sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → Label) and asserts the
+ * → "Add widget" → "Custom widget" → Add Widget modal → Label) and asserts the
  * collision INVARIANTS that hold regardless of the dashboard's pre-existing
  * placements:
  *   1. Sequentially-added widgets never overlap (auto-position path).

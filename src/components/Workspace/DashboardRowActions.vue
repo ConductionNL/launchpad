@@ -7,7 +7,7 @@
 	DashboardRowActions — wave3.6 per-row cog menu
 
 	Lives at the right edge of every dashboard `<li>` in the sidebar.
-	The 4 actions (Edit / Configure / Add custom widget / Delete) act on
+	The 4 actions (Edit / Configure / Add widget / Delete) act on
 	the row's own dashboard, not on whichever dashboard happens to be
 	"active" — so the user can edit, configure, or delete any dashboard
 	they have access to without having to switch first.
@@ -19,11 +19,11 @@
 	    event so the host can decide whether to switch + enter edit
 	    mode or no-op).
 	  - Dashboard configuration → only when the row's `dashboard.isOwner !== false`.
-	  - Add custom widget       → only when `canEdit` is true.
+	  - Add widget              → only when `canEdit` is true.
 	  - Delete dashboard        → only when the row's `dashboard.isOwner !== false`.
 
 	Emits raw events; the host (`DashboardSwitcherSidebar.vue`) maps
-	them to its `toggle-edit` / `open-config` / `add-custom-widget` /
+	them to its `toggle-edit` / `open-config` / `add-widget` /
 	`delete-dashboard` outputs with the per-row dashboard payload.
 
 	`@click.stop` is set on the cog trigger so opening the menu never
@@ -71,11 +71,11 @@
 			v-if="canEdit"
 			:closeAfterClick="true"
 			data-testid="cog-add-widget"
-			@click="$emit('addCustomWidget')">
+			@click="$emit('addWidget')">
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
 			</template>
-			{{ t('launchpad', 'Add custom widget…') }}
+			{{ t('launchpad', 'Add widget') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="canEdit"
@@ -366,7 +366,7 @@ export default {
 	emits: [
 		'toggleEdit',
 		'openConfig',
-		'addCustomWidget',
+		'addWidget',
 		// launcher-bookmark-import REQ-BMI-001: only where the user may add.
 		'importBookmarks',
 		'delete',

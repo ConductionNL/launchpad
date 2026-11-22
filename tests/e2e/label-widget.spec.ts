@@ -5,7 +5,7 @@
  * Playwright end-to-end tests for the `label` widget.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Label".
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Label".
  *
  * WHAT CHANGED AND WHY
  * ====================

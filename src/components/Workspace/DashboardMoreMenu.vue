@@ -50,7 +50,6 @@ import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
-import ViewGridPlusOutline from 'vue-material-design-icons/ViewGridPlusOutline.vue'
 import { embedAdminHref, isOwnedDashboard } from './DashboardRowActions.vue'
 import { readChrome, startPageSections } from './StartPageMenu.vue'
 
@@ -249,7 +248,6 @@ export default {
 		'toggleEdit',
 		'openConfig',
 		'addWidget',
-		'addCustomWidget',
 		'setDefault',
 		'share',
 		'publish',
@@ -420,12 +418,6 @@ export default {
 					label: t('launchpad', 'Add widget'),
 					icon: markRaw(Plus),
 					event: 'addWidget',
-				},
-				this.canEdit && {
-					id: 'add-custom-widget',
-					label: t('launchpad', 'Add custom widget…'),
-					icon: markRaw(ViewGridPlusOutline),
-					event: 'addCustomWidget',
 				},
 				this.canShare && {
 					id: 'share',

@@ -83,7 +83,6 @@ OC.L10N.register(
     "Add only" : "Alleen toevoegen",
     "Add to dashboard" : "Toevoegen aan dashboard",
     "Add Widget" : "Widget toevoegen",
-    "Add custom widget…" : "Aangepaste widget toevoegen…",
     "Add dashboard" : "Dashboard toevoegen",
     "Powered by" : "Mogelijk gemaakt door",
     "Airplane" : "Vliegtuig",
@@ -2302,7 +2301,10 @@ OC.L10N.register(
     "District" : "Wijk",
     "Add a news widget with a feed to one of your dashboards to see its articles here." : "Voeg een nieuwswidget met een feed toe aan een van je dashboards om de artikelen hier te zien.",
     "No news articles right now." : "Er zijn nu geen nieuwsartikelen.",
-    "Add a links widget to one of your dashboards to see its links here." : "Voeg een linkswidget toe aan een van je dashboards om de links hier te zien."
+    "Add a links widget to one of your dashboards to see its links here." : "Voeg een linkswidget toe aan een van je dashboards om de links hier te zien.",
+    "Widgets from Launchpad" : "Widgets van Launchpad",
+    "Text, images, news and more. You set them up yourself." : "Tekst, afbeeldingen, nieuws en meer. Je stelt ze zelf in.",
+    "Custom widget" : "Eigen widget"
 },
 "nplurals=2; plural=(n != 1);"
 );

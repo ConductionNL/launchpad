@@ -435,14 +435,24 @@ describe('Views row-cog actions', () => {
 		expect(host).toMatchObject({ isConfigModalOpen: true, configModalInitialTab: 'general' })
 	})
 
-	it('switches without an active dashboard, then opens the custom widget picker', async () => {
+	it('switches without an active dashboard, then opens the widget picker', async () => {
 		const onSidebarSwitch = vi.fn().mockResolvedValue(undefined)
-		const openCustomWidgetModal = vi.fn()
-		const host = makeHost({ onSidebarSwitch, openCustomWidgetModal })
+		const openWidgetModal = vi.fn()
+		const host = makeHost({ onSidebarSwitch, openWidgetModal })
 
-		await host.onRowAddCustomWidget({ id: 7 }, 'default')
+		await host.onRowAddWidget({ id: 7 }, 'default')
 
 		expect(onSidebarSwitch).toHaveBeenCalledWith(7, 'default')
+		expect(openWidgetModal).toHaveBeenCalledWith()
+	})
+
+	it('closes the picker and opens the custom widget form when "Custom widget" is picked', async () => {
+		const openCustomWidgetModal = vi.fn()
+		const host = makeHost({ openCustomWidgetModal, isWidgetModalOpen: true })
+
+		await host.onPickCustomWidget()
+
+		expect(host.isWidgetModalOpen).toBe(false)
 		expect(openCustomWidgetModal).toHaveBeenCalledWith()
 	})
 })

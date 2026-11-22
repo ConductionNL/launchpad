@@ -103,7 +103,7 @@ describe('DashboardRowActions menu', () => {
 		}
 
 		expect(Object.keys(wrapper.emitted())).toEqual(expect.arrayContaining([
-			'toggleEdit', 'openConfig', 'addCustomWidget', 'setDefault', 'publish', 'schedule', 'versionHistory', 'share', 'delete',
+			'toggleEdit', 'openConfig', 'addWidget', 'setDefault', 'publish', 'schedule', 'versionHistory', 'share', 'delete',
 		]))
 		expect(wrapper.emitted('unpublish')).toBeUndefined()
 

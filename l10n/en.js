@@ -48,7 +48,6 @@ OC.L10N.register(
     "Add to dashboard" : "Add to dashboard",
     "Add Widget" : "Add Widget",
     "Add widget" : "Add widget",
-    "Add custom widget…" : "Add custom widget…",
     "Add dashboard" : "Add dashboard",
     "Powered by" : "Powered by",
     "Airplane" : "Airplane",
@@ -1856,7 +1855,10 @@ OC.L10N.register(
     "District" : "District",
     "Add a news widget with a feed to one of your dashboards to see its articles here." : "Add a news widget with a feed to one of your dashboards to see its articles here.",
     "No news articles right now." : "No news articles right now.",
-    "Add a links widget to one of your dashboards to see its links here." : "Add a links widget to one of your dashboards to see its links here."
+    "Add a links widget to one of your dashboards to see its links here." : "Add a links widget to one of your dashboards to see its links here.",
+    "Widgets from Launchpad" : "Widgets from Launchpad",
+    "Text, images, news and more. You set them up yourself." : "Text, images, news and more. You set them up yourself.",
+    "Custom widget" : "Custom widget"
 },
 "nplurals=2; plural=(n != 1);"
 );

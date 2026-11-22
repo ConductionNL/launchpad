@@ -102,6 +102,28 @@
 				</button>
 
 				<section
+					v-if="showCustom"
+					class="widget-picker__section"
+					data-testid="widget-picker-custom">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'Widgets from Launchpad') }}
+					</h3>
+					<button
+						type="button"
+						class="widget-picker__widget"
+						data-testid="widget-picker-custom-widget"
+						@click="$emit('addCustom')">
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ customLabel }}</span>
+							<span class="widget-picker__widget-badge">
+								{{ t('launchpad', 'Text, images, news and more. You set them up yourself.') }}
+							</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+
+				<section
 					v-if="showOfficePack"
 					class="widget-picker__section"
 					data-testid="widget-picker-office">
@@ -156,7 +178,7 @@
 				</section>
 
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack"
+					v-if="filteredWidgets.length === 0 && !showCustom && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
@@ -254,6 +276,12 @@ export default {
 		placedAppIds: LIST_PROP,
 
 		/**
+		 * The names of the widget types Launchpad builds itself (text, image,
+		 * news and more), so a search for one finds "Custom widget".
+		 */
+		customTypeTitles: LIST_PROP,
+
+		/**
 		 * The app catalogue entries the user's groups may see
 		 * (`GET /api/catalogue`): `[{ uuid, name, description, icon, iconType, linkType, linkValue }]`.
 		 */
@@ -269,7 +297,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addOfficePack'],
+	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addCustom', 'addOfficePack'],
 
 	data() {
 		return {
@@ -314,6 +342,30 @@ export default {
 			return this.sortedWidgets.filter((w) =>
 				w.title.toLowerCase().includes(query),
 			)
+		},
+
+		/**
+		 * The label of the choice that opens the custom widget form.
+		 *
+		 * @return {string} "Custom widget".
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		customLabel() {
+			return t('launchpad', 'Custom widget')
+		},
+
+		/**
+		 * "Custom widget" is offered unless a search matches neither it nor
+		 * one of the types it builds.
+		 *
+		 * @return {boolean} Whether to show "Custom widget".
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		showCustom() {
+			const query = this.searchQuery.toLowerCase()
+			return !query
+				|| this.customLabel.toLowerCase().includes(query)
+				|| this.customTypeTitles.some((title) => String(title).toLowerCase().includes(query))
 		},
 
 		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */

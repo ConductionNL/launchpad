@@ -5,7 +5,7 @@
  * Playwright end-to-end tests for the `image` widget.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Image".
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Image".
  *
  * WHAT CHANGED AND WHY
  * ====================

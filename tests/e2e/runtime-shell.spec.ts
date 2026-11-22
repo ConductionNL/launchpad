@@ -567,7 +567,7 @@ test.describe('REQ-SHELL-008: the support note is for administrators', () => {
 
 /**
  * Walk the Workspace tour to its end the way a person does: Next on the
- * welcome, Dashboards in the menu, Finish on the Flows step.
+ * welcome, Finish on the More step.
  *
  * @param page the page, with the welcome step open.
  * @return nothing.
@@ -575,9 +575,7 @@ test.describe('REQ-SHELL-008: the support note is for administrators', () => {
 async function finishWorkspaceTour(page: Page): Promise<void> {
 	const card = page.locator(TOUR_CARD)
 	await card.getByRole('button', { name: /next/i }).click()
-	await expect(card).toContainText('Open Dashboards from the menu.')
-	await page.locator('[data-testid="cn-nav-entry-dashboards"]').click()
-	await expect(card).toContainText('Flows automate the repetitive parts')
+	await expect(card).toContainText('are under More.')
 	await card.getByRole('button', { name: /finish/i }).click()
 	await expect(page.locator(TOUR)).toHaveCount(0)
 }
@@ -585,33 +583,12 @@ async function finishWorkspaceTour(page: Page): Promise<void> {
 test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 	let admin: APIRequestContext
 	const people: Principal[] = []
-	let railSuppressedBefore = false
 
 	test.beforeAll(async () => {
 		admin = await adminContext()
-		// The tour's second step points at the navigation panel, which the
-		// option "Start page without navigation panel" removes. Make sure the
-		// panel is there, and put the option back afterwards.
-		const res = await admin.get(`${API}/admin/settings`)
-		expect(res.status(), await res.text()).toBe(200)
-		const body = await res.json()
-		railSuppressedBefore = Boolean(
-			(body.data ?? body).startPageWithoutNavigation,
-		)
-		if (railSuppressedBefore) {
-			const put = await admin.put(`${API}/admin/settings`, {
-				data: { startPageWithoutNavigation: false },
-			})
-			expect(put.status(), await put.text()).toBeLessThan(300)
-		}
 	})
 
 	test.afterAll(async () => {
-		if (railSuppressedBefore) {
-			await admin.put(`${API}/admin/settings`, {
-				data: { startPageWithoutNavigation: true },
-			})
-		}
 		for (const who of people) {
 			await removePrincipal(admin, who)
 		}
@@ -665,8 +642,9 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 		}
 	})
 
-	// @e2e runtime-shell::opening-dashboards-advances-the-tour
-	test('clicking Dashboards in the menu moves the tour on to the Flows step', async ({
+	// @e2e runtime-shell::the-tour-points-at-more
+	// @e2e runtime-shell::opening-flows-from-more-ends-the-tour
+	test('the step after the welcome points at More, and opening Flows there ends the tour', async ({
 		browser,
 	}) => {
 		const pieter = await freshMember()
@@ -678,16 +656,20 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 				'Welcome to Launchpad',
 				{ timeout: 30_000 },
 			)
+			// CONTROL: the welcome step does not carry the More text.
+			await expect(card).not.toContainText('are under More.')
 			await card.getByRole('button', { name: /next/i }).click()
-			await expect(card).toContainText('Open Dashboards from the menu.')
-			// CONTROL: the step waits for the click; it has not moved on alone.
-			await expect(card).not.toContainText('Flows automate')
-
-			await page.locator('[data-testid="cn-nav-entry-dashboards"]').click()
 			await expect(card).toContainText(
-				'Flows automate the repetitive parts of this app.',
+				'Your dashboards, the Marketplace, Reports, Flows and the settings are under More.',
 			)
-			await expect(card).toContainText('Open Flows from the menu')
+			await expect(page.locator(MORE_MENU)).toBeVisible()
+
+			await page
+				.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+				.click()
+			await page.locator('[data-testid="cn-grouped-menu-item-FlowsMenu"]').click()
+			await expect(page).toHaveURL(/\/apps\/launchpad\/flows(\?|$)/)
+			await expect(page.locator(TOUR)).toHaveCount(0)
 		} finally {
 			await context.close()
 		}

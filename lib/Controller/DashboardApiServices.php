@@ -48,7 +48,7 @@ class DashboardApiServices {
 	 *                                                             language.
 	 * @param MetadataService|null             $metadataService Filters the visible list by detail fields.
 	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules when a dashboard renders.
-	 * @param RoleFeaturePermissionService|null $roleWidgets Hides the widgets the owner's role does not permit.
+	 * @param RoleFeaturePermissionService|null $roleWidgets Hides the widgets the viewer's role does not permit.
 	 */
 	public function __construct(
 		public readonly DashboardService $dashboardService,

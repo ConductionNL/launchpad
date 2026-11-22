@@ -1452,6 +1452,7 @@ OC.L10N.register(
     "Parent dashboard" : "Bovenliggend dashboard",
     "Web address name" : "Naam in het webadres",
     "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Kleine letters, cijfers en streepjes. Wordt gebruikt in het adres van een dashboard onder een ander dashboard.",
+    "This builds a tree of dashboards under Dashboards in the More menu" : "Zo ontstaat een boom van dashboards onder Dashboards in het menu Meer",
     "No parent" : "Geen bovenliggend dashboard",
     "That dashboard sits under this one, so it cannot be its parent." : "Dat dashboard staat onder dit dashboard, dus het kan niet het bovenliggende zijn.",
     "Another dashboard under the same parent already uses this web address name." : "Een ander dashboard onder hetzelfde bovenliggende dashboard gebruikt deze naam al.",

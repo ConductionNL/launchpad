@@ -1349,6 +1349,7 @@ OC.L10N.register(
     "Parent dashboard" : "Parent dashboard",
     "Web address name" : "Web address name",
     "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.",
+    "This builds a tree of dashboards under Dashboards in the More menu" : "This builds a tree of dashboards under Dashboards in the More menu",
     "No parent" : "No parent",
     "That dashboard sits under this one, so it cannot be its parent." : "That dashboard sits under this one, so it cannot be its parent.",
     "Another dashboard under the same parent already uses this web address name." : "Another dashboard under the same parent already uses this web address name.",

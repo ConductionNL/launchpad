@@ -157,6 +157,15 @@ describe('DashboardConfigModal wiring: details fields', () => {
 		expect(wrapper.vm.form.icon).toBe('/apps/launchpad/resource/7')
 	})
 
+	it('says the parent places the dashboard under Dashboards in the More menu', async () => {
+		const wrapper = await mountModal()
+
+		expect(wrapper.find('[data-testid="dashboard-parent-hint"]').text()).toBe(
+			'This builds a tree of dashboards under Dashboards in the More menu',
+		)
+		expect(wrapper.text()).not.toMatch(/side ?bar/i)
+	})
+
 	it('ignores a write to the admin-managed permission level', async () => {
 		const wrapper = await mountModal()
 

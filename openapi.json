@@ -172,6 +172,10 @@
             "description": "Controller for the `iframe` widget's allow-list validation."
         },
         {
+            "name": "image-host",
+            "description": "`GET` and `PUT /api/admin/image-hosts`, for LaunchPad administrators only."
+        },
+        {
             "name": "kiosk",
             "description": "Controller for kiosk-playlist CRUD and anonymous render endpoints."
         },
@@ -2486,6 +2490,86 @@
                                 "properties": {
                                     "groups": {
                                         "description": "The raw `groups` payload from the request body."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/image-hosts": {
+            "get": {
+                "operationId": "image-host-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The allow-listed image hosts",
+                "description": "The allow-listed image hosts. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "image-host"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "image-host-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Replace the allow-list; a list holding something other than host names is refused with 400",
+                "description": "Replace the allow-list; a list holding something other than host names is refused with 400. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "image-host"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "hosts": {
+                                        "description": "The host names."
                                     }
                                 }
                             }

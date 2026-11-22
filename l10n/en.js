@@ -1850,7 +1850,6 @@ OC.L10N.register(
     "Add a links widget to one of your dashboards to see its links here." : "Add a links widget to one of your dashboards to see its links here.",
     "Widgets from Launchpad" : "Widgets from Launchpad",
     "Text, images, news and more. You set them up yourself." : "Text, images, news and more. You set them up yourself.",
-    "Custom widget" : "Custom widget",
     "Publication" : "Publication",
     "Publication schedule" : "Publication schedule",
     "Colleagues see this dashboard only while it is published." : "Colleagues see this dashboard only while it is published.",

@@ -110,10 +110,9 @@ async function addLabel(
 	await page
 		.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 		.click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-label"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 	await dialog
 		.getByLabel(/label text/i)
 		.first()

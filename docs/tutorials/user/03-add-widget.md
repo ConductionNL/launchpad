@@ -31,7 +31,7 @@ Open the active dashboard's cog menu and click **Edit dashboard**. The grid show
 
 ### 2. Open the **Add widget** modal
 
-From the cog menu pick **Add widget**. The window lists the Nextcloud widgets and apps. Pick **Custom widget** for Launchpad's own widgets, such as text, an image or news.
+From the cog menu pick **Add widget**. The window lists the Nextcloud widgets, the apps and, under **Widgets from Launchpad**, Launchpad's own widgets such as Text, Image and News. Pick one to open its form; you can still change the type there.
 
 ![Widget picker modal](/screenshots/tutorials/user/03-widget-picker.png)
 

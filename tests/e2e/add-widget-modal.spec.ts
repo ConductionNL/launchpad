@@ -103,7 +103,7 @@ async function openSidebar(page: any) {
 	})
 }
 
-async function openAddWidgetModal(page: any) {
+async function openAddWidgetModal(page: any, type = 'label') {
 	const sidebarOpen = await page
 		.locator('.dashboard-switcher-sidebar.open')
 		.count()
@@ -119,7 +119,7 @@ async function openAddWidgetModal(page: any) {
 	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
@@ -256,9 +256,8 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		const text = `Modal Edit ${Date.now()}`
 
 		// Add a label widget via the real add flow.
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'label')
 		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 		await addDialog
 			.getByLabel(/label text/i)
 			.first()

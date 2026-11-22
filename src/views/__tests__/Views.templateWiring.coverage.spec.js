@@ -341,14 +341,14 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).props('show')).toBe(false)
 	}, 90000)
 
-	it('"Custom widget" in the picker opens the custom widget form, with no second menu entry', async () => {
+	it('a Launchpad type picked in the picker opens the custom widget form on it, with no second menu entry', async () => {
 		const { wrapper, dashStore } = await mountViews()
 		const picker = () => wrapper.findComponent({ name: 'WidgetPickerModal' })
 		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
 		await flushPromises()
 
-		expect(picker().vm.$attrs.customTypeTitles.length).toBeGreaterThan(0)
-		picker().vm.$emit('addCustom')
+		expect(picker().vm.$attrs.customTypes).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'text' })]))
+		picker().vm.$emit('addCustom', 'text')
 		await flushPromises()
 
 		expect(dashStore.switchDashboard).not.toHaveBeenCalled()
@@ -356,6 +356,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		const form = wrapper.findComponent({ name: 'CnAddWidgetModal' })
 		expect(form.props('show')).toBe(true)
 		expect(wrapper.vm.customWidgetPreselectedType).toBeNull()
+		expect(wrapper.vm.customWidgetInitialType).toBe('text')
 	}, 90000)
 
 	it('the Meer menu\'s "Set as default" toggles the pinned default dashboard over HTTP', async () => {

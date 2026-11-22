@@ -120,7 +120,6 @@ class AdminSettingsService {
 		// a value the frontend can't safely act on.
 		$fallbackKey = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
 		$storedFallbackTarget = $settings[$fallbackKey] ?? null;
-		$noRailKey = AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION;
 
 		$quicksearchFallbackTarget = self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
 		if (is_string($storedFallbackTarget) === true
@@ -162,10 +161,6 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
-			// Runtime-shell REQ-SHELL-009: the dashboard view without the left
-			// navigation panel. Off by default so an existing instance keeps its
-			// rail; a stored value that is not a boolean reads as off.
-			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
 			// Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry is
 			// opt-in per organisation; only a stored `true` turns it on.
 			'filterTelemetryEnabled' => ($settings[AdminSettingKey::FILTER_TELEMETRY_ENABLED->value] ?? false) === true,
@@ -459,7 +454,6 @@ class AdminSettingsService {
 	 *                                       `quicksearchFallbackTarget` (`'none'`,
 	 *                                       `'unified-search'` or an `https` URL template containing
 	 *                                       `{query}`, REQ-QSEARCH-004) and
-	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009) and
 	 *                                       `pinnedCommunities` (Talk conversation tokens,
 	 *                                       at most 20, REQ-COMM-003).
 	 *
@@ -496,7 +490,6 @@ class AdminSettingsService {
 			legacyWidgetBridgeEnabled: $settings['legacyWidgetBridgeEnabled'] ?? null
 		);
 
-		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
 		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);

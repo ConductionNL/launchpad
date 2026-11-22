@@ -210,7 +210,7 @@ Everything the panel offered MUST stay reachable through the More menu: the pane
 
 The menus are keyboard reachable with visible focus and use no colour of their own. An external destination opens in a new tab, as the panel's did.
 
-The admin option "Start page without navigation panel" is no longer offered: with no panel anywhere there is nothing to switch. The frontend neither shows nor reads it; the stored key `start_page_without_navigation` is left for a backend clean-up.
+The admin option "Start page without navigation panel" is no longer offered: with no panel anywhere there is nothing to switch. Neither the frontend nor the backend reads or writes it any more; a stored `start_page_without_navigation` row stays unread (admin-settings REQ-ASET-001).
 
 **Why.** Ruben's review of 22 Nov 2026: the left panel makes no sense for LaunchPad, and the board grid should have the full width. The drawn boards (`launchpad/LpVandaag`, `launchpad/LpStore` and the others) draw no side bar and a Meer button in the top row.
 

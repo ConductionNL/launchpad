@@ -55,10 +55,6 @@
             [
                 "legacy_widget_bridge_enabled",
                 true
-            ],
-            [
-                "start_page_without_navigation",
-                true
             ]
         ],
         "error": null
@@ -83,10 +79,6 @@
             ],
             [
                 "legacy_widget_bridge_enabled",
-                false
-            ],
-            [
-                "start_page_without_navigation",
                 false
             ]
         ],
@@ -143,13 +135,8 @@
         ],
         "error": "Invalid value for defaultSharePermissionLevel. Must be 'view_only', 'add_only' or 'full'."
     },
-    "only last": {
-        "writes": [
-            [
-                "start_page_without_navigation",
-                true
-            ]
-        ],
+    "only retired key": {
+        "writes": [],
         "error": null
     }
 }

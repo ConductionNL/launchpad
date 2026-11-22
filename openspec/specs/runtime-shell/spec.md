@@ -129,7 +129,7 @@ When `allowUserDashboards` is `true` the empty state MUST show, in this order:
 - the note "These 6 starter widgets go on it. You can move or remove them later." (nl "Deze 6 startwidgets komen erop. U kunt ze later verplaatsen of weghalen.");
 - a primary "Create my first dashboard (with starter widgets)" button (nl "Maak mijn eerste dashboard (met startwidgets)") and a secondary "Start empty" button (nl "Leeg beginnen").
 
-Both buttons create a personal dashboard named "My dashboard" through `POST /api/dashboard`, which takes an optional `widgets` choice. `starters` seeds the starter widgets (`lib/Service/StarterWidgetSeeds.php`), each one usable without configuration: an `app-tiles` grid of the person's apps, a `calendar` agenda on their personal calendar, Nextcloud Mail's `mail` dashboard widget through `nc-widget`, `files`, `weather` at their weather-status location, and the organisation's `announcements`. `none` seeds nothing. With no choice the create keeps the default widget bundle (default-widget-bundle), so the "+" new-dashboard flow does not change.
+Both buttons create a personal dashboard named "My workspace" (nl "Mijn werkplek", as board LpEersteKeer titles it) through `POST /api/dashboard`, which takes an optional `widgets` choice. `starters` seeds the starter widgets (`lib/Service/StarterWidgetSeeds.php`), each one usable without configuration: an `app-tiles` grid of the person's apps, a `calendar` agenda on their personal calendar, Nextcloud Mail's `mail` dashboard widget through `nc-widget`, `files`, `weather` at their weather-status location, and the organisation's `announcements`. `none` seeds nothing. With no choice the create keeps the default widget bundle (default-widget-bundle), so the "+" new-dashboard flow does not change.
 
 When `allowUserDashboards` is `false` no create button and no starter list MUST be shown, and the message MUST direct the user to contact their administrator.
 
@@ -155,7 +155,7 @@ When `allowUserDashboards` is `false` no create button and no starter list MUST 
 - AND `allowUserDashboards` is `true`
 - WHEN the workspace renders
 - THEN the empty-state MUST render with the starter widgets, a "Create my first dashboard (with starter widgets)" button and a "Start empty" button
-- AND the first MUST call `POST /api/dashboard` with a default name and `widgets: "starters"`, the second with `widgets: "none"`
+- AND the first MUST call `POST /api/dashboard` with the name "My workspace" and `widgets: "starters"`, the second with `widgets: "none"`
 
 #### Scenario: Empty state with creation disabled
 

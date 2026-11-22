@@ -9,6 +9,7 @@
 		:data-source="dataSource"
 		:widgetId="widgetId"
 		:selectable="publishing"
+		:selected="selectedKeys"
 		v-bind="passthroughProps"
 		@select="onSelect"
 		@data="onData" />
@@ -62,7 +63,8 @@ const CHART_PROP_KEYS = [
  * CnChartWidget's `select` names the grouped field and the raw key, and the
  * host publishes a `widgetClick` clause for each dimension published from
  * that field (REQ-CWF-001). A replaced filter from another widget is named
- * in a toast (REQ-CWF-005).
+ * in a toast (REQ-CWF-005). The chart marks the categories of the clauses it
+ * published as selected, so the mark follows the bus (REQ-CWF-005, -007).
  */
 export default {
 	name: 'ChartHost',
@@ -162,6 +164,25 @@ export default {
 		 */
 		publishing() {
 			return this.busCheck.participates && this.busDeclarations.publishes.length > 0
+		},
+
+		/**
+		 * The categories the chart shows as picked: the values of the bus's
+		 * clauses this chart published, so a pick on another chart, a
+		 * removed chip or a reset clears the mark.
+		 *
+		 * @return {string[]}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-005-filter-conflict-resolution-is-last-write-wins-per-dimension
+		 */
+		selectedKeys() {
+			if (!this.publishing) {
+				return []
+			}
+			const dimensions = this.busDeclarations.publishes.map((entry) => entry.dimension)
+			return this.bus.clauses.value
+				.filter((clause) => clause.sourceWidgetId === this.widgetId && dimensions.includes(clause.dimension))
+				.flatMap((clause) => (Array.isArray(clause.value) ? clause.value : [clause.value]))
+				.map((value) => String(value))
 		},
 
 		/**

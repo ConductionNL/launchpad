@@ -21,7 +21,7 @@ vi.mock('@nextcloud/dialogs', () => dialogs)
 const ChartStub = {
 	name: 'CnChartWidget',
 	inheritAttrs: false,
-	props: ['type', 'dataSource', 'widgetId', 'selectable'],
+	props: ['type', 'dataSource', 'widgetId', 'selectable', 'selected'],
 	emits: ['select', 'data'],
 	template: '<div class="chart-stub" />',
 }
@@ -50,7 +50,7 @@ function mountStats(content) {
 describe('ChartHost', () => {
 	it('defaults to an area chart without data source, named after the placement id', () => {
 		const chart = mountChart({}, { id: 12 })
-		expect(chart.props()).toEqual({ type: 'area', dataSource: null, widgetId: '12', selectable: false })
+		expect(chart.props()).toEqual({ type: 'area', dataSource: null, widgetId: '12', selectable: false, selected: [] })
 		expect(chart.vm.$attrs).toEqual({})
 	})
 
@@ -268,6 +268,33 @@ describe('ChartHost publishing a pick (REQ-CWF-001, REQ-CWF-005)', () => {
 		expect(dialogs.showInfo).toHaveBeenCalledTimes(1)
 		expect(dialogs.showInfo).toHaveBeenCalledWith('Gemeente filter changed: GM0355 → GM0321')
 		expect(bus.clauses.value.map((clause) => clause.value)).toEqual(['GM0321'])
+	})
+
+	it('the chart that made a filter shows it as selected, until another chart replaces it or it is removed', async () => {
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		const a = mountOnBus(CONTENT, bus, 5).findComponent(ChartStub)
+		const b = mountOnBus(CONTENT, bus, 6).findComponent(ChartStub)
+
+		a.vm.$emit('select', { field: 'gemeente', value: 'GM0355' })
+		await nextTick()
+		expect(a.props('selected')).toEqual(['GM0355'])
+		expect(b.props('selected')).toEqual([])
+
+		b.vm.$emit('select', { field: 'gemeente', value: 'GM0321' })
+		await nextTick()
+		expect(a.props('selected')).toEqual([])
+		expect(b.props('selected')).toEqual(['GM0321'])
+
+		bus.remove('gemeenteCode')
+		await nextTick()
+		expect(b.props('selected')).toEqual([])
+	})
+
+	it('a restored clause marks the chart it names, and a chart off the bus marks nothing', async () => {
+		const bus = useFilterBus({ hierarchies: [HIERARCHY] })
+		bus.hydrate([{ dimension: 'gemeenteCode', operator: 'in', value: ['GM0355', 344], sourceWidgetId: '5' }])
+		expect(mountOnBus(CONTENT, bus, 5).findComponent(ChartStub).props('selected')).toEqual(['GM0355', '344'])
+		expect(mountOnBus({ dataSource: { schema: 'zaak' } }, bus, 5).findComponent(ChartStub).props('selected')).toEqual([])
 	})
 
 	it('a pick the reader may not filter on is refused with a warning, and the bus is left as it was', () => {

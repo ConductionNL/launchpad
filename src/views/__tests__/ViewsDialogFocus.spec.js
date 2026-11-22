@@ -14,12 +14,12 @@ vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn(), showSuccess: vi.fn() 
 let Views
 
 /**
- * A host with the real Views methods and a synchronous `$nextTick`.
+ * A host with the real Views methods.
  *
  * @return {object} host
  */
 function makeHost() {
-	const host = { $nextTick: (fn) => fn() }
+	const host = {}
 	for (const [name, fn] of Object.entries(Views.methods)) {
 		host[name] = fn.bind(host)
 	}

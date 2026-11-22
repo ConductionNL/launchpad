@@ -2468,7 +2468,7 @@ export default {
 		 */
 		onWidgetPickerClose() {
 			this.closeWidgetModal()
-			this.$nextTick(() => restoreLostFocus(this.widgetDialogOpener))
+			nextTick(() => restoreLostFocus(this.widgetDialogOpener))
 		},
 
 		/**
@@ -2527,7 +2527,7 @@ export default {
 			this.customWidgetPreselectedType = null
 			this.customWidgetInitialType = null
 			this.customWidgetEditing = null
-			this.$nextTick(() => restoreLostFocus(this.widgetDialogOpener))
+			nextTick(() => restoreLostFocus(this.widgetDialogOpener))
 		},
 
 		/**

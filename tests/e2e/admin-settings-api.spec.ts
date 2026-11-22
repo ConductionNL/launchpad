@@ -48,7 +48,7 @@ let alice: Principal | null = null
 let baseline: Record<string, unknown> | null = null
 
 /**
- * The fourteen documented settings out of a settings object.
+ * The thirteen documented settings out of a settings object.
  *
  * @param settings a settings object.
  * @return only the documented keys.
@@ -183,11 +183,19 @@ test('GET answers exactly the documented keys, flat', async () => {
 		expect(nested, `"${key}" is a nested object`).toBe(false)
 	}
 
-	// The fourteen keys of the Defined Settings table, plus the nine settings
+	// The thirteen keys of the Defined Settings table, plus the nine settings
 	// added since by other capabilities, which AdminSettingsService::getSettings()
 	// answers and AdminSettingsServiceTest pins
 	// (testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults).
 	expect(Object.keys(settings).sort()).toEqual([...DOCUMENTED_KEYS, ...LATER_KEYS].sort())
+})
+
+// @e2e admin-settings::the-retired-start-page-key-is-not-returned
+test('the retired startPageWithoutNavigation is neither stored nor returned', async () => {
+	const res = await admin.put(SETTINGS, { data: { startPageWithoutNavigation: true } })
+	expect(res.status()).toBe(200)
+
+	expect(await readSettings(admin)).not.toHaveProperty('startPageWithoutNavigation')
 })
 
 // @e2e admin-settings::update-a-single-boolean-setting

@@ -153,6 +153,9 @@ class EmbedRenderService {
 	 * The page that frames an embed: the bare base layout (no navigation),
 	 * the tenant theme's :root block, and the token's host origins as the only
 	 * frame ancestors. X-Frame-Options stays as the legacy fallback (3.5).
+	 * The page URL can carry the token (`?token=`), so the Referer it sends is
+	 * only ever its origin, never that URL (`strict-origin`): the token does
+	 * not reach access logs through the requests the page makes.
 	 *
 	 * @param string     $subjectType `widget` or `dashboard`.
 	 * @param string     $subjectId   Its id.
@@ -183,7 +186,7 @@ class EmbedRenderService {
 		$response->setContentSecurityPolicy(csp: $csp);
 		$response->addHeader('X-Frame-Options', 'SAMEORIGIN');
 		$response->addHeader('X-Content-Type-Options', 'nosniff');
-		$response->addHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+		$response->addHeader('Referrer-Policy', 'strict-origin');
 
 		return $response;
 	}//end page()

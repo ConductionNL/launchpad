@@ -487,7 +487,7 @@
   ],
   "walkthrough": {
     "enabled": true,
-    "version": 1,
+    "version": 2,
     "completionConfigKey": "walkthrough_completed_version",
     "tours": [
       {
@@ -496,40 +496,26 @@
         "trigger": "first-visit",
         "steps": [
           {
-            "id": "welcome",
-            "placement": "center",
-            "title": "Welcome to Launchpad",
-            "body": "A short tour of the main screens. It takes under a minute, and you can close it at any point and pick it up again from the help menu.",
+            "id": "dashboards",
+            "placement": "bottom",
+            "title": "Here you switch between dashboards",
+            "body": "Your own dashboards, what colleagues share with you and the organisation's group dashboards are under More, next to the marketplace and the settings. Pick one to open it.",
             "target": {
-              "kind": "page",
-              "ref": "Workspace"
+              "kind": "element",
+              "ref": "launchpad-more-menu"
             },
             "advanceOn": {
               "type": "manual"
             }
           },
           {
-            "id": "go-dashboard-detail",
-            "placement": "right",
-            "body": "Open Dashboards from the menu.",
-            "task": "Click Dashboards in the menu",
+            "id": "more-menu",
+            "placement": "bottom",
+            "body": "Reports and Flows are under More as well.",
+            "task": "Open Flows from More",
             "target": {
-              "kind": "nav-item",
-              "ref": "dashboards"
-            },
-            "advanceOn": {
-              "type": "route-match",
-              "route": "Workspace"
-            }
-          },
-          {
-            "id": "go-flows",
-            "placement": "right",
-            "body": "Flows automate the repetitive parts of this app. Have a look, though you do not have to build one now.",
-            "task": "Open Flows from the menu",
-            "target": {
-              "kind": "nav-item",
-              "ref": "FlowsMenu"
+              "kind": "element",
+              "ref": "launchpad-more-menu"
             },
             "advanceOn": {
               "type": "route-match",

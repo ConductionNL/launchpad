@@ -26,7 +26,7 @@ const GROUND_HEADER_SELECTOR = '.cn-header-widget--ground'
  * Removes an actions element that is no longer used, so the row lays out
  * as before when the controls float.
  *
- * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  * @param {Element|null} container The dashboard grid container.
  * @param {boolean} isEditMode Whether the dashboard is being edited.
  * @return {HTMLElement|null} The element to teleport the controls into.

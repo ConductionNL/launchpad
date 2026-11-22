@@ -57,9 +57,16 @@ export type SeededUser = Account & { dashboardId: number; dashboardUuid: string 
  * @return the context; the caller disposes it.
  */
 export async function apiAs(account?: Account): Promise<APIRequestContext> {
-	return account
-		? contextFor(account.username, account.password)
-		: contextFor(ADMIN.user, ADMIN.pass)
+	// Without both, the context carries the config's admin cookie and never
+	// sends the account's credentials: see the header of principals.ts.
+	return request.newContext({
+		baseURL: BASE_URL,
+		storageState: undefined,
+		httpCredentials: account
+			? { username: account.username, password: account.password, send: 'always' }
+			: { username: ADMIN.user, password: ADMIN.pass, send: 'always' },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
 }
 
 /**
@@ -89,9 +96,11 @@ export async function provisionUserWithDashboard(prefix: string): Promise<Seeded
 	const account = await provisionThrowawayUser(prefix)
 	const api = await apiAs(account)
 	try {
+		// The account's first request sets up its home, which can take a while.
 		await assertActingAs(api, account.username)
 		const created = await api.post(`${API}/dashboard`, {
 			data: { name: `E2E filters ${Date.now()}` },
+			timeout: 60_000,
 		})
 		expect(created.status(), await created.text()).toBeLessThan(300)
 		const body = await created.json()

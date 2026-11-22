@@ -7,7 +7,7 @@
  * e2e-coverage-programme.
  *
  * The add and config scenarios drive the real Add Widget modal (sidebar →
- * personal-row cog → "Add custom widget…" → type "People") and read the
+ * personal-row cog → "Add widget" → "Custom widget" → type "People") and read the
  * placement back through the API, so "saved" means what the server kept, not
  * what the form showed. The modal adds to whichever personal dashboard the
  * sidebar lists first, so the dashboard id is taken from the add request
@@ -82,9 +82,8 @@ test.afterAll(async () => {
  * @return the dialog.
  */
 async function openPeopleForm(page: Page): Promise<Locator> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'people')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'People' })
 	await expect(dialog.getByLabel(/group filter/i)).toBeVisible({ timeout: 10_000 })
 	return dialog
 }

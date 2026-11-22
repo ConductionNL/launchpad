@@ -7,7 +7,7 @@
  * 007 and 009), written for the e2e-coverage-programme change.
  *
  * New widgets are made the way a person makes them: the dashboard row's cog,
- * "Add custom widget…", the Link Button type. Existing ones are opened with
+ * "Add widget" → "Custom widget", the Link Button type. Existing ones are opened with
  * right-click, Edit. What the form saved is read back from the API, because
  * a form that looks right and saves something else is the defect these
  * scenarios are about.

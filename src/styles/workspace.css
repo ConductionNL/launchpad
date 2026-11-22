@@ -168,16 +168,15 @@
 }
 
 /* =========================================================
-   The start page without the navigation panel (REQ-SHELL-009) reads as
-   one centred column, as LpStart draws it: 1214px of content between
+   The start page, which has no navigation panel (REQ-SHELL-009), reads
+   as one centred column, as LpStart draws it: 1214px of content between
    even margins on a 1440px screen, instead of a grid that runs from edge
-   to edge. Only that page carries the hidden marker, so a dashboard with
-   the panel keeps its full width.
+   to edge.
    The container is also the page's scroller, so the column comes from
    padding, not from a max-width: the scroller spans the whole window and
    its scrollbar sits at the window edge instead of beside the column.
    ========================================================= */
-.app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container {
+.app-launchpad .launchpad-container:not(.launchpad-container--fill) {
 	box-sizing: border-box;
 	width: 100%;
 	padding-inline: max(0px, calc((100% - 1214px) / 2));
@@ -185,8 +184,7 @@
 
 /* A start page that fills the height (LpVandaag) runs from edge to edge, 28px
    in from the window with the grid's own 8px item margin. */
-.app-launchpad:has(.launchpad-rail-suppressed)
-	.launchpad-container.launchpad-container--fill {
+.app-launchpad .launchpad-container.launchpad-container--fill {
 	padding-inline: 20px;
 }
 

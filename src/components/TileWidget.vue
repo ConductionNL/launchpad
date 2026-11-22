@@ -24,6 +24,7 @@
 				:menuLabel="t('launchpad', 'Tile menu')"
 				:editLabel="t('launchpad', 'Edit tile')"
 				:deleteLabel="t('launchpad', 'Delete tile')"
+				:canDelete="!removeLocked"
 				@edit="$emit('edit')"
 				@remove="$emit('remove')" />
 		</div>
@@ -137,6 +138,9 @@ export default {
 		tile: REQUIRED_OBJECT_PROP,
 
 		editMode: FLAG_PROP,
+
+		/** The host refuses removing this tile, so the cog offers no Delete. */
+		removeLocked: FLAG_PROP,
 
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}

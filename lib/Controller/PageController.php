@@ -124,9 +124,12 @@ class PageController extends Controller {
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
 		$settings = $this->settings->adminSettingsService->getSettings();
-		$bridgedWidgets = $this->resolveBridgedWidgets(settings: $settings);
-
 		$userId = $this->resolveUserId();
+		$allowedWidgets = $this->allowedWidgets(userId: $userId);
+		$widgets = AllowedWidgetFilter::permitted(
+			widgets: $this->resolveWidgetCatalogue(settings: $settings),
+			allowed: $allowedWidgets
+		);
 
 		$routingGroup = $this->resolveRoutingGroup(userId: $userId);
 		$primaryGroupId = $routingGroup['id'];
@@ -149,7 +152,7 @@ class PageController extends Controller {
 		}
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
-		$activeState = $this->describeActive(active: $active);
+		$activeState = $this->describeActive(active: $active, userId: $userId);
 
 		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
 
@@ -159,7 +162,7 @@ class PageController extends Controller {
 		);
 
 		$builder
-			->setWidgets($bridgedWidgets)
+			->setWidgets($widgets)
 			->setLayout($activeState['layout'])
 			->setPrimaryGroup($primaryGroupId)
 			->setPrimaryGroupName($primaryGroupName)
@@ -178,11 +181,10 @@ class PageController extends Controller {
 		);
 
 		$builder
-			->setAllowedWidgets($this->allowedWidgets(userId: $userId))
+			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
-			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
 			->setTileLaunchOptions(
@@ -249,36 +251,37 @@ class PageController extends Controller {
 	}//end allowedWidgets()
 
 	/**
-	 * Resolve the widgets to bridge into the workspace, if any.
+	 * The Nextcloud dashboard widgets the workspace page carries in its
+	 * `widgets` initial state, so the card library lists them without a
+	 * `GET /api/widgets` call (REQ-RFP-010).
 	 *
-	 * Legacy-widget-bridge spec: touching the Nextcloud widget registry at all is
-	 * what costs us. `IManager::getWidgets()` is not a getter — it calls
-	 * loadLazyPanels(), which calls load() on EVERY widget of every app enabled
-	 * for the user, ignoring the dashboard layout, and load() is where widgets
-	 * call `Util::addScript()`. Measured on this instance that is ~147 MB of
-	 * widget JS injected into a page rendering no Nextcloud dashboard, every one
-	 * of which then throws because `OCA.Dashboard` exists only on
-	 * `/apps/dashboard`.
+	 * `IManager::getWidgets()` is not a getter: it calls loadLazyPanels(),
+	 * which calls load() on EVERY widget of every app enabled for the user,
+	 * and load() is where widgets call `Util::addScript()`. Measured on this
+	 * instance that is ~147 MB of widget JS injected into a page rendering no
+	 * Nextcloud dashboard, every one of which then throws because
+	 * `OCA.Dashboard` exists only on `/apps/dashboard`.
 	 *
-	 * So the registry is touched only when the bridge is actually on. When it is
-	 * off the workspace renders without paying for widgets it will never bridge,
-	 * and the SPA still has everything it needs: Views.vue fetches the
-	 * available-widget list from `GET /api/widgets` on boot.
+	 * So the registry is loaded only when the legacy widget bridge is on and
+	 * needs those scripts. When it is off the widgets are read without loading
+	 * them; when even that is not possible the list is empty and the card
+	 * library falls back to `GET /api/widgets`.
 	 *
 	 * @param array $settings Resolved admin settings (see AdminSettingsService).
 	 *
-	 * @return array The widget descriptors to bridge, empty when the bridge is off.
+	 * @return array The widget descriptors, not yet narrowed to the user's role.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
 	 */
-	private function resolveBridgedWidgets(array $settings): array {
+	private function resolveWidgetCatalogue(array $settings): array {
 		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? false);
-		if ($bridgeEnabled === false) {
-			return [];
+		if ($bridgeEnabled === true) {
+			return $this->sources->widgetService->getAvailableWidgets();
 		}
 
-		return $this->sources->widgetService->getAvailableWidgets();
-	}//end resolveBridgedWidgets()
+		return $this->sources->widgetService->getWidgetCatalogue() ?? [];
+	}//end resolveWidgetCatalogue()
 
 	/**
 	 * Resolve the primary group this request routes through.
@@ -497,11 +500,15 @@ class PageController extends Controller {
 	 * Returns the documented empty defaults when nothing is active, so
 	 * the contract is fully populated either way.
 	 *
+	 * The layout leaves out nothing but marks a widget the user's role does
+	 * not permit with `isVisible` 0, as the dashboard reads do (REQ-RFP-001).
+	 *
 	 * @param array{dashboard: Dashboard, source: string}|null $active The active entry.
+	 * @param string                                           $userId The user, or '' when nobody is logged in.
 	 *
 	 * @return array{activeDashboardId: string, dashboardSource: string, layout: array<int, mixed>, deepLinkPath: string}
 	 */
-	private function describeActive(?array $active): array {
+	private function describeActive(?array $active, string $userId): array {
 		if ($active === null) {
 			return [
 				'activeDashboardId' => '',
@@ -519,15 +526,40 @@ class PageController extends Controller {
 		return [
 			'activeDashboardId' => (string)$activeDashboard->getUuid(),
 			'dashboardSource' => (string)$active['source'],
-			'layout' => array_map(
-				callback: function ($placement) {
-					return $placement->jsonSerialize();
-				},
-				array: $placements
+			'layout' => $this->hideUnpermitted(
+				placements: array_map(
+					callback: function ($placement) {
+						return $placement->jsonSerialize();
+					},
+					array: $placements
+				),
+				userId: $userId
 			),
 			'deepLinkPath' => $this->computeDeepLinkPath(dashboard: $activeDashboard),
 		];
 	}//end describeActive()
+
+	/**
+	 * The serialised placements with the ones the user's role does not
+	 * permit marked `isVisible` 0; unchanged when nobody is logged in.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The user, or ''.
+	 *
+	 * @return array<int, array<string, mixed>> The placements.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	private function hideUnpermitted(array $placements, string $userId): array {
+		if ($userId === '') {
+			return $placements;
+		}
+
+		return $this->settings->roleFeaturePerm->hideUnpermittedPlacements(
+			placements: $placements,
+			userId: $userId
+		);
+	}//end hideUnpermitted()
 
 	/**
 	 * Compute the canonical slug-chain for the active dashboard.

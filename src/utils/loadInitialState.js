@@ -67,10 +67,6 @@ const PAGE_KEYS = {
 		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
 		// list keeps every search box as it was.
 		searchShortcuts: [],
-		// runtime-shell REQ-SHELL-009: the dashboard view without the left
-		// navigation panel. Optional key, same rationale as `deepLinkPath`:
-		// a server without the setter keeps the panel.
-		startPageWithoutNavigation: false,
 		// platform-dashboard-theme-and-css REQ-THM-003: the administrator CSS
 		// for all of LaunchPad, cleaned and scoped by the server. Optional key.
 		customCss: '',
@@ -152,6 +148,19 @@ export function loadInitialState(page) {
  */
 export function isOnOfficeNetwork() {
 	return readKey('onOfficeNetwork', false) === true
+}
+
+/**
+ * The Nextcloud dashboard widgets the page carries for the card library,
+ * already narrowed to the user's role (REQ-RFP-010). Empty when the server
+ * could not list them without loading them, or on a page without the key.
+ *
+ * @return {object[]} The widget descriptors.
+ * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
+ */
+export function initialWidgetCatalogue() {
+	const widgets = readKey('widgets', [])
+	return Array.isArray(widgets) ? widgets : []
 }
 
 /**

@@ -208,14 +208,14 @@ export async function openAddQuicklinks(page: Page, dashboardName: string): Prom
 		.first()
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /add custom widget/i }).click()
+	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await page.locator('[data-testid="widget-picker-type-quicklinks"]').click()
 
 	const modal = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(modal).toBeVisible({ timeout: 10_000 })
 	const option = modal.locator('[data-testid="widget-type-option-quicklinks"]')
 	await expect(option, 'the type picker must offer Quicklinks').toHaveCount(1)
 	await expect(option).toHaveText('Quicklinks')
-	await modal.locator('[data-testid="widget-type-select"]').selectOption('quicklinks')
 
 	const dialog = quicklinksDialog(page)
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

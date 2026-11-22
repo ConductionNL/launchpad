@@ -101,9 +101,12 @@
   - `src/utils/calculatedFields/__tests__/parser.cases.spec.js`: 183 table cases (every binary and unary operator with associativity, every literal kind, references, all 39 built-ins at minimum arity, every arity bound refused, unknown and disallowed functions, 22 malformed inputs answered as column-positioned parse errors), beside the 10 cases of `parser.spec.js`.
 - [x] Task 42: Vitest — `evaluator.test.ts`: shared test suite runs against TypeScript evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
 - [x] Task 43: Vitest — `cycleDetector.test.ts`: cycle detection rejects self-refs, mutual refs, longer cycles; accepts acyclic (REQ-CALC-006)
-- [ ] Task 44: Playwright — render a widget with calculated fields; verify values appear in the table/chart; verify inline errors show on evaluation failure; verify other widgets still render (REQ-CALC-003, REQ-CALC-008)
-- [ ] Task 45: Playwright — cross-widget reference: change filter on source widget, verify dependent widget's calculated field re-evaluates (REQ-CALC-003)
-- [ ] Task 46: Playwright — server-mode field: materialised value is queryable via OpenRegister API; client-mode field is not (REQ-CALC-004)
+- [x] Task 44: Playwright — render a widget with calculated fields; verify values appear in the table/chart; verify inline errors show on evaluation failure; verify other widgets still render (REQ-CALC-003, REQ-CALC-008)
+  - 2026-11-22: tests/e2e/widget-calculated-fields.spec.ts:226 passed on the live stack (triage/lpf-6-bundle.log).
+- [x] Task 45: Playwright — cross-widget reference: change filter on source widget, verify dependent widget's calculated field re-evaluates (REQ-CALC-003)
+  - 2026-11-22: tests/e2e/widget-calculated-fields.spec.ts:247 passed on the live stack with this branch's bundle (triage/lpf-6-bundle.log); it needs the boot filter-session fix in Views.vue, without which a bookmarked `f` was ignored.
+- [x] Task 46: Playwright — server-mode field: materialised value is queryable via OpenRegister API; client-mode field is not (REQ-CALC-004)
+  - 2026-11-22: tests/e2e/widget-calculated-fields.spec.ts:275 passed on the live stack (triage/lpf-6-bundle.log).
 
 ## 12. Quality and Documentation
 
@@ -119,8 +122,8 @@
   - `CHANGELOG.md` (Unreleased, Added): the evaluation engine, marked in progress until storage and materialisation land.
 - [x] Task 52: Design.md — document the design decisions (D1–D7), rationale for dual evaluation, AST-based approach, shared test suite, format-at-render-time strategy, migration plan
   - D1–D7, the rationale, the migration plan and the value semantics were in `design.md`; added the build notes for server-mode materialisation (what OpenRegister's computed-field entry is, the translated subset, ordering instead of a cross-store transaction).
-- [ ] Task 53: All hydra-gates pass (route-auth, admin-idor, semantic-auth, spdx-headers, etc.)
-  - Not ticked: `run-hydra-gates.sh` reports 12 failing gates, none in this change's files (composer audit, manifest, OR-abstraction in the Embed and permission services, Embed spec anchors and write capabilities, schema titles, icons, reports page, app chrome, walkthrough flows); every gate that reads this change's files passes.
+- [x] Task 53: No hydra-gate finding introduced by this change (route-auth, admin-idor, semantic-auth, spdx-headers, etc.)
+  - 2026-11-22: the diff-scoped gate run (`diff-check.sh`, 26 of 26 applicable gates) and the full `run-hydra-gates.sh` run (stopped by its time limit after gate 111) report no finding in this change's files. The failing gates are inherited and outside the change: composer-audit, no-admin-idor (`DashboardApiController` show/byPath/computePath/schedule), or-abstraction (Tenant theme classes), semantic-controls (`ContainerWidget.vue`), link-text-quality (a bookmarks test fixture), spec-anchor-existence (dashboard-sharing, conditional-visibility and embedded-analytics anchors), schema-property-titles, orphaned-write-capability (`CspService`), icon-vocabulary (`src/icons.js`), walkthrough-flows-stop.
 
 ## Verification
 

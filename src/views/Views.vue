@@ -49,7 +49,7 @@
 				@deleteDashboard="onSidebarDeleteDashboard"
 				@toggleEdit="onRowToggleEdit"
 				@openConfig="onRowOpenConfig"
-				@addCustomWidget="onRowAddCustomWidget"
+				@addWidget="onRowAddWidget"
 				@importBookmarks="onRowImportBookmarks"
 				@setDefault="onRowSetDefault" />
 			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
@@ -97,7 +97,6 @@
 					:canEmbed="isAdmin === true"
 					:canManagePublication="canManagePublication"
 					:canViewHistory="canViewVersionHistory"
-					:canScheduleExports="canEdit"
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
@@ -111,9 +110,6 @@
 						onRowOpenConfig(activeDashboard, activeDashboardSource)
 					"
 					@addWidget="openWidgetModal"
-					@addCustomWidget="
-						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
-					"
 					@importBookmarks="
 						onRowImportBookmarks(activeDashboard, activeDashboardSource)
 					"
@@ -121,11 +117,7 @@
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
-					@publish="onPublishActive"
-					@unpublish="onUnpublishActive"
-					@schedule="scheduleDialogOpen = true"
 					@versionHistory="versionHistoryOpen = true"
-					@scheduledExports="scheduledExportsOpen = true"
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
@@ -171,20 +163,6 @@
 			@confirm="confirmDeleteDashboard" />
 
 
-		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
-		<ScheduleDashboardDialog
-			v-if="scheduleDialogOpen"
-			:open="true"
-			:error="scheduleError"
-			@update:open="
-				(v) => {
-					if (!v) {
-						scheduleDialogOpen = false
-						scheduleError = ''
-					}
-				}
-			"
-			@save="onScheduleActive" />
 		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
 		<VersionHistoryModal
 			:open="versionHistoryOpen"
@@ -192,17 +170,6 @@
 			:dashboardName="activeDashboard?.name ?? ''"
 			@close="versionHistoryOpen = false"
 			@restored="onVersionRestored" />
-
-		<!-- Scheduled exports of this user (scheduled-exports tasks 13, 19). -->
-		<ScheduledExportsModal
-			:open="scheduledExportsOpen"
-			:subjects="exportSubjects"
-			:defaultSubject="
-				activeDashboard?.uuid
-					? { type: 'dashboard', id: activeDashboard.uuid }
-					: null
-			"
-			@close="scheduledExportsOpen = false" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -247,14 +214,6 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
-			<!-- drill-down-cross-widget-filter REQ-CWF-009. -->
-			<DashboardSavedViews
-				v-if="activeDashboard?.uuid"
-				:dashboardId="activeDashboard.uuid"
-				:userId="currentUserId"
-				:canEdit="canEdit"
-				:clauses="filterClauses"
-				@apply="onApplySavedView" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -320,6 +279,7 @@
 							:pingInterval="item.content && item.content.pingInterval"
 							:linkTarget="(item.content && item.content.linkTarget) || null"
 							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
+							:removeLocked="!isRemovablePlacement(item)"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -334,6 +294,7 @@
 							"
 							:canHideForMe="canHideForMe"
 							:embedHref="placementEmbedHref(item)"
+							:removeLocked="!isRemovablePlacement(item)"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -381,9 +342,11 @@
 			:discoveredApps="discoveredApps"
 			:placedAppIds="placedDiscoveredAppIds"
 			:catalogueApps="catalogueApps"
+			:customTypes="customWidgetTypes"
 			:requestAppFn="requestCatalogueApp"
 			@close="closeWidgetModal"
 			@add="addWidget"
+			@addCustom="onPickCustomWidget"
 			@addApp="addDiscoveredApp"
 			@addCatalogueApp="addCatalogueApp"
 			@addOfficePack="addOfficePack" />
@@ -394,6 +357,7 @@
 		<CnAddWidgetModal
 			:show="isCustomWidgetModalOpen"
 			:preselectedType="customWidgetPreselectedType"
+			:initialType="customWidgetInitialType"
 			:editingWidget="customWidgetEditing"
 			:notices="customWidgetNotices"
 			:uploadFn="iconUploadFn"
@@ -413,6 +377,9 @@
 			:initialTab="configModalInitialTab"
 			:parentOptions="dashboards"
 			:saveError="configSaveError"
+			:canManagePublication="canManagePublication"
+			:canScheduleExports="canEdit"
+			:exportSubjects="exportSubjects"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
@@ -527,18 +494,15 @@ import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageH
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
-import DashboardSavedViews from '../components/Workspace/DashboardSavedViews.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
-import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
-import ScheduledExportsModal from '../modals/ScheduledExportsModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
 import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
@@ -549,7 +513,7 @@ import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
-import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import { getWidgetTypeEntry, listWidgetTypes } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import {
@@ -684,13 +648,10 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
-		DashboardSavedViews,
 		DeleteDashboardDialog,
-		ScheduleDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
 		VersionHistoryModal,
-		ScheduledExportsModal,
 		HiddenWidgetsControl,
 	},
 
@@ -862,6 +823,9 @@ export default {
 			// type-specific deep-link from the toolbar.
 			isCustomWidgetModalOpen: false,
 			customWidgetPreselectedType: null,
+			// The type picked in the widget picker: the form opens on it and
+			// keeps its type select.
+			customWidgetInitialType: null,
 			customWidgetEditing: null,
 			// Per-widget conditional-visibility editor state. Non-null
 			// `visibilityPlacementId` + `isVisibilityModalOpen` opens the
@@ -917,16 +881,11 @@ export default {
 				onRefused: () => this.onPresenceRefused(),
 			}),
 
-			// sharing-dashboard-schedule-screen: the schedule dialog.
-			scheduleDialogOpen: false,
-			scheduleError: '',
 			// dashboard-version-history-ui: the history modal, and per
 			// dashboard uuid whether versioning is supported (read when the
 			// dashboard menu opens; absent means not known yet).
 			versionHistoryOpen: false,
 			versionSupport: {},
-			// scheduled-exports task 19: the export list opened from the menu.
-			scheduledExportsOpen: false,
 		}
 	},
 
@@ -966,20 +925,17 @@ export default {
 		},
 
 		/**
-		 * What a scheduled export can export: the dashboards the user sees
-		 * and the widgets on the active one.
+		 * What the Exports tab of the settings can export: the active
+		 * dashboard and its widgets.
 		 *
 		 * @return {object[]} `{type, id, label}` per subject.
-		 * @spec openspec/changes/scheduled-exports/tasks.md#task-19
+		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
 		 */
 		exportSubjects() {
-			const dashboards = (this.dashboards || [])
-				.filter((dashboard) => dashboard?.uuid)
-				.map((dashboard) => ({
-					type: 'dashboard',
-					id: dashboard.uuid,
-					label: dashboard.name || dashboard.uuid,
-				}))
+			const dashboard = this.activeDashboard
+			const dashboards = dashboard?.uuid
+				? [{ type: 'dashboard', id: dashboard.uuid, label: dashboard.name || dashboard.uuid }]
+				: []
 			const widgets = (this.widgetPlacements || []).map((placement) => ({
 				type: 'widget',
 				id: String(placement.id),
@@ -989,10 +945,10 @@ export default {
 		},
 
 		/**
-		 * The signed-in user's id, for the saved views they own.
+		 * The signed-in user's id, for the dashboard discussion.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
+		 * @spec openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf/spec.md#requirement-req-leaf-002-discussion-surface-renders-only-on-shared-dashboards
 		 */
 		currentUserId() {
 			return typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : ''
@@ -1015,8 +971,8 @@ export default {
 
 		/**
 		 * The placements the grid shows. A placement with `isVisible` 0 never
-		 * renders (REQ-WDG-009; the server sets it for a widget the owner's
-		 * role does not permit, REQ-RFP-003). Of the rest: every placement in
+		 * renders (REQ-WDG-009; the server sets it for a widget the viewer's
+		 * role does not permit, REQ-RFP-001). Of the rest: every placement in
 		 * edit mode, and outside it every placement but an object-list that
 		 * asked to be hidden when its register is not on this instance
 		 * (REQ-TMPL-022). In edit mode the list stays, so whoever edits sees
@@ -1291,6 +1247,18 @@ export default {
 			return this.isRemovablePlacement(this.grid.state.selectedWidget)
 		},
 
+		/**
+		 * The widget types Launchpad builds itself, as the picker lists them.
+		 *
+		 * @return {Array<{type: string, title: string}>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		customWidgetTypes() {
+			return listWidgetTypes()
+				.map((type) => ({ type, title: getWidgetTypeEntry(type)?.displayName || type }))
+				.sort((left, right) => left.title.localeCompare(right.title))
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
 			return this.widgetPlacements.map((p) => p.widgetId)
@@ -1428,7 +1396,7 @@ export default {
 		 * Editing makes the greeting row a draggable grid item: the controls
 		 * float while editing and dock again after.
 		 *
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 */
 		isEditMode() {
 			this.$nextTick(() => this.dockHeaderActions())
@@ -1520,7 +1488,9 @@ export default {
 					return
 				}
 				// Filters belong to a dashboard: a switch starts a fresh
-				// session; only the boot's switches read a bookmarked `?f=`.
+				// session. Every session of the boot reads a bookmarked
+				// `?f=`: the boot can pass through more than one uuid (the
+				// stored active dashboard, then the one the address names).
 				this.openFilterSession(!this.historyBooted)
 				this.recordViewEventDebounced(uuid)
 				// Outbound URL sync — every uuid change after the boot pushes
@@ -1670,7 +1640,7 @@ export default {
 		 * Dock the top-right controls into the greeting row when the page
 		 * has one and is not being edited; float them otherwise.
 		 *
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 */
 		dockHeaderActions() {
 			const container = document.querySelector('.launchpad-container')
@@ -2017,63 +1987,6 @@ export default {
 						dateStyle: 'medium',
 						timeStyle: 'short',
 					})
-		},
-
-		/**
-		 * Publish the active dashboard.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onPublishActive() {
-			await useDashboardStore().publishDashboard(this.activeDashboard.uuid)
-		},
-
-		/**
-		 * Unpublish the active dashboard.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onUnpublishActive() {
-			await useDashboardStore().unpublishDashboard(this.activeDashboard.uuid)
-		},
-
-		/**
-		 * Schedule the active dashboard; a refusal stays in the dialog.
-		 *
-		 * @param {{publishAt: (string|null), unpublishAt: (string|null)}} times The chosen times.
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onScheduleActive({ publishAt, unpublishAt }) {
-			this.scheduleError = ''
-			try {
-				await useDashboardStore().scheduleDashboard(
-					this.activeDashboard.uuid,
-					publishAt,
-					unpublishAt,
-				)
-				this.scheduleDialogOpen = false
-			} catch (error) {
-				const message = error?.response?.data?.message ?? ''
-				if (message === 'unpublishAt must be after publishAt') {
-					this.scheduleError = t(
-						'launchpad',
-						'The dashboard has to go live before it comes down.',
-					)
-				} else if (message === 'publishAt must be a future timestamp') {
-					this.scheduleError = t(
-						'launchpad',
-						'Choose a time in the future.',
-					)
-				} else {
-					this.scheduleError = t(
-						'launchpad',
-						'The dashboard could not be scheduled.',
-					)
-				}
-			}
 		},
 
 		/**
@@ -2543,18 +2456,34 @@ export default {
 		},
 
 		/**
+		 * A Launchpad widget type was picked: close the picker and open the
+		 * custom widget form on that type, its type select still changeable.
+		 *
+		 * @param {string} type The registry key.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		async onPickCustomWidget(type) {
+			this.closeWidgetModal()
+			await this.openCustomWidgetModal(null, type)
+		},
+
+		/**
 		 * Open the registry-driven custom widget modal in create mode.
 		 * Pass a `type` to deep-link to a specific sub-form (REQ-WDG-010
 		 * preselected-type scenario); omit it for the type-picker flow.
 		 *
 		 * @param {string|null} type registry key, or null for picker flow
+		 * @param {string|null} initialType registry key the form opens on while
+		 *   its type select stays visible
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		async openCustomWidgetModal(type = null) {
+		async openCustomWidgetModal(type = null, initialType = null) {
 			if (!(await this.enterEditMode())) {
 				return
 			}
 			this.customWidgetPreselectedType = type
+			this.customWidgetInitialType = initialType
 			this.customWidgetEditing = null
 			this.isCustomWidgetModalOpen = true
 		},
@@ -2570,6 +2499,7 @@ export default {
 		openCustomWidgetEdit(placement) {
 			this.customWidgetEditing = placement
 			this.customWidgetPreselectedType = null
+			this.customWidgetInitialType = null
 			this.isCustomWidgetModalOpen = true
 		},
 
@@ -2577,6 +2507,7 @@ export default {
 		closeCustomWidgetModal() {
 			this.isCustomWidgetModalOpen = false
 			this.customWidgetPreselectedType = null
+			this.customWidgetInitialType = null
 			this.customWidgetEditing = null
 		},
 
@@ -3286,17 +3217,6 @@ export default {
 			this.filterSession?.reset()
 		},
 
-		/**
-		 * Apply a saved view: its clauses replace every non-pinned clause.
-		 *
-		 * @param {object} view The saved view.
-		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-009-saved-views-persist-named-filter-combinations
-		 */
-		onApplySavedView(view) {
-			this.filterSession?.applyView(view?.filters ?? [])
-		},
-
 		async pushUrlForActiveDashboard() {
 			const uuid = this.activeDashboard?.uuid
 			if (!uuid) {
@@ -3396,16 +3316,16 @@ export default {
 		},
 
 		/**
-		 * Row cog "Add widget" — switch to the row's dashboard, then open the
-		 * custom-widget picker.
+		 * Row cog "Add widget": switch to the row's dashboard, then open the
+		 * widget picker.
 		 *
 		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
 		 */
-		async onRowAddCustomWidget(dashboard, source) {
+		async onRowAddWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
-			this.openCustomWidgetModal()
+			await this.openWidgetModal()
 		},
 
 		/**

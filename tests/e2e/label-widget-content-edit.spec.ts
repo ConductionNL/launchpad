@@ -70,7 +70,7 @@ test.beforeAll(async () => {
 	 * SEED A DASHBOARD. `gotoLaunchPad()` needs the workspace shell, which only
 	 * renders once a dashboard is ACTIVE — `tests/e2e/seed.sh` creates the
 	 * `e2e-grantee` user and nothing else. On a fresh instance LaunchPad shows
-	 * "No dashboards available" instead and every locator here misses.
+	 * "You have no dashboard yet" instead and every locator here misses.
 	 */
 	api = await request.newContext({
 		baseURL: BASE_URL,
@@ -124,9 +124,8 @@ test.describe('label widget — content edit round-trip', () => {
 	}) => {
 		const text = `Edit Me ${Date.now()}`
 		// Create a label widget first.
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'label')
 		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 		await addDialog
 			.getByLabel(/label text/i)
 			.first()

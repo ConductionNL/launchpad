@@ -12,7 +12,7 @@
  * `seedDashboardWithWidget` in principals.ts uses) and reading the stored
  * `content` back (GET /api/dashboard/{id} -> placements[]). Everything a person
  * does goes through the product's own controls: the More menu's
- * "Add custom widget…", the Add/Edit Widget modal, the right-click context
+ * "Add widget" → "Custom widget", the Add/Edit Widget modal, the right-click context
  * menu's Edit, and the text form's own selects, textarea and table editor.
  *
  * Selectors come from the real components in @conduction/nextcloud-vue:
@@ -189,7 +189,7 @@ export async function ensureEditMode(page: Page): Promise<void> {
 }
 
 /**
- * Open More → "Add custom widget…" and pick the Text type.
+ * Open More → "Add widget" → "Custom widget" and pick the Text type.
  *
  * @param page the page, on the seeded active dashboard.
  * @return the dialog and the text sub-form.
@@ -200,10 +200,10 @@ export async function openAddTextForm(
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]').click()
+	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-text"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	await dialog.getByTestId('widget-type-select').selectOption('text')
 	const form = dialog.locator('.cn-text-widget-form')
 	await expect(form).toBeVisible({ timeout: 5_000 })
 	return { dialog, form }

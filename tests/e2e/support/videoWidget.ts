@@ -195,14 +195,14 @@ export async function openWorkspace(page: Page): Promise<void> {
  */
 export async function openVideoForm(page: Page): Promise<Locator> {
 	await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]').click()
+	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-video"]').click()
 	// Found by its type select rather than by its title, so the helper works
 	// for a Dutch account too ("Widget toevoegen").
 	const dialog = page.getByRole('dialog')
 		.filter({ has: page.locator('[data-testid="widget-type-select"]') })
 		.first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	await dialog.locator('[data-testid="widget-type-select"]').selectOption({ label: 'Video' })
 	await expect(dialog.locator('.cn-video-form')).toBeVisible({ timeout: 10_000 })
 	return dialog
 }

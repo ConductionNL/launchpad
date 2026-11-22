@@ -168,6 +168,33 @@ The image sub-form for `AddWidgetModal` MUST expose the following controls: a fi
 - THEN it MUST contain exactly the four options `cover`, `contain`, `fill`, `none`
 - AND the default selected value MUST be `cover` for a new placement
 
+### Requirement: REQ-IMG-006 External image hosts are allow-listed by an administrator
+
+An image widget MAY name an external `http(s)` URL, but the browser loads it only from a host an administrator has allow-listed. The allow-list is a JSON array of bare host names (optionally with a port) stored under the app config key `image_allowed_hosts`, the same shape as `iframe_allowed_hosts`. It is fail-closed: an empty or missing list admits no external image host, and `img-src` MUST NOT be opened to every host. Every LaunchPad page MUST add each listed host, as `https://<host>`, to its `img-src` directive. Administrators manage the list in the admin settings (Operations) and through `GET` / `PUT /api/admin/image-hosts`; an entry with a scheme, a path, a wildcard or a space MUST be refused with 400 and a message naming the entry, and nothing is stored. The image widget form does not check hosts itself.
+
+#### Scenario: Allow-listed external image loads
+
+- GIVEN `image_allowed_hosts` is `["example.com"]`
+- AND content `{url: 'https://example.com/wide.png'}`
+- WHEN the workspace renders the cell
+- THEN the page's `img-src` MUST include `https://example.com`
+- AND the image MUST load
+
+#### Scenario: External image from a host not on the list is blocked
+
+- GIVEN `image_allowed_hosts` does not list `example.net`
+- AND content `{url: 'https://example.net/photo.png'}`
+- WHEN the workspace renders the cell
+- THEN the browser MUST refuse the image under the page's `img-src`
+- AND the cell MUST show the broken-image fallback of REQ-IMG-004
+
+#### Scenario: An entry that is not a host name is refused
+
+- GIVEN an administrator saves `["https://example.com"]`
+- WHEN `PUT /api/admin/image-hosts` handles it
+- THEN the response MUST be 400 with a message naming `https://example.com`
+- AND the stored list MUST be unchanged
+
 ### Requirement: REQ-IMP-001 SourceType field for image-widget config
 
 The image widget placement MUST store a `sourceType` field (ENUM: `'url'`, `'upload'`, `'files'`) in the placement's widget config. This field MUST default to `'url'` for backward compatibility with existing image widgets. The field MUST persist across widget updates and MUST be serialized in the placement API response.

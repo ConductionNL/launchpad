@@ -338,7 +338,7 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - GIVEN no widget is being edited and no type was preselected
 - WHEN the user opens the modal with `show=true, preselectedType=null, editingWidget=null`
 - THEN the modal MUST render a `<select>` listing every registered widget type
-- AND the form area MUST render the sub-form for the first type (alphabetical or registry order)
+- AND the form area MUST render the sub-form for the `initialType` the host passed (the type picked in the widget picker), or for the first type (alphabetical or registry order) when none was passed
 - AND the action button MUST read `t('Add')`
 
 #### Scenario: Open in create mode with preselected type
@@ -373,6 +373,17 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - WHEN they click `Add`
 - THEN the modal MUST emit `submit({type: 'text', content: {text: 'Hello', fontSize: '16px'}})`
 - AND `content` MUST NOT contain image fields like `url`, `alt`, etc.
+
+#### Scenario: One entry point adds every kind of widget
+
+- GIVEN a user who may edit the dashboard
+- WHEN they open the More menu or a dashboard's row menu
+- THEN there MUST be one "Add widget" entry, and no separate "Add custom widget" entry
+- AND "Add widget" MUST open the widget picker, which lists the Nextcloud widgets, the apps and, under "Widgets from Launchpad", each Launchpad widget type (Text, Image, News and the rest)
+- AND picking a Launchpad type MUST close the picker and open the custom widget form in create mode on that type, with its type select still visible and changeable
+- AND a search MUST filter the Launchpad types by name, as it filters the other widgets
+
+Decided on 22 Nov 2026 (Ruben): two add buttons for one job confused people; the board LpWidgetKiezen draws one "Add widget" window that lists the Launchpad widgets in it.
 
 #### Scenario: Widget picker displays available widgets
 - GIVEN the user wants to add a widget
@@ -692,7 +703,7 @@ The widget registry (`src/constants/widgetRegistry.js`) MUST include a `tile` wi
 - Suppresses click handling while the dashboard is in edit mode (consistent with REQ-WDG-014)
 - Has `defaultContent: {title:'', icon:'', iconType:'class', backgroundColor:'#3b82f6', textColor:'#ffffff', linkType:'app', linkValue:''}`
 
-The tile widget type MUST be selectable from the unified "Add custom widget" picker (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
+The tile widget type MUST be selectable from the custom widget form that "Custom widget" in the widget picker opens (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
 
 #### Scenario: Tile widget appears in the picker
 

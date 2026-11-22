@@ -79,13 +79,27 @@ const APP_BASE = '/apps/launchpad'
  * absence is asserted on. `route` stays, used only where the question really
  * is about the route: whether an admin's entry resolves to a working link.
  */
+/*
+ * `menuId` and `href` are what the More menu renders for the surface. The
+ * in-app admin settings route only redirects to Nextcloud's admin settings,
+ * so More offers that destination once, as the Settings group's
+ * `admin-settings-link`, and not the manifest entry beside it.
+ */
 const ADMIN_PAGES = [
 	{
 		id: 'admin-templates',
+		menuId: 'admin-templates',
 		path: '/admin/templates',
+		href: '/admin/templates',
 		route: 'admin-templates-index',
 	},
-	{ id: 'admin-settings', path: '/admin/settings', route: 'admin-settings' },
+	{
+		id: 'admin-settings',
+		menuId: 'admin-settings-link',
+		path: '/admin/settings',
+		href: '/settings/admin/launchpad',
+		route: 'admin-settings',
+	},
 ] as const
 
 /** A menu entry every account holds, as the positive control. */
@@ -107,77 +121,49 @@ async function whoami(page: Page): Promise<{ uid: unknown; isAdmin: unknown }> {
 }
 
 /**
- * Open the app and wait for the shell AND the shared navigation to be present.
+ * Open the app on a page other than the dashboard view and open the More
+ * menu there, which holds every entry the navigation panel used to hold
+ * (runtime-shell REQ-SHELL-009: LaunchPad renders no panel).
  *
- * Waiting for the nav specifically is load-bearing: every assertion below is
- * about which entries the nav holds, and a nav that never rendered holds none
- * of them.
+ * Waiting for the menu items specifically is load-bearing: every assertion
+ * below is about which entries the menu holds, and a menu that never opened
+ * holds none of them.
  *
  * @param page The page.
  */
 async function openApp(page: Page): Promise<void> {
-	await page.goto(`${APP_BASE}/`, { waitUntil: 'domcontentloaded' })
-
 	// 60s, not 30s. A cold boot of this app on a loaded instance went past 30s
-	// and turned a run that had already passed on the same bundle red at
-	// `.workspace-shell`. A guard test whose setup is marginal reports the
-	// environment, not the guard.
-	await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 60_000 })
-	await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
-		timeout: 60_000,
-	})
+	// and turned a run that had already passed on the same bundle red. A guard
+	// test whose setup is marginal reports the environment, not the guard.
+	await page.goto(`${APP_BASE}/store`, { waitUntil: 'domcontentloaded' })
+	const holder = page.locator('[data-testid="launchpad-page-menu"]')
+	await expect(holder).toBeVisible({ timeout: 60_000 })
+	await holder.locator('button').first().click()
+	await expect(
+		page.locator(`[data-testid="launchpad-start-page-menu-${UNGATED_ENTRY_ID}"]`),
+	).toBeVisible({ timeout: 15_000 })
 }
 
 /**
- * The manifest routes the navigation currently holds, read from
- * `CnAppNav`'s own `data-cn-route` attribute.
+ * The manifest menu-entry IDS the More menu currently holds.
  *
- * ⚠️ BY ATTRIBUTE, NOT BY LABEL OR BY LINK, and both alternatives were tried
- * and rejected against the running instance:
+ * `StartPageMenu` renders `data-testid="launchpad-start-page-menu-${item.id}"`
+ * on every entry, keyed on the manifest id, which does not move when a route
+ * is re-pointed. See the note on ADMIN_PAGES for what keying the question on
+ * the route instead cost.
  *
- *  - By anchor. `CnAppNav.itemTo` builds `{ name: item.route }`, so an entry
- *    whose route name vue-router cannot resolve renders a nav item with NO
- *    `<a>` at all. Counting anchors therefore reports zero for an entry that
- *    is on screen, which is the exact false pass this test exists to prevent.
- *  - By label. The settings foldout also contains the LIBRARY's own
- *    auto-injected "Admin settings" link to `/settings/admin/launchpad`
- *    (`CnAppNav.showAdminSettingsLink`), which is gated separately on
- *    `isAdmin` and is not a manifest entry. Matching the text "Admin
- *    settings" cannot tell the two apart, so a passing run would prove the
- *    library's gate and say nothing about this app's.
- *
- * `data-cn-route` is rendered on the nav item itself and carries the manifest
- * `route` verbatim, so it identifies exactly the entries under test.
- *
- * @param page The page.
- * @return The manifest route names present in the nav.
- */
-async function navRoutes(page: Page): Promise<string[]> {
-	return page
-		.locator('[data-testid="cn-nav"] [data-cn-route]')
-		.evaluateAll((nodes) =>
-			nodes.map((n) => n.getAttribute('data-cn-route') ?? ''),
-		)
-}
-
-/**
- * The manifest menu-entry IDS the navigation currently holds.
- *
- * `CnAppNav` renders `data-testid="cn-nav-entry-${item.id}"` on every
- * non-caption entry. Unlike `data-cn-route` this does not move when a route is
- * re-pointed, which is what makes it the right key for asking whether an entry
- * is on screen at all. See the note on ADMIN_PAGES for what keying the
- * question on the route instead cost.
- *
- * @param page The page.
- * @return The manifest menu entry ids present in the nav.
+ * @param page The page, with the More menu open.
+ * @return The manifest menu entry ids present in the menu.
  */
 async function navEntryIds(page: Page): Promise<string[]> {
 	return page
-		.locator('[data-testid="cn-nav"] [data-testid^="cn-nav-entry-"]')
+		.locator('[data-testid^="launchpad-start-page-menu-"]')
 		.evaluateAll((nodes) =>
 			nodes.map((n) =>
-				(n.getAttribute('data-testid') ?? '').replace(/^cn-nav-entry-/, ''),
+				(n.getAttribute('data-testid') ?? '').replace(
+					/^launchpad-start-page-menu-/,
+					'',
+				),
 			),
 		)
 }
@@ -238,11 +224,11 @@ test.describe('manifest permission: the admin surfaces', () => {
 				'the navigation rendered its ungated entries',
 			).toContain(UNGATED_ENTRY_ID)
 
-			for (const { id } of ADMIN_PAGES) {
+			for (const { menuId } of ADMIN_PAGES) {
 				expect(
 					entryIds,
-					`admin-gated menu entry "${id}" rendered for a non-admin`,
-				).not.toContain(id)
+					`admin-gated menu entry "${menuId}" rendered for a non-admin`,
+				).not.toContain(menuId)
 			}
 		} finally {
 			await context.close()
@@ -377,36 +363,24 @@ test.describe('manifest permission: the admin surfaces', () => {
 		expect(who.isAdmin, 'the default e2e session is the admin').toBe(true)
 
 		const entryIds = await navEntryIds(page)
-		for (const { id } of ADMIN_PAGES) {
+		for (const { menuId } of ADMIN_PAGES) {
 			expect(
 				entryIds,
-				`admin-gated menu entry "${id}" is missing for an admin`,
-			).toContain(id)
-		}
-
-		// And the entries point where they are supposed to. This is the one
-		// question that really is about the route, so it reads `data-cn-route`
-		// rather than the id: an entry can be present and still declare a
-		// route name vue-router cannot resolve, which is what both of these
-		// used to do.
-		const routes = await navRoutes(page)
-		for (const { route } of ADMIN_PAGES) {
-			expect(
-				routes,
-				`admin-gated menu entry "${route}" declares no resolvable route`,
-			).toContain(route)
+				`admin-gated menu entry "${menuId}" is missing for an admin`,
+			).toContain(menuId)
 		}
 
 		// The entry must also WORK, not merely render. Both entries used to
-		// declare a URL path where CnAppNav expects a route NAME, so
-		// vue-router could not resolve either one and both rendered as nav
-		// items with no anchor — visible, inert, and for everybody.
-		for (const { path: routePath, route } of ADMIN_PAGES) {
+		// declare a URL path where a route NAME was expected, so vue-router
+		// could not resolve either one and both rendered with no anchor:
+		// visible, inert, and for everybody.
+		for (const { menuId: id, href: routePath } of ADMIN_PAGES) {
 			await expect(
 				page
-					.locator(`[data-cn-route="${route}"] a, a[href$="${routePath}"]`)
+					.locator(`[data-testid="launchpad-start-page-menu-${id}"]`)
+					.locator(`xpath=descendant-or-self::a[contains(@href, "${routePath}")]`)
 					.first(),
-				`admin-gated menu entry "${route}" renders no working link`,
+				`admin-gated menu entry "${id}" renders no working link`,
 			).toBeAttached()
 		}
 	})

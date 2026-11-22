@@ -92,7 +92,7 @@
 		"emitted": 1
 	},
 	"iframe | check | https | host not allowed": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -104,19 +104,19 @@
 		"emitted": 1
 	},
 	"iframe | check | https | both errors": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | https | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | https | valid missing": {
-		"error": "",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -132,7 +132,7 @@
 		"emitted": 1
 	},
 	"iframe | check | http upper case | host not allowed": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -144,19 +144,19 @@
 		"emitted": 1
 	},
 	"iframe | check | http upper case | both errors": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | http upper case | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | http upper case | valid missing": {
-		"error": "",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -172,7 +172,7 @@
 		"emitted": 1
 	},
 	"iframe | check | padded | host not allowed": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -184,19 +184,19 @@
 		"emitted": 1
 	},
 	"iframe | check | padded | both errors": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | padded | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | padded | valid missing": {
-		"error": "",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -231,7 +231,7 @@
 	},
 	"iframe | check | scheme only | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
@@ -274,7 +274,7 @@
 	},
 	"iframe | check | no scheme | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
@@ -298,7 +298,7 @@
 		"emitted": 1
 	},
 	"iframe | check | javascript | host not allowed": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -310,19 +310,19 @@
 		"emitted": 1
 	},
 	"iframe | check | javascript | both errors": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | javascript | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | javascript | valid missing": {
-		"error": "",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -341,7 +341,7 @@
 		"emitted": 1
 	},
 	"iframe | check | data | host not allowed": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -353,19 +353,19 @@
 		"emitted": 1
 	},
 	"iframe | check | data | both errors": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | data | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | data | valid missing": {
-		"error": "",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -384,7 +384,7 @@
 		"emitted": 1
 	},
 	"iframe | check | ftp | host not allowed": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -396,19 +396,19 @@
 		"emitted": 1
 	},
 	"iframe | check | ftp | both errors": {
-		"error": "t:This host is not on the allow-list.",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | ftp | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},
 	"iframe | check | ftp | valid missing": {
-		"error": "",
+		"error": "t:The host {host} is not on the allow-list.",
 		"checked": false,
 		"calls": 1,
 		"emitted": 1
@@ -446,7 +446,7 @@
 	},
 	"iframe | check | protocol relative | other error": {
 		"error": "",
-		"checked": false,
+		"checked": true,
 		"calls": 1,
 		"emitted": 1
 	},

@@ -154,7 +154,8 @@ function activeDashboardOf(data) {
 
 /**
  * The request body for a new personal dashboard: a plain name string, or an
- * object with name/description/icon (legacy callers may pass a string).
+ * object with name/description/icon and an optional `widgets` seed choice
+ * (legacy callers may pass a string).
  *
  * @param {string|object} payload The createDashboard argument.
  * @return {object} The request body.
@@ -169,6 +170,8 @@ function newDashboardData(payload) {
 		// Optional registry key from the `dashboard-icons`
 		// capability — null/undefined skips the field server-side.
 		icon: payload.icon ?? null,
+		// `starters` or `none`; absent seeds the default widget bundle.
+		...(payload.widgets ? { widgets: payload.widgets } : {}),
 	}
 }
 

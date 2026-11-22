@@ -26,6 +26,7 @@
  *   @e2e dashboards::no-parents
  *   @e2e dashboards::breadcrumb
  *   @e2e dashboards::cycle-refused
+ *   @e2e dashboards::the-hint-names-where-the-tree-appears
  *
  * @spec openspec/specs/dashboards/spec.md
  */
@@ -259,6 +260,29 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 			).toHaveAttribute('data-dashboard-uuid', hr.uuid)
 			// HR is a top-level dashboard: no trail of its own.
 			await expect(nav).toHaveCount(0)
+		} finally {
+			await context.close()
+		}
+	})
+
+	// @e2e dashboards::the-hint-names-where-the-tree-appears
+	test('the hint under the parent select says the tree appears under Dashboards in More', async ({
+		browser,
+	}) => {
+		const { context, page } = await openAs(browser, sanne!, onboarding)
+		try {
+			const more = page.locator(MORE_MENU)
+			await expect(more).toBeVisible({ timeout: 30_000 })
+			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
+			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+
+			await expect(page.getByTestId('dashboard-parent-hint')).toHaveText(
+				'This builds a tree of dashboards under Dashboards in the More menu',
+				{ timeout: 10_000 },
+			)
+			await expect(
+				page.locator('[data-test="config-panel-general"]'),
+			).not.toContainText(/side ?bar/i)
 		} finally {
 			await context.close()
 		}

@@ -170,6 +170,20 @@ describe('useDashboardStore — source-aware getters', () => {
 	})
 })
 
+describe('useDashboardStore — createDashboard widgets choice (REQ-SHELL-005)', () => {
+	it('sends the widgets choice only when one is given', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		mockApi.createDashboard.mockResolvedValue({ data: { dashboard: { id: 1 }, placements: [] } })
+
+		await store.createDashboard({ name: 'Mine', widgets: 'starters' })
+		await store.createDashboard({ name: 'Plain' })
+
+		expect(mockApi.createDashboard.mock.calls[0][0]).toEqual({ name: 'Mine', description: undefined, icon: null, widgets: 'starters' })
+		expect(mockApi.createDashboard.mock.calls[1][0]).not.toHaveProperty('widgets')
+	})
+})
+
 describe('useDashboardStore — createDashboard gating (REQ-ASET-003 extended)', () => {
 	beforeEach(async () => {
 		const { showError } = await import('@nextcloud/dialogs')

@@ -75,9 +75,20 @@ describe('WidgetWrapper — chrome and frame', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data', content: { showActions: false } }, { editMode: true }).vm.showActionsMenu).toBe(true)
 	})
 
-	it('lets only non-compulsory placements be removed', () => {
+	it('offers removal unless the host locks it', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data' }).vm.canRemove).toBe(true)
-		expect(mountWrapper({ id: 1, widgetId: 'data', isCompulsory: true }).vm.canRemove).toBe(false)
+		expect(mountWrapper({ id: 1, widgetId: 'data', isCompulsory: true }, { removeLocked: true }).vm.canRemove).toBe(false)
+	})
+
+	it('tells the edit cog to leave Delete out when removal is locked', () => {
+		const CogStub = { name: 'CnWidgetEditCog', props: ['canDelete'], template: '<div />' }
+		const cog = (props) => shallowMount(WidgetWrapper, {
+			propsData: { placement: { id: 1, widgetId: 'data', isCompulsory: 1 }, widget: { title: 'Widget' }, editMode: true, ...props },
+			mocks: { t: (_app, key) => key },
+			global: { stubs: { CnWidgetEditCog: CogStub } },
+		}).findComponent(CogStub)
+		expect(cog({}).props('canDelete')).toBe(true)
+		expect(cog({ removeLocked: true }).props('canDelete')).toBe(false)
 	})
 })
 

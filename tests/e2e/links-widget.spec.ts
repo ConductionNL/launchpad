@@ -24,6 +24,7 @@
  *   @e2e links-widget::multiple-instances-allowed
  *   @e2e links-widget::widget-registration-survives-reload
  *   @e2e links-widget::widget-metadata-is-complete
+ *   @e2e links-widget::nextcloud-dashboard-items-come-from-own-links-widgets
  *   @e2e links-widget::empty-sections-are-hidden-at-render-time
  *   @e2e links-widget::nextcloud-icon-name-resolved-to-svg-class
  *   @e2e links-widget::url-icon-resolved-to-img-element
@@ -250,6 +251,25 @@ test('the widget list the picker fetches describes the links widget with id, tit
 	).toBeTruthy()
 	expect(String(links!.title ?? '')).not.toBe('')
 	expect(String(links!.icon_url ?? links!.iconUrl ?? '')).not.toBe('')
+})
+
+// @e2e links-widget::nextcloud-dashboard-items-come-from-own-links-widgets
+test('Nextcloud\'s dashboard serves the links of the user\'s links widgets as items', async () => {
+	const url = `https://example.com/nc-dashboard-${Date.now()}`
+	await seedLinksPlacement(api, dashboard!.id, oneSection([
+		{ label: 'On the Nextcloud dashboard', url, description: 'Seen outside LaunchPad' },
+	]))
+
+	const res = await api.get('/ocs/v2.php/apps/dashboard/api/v2/widget-items?format=json&limit=30&widgets[]=launchpad_links')
+	expect(res.status(), await res.text()).toBe(200)
+	const data = (await res.json()).ocs.data.launchpad_links
+	expect(data, 'launchpad_links is not among the widget items').toBeTruthy()
+	const item = data.items.find((i: Record<string, string>) => i.link === url)
+	expect(item, JSON.stringify(data.items).slice(0, 500)).toBeTruthy()
+	expect(item.title).toBe('On the Nextcloud dashboard')
+	expect(item.subtitle).toBe('Seen outside LaunchPad')
+	expect(String(item.iconUrl)).not.toBe('')
+	expect(String(data.emptyContentMessage)).not.toBe('')
 })
 
 // ── REQ-LNKS-003 Empty sections ──────────────────────────────────────────

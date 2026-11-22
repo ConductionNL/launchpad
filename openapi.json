@@ -172,6 +172,10 @@
             "description": "Controller for the `iframe` widget's allow-list validation."
         },
         {
+            "name": "image-host",
+            "description": "`GET` and `PUT /api/admin/image-hosts`, for LaunchPad administrators only."
+        },
+        {
             "name": "kiosk",
             "description": "Controller for kiosk-playlist CRUD and anonymous render endpoints."
         },
@@ -2518,6 +2522,86 @@
                 }
             }
         },
+        "/admin/image-hosts": {
+            "get": {
+                "operationId": "image-host-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The allow-listed image hosts",
+                "description": "The allow-listed image hosts. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "image-host"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "image-host-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Replace the allow-list; a list holding something other than host names is refused with 400",
+                "description": "Replace the allow-list; a list holding something other than host names is refused with 400. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "image-host"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "hosts": {
+                                        "description": "The host names."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/admin/import": {
             "post": {
                 "operationId": "admin-import",
@@ -3628,13 +3712,6 @@
                                             "null"
                                         ],
                                         "description": "Alias of `$linkCreateFileExts`."
-                                    },
-                                    "startPageWithoutNavigation": {
-                                        "type": [
-                                            "boolean",
-                                            "null"
-                                        ],
-                                        "description": "Dashboard view without the navigation panel (REQ-SHELL-009)."
                                     },
                                     "sharingAllowedGroups": {
                                         "type": [
@@ -5567,7 +5644,7 @@
                 "operationId": "dashboard-api-create",
                 "x-launchpad-stability": "public",
                 "summary": "Create a new dashboard",
-                "description": "Create a new dashboard. Needs a signed-in Nextcloud user.",
+                "description": "Create a new dashboard. The optional `widgets` request parameter picks what the dashboard starts with: `starters` for the first-run starter widgets, `none` for no widgets, anything else for the default bundle. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "dashboard-api"
                 ],
@@ -5627,7 +5704,8 @@
                                             "null"
                                         ],
                                         "description": "Optional sibling sort order (REQ-DASH-029). NULL ⇒ 0."
-                                    }
+                                    },
+                                    "widgets": {}
                                 }
                             }
                         }

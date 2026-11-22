@@ -102,6 +102,30 @@
 				</button>
 
 				<section
+					v-if="filteredCustomTypes.length > 0"
+					class="widget-picker__section"
+					data-testid="widget-picker-custom">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'Widgets from Launchpad') }}
+					</h3>
+					<p class="widget-picker__section-description">
+						{{ t('launchpad', 'Text, images, news and more. You set them up yourself.') }}
+					</p>
+					<button
+						v-for="entry in filteredCustomTypes"
+						:key="entry.type"
+						type="button"
+						class="widget-picker__widget"
+						:data-testid="`widget-picker-type-${entry.type}`"
+						@click="$emit('addCustom', entry.type)">
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ entry.title }}</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+
+				<section
 					v-if="showOfficePack"
 					class="widget-picker__section"
 					data-testid="widget-picker-office">
@@ -156,7 +180,7 @@
 				</section>
 
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack"
+					v-if="filteredWidgets.length === 0 && filteredCustomTypes.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
@@ -254,6 +278,12 @@ export default {
 		placedAppIds: LIST_PROP,
 
 		/**
+		 * The widget types Launchpad builds itself (text, image, news and
+		 * more): `[{ type, title }]`. Picking one opens its form on that type.
+		 */
+		customTypes: LIST_PROP,
+
+		/**
 		 * The app catalogue entries the user's groups may see
 		 * (`GET /api/catalogue`): `[{ uuid, name, description, icon, iconType, linkType, linkValue }]`.
 		 */
@@ -269,7 +299,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addOfficePack'],
+	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addCustom', 'addOfficePack'],
 
 	data() {
 		return {
@@ -314,6 +344,17 @@ export default {
 			return this.sortedWidgets.filter((w) =>
 				w.title.toLowerCase().includes(query),
 			)
+		},
+
+		/**
+		 * The Launchpad widget types matching the search box, by title.
+		 *
+		 * @return {Array<{type: string, title: string}>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		filteredCustomTypes() {
+			const query = this.searchQuery.toLowerCase()
+			return this.customTypes.filter((entry) => !query || String(entry.title).toLowerCase().includes(query))
 		},
 
 		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */

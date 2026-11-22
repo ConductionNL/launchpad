@@ -12,7 +12,7 @@ Provide a multi-column dashboard widget that renders a curated grid of link card
 
 ### Requirement: REQ-LNKS-001 Widget registration
 
-The system MUST register a LaunchPad dashboard widget with id `launchpad_links` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
+The system MUST register a LaunchPad dashboard widget with id `launchpad_links` with Nextcloud's dashboard (`OCP\Dashboard\IManager`, through `IRegistrationContext::registerDashboardWidget()` in `Application::register()`) so it appears in the widget picker alongside other Nextcloud dashboard widgets. On Nextcloud's own dashboard it serves the links of the links widgets on the dashboards the user owns.
 
 #### Scenario: Widget appears in picker
 
@@ -39,6 +39,16 @@ The system MUST register a LaunchPad dashboard widget with id `launchpad_links` 
 - GIVEN the widget is registered
 - WHEN the widget picker fetches widget metadata
 - THEN the widget object MUST include at minimum: id, title, icon_url
+
+#### Scenario: Nextcloud dashboard items come from own links widgets
+
+- GIVEN a user owns dashboards with `links` placements
+- WHEN Nextcloud's dashboard asks `launchpad_links` for items (`GET /ocs/v2.php/apps/dashboard/api/v2/widget-items`)
+- THEN the items MUST be those placements' links in dashboard (active first), section and link order, read in one query, each URL once, up to the requested limit
+- AND placements on dashboards of other users MUST NOT be read
+- AND each item MUST carry the label (the URL when the label is empty), the description or else the section title as subtitle, the URL (a Nextcloud path made absolute) and the link's icon when it is a URL, else the links icon
+- AND a link whose URL is not http(s) or a Nextcloud path MUST be left out
+- AND without any link the empty state MUST tell the user to add a links widget, in the user's language
 
 ### Requirement: REQ-LNKS-002 Placement configuration schema
 

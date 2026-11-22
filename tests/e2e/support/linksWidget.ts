@@ -296,7 +296,7 @@ export async function closeSwitcher(page: Page): Promise<void> {
 
 /**
  * Open the Add Widget modal for one dashboard, through that dashboard's row
- * cog in the switcher ("Add custom widget…"), the way a person does.
+ * cog in the switcher ("Add widget" → "Custom widget"), the way a person does.
  *
  * @param page the page, on LaunchPad.
  * @param dashboardName the seeded dashboard's name.
@@ -314,7 +314,8 @@ export async function openAddWidget(
 		.filter({ hasText: dashboardName })
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /add custom widget/i }).click()
+	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await page.locator('[data-testid="widget-picker-type-links"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog
@@ -332,7 +333,6 @@ export async function openLinksForm(
 	dashboardName: string,
 ): Promise<{ dialog: Locator; form: Locator }> {
 	const dialog = await openAddWidget(page, dashboardName)
-	await dialog.locator('[data-testid="widget-type-select"]').selectOption('links')
 	const form = dialog.locator('.cn-links-form')
 	await expect(form).toBeVisible({ timeout: 10_000 })
 	return { dialog, form }

@@ -117,14 +117,8 @@ const stubs = {
 	CnConfirmDialog: passthrough('CnConfirmDialog', {
 		template: '<div class="stub-confirm" />',
 	}),
-	ScheduleDashboardDialog: passthrough('ScheduleDashboardDialog', {
-		template: '<div class="stub-schedule" />',
-	}),
 	VersionHistoryModal: passthrough('VersionHistoryModal', {
 		props: { open: Boolean },
-	}),
-	ScheduledExportsModal: passthrough('ScheduledExportsModal', {
-		props: { open: Boolean, subjects: Array, defaultSubject: Object },
 	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },

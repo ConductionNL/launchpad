@@ -2123,7 +2123,7 @@ OC.L10N.register(
     "View runs" : "Uitvoeringen bekijken",
     "Delete this scheduled export?" : "Deze geplande export verwijderen?",
     "{name} no longer runs. Its past runs stay in the audit log." : "{name} wordt niet meer uitgevoerd. Eerdere uitvoeringen blijven in het auditlog staan.",
-    "Exports" : "Exporteert",
+    "Exports" : "Exports",
     "Next run" : "Volgende uitvoering",
     "Last run" : "Laatste uitvoering",
     "The scheduled exports could not be loaded." : "De geplande exports konden niet worden geladen.",
@@ -2302,7 +2302,12 @@ OC.L10N.register(
     "District" : "Wijk",
     "Add a news widget with a feed to one of your dashboards to see its articles here." : "Voeg een nieuwswidget met een feed toe aan een van je dashboards om de artikelen hier te zien.",
     "No news articles right now." : "Er zijn nu geen nieuwsartikelen.",
-    "Add a links widget to one of your dashboards to see its links here." : "Voeg een linkswidget toe aan een van je dashboards om de links hier te zien."
+    "Add a links widget to one of your dashboards to see its links here." : "Voeg een linkswidget toe aan een van je dashboards om de links hier te zien.",
+    "Publication" : "Publicatie",
+    "Publication schedule" : "Publicatieschema",
+    "Colleagues see this dashboard only while it is published." : "Collega's zien dit dashboard alleen als het gepubliceerd is.",
+    "Contents" : "Inhoud",
+    "Send this dashboard on a schedule as PDF, PNG, CSV or Excel, by email, to Files, to a webhook or over SFTP." : "Verstuur dit dashboard volgens schema als PDF, PNG, CSV of Excel, per e-mail, naar Bestanden, naar een webhook of via SFTP."
 },
 "nplurals=2; plural=(n != 1);"
 );

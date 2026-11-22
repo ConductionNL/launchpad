@@ -39,7 +39,6 @@ vi.mock('../../utils/logger.js', () => ({
 vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn(), showSuccess: vi.fn() }))
 
 let Views
-let useDashboardStore
 
 /**
  * A host carrying the given state, with every Views method bound to it
@@ -82,8 +81,7 @@ function makeHost(state = {}) {
 beforeEach(async () => {
 	setActivePinia(createPinia())
 	vi.clearAllMocks()
-	Views = (await import('../Views.vue')).default;
-	({ useDashboardStore } = await import('../../stores/dashboard.js'))
+	Views = (await import('../Views.vue')).default
 })
 
 describe('Views config modal openers', () => {
@@ -483,20 +481,5 @@ describe('Views sidebar create and delete dialog', () => {
 		host.onDeleteDialog(false)
 		expect(host.deleteTarget).toBeNull()
 		expect(host.deleteChildCount).toBe(0)
-	})
-})
-
-describe('Views publishing the active dashboard', () => {
-	it('publishes and unpublishes the active dashboard by its uuid', async () => {
-		const store = useDashboardStore()
-		const publish = vi.spyOn(store, 'publishDashboard').mockResolvedValue(undefined)
-		const unpublish = vi.spyOn(store, 'unpublishDashboard').mockResolvedValue(undefined)
-		const host = makeHost({ activeDashboard: { id: 1, uuid: 'u-team' } })
-
-		await host.onPublishActive()
-		await host.onUnpublishActive()
-
-		expect(publish).toHaveBeenCalledWith('u-team')
-		expect(unpublish).toHaveBeenCalledWith('u-team')
 	})
 })

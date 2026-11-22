@@ -1049,12 +1049,6 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardMoreMenu.vue | canScheduleExports": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
 	"../../components/Workspace/DashboardMoreMenu.vue | canEmbed": {
 		"type": "Boolean",
 		"required": false,
@@ -1122,19 +1116,7 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardRowActions.vue | canManagePublication": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
 	"../../components/Workspace/DashboardRowActions.vue | canViewHistory": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/Workspace/DashboardRowActions.vue | canScheduleExports": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
@@ -1326,10 +1308,29 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/Workspace/config/ExportsTab.vue | subjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/config/ExportsTab.vue | defaultSubject": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Workspace/config/LanguagesTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,
 		"validator": false
+	},
+	"../../components/Workspace/config/PublicationTab.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
 		"type": "Array",
@@ -1624,17 +1625,6 @@
 		"validator": false,
 		"default": false
 	},
-	"../../dialogs/ScheduleDashboardDialog.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../dialogs/ScheduleDashboardDialog.vue | error": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
 	"../../dialogs/ShippedTemplateUpdateDialog.vue | open": {
 		"type": "Boolean",
 		"required": true,
@@ -1711,6 +1701,25 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/DashboardConfigModal.vue | canManagePublication": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/DashboardConfigModal.vue | canScheduleExports": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/DashboardConfigModal.vue | exportSubjects": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
 	},
 	"../../modals/DashboardConfigModal.vue | initialTab": {
 		"type": "String",
@@ -1806,24 +1815,6 @@
 		"fresh": true
 	},
 	"../../modals/ScheduledExportModal.vue | defaultSubject": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": null
-	},
-	"../../modals/ScheduledExportsModal.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../modals/ScheduledExportsModal.vue | subjects": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/ScheduledExportsModal.vue | defaultSubject": {
 		"type": "Object",
 		"required": false,
 		"validator": false,

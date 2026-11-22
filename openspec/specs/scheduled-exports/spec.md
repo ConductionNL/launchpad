@@ -213,3 +213,19 @@ The system MUST HMAC-SHA256-sign webhook payloads with a per-recipient secret in
 - GIVEN a recipient with `openconnectorSourceId=S`
 - WHEN delivery runs
 - THEN the dispatch SHALL be issued through OpenConnector source S (so the credential lives in the OC vault and the dispatch appears in the OC call-log) instead of using launchpad-local credentials
+
+### Requirement: REQ-SCH-011 Scheduled exports live in the dashboard settings
+
+The scheduled exports of a dashboard MUST be managed from an "Exports" tab in that dashboard's settings ("Dashboard configuration", board LpDashboardInstellingen), next to the "Publication" tab, and NOT from a separate entry in the "Meer" menu or the dashboard row menu (Ruben, 22 Nov 2026). The tab MUST list only the exports whose subject is this dashboard or one of its widgets, with name, contents, next run and last run, and MUST offer "New scheduled export", Edit, Run now, Preview, View runs and Delete. A new export MUST start with this dashboard as its subject, and the editor MUST offer only this dashboard and its widgets as subjects.
+
+#### Scenario: The Exports tab lists this dashboard's exports
+
+- GIVEN a user with two exports of dashboard D and one export of dashboard E
+- WHEN they open the settings of D and choose the "Exports" tab
+- THEN the tab SHALL list the two exports of D and not the export of E
+
+#### Scenario: The Meer menu no longer offers scheduled exports
+
+- GIVEN a user who may edit dashboard D
+- WHEN they open the "Meer" menu
+- THEN it SHALL NOT offer "Scheduled exports…", and "Settings" SHALL lead to the "Exports" tab

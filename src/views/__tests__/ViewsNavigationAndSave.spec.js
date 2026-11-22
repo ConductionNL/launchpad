@@ -97,6 +97,20 @@ describe('Views deep-link history', () => {
 		expect(host.pushUrlForActiveDashboard).toHaveBeenCalledTimes(1)
 	})
 
+	it('lets every filter session of the boot read the address, and no session after it', () => {
+		const handler = Views.watch['activeDashboard.uuid'].handler
+		const host = makeHost({ historyBooted: false, openFilterSession: vi.fn(), recordViewEventDebounced: vi.fn(), pushUrlForActiveDashboard: vi.fn() })
+
+		// The boot: the stored active one, then the deep-linked one.
+		handler.call(host, 'u-b', undefined)
+		handler.call(host, 'u-a', 'u-b')
+		expect(host.openFilterSession.mock.calls).toEqual([[true], [true]])
+
+		host.historyBooted = true
+		handler.call(host, 'u-b', 'u-a')
+		expect(host.openFilterSession.mock.calls[2]).toEqual([false])
+	})
+
 	it('replaces the boot address with the injected deep link, unless it is already there', () => {
 		const replace = vi.spyOn(window.history, 'replaceState')
 		const host = makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } })

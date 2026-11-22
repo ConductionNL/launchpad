@@ -24,17 +24,18 @@
 		:userSettingsSections="userSettingsSections"
 		:translate="translateForApp"
 		:requiresApps="[]"
+		:hideMenu="true"
 		appId="launchpad">
 		<!--
-		  runtime-shell REQ-SHELL-009: the start page without the navigation
-		  panel. `CnAppRoot` has no prop to leave its `CnAppNav` out; its `#menu`
-		  slot is the documented override, and Vue renders the slot's DEFAULT
-		  content (the panel) when the override holds no real node, so the
-		  override is a hidden, empty span: not a panel, not a landmark, no
-		  width. `NcContent` then gives `NcAppContent` the full width on its
-		  own. The panel's destinations are in `StartPageMenu`, fed by the
-		  `launchpadChrome` provide below.
+		  runtime-shell REQ-SHELL-009: LaunchPad renders no navigation panel.
+		  Its destinations are in the More menu: on the dashboard view the
+		  workspace's own More menu, on every other page this one.
 		-->
+		<template v-if="showsPageMenu" #header-actions>
+			<div class="launchpad-page-menu" data-testid="launchpad-page-menu">
+				<StartPageMenu />
+			</div>
+		</template>
 		<!--
 			The user settings dialog. Every per-person setting lives here;
 			LaunchPad adds nothing to Nextcloud's personal settings (Ruben,
@@ -48,12 +49,6 @@
 			<ProfileFieldsSettings />
 			<AnalyticsOptOutSettings />
 		</template>
-		<template v-if="railSuppressed" #menu>
-			<span
-				class="launchpad-rail-suppressed"
-				hidden
-				data-testid="launchpad-rail-suppressed" />
-		</template>
 	</CnAppRoot>
 </template>
 
@@ -61,6 +56,7 @@
 import { CnAppRoot } from '@conduction/nextcloud-vue'
 import { translate as ncTranslate } from '@nextcloud/l10n'
 import { computed } from 'vue'
+import StartPageMenu from './components/Workspace/StartPageMenu.vue'
 import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vue'
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
@@ -70,8 +66,8 @@ import { isKioskMode } from './utils/kioskMode.js'
 import { permits } from './utils/permissions.js'
 
 /**
- * The routes that are the dashboard view: the start page the option
- * "Start page without navigation panel" is about (REQ-SHELL-009).
+ * The routes that are the dashboard view, whose workspace carries its own
+ * More menu (REQ-SHELL-009).
  */
 export const DASHBOARD_ROUTES = ['Workspace', 'dashboard-detail']
 
@@ -135,6 +131,7 @@ export default {
 		CnAppRoot,
 		AnalyticsOptOutSettings,
 		ProfileFieldsSettings,
+		StartPageMenu,
 	},
 
 	inject: {
@@ -158,18 +155,6 @@ export default {
 		manifestLoading: {
 			from: 'manifestLoading',
 			default: () => ({ value: false }),
-		},
-
-		/**
-		 * The admin option "Start page without navigation panel", from the
-		 * workspace initial state (runtime-shell REQ-SHELL-009). Off unless
-		 * the server said otherwise.
-		 *
-		 * @type {boolean}
-		 */
-		startPageWithoutNavigation: {
-			from: 'startPageWithoutNavigation',
-			default: false,
 		},
 	},
 
@@ -265,25 +250,21 @@ export default {
 		},
 
 		/**
-		 * Whether the navigation panel is left out of this route: the admin
-		 * option is on AND the route is the dashboard view (`/` or
-		 * `/dashboards/:id`). Every other page (Store, Reports, Flows, the
-		 * admin pages) keeps the panel, which is how a member gets back.
+		 * Whether this page carries the app's More menu at its top: every
+		 * page but the dashboard view, whose workspace has its own More menu,
+		 * and a kiosk view (`?kiosk=1`, REQ-KIOSK-001), which has no chrome.
+		 * It is how a member gets from the Store, Reports, Flows or an admin
+		 * page to anywhere else, now that there is no navigation panel.
 		 *
-		 * A kiosk view (`?kiosk=1`, REQ-KIOSK-001) never shows the panel.
-		 *
-		 * @return {boolean} True to render the shell without `CnAppNav`.
+		 * @return {boolean} True to render the More menu on this page.
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
-		railSuppressed() {
+		showsPageMenu() {
 			if (isKioskMode()) {
-				return true
-			}
-			if (this.startPageWithoutNavigation !== true) {
 				return false
 			}
-			return DASHBOARD_ROUTES.includes(this.$route?.name)
+			return !DASHBOARD_ROUTES.includes(this.$route?.name)
 		},
 
 		/**
@@ -301,14 +282,15 @@ export default {
 		},
 
 		/**
-		 * The decision `StartPageMenu` renders from (REQ-SHELL-009).
+		 * The decision `StartPageMenu` renders from (REQ-SHELL-009). The
+		 * panel is never rendered, so the menus always carry its entries.
 		 *
 		 * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
 		 */
 		chromeState() {
 			return {
-				railSuppressed: this.railSuppressed,
+				railSuppressed: true,
 				entries: this.chromeMenuEntries,
 				isAdmin: permits('admin', this.permissions),
 				includePersonalSettings:
@@ -456,3 +438,19 @@ export default {
 	},
 }
 </script>
+
+<style>
+/* The More menu on a page other than the dashboard view: at the top end of
+   the content, which keeps the column beside it free so a page's own header
+   actions are never covered. */
+.launchpad-page-menu {
+	position: absolute;
+	top: calc(2 * var(--default-grid-baseline, 4px));
+	inset-inline-end: calc(2 * var(--default-grid-baseline, 4px));
+	z-index: 10;
+}
+
+#app-content-vue:has(> .launchpad-page-menu) {
+	padding-inline-end: calc(var(--default-clickable-area, 34px) + 4 * var(--default-grid-baseline, 4px));
+}
+</style>

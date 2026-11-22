@@ -112,7 +112,7 @@ describe('StartPageMenu (REQ-SHELL-009)', () => {
 			isAdmin: true,
 		})
 		const menu = wrapper.find('[data-testid="launchpad-start-page-menu"]')
-		expect(menu.attributes('aria-label')).toBe('Menu')
+		expect(menu.attributes('aria-label')).toBe('More')
 
 		const docs = wrapper.find(
 			'[data-testid="launchpad-start-page-menu-Documentation"]',

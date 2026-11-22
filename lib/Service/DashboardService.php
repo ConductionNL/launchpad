@@ -78,7 +78,22 @@ class DashboardService {
 		'slug'         => null,
 		'sortOrder'    => 0,
 		'seedDefaults' => false,
+		'seedSet'      => self::SEED_SET_DEFAULT,
 	];
+
+	/**
+	 * Seed set: the default widget bundle.
+	 *
+	 * @var string
+	 */
+	public const SEED_SET_DEFAULT = 'default';
+
+	/**
+	 * Seed set: the starter widgets of a first dashboard ({@see StarterWidgetSeeds}).
+	 *
+	 * @var string
+	 */
+	public const SEED_SET_STARTERS = 'starters';
 
 	/**
 	 * HTTP-like error message for non-admin attempting an admin-only mutation.
@@ -936,7 +951,7 @@ class DashboardService {
 		$this->seedPrimaryTranslation(dashboard: $persisted);
 
 		if ($options['seedDefaults'] === true) {
-			$this->seedDefaultWidgets(dashboardId: $persisted->getId());
+			$this->seedDefaultWidgets(dashboardId: $persisted->getId(), seedSet: (string)$options['seedSet']);
 		}
 	}//end completeNewDashboard()
 
@@ -3632,15 +3647,26 @@ class DashboardService {
 	 * app's real web root (so the URLs work regardless of which apps
 	 * directory the app is served from).
 	 *
-	 * @param int $dashboardId The dashboard ID to seed.
+	 * With `$seedSet` {@see self::SEED_SET_STARTERS} the dashboard gets the
+	 * first-run starter widgets ({@see StarterWidgetSeeds}) instead.
 	 *
-	 * @return WidgetPlacement[] The persisted placements (4 entries).
+	 * @param int    $dashboardId The dashboard ID to seed.
+	 * @param string $seedSet     Which set: {@see self::SEED_SET_DEFAULT} or {@see self::SEED_SET_STARTERS}.
+	 *
+	 * @return WidgetPlacement[] The persisted placements.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
 	 */
-	private function seedDefaultWidgets(int $dashboardId): array {
+	private function seedDefaultWidgets(int $dashboardId, string $seedSet=self::SEED_SET_DEFAULT): array {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
+		$seeds = $this->defaultWidgetSeeds();
+		if ($seedSet === self::SEED_SET_STARTERS) {
+			$seeds = StarterWidgetSeeds::SEEDS;
+		}
+
 		$placements = [];
-		foreach ($this->defaultWidgetSeeds() as $config) {
+		foreach ($seeds as $config) {
 			$placements[] = $this->stores->placementMapper->insert(
 				entity: $this->buildSeedPlacement(
 					dashboardId: $dashboardId,
@@ -3702,6 +3728,10 @@ class DashboardService {
 		$placement->setIsVisible(1);
 		$placement->setCreatedAt($now);
 		$placement->setUpdatedAt($now);
+
+		if (isset($config['content']) === true) {
+			$placement->setContentArray(content: $config['content']);
+		}
 
 		if ($config['tile'] === null) {
 			return $placement;

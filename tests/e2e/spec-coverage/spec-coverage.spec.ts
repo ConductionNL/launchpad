@@ -131,10 +131,11 @@ async function openAddWidgetModal(page: any) {
 	await expect(personalRow).toBeVisible({ timeout: 5_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 
-	// Click "Add custom widget…" in the dropdown.
-	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
+	// Click "Add widget" in the dropdown, then the type in the picker.
+	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 
 	// Wait for the Add Widget dialog to be visible.
 	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
@@ -495,7 +496,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 	// @e2e grid-layout::enter-edit-mode
 	// @e2e grid-layout::exit-edit-mode
 	// @e2e grid-layout::edit-mode-watcher-responds-to-prop-changes
-	test('edit mode can be entered via the row-cog "Add custom widget" action', async ({
+	test('edit mode can be entered via the row-cog "Add widget" action', async ({
 		page,
 	}) => {
 		await openSidebar(page)
@@ -507,12 +508,13 @@ test.describe('grid layout initialisation and edit mode', () => {
 		}
 		await personalRow.locator('.dashboard-row-actions button').first().click()
 		const addWidgetItem = page.getByRole('menuitem', {
-			name: /add custom widget/i,
+			name: /^add widget$/i,
 		})
 		if (!(await addWidgetItem.isVisible().catch(() => false))) {
 			return
 		}
 		await addWidgetItem.click()
+		await page.locator('[data-testid="widget-picker-type-label"]').click()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
 	})

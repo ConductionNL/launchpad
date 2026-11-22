@@ -107,7 +107,7 @@ test.describe('active-dashboard-resolution — empty state', () => {
 				// the empty state for a fresh account. `SeedDefaultDashboard`
 				// now provisions an INSTANCE-WIDE, group-shared dashboard on
 				// install and after every upgrade, precisely so that
-				// "No dashboards available" can no longer greet a new user —
+				// "You have no dashboard yet" can no longer greet a new user —
 				// that message was the defect the commit set out to remove.
 				//
 				// So the empty state is unreachable by construction, and the

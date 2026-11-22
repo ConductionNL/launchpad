@@ -84,14 +84,13 @@ describe('AdminSettings: general settings', () => {
 		const wrapper = await mountSettings()
 		wrapper.vm.settings.maxWidgetsPerDashboard = '20000'
 
-		wrapper.vm.updateSetting('startPageWithoutNavigation', 'yes')
+		wrapper.vm.updateSetting('filterTelemetryEnabled', 'yes')
 		await flushPromises()
 
 		expect(api.updateAdminSettings).toHaveBeenCalledWith({
 			defaultPermLevel: 'full',
 			allowUserDash: false,
 			allowMultiDash: true,
-			startPageWithoutNavigation: false,
 			filterTelemetryEnabled: false,
 			defaultAppEnabled: true,
 			defaultGridCols: 12,

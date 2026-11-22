@@ -553,6 +553,10 @@ class DashboardApiController extends Controller {
 	/**
 	 * Create a new dashboard.
 	 *
+	 * The optional `widgets` request parameter picks what the dashboard starts
+	 * with: `starters` for the first-run starter widgets, `none` for no widgets,
+	 * anything else for the default bundle.
+	 *
 	 * @param string|array<string, mixed>|null $name The dashboard name; a legacy client sends the whole body under it.
 	 * @param string|null $description The description.
 	 * @param string|null $icon The icon registry key (or NULL/empty to use the default).
@@ -594,6 +598,7 @@ class DashboardApiController extends Controller {
 				'parentUuid'  => $parentUuid,
 				'slug'        => $slug,
 				'sortOrder'   => $sortOrder,
+				'widgets'     => $this->requestedWidgets(),
 			]
 		);
 
@@ -659,9 +664,42 @@ class DashboardApiController extends Controller {
 		return $this->services->dashboardService->createDashboard(
 			userId: $this->context->userId,
 			name: $resolved['name'],
-			options: ['seedDefaults' => true] + array_diff_key($resolved, ['name' => true])
+			options: self::seedOptions(widgets: $resolved['widgets'] ?? null) + array_diff_key($resolved, ['name' => true, 'widgets' => true])
 		);
 	}//end createDashboardFrom()
+
+	/**
+	 * The create request's `widgets` choice, when it is a string.
+	 *
+	 * @return string|null The choice, or null.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+	 */
+	private function requestedWidgets(): ?string {
+		return self::stringOrNull(value: $this->request->getParam(key: 'widgets'));
+	}//end requestedWidgets()
+
+	/**
+	 * The seed options for a create's `widgets` choice: the starter widgets,
+	 * no widgets, or the default bundle.
+	 *
+	 * @param mixed $widgets The requested choice.
+	 *
+	 * @return array{seedDefaults: bool, seedSet: string} The seed options.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+	 */
+	private static function seedOptions(mixed $widgets): array {
+		if ($widgets === 'none') {
+			return ['seedDefaults' => false, 'seedSet' => DashboardService::SEED_SET_DEFAULT];
+		}
+
+		if ($widgets === DashboardService::SEED_SET_STARTERS) {
+			return ['seedDefaults' => true, 'seedSet' => DashboardService::SEED_SET_STARTERS];
+		}
+
+		return ['seedDefaults' => true, 'seedSet' => DashboardService::SEED_SET_DEFAULT];
+	}//end seedOptions()
 
 	/**
 	 * Answer 201 with a newly-created dashboard and its placements.
@@ -2165,9 +2203,9 @@ class DashboardApiController extends Controller {
 	 *
 	 * @param mixed $name The name parameter.
 	 * @param array $flat The flat-form `description`, `icon`, `parentUuid`,
-	 *                    `slug` and `sortOrder` parameters, each optional.
+	 *                    `slug`, `sortOrder` and `widgets` parameters, each optional.
 	 *
-	 * @return array{name: string, description: ?string, icon: ?string, parentUuid: ?string, slug: ?string, sortOrder: int}
+	 * @return array{name: string, description: ?string, icon: ?string, parentUuid: ?string, slug: ?string, sortOrder: int, widgets: ?string}
 	 *                                                                                                                      The resolved values.
 	 */
 	private function resolveCreateParams($name, array $flat=[]): array {
@@ -2182,6 +2220,7 @@ class DashboardApiController extends Controller {
 			'parentUuid' => ($flat['parentUuid'] ?? null),
 			'slug' => ($flat['slug'] ?? null),
 			'sortOrder' => ($flat['sortOrder'] ?? 0),
+			'widgets' => ($flat['widgets'] ?? null),
 		];
 	}//end resolveCreateParams()
 
@@ -2201,6 +2240,7 @@ class DashboardApiController extends Controller {
 			'parentUuid' => self::stringOrNull(value: ($body['parentUuid'] ?? null)),
 			'slug' => self::stringOrNull(value: ($body['slug'] ?? null)),
 			'sortOrder' => self::intOrZero(value: ($body['sortOrder'] ?? null)),
+			'widgets' => self::stringOrNull(value: ($body['widgets'] ?? null)),
 		];
 	}//end resolveCreateBody()
 

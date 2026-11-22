@@ -238,14 +238,13 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 			.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
 			.click()
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')
+			.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 			.click()
+		await page.locator('[data-testid="widget-picker-type-nc-widget"]').click()
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
-		await dialog
-			.locator('[data-testid="widget-type-select"]')
-			.selectOption('nc-widget')
+		await expect(dialog.locator('[data-testid="widget-type-select"]')).toHaveValue('nc-widget')
 
 		const picker = dialog.getByRole('radiogroup', { name: 'Pick a widget' })
 		await expect(picker.getByRole('radio')).toHaveCount(2)

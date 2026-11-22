@@ -5,7 +5,7 @@
  * Playwright end-to-end tests for the `label` widget.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Label".
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Label".
  *
  * WHAT CHANGED AND WHY
  * ====================
@@ -48,9 +48,8 @@ test.afterAll(async () => {
  * @param text The label text to type into the content form.
  */
 async function addLabel(page: any, text: string): Promise<void> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'label')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 	await dialog
 		.getByLabel(/label text/i)
 		.first()
@@ -77,9 +76,8 @@ test.describe('label widget', () => {
 		page,
 	}) => {
 		const text = `Sales Q4 ${Date.now()}`
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'label')
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 
 		await dialog
 			.getByLabel(/label text/i)

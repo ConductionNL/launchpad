@@ -7,7 +7,7 @@
  * The current UI does NOT expose a top-level "Add widget" button. Widgets
  * are added per-dashboard via the dashboard-switcher sidebar: open the
  * sidebar → open the cog ("Dashboard menu") on a personal dashboard row →
- * "Add custom widget…" → the Add Widget modal. These helpers encapsulate
+ * "Add widget" → "Custom widget" in the picker → the Add Widget modal. These helpers encapsulate
  * that flow so individual specs stay readable.
  */
 
@@ -70,18 +70,20 @@ export async function closeSidebar(page: Page): Promise<void> {
 
 /**
  * Open the Add Widget modal via the cog menu of the active personal dashboard's
- * row (the first personal row when none is active). Leaves the modal visible.
+ * row (the first personal row when none is active), picking `type` in the
+ * widget picker. Leaves the modal visible, opened on that type.
  */
-export async function openAddWidgetModal(page: Page): Promise<void> {
+export async function openAddWidgetModal(page: Page, type = 'label'): Promise<void> {
 	await openSidebar(page)
 	const personalRows = page.locator('[data-source="user"].dashboard-switcher-sidebar__item')
 	const activeRow = personalRows.and(page.locator('.active'))
 	const personalRow = (await activeRow.count()) > 0 ? activeRow.first() : personalRows.first()
 	await expect(personalRow).toBeVisible({ timeout: 8_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
-	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
+	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
 	).toBeVisible({ timeout: 10_000 })

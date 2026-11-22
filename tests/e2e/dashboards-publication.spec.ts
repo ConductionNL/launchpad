@@ -11,7 +11,7 @@
  * the only thing keeping a dashboard from Bob is its publication state), and
  * the administrator is the instance admin. The API contract scenarios drive
  * the API; the store and schedule-screen scenarios drive the start page's
- * More menu and the schedule dialog. "Becomes visible" and "comes down" use a
+ * More menu and the Publication tab of the dashboard settings. "Becomes visible" and "comes down" use a
  * go-live or take-down time a few seconds ahead on the SERVER's clock
  * (measured, see serverClockOffset) and poll Bob's listing until it passes.
  *
@@ -36,6 +36,7 @@
  *   @e2e dashboards::publish-unpublish-schedule-actions-patch-local-state
  *   @e2e dashboards::schedule-go-live
  *   @e2e dashboards::past-time-refused
+ *   @e2e dashboards::publish-and-unpublish-from-the-settings
  *   @e2e dashboards::take-down-passes
  *
  * @spec openspec/specs/dashboards/spec.md
@@ -164,6 +165,20 @@ async function moreItem(page: Page, id: string) {
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
 	return page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`)
+}
+
+/**
+ * Open the dashboard settings on the Publication tab (REQ-SCHEDUI-001).
+ *
+ * @param page the start page.
+ * @return the Publication panel.
+ */
+async function openPublicationTab(page: Page) {
+	await (await moreItem(page, 'config')).click()
+	await page.locator('[data-test="config-tab-publication"]').click()
+	const panel = page.locator('[data-test="config-panel-publication"]')
+	await expect(panel).toBeVisible({ timeout: 15_000 })
+	return panel
 }
 
 test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-001..002)', () => {
@@ -545,7 +560,8 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 	// ── REQ-DASH-037 ────────────────────────────────────────────────────
 
 	// @e2e dashboards::publish-unpublish-schedule-actions-patch-local-state
-	test('publishing from the menu updates the page in place, without reloading the dashboard list', async ({
+	// @e2e dashboards::publish-and-unpublish-from-the-settings
+	test('publishing from the settings updates the page in place, without reloading the dashboard list', async ({
 		browser,
 	}) => {
 		const dash = await aliceDashboard('Store patch')
@@ -564,43 +580,42 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 				}
 			})
 
-			// Publish: the menu now offers Unpublish.
-			const publishItem = await moreItem(page, 'publish')
+			// Publish: the Publication tab now offers Unpublish.
+			const panel = await openPublicationTab(page)
 			const published = page.waitForResponse((res) =>
 				res.url().endsWith(`/dashboards/${dash.uuid}/publish`),
 			)
-			await publishItem.click()
+			await panel.getByTestId('publication-publish').click()
 			expect((await published).status()).toBe(200)
-			await expect(await moreItem(page, 'unpublish')).toBeVisible()
-			await page.keyboard.press('Escape')
+			await expect(panel.getByTestId('publication-status')).toHaveText('Published')
 
 			// Unpublish: back to Publish.
-			const unpublishItem = await moreItem(page, 'unpublish')
 			const unpublished = page.waitForResponse((res) =>
 				res.url().endsWith(`/dashboards/${dash.uuid}/unpublish`),
 			)
-			await unpublishItem.click()
+			await panel.getByTestId('publication-unpublish').click()
 			expect((await unpublished).status()).toBe(200)
-			await expect(await moreItem(page, 'publish')).toBeVisible()
-			await page.keyboard.press('Escape')
+			await expect(panel.getByTestId('publication-publish')).toBeVisible()
 
 			// Schedule: the note appears from the patched copy.
-			const scheduleItem = await moreItem(page, 'schedule')
-			await scheduleItem.click()
-			const dialog = page
-				.getByRole('dialog')
-				.filter({ has: page.getByTestId('schedule-go-live') })
-			await dialog.getByTestId('schedule-go-live').fill('2099-04-01T10:00')
+			await panel.getByTestId('schedule-go-live').fill('2099-04-01T10:00')
 			const scheduled = page.waitForResponse((res) =>
 				res.url().endsWith(`/dashboards/${dash.uuid}/schedule`),
 			)
-			await dialog
-				.getByRole('button', { name: 'Schedule', exact: true })
-				.click()
+			await panel.getByTestId('schedule-save').click()
 			expect((await scheduled).status()).toBe(200)
+			await expect(panel.getByTestId('publication-status')).toHaveText('Scheduled')
+			await page.keyboard.press('Escape')
 			await expect(page.getByTestId('publication-note')).toContainText(
 				'Goes live on',
 			)
+
+			// The Meer menu offers none of it any more.
+			await expect(await moreItem(page, 'config')).toBeVisible()
+			for (const id of ['publish', 'unpublish', 'schedule']) {
+				await expect(page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`)).toHaveCount(0)
+			}
+			await page.keyboard.press('Escape')
 
 			expect(listReads, 'the dashboard list was fetched again').toEqual([])
 			expect((await reread(dash)).publicationStatus).toBe('scheduled')
@@ -635,15 +650,11 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 				}
 			})
 
-			await (await moreItem(page, 'schedule')).click()
-			const dialog = page
-				.getByRole('dialog')
-				.filter({ has: page.getByTestId('schedule-go-live') })
-			await dialog.getByTestId('schedule-go-live').fill(local)
-			await dialog
-				.getByRole('button', { name: 'Schedule', exact: true })
-				.click()
-			await expect(dialog).toBeHidden()
+			const panel = await openPublicationTab(page)
+			await panel.getByTestId('schedule-go-live').fill(local)
+			await panel.getByTestId('schedule-save').click()
+			await expect(panel.getByTestId('publication-status')).toHaveText('Scheduled')
+			await page.keyboard.press('Escape')
 
 			await expect(page.getByTestId('publication-note')).toHaveText(
 				`Goes live on ${shown}.`,
@@ -656,7 +667,7 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 	})
 
 	// @e2e dashboards::past-time-refused
-	test('a go-live time in the past is refused in the dialog and nothing changes', async ({
+	test('a go-live time in the past is refused in the Publication tab and nothing changes', async ({
 		browser,
 	}) => {
 		const dash = await aliceDashboard('Past refused')
@@ -664,23 +675,18 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 
 		const { context, page } = await openAs(browser, dash)
 		try {
-			await (await moreItem(page, 'schedule')).click()
-			const dialog = page
-				.getByRole('dialog')
-				.filter({ has: page.getByTestId('schedule-go-live') })
-			await dialog.getByTestId('schedule-go-live').fill('2020-03-19T09:00')
+			const panel = await openPublicationTab(page)
+			await panel.getByTestId('schedule-go-live').fill('2020-03-19T09:00')
 			const refused = page.waitForResponse((res) =>
 				res.url().endsWith(`/dashboards/${dash.uuid}/schedule`),
 			)
-			await dialog
-				.getByRole('button', { name: 'Schedule', exact: true })
-				.click()
+			await panel.getByTestId('schedule-save').click()
 			expect((await refused).status()).toBe(400)
 
-			await expect(dialog.getByTestId('schedule-error')).toHaveText(
+			await expect(panel.getByTestId('schedule-error')).toHaveText(
 				'Choose a time in the future.',
 			)
-			await expect(dialog).toBeVisible()
+			await expect(panel).toBeVisible()
 			await expect(page.getByTestId('publication-note')).toHaveCount(0)
 		} finally {
 			await context.close()

@@ -103,7 +103,8 @@ async function prepare(
  */
 async function openAddWidget(page: Page): Promise<Locator> {
 	await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]').click()
+	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-calendar"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog
@@ -117,7 +118,6 @@ async function openAddWidget(page: Page): Promise<Locator> {
  */
 async function openCalendarForm(page: Page): Promise<Locator> {
 	const dialog = await openAddWidget(page)
-	await dialog.locator('[data-testid="widget-type-select"]').selectOption('calendar')
 	await expect(dialog.locator('.cn-calendar-widget-form')).toBeVisible()
 	return dialog
 }

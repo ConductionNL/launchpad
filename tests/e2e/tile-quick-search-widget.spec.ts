@@ -885,13 +885,11 @@ test.describe('tile quick-search — widget configuration (REQ-QSEARCH-005)', ()
 				.first()
 			await expect(row).toBeVisible({ timeout: 10_000 })
 			await row.locator('.dashboard-row-actions button').first().click()
-			await page.getByRole('menuitem', { name: /add custom widget/i }).click()
+			await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+			await page.locator('[data-testid="widget-picker-type-search"]').click()
 			const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 			await expect(dialog).toBeVisible({ timeout: 10_000 })
 
-			await dialog
-				.locator('[data-testid="widget-type-select"]')
-				.selectOption('search')
 			await expect(dialog.locator('.search-widget-form')).toBeVisible()
 
 			const created = page.waitForResponse(

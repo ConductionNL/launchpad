@@ -30,9 +30,17 @@ schema change.
 - **Online** — the response status matches the expected status within the
   latency threshold.
 - **Degraded** — the status matches, but the response was slow.
-- **Offline** — the request timed out, the connection failed, or the status
-  did not match. This is a *completed* reading, not a missed one: it is
-  cached and served immediately, exactly like online/degraded.
+- **Offline** — the last few pings in a row failed: the request timed out,
+  the connection failed, or the status did not match.
+
+One failed ping does not turn a tile offline. The badge keeps its last-known
+state and is marked stale; only after a number of consecutive failed pings
+(3 by default) does it read offline. A successful ping resets the count. Set
+the number with:
+
+```bash
+occ config:app:set launchpad healthping_offline_after_failures --value=3 --type=integer
+```
 
 ## What the browser never sees
 

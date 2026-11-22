@@ -193,7 +193,21 @@ describe('WorkspaceApp', () => {
 			})
 			const cta = wrapper.find('.workspace-shell__empty-cta')
 			expect(cta.exists()).toBe(true)
-			expect(cta.text()).toBe('Create your first dashboard')
+			expect(cta.text()).toBe('Create my first dashboard (with starter widgets)')
+			expect(wrapper.find('.workspace-shell__empty-blank').text()).toBe('Start empty')
+		})
+
+		it('empty state names itself and lists the six starter widgets, as board LpEersteKeer draws it', () => {
+			const wrapper = mountShell({
+				inject: { activeDashboardId: '', allowUserDashboards: true },
+			})
+			expect(wrapper.find('.workspace-shell__empty-title').text()).toBe('You have no dashboard yet')
+			expect(
+				wrapper.findAll('.workspace-shell__starter').map((item) => item.text()),
+			).toEqual(['Apps', 'Calendar', 'Mail', 'Files', 'Weather', 'News from the organisation'])
+			expect(wrapper.find('.workspace-shell__empty-note').text()).toBe(
+				'These 6 starter widgets go on it. You can move or remove them later.',
+			)
 		})
 
 		it('empty state without allowUserDashboards hides Create CTA', () => {
@@ -201,6 +215,8 @@ describe('WorkspaceApp', () => {
 				inject: { activeDashboardId: '', allowUserDashboards: false },
 			})
 			expect(wrapper.find('.workspace-shell__empty-cta').exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__empty-blank').exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__starters').exists()).toBe(false)
 			expect(wrapper.find('.workspace-shell__empty-hint').text()).toBe(
 				'Contact your administrator',
 			)

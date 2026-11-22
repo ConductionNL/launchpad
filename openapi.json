@@ -3713,13 +3713,6 @@
                                         ],
                                         "description": "Alias of `$linkCreateFileExts`."
                                     },
-                                    "startPageWithoutNavigation": {
-                                        "type": [
-                                            "boolean",
-                                            "null"
-                                        ],
-                                        "description": "Dashboard view without the navigation panel (REQ-SHELL-009)."
-                                    },
                                     "sharingAllowedGroups": {
                                         "type": [
                                             "array",
@@ -5651,7 +5644,7 @@
                 "operationId": "dashboard-api-create",
                 "x-launchpad-stability": "public",
                 "summary": "Create a new dashboard",
-                "description": "Create a new dashboard. Needs a signed-in Nextcloud user.",
+                "description": "Create a new dashboard. The optional `widgets` request parameter picks what the dashboard starts with: `starters` for the first-run starter widgets, `none` for no widgets, anything else for the default bundle. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "dashboard-api"
                 ],
@@ -5711,7 +5704,8 @@
                                             "null"
                                         ],
                                         "description": "Optional sibling sort order (REQ-DASH-029). NULL ⇒ 0."
-                                    }
+                                    },
+                                    "widgets": {}
                                 }
                             }
                         }

@@ -129,4 +129,15 @@ class AdminSettingKeyTest extends TestCase {
 		$this->assertNull(AdminSettingKey::tryFrom('content_storage'));
 		$this->assertFalse(defined(AdminSetting::class . '::KEY_CONTENT_STORAGE'));
 	}//end testContentStorageKeyIsRetired()
+
+	/**
+	 * Runtime-shell REQ-SHELL-009: the start-page option is retired; a stored
+	 * row is left unread, so the enum must not resolve it.
+	 *
+	 * @return void
+	 */
+	public function testStartPageWithoutNavigationKeyIsRetired(): void {
+		$this->assertNull(actual: AdminSettingKey::tryFrom('start_page_without_navigation'));
+		$this->assertFalse(condition: defined(AdminSetting::class . '::KEY_START_PAGE_WITHOUT_NAVIGATION'));
+	}//end testStartPageWithoutNavigationKeyIsRetired()
 }//end class

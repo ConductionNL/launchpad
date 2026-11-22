@@ -237,7 +237,7 @@ Inline Files browser pinned to a folder or single file. Supports search, sort, o
 
 Roster of users with two selection modes (`filter` for rule-based, `manual` for hand-picked), per-field display toggles, and a birthday window.
 
-**Renderer**: [`PeopleWidget.vue`](../../src/components/Widgets/Renderers/PeopleWidget.vue) · **Form**: [`PeopleForm.vue`](../../src/components/Widgets/Forms/PeopleForm.vue) · **Spec**: `openspec/specs/people-widget/spec.md`
+**Renderer**: `CnPeopleWidget` · **Form**: `CnPeopleWidgetForm` (both from `@conduction/nextcloud-vue`, fed by `cnPeopleSource` in [`widgetDataAdapters.js`](../../src/services/widgetDataAdapters.js)) · **Spec**: `openspec/specs/people-widget/spec.md`
 
 | Field | Default | Notes |
 |---|---|---|

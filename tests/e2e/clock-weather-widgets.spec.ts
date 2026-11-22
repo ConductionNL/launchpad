@@ -9,7 +9,7 @@
  * CLOCK
  * =====
  * The clock is client-side only (ClockWidget.vue). Its form is driven through
- * the Add Widget modal (More menu, "Add custom widget…") and what it saved is
+ * the Add Widget modal (More menu, "Add widget" → "Custom widget") and what it saved is
  * read back from `GET /api/dashboard/{id}`. Time-dependent assertions run on
  * Playwright's clock API, in a browser whose own zone (America/Los_Angeles)
  * differs from every zone a placement is configured with, so a widget that
@@ -261,8 +261,9 @@ async function openAddCustomWidget(page: Page) {
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
 	await page
-		.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')
+		.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 		.click()
+	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

@@ -172,8 +172,8 @@
 								:activeDashboardId="activeDashboardId"
 								@toggleEdit="onRowToggleEdit(dashboard, section.source)"
 								@openConfig="onRowOpenConfig(dashboard, section.source)"
-								@addCustomWidget="
-									onRowAddCustomWidget(dashboard, section.source)
+								@addWidget="
+									onRowAddWidget(dashboard, section.source)
 								"
 								@importBookmarks="
 									onRowImportBookmarks(dashboard, section.source)
@@ -445,7 +445,7 @@ export default {
 
 		/*
 		 * `canEdit` flows down to each per-row cog (wave3.6) so the
-		 * Edit / Add-custom-widget entries can hide for view-only
+		 * Edit / Add widget entries can hide for view-only
 		 * users. Configure / Delete remain owner-gated per row via
 		 * `dashboard.isOwner`. The wave3.3 `isEditMode` /
 		 * `isActiveOwner` props were removed when the cog moved out
@@ -497,7 +497,7 @@ export default {
 		// switch-then-apply orchestration.
 		'toggleEdit',
 		'openConfig',
-		'addCustomWidget',
+		'addWidget',
 		// launcher-bookmark-import REQ-BMI-001 — `(dashboard, source)`.
 		'importBookmarks',
 		// wave3.7 — `(dashboard, source)`. The host pins this row as
@@ -788,8 +788,8 @@ export default {
 		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		onRowAddCustomWidget(dashboard, source) {
-			this.$emit('addCustomWidget', dashboard, source)
+		onRowAddWidget(dashboard, source) {
+			this.$emit('addWidget', dashboard, source)
 		},
 
 		/**

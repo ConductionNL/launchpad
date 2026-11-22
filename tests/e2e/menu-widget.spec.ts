@@ -7,7 +7,7 @@
  * add/edit form and the empty state. Written for e2e-coverage-programme.
  *
  * The form scenarios drive the real Add Widget modal (sidebar → dashboard
- * row cog → "Add custom widget…" → type "Menu") and read the placement the
+ * row cog → "Add widget" → "Custom widget" → type "Menu") and read the placement the
  * server stored back by id, so "the content updates before save" is proven
  * by what was saved, not by what the form displayed. The rendering scenarios
  * seed a placement with exactly the content the scenario names

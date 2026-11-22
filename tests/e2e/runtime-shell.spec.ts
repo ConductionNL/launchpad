@@ -320,13 +320,13 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 			await expect(
 				panel.locator('[data-testid="cn-grouped-menu-item-set-default"]'),
 			).toBeVisible()
-			for (const id of ['edit', 'add-widget', 'add-custom-widget', 'config']) {
+			for (const id of ['edit', 'add-widget', 'config']) {
 				await expect(
 					panel.locator(`[data-testid="cn-grouped-menu-item-${id}"]`),
 				).toHaveCount(0)
 			}
 			await expect(panel).not.toContainText(
-				/Add custom widget|Save dashboard|Dashboard configuration/,
+				/Add widget|Save dashboard|Dashboard configuration/,
 			)
 			await page.keyboard.press('Escape')
 
@@ -342,7 +342,7 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 				}),
 			).toBeVisible()
 			await expect(
-				page.getByRole('menuitem', { name: /Add custom widget/ }),
+				page.getByRole('menuitem', { name: /^Add widget$/ }),
 			).toHaveCount(0)
 			await expect(
 				page.getByRole('menuitem', {
@@ -388,7 +388,7 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		// The edit entry reads "Edit dashboard" outside edit mode and
 		// "Save dashboard" inside it.
 		for (const name of [
-			/Add custom widget…/,
+			/^Add widget$/,
 			/Save dashboard|Edit dashboard/,
 			/Dashboard configuration…/,
 		]) {

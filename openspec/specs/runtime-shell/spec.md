@@ -30,7 +30,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 
 - The per-widget right-click context menu (REQ-WDG-015)
 - GridStack's `staticGrid` mode (false when `canEdit`, true otherwise)
-- The action menu's edit entries: "Add custom widget…", "Save dashboard", "Dashboard configuration…"
+- The action menu's edit entries: "Add widget", "Save dashboard", "Dashboard configuration…"
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
 
@@ -38,14 +38,14 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 
 - **GIVEN** a non-admin user viewing a `group_shared` dashboard (`dashboardSource === 'group'`)
 - **WHEN** they open the action menu
-- **THEN** no "Add custom widget", "Save dashboard", or "Dashboard configuration" entries MUST be visible
+- **THEN** no "Add widget", "Save dashboard", or "Dashboard configuration" entries MUST be visible
 - **AND** right-clicking any widget MUST fall through to the browser's native context menu
 
 #### Scenario: canEdit user sees full edit menu
 
 - **GIVEN** an admin user viewing any dashboard
 - **WHEN** they open the action menu
-- **THEN** "Add custom widget…", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
+- **THEN** "Add widget", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
 - **AND** right-clicking a widget MUST open the widget context menu (REQ-WDG-015)
 
 ### Requirement: REQ-SHELL-003 Toolbar contents

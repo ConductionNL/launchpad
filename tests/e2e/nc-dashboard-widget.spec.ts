@@ -6,7 +6,7 @@
  * Task 8 of the `nc-dashboard-widget-proxy` OpenSpec change.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Nextcloud Widget" →
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Nextcloud Widget" →
  * choose a widget in the grid picker → save.
  *
  * Scenarios (REQ-WDG-018, REQ-WDG-019, REQ-WDG-021):

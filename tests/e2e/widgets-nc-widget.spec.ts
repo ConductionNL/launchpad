@@ -238,8 +238,9 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 			.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
 			.click()
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')
+			.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
 			.click()
+		await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })

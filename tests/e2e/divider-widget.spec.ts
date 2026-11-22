@@ -811,7 +811,8 @@ async function addDividerThroughModal(
 		`[data-source="user"].dashboard-switcher-sidebar__item[aria-label="${DASHBOARD_NAME}"]`,
 	)
 	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /add custom widget/i }).click()
+	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog.getByLabel(/widget type/i).selectOption('divider')

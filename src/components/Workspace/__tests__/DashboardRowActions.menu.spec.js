@@ -105,7 +105,7 @@ describe('DashboardRowActions menu', () => {
 		}
 
 		expect(Object.keys(wrapper.emitted())).toEqual(expect.arrayContaining([
-			'toggleEdit', 'openConfig', 'addCustomWidget', 'setDefault', 'versionHistory', 'share', 'delete',
+			'toggleEdit', 'openConfig', 'addWidget', 'setDefault', 'versionHistory', 'share', 'delete',
 		]))
 	})
 })

@@ -848,8 +848,18 @@ export default {
 			this.$emit('update:open', false)
 		},
 
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
-		onEscClose() {
+		/**
+		 * Escape closes the sidebar, unless it was meant for an open menu
+		 * inside it (a row's action menu keeps focus on its toggle, which
+		 * reports `aria-expanded="true"`): that Escape closes the menu only.
+		 *
+		 * @param {KeyboardEvent} event the keydown.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
+		onEscClose(event) {
+			if (event?.target?.closest?.('[aria-expanded="true"], [role="menu"]')) {
+				return
+			}
 			if (this.isOpen) {
 				this.$emit('update:open', false)
 			}

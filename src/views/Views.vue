@@ -1513,16 +1513,15 @@ export default {
 			 * Fire a view-event when the active dashboard changes.
 			 *
 			 * @param {string|null} uuid UUID of the newly-active dashboard.
-			 * @param {string|null} prevUuid UUID that was active before.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
-			handler(uuid, prevUuid) {
+			handler(uuid) {
 				if (!uuid) {
 					return
 				}
 				// Filters belong to a dashboard: a switch starts a fresh
-				// session; only the first one reads a bookmarked `?f=`.
-				this.openFilterSession(prevUuid === undefined)
+				// session; only the boot's switches read a bookmarked `?f=`.
+				this.openFilterSession(!this.historyBooted)
 				this.recordViewEventDebounced(uuid)
 				// Outbound URL sync — every uuid change after the boot pushes
 				// a new history entry so back/forward navigates between

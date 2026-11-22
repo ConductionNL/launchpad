@@ -100,6 +100,23 @@ namespace OCA\OpenRegister\Kernel\Contracts\Value {
 		}//end class
 	}
 
+	if (class_exists(__NAMESPACE__ . '\\SavePolicy', false) === false) {
+		/**
+		 * Stub mirroring the save policy of ObjectSaveOptions.
+		 */
+		final class SavePolicy {
+			/**
+			 * Constructor.
+			 *
+			 * @param bool $silent Whether the save skips its events and audit row.
+			 */
+			public function __construct(
+				public readonly bool $silent = false,
+			) {
+			}//end __construct()
+		}//end class
+	}
+
 	if (class_exists(__NAMESPACE__ . '\\ObjectSaveOptions', false) === false) {
 		/**
 		 * Stub mirroring the save options LaunchPad passes to ObjectService::saveObject().
@@ -111,11 +128,13 @@ namespace OCA\OpenRegister\Kernel\Contracts\Value {
 			 * @param ObjectFindTarget $target The register and schema.
 			 * @param string|null      $uuid   The object uuid.
 			 * @param array|null       $extend Properties to extend.
+			 * @param SavePolicy       $policy Whether the save is silent.
 			 */
 			public function __construct(
 				public readonly ObjectFindTarget $target = new ObjectFindTarget(),
 				public readonly ?string $uuid = null,
 				public readonly ?array $extend = [],
+				public readonly SavePolicy $policy = new SavePolicy(),
 			) {
 			}//end __construct()
 		}//end class

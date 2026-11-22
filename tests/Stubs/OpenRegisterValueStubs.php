@@ -10,7 +10,7 @@
  *
  * The constructor parameters used here mirror
  * `openregister/lib/Kernel/Contracts/Value/` (ObjectFindOptions,
- * ObjectFindTarget, ObjectSaveOptions, ObjectDeletion) as of 2026-11-14.
+ * ObjectFindTarget, ObjectSaveOptions, SavePolicy, ObjectDeletion) as of 2026-11-14.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -56,6 +56,21 @@ if (class_exists(ObjectFindOptions::class) === false) {
 	}
 }
 
+if (class_exists(SavePolicy::class) === false) {
+	/**
+	 * Stub: the save policy of ObjectSaveOptions.
+	 */
+	final class SavePolicy {
+		/**
+		 * @param bool $silent Whether the save skips its events and audit row.
+		 */
+		public function __construct(
+			public readonly bool $silent = false,
+		) {
+		}
+	}
+}
+
 if (class_exists(ObjectSaveOptions::class) === false) {
 	/**
 	 * Stub: the options of a save.
@@ -64,10 +79,12 @@ if (class_exists(ObjectSaveOptions::class) === false) {
 		/**
 		 * @param ObjectFindTarget $target The register and schema.
 		 * @param string|null      $uuid   The object to update.
+		 * @param SavePolicy       $policy Whether the save is silent.
 		 */
 		public function __construct(
 			public readonly ?ObjectFindTarget $target = new ObjectFindTarget(),
 			public readonly ?string $uuid = null,
+			public readonly SavePolicy $policy = new SavePolicy(),
 		) {
 		}
 	}

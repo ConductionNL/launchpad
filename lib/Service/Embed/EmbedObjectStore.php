@@ -31,6 +31,8 @@ namespace OCA\LaunchPad\Service\Embed;
 
 use JsonSerializable;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\SavePolicy;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Throwable;
@@ -108,14 +110,51 @@ class EmbedObjectStore {
 	 */
 	public function save(string $schema, array $object): array {
 		$service = $this->service(schema: $schema);
+
+		return $this->persist(service: $service, schema: $schema, object: $object, options: new ObjectSaveOptions());
+	}//end save()
+
+	/**
+	 * Save an object without an OpenRegister audit row. The audit row stamps
+	 * the caller's IP address and session, which a usage event written for an
+	 * anonymous visitor must not carry (REQ-EMB-008).
+	 *
+	 * @param string               $schema The schema slug.
+	 * @param array<string, mixed> $object The object.
+	 *
+	 * @return array<string, mixed> The stored object with its `id`.
+	 *
+	 * @throws RuntimeException When OpenRegister is unavailable or the save fails.
+	 *
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-008--usage-telemetry-without-leaking-pii
+	 */
+	public function saveWithoutAuditTrail(string $schema, array $object): array {
+		$service = $this->service(schema: $schema);
+
+		return $this->persist(service: $service, schema: $schema, object: $object, options: new ObjectSaveOptions(policy: new SavePolicy(silent: true)));
+	}//end saveWithoutAuditTrail()
+
+	/**
+	 * Save an object as the system with the given options.
+	 *
+	 * @param object               $service OpenRegister's object service, scoped to the schema.
+	 * @param string               $schema  The schema slug.
+	 * @param array<string, mixed> $object  The object.
+	 * @param ObjectSaveOptions    $options The save options.
+	 *
+	 * @return array<string, mixed> The stored object with its `id`.
+	 *
+	 * @throws RuntimeException When the save fails.
+	 */
+	private function persist(object $service, string $schema, array $object, ObjectSaveOptions $options): array {
 		try {
-			$saved = $service->saveObject(object: $object, _rbac: false, _multitenancy: false);
+			$saved = $service->saveObject(object: $object, options: $options, _rbac: false, _multitenancy: false);
 		} catch (Throwable $failure) {
 			throw new RuntimeException(message: 'The ' . $schema . ' object could not be saved.', previous: $failure);
 		}
 
 		return self::toArray(entity: $saved) ?? throw new RuntimeException(message: 'The ' . $schema . ' object could not be saved.');
-	}//end save()
+	}//end persist()
 
 	/**
 	 * One object by id, or null when there is none.

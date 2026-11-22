@@ -58,6 +58,23 @@ class EmbedObjectStoreTest extends TestCase {
 	}//end testSaveCreatesThenUpdatesInTheLaunchpadRegister()
 
 	/**
+	 * An ordinary save keeps OpenRegister's audit row; a save without audit
+	 * trail asks for a silent save, so no row stamps the caller's IP address.
+	 *
+	 * @return void
+	 */
+	public function testSaveWithoutAuditTrailIsSilent(): void {
+		$store = $this->store();
+		$store->save(schema: 'embed_token', object: ['name' => 'Zeist']);
+		$saved = $store->saveWithoutAuditTrail(schema: 'embed_usage_event', object: ['eventType' => 'pageView']);
+
+		$this->assertSame(['eventType' => 'pageView', 'id' => 'obj-2'], $saved);
+		$this->assertFalse($this->objects->saveOptions[0]->policy->silent);
+		$this->assertTrue($this->objects->saveOptions[1]->policy->silent);
+		$this->assertSame(['save launchpad/embed_token system', 'save launchpad/embed_usage_event system'], $this->objects->calls);
+	}//end testSaveWithoutAuditTrailIsSilent()
+
+	/**
 	 * Find returns the object with its id; an unknown or empty id is null.
 	 *
 	 * @return void

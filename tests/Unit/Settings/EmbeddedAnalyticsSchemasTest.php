@@ -88,4 +88,24 @@ class EmbeddedAnalyticsSchemasTest extends TestCase {
 		$this->assertSame(['RS256', 'ES256'], $key['properties']['algorithm']['enum']);
 		$this->assertSame(['active', 'retiring', 'revoked'], $key['properties']['status']['enum']);
 	}//end testASigningKeyKeepsThePrivateKeyEncrypted()
+
+	/**
+	 * Only administrators reach the embed objects through OpenRegister's own
+	 * API. Without an authorization block OpenRegister lets every signed-in
+	 * user read and write them: read signing keys and token metadata, revoke
+	 * or restore tokens, or store a signing key and a token of their own.
+	 * LaunchPad itself reads and writes them as the system.
+	 *
+	 * @return void
+	 */
+	public function testOnlyAdministratorsReachTheEmbedObjects(): void {
+		$schemas = self::fragment()['components']['schemas'];
+		foreach (['embed_token', 'tenant_theme', 'embed_usage_event', 'signing_key'] as $name) {
+			$this->assertSame(
+				['create' => ['admin'], 'read' => ['admin'], 'update' => ['admin'], 'delete' => ['admin']],
+				$schemas[$name]['authorization'] ?? null,
+				$name
+			);
+		}
+	}//end testOnlyAdministratorsReachTheEmbedObjects()
 }//end class

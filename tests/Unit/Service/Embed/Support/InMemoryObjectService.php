@@ -45,6 +45,13 @@ class InMemoryObjectService {
 	 */
 	public array $saved = [];
 
+	/**
+	 * The options of every save, in order.
+	 *
+	 * @var list<mixed>
+	 */
+	public array $saveOptions = [];
+
 	private string $register = '';
 
 	private string $schema = '';
@@ -71,6 +78,7 @@ class InMemoryObjectService {
 		}
 
 		$this->saved[$this->bucket()][] = $object;
+		$this->saveOptions[] = $options;
 
 		$id = (string)($object['id'] ?? '');
 		if ($id === '') {

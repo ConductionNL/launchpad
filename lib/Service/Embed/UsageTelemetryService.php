@@ -162,7 +162,7 @@ class UsageTelemetryService {
 		);
 
 		try {
-			return $this->store->save(schema: EmbedObjectStore::USAGE, object: $event);
+			return $this->store->saveWithoutAuditTrail(schema: EmbedObjectStore::USAGE, object: $event);
 		} catch (Throwable $failure) {
 			$this->logger->warning('[UsageTelemetryService] A usage event could not be written: ' . $failure->getMessage(), ['token' => $tokenId]);
 			return null;

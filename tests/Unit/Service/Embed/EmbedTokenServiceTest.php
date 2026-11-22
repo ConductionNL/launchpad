@@ -39,6 +39,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Unit\Service\Embed\Support\InMemoryObjectService;
 
+require_once __DIR__ . '/../../../Stubs/OpenRegisterStubs.php';
+
 #[CoversClass(EmbedTokenService::class)]
 #[CoversClass(SigningKeyService::class)]
 #[CoversClass(RevocationCache::class)]

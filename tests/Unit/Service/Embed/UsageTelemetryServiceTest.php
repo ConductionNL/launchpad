@@ -27,6 +27,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Unit\Service\Embed\Support\InMemoryObjectService;
 
+require_once __DIR__ . '/../../../Stubs/OpenRegisterStubs.php';
+
 #[CoversClass(UsageTelemetryService::class)]
 #[CoversClass(EmbedUsageEvent::class)]
 #[UsesClass(EmbedObjectStore::class)]
@@ -106,6 +108,19 @@ class UsageTelemetryServiceTest extends TestCase {
 		$this->assertStringNotContainsString('medewerker', (string)json_encode($this->objects->objects));
 		$this->assertStringNotContainsString('Gecko', (string)json_encode($this->objects->objects));
 	}//end testARecordedEventHoldsNoPersonalData()
+
+	/**
+	 * A usage event is written without an OpenRegister audit row, which would
+	 * stamp the visitor's IP address and session on it.
+	 *
+	 * @return void
+	 */
+	public function testAnEventIsWrittenWithoutAnAuditRow(): void {
+		$this->service()->record(tokenId: 't-1', eventType: 'pageView', origin: null, referer: null, userAgent: null, viewport: null, status: 200, latencyMs: 5);
+
+		$this->assertCount(1, $this->objects->saveOptions);
+		$this->assertTrue($this->objects->saveOptions[0]->policy->silent);
+	}//end testAnEventIsWrittenWithoutAnAuditRow()
 
 	/**
 	 * Browser families, origins and viewport buckets are read conservatively.

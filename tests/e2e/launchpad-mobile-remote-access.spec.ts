@@ -26,6 +26,7 @@ import {
 	API,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 	shareWith,
@@ -107,6 +108,7 @@ test.beforeAll(async () => {
 		`e2e-no-such-role-${STAMP}`,
 		4,
 	)
+	await publishForRecipients(owner.api, dashboard.id)
 	await shareWith(owner.api, dashboard.id, viewer.username, 'view_only')
 	const active = await viewer.api.post(`${API}/dashboards/active`, {
 		data: { uuid: dashboard.uuid },

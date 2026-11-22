@@ -84,6 +84,7 @@ import {
 	adminContext,
 	API,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -607,6 +608,7 @@ test.describe.serial('per-dashboard footer rendering (REQ-FTR-006)', () => {
 		// Any user: a view-only recipient sees the same custom footer.
 		const reader = await createPrincipal(admin, 'e2e-footer-reader')
 		principals.push(reader)
+		await publishForRecipients(admin, adminDash!.id)
 		await shareWith(admin, adminDash!.id, reader.username, 'view_only')
 		const active = await reader.api.post(`${API}/dashboards/active`, {
 			data: { uuid: adminDash!.uuid },

@@ -58,6 +58,7 @@ import {
 	assertActingAs,
 	contextFor,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -113,6 +114,7 @@ async function aliceDashboard(label: string): Promise<Dash> {
 	const body = await res.json()
 	const dash = { id: Number(body.dashboard.id), uuid: String(body.dashboard.uuid) }
 	dashboards.push(dash)
+	await publishForRecipients(alice!.api, dash.id)
 	await shareWith(alice!.api, dash.id, bob!.username, 'full')
 	await shareWith(alice!.api, dash.id, carol!.username, 'full')
 	return dash

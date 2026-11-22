@@ -194,55 +194,6 @@ class DashboardResolver {
 	}//end sharedDashboard()
 
 	/**
-	 * Try to resolve a dashboard shared with the user as their active one.
-	 *
-	 * This is the LAST-RESORT step of the resolution chain: it only ever
-	 * runs after every dashboard the user owns (or reaches through group
-	 * membership) has been considered, so a share can never displace a
-	 * selection the user or their admin already made. Without it a share
-	 * is inert — a recipient with no dashboard of their own lands on the
-	 * empty state and the shared dashboard is unreachable.
-	 *
-	 * The returned `permissionLevel` comes from the SHARE, not from the
-	 * dashboard row: the row carries the OWNER's level, which would tell a
-	 * view-only recipient they may edit.
-	 *
-	 * Publication state is deliberately NOT a filter here, matching
-	 * {@see \OCA\LaunchPad\Service\DashboardService::getVisibleToUser()}:
-	 * every factory-created dashboard starts as `draft`, so filtering would
-	 * make sharing inert again. The share row is the owner's explicit,
-	 * named grant. The two paths MUST agree — when they disagreed,
-	 * `GET /api/dashboard` served a draft while `/api/dashboards/visible`
-	 * returned nothing for the same user.
-	 *
-	 * @param string $userId The user ID.
-	 * @param array<string> $userGroupIds The user's Nextcloud group IDs.
-	 *
-	 * @return array|null The dashboard result or null when nothing is shared.
-	 *
-	 * @spec openspec/specs/dashboard-sharing/spec.md
-	 */
-	public function tryGetSharedDashboard(string $userId, array $userGroupIds): array|null {
-		$levels = $this->findSharedLevels(
-			userId: $userId,
-			userGroupIds: $userGroupIds
-		);
-
-		foreach ($levels as $dashboardId => $level) {
-			$dashboard = $this->sharedDashboard(dashboardId: (int)$dashboardId, userId: $userId);
-			if ($dashboard !== null) {
-				return [
-					'dashboard' => $dashboard,
-					'placements' => $this->placementsOf(dashboard: $dashboard),
-					'permissionLevel' => $level,
-				];
-			}
-		}
-
-		return null;
-	}//end tryGetSharedDashboard()
-
-	/**
 	 * Handle a template-based dashboard result.
 	 *
 	 * @param Dashboard $template The template.

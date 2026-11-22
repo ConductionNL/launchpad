@@ -350,7 +350,7 @@
 			:catalogueApps="catalogueApps"
 			:customTypes="customWidgetTypes"
 			:requestAppFn="requestCatalogueApp"
-			@close="closeWidgetModal"
+			@close="onWidgetPickerClose"
 			@add="addWidget"
 			@addCustom="onPickCustomWidget"
 			@addApp="addDiscoveredApp"
@@ -545,7 +545,7 @@ import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
-import { dialogReturnFocus } from '../utils/returnFocus.js'
+import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -835,6 +835,8 @@ export default {
 			// keeps its type select.
 			customWidgetInitialType: null,
 			customWidgetEditing: null,
+			// The element focused when a widget dialog opened (REQ-WDG-013).
+			widgetDialogOpener: null,
 			// Per-widget conditional-visibility editor state. Non-null
 			// `visibilityPlacementId` + `isVisibilityModalOpen` opens the
 			// modal for that placement (conditional-visibility spec).
@@ -2354,6 +2356,7 @@ export default {
 			if (!(await this.enterEditMode())) {
 				return
 			}
+			this.widgetDialogOpener = document.activeElement
 			this.isWidgetModalOpen = true
 			this.loadDiscoveredApps()
 			this.loadCatalogueApps()
@@ -2465,6 +2468,18 @@ export default {
 		},
 
 		/**
+		 * The picker was dismissed (Escape, its close button or the backdrop):
+		 * close it and make sure focus does not fall to the page.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/widgets/spec.md#requirement-modal-close-discipline-req-wdg-013
+		 */
+		onWidgetPickerClose() {
+			this.closeWidgetModal()
+			nextTick(() => restoreLostFocus(this.widgetDialogOpener))
+		},
+
+		/**
 		 * A Launchpad widget type was picked: close the picker and open the
 		 * custom widget form on that type, its type select still changeable.
 		 *
@@ -2494,6 +2509,7 @@ export default {
 			this.customWidgetPreselectedType = type
 			this.customWidgetInitialType = initialType
 			this.customWidgetEditing = null
+			this.widgetDialogOpener = document.activeElement
 			this.isCustomWidgetModalOpen = true
 		},
 
@@ -2509,6 +2525,7 @@ export default {
 			this.customWidgetEditing = placement
 			this.customWidgetPreselectedType = null
 			this.customWidgetInitialType = null
+			this.widgetDialogOpener = document.activeElement
 			this.isCustomWidgetModalOpen = true
 		},
 
@@ -2518,6 +2535,7 @@ export default {
 			this.customWidgetPreselectedType = null
 			this.customWidgetInitialType = null
 			this.customWidgetEditing = null
+			nextTick(() => restoreLostFocus(this.widgetDialogOpener))
 		},
 
 		/**

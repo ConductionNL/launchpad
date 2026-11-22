@@ -40,6 +40,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -207,6 +208,7 @@ test.describe('REQ-RXN-010 a viewer reacts from the dashboard', () => {
 	}) => {
 		// @e2e dashboard-reactions::add-and-remove
 		const team = await pietersDashboard('Team')
+		await publishForRecipients(pieter!.api, team.id)
 		await shareWith(pieter!.api, team.id, colleague!.username, 'view_only')
 		const seededReaction = await colleague!.api.post(
 			`${API}/dashboards/${team.uuid}/reactions`,

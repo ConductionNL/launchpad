@@ -32,6 +32,7 @@ use PHPUnit\Framework\TestCase;
  * The `launchpad_news` Nextcloud dashboard widget.
  *
  * @covers \OCA\LaunchPad\Dashboard\NewsWidget
+ * @covers \OCA\LaunchPad\Dashboard\LaunchPadApiWidget
  */
 class NewsWidgetTest extends TestCase {
 

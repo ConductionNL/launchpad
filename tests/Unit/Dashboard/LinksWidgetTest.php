@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
  * The `launchpad_links` Nextcloud dashboard widget.
  *
  * @covers \OCA\LaunchPad\Dashboard\LinksWidget
+ * @covers \OCA\LaunchPad\Dashboard\LaunchPadApiWidget
  */
 class LinksWidgetTest extends TestCase {
 

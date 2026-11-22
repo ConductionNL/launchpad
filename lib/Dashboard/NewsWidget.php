@@ -22,11 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Dashboard;
 
-use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\NewsWidgetService;
-use OCP\Dashboard\IAPIWidgetV2;
-use OCP\Dashboard\IIconWidget;
 use OCP\Dashboard\Model\WidgetItem;
 use OCP\Dashboard\Model\WidgetItems;
 use OCP\IL10N;
@@ -37,7 +34,7 @@ use OCP\IURLGenerator;
  *
  * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
  */
-class NewsWidget implements IAPIWidgetV2, IIconWidget {
+class NewsWidget extends LaunchPadApiWidget {
 	/**
 	 * The id Nextcloud's dashboard registry knows this widget by.
 	 */
@@ -57,16 +54,17 @@ class NewsWidget implements IAPIWidgetV2, IIconWidget {
 	 * Constructor.
 	 *
 	 * @param IL10N                 $l10n            Translates the title and empty states.
-	 * @param IURLGenerator         $urlGenerator    Builds the icon and app URLs.
+	 * @param IURLGenerator         $urlGenerator    Builds the icon, app and item URLs.
 	 * @param WidgetPlacementMapper $placementMapper Finds the user's news placements.
 	 * @param NewsWidgetService     $news            Reads placement config and fetches the feeds.
 	 */
 	public function __construct(
-		private readonly IL10N $l10n,
-		private readonly IURLGenerator $urlGenerator,
+		IL10N $l10n,
+		IURLGenerator $urlGenerator,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly NewsWidgetService $news,
 	) {
+		parent::__construct(l10n: $l10n, urlGenerator: $urlGenerator);
 	}//end __construct()
 
 	/**
@@ -103,49 +101,13 @@ class NewsWidget implements IAPIWidgetV2, IIconWidget {
 	}//end getOrder()
 
 	/**
-	 * No icon class: the widget ships an icon URL.
+	 * The icon's file name in the app's img folder.
 	 *
 	 * @return string
-	 *
-	 * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
 	 */
-	public function getIconClass(): string {
-		return '';
-	}//end getIconClass()
-
-	/**
-	 * The newspaper icon.
-	 *
-	 * @return string
-	 *
-	 * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
-	 */
-	public function getIconUrl(): string {
-		return $this->urlGenerator->getAbsoluteURL(
-			url: $this->urlGenerator->imagePath(appName: Application::APP_ID, file: 'news-dark.svg')
-		);
-	}//end getIconUrl()
-
-	/**
-	 * LaunchPad, where the feeds are configured.
-	 *
-	 * @return string|null
-	 *
-	 * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
-	 */
-	public function getUrl(): ?string {
-		return $this->urlGenerator->linkToRouteAbsolute(routeName: Application::APP_ID . '.page.index');
-	}//end getUrl()
-
-	/**
-	 * Nothing to load: the dashboard renders the items itself.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
-	 */
-	public function load(): void {
-	}//end load()
+	protected function iconFile(): string {
+		return 'news-dark.svg';
+	}//end iconFile()
 
 	/**
 	 * The newest articles across the feeds of the news widgets on the

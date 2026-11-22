@@ -90,9 +90,8 @@ function hasOverlap(items: Array<{ x: number; y: number; w: number; h: number }>
 
 /** Add a single Label widget via the cog-menu Add Widget flow. */
 async function addLabelWidget(page: Page, text: string) {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'label')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 	await dialog
 		.getByLabel(/label text/i)
 		.first()

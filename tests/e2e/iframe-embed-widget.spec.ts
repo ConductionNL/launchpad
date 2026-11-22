@@ -257,10 +257,9 @@ async function openIframeForm(page: Page, dashboard: SeededDashboard) {
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-iframe"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Embedded page' })
 	await expect(dialog.locator('.iframe-widget-form')).toBeVisible()
 	return dialog
 }

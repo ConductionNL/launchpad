@@ -124,9 +124,8 @@ test.describe('label widget — content edit round-trip', () => {
 	}) => {
 		const text = `Edit Me ${Date.now()}`
 		// Create a label widget first.
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'label')
 		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 		await addDialog
 			.getByLabel(/label text/i)
 			.first()

@@ -201,10 +201,9 @@ export async function openAddTextForm(
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
 	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-custom-widget"]').click()
+	await page.locator('[data-testid="widget-picker-type-text"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	await dialog.getByTestId('widget-type-select').selectOption('text')
 	const form = dialog.locator('.cn-text-widget-form')
 	await expect(form).toBeVisible({ timeout: 5_000 })
 	return { dialog, form }

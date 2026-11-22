@@ -180,7 +180,15 @@ export async function loginAs(
 	await installBundleOverride(context)
 
 	const page = await context.newPage()
-	await page.goto('/index.php/login')
+	// LaunchPad is the default app, so the login lands on it. A spec about
+	// the first visit (the tour, the support note) must make that visit
+	// itself: a first-visit overlay opens once and is recorded the moment
+	// it shows, so landing on LaunchPad here would use it up.
+	await page.goto(
+		options.tour === true
+			? `/index.php/login?redirect_url=${encodeURIComponent('/index.php/settings/user')}`
+			: '/index.php/login',
+	)
 	await page.locator('input[name="user"]').fill(username)
 	await page.locator('input[name="password"]').fill(password)
 

@@ -644,8 +644,10 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 				'Welcome to Launchpad',
 				{ timeout: 30_000 },
 			)
-			// On the Workspace page: the `/` route, whose view is WorkspaceApp.
-			expect(new URL(page.url()).pathname).toMatch(/\/apps\/launchpad\/?$/)
+			// On the Workspace page, whose view is WorkspaceApp. The address
+			// may carry the active dashboard's slug (dashboard deep links
+			// replace `/` with it), so the view is what identifies the page.
+			expect(new URL(page.url()).pathname).toMatch(/\/apps\/launchpad(\/|$)/)
 			await expect(page.locator('.workspace-shell')).toBeAttached()
 
 			// In the centre: the centred layout, over a full-page dim, and

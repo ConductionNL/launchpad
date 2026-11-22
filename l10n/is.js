@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Engin stjórnborð tiltæk",
     "Contact your administrator" : "Hafið samband við stjórnanda yðar",
     "Create your first dashboard" : "Búa til fyrsta stjórnborðið yðar",
-    "Open menu" : "Opna valmynd",
     "Save failed" : "Vistun mistókst",
     "My dashboards" : "Stjórnborðin mín",
     "Group dashboards" : "Hópstjórnborð",

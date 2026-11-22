@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Nuk ka pulte të disponueshme",
     "Contact your administrator" : "Kontaktoni administratorin tuaj",
     "Create your first dashboard" : "Krijoni pultin tuaj të parë",
-    "Open menu" : "Hap menynë",
     "Save failed" : "Ruajtja dështoi",
     "My dashboards" : "Pultet e mia",
     "Group dashboards" : "Pultet e grupit",

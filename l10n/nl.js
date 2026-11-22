@@ -286,7 +286,6 @@ OC.L10N.register(
     "Create my first dashboard (with starter widgets)" : "Maak mijn eerste dashboard (met startwidgets)",
     "Start empty" : "Leeg beginnen",
     "Create your first dashboard" : "Maak je eerste dashboard",
-    "Open menu" : "Menu openen",
     "Save failed" : "Opslaan mislukt",
     "My dashboards" : "Mijn dashboards",
     "Group dashboards" : "Groepsdashboards",

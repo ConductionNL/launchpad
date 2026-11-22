@@ -21,6 +21,7 @@
 					:href="tileHref(item)"
 					:target="embedContext ? '_blank' : undefined"
 					:rel="embedContext ? 'noopener noreferrer' : undefined"
+					:aria-label="item.title ? undefined : t('launchpad', 'Tile')"
 					:style="{
 						backgroundColor: item.tileBackgroundColor || undefined,
 						color: item.tileTextColor || undefined,

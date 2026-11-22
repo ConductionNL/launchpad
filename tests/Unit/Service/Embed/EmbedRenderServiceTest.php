@@ -134,6 +134,13 @@ class EmbedRenderServiceTest extends TestCase {
 		$this->assertSame('nosniff', $headers['X-Content-Type-Options']);
 	}//end testThePageIsFramedOnlyByTheHostOriginsAndCarriesTheTheme()
 
+	public function testThePageNeverSendsItsTokenUrlAsReferer(): void {
+		$response = $this->service()->page(subjectType: 'widget', subjectId: '42', token: self::token());
+
+		$headers = (new ReflectionProperty(Response::class, 'headers'))->getValue($response);
+		$this->assertSame('strict-origin', $headers['Referrer-Policy']);
+	}//end testThePageNeverSendsItsTokenUrlAsReferer()
+
 	private function service(): EmbedRenderService {
 		return new EmbedRenderService($this->dashboards, $this->widgets, $this->themes, new ScopeEnforcementService());
 	}//end service()

@@ -2342,7 +2342,6 @@ OC.L10N.register(
     "The cases could not be loaded. Try again later." : "De zaken konden niet worden geladen. Probeer het later opnieuw.",
     "No open cases are assigned to you" : "Er staan geen open zaken op uw naam",
     "Shows the open cases assigned to the person viewing, from the register below. Each person sees what OpenRegister lets them see." : "Toont de open zaken op naam van wie kijkt, uit het register hieronder. Iedereen ziet wat OpenRegister hem laat zien.",
-    "Register" : "Register",
     "Number of cases" : "Aantal zaken",
     "Name the register and the schema" : "Noem het register en het schema",
     "Show 1 to 20 cases" : "Toon 1 tot 20 zaken",

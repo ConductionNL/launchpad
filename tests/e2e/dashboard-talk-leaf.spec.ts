@@ -282,6 +282,8 @@ test.describe('Task 14: a non-viewer is refused the dashboard and its discussion
 	let stranger: Principal
 
 	test.beforeAll(async () => {
+		// Three first logins; a hook does not inherit the file's test timeout.
+		test.setTimeout(180_000)
 		own = await setUpOwnDashboard(`e2e-leaf-guard-${RUN}`, `E2E Leaf Guarded ${RUN}`)
 		ownDashboards.push(own)
 		const recipient = await principal('e2e-leaf-guard-recipient')

@@ -255,12 +255,20 @@ The widget placement MUST support a `links JSON` field typed as an array of link
 }
 ```
 
+The list spellings `url` and `action_id` are aliases of the single-button types `external` and `internal`: the renderer and the form MUST accept all five values and treat each alias exactly as its single-button type. The form MUST open an entry in either spelling and save the single-button spelling (`external`, `internal`, `createFile`). An unknown value MUST be treated as `external`.
+
 When `displayMode = 'button'`, only the first entry in the `links` array is used, preserving existing single-button behaviour. When `displayMode = 'list'`, all entries in the array are rendered. The `links` field MAY be empty or null for `displayMode = 'button'` placements (legacy single-link fields take precedence); it MUST be a non-empty array for `displayMode = 'list'`.
 
 #### Scenario: Links array stored on placement
 - GIVEN a placement with `displayMode = 'list'` and `links = [{label: 'Docs', url: '...', actionType: 'url', ...}, ...]`
 - WHEN the placement is retrieved
 - THEN the full `links` array MUST be present in the response
+
+#### Scenario: An action_id entry is never rendered as a link
+- GIVEN a placement with `displayMode = 'list'` and `links = [{label: 'Files', url: 'open-files', actionType: 'action_id'}]`
+- WHEN the widget renders outside edit mode
+- THEN the entry MUST render as a `<button>` with no `href`
+- AND a click MUST open no new tab and MUST dispatch `open-files` as an internal action
 
 #### Scenario: Single-button mode ignores links array
 - GIVEN a placement with `displayMode = 'button'`, a populated `links` array, AND legacy single-link fields (`url`, `icon`)
@@ -290,7 +298,7 @@ For `'createFile'` actions, the `value` field MUST contain the file extension (e
 - THEN the system MUST open the URL in a new tab
 
 #### Scenario: List item with internal action
-@e2e exclude no production module registers `open-files` or any other internal action, and the registry is not reachable from the page, so no click can be shown to invoke one. The host-side dispatch is pinned by Vitest src/components/Widgets/Renderers/__tests__/LinkButtonHost.actions.spec.js; that an `action_id` entry must not render as an external link is guarded by an uncited test in tests/e2e/link-button-widget-list.spec.ts.
+@e2e exclude no production module registers `open-files` or any other internal action, and the registry is not reachable from the page, so no click can be shown to invoke one. The host-side dispatch is pinned by Vitest src/components/Widgets/Renderers/__tests__/LinkButtonHost.actions.spec.js; that an `action_id` entry must not render as an external link is the REQ-LBLM-002 scenario "An action_id entry is never rendered as a link".
 - GIVEN a list item with `actionType: 'action_id'` and `url: 'open-files'` (a registered internal action)
 - WHEN the user clicks the list item
 - THEN the system MUST invoke the registered function for `'open-files'`

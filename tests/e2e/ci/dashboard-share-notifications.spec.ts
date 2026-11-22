@@ -37,6 +37,7 @@ import {
 	assertActingAs,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 } from '../support/principals.ts'
@@ -117,7 +118,9 @@ test.afterAll(async () => {
 
 /** A fresh dashboard owned by alice. */
 async function dashboardOf(label: string): Promise<OwnDashboard> {
-	return createOwnDashboard(alice!.api, `Q3 Plan ${label} ${STAMP}`)
+	const dash = await createOwnDashboard(alice!.api, `Q3 Plan ${label} ${STAMP}`)
+	await publishForRecipients(alice!.api, dash.id)
+	return dash
 }
 
 /** How many share notifications a principal holds about one dashboard. */

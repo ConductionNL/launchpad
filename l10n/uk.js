@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Немає доступних інформаційних панелей",
     "Contact your administrator" : "Зверніться до свого адміністратора",
     "Create your first dashboard" : "Створіть свою першу інформаційну панель",
-    "Open menu" : "Відкрити меню",
     "Save failed" : "Не вдалося зберегти",
     "My dashboards" : "Мої інформаційні панелі",
     "Group dashboards" : "Групові інформаційні панелі",

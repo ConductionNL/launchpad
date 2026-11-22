@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Niciun tablou de bord disponibil",
     "Contact your administrator" : "Contactați administratorul dumneavoastră",
     "Create your first dashboard" : "Creați primul dumneavoastră tablou de bord",
-    "Open menu" : "Deschideți meniul",
     "Save failed" : "Salvarea a eșuat",
     "My dashboards" : "Tablourile mele de bord",
     "Group dashboards" : "Tablouri de bord de grup",

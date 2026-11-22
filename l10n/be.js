@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Няма даступных панэляў",
     "Contact your administrator" : "Звярніцеся да вашага адміністратара",
     "Create your first dashboard" : "Стварыце вашу першую панэль",
-    "Open menu" : "Адкрыць меню",
     "Save failed" : "Не ўдалося захаваць",
     "My dashboards" : "Мае панэлі",
     "Group dashboards" : "Групавыя панэлі",

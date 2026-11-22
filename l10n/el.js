@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Δεν υπάρχουν διαθέσιμοι πίνακες",
     "Contact your administrator" : "Επικοινωνήστε με τον διαχειριστή σας",
     "Create your first dashboard" : "Δημιουργήστε τον πρώτο σας πίνακα",
-    "Open menu" : "Άνοιγμα μενού",
     "Save failed" : "Η αποθήκευση απέτυχε",
     "My dashboards" : "Οι πίνακές μου",
     "Group dashboards" : "Πίνακες ομάδας",

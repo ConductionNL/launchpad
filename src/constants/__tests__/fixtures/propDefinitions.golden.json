@@ -469,6 +469,25 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/ChartSourceForm.vue | kind": {
+		"type": "String",
+		"required": false,
+		"validator": true,
+		"default": "pie"
+	},
+	"../../components/Widgets/Renderers/ChartSourceForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ChartSourceForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/ClockWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -605,6 +624,19 @@
 		"fresh": true
 	},
 	"../../components/Widgets/Renderers/FilesWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/GraphWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/GraphWidgetForm.vue | value": {
 		"type": "Object",
 		"required": false,
 		"validator": false,
@@ -755,6 +787,19 @@
 			"dateFormat": "relative",
 			"metadataFilter": null
 		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/PieChartWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/PieChartWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
 		"fresh": true
 	},
 	"../../components/Widgets/Renderers/SearchWidget.vue | content": {

@@ -129,6 +129,11 @@ import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackages
 // dossiq's by default (openspec/changes/assigned-cases-widget).
 import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
 import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
+// `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
+// CnChartWidget) with a source form for a register query or entered values
+// (openspec/changes/chart-presets).
+import GraphWidgetForm from '../components/Widgets/Renderers/GraphWidgetForm.vue'
+import PieChartWidgetForm from '../components/Widgets/Renderers/PieChartWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -401,6 +406,46 @@ registerDashboardWidget('assigned-cases', {
 	displayName: 'My cases',
 	icon: 'BriefcaseOutline',
 	requiresApp: 'dossiq',
+})
+
+// chart-presets REQ-CHARTP-001..003: "Cirkeldiagram" and "Grafiek" of board
+// LpManagement as presets of the chart stack, not a second one.
+registerDashboardWidget('pie-chart', {
+	renderer: ChartHost,
+	form: PieChartWidgetForm,
+	defaultContent: {
+		chartKind: 'donut',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			groupBy: { field: '', metric: 'count', metricField: '', sort: 'desc', limit: 8 },
+		},
+		showTotal: true,
+		legendValues: true,
+		legendPosition: 'right',
+	},
+	displayName: 'Pie chart',
+	icon: 'ChartDonut',
+})
+
+registerDashboardWidget('graph', {
+	renderer: ChartHost,
+	form: GraphWidgetForm,
+	defaultContent: {
+		chartKind: 'bar',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			bucket: { field: '', interval: 'month', metric: 'count', metricField: '' },
+		},
+		legendPosition: 'bottom',
+	},
+	displayName: 'Graph',
+	icon: 'ChartBar',
 })
 
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,

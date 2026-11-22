@@ -46,6 +46,7 @@ import {
 	API,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 	seedDashboardWithWidget,
@@ -157,7 +158,9 @@ test('on a view-only dashboard the menu has no "Import bookmarks"; with full per
 	const viewOnly = await seedDashboardWithWidget(admin, `E2E Organisatie ${STAMP}`)
 	const full = await seedDashboardWithWidget(admin, `E2E Mijn werkplek ${STAMP}`)
 	try {
+		await publishForRecipients(admin, viewOnly.id)
 		await shareWith(admin, viewOnly.id, viewer.username, 'view_only')
+		await publishForRecipients(admin, full.id)
 		await shareWith(admin, full.id, viewer.username, 'full')
 
 		const active = await viewer.api.post(`${API}/dashboards/active`, {

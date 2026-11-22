@@ -37,6 +37,7 @@ import {
 	assertActingAs,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 } from './support/principals.ts'
@@ -89,6 +90,8 @@ test.beforeAll(async () => {
 
 	pieterDash = await createOwnDashboard(pieter.api, `E2E Pieter ${STAMP}`)
 	janDash = await createOwnDashboard(jan.api, `E2E Jan ${STAMP}`)
+	await publishForRecipients(pieter.api, pieterDash.id)
+	await publishForRecipients(jan.api, janDash.id)
 })
 
 test.afterAll(async () => {

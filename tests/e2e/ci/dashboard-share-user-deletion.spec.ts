@@ -42,6 +42,7 @@ import {
 	assertActingAs,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 } from '../support/principals.ts'
@@ -150,7 +151,9 @@ async function deleteOwner(owner: Principal): Promise<void> {
 
 /** A dashboard owned by `owner`. */
 async function dashboardOf(owner: Principal, label: string): Promise<OwnDashboard> {
-	return createOwnDashboard(owner.api, `E2E deletion ${label} ${STAMP}`)
+	const dash = await createOwnDashboard(owner.api, `E2E deletion ${label} ${STAMP}`)
+	await publishForRecipients(owner.api, dash.id)
+	return dash
 }
 
 test.describe('REQ-SHARE-012 cascade and retention on user deletion', () => {

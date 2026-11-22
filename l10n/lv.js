@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Nav pieejams neviens vadības panelis",
     "Contact your administrator" : "Sazinieties ar savu administratoru",
     "Create your first dashboard" : "Izveidojiet savu pirmo vadības paneli",
-    "Open menu" : "Atvērt izvēlni",
     "Save failed" : "Saglabāšana neizdevās",
     "My dashboards" : "Mani vadības paneļi",
     "Group dashboards" : "Grupas vadības paneļi",

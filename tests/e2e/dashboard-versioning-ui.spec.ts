@@ -45,6 +45,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
@@ -253,6 +254,7 @@ test.describe('REQ-VERSUI-001 who sees "Version history"', () => {
 
 			pieter = await createPrincipal(admin, 'e2e-versui-pieter')
 			await assertActingAs(pieter.api, pieter.username)
+			await publishForRecipients(admin, dash.id)
 			await shareWith(admin, dash.id, pieter.username, 'view_only')
 			// Pin the shared dashboard as pieter's, so his page opens on it.
 			for (const pref of ['default', 'active']) {

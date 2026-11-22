@@ -251,6 +251,9 @@ async function createDashboard(
 	// Registered BEFORE the caller can throw, so a failing test still gets
 	// its dashboard cleaned up — see the teardown note on `createdDashboards`.
 	createdDashboards.push(Number(dash.id))
+	// A draft stays hidden from recipients (REQ-DASH-036).
+	const published = await api.post(`/index.php/apps/launchpad/api/dashboards/${dash.uuid}/publish`)
+	expect(published.status(), await published.text()).toBe(200)
 	return { id: Number(dash.id), uuid: dash.uuid }
 }
 

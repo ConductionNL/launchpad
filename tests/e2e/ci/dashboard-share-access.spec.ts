@@ -35,6 +35,7 @@ import {
 	assertActingAs,
 	createGroup,
 	createPrincipal,
+	publishForRecipients,
 	removeGroup,
 	removePrincipal,
 } from '../support/principals.ts'
@@ -101,7 +102,9 @@ test.afterAll(async () => {
 
 /** A fresh dashboard owned by `owner`, named for the test that made it. */
 async function dashboardOf(owner: Principal, label: string): Promise<OwnDashboard> {
-	return createOwnDashboard(owner.api, `E2E access ${label} ${STAMP}`)
+	const dash = await createOwnDashboard(owner.api, `E2E access ${label} ${STAMP}`)
+	await publishForRecipients(owner.api, dash.id)
+	return dash
 }
 
 /** GET /api/dashboard/{id} as a principal. */

@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Activity\DashboardActivityEmitter;
-use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IURLGenerator;
 use Psr\Log\LoggerInterface;
@@ -47,15 +46,12 @@ class DashboardOutlets {
 	 *                                                    location.
 	 * @param DashboardActivityEmitter|null $activity Sends dashboard_published and dashboard_updated to the
 	 *                                                audience (#713).
-	 * @param ServiceDiscoveryServiceInterface|null $appMenu The current user's app menu, which picks the
-	 *                                                       starter app tiles.
 	 */
 	public function __construct(
 		public readonly LoggerInterface $logger,
 		public readonly ?IEventDispatcher $eventDispatcher=null,
 		public readonly ?IURLGenerator $urlGenerator=null,
 		public readonly ?DashboardActivityEmitter $activity=null,
-		public readonly ?ServiceDiscoveryServiceInterface $appMenu=null,
 	) {
 	}//end __construct()
 }//end class

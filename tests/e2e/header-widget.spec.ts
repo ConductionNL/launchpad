@@ -59,7 +59,7 @@ import {
 	render,
 	rgb,
 } from './support/headerWidget.ts'
-import { contextFor } from './support/principals.ts'
+import { contextFor, publishForRecipients } from './support/principals.ts'
 
 const RUN = Date.now()
 
@@ -243,6 +243,7 @@ test.describe('REQ-HDR-006 file id image with ACL validation', () => {
 
 		const reader = await provisionThrowawayUser('e2e-header-reader')
 		try {
+			await publishForRecipients(suite.api(), Number(suite.dashboard().id))
 			const share = await suite.api().post(`${API}/dashboard/${suite.dashboard().id}/shares`, {
 				data: { shareType: 'user', shareWith: reader.username, permissionLevel: 'view_only' },
 			})

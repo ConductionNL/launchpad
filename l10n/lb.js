@@ -287,7 +287,6 @@ OC.L10N.register(
     "No dashboards available" : "Keng Dashboards verfügbar",
     "Contact your administrator" : "Kontaktéiert Ären Administrateur",
     "Create your first dashboard" : "Erstellt Ären éischten Dashboard",
-    "Open menu" : "Menü opmaachen",
     "Save failed" : "Späicheren feelgeschloen",
     "My dashboards" : "Meng Dashboards",
     "Group dashboards" : "Grupp-Dashboards",

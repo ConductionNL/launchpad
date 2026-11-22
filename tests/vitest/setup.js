@@ -30,3 +30,40 @@ config.global.mocks = {
 	t: tStub,
 	n: nStub,
 }
+
+// p-queue 10 (nested under @nextcloud/vue) calls
+// `process.getBuiltinModule('node:events').setMaxListeners(Infinity, this)`
+// from its constructor. Under jsdom the queue extends jsdom's EventTarget,
+// which Node's `setMaxListeners` rejects, so importing any @nextcloud/vue
+// component that creates a queue at module load throws. Hand p-queue a
+// `node:events` whose `setMaxListeners` ignores non-Node targets.
+const getBuiltinModule = process.getBuiltinModule?.bind(process)
+if (getBuiltinModule) {
+	const events = getBuiltinModule('node:events')
+	const tolerantEvents = {
+		...events,
+		setMaxListeners(n, ...targets) {
+			try {
+				events.setMaxListeners(n, ...targets)
+			} catch (error) {
+				if (error?.code !== 'ERR_INVALID_ARG_TYPE') {
+					throw error
+				}
+			}
+		},
+	}
+	process.getBuiltinModule = (id) => (
+		id === 'node:events' || id === 'events' ? tolerantEvents : getBuiltinModule(id)
+	)
+}
+
+// jsdom has no layout and no ResizeObserver; floating-vue (NcPopover,
+// NcActions) constructs one on mount. Without layout nothing ever resizes,
+// so an observer that never fires is what a browser would report here.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+	globalThis.ResizeObserver = class ResizeObserver {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	}
+}

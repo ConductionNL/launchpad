@@ -135,6 +135,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<!-- REQ-RFP-011: an untouched shipped `default` widget rule lets
 			     every user add LaunchPad's own widgets. An edited rule is kept. -->
 			<step>OCA\LaunchPad\Repair\BroadenDefaultWidgetRule</step>
+			<!-- REQ-RFP-011: an untouched shipped group widget rule (medewerkers,
+			     managers, ict-beheer, hrm) lets its members keep LaunchPad's own
+			     widgets, which a rule without them hides on every dashboard. -->
+			<step>OCA\LaunchPad\Repair\BroadenShippedGroupWidgetRules</step>
 			<!-- REQ-PSP-003: instances installed before the install step existed
 			     get LaunchPad as default app too, but only when no default app
 			     is configured at all. -->

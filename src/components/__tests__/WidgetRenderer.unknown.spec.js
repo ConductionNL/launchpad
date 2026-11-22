@@ -23,7 +23,9 @@ vi.mock('../../services/widgetDataAdapters.js', () => ({
 	buildRendererExtraProps: () => ({}),
 	buildWidgetDataProvide: () => ({}),
 }))
-vi.mock('../../services/widgetBridge.js', () => ({ widgetBridge: {} }))
+vi.mock('../../services/widgetBridge.js', () => ({
+	widgetBridge: { hasWidgetCallback: () => true, mountWidget: vi.fn() },
+}))
 vi.mock('../TileWidget.vue', () => ({ default: { name: 'TileWidget', template: '<div />' } }))
 vi.mock('../Widgets/CalculatedFields/CalculatedValues.vue', () => ({ default: { name: 'CalculatedValues', template: '<div />' } }))
 vi.mock('../../utils/logger.js', () => ({

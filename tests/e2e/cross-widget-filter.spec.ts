@@ -63,6 +63,8 @@ test.describe('cross-widget filter (REQ-CWF-003, REQ-CWF-006, REQ-CWF-007)', () 
 	test('a filtered URL restores the same filters in a fresh browser context', async ({
 		browser,
 	}) => {
+		// Two separate logins of a new account do not fit the default 60 s on a loaded box.
+		test.setTimeout(120_000)
 		const clauses: Clause[] = [
 			{ dimension: 'gemeenteCode', operator: 'eq', value: 'GM0355' },
 			{ dimension: 'status', operator: 'in', value: ['open'] },

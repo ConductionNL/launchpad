@@ -35,7 +35,7 @@ import { PERF_OBJECT_COUNT, PERF_REGISTER, PERF_SCHEMA, seededCount } from './su
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import { chip, currentFilterParam, decodeFilterParam, OBJECTS, putAdminSettings } from './support/filterBus.ts'
 import { NL_ADMINISTRATIVE, storeHierarchies } from './support/hierarchies.ts'
-import { adminApi, gridItem, openWorkspace, Seeds } from './support/widgetPlacements.ts'
+import { adminApi, gridItem, LP_API, openWorkspace, Seeds } from './support/widgetPlacements.ts'
 
 const SOURCE = { register: PERF_REGISTER, schema: PERF_SCHEMA }
 const ROW = '[data-testid="cn-chart-widget-bar-row"]'
@@ -58,11 +58,17 @@ async function seedBoard(seeds: Seeds): Promise<Board> {
 	const dash = await seeds.dashboard(`E2E filter clicks ${Date.now()}`)
 	await clearSeededWidgets(seeds.api, dash.id)
 	await storeHierarchies(seeds.api, dash.id, [NL_ADMINISTRATIVE])
-	// The placement's own title is the name the active-filters panel gives a click.
-	const chart = (gridX: number, gridY: number, content: { title: string } & object) => seeds.widget(dash, {
-		widgetId: 'chart', gridX, gridY, gridWidth: 6, gridHeight: 4, customTitle: content.title,
-		content: { chartKind: 'bar-list', ...content },
-	})
+	const chart = async (gridX: number, gridY: number, content: { title: string } & object) => {
+		const placement = await seeds.widget(dash, {
+			widgetId: 'chart', gridX, gridY, gridWidth: 6, gridHeight: 4,
+			content: { chartKind: 'bar-list', ...content },
+		})
+		// The placement's own title is the name the active-filters panel gives a click;
+		// the create call does not take one, so it is set afterwards.
+		const titled = await seeds.api.put(`${LP_API}/widgets/${placement.id}`, { data: { customTitle: content.title } })
+		expect(titled.status(), await titled.text()).toBeLessThan(300)
+		return placement
+	}
 	const publishes = [{ dimension: 'gemeenteCode', fromField: 'gemeenteCode' }]
 	const gemeenten = { ...SOURCE, groupBy: { field: 'gemeenteCode', sort: 'desc', limit: 5 } }
 	const a = await chart(0, 0, { title: 'Gemeenten', dataSource: gemeenten, publishes })
@@ -218,7 +224,7 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 			await expectWijkenOf(page, board, first)
 
 			await gridItem(page, board.a2.id).locator(ROW).filter({ hasText: second }).click()
-			await expect(page.getByText(`Municipality filter changed: ${first} → ${second}`)).toBeVisible({ timeout: 10_000 })
+			await expect(page.getByText(`Municipality filter changed: ${first} → ${second}`, { exact: true })).toBeVisible({ timeout: 10_000 })
 			await expect(page.locator('[data-testid="active-filters"] [data-dimension]')).toHaveCount(1)
 			await expect(chip(page, 'gemeenteCode')).toContainText(second)
 			await expect(chip(page, 'gemeenteCode').locator('[data-testid="active-filter-source"]')).toContainText('Gemeenten twee')

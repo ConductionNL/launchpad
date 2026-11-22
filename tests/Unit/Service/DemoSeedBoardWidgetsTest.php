@@ -144,4 +144,27 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: self::placementsOf(type: 'my-cases'));
 	}//end testCaseWidgetsReadTheDossiqRegister()
+
+	/**
+	 * The pie chart and the graph carry their entered values in the preset shape.
+	 *
+	 * @return void
+	 */
+	public function testChartsCarryTheirEnteredValues(): void {
+		[$pie] = self::placementsOf(type: 'pie-chart');
+		$this->assertSame(expected: 'manual', actual: $pie['content']['source']);
+		$this->assertSame(expected: 312, actual: array_sum($pie['content']['series']));
+		$this->assertCount(expectedCount: count($pie['content']['series']), haystack: $pie['content']['labels']);
+		$this->assertTrue(condition: $pie['content']['showTotal']);
+
+		[$graph] = self::placementsOf(type: 'graph');
+		$this->assertSame(expected: 'manual', actual: $graph['content']['source']);
+		$this->assertSame(expected: ['column', 'line'], actual: array_column($graph['content']['series'], 'type'));
+		foreach ($graph['content']['series'] as $series) {
+			$this->assertCount(expectedCount: count($graph['content']['categories']), haystack: $series['data']);
+		}
+
+		$this->assertArrayNotHasKey(key: 'fallback', array: $pie);
+		$this->assertArrayNotHasKey(key: 'fallback', array: $graph);
+	}//end testChartsCarryTheirEnteredValues()
 }//end class

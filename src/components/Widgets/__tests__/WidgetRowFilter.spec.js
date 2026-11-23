@@ -96,7 +96,7 @@ describe('in-widget search on a widget that renders rows', () => {
 		expect(JSON.stringify(content)).toBe(before)
 		expect(loadAttentionFeed).toHaveBeenCalledTimes(2)
 		for (const call of loadAttentionFeed.mock.calls) {
-			expect(call).toEqual([])
+			expect(call).toEqual([{ perSource: 1 }])
 		}
 	})
 

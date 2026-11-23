@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * VersionHistoryModal: lists versions newest first, saves a named version
+ * VersionsTab, the Versions tab of the dashboard settings: lists versions newest first, saves a named version
  * and restores after confirmation (dashboard-versioning REQ-VERSUI-001..003).
  * Response shapes are DashboardVersionApiController's: `{versions,
  * modeSupported}` for the list, `{version}` (201) for a save, `{version,
@@ -11,15 +11,15 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import VersionHistoryModal from '../VersionHistoryModal.vue'
-import { api } from '../../services/api.js'
+import VersionsTab from '../VersionsTab.vue'
+import { api } from '../../../../services/api.js'
 
 vi.mock('@nextcloud/l10n', () => ({
 	t: (_app, text, vars = {}) =>
 		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
 }))
 
-vi.mock('../../services/api.js', () => ({
+vi.mock('../../../../services/api.js', () => ({
 	api: {
 		listVersions: vi.fn(),
 		createVersion: vi.fn(),
@@ -28,12 +28,6 @@ vi.mock('../../services/api.js', () => ({
 }))
 
 vi.mock('@conduction/nextcloud-vue', () => ({
-	NcModal: {
-		name: 'NcModal',
-		props: ['name'],
-		emits: ['close'],
-		template: '<div class="modal"><slot /></div>',
-	},
 	CnConfirmDialog: {
 		name: 'CnConfirmDialog',
 		props: ['dialogTitle', 'message', 'confirmLabel'],
@@ -71,8 +65,8 @@ function v(n, note = null, createdBy = 'sanne') {
 }
 
 function mountModal() {
-	return mount(VersionHistoryModal, {
-		props: { open: true, dashboardUuid: 'dash-uuid' },
+	return mount(VersionsTab, {
+		props: { dashboardUuid: 'dash-uuid' },
 	})
 }
 
@@ -80,7 +74,7 @@ beforeEach(() => {
 	vi.clearAllMocks()
 })
 
-describe('VersionHistoryModal', () => {
+describe('VersionsTab', () => {
 	it('REQ-VERSUI-001: lists versions newest first with author and note', async () => {
 		api.listVersions.mockResolvedValue({
 			data: {
@@ -148,7 +142,7 @@ describe('VersionHistoryModal', () => {
 		)
 	})
 
-	it('emits close from the modal, and cancelling the confirmation restores nothing', async () => {
+	it('cancelling the confirmation restores nothing', async () => {
 		api.listVersions.mockResolvedValue({ data: { versions: [v(1)], modeSupported: true } })
 		const wrapper = mountModal()
 		await flushPromises()
@@ -159,9 +153,6 @@ describe('VersionHistoryModal', () => {
 		expect(wrapper.vm.restoreTarget).toBeNull()
 		await wrapper.vm.confirmRestore()
 		expect(api.restoreVersion).not.toHaveBeenCalled()
-
-		wrapper.findComponent({ name: 'NcModal' }).vm.$emit('close')
-		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
 	it('saves a blank note as none, and keeps the list when the answer has no version', async () => {
@@ -244,31 +235,12 @@ describe('VersionHistoryModal', () => {
 		expect(wrapper.find('[data-testid="version-error"]').exists()).toBe(true)
 	})
 
-	it('names the dashboard over a "Versions of" title (board LpVersies)', async () => {
-		api.listVersions.mockResolvedValue({
-			data: { versions: [], modeSupported: true },
-		})
-		const wrapper = mount(VersionHistoryModal, {
-			props: {
-				open: true,
-				dashboardUuid: 'dash-uuid',
-				dashboardName: 'Intranet Zuiddrecht',
-			},
-		})
-		await flushPromises()
-		expect(wrapper.find('[data-testid="version-kicker"]').text()).toBe(
-			'Intranet Zuiddrecht',
-		)
-		expect(wrapper.find('h2').text()).toBe('Versions of Intranet Zuiddrecht')
-	})
-
-	it('keeps the plain title without a name', async () => {
-		api.listVersions.mockResolvedValue({
-			data: { versions: [], modeSupported: true },
-		})
+	it('reads the list again for another dashboard', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [], modeSupported: true } })
 		const wrapper = mountModal()
 		await flushPromises()
-		expect(wrapper.find('[data-testid="version-kicker"]').exists()).toBe(false)
-		expect(wrapper.find('h2').text()).toBe('Version history')
+		await wrapper.setProps({ dashboardUuid: 'other-uuid' })
+		await flushPromises()
+		expect(api.listVersions).toHaveBeenLastCalledWith('other-uuid')
 	})
 })

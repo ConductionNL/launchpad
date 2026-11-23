@@ -56,6 +56,47 @@ describe('dashboard store persistence', () => {
 		store = useDashboardStore()
 	})
 
+	describe('setGridColumns', () => {
+		it('stores a personal dashboard\'s columns and shows them at once', async () => {
+			store.dashboards = [{ id: 4, gridColumns: 12 }, { id: 5, gridColumns: 12 }]
+			store.activeDashboard = { id: 4, gridColumns: 12, source: 'user' }
+			api.updateDashboard.mockResolvedValue({ data: {} })
+
+			await expect(store.setGridColumns(8)).resolves.toBe(true)
+
+			expect(api.updateDashboard).toHaveBeenCalledWith(4, { gridColumns: 8 })
+			expect(store.activeDashboard.gridColumns).toBe(8)
+			expect(store.dashboards).toEqual([{ id: 4, gridColumns: 8 }, { id: 5, gridColumns: 12 }])
+		})
+
+		it('sends a group dashboard\'s columns to the group endpoint', async () => {
+			store.activeDashboard = { id: 9, uuid: 'g-1', groupId: 'staff', gridColumns: 12, source: 'group' }
+			api.updateGroupDashboard.mockResolvedValue({ data: {} })
+
+			await store.setGridColumns(6)
+
+			expect(api.updateGroupDashboard).toHaveBeenCalledWith('staff', 'g-1', { gridColumns: 6 })
+			expect(api.updateDashboard).not.toHaveBeenCalled()
+		})
+
+		it('puts the old count back and says so when the save is refused', async () => {
+			store.activeDashboard = { id: 4, gridColumns: 12, source: 'user' }
+			api.updateDashboard.mockRejectedValue(new Error('403'))
+
+			await expect(store.setGridColumns(8)).resolves.toBe(false)
+
+			expect(store.activeDashboard.gridColumns).toBe(12)
+			expect(showError).toHaveBeenCalledWith('The number of columns could not be saved.')
+		})
+
+		it('does nothing for the current count or without a dashboard', async () => {
+			await expect(store.setGridColumns(8)).resolves.toBe(false)
+			store.activeDashboard = { id: 4, gridColumns: 8 }
+			await expect(store.setGridColumns(8)).resolves.toBe(false)
+			expect(api.updateDashboard).not.toHaveBeenCalled()
+		})
+	})
+
 	describe('publishDashboard / unpublishDashboard', () => {
 		it('patches the listed and active copy with the publication fields only', async () => {
 			store.dashboards = [{ uuid: 'd1', name: 'Home', publicationStatus: 'draft' }, { uuid: 'd2', name: 'Other' }]

@@ -518,6 +518,18 @@
 					:defaultSubject="{ type: 'dashboard', id: dashboard.uuid }" />
 			</div>
 
+			<!-- Board LpVersies: the saved versions of this dashboard. -->
+			<div
+				v-if="!isCreate && currentTab === 'versions'"
+				id="config-panel-versions"
+				role="tabpanel"
+				data-test="config-panel-versions"
+				class="dashboard-config__panel">
+				<VersionsTab
+					:dashboardUuid="dashboard.uuid"
+					@restored="$emit('versionRestored', $event)" />
+			</div>
+
 			<div class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
@@ -576,6 +588,7 @@ import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
+import History from 'vue-material-design-icons/History.vue'
 import Lock from 'vue-material-design-icons/Lock.vue'
 import Palette from 'vue-material-design-icons/Palette.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
@@ -596,6 +609,7 @@ import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 /* Loaded when their tab opens: they bring the export editor and the store. */
 const ExportsTab = defineAsyncComponent(() => import('../components/Workspace/config/ExportsTab.vue'))
 const PublicationTab = defineAsyncComponent(() => import('../components/Workspace/config/PublicationTab.vue'))
+const VersionsTab = defineAsyncComponent(() => import('../components/Workspace/config/VersionsTab.vue'))
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -622,6 +636,7 @@ export default {
 		ExportsTab,
 		LanguagesTab,
 		PublicationTab,
+		VersionsTab,
 		NcModal,
 		NcButton,
 		NcTextField,
@@ -678,6 +693,9 @@ export default {
 		/** Whether the Exports tab is offered. */
 		canScheduleExports: FLAG_PROP,
 
+		/** Whether the Versions tab is offered: the owner or an administrator. */
+		canViewVersions: FLAG_PROP,
+
 		/** This dashboard and its widgets as export subjects: `{type, id, label}`. */
 		exportSubjects: LIST_PROP,
 
@@ -693,7 +711,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'save', 'delete', 'setDefault'],
+	emits: ['close', 'save', 'delete', 'setDefault', 'versionRestored'],
 
 	data() {
 		return {
@@ -835,62 +853,32 @@ export default {
 		 * Config-drawer tab descriptors. The Sharing tab is only offered when
 		 * the user can manage shares — REQ-SHARE-001 is owner-only, so a
 		 * recipient must not be shown a share-management surface at all.
-		 * Publication is for the owner or an administrator (REQ-SCHEDUI-001).
+		 * Publication is for the owner or an administrator (REQ-SCHEDUI-001),
+		 * and so are the Versions (board LpVersies).
 		 *
 		 * @spec openspec/specs/dashboard-sharing/spec.md#req-share-001
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-039-versions-are-a-tab-of-the-dashboard-settings
 		 * @spec openspec/specs/dashboards/spec.md#requirement-a-manager-can-publish-unpublish-and-schedule-a-dashboard-req-schedui-001
 		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		tabs() {
-			const list = [
-				{
-					id: 'general',
-					label: t('launchpad', 'Details'),
-					icon: FormatListBulleted,
-				},
+			const hasUuid = Boolean(this.dashboard?.uuid)
+			return [
+				{ id: 'general', label: t('launchpad', 'Details'), icon: FormatListBulleted, offered: true },
+				// dashboard-language-and-details-tabs: language versions, for the
+				// owner (a dashboard needs a uuid first, so the strip is hidden
+				// while creating).
+				{ id: 'languages', label: t('launchpad', 'Languages'), icon: Translate, offered: this.canManageShares && hasUuid },
+				// REQ-THM-001: the look is the owner's, like sharing.
+				{ id: 'look', label: t('launchpad', 'Look'), icon: Palette, offered: this.canManageShares },
+				{ id: 'sharing', label: t('launchpad', 'Sharing'), icon: ShareVariant, count: this.localShares.length, offered: this.canManageShares },
+				{ id: 'publication', label: t('launchpad', 'Publication'), icon: CalendarClock, offered: this.canManagePublication && hasUuid },
+				{ id: 'exports', label: t('launchpad', 'Exports'), icon: CalendarExport, offered: this.canScheduleExports && hasUuid },
+				{ id: 'versions', label: t('launchpad', 'Versions'), icon: History, offered: this.canViewVersions && hasUuid },
 			]
-			// dashboard-language-and-details-tabs: language versions, for the
-			// owner (a dashboard needs a uuid first, so the strip is hidden
-			// while creating).
-			if (this.canManageShares && this.dashboard?.uuid) {
-				list.push({
-					id: 'languages',
-					label: t('launchpad', 'Languages'),
-					icon: Translate,
-				})
-			}
-			// REQ-THM-001: the look is the owner's, like sharing.
-			if (this.canManageShares) {
-				list.push({
-					id: 'look',
-					label: t('launchpad', 'Look'),
-					icon: Palette,
-				})
-			}
-			if (this.canManageShares) {
-				list.push({
-					id: 'sharing',
-					label: t('launchpad', 'Sharing'),
-					icon: ShareVariant,
-					count: this.localShares.length,
-				})
-			}
-			if (this.canManagePublication && this.dashboard?.uuid) {
-				list.push({
-					id: 'publication',
-					label: t('launchpad', 'Publication'),
-					icon: CalendarClock,
-				})
-			}
-			if (this.canScheduleExports && this.dashboard?.uuid) {
-				list.push({
-					id: 'exports',
-					label: t('launchpad', 'Exports'),
-					icon: CalendarExport,
-				})
-			}
-			return list
+				.filter((tab) => tab.offered)
+				.map(({ offered, ...tab }) => tab)
 		},
 
 		/**

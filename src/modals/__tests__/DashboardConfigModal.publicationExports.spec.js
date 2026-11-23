@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The dashboard settings hold publication and the scheduled exports in
- * their own tabs (REQ-SCHEDUI-001, REQ-SCH-011): which person gets which
- * tab, and what each panel is handed.
+ * The dashboard settings hold publication, the scheduled exports and the
+ * versions in their own tabs (REQ-SCHEDUI-001, REQ-SCH-011, board
+ * LpVersies): which person gets which tab, and what each panel is handed.
  */
 
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
@@ -76,6 +76,18 @@ vi.mock('../../components/Workspace/config/ExportsTab.vue', () => ({
 		props: ['subjects', 'defaultSubject'],
 		render() {
 			return h('div', { class: 'exports-stub' })
+		},
+	},
+}))
+
+vi.mock('../../components/Workspace/config/VersionsTab.vue', () => ({
+	__esModule: true,
+	default: {
+		name: 'VersionsTab',
+		props: ['dashboardUuid'],
+		emits: ['restored'],
+		render() {
+			return h('div', { class: 'versions-stub' })
 		},
 	},
 }))
@@ -158,5 +170,22 @@ describe('DashboardConfigModal publication and exports tabs', () => {
 		const tab = wrapper.findComponent({ name: 'ExportsTab' })
 		expect(tab.props('subjects')).toEqual(subjects)
 		expect(tab.props('defaultSubject')).toEqual({ type: 'dashboard', id: 'uuid-3' })
+	})
+
+	it('ends the strip with Versions for the owner or an administrator', () => {
+		const wrapper = mountModal({ canManagePublication: true, canScheduleExports: true, canViewVersions: true })
+		expect(tabIds(wrapper).at(-1)).toBe('config-tab-versions')
+		expect(wrapper.find('[data-test="config-tab-versions"]').text()).toContain('Versions')
+		expect(tabIds(mountModal())).not.toContain('config-tab-versions')
+	})
+
+	it('hands the Versions panel the dashboard, and passes a restore on', async () => {
+		const wrapper = mountModal({ canViewVersions: true, initialTab: 'versions' })
+		await vi.dynamicImportSettled()
+		await flushPromises()
+		const tab = wrapper.findComponent({ name: 'VersionsTab' })
+		expect(tab.props('dashboardUuid')).toBe('uuid-3')
+		tab.vm.$emit('restored', { versionNumber: 2 })
+		expect(wrapper.emitted('versionRestored')).toEqual([[{ versionNumber: 2 }]])
 	})
 })

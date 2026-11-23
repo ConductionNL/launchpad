@@ -128,10 +128,11 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 	 * Build the controller for alice, allowed to edit, over the given service.
 	 *
 	 * @param DashboardService $service The dashboard service double.
+	 * @param IRequest|null    $request The request, or null for an empty one.
 	 *
 	 * @return DashboardApiController
 	 */
-	private function controller(DashboardService $service): DashboardApiController {
+	private function controller(DashboardService $service, ?IRequest $request = null): DashboardApiController {
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('alice');
 		$session = $this->createMock(IUserSession::class);
@@ -142,7 +143,7 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 		$permissions->method('canEditDashboardMetadata')->willReturn(true);
 
 		return new DashboardApiController(
-			request: $this->createMock(IRequest::class),
+			request: ($request ?? $this->createMock(originalClassName: IRequest::class)),
 			services: new DashboardApiServices(
 				dashboardService: $service
 			),
@@ -182,6 +183,58 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 
 		$this->assertSame(array_keys($expected), array_keys($actual));
 	}//end testPatchMatchesTheRecordedFixture()
+
+	/**
+	 * The edit bar's column count travels in the body and reaches the patch.
+	 *
+	 * @return void
+	 */
+	public function testUpdateSendsTheRequestedColumnCount(): void {
+		$patch   = null;
+		$service = $this->createMock(originalClassName: DashboardService::class);
+		$service->method('updateDashboard')->willReturnCallback(
+			function (int $dashboardId, string $userId, array $data) use (&$patch): Dashboard {
+				$patch = $data;
+				return new Dashboard();
+			}
+		);
+
+		$response = $this->controller(service: $service, request: $this->requestWith(params: ['gridColumns' => 8]))->update(id: 7);
+
+		$this->assertSame(expected: 200, actual: $response->getStatus());
+		$this->assertSame(expected: ['gridColumns' => 8], actual: $patch);
+	}//end testUpdateSendsTheRequestedColumnCount()
+
+	/**
+	 * A column count the grid does not offer is refused before the service runs.
+	 *
+	 * @return void
+	 */
+	public function testUpdateRefusesAnUnofferedColumnCount(): void {
+		$service = $this->createMock(originalClassName: DashboardService::class);
+		$service->expects($this->never())->method('updateDashboard');
+
+		$response = $this->controller(service: $service, request: $this->requestWith(params: ['gridColumns' => 5]))->update(id: 7);
+
+		$this->assertSame(expected: 400, actual: $response->getStatus());
+		$this->assertSame(expected: 'Grid columns must be 6, 8 or 12', actual: $response->getData()['message']);
+	}//end testUpdateRefusesAnUnofferedColumnCount()
+
+	/**
+	 * A request whose body carries the given parameters.
+	 *
+	 * @param array<string, mixed> $params The body parameters.
+	 *
+	 * @return IRequest
+	 */
+	private function requestWith(array $params): IRequest {
+		$request = $this->createMock(originalClassName: IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default)
+		);
+
+		return $request;
+	}//end requestWith()
 
 	/**
 	 * A validation failure in the service answers 400 with its message.

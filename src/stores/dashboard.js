@@ -1113,6 +1113,46 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
+		 * Give the active dashboard 6, 8 or 12 grid columns (the edit bar's
+		 * Columns), through the personal or the group endpoint like the
+		 * placements. The grid follows at once; a refused save puts the old
+		 * count back.
+		 *
+		 * @param {number} columns The new column count.
+		 * @return {Promise<boolean>} Whether the server stored it.
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		async setGridColumns(columns) {
+			const active = this.activeDashboard
+			if (!active || active.gridColumns === columns) {
+				return false
+			}
+			const previous = active.gridColumns
+			const apply = (value) => {
+				this.activeDashboard = { ...this.activeDashboard, gridColumns: value }
+				this.dashboards = this.dashboards.map((d) =>
+					d.id === active.id ? { ...d, gridColumns: value } : d,
+				)
+			}
+			apply(columns)
+			try {
+				if (active.source === SOURCE_GROUP || active.source === SOURCE_DEFAULT) {
+					await api.updateGroupDashboard(active.groupId, active.uuid, {
+						gridColumns: columns,
+					})
+				} else {
+					await api.updateDashboard(active.id, { gridColumns: columns })
+				}
+				return true
+			} catch (error) {
+				logger.error('Failed to save the grid columns:', error)
+				apply(previous)
+				showError(t('launchpad', 'The number of columns could not be saved.'))
+				return false
+			}
+		},
+
+		/**
 		 * Add a widget to the active dashboard. Routes through
 		 * `placeNewWidget` (REQ-GRID-014) so the placement algorithm
 		 * (REQ-GRID-006: append in a fresh row below all existing

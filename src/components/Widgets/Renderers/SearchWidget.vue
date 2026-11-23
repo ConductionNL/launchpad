@@ -5,7 +5,31 @@
 
 <template>
 	<div class="search-widget">
+		<!-- An internet search as LpWerkplek draws it: a field, the engine,
+		     a Search button, and a line that the results open in a new tab. -->
+		<form
+			v-if="webLayout"
+			class="search-widget__web"
+			role="search"
+			data-testid="search-widget-web"
+			@submit.prevent="searchWeb">
+			<span class="search-widget__row">
+				<label :for="inputId" class="hidden-visually">{{ t('launchpad', 'Internet search') }}</label>
+				<input
+					:id="inputId"
+					v-model="webQuery"
+					type="search"
+					class="search-widget__input"
+					:placeholder="content.placeholder || t('launchpad', 'Search the internet')">
+				<span class="search-widget__engine" data-testid="search-widget-engine">{{ engine.name }}</span>
+				<button type="submit" class="search-widget__submit">
+					{{ t('launchpad', 'Search') }}
+				</button>
+			</span>
+			<span class="search-widget__note">{{ t('launchpad', 'Opens the results in a new tab') }}</span>
+		</form>
 		<RuntimeShellSearch
+			v-else
 			:items="searchableTiles"
 			:placeholder="content.placeholder || ''"
 			:fallbackTarget="effectiveFallbackTarget"
@@ -97,7 +121,40 @@ export default {
 		placement: OBJECT_PROP,
 	},
 
+	data() {
+		return {
+			webQuery: '',
+			inputId: `search-widget-${Math.random().toString(36).slice(2, 10)}`,
+		}
+	},
+
 	computed: {
+		/**
+		 * Whether the widget is an internet search form (`content.layout:
+		 * 'web'`) rather than the tile search.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		webLayout() {
+			return this.content?.layout === 'web'
+		},
+
+		/**
+		 * The search engine: `content.engine` `{name, url}` with `{q}` in the
+		 * url, else DuckDuckGo.
+		 *
+		 * @return {{name: string, url: string}}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		engine() {
+			const engine = this.content?.engine
+			if (engine && typeof engine.url === 'string' && engine.url.includes('{q}')) {
+				return { name: String(engine.name || ''), url: engine.url }
+			}
+			return { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q={q}' }
+		},
+
 		...mapState(useDashboardStore, ['widgetPlacements']),
 		...mapState(useWidgetStore, ['availableWidgets']),
 
@@ -146,6 +203,20 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Open the engine's results for the typed words in a new tab.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		searchWeb() {
+			const query = this.webQuery.trim()
+			if (query === '') {
+				return
+			}
+			window.open(this.engine.url.replace('{q}', encodeURIComponent(query)), '_blank', 'noopener,noreferrer')
+		},
+
 		/**
 		 * REQ-QSEARCH-003 "Enter opens the selected tile".
 		 *
@@ -199,6 +270,57 @@ export default {
 </script>
 
 <style scoped>
+.search-widget__web {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.search-widget__row {
+	display: flex;
+	gap: 8px;
+}
+
+.search-widget__input {
+	flex: 1;
+	box-sizing: border-box;
+	min-width: 0;
+	height: 40px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--color-border-maxcontrast);
+	border-radius: 8px;
+	font-size: 14px;
+}
+
+.search-widget__engine {
+	display: inline-flex;
+	align-items: center;
+	box-sizing: border-box;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid var(--color-border-maxcontrast);
+	border-radius: 8px;
+	font-size: 14px;
+}
+
+.search-widget__submit {
+	height: 40px;
+	margin: 0;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 8px;
+	background: var(--color-primary-element);
+	color: var(--color-primary-element-text);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.search-widget__note {
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}
+
 .search-widget {
 	width: 100%;
 	/* The results listbox is absolutely positioned inside RuntimeShellSearch

@@ -19,8 +19,10 @@ vi.mock('@nextcloud/l10n', () => ({
 vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
 const loadAttentionFeed = vi.fn()
+const expandToRecords = vi.fn((items) => items.map((i) => ({ ...i, key: i.key + '/r', title: 'Record of ' + i.title })))
 vi.mock('../../../../services/attentionFeed.js', () => ({
 	loadAttentionFeed: (...args) => loadAttentionFeed(...args),
+	expandToRecords: (...args) => expandToRecords(...args),
 }))
 
 import AttentionWidget from '../AttentionWidget.vue'
@@ -299,5 +301,18 @@ describe('AttentionWidget columns layout (LpVandaag "Vandaag eerst")', () => {
 		)
 		expect(empty.find('.attention-widget__heading').text()).toBe('Vandaag eerst')
 		expect(empty.find('[data-testid="attention-summary"]').exists()).toBe(false)
+	})
+})
+
+describe('AttentionWidget one card per record (LpVandaag)', () => {
+	it('asks for records and draws a card per record with itemCards', async () => {
+		const wrapper = await mountWith({ items: [item('dossiq', 'dossiq', 'error', 2)], failedApps: [], sourceCount: 1 }, { layout: 'columns', limit: 3, itemCards: true })
+		expect(loadAttentionFeed).toHaveBeenCalledWith({ perSource: 3 })
+		expect(wrapper.find('.attention-widget__title').text()).toContain('Record of dossiq title')
+	})
+
+	it('counts only, one card per source, without itemCards', async () => {
+		await mountWith({ items: [item('dossiq', 'dossiq', 'error', 2)], failedApps: [], sourceCount: 1 }, { limit: 3 })
+		expect(loadAttentionFeed).toHaveBeenCalledWith({ perSource: 1 })
 	})
 })

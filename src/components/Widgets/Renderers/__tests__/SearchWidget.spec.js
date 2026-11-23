@@ -164,3 +164,22 @@ describe('SearchWidget — dimming is store state (REQ-QSEARCH-002)', () => {
 		).toBe(false)
 	})
 })
+
+describe('SearchWidget — internet search form (LpWerkplek)', () => {
+	it('draws a field, the engine and Search, and opens the engine results in a new tab', async () => {
+		const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+		const wrapper = mountWidget({ content: { layout: 'web' } })
+		expect(wrapper.find('[data-testid="search-widget-web"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="search-widget-engine"]').text()).toBe('DuckDuckGo')
+		expect(wrapper.findComponent(RuntimeShellSearch).exists()).toBe(false)
+
+		await wrapper.find('input[type="search"]').setValue('omgevingswet')
+		await wrapper.find('form').trigger('submit')
+		expect(open).toHaveBeenCalledWith('https://duckduckgo.com/?q=omgevingswet', '_blank', 'noopener,noreferrer')
+		open.mockRestore()
+	})
+
+	it('keeps the tile search without the web layout', () => {
+		expect(mountWidget().find('[data-testid="search-widget-web"]').exists()).toBe(false)
+	})
+})

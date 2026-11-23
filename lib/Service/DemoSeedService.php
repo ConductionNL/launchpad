@@ -99,7 +99,7 @@ class DemoSeedService {
 		}
 
 		$translation = $this->translation(seedId: $seedId, language: $language);
-		return DemoSeedTranslation::apply(seed: $decoded, strings: $translation['strings']);
+		return (new DemoSeedTranslation())->apply(seed: $decoded, strings: $translation['strings']);
 	}//end definition()
 
 	/**
@@ -114,7 +114,7 @@ class DemoSeedService {
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function translation(string $seedId, string $language): array {
-		foreach (DemoSeedTranslation::candidates(language: $language) as $candidate) {
+		foreach ((new DemoSeedTranslation())->candidates(language: $language) as $candidate) {
 			$decoded = self::readJson(path: self::seedDirectory() . $seedId . '.' . $candidate . '.json');
 			if ($decoded !== null && is_array($decoded['strings'] ?? null) === true) {
 				return [

@@ -53,12 +53,12 @@ final class DemoSeedTranslation {
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	public static function apply(array $seed, array $strings): array {
+	public function apply(array $seed, array $strings): array {
 		if ($strings === []) {
 			return $seed;
 		}
 
-		return self::translateArray(values: $seed, strings: $strings);
+		return $this->translateArray(values: $seed, strings: $strings);
 	}//end apply()
 
 	/**
@@ -71,7 +71,7 @@ final class DemoSeedTranslation {
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	public static function candidates(string $language): array {
+	public function candidates(string $language): array {
 		$language = str_replace(search: '-', replace: '_', subject: trim(string: $language));
 		if (preg_match(pattern: '/^[A-Za-z]{2,3}(_[A-Za-z0-9]{2,8})?$/', subject: $language) !== 1) {
 			return [];
@@ -89,14 +89,14 @@ final class DemoSeedTranslation {
 	 *
 	 * @return array<array-key, mixed> The translated values.
 	 */
-	private static function translateArray(array $values, array $strings): array {
+	private function translateArray(array $values, array $strings): array {
 		foreach ($values as $key => $value) {
 			if (is_string(value: $key) === true && in_array(needle: $key, haystack: self::KEEP_KEYS, strict: true) === true) {
 				continue;
 			}
 
 			if (is_array(value: $value) === true) {
-				$values[$key] = self::translateArray(values: $value, strings: $strings);
+				$values[$key] = $this->translateArray(values: $value, strings: $strings);
 				continue;
 			}
 

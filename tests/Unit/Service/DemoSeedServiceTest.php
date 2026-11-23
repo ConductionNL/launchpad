@@ -80,6 +80,7 @@ class DemoSeedServiceTest extends TestCase {
 	/** @var array<string, CatalogueApp> Catalogue entries by name. */
 	private array $catalogue = [];
 
+	/** @var array<string, Announcement> Announcement rows by UUID. */
 	private array $announcementRows = [];
 
 	/** @var integer The next fake database id. */

@@ -51,7 +51,7 @@ class DemoSeedTranslationTest extends TestCase {
 			'groups'     => ['Vandaag'],
 		];
 
-		$translated = DemoSeedTranslation::apply(seed: $seed, strings: ['Vandaag' => 'Today', 'Vandaag eerst' => 'First things today']);
+		$translated = (new DemoSeedTranslation())->apply(seed: $seed, strings: ['Vandaag' => 'Today', 'Vandaag eerst' => 'First things today']);
 
 		$this->assertSame(expected: 'Today', actual: $translated['dashboards'][0]['name']);
 		$this->assertSame(expected: 'Vandaag', actual: $translated['dashboards'][0]['key']);
@@ -68,7 +68,7 @@ class DemoSeedTranslationTest extends TestCase {
 	 */
 	public function testEmptyMapLeavesTheSeed(): void {
 		$seed = ['name' => 'Vandaag'];
-		$this->assertSame(expected: $seed, actual: DemoSeedTranslation::apply(seed: $seed, strings: []));
+		$this->assertSame(expected: $seed, actual: (new DemoSeedTranslation())->apply(seed: $seed, strings: []));
 	}//end testEmptyMapLeavesTheSeed()
 
 	/**
@@ -77,9 +77,9 @@ class DemoSeedTranslationTest extends TestCase {
 	 * @return void
 	 */
 	public function testCandidates(): void {
-		$this->assertSame(expected: ['en_GB', 'en'], actual: DemoSeedTranslation::candidates(language: 'en-GB'));
-		$this->assertSame(expected: ['en'], actual: DemoSeedTranslation::candidates(language: 'en'));
-		$this->assertSame(expected: [], actual: DemoSeedTranslation::candidates(language: ''));
-		$this->assertSame(expected: [], actual: DemoSeedTranslation::candidates(language: '../../etc/passwd'));
+		$this->assertSame(expected: ['en_GB', 'en'], actual: (new DemoSeedTranslation())->candidates(language: 'en-GB'));
+		$this->assertSame(expected: ['en'], actual: (new DemoSeedTranslation())->candidates(language: 'en'));
+		$this->assertSame(expected: [], actual: (new DemoSeedTranslation())->candidates(language: ''));
+		$this->assertSame(expected: [], actual: (new DemoSeedTranslation())->candidates(language: '../../etc/passwd'));
 	}//end testCandidates()
 }//end class

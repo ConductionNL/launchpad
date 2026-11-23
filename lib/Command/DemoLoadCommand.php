@@ -42,7 +42,8 @@ class DemoLoadCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param DemoSeedService $seeds The demo seed loader.
+	 * @param DemoSeedService $seeds  The demo seed loader.
+	 * @param IConfig         $config The user and system settings that pick the language.
 	 */
 	public function __construct(
 		private readonly DemoSeedService $seeds,

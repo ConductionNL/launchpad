@@ -134,11 +134,11 @@ class RetryHandler {
 	public function afterAttempt(array $delivery, RetryAttempt $attempt): array {
 		$attempts = (int)($delivery['attemptCount'] ?? 0) + 1;
 		$delivery['attemptCount'] = $attempts;
-		$at = DateTimeImmutable::createFromInterface($attempt->now);
+		$attemptedAt = DateTimeImmutable::createFromInterface($attempt->now);
 
 		if ($attempt->succeeded === true) {
 			$delivery['status']        = self::STATUS_SUCCESS;
-			$delivery['deliveredAt']   = $at->format(DateTimeInterface::ATOM);
+			$delivery['deliveredAt']   = $attemptedAt->format(DateTimeInterface::ATOM);
 			$delivery['nextAttemptAt'] = null;
 			$delivery['error']         = null;
 			return $delivery;
@@ -153,7 +153,7 @@ class RetryHandler {
 
 		$wait = $this->backoffSeconds(failedAttempts: $attempts, policy: $attempt->policy, random: $attempt->random);
 		$delivery['status']        = self::STATUS_RETRYING;
-		$delivery['nextAttemptAt'] = $at->modify('+' . $wait . ' seconds')->format(DateTimeInterface::ATOM);
+		$delivery['nextAttemptAt'] = $attemptedAt->modify('+' . $wait . ' seconds')->format(DateTimeInterface::ATOM);
 		return $delivery;
 	}//end afterAttempt()
 
@@ -211,7 +211,7 @@ class RetryHandler {
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-006-retry-with-exponential-backoff-and-dead-letter
 	 */
 	public function rollUp(array $deliveries): string {
-		$statuses = array_map(static fn (array $d): string => (string)($d['status'] ?? self::STATUS_PENDING), $deliveries);
+		$statuses = array_map(static fn (array $delivery): string => (string)($delivery['status'] ?? self::STATUS_PENDING), $deliveries);
 		if ($statuses === []) {
 			return 'failed';
 		}

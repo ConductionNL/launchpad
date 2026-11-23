@@ -83,6 +83,20 @@ class FooterServiceTest extends TestCase {
 		$this->assertStringContainsString('href="https://example.com"', $out);
 	}
 
+	/**
+	 * Every attribute of a tag is read, in source order, and a tag whose attributes
+	 * do not parse keeps none.
+	 *
+	 * @return void
+	 */
+	public function testSanitiseReadsEachAttributeAndDropsUnparsableOnes(): void {
+		$this->assertSame(
+			expected: '<img src="https://example.com/a.png" />',
+			actual: $this->service->sanitiseHtml(html: '<img alt="x" src="https://example.com/a.png" title=\'y\'>')
+		);
+		$this->assertSame(expected: '<p>Tekst</p>', actual: $this->service->sanitiseHtml(html: '<p ="broken" !x>Tekst</p>'));
+	}
+
 	public function testSanitiseKeepsSingleQuotedAndUnquotedHref(): void {
 		$this->assertSame(
 			'<a href="https://example.com" rel="noopener noreferrer" target="_blank">Link</a>',

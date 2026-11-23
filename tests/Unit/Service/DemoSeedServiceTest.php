@@ -41,6 +41,7 @@ use OCA\LaunchPad\Service\DemoSeedFiles;
 use OCA\LaunchPad\Service\DemoSeedFirstRun;
 use OCA\LaunchPad\Service\DemoSeedParts;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
+use OCA\LaunchPad\Service\DemoSeedPublishing;
 use OCA\LaunchPad\Service\DemoSeedService;
 use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCA\LaunchPad\Service\ShowcasePlatform;
@@ -128,7 +129,8 @@ class DemoSeedServiceTest extends TestCase {
 				appConfig: $this->appConfig()
 			),
 			showcases: $this->showcases(),
-			appManager: $this->appManager()
+			appManager: $this->appManager(),
+			publishing: $this->createMock(originalClassName: DemoSeedPublishing::class)
 		);
 	}//end setUp()
 
@@ -143,13 +145,13 @@ class DemoSeedServiceTest extends TestCase {
 		$this->assertSame(
 			expected: [
 				'Vandaag', 'Mijn werkplek', 'Project Havenpark', 'Havenpark: planning',
-				'Intranet Zuiddrecht', 'Team Vergunningen', 'Managementinformatie',
+				'Intranet Zuiddrecht', 'Team Vergunningen', 'Managementinformatie', 'Openbare startpagina', 'Vandaag in Zuiddrecht',
 			],
 			actual: array_column(array: $report['dashboards'], column_key: 'name')
 		);
 		$created = array_column(array: $report['dashboards'], column_key: 'created');
-		$this->assertSame(expected: array_fill(start_index: 0, count: 7, value: true), actual: $created);
-		$this->assertCount(expectedCount: 7, haystack: $this->dashboards);
+		$this->assertSame(expected: array_fill(start_index: 0, count: 9, value: true), actual: $created);
+		$this->assertCount(expectedCount: 9, haystack: $this->dashboards);
 
 		$byName = $this->dashboardsByName();
 		$this->assertSame(expected: 'pieter', actual: $byName['Vandaag']->getUserId());
@@ -191,7 +193,7 @@ class DemoSeedServiceTest extends TestCase {
 		$report = $this->service->load(seedId: 'zuiddrecht-boards');
 
 		$created = array_column(array: $report['dashboards'], column_key: 'created');
-		$this->assertSame(expected: array_fill(start_index: 0, count: 7, value: false), actual: $created);
+		$this->assertSame(expected: array_fill(start_index: 0, count: 9, value: false), actual: $created);
 		$this->assertSame(expected: $first, actual: $this->snapshot());
 		$this->assertSame(expected: ['created' => 0, 'updated' => 13], actual: $report['catalogue']);
 	}//end testSecondRunLeavesTheSameState()
@@ -226,12 +228,15 @@ class DemoSeedServiceTest extends TestCase {
 
 		$this->assertSame(expected: 'en', actual: $report['language']);
 		$this->assertSame(
-			expected: ['Today', 'My workspace', 'Project Havenpark', 'Havenpark: planning', 'Zuiddrecht intranet', 'Permits team', 'Management information'],
+			expected: [
+				'Today', 'My workspace', 'Project Havenpark', 'Havenpark: planning', 'Zuiddrecht intranet', 'Permits team',
+				'Management information', 'Public start page', 'Today in Zuiddrecht',
+			],
 			actual: array_column(array: $report['dashboards'], column_key: 'name')
 		);
 		$created = array_column(array: $report['dashboards'], column_key: 'created');
-		$this->assertSame(expected: array_fill(start_index: 0, count: 7, value: false), actual: $created);
-		$this->assertCount(expectedCount: 7, haystack: $this->dashboards);
+		$this->assertSame(expected: array_fill(start_index: 0, count: 9, value: false), actual: $created);
+		$this->assertCount(expectedCount: 9, haystack: $this->dashboards);
 
 		$names = array_map(callback: fn (CatalogueApp $app): string => (string)$app->getName(), array: array_values(array: $this->catalogue));
 		$this->assertCount(expectedCount: 13, haystack: $names);
@@ -245,7 +250,7 @@ class DemoSeedServiceTest extends TestCase {
 		$joined   = implode(separator: "\n", array: $contents);
 		$this->assertStringContainsString(needle: '"title":"Today"', haystack: $joined);
 		$this->assertStringContainsString(needle: '"assignee":"@me"', haystack: $joined);
-		$this->assertStringContainsString(needle: '"status":"In behandeling"', haystack: $joined);
+		$this->assertStringContainsString(needle: '"statusRole":"in-progress"', haystack: $joined);
 	}//end testEnglishRunTranslatesInPlace()
 
 	/**

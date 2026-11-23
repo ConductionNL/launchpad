@@ -295,6 +295,8 @@ export const CnChartWidget = stub('CnChartWidget')
 export const CnChartWidgetForm = stub('CnChartWidgetForm')
 export const CnStatsBlockWidget = stub('CnStatsBlockWidget')
 export const CnStatsBlockWidgetForm = stub('CnStatsBlockWidgetForm')
+export const CnMapWidget = stub('CnMapWidget')
+export const CnMapWidgetForm = stub('CnMapWidgetForm')
 
 // Communal dashboard widget catalog stub — mirrors nc-vue's
 // `dashboardWidgetRegistry` so launchpad's widgetRegistry (which now CONSUMES
@@ -432,6 +434,7 @@ const _DASH = {
 		defaultContent: {},
 	},
 	'nc-widget': { renderer: CnNcWidgetWidget, form: null, defaultContent: {} },
+	map: { renderer: CnMapWidget, form: CnMapWidgetForm, defaultContent: {} },
 }
 export const dashboardWidgetRegistry = Object.fromEntries(
 	Object.entries(_DASH).map(([type, e]) => [

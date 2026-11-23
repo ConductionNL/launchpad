@@ -26,6 +26,7 @@ export function runtimeManifestRequest() {
  * Forget the pending request (tests).
  *
  * @return {void}
+ * @spec exclude test seam: resets the memoised request between test cases
  */
 export function resetRuntimeManifestRequest() {
 	pending = null

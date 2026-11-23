@@ -34,6 +34,7 @@ use OCA\LaunchPad\Controller\UserResponses;
  *
  * @uses \OCA\LaunchPad\Controller\AcknowledgementTools
  * @uses \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses \OCA\LaunchPad\Controller\UserResponses
  */
 class AcknowledgementControllerCsvTest extends TestCase {
 

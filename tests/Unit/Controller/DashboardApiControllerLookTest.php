@@ -56,6 +56,9 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Exception\ContrastTooLowException
  * @uses   \OCA\LaunchPad\Service\DashboardLook
+ * @uses   \OCA\LaunchPad\Controller\ActorResponses
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiAccess
+ * @uses   \OCA\LaunchPad\Controller\UserResponses
  */
 class DashboardApiControllerLookTest extends TestCase {
 

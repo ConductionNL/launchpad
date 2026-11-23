@@ -43,6 +43,8 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Service\PlacementUpdater
  * @uses   \OCA\LaunchPad\Service\PlacementUpdaters
  * @uses   \OCA\LaunchPad\Service\TileUpdater
+ * @uses   \OCA\LaunchPad\Service\TileLinkTarget
+ * @uses   \OCA\LaunchPad\Service\TileLinkValidator
  */
 class DashboardCoEditingTest extends TestCase {
 

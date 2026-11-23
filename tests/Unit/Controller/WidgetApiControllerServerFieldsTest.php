@@ -87,6 +87,9 @@ use OCA\LaunchPad\Controller\WidgetApiAccess;
 #[UsesClass(CalculatedFieldCycleDetector::class)]
 #[UsesClass(CalculatedFieldEvaluator::class)]
 #[UsesClass(CalculatedFieldSources::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\ActorResponses::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\UserResponses::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\WidgetApiAccess::class)]
 class WidgetApiControllerServerFieldsTest extends TestCase {
 
 	/**

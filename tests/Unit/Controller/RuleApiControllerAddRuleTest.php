@@ -41,6 +41,8 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses   \OCA\LaunchPad\Controller\ActionCaller
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Db\ConditionalRule
+ * @uses   \OCA\LaunchPad\Controller\CallerResponses
+ * @uses   \OCA\LaunchPad\Controller\UserResponses
  */
 class RuleApiControllerAddRuleTest extends TestCase {
 	private ConditionalService&MockObject $rules;

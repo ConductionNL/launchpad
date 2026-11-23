@@ -28,6 +28,9 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Mcp\McpSharingTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Db\DashboardShare
+ * @uses   \OCA\LaunchPad\Exception\ForbiddenException
+ * @uses   \OCA\LaunchPad\Exception\ResourceException
  */
 class McpSharingToolsTest extends TestCase {
 

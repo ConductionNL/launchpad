@@ -40,6 +40,7 @@ use ReflectionProperty;
 #[CoversClass(EmbedRenderService::class)]
 #[UsesClass(EmbedToken::class)]
 #[UsesClass(ScopeEnforcementService::class)]
+#[UsesClass(\OCA\LaunchPad\Db\Dashboard::class)]
 class EmbedRenderServiceTest extends TestCase {
 
 	private DashboardMapper&MockObject $dashboards;

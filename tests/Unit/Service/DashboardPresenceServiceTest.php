@@ -37,6 +37,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Service\DashboardPresenceService
  * @uses   \OCA\LaunchPad\Exception\ForbiddenException
  * @uses   \OCA\LaunchPad\Exception\ResourceException
+ * @uses   \OCA\LaunchPad\Db\Dashboard
  */
 class DashboardPresenceServiceTest extends TestCase {
 

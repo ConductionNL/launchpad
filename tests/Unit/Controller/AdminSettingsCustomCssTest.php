@@ -44,6 +44,8 @@ use OCA\LaunchPad\Controller\AdminSettingsSources;
 #[CoversClass(AdminSettingsController::class)]
 #[UsesClass(RequestGuard::class)]
 #[UsesClass(ResponseHelper::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\AdminSettingsContext::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\AdminSettingsSources::class)]
 class AdminSettingsCustomCssTest extends TestCase {
 
 	/** @var CustomCssService&MockObject */

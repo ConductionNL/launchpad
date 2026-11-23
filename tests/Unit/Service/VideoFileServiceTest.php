@@ -37,6 +37,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \OCA\LaunchPad\Service\VideoFileService
+ * @uses \OCA\LaunchPad\Db\WidgetPlacement
  */
 class VideoFileServiceTest extends TestCase {
 

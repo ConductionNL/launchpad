@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Service\GroupDashboardCreation
  *
  * @uses \OCA\LaunchPad\Service\RoleService
+ * @uses \OCA\LaunchPad\Db\RoleAssignment
  */
 class GroupDashboardCreationTest extends TestCase {
 

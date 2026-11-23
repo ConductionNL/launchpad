@@ -92,7 +92,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	public function testGroupsAreHeadedBySectionHeadings(): void {
 		$expected = [
 			'Mijn werkplek'        => ['Mijn apps', 'Samenwerken'],
-			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', "Collega's", 'Wegwijs'],
+			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', 'Wegwijs'],
 			'Team Vergunningen'    => ['Apps van het team'],
 		];
 		// LpWerkplek heads each group of tiles in its own column.
@@ -166,7 +166,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 */
 	public function testWikiWidgetsReadASpace(): void {
 		$wikis = self::placementsOf(type: 'wiki-pages');
-		$this->assertCount(expectedCount: 2, haystack: $wikis);
+		$this->assertCount(expectedCount: 3, haystack: $wikis);
 		foreach ($wikis as $wiki) {
 			$this->assertSame(expected: ['space', 'limit'], actual: array_slice(array_keys($wiki['content']), 0, 2));
 			$this->assertIsString(actual: $wiki['content']['space']);
@@ -185,7 +185,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 */
 	public function testWorkPackageWidgetsNameTheirScope(): void {
 		$widgets = self::placementsOf(type: 'work-packages');
-		$this->assertCount(expectedCount: 2, haystack: $widgets);
+		$this->assertCount(expectedCount: 4, haystack: $widgets);
 		foreach ($widgets as $widget) {
 			$this->assertSame(expected: ['scope', 'project', 'limit'], actual: array_slice(array_keys($widget['content']), 0, 3));
 			$this->assertContains(needle: $widget['content']['scope'], haystack: ['mine', 'project']);
@@ -202,7 +202,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 */
 	public function testCaseWidgetsReadTheDossiqRegister(): void {
 		$widgets = self::placementsOf(type: 'assigned-cases');
-		$this->assertCount(expectedCount: 2, haystack: $widgets);
+		$this->assertCount(expectedCount: 3, haystack: $widgets);
 		foreach ($widgets as $widget) {
 			$this->assertSame(expected: ['register' => 'dossiq', 'schema' => 'case', 'limit' => 4], actual: array_slice($widget['content'], 0, 3));
 			$this->assertArrayNotHasKey(key: 'fallback', array: $widget);

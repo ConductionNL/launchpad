@@ -141,11 +141,15 @@ class DemoSeedServiceTest extends TestCase {
 		$report = $this->service->load(seedId: 'zuiddrecht-boards');
 
 		$this->assertSame(
-			expected: ['Vandaag', 'Mijn werkplek', 'Intranet Zuiddrecht', 'Team Vergunningen', 'Managementinformatie'],
+			expected: [
+				'Vandaag', 'Mijn werkplek', 'Project Havenpark', 'Havenpark: planning',
+				'Intranet Zuiddrecht', 'Team Vergunningen', 'Managementinformatie',
+			],
 			actual: array_column(array: $report['dashboards'], column_key: 'name')
 		);
-		$this->assertSame(expected: [true, true, true, true, true], actual: array_column(array: $report['dashboards'], column_key: 'created'));
-		$this->assertCount(expectedCount: 5, haystack: $this->dashboards);
+		$created = array_column(array: $report['dashboards'], column_key: 'created');
+		$this->assertSame(expected: array_fill(start_index: 0, count: 7, value: true), actual: $created);
+		$this->assertCount(expectedCount: 7, haystack: $this->dashboards);
 
 		$byName = $this->dashboardsByName();
 		$this->assertSame(expected: 'pieter', actual: $byName['Vandaag']->getUserId());
@@ -186,7 +190,8 @@ class DemoSeedServiceTest extends TestCase {
 
 		$report = $this->service->load(seedId: 'zuiddrecht-boards');
 
-		$this->assertSame(expected: [false, false, false, false, false], actual: array_column(array: $report['dashboards'], column_key: 'created'));
+		$created = array_column(array: $report['dashboards'], column_key: 'created');
+		$this->assertSame(expected: array_fill(start_index: 0, count: 7, value: false), actual: $created);
 		$this->assertSame(expected: $first, actual: $this->snapshot());
 		$this->assertSame(expected: ['created' => 0, 'updated' => 13], actual: $report['catalogue']);
 	}//end testSecondRunLeavesTheSameState()
@@ -221,11 +226,12 @@ class DemoSeedServiceTest extends TestCase {
 
 		$this->assertSame(expected: 'en', actual: $report['language']);
 		$this->assertSame(
-			expected: ['Today', 'My workspace', 'Zuiddrecht intranet', 'Permits team', 'Management information'],
+			expected: ['Today', 'My workspace', 'Project Havenpark', 'Havenpark: planning', 'Zuiddrecht intranet', 'Permits team', 'Management information'],
 			actual: array_column(array: $report['dashboards'], column_key: 'name')
 		);
-		$this->assertSame(expected: [false, false, false, false, false], actual: array_column(array: $report['dashboards'], column_key: 'created'));
-		$this->assertCount(expectedCount: 5, haystack: $this->dashboards);
+		$created = array_column(array: $report['dashboards'], column_key: 'created');
+		$this->assertSame(expected: array_fill(start_index: 0, count: 7, value: false), actual: $created);
+		$this->assertCount(expectedCount: 7, haystack: $this->dashboards);
 
 		$names = array_map(callback: fn (CatalogueApp $app): string => (string)$app->getName(), array: array_values(array: $this->catalogue));
 		$this->assertCount(expectedCount: 13, haystack: $names);

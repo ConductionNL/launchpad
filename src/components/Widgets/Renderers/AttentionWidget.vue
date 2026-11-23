@@ -48,7 +48,9 @@
 		</div>
 
 		<template v-else>
-			<WidgetRowFilter v-if="items.length > 0" v-model="rowFilter" />
+			<!-- The columns layout shows at most a handful of items side by side and
+			     draws no filter field (LpVandaag "Vandaag eerst"). -->
+			<WidgetRowFilter v-if="items.length > 0 && !isColumns" v-model="rowFilter" />
 			<ul
 				v-if="visibleItems.length > 0"
 				class="attention-widget__list"

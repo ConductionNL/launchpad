@@ -33,13 +33,20 @@ namespace OCA\LaunchPad\Service;
  */
 class DemoSeedWidgets {
 	/**
-	 * Flags a tile entry may set that go into its placement's content: a tile
-	 * that shows only its glyph, and one whose rows take its own size on a
-	 * dashboard that fills the screen.
+	 * Settings a tile entry may carry into its placement's content, with the
+	 * type each must have: a tile that shows only its glyph, one whose rows
+	 * take its own size on a dashboard that fills the screen, its pin, its
+	 * count and its outage dot (LpVandaag, LpWerkplek).
 	 *
-	 * @var array<int, string>
+	 * @var array<string, string>
 	 */
-	private const TILE_CONTENT_FLAGS = ['iconOnly', 'fitRows'];
+	private const TILE_CONTENT_SETTINGS = [
+		'iconOnly' => 'boolean',
+		'fitRows'  => 'boolean',
+		'pinned'   => 'boolean',
+		'badge'    => 'integer',
+		'status'   => 'string',
+	];
 
 	/**
 	 * The widget type of a single app tile.
@@ -184,9 +191,9 @@ class DemoSeedWidgets {
 		];
 
 		$payload = [...$layout, ...$this->tileFields(tile: $tile)];
-		foreach (self::TILE_CONTENT_FLAGS as $flag) {
-			if (($entry[$flag] ?? false) === true) {
-				$payload['content'][$flag] = true;
+		foreach (self::TILE_CONTENT_SETTINGS as $key => $type) {
+			if (isset($entry[$key]) === true && gettype($entry[$key]) === $type) {
+				$payload['content'][$key] = $entry[$key];
 			}
 		}
 

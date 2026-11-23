@@ -94,8 +94,29 @@ class DashboardVersionApiController extends Controller {
 			return $this->mapServiceException(exception: $e);
 		}
 
+		$envelope['versions'] = array_map(
+			fn (array $version): array => [...$version, 'createdByName' => $this->displayName(userId: (string)($version['createdBy'] ?? ''))],
+			(array)($envelope['versions'] ?? [])
+		);
+
 		return new JSONResponse(data: $envelope, statusCode: Http::STATUS_OK);
 	}//end listVersions()
+
+	/**
+	 * The name to show for the person who saved a version: their display
+	 * name, else the id as stored (a template or a removed account).
+	 *
+	 * @param string $userId The stored user id.
+	 *
+	 * @return string The name.
+	 */
+	private function displayName(string $userId): string {
+		if ($userId === '' || $this->sources->userManager === null) {
+			return $userId;
+		}
+
+		return $this->sources->userManager->getDisplayName(uid: $userId) ?? $userId;
+	}//end displayName()
 
 	/**
 	 * Fetch a single snapshot body (REQ-VERS-004).

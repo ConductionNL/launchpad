@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Vaikeseaded, millega iga töölaud algab: kes tohib töölaudu luua, õiguste tase ja ruudustik. Seda tutvustust näidatakse üks kord.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Kioski all teed töölaudadest esitusloendeid ekraanile, mis ei vaja sisselogimist.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Demoandmete all laadid LaunchPadi proovimiseks näidistöölauad ja eemaldad need jälle.",
     "Show until" : "Näita kuni",
     "After this time the announcement disappears from every dashboard." : "Pärast seda aega kaob teadaanne kõigilt töölaudadelt.",
     "Visible until {when}" : "Nähtav kuni {when}",

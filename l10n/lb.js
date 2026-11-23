@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "D'Standardastellungen, mat deenen all Dashboard ufänkt: wien Dashboarde maache däerf, den Rechteniveau an de Raster. Dës Tour gëtt eemol gewisen.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Ënner Kiosk maacht Dir Playlisten vun Dashboarde fir e Bildschierm ouni Login.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Ënner Demodaten luet Dir Beispill-Dashboarde fir LaunchPad ze probéieren, a läscht se nees.",
     "Show until" : "Weisen bis",
     "After this time the announcement disappears from every dashboard." : "No dëser Zäit verschwënnt d'Ukënnegung vun all Dashboard.",
     "Visible until {when}" : "Siichtbar bis {when}",

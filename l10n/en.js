@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Under Kiosk you make playlists of dashboards for a screen that needs no login.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Under Demo data you load example dashboards to try LaunchPad, and remove them again.",
     "Show until" : "Show until",
     "After this time the announcement disappears from every dashboard." : "After this time the announcement disappears from every dashboard.",
     "Visible until {when}" : "Visible until {when}",

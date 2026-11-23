@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Na réamhshocruithe a dtosaíonn gach painéal leo: cé a fhéadann painéil a chruthú, an leibhéal ceada agus an ghreille. Taispeántar an turas seo uair amháin.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Faoi Ciosc déanann tú seinmliostaí painéal do scáileán nach gá logáil isteach air.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Faoi Sonraí taispeána lódálann tú painéil shamplacha chun LaunchPad a thriail, agus baineann tú arís iad.",
     "Show until" : "Taispeáin go dtí",
     "After this time the announcement disappears from every dashboard." : "Tar éis an ama seo imíonn an fógra ó gach painéal.",
     "Visible until {when}" : "Le feiceáil go dtí {when}",

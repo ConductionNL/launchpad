@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Οι προεπιλογές με τις οποίες ξεκινά κάθε πίνακας: ποιος μπορεί να δημιουργεί πίνακες, το επίπεδο δικαιωμάτων και το πλέγμα. Αυτή η περιήγηση εμφανίζεται μία φορά.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Στο Περίπτερο φτιάχνετε λίστες αναπαραγωγής πινάκων για μια οθόνη χωρίς σύνδεση.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Στα Δεδομένα επίδειξης φορτώνετε παραδείγματα πινάκων για να δοκιμάσετε το LaunchPad και τα αφαιρείτε ξανά.",
     "Show until" : "Εμφάνιση έως",
     "After this time the announcement disappears from every dashboard." : "Μετά από αυτή την ώρα η ανακοίνωση εξαφανίζεται από κάθε πίνακα.",
     "Visible until {when}" : "Ορατό έως {when}",

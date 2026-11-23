@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Standardvärdena som varje instrumentpanel börjar med: vem som får skapa instrumentpaneler, behörighetsnivån och rutnätet. Den här rundturen visas en gång.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Under Kiosk skapar du spellistor med instrumentpaneler för en skärm utan inloggning.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Under Demodata läser du in exempelpaneler för att prova LaunchPad och tar bort dem igen.",
     "Show until" : "Visa till",
     "After this time the announcement disappears from every dashboard." : "Efter denna tid försvinner meddelandet från alla instrumentpaneler.",
     "Visible until {when}" : "Synlig till {when}",

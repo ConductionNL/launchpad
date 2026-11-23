@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Els valors per defecte amb què comença cada tauler: qui pot crear taulers, el nivell de permís i la graella. Aquest recorregut es mostra una vegada.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "A Quiosc feu llistes de reproducció de taulers per a una pantalla sense inici de sessió.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "A Dades de demostració carregueu taulers d'exemple per provar LaunchPad i els torneu a treure.",
     "Show until" : "Mostra fins al",
     "After this time the announcement disappears from every dashboard." : "Després d'aquesta hora, l'anunci desapareix de tots els taulers.",
     "Visible until {when}" : "Visible fins al {when}",

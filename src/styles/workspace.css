@@ -216,8 +216,18 @@
 /* The card gives the inset; a widget inside it adds none of its own, so its
    first line starts on the title's 18px (the agenda, recent work, mail). The
    renderer's own 16px padding added a second inset. */
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .widget-renderer {
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget) {
 	padding: 0;
+}
+
+/* Bookmark groups are headed by a small uppercase label (LpWerkplek). */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-links-widget__section-title {
+	margin: 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
 }
 
 /* A list in a card starts with a rule under the title, as the boards draw

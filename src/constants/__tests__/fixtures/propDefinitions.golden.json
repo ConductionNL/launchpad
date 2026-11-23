@@ -1339,6 +1339,27 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/FilterBreadcrumb.vue | hierarchies": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/FilterBreadcrumb.vue | clauses": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/FilterBreadcrumb.vue | labels": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Workspace/HiddenWidgetsControl.vue | hiddenPlacements": {
 		"type": "Array",
 		"required": false,

@@ -323,7 +323,8 @@ class EmbedTokenService {
 
 		$now = $this->nowIso();
 		if ($token->isRevoked() === false) {
-			$this->store->save(schema: EmbedObjectStore::TOKENS, object: $token->revoked(revokedAt: $now, reason: 're-issued', notes: null, revokedBy: $userId)->toObject());
+			$retired = $token->revoked(revokedAt: $now, reason: 're-issued', notes: null, revokedBy: $userId);
+			$this->store->save(schema: EmbedObjectStore::TOKENS, object: $retired->toObject());
 			$this->revocations->markRevoked(tokenId: $token->id);
 		}
 

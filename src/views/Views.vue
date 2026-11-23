@@ -574,19 +574,38 @@ function barePath(path) {
 }
 
 /**
- * A placement with the minimum height its widget type registers, so the grid
- * lets a divider be one row while other widgets keep the grid's minimum.
+ * Whether a placement is a tile: a launcher tile (`tile`, `tile-{id}`, or an
+ * inline tile with a `tileType`) or an app tile.
  *
  * @param {object} placement The placement.
- * @return {object} The placement, or a copy carrying `minHeight`.
+ * @return {boolean}
+ * @spec openspec/specs/widgets/spec.md
+ */
+export function isTilePlacement(placement) {
+	const id = String(placement?.widgetId ?? '')
+	return id === 'tile' || id === 'app-tile' || id.startsWith('tile-') || Boolean(placement?.tileType)
+}
+
+/**
+ * A placement with the minimum size its widget type registers, so the grid
+ * lets a divider be one row and a tile one column while other widgets keep
+ * the grid's minimum.
+ *
+ * @param {object} placement The placement.
+ * @return {object} The placement, or a copy carrying `minHeight` / `minWidth`.
  * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
  */
-function withTypeMinHeight(placement) {
-	const minHeight = getWidgetTypeEntry(placement?.widgetId)?.minHeight
-	if (!Number.isFinite(minHeight) || placement.minHeight !== undefined) {
-		return placement
+export function withTypeMinHeight(placement) {
+	const entry = getWidgetTypeEntry(placement?.widgetId)
+	const extra = {}
+	if (Number.isFinite(entry?.minHeight) && placement.minHeight === undefined) {
+		extra.minHeight = entry.minHeight
 	}
-	return { ...placement, minHeight }
+	const minWidth = isTilePlacement(placement) ? 1 : entry?.minWidth
+	if (Number.isFinite(minWidth) && placement.minWidth === undefined) {
+		extra.minWidth = minWidth
+	}
+	return Object.keys(extra).length === 0 ? placement : { ...placement, ...extra }
 }
 
 

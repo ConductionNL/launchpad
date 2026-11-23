@@ -347,3 +347,10 @@
 .launchpad-container .cn-label-widget.cn-label-widget {
 	padding: 0;
 }
+
+/* A tile on a dashboard that fills the screen is square: its rows take the
+   tile's own size (fitRows) and the cards beside it take the rest of the
+   height (LpVandaag). The square comes from the cell's width. */
+.launchpad-container--fill .grid-stack-item:is([data-cn-widget-id='tile'], [data-cn-widget-id='app-tile']) {
+	aspect-ratio: 1 / 1;
+}

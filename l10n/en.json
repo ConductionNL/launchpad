@@ -1727,6 +1727,8 @@
         "Not now": "Not now",
         "{index} of {total} · next in {seconds} s": "{index} of {total} · next in {seconds} s",
         "Now showing {name}": "Now showing {name}",
-        "Own look": "Own look"
+        "Own look": "Own look",
+        "view only": "view only",
+        "you may add widgets": "you may add widgets"
     }
 }

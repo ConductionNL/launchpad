@@ -1408,6 +1408,8 @@
         "Not now": "Не сега",
         "{index} of {total} · next in {seconds} s": "{index} от {total} · следващо след {seconds} s",
         "Now showing {name}": "Сега се показва: {name}",
-        "Own look": "Собствен облик"
+        "Own look": "Собствен облик",
+        "view only": "само преглед",
+        "you may add widgets": "можете да добавяте уиджети"
     }
 }

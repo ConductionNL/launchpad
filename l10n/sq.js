@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "vetëm shikim",
+    "you may add widgets" : "mund të shtoni widget-e",
     "Own look" : "Pamje e vetë",
     "{index} of {total} · next in {seconds} s" : "{index} nga {total} · tjetra pas {seconds} s",
     "Now showing {name}" : "Tani shfaqet: {name}",

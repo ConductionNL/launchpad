@@ -1408,6 +1408,8 @@
         "Not now": "Jo tani",
         "{index} of {total} · next in {seconds} s": "{index} nga {total} · tjetra pas {seconds} s",
         "Now showing {name}": "Tani shfaqet: {name}",
-        "Own look": "Pamje e vetë"
+        "Own look": "Pamje e vetë",
+        "view only": "vetëm shikim",
+        "you may add widgets": "mund të shtoni widget-e"
     }
 }

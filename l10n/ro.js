@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "doar vizualizare",
+    "you may add widgets" : "puteți adăuga widgeturi",
     "Own look" : "Aspect propriu",
     "{index} of {total} · next in {seconds} s" : "{index} din {total} · următorul în {seconds} s",
     "Now showing {name}" : "Acum se afișează: {name}",

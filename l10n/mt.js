@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "tara biss",
+    "you may add widgets" : "tista' żżid widgets",
     "Own look" : "Dehra proprja",
     "{index} of {total} · next in {seconds} s" : "{index} minn {total} · li jmiss f'{seconds} s",
     "Now showing {name}" : "Qed jintwera issa: {name}",

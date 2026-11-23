@@ -1,6 +1,6 @@
 # Tasks: dashboard-period-and-download
 
-- [ ] `DashboardPageHeader.vue`: the reader's rights ("alleen bekijken", "u mag widgets toevoegen") in the meta line; `@spec` tags to REQ-DPD-001
+- [x] `DashboardPageHeader.vue`: the reader's rights ("alleen bekijken", "u mag widgets toevoegen") in the meta line; `@spec` tags to REQ-DPD-001
 - [ ] Period control in the header, shown when a placement's source names `periodField`; This month, Quarter, Year; kept in `?period=`
 - [ ] Register-query sources (`ChartHost` and the `stat`, `pie-chart`, `graph`, `table` sources): add the period range on `periodField` to the query; ignore it without a period field
 - [ ] Widget forms with a register source: an optional "Date field for the period" select over the schema's date properties

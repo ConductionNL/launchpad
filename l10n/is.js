@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "aðeins skoða",
+    "you may add widgets" : "þú mátt bæta við græjum",
     "Own look" : "Eigið útlit",
     "{index} of {total} · next in {seconds} s" : "{index} af {total} · næst eftir {seconds} s",
     "Now showing {name}" : "Sýnt núna: {name}",

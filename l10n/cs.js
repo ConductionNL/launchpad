@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "jen zobrazení",
+    "you may add widgets" : "můžete přidávat widgety",
     "Own look" : "Vlastní vzhled",
     "{index} of {total} · next in {seconds} s" : "{index} z {total} · další za {seconds} s",
     "Now showing {name}" : "Nyní zobrazeno: {name}",

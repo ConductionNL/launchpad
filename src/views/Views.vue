@@ -201,7 +201,8 @@
 				v-if="activeDashboard && !kiosk && !hasGroundHeader && !isEditMode"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
-				:isDefault="activeDashboard.uuid === defaultDashboardUuid" />
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
+				:permissionLevel="permissionLevel" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"

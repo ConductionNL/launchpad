@@ -1408,6 +1408,8 @@
         "Not now": "Ei nyt",
         "{index} of {total} · next in {seconds} s": "{index}/{total} · seuraava {seconds} s kuluttua",
         "Now showing {name}": "Nyt näytössä: {name}",
-        "Own look": "Oma ulkoasu"
+        "Own look": "Oma ulkoasu",
+        "view only": "vain katselu",
+        "you may add widgets": "voit lisätä pienoisohjelmia"
     }
 }

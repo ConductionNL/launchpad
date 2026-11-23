@@ -1408,6 +1408,8 @@
         "Not now": "Betg ussa",
         "{index} of {total} · next in {seconds} s": "{index} da {total} · proxim en {seconds} s",
         "Now showing {name}": "Ussa vesaivel: {name}",
-        "Own look": "Agen aspect"
+        "Own look": "Agen aspect",
+        "view only": "mo guardar",
+        "you may add widgets": "Vus dastgais agiuntar widgets"
     }
 }

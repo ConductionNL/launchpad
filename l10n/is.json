@@ -1408,6 +1408,8 @@
         "Not now": "Ekki núna",
         "{index} of {total} · next in {seconds} s": "{index} af {total} · næst eftir {seconds} s",
         "Now showing {name}": "Sýnt núna: {name}",
-        "Own look": "Eigið útlit"
+        "Own look": "Eigið útlit",
+        "view only": "aðeins skoða",
+        "you may add widgets": "þú mátt bæta við græjum"
     }
 }

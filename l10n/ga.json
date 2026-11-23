@@ -1414,6 +1414,8 @@
         "Not now": "Ní anois",
         "{index} of {total} · next in {seconds} s": "{index} as {total} · an chéad cheann eile i gceann {seconds} s",
         "Now showing {name}": "Á thaispeáint anois: {name}",
-        "Own look": "Cuma féin"
+        "Own look": "Cuma féin",
+        "view only": "féachaint amháin",
+        "you may add widgets": "is féidir leat giuirléidí a chur leis"
     }
 }

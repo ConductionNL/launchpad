@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "ainult vaatamine",
+    "you may add widgets" : "võite lisada vidinaid",
     "Own look" : "Oma välimus",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · järgmine {seconds} s pärast",
     "Now showing {name}" : "Praegu kuvatakse: {name}",

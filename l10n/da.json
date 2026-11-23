@@ -1408,6 +1408,8 @@
         "Not now": "Ikke nu",
         "{index} of {total} · next in {seconds} s": "{index} af {total} · næste om {seconds} s",
         "Now showing {name}": "Vises nu: {name}",
-        "Own look": "Eget udseende"
+        "Own look": "Eget udseende",
+        "view only": "kun visning",
+        "you may add widgets": "du må tilføje widgets"
     }
 }

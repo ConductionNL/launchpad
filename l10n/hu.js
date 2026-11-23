@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "csak megtekintés",
+    "you may add widgets" : "hozzáadhat widgeteket",
     "Own look" : "Saját megjelenés",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · a következő {seconds} s múlva",
     "Now showing {name}" : "Most látható: {name}",

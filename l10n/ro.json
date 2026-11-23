@@ -1410,6 +1410,8 @@
         "Not now": "Nu acum",
         "{index} of {total} · next in {seconds} s": "{index} din {total} · următorul în {seconds} s",
         "Now showing {name}": "Acum se afișează: {name}",
-        "Own look": "Aspect propriu"
+        "Own look": "Aspect propriu",
+        "view only": "doar vizualizare",
+        "you may add widgets": "puteți adăuga widgeturi"
     }
 }

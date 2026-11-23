@@ -1410,6 +1410,8 @@
         "Not now": "Teď ne",
         "{index} of {total} · next in {seconds} s": "{index} z {total} · další za {seconds} s",
         "Now showing {name}": "Nyní zobrazeno: {name}",
-        "Own look": "Vlastní vzhled"
+        "Own look": "Vlastní vzhled",
+        "view only": "jen zobrazení",
+        "you may add widgets": "můžete přidávat widgety"
     }
 }

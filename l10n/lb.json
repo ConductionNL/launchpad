@@ -1408,6 +1408,8 @@
         "Not now": "Net elo",
         "{index} of {total} · next in {seconds} s": "{index} vun {total} · nächst an {seconds} s",
         "Now showing {name}": "Elo ze gesinn: {name}",
-        "Own look": "Eegene Look"
+        "Own look": "Eegene Look",
+        "view only": "nëmmen ukucken",
+        "you may add widgets": "Dir dierft Widgeten derbäisetzen"
     }
 }

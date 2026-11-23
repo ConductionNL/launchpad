@@ -372,3 +372,14 @@ LaunchPad MUST draw its pages on the page ground, not on the white content panel
 - THEN the content area MUST carry the page ground token, not the main background, and each widget MUST keep its own surface
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-012
+
+### Requirement: The page header holds only launchpad's own actions (REQ-SHELL-NOBQ)
+
+Launchpad's pages SHALL NOT show the Buildiq in-app edit button, also where Buildiq is enabled. The manifest SHALL set
+`openbuildEditable: false`.
+
+#### Scenario: Buildiq is enabled
+
+- **GIVEN** an instance with Buildiq enabled
+- **WHEN** a person opens a launchpad dashboard
+- **THEN** the page header shows no Buildiq edit button

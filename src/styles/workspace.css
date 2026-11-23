@@ -523,13 +523,14 @@
 }
 
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node__label-button {
+	min-height: 0;
 	margin: 0;
 	padding-inline: 0;
 }
 
-/* The first group label stands right under the title. */
+/* The first group label stands 14px under the title (LpWerkplek). */
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1:first-child > .cn-menu-tree-node__row {
-	padding-top: 0 !important;
+	padding-top: 6px !important;
 }
 
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {

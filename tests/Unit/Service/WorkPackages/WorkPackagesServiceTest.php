@@ -103,6 +103,7 @@ class WorkPackagesServiceTest extends TestCase {
 		$again = $service->openWorkPackages(userId: 'pieter', scope: 'mine', project: '', limit: 4);
 		$this->assertSame(expected: 'A', actual: $again['workPackages'][0]['subject']);
 		$this->assertSame(expected: [], actual: $this->api->lastRequest);
+		$this->assertSame(expected: ['pieter/mine//4' => 300], actual: $this->cache->ttls);
 
 		$this->api->response = ['error' => 'down', 'statusCode' => 500];
 		$service->openWorkPackages(userId: 'sanne', scope: 'mine', project: '', limit: 4);

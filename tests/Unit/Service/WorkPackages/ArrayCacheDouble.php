@@ -31,6 +31,13 @@ class ArrayCacheDouble implements ICache {
 	private array $values = [];
 
 	/**
+	 * The time to live each key was kept with, in seconds.
+	 *
+	 * @var array<string, int>
+	 */
+	public array $ttls = [];
+
+	/**
 	 * The value of a key, null when absent.
 	 *
 	 * @param string $key The key.
@@ -46,12 +53,13 @@ class ArrayCacheDouble implements ICache {
 	 *
 	 * @param string $key   The key.
 	 * @param mixed  $value The value.
-	 * @param int    $ttl   Ignored.
+	 * @param int    $ttl   Seconds to keep it, recorded in {@see $ttls}.
 	 *
 	 * @return bool
 	 */
 	public function set($key, $value, $ttl=0) {
 		$this->values[$key] = $value;
+		$this->ttls[$key]   = (int)$ttl;
 		return true;
 	}//end set()
 

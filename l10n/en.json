@@ -232,7 +232,6 @@
         "Apps": "Apps",
         "Weather": "Weather",
         "News from the organisation": "News from the organisation",
-        "These {count} starter widgets go on it. You can move or remove them later.": "These {count} starter widgets go on it. You can move or remove them later.",
         "Create my first dashboard (with starter widgets)": "Create my first dashboard (with starter widgets)",
         "Start empty": "Start empty",
         "Create your first dashboard": "Create your first dashboard",
@@ -1741,6 +1740,9 @@
         "After this time the announcement disappears from every dashboard.": "After this time the announcement disappears from every dashboard.",
         "Visible until {when}": "Visible until {when}",
         "Choose until when the announcement shows": "Choose until when the announcement shows",
-        "The end time must be after the publish time": "The end time must be after the publish time"
+        "The end time must be after the publish time": "The end time must be after the publish time",
+        "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.": "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.",
+        "Welcome to Launchpad, {name} · {date}": "Welcome to Launchpad, {name} · {date}",
+        "Welcome to Launchpad · {date}": "Welcome to Launchpad · {date}"
     }
 }

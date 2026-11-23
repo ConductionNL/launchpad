@@ -40,6 +40,7 @@ import type { APIRequestContext } from '@playwright/test'
 import { expect, request as pwRequest, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
 import { BASE_URL as BASE } from '../support/baseUrl.ts'
+import { MORE_MENU, openDashboardSwitcher } from '../support/dashboardSwitcher.ts'
 
 const ADMIN_CREDS = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -77,10 +78,10 @@ async function gotoLaunchPad(
 	// navigation once so a single blip does not fail an otherwise-green test.
 	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	} catch {
 		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
 	// Close sidebar if it happened to be open from a prior test run (or from
 	// a redirect that lands with the sidebar pre-open).
@@ -93,8 +94,7 @@ async function gotoLaunchPad(
 		if (await closeBtn.isVisible().catch(() => false)) {
 			await closeBtn.click()
 		} else {
-			// Toggle with the hamburger.
-			await page.locator('.launchpad-sidebar-toggle').first().click()
+			await page.keyboard.press('Escape')
 		}
 		await page.waitForFunction(
 			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
@@ -105,11 +105,7 @@ async function gotoLaunchPad(
 
 // Open the sidebar and wait for the slide-in transition to settle.
 async function openSidebar(page: any) {
-	const toggle = page.locator('.launchpad-sidebar-toggle').first()
-	await toggle.click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
+	await openDashboardSwitcher(page)
 }
 
 // Open the Add-Widget modal via the per-row cog ("Dashboard menu") on the
@@ -523,11 +519,9 @@ test.describe('grid layout initialisation and edit mode', () => {
 	test('non-admin cannot see Add-widget entry (canEdit=false guard is visible)', async ({
 		page,
 	}) => {
-		// For admin the sidebar toggle is always visible (canEdit=true).
-		// The wave3 tests assert exactly 1 floating button for admin which indirectly
-		// verifies the guard — this test just confirms the toggle renders.
-		const ham = page.locator('.launchpad-sidebar-toggle')
-		await expect(ham).toBeVisible()
+		// For admin the More menu is always visible (canEdit=true); this
+		// test confirms it renders.
+		await expect(page.locator(MORE_MENU)).toBeVisible()
 	})
 })
 

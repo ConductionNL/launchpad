@@ -31,6 +31,7 @@ import type { Page } from '@playwright/test'
 import type { Locator } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 /**
  * Wait for a locator's `boundingBox()` to stop changing before reading it.
@@ -88,18 +89,15 @@ async function waitForStableBox(locator: Locator, timeoutMs = 2_000) {
 async function openInEditMode(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	} catch {
 		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
 
 	// Open the sidebar and enter edit mode for the active personal dashboard
 	// via its per-row cog menu ("Edit dashboard").
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
+	await openDashboardSwitcher(page)
 	const activeRow = page
 		.locator(
 			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',

@@ -52,6 +52,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -201,11 +202,10 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		await api.put(SETTINGS, { data: { allowMultiDash: true } })
 
 		/*
-		 * SEED A DASHBOARD FOR THE BROWSER LEG. `.launchpad-sidebar-toggle`
-		 * lives in `.launchpad-floating-controls`, which renders only once a
-		 * dashboard is ACTIVE. `tests/e2e/seed.sh` creates the `e2e-grantee`
+		 * SEED A DASHBOARD FOR THE BROWSER LEG. The More menu renders only
+		 * once a dashboard is ACTIVE. `tests/e2e/seed.sh` creates the `e2e-grantee`
 		 * USER and nothing else, so on the cold instance CI provisions
-		 * LaunchPad renders "You have no dashboard yet" and the toggle is simply
+		 * LaunchPad renders "You have no dashboard yet" and the menu is simply
 		 * absent — the failure mode that had four other specs excluded from
 		 * this suite. Seeding here rather than leaning on whatever an earlier
 		 * spec left behind is why this passes on a cold rig as well as a warm
@@ -385,27 +385,18 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 })
 
 /**
- * Open the dashboard-switcher sidebar via the floating toggle.
- *
- * Targets `.launchpad-sidebar-toggle` exactly. `.launchpad-floating-controls`
- * also hosts the dashboard-cog and Share buttons and the cog precedes the
- * toggle in DOM order, so a comma-selector `.first()` opens the wrong popover
- * and leaves the sidebar shut.
+ * Open the dashboard-switcher sidebar through More, All dashboards.
  *
  * @param page the page showing the workspace shell.
  * @return nothing.
  */
 async function openSidebar(page: Page): Promise<void> {
-	const toggle = page.locator('.launchpad-sidebar-toggle').first()
-	await expect(toggle).toBeVisible({ timeout: 10_000 })
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 10_000 })
 	const isOpen = await page
 		.locator('.dashboard-switcher-sidebar.open')
 		.isVisible()
 		.catch(() => false)
 	if (!isOpen) {
-		await toggle.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 8_000,
-		})
+		await openDashboardSwitcher(page)
 	}
 }

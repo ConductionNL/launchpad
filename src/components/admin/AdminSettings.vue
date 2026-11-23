@@ -570,7 +570,8 @@ export default {
 		pageTitle() {
 			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
 			const label = tab ? tab.label.toLocaleLowerCase() : ''
-			return this.t('launchpad', 'Launchpad administration: {tab}', { tab: label })
+			// The tab name goes into text interpolation, which escapes it again.
+			return this.t('launchpad', 'Launchpad administration: {tab}', { tab: label }, undefined, { escape: false })
 		},
 
 		/**
@@ -584,7 +585,7 @@ export default {
 			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
 			const crumbs = [
 				{
-					label: this.t('launchpad', 'Admin settings'),
+					label: this.t('launchpad', 'Administration settings'),
 					href: generateUrl('/settings/admin'),
 				},
 				{ label: 'Launchpad' },
@@ -620,14 +621,14 @@ export default {
 			return [
 				{ id: 'general', label: this.t('launchpad', 'General') },
 				{ id: 'templates', label: this.t('launchpad', 'Templates') },
-				{ id: 'operations', label: this.t('launchpad', 'Operations') },
+				{ id: 'operations', label: this.t('launchpad', 'Controls') },
 				{
 					id: 'roles-permissions',
-					label: this.t('launchpad', 'Roles & Permissions'),
+					label: this.t('launchpad', 'Roles and permissions'),
 				},
 				{
 					id: 'versioning-audit',
-					label: this.t('launchpad', 'Versioning & Audit'),
+					label: this.t('launchpad', 'Versions and analytics'),
 				},
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
 				{ id: 'embeds', label: this.t('launchpad', 'Embeds') },
@@ -635,7 +636,7 @@ export default {
 				{ id: 'communities', label: this.t('launchpad', 'Communities') },
 				{
 					id: 'org-navigation',
-					label: this.t('launchpad', 'Org navigation'),
+					label: this.t('launchpad', 'Organisation menu'),
 				},
 				{ id: 'demo-data', label: this.t('launchpad', 'Demo data') },
 				{

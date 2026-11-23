@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Administration settings" : "Administration settings",
+    "Controls" : "Controls",
+    "Versions and analytics" : "Versions and analytics",
+    "Organisation menu" : "Organisation menu",
     "Dashboard renamed to %s" : "Dashboard renamed to %s",
     "Columns from %1$s to %2$s" : "Columns from %1$s to %2$s",
     "Widget %s added" : "Widget %s added",

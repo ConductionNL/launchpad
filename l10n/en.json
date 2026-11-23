@@ -1720,6 +1720,10 @@
         "Heading": "Heading",
         "Explanation": "Explanation",
         "One line under the heading. Leave empty for none.": "One line under the heading. Leave empty for none.",
-        "Give the heading a title": "Give the heading a title"
+        "Give the heading a title": "Give the heading a title",
+        "Administration settings": "Administration settings",
+        "Controls": "Controls",
+        "Versions and analytics": "Versions and analytics",
+        "Organisation menu": "Organisation menu"
     }
 }

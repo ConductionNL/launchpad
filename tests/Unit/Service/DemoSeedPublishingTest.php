@@ -96,10 +96,35 @@ class DemoSeedPublishingTest extends TestCase {
 			kiosk: $this->createMock(originalClassName: KioskService::class)
 		);
 
-		$this->assertSame(expected: 'open-token', actual: $publishing->publishStartPage(dashboardUuid: 'd8', publisher: 'beheer'));
+		$this->assertSame(expected: 'open-token', actual: $publishing->publishStartPage(dashboardUuid: 'd8', publisher: 'beheer', enable: true));
 		$this->assertSame(expected: 'open-token', actual: $this->settings['public_start_share_token']);
 		$this->assertTrue(condition: $this->settings['public_start_enabled']);
 	}//end testStartPageReusesAnOpenLink()
+
+	/**
+	 * Without the seed asking, the start page is chosen but not switched on,
+	 * so the plain login address keeps showing the login form.
+	 *
+	 * @return void
+	 */
+	public function testStartPageStaysOffUnlessAsked(): void {
+		$open = new PublicShare();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$open->setToken('open-token');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$shares = $this->createMock(originalClassName: PublicShareService::class);
+		$shares->method('listActiveShares')->willReturn([$open]);
+
+		$publishing = new DemoSeedPublishing(
+			settings: $this->settingsMapper(),
+			shares: $shares,
+			kiosk: $this->createMock(originalClassName: KioskService::class)
+		);
+
+		$publishing->publishStartPage(dashboardUuid: 'd8', publisher: 'beheer');
+		$this->assertSame(expected: 'open-token', actual: $this->settings['public_start_share_token']);
+		$this->assertArrayNotHasKey(key: 'public_start_enabled', array: $this->settings);
+	}//end testStartPageStaysOffUnlessAsked()
 
 	/**
 	 * The start page creates a link when there is no open one.

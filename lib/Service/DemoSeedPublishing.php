@@ -74,18 +74,21 @@ class DemoSeedPublishing {
 	}//end mergeAdminSettings()
 
 	/**
-	 * Make a dashboard the public start page: its first public link without
-	 * password or expiry, created when there is none, and the setting that
-	 * shows it to signed-out visitors.
+	 * Prepare a dashboard as the public start page: its first public link
+	 * without password or expiry, created when there is none, chosen as the
+	 * start page. The start page is only switched on when the seed asks for
+	 * it: while it is on, the plain login address shows the start page, and a
+	 * demo seed must not change how an installation signs in.
 	 *
-	 * @param string $dashboardUuid The dashboard.
-	 * @param string $publisher     The administrator who publishes it.
+	 * @param string  $dashboardUuid The dashboard.
+	 * @param string  $publisher     The administrator who publishes it.
+	 * @param boolean $enable        Whether to switch the start page on.
 	 *
 	 * @return string The link token.
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	public function publishStartPage(string $dashboardUuid, string $publisher): string {
+	public function publishStartPage(string $dashboardUuid, string $publisher, bool $enable=false): string {
 		$token = '';
 		foreach ($this->shares->listActiveShares(dashboardUuid: $dashboardUuid, callerId: $publisher) as $share) {
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -102,7 +105,9 @@ class DemoSeedPublishing {
 		}
 
 		$this->settings->setSetting(key: AdminSettingKey::PUBLIC_START_SHARE_TOKEN->value, value: $token);
-		$this->settings->setSetting(key: AdminSettingKey::PUBLIC_START_ENABLED->value, value: true);
+		if ($enable === true) {
+			$this->settings->setSetting(key: AdminSettingKey::PUBLIC_START_ENABLED->value, value: true);
+		}
 
 		return $token;
 	}//end publishStartPage()

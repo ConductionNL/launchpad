@@ -286,6 +286,8 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		$seed  = self::seed();
 		$uuids = array_column(array: $seed['dashboards'], column_key: 'uuid');
 		$this->assertContains(needle: $seed['publishing']['startPage'], haystack: $uuids);
+		// The seed never switches the start page on: it would take over the plain login address.
+		$this->assertFalse(condition: $seed['publishing']['enableStartPage']);
 		foreach ($seed['publishing']['kioskPlaylists'] as $playlist) {
 			$this->assertCount(expectedCount: 4, haystack: $playlist['entries']);
 			foreach ($playlist['entries'] as $entry) {

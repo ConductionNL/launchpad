@@ -221,6 +221,19 @@ describe('NoticeBannerRegion', () => {
 		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
 		wrapper.unmount()
 	})
+
+	it('asks for the notices and the dismissed ones at the same time', async () => {
+		let release
+		announcementsApi.list.mockReturnValue(new Promise((resolve) => { release = resolve }))
+		announcementsApi.dismissedNotices.mockResolvedValue([])
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		expect(announcementsApi.dismissedNotices).toHaveBeenCalled()
+		release({ announcements: [] })
+		await flushPromises()
+		wrapper.unmount()
+	})
 })
 
 describe('AnnouncementEditorModal', () => {

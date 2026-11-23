@@ -2046,7 +2046,7 @@
 					"widgetId": "chart",
 					"gridX": 0,
 					"gridY": 9,
-					"gridWidth": 4,
+					"gridWidth": 8,
 					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Lopende zaken per zaaktype",
@@ -2081,10 +2081,10 @@
 				},
 				{
 					"widgetId": "livetile",
-					"gridX": 4,
+					"gridX": 8,
 					"gridY": 9,
 					"gridWidth": 4,
-					"gridHeight": 2,
+					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Wachttijd KCC",
 					"content": {
@@ -2103,9 +2103,9 @@
 				},
 				{
 					"widgetId": "spend-analytics",
-					"gridX": 8,
-					"gridY": 9,
-					"gridWidth": 4,
+					"gridX": 0,
+					"gridY": 14,
+					"gridWidth": 8,
 					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Uitgaven per afdeling",
@@ -2115,10 +2115,10 @@
 				},
 				{
 					"widgetId": "status-report",
-					"gridX": 4,
-					"gridY": 11,
+					"gridX": 8,
+					"gridY": 14,
 					"gridWidth": 4,
-					"gridHeight": 3,
+					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Compliance",
 					"content": {
@@ -2128,8 +2128,8 @@
 				{
 					"widgetId": "iframe",
 					"gridX": 0,
-					"gridY": 14,
-					"gridWidth": 6,
+					"gridY": 19,
+					"gridWidth": 8,
 					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Rapport Sociaal domein",
@@ -2148,10 +2148,10 @@
 				},
 				{
 					"widgetId": "status-report",
-					"gridX": 6,
-					"gridY": 14,
-					"gridWidth": 6,
-					"gridHeight": 3,
+					"gridX": 8,
+					"gridY": 19,
+					"gridWidth": 4,
+					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Beveiliging en toegang",
 					"content": {
@@ -2160,10 +2160,10 @@
 				},
 				{
 					"widgetId": "map",
-					"gridX": 6,
-					"gridY": 17,
-					"gridWidth": 6,
-					"gridHeight": 5,
+					"gridX": 0,
+					"gridY": 25,
+					"gridWidth": 8,
+					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Meldingen",
 					"content": {
@@ -2176,9 +2176,9 @@
 				{
 					"widgetId": "text",
 					"gridX": 0,
-					"gridY": 20,
-					"gridWidth": 6,
-					"gridHeight": 3,
+					"gridY": 31,
+					"gridWidth": 12,
+					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Koppelingen van dit dashboard",
 					"content": {

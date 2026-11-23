@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Negyedév",
+    "Year" : "Év",
     "Show until" : "Megjelenítés eddig",
     "After this time the announcement disappears from every dashboard." : "Ezután a közlemény minden irányítópultról eltűnik.",
     "Visible until {when}" : "Látható eddig: {when}",

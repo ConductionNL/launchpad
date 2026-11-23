@@ -1418,6 +1418,8 @@
         "After this time the announcement disappears from every dashboard.": "Efter dette tidspunkt forsvinder meddelelsen fra alle dashboards.",
         "Visible until {when}": "Synlig indtil {when}",
         "Choose until when the announcement shows": "Vælg, hvor længe meddelelsen vises",
-        "The end time must be after the publish time": "Sluttidspunktet skal ligge efter udgivelsestidspunktet"
+        "The end time must be after the publish time": "Sluttidspunktet skal ligge efter udgivelsestidspunktet",
+        "Quarter": "Kvartal",
+        "Year": "År"
     }
 }

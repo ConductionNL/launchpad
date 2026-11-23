@@ -1418,6 +1418,8 @@
         "After this time the announcement disappears from every dashboard.": "Eftir þennan tíma hverfur tilkynningin af öllum mælaborðum.",
         "Visible until {when}": "Sýnilegt til {when}",
         "Choose until when the announcement shows": "Veldu hve lengi tilkynningin sést",
-        "The end time must be after the publish time": "Lokatími verður að vera eftir birtingartíma"
+        "The end time must be after the publish time": "Lokatími verður að vera eftir birtingartíma",
+        "Quarter": "Ársfjórðungur",
+        "Year": "Ár"
     }
 }

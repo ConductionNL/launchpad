@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Ketvirtis",
+    "Year" : "Metai",
     "Show until" : "Rodyti iki",
     "After this time the announcement disappears from every dashboard." : "Po šio laiko skelbimas dingsta iš visų skydelių.",
     "Visible until {when}" : "Matoma iki {when}",

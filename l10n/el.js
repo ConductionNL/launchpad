@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Τρίμηνο",
+    "Year" : "Έτος",
     "Show until" : "Εμφάνιση έως",
     "After this time the announcement disappears from every dashboard." : "Μετά από αυτή την ώρα η ανακοίνωση εξαφανίζεται από κάθε πίνακα.",
     "Visible until {when}" : "Ορατό έως {when}",

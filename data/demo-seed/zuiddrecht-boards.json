@@ -521,7 +521,7 @@
 					"content": {
 						"title": "Agenda vandaag",
 						"viewMode": "agenda",
-						"daysAhead": 1,
+						"daysAhead": 0,
 						"colorByCalendar": false,
 						"internalCalendars": [
 							"personal"
@@ -743,7 +743,7 @@
 					"content": {
 						"title": "Agenda",
 						"viewMode": "agenda",
-						"daysAhead": 1,
+						"daysAhead": 0,
 						"colorByCalendar": false,
 						"internalCalendars": [
 							"personal"

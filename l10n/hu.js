@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index}/{total} · a következő {seconds} s múlva",
+    "Now showing {name}" : "Most látható: {name}",
     "Put LaunchPad on your home screen" : "Tegye a LaunchPadet a kezdőképernyőre",
     "Then your workplace opens with one tap, like an app" : "Így a munkahelye egy koppintással megnyílik, akár egy alkalmazás",
     "In your browser, choose Share and then Add to Home Screen." : "A böngészőben válassza a Megosztás, majd a Főképernyőhöz adás lehetőséget.",

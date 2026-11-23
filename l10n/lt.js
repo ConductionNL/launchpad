@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} iš {total} · kitas po {seconds} s",
+    "Now showing {name}" : "Dabar rodoma: {name}",
     "Put LaunchPad on your home screen" : "Pridėkite LaunchPad prie pradžios ekrano",
     "Then your workplace opens with one tap, like an app" : "Tada jūsų darbo vieta atsidarys vienu palietimu, kaip programėlė",
     "In your browser, choose Share and then Add to Home Screen." : "Naršyklėje pasirinkite Bendrinti, tada Pridėti prie pradžios ekrano.",

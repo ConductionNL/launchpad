@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} da {total} · proxim en {seconds} s",
+    "Now showing {name}" : "Ussa vesaivel: {name}",
     "Put LaunchPad on your home screen" : "Agiuntai LaunchPad al visur da partenza",
     "Then your workplace opens with one tap, like an app" : "Lura s'avra Voss plaz da lavur cun in tip, sco ina app",
     "In your browser, choose Share and then Add to Home Screen." : "Tschernai en Voss navigatur Cundivider e lura Agiuntar al visur da partenza.",

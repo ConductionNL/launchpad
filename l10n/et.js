@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index}/{total} · järgmine {seconds} s pärast",
+    "Now showing {name}" : "Praegu kuvatakse: {name}",
     "Put LaunchPad on your home screen" : "Lisa LaunchPad avaekraanile",
     "Then your workplace opens with one tap, like an app" : "Siis avaneb su töökoht ühe puudutusega, nagu rakendus",
     "In your browser, choose Share and then Add to Home Screen." : "Vali brauseris Jaga ja seejärel Lisa avakuvale.",

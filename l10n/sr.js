@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} од {total} · следеће за {seconds} s",
+    "Now showing {name}" : "Сада се приказује: {name}",
     "Put LaunchPad on your home screen" : "Додајте LaunchPad на почетни екран",
     "Then your workplace opens with one tap, like an app" : "Тада се ваше радно место отвара једним додиром, као апликација",
     "In your browser, choose Share and then Add to Home Screen." : "У прегледачу изаберите Дели, а затим Додај на почетни екран.",

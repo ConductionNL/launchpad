@@ -1407,6 +1407,8 @@
         "Put LaunchPad on your home screen": "Добавьте LaunchPad на главный экран",
         "Then your workplace opens with one tap, like an app": "Тогда ваше рабочее место открывается одним касанием, как приложение",
         "In your browser, choose Share and then Add to Home Screen.": "В браузере выберите «Поделиться», а затем «На экран «Домой»».",
-        "Not now": "Не сейчас"
+        "Not now": "Не сейчас",
+        "{index} of {total} · next in {seconds} s": "{index} из {total} · следующий через {seconds} с",
+        "Now showing {name}": "Сейчас показывается: {name}"
     }
 }

@@ -69,10 +69,15 @@ describe('WidgetWrapper — chrome and frame', () => {
 		expect(bare.widgetButtons).toEqual([])
 	})
 
-	it('hides the actions menu only when the content opts out outside edit mode', () => {
+	it('hides the actions menu when the content opts out, and in edit mode, where the three-dot menu takes its place', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data' }).vm.showActionsMenu).toBe(true)
 		expect(mountWrapper({ id: 1, widgetId: 'data', content: { showActions: false } }).vm.showActionsMenu).toBe(false)
-		expect(mountWrapper({ id: 1, widgetId: 'data', content: { showActions: false } }, { editMode: true }).vm.showActionsMenu).toBe(true)
+		expect(mountWrapper({ id: 1, widgetId: 'data' }, { editMode: true }).vm.showActionsMenu).toBe(false)
+	})
+
+	it('shows a drag grip in edit mode only (LpBewerken)', () => {
+		expect(mountWrapper({ id: 1, widgetId: 'data' }).find('[data-testid="widget-drag-grip"]').exists()).toBe(false)
+		expect(mountWrapper({ id: 1, widgetId: 'data' }, { editMode: true }).find('[data-testid="widget-drag-grip"]').exists()).toBe(true)
 	})
 
 	it('offers removal unless the host locks it', () => {

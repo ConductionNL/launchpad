@@ -1922,7 +1922,12 @@ OC.L10N.register(
     "Enter at least one value with a label" : "Enter at least one value with a label",
     "Enter the axis labels and at least one named series with values" : "Enter the axis labels and at least one named series with values",
     "Pie chart" : "Pie chart",
-    "Graph" : "Graph"
+    "Graph" : "Graph",
+    "You are editing {name}" : "You are editing {name}",
+    "Changes are saved straight away" : "Changes are saved straight away",
+    "Dashboard settings" : "Dashboard settings",
+    "The number of columns could not be saved." : "The number of columns could not be saved.",
+    "Versions" : "Versions"
 },
 "nplurals=2; plural=(n != 1);"
 );

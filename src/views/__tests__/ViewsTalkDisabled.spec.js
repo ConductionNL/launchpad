@@ -117,9 +117,6 @@ const stubs = {
 	CnConfirmDialog: passthrough('CnConfirmDialog', {
 		template: '<div class="stub-confirm" />',
 	}),
-	VersionHistoryModal: passthrough('VersionHistoryModal', {
-		props: { open: Boolean },
-	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
 	}),

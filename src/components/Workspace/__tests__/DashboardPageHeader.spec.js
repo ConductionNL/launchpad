@@ -13,7 +13,8 @@ import { describe, expect, it, vi } from 'vitest'
 import DashboardPageHeader, { lastChangedText } from '../DashboardPageHeader.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../../utils/headerActionsDock.js'
 
-vi.mock('@nextcloud/l10n', () => ({
+vi.mock('@nextcloud/l10n', async (importOriginal) => ({
+	...(await importOriginal()),
 	getLanguage: () => 'nl',
 	t: (_app, text, vars = {}) => text.replace(/\{(\w+)\}/g, (_m, key) => vars[key] ?? ''),
 }))

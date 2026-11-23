@@ -50,6 +50,11 @@ class AnnouncementServiceTest extends TestCase {
 	private const NOW = '2026-11-13T18:00:00+00:00';
 
 	/**
+	 * The "Show until" every new announcement carries.
+	 */
+	private const UNTIL = '2026-11-20T17:00:00+00:00';
+
+	/**
 	 * Group memberships by user.
 	 *
 	 * @var array<string, list<string>>
@@ -67,6 +72,13 @@ class AnnouncementServiceTest extends TestCase {
 	 * @var array<string, Announcement>
 	 */
 	private array $stored = [];
+
+	/**
+	 * The clock the service reads.
+	 *
+	 * @var string
+	 */
+	private string $now = self::NOW;
 
 	/**
 	 * The service over in-memory mappers.
@@ -133,7 +145,7 @@ class AnnouncementServiceTest extends TestCase {
 		});
 
 		$time = $this->createMock(ITimeFactory::class);
-		$time->method('getDateTime')->willReturnCallback(static fn (): DateTime => new DateTime(self::NOW));
+		$time->method('getDateTime')->willReturnCallback(fn (): DateTime => new DateTime($this->now));
 
 		$userManager = $this->createMock(IUserManager::class);
 		$userManager->method('countUsersTotal')->willReturn(4);
@@ -149,7 +161,7 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	public function testNewsForOneGroupReachesOnlyThatGroup(): void {
 		$service = $this->service();
-		$draft = $service->create('karin', ['title' => 'Inloopspreekuur privacy', 'category' => 'Privacy', 'targetGroups' => ['Medewerkers']]);
+		$draft = $service->create('karin', ['title' => 'Inloopspreekuur privacy', 'category' => 'Privacy', 'targetGroups' => ['Medewerkers'], 'expiresAt' => self::UNTIL]);
 		$this->assertSame('draft', $draft->getStatus());
 		$this->assertSame([], $service->visibleTo('pieter'));
 
@@ -172,7 +184,7 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	public function testNoTargetGroupsReachesEveryone(): void {
 		$service = $this->service();
-		$service->publish('karin', $service->create('karin', ['title' => 'Nieuwe werkplekken op de 3e verdieping'])->getUuid());
+		$service->publish('karin', $service->create('karin', ['title' => 'Nieuwe werkplekken op de 3e verdieping', 'expiresAt' => self::UNTIL])->getUuid());
 
 		$this->assertCount(1, $service->visibleTo('sanne'));
 		$this->assertSame(4, $service->reach([]));
@@ -191,13 +203,13 @@ class AnnouncementServiceTest extends TestCase {
 		$this->assertFalse($this->service(editorGroups: [])->isAuthor('karin'));
 
 		try {
-			$service->create('pieter', ['title' => 'Mag ik dit?']);
+			$service->create('pieter', ['title' => 'Mag ik dit?', 'expiresAt' => self::UNTIL]);
 			$this->fail('A reader wrote an announcement.');
 		} catch (ForbiddenException $e) {
 			$this->assertSame([], $this->stored);
 		}
 
-		$adminNews = $service->create('admin', ['title' => 'Van de beheerder']);
+		$adminNews = $service->create('admin', ['title' => 'Van de beheerder', 'expiresAt' => self::UNTIL]);
 		$service->publish('admin', $adminNews->getUuid());
 		$this->expectException(ForbiddenException::class);
 		$service->update('karin', $adminNews->getUuid(), ['title' => 'Overschreven']);
@@ -210,7 +222,7 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	public function testDraftsAreHiddenFromReaders(): void {
 		$service = $this->service();
-		$draft = $service->create('karin', ['title' => 'Concept']);
+		$draft = $service->create('karin', ['title' => 'Concept', 'expiresAt' => self::UNTIL]);
 
 		$this->assertSame([$draft], $service->draftsFor('karin'));
 		$this->assertSame([$draft], $service->draftsFor('admin'));
@@ -228,7 +240,7 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	public function testTheTimeWindowIsRespected(): void {
 		$service = $this->service();
-		$later = $service->create('karin', ['title' => 'Later', 'publishAt' => '2026-11-14T08:00:00+00:00']);
+		$later = $service->create('karin', ['title' => 'Later', 'publishAt' => '2026-11-14T08:00:00+00:00', 'expiresAt' => self::UNTIL]);
 		$past = $service->create('karin', ['title' => 'Voorbij', 'publishAt' => '2026-11-01T08:00:00+00:00', 'expiresAt' => '2026-11-13T12:00:00+00:00']);
 		$service->publish('karin', $later->getUuid());
 
@@ -259,8 +271,10 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	public function testANoticeNeedsAnEndTime(): void {
 		$service = $this->service();
-		$notice = $service->create('karin', ['kind' => 'notice', 'title' => 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00', 'targetGroups' => ['Burgerzaken']]);
+		$notice = $service->create('karin', ['kind' => 'notice', 'title' => 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00', 'targetGroups' => ['Burgerzaken'], 'expiresAt' => self::UNTIL]);
 		$this->assertSame('info', $notice->getLevel());
+		// A draft stored before the end time was required.
+		$this->stored[$notice->getUuid()]->setExpiresAt(null);
 
 		try {
 			$service->publish('karin', $notice->getUuid());
@@ -300,7 +314,7 @@ class AnnouncementServiceTest extends TestCase {
 		];
 		foreach ($cases as [$input, $message]) {
 			try {
-				$service->create('karin', $input);
+				$service->create('karin', $input + ['expiresAt' => self::UNTIL]);
 				$this->fail('Accepted ' . json_encode($input));
 			} catch (InvalidArgumentException $e) {
 				$this->assertSame($message, $e->getMessage());
@@ -329,7 +343,7 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	public function testDelete(): void {
 		$service = $this->service();
-		$news = $service->create('karin', ['title' => 'Weg ermee']);
+		$news = $service->create('karin', ['title' => 'Weg ermee', 'expiresAt' => self::UNTIL]);
 		$service->publish('karin', $news->getUuid());
 
 		try {
@@ -355,7 +369,7 @@ class AnnouncementServiceTest extends TestCase {
 		)->willReturn(1);
 		$service = $this->service(notifier: $notifier);
 
-		$service->publish('karin', $service->create('karin', ['title' => 'Nieuwe privacyverklaring', 'category' => 'Privacy'])->getUuid());
+		$service->publish('karin', $service->create('karin', ['title' => 'Nieuwe privacyverklaring', 'category' => 'Privacy', 'expiresAt' => self::UNTIL])->getUuid());
 	}//end testPublishingHandsTheAnnouncementToTheFollowNotifier()
 	/**
 	 * D4 "Preview as": targeting reaches a member of a target group, not an
@@ -373,4 +387,87 @@ class AnnouncementServiceTest extends TestCase {
 		$this->assertTrue($service->reachesUser([], $memberOf));
 		$this->assertFalse($service->reachesUser([], 'onbekend'));
 	}//end testPreviewAsTellsWhetherTheTargetingReachesOnePerson()
+	/**
+	 * A new announcement needs a "Show until", after its publish time; the request is refused (HTTP 400) otherwise.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 */
+	public function testANewAnnouncementNeedsAnEndTimeAfterItsPublishTime(): void {
+		$service = $this->service();
+		$cases = [
+			[['title' => 'Zonder einde'], 'expiresAt is required: an announcement needs a "Show until" end time'],
+			[['title' => 'Leeg einde', 'expiresAt' => ''], 'expiresAt is required: an announcement needs a "Show until" end time'],
+			[['title' => 'Verkeerd om', 'publishAt' => '2026-11-16T08:00:00+00:00', 'expiresAt' => '2026-11-15T17:00:00+00:00'], 'The end time must be after the publish time'],
+			[['title' => 'Even lang', 'publishAt' => self::UNTIL, 'expiresAt' => self::UNTIL], 'The end time must be after the publish time'],
+		];
+		foreach ($cases as [$input, $message]) {
+			try {
+				$service->create('karin', $input);
+				$this->fail('Accepted ' . json_encode($input));
+			} catch (InvalidArgumentException $e) {
+				$this->assertSame($message, $e->getMessage());
+			}
+		}
+
+		$this->assertSame([], $this->stored);
+		$this->assertSame(self::UNTIL, $service->create('karin', ['title' => 'Met einde', 'expiresAt' => self::UNTIL])->jsonSerialize()['expiresAt']);
+	}//end testANewAnnouncementNeedsAnEndTimeAfterItsPublishTime()
+
+	/**
+	 * An announcement stored before the end time was required keeps showing and can be edited, but an end time once
+	 * set cannot be cleared, and a new publish time must lie before it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 */
+	public function testAnAnnouncementStoredWithoutAnEndTimeKeepsShowing(): void {
+		$service = $this->service();
+		$legacy = $service->create('karin', ['title' => 'Van voor de regel', 'expiresAt' => self::UNTIL]);
+		$service->publish('karin', $legacy->getUuid());
+		$this->stored[$legacy->getUuid()]->setExpiresAt(null);
+
+		$this->assertCount(1, $service->visibleTo('pieter'));
+		$this->assertSame('Nieuwe titel', $service->update('karin', $legacy->getUuid(), ['title' => 'Nieuwe titel', 'publishAt' => '2026-11-13T08:00:00+00:00'])->getTitle());
+		$this->assertNull($this->stored[$legacy->getUuid()]->getExpiresAt());
+		$this->assertCount(1, $service->visibleTo('pieter'));
+
+		try {
+			$service->update('karin', $legacy->getUuid(), ['expiresAt' => null]);
+			$this->fail('An end time of null was accepted.');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame('expiresAt is required: an announcement needs a "Show until" end time', $e->getMessage());
+		}
+
+		$service->update('karin', $legacy->getUuid(), ['expiresAt' => self::UNTIL]);
+
+		try {
+			$service->update('karin', $legacy->getUuid(), ['publishAt' => '2026-11-21T08:00:00+00:00']);
+			$this->fail('A publish time after the end time was accepted.');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame('The end time must be after the publish time', $e->getMessage());
+		}
+	}//end testAnAnnouncementStoredWithoutAnEndTimeKeepsShowing()
+
+	/**
+	 * Shown until 30 October 17:00, the announcement is gone at 17:01.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 */
+	public function testTheAnnouncementDisappearsAfterItsEndTime(): void {
+		$this->now = '2026-10-30T09:00:00+00:00';
+		$service = $this->service();
+		$news = $service->create('karin', ['title' => 'Inloopspreekuur privacy', 'targetGroups' => ['Medewerkers'], 'expiresAt' => '2026-10-30T17:00:00+00:00']);
+		$service->publish('karin', $news->getUuid());
+
+		$this->now = '2026-10-30T16:59:00+00:00';
+		$this->assertCount(1, $service->visibleTo('pieter'));
+
+		$this->now = '2026-10-30T17:01:00+00:00';
+		$this->assertSame([], $service->visibleTo('pieter'));
+	}//end testTheAnnouncementDisappearsAfterItsEndTime()
 }//end class

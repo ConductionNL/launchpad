@@ -446,4 +446,32 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->assertSame(expected: ['admin', 'redactie'], actual: $written['rule.delete-rule'], message: 'an entry an admin changed is kept');
 		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v7 adds only its own actions');
 	}//end testAnInstanceAtV6LetsTheOwnerChangeAndRemoveRules()
+
+	/**
+	 * An instance at v7 lets every user read the organisation menu and its
+	 * place from v8; writing it stays admin-only.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV7LetsUsersReadTheOrganisationMenu(): void {
+		$this->appConfig->method('getValueInt')->willReturn(7);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'admin-org-navigation.get-org-navigation' => ['admin'],
+			'admin-org-navigation.get-position' => ['admin'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['admin-org-navigation.get-org-navigation']);
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['admin-org-navigation.get-position']);
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v8 adds only its own actions');
+	}//end testAnInstanceAtV7LetsUsersReadTheOrganisationMenu()
 }//end class

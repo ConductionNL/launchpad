@@ -2372,7 +2372,7 @@ OC.L10N.register(
     "Pie chart" : "Cirkeldiagram",
     "Graph" : "Grafiek",
     "You are editing {name}" : "Je bewerkt {name}",
-    "Changes are saved straight away" : "Wijzigingen worden direct bewaard",
+    "Changes are saved immediately" : "Wijzigingen worden direct bewaard",
     "Dashboard settings" : "Dashboardinstellingen",
     "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard.",
     "Copy link to this dashboard" : "Link naar dit dashboard kopiëren",

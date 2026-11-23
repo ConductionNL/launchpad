@@ -19,7 +19,7 @@
 			{{ t('launchpad', 'You are editing {name}', { name: dashboardName }) }}
 		</strong>
 		<span class="launchpad-edit-bar__note">
-			{{ t('launchpad', 'Changes are saved straight away') }}
+			{{ t('launchpad', 'Changes are saved immediately') }}
 		</span>
 		<span class="launchpad-edit-bar__spacer" />
 		<span :id="columnsLabelId" class="launchpad-edit-bar__label">
@@ -141,13 +141,17 @@ export default {
 </script>
 
 <style scoped>
+/* The bar runs from window edge to window edge right under the top bar, in
+   the deep brand colour (LpBewerken); it sits inside the dashboard's 20px
+   inset and 8px top padding, hence the negative margins. */
 .launchpad-edit-bar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 12px 16px;
+	margin: -8px -20px 16px;
 	padding: 12px 28px;
-	background: var(--color-primary-element);
+	background: var(--sc-primary-deep, var(--color-primary-element));
 	color: var(--color-primary-element-text);
 }
 

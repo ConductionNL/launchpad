@@ -198,7 +198,7 @@
 			<!-- Every dashboard without a greeting row opens with its name, its
 			     actions and the "Meer" menu (LpWerkplek, LpIntranet). -->
 			<DashboardPageHeader
-				v-if="activeDashboard && !kiosk && !hasGroundHeader"
+				v-if="activeDashboard && !kiosk && !hasGroundHeader && !isEditMode"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
 				:isDefault="activeDashboard.uuid === defaultDashboardUuid"

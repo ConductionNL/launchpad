@@ -75,6 +75,8 @@ const ChartHost = lazyComponent(() => import('../components/Widgets/Renderers/Ch
 const ChartSourceForm = lazyComponent(() => import('../components/Widgets/Renderers/ChartSourceForm.vue'), 'ChartSourceForm')
 const ClockWidget = lazyComponent(() => import('../components/Widgets/Renderers/ClockWidget.vue'), 'ClockWidget')
 const ClockWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ClockWidgetForm.vue'), 'ClockWidgetForm')
+const RecentWorkWidget = lazyComponent(() => import('../components/Widgets/Renderers/RecentWorkWidget.vue'), 'RecentWorkWidget')
+const RecentWorkWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/RecentWorkWidgetForm.vue'), 'RecentWorkWidgetForm')
 const ColleagueActivityWidget = lazyComponent(() => import('../components/Widgets/Renderers/ColleagueActivityWidget.vue'), 'ColleagueActivityWidget')
 const ColleagueActivityWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'), 'ColleagueActivityWidgetForm')
 const CommunitiesWidget = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidget.vue'), 'CommunitiesWidget')
@@ -249,6 +251,18 @@ registerDashboardWidget('colleague-activity', {
 	},
 	displayName: 'Colleague activity',
 	icon: 'AccountMultipleOutline',
+})
+
+// `recent-work`: "Verder waar u was" on LpVandaag, the reader's own recent
+// work from the Activity app.
+registerDashboardWidget('recent-work', {
+	renderer: RecentWorkWidget,
+	form: RecentWorkWidgetForm,
+	defaultContent: {
+		limit: 6,
+	},
+	displayName: 'Recent work',
+	icon: 'History',
 })
 
 // `activity-report`: a person's activity per type and per day, with the purpose

@@ -68,6 +68,11 @@ describe('TileWidget', () => {
 		expect(wrapper.find('a').attributes('title')).toBeUndefined()
 	})
 
+	it('shows a drag grip in edit mode only (LpBewerken)', () => {
+		expect(mount(TileWidget, { props: { tile: tile() } }).find('[data-testid="tile-drag-grip"]').exists()).toBe(false)
+		expect(mount(TileWidget, { props: { tile: tile(), editMode: true } }).find('[data-testid="tile-drag-grip"]').exists()).toBe(true)
+	})
+
 	it('links an app tile through generateUrl in the same tab', () => {
 		const link = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: 'deck' }) } }).find('a')
 

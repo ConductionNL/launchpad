@@ -1042,6 +1042,7 @@ export default {
 		 *
 		 * @return {boolean}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+		 * @spec openspec/changes/start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
 		 */
 		hasGroundHeader() {
 			return this.shownPlacements.some(

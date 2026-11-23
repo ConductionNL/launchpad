@@ -251,6 +251,7 @@ export async function checkSource(source, ctx) {
  * @param {function(string, object): string} label Names the action, given the schema.
  * @return {Array<object>} The items.
  * @spec openspec/specs/attention-feed/spec.md#req-att-004
+ * @spec openspec/changes/start-page-board-sync/specs/attention-feed/spec.md#requirement-vandaag-eerst-can-draw-one-card-per-record-req-att-007
  */
 export function expandToRecords(entries, label) {
 	const items = []

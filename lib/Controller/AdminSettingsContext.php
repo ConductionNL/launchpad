@@ -33,7 +33,7 @@ class AdminSettingsContext {
 	 * Constructor.
 	 *
 	 * @param CustomCssService $css Stores the cleaned administrator CSS.
-	 * @param ResponseHelper   $responseHelper Builds the JSON response envelopes. @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @param ResponseHelper   $responseHelper Builds the JSON response envelopes.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

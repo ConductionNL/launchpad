@@ -76,12 +76,35 @@ class DemoAnnouncements {
 
 		$saturday = (clone $now)->modify('next saturday')->setTime(12, 0);
 		$rows = [
-			['news', 'Nieuwe werkplekken op de 3e verdieping', 'Vanaf maandag zijn er twintig flexplekken extra op de derde verdieping. Reserveren gaat via de werkplekkenapp.', 'Facilitair', [], null],
-			['news', 'Inloopspreekuur privacy', 'Elke donderdag van 13:00 tot 14:00 beantwoordt de privacy officer je vragen, in kamer 2.14 of online.', 'Privacy', ['Medewerkers'], null],
-			['notice', 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00', 'Het zaaksysteem is zaterdag tussen 08:00 en 12:00 niet bereikbaar wegens onderhoud.', null, [], $saturday],
+			[
+				'news',
+				'Nieuwe werkplekken op de 3e verdieping',
+				'Vanaf maandag zijn er twintig flexplekken extra op de derde verdieping. Reserveren gaat via de werkplekkenapp.',
+				'Facilitair',
+				[],
+				null,
+			],
+			[
+				'news',
+				'Inloopspreekuur privacy',
+				'Elke donderdag van 13:00 tot 14:00 beantwoordt de privacy officer je vragen, in kamer 2.14 of online.',
+				'Privacy',
+				['Medewerkers'],
+				null,
+			],
+			[
+				'notice',
+				'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00',
+				'Het zaaksysteem is zaterdag tussen 08:00 en 12:00 niet bereikbaar wegens onderhoud.',
+				null,
+				[],
+				$saturday,
+			],
 		];
 		foreach ($rows as [$kind, $title, $body, $category, $groups, $expiresAt]) {
-			$this->announcements->insert(entity: $this->announcement(kind: $kind, text: [$title, $body], category: $category, groups: $groups, expiresAt: $expiresAt));
+			$this->announcements->insert(
+				entity: $this->announcement(kind: $kind, text: [$title, $body], category: $category, groups: $groups, expiresAt: $expiresAt)
+			);
 		}
 
 		return count($rows);
@@ -110,7 +133,10 @@ class DemoAnnouncements {
 		$announcement->setCategory($category);
 		$announcement->setTargetGroupList($groups);
 		$announcement->setStatus(Announcement::STATUS_PUBLISHED);
-		$announcement->setLevel(($kind === Announcement::KIND_NOTICE) ? 'warning' : null);
+		$announcement->setLevel(null);
+		if ($kind === Announcement::KIND_NOTICE) {
+			$announcement->setLevel('warning');
+		}
 		$announcement->setDismissible(0);
 		$announcement->setAllowComments((int) ($kind === Announcement::KIND_NEWS));
 		$announcement->setPublishAt($now);

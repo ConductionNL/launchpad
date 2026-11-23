@@ -31,7 +31,7 @@ class AdminContext {
 	 * Constructor.
 	 *
 	 * @param AdminCallerAndRoles $caller The user session, the action check and the role and feed refresh services.
-	 * @param ResponseHelper      $responseHelper Builds the JSON response envelopes. @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @param ResponseHelper      $responseHelper Builds the JSON response envelopes.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */

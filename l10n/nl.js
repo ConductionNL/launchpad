@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Sign in for employees" : "Inloggen voor medewerkers",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "De standaarden waarmee elk dashboard begint: wie dashboards mag maken, het rechtenniveau en het raster. Deze rondleiding ziet u één keer.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Onder Kiosk maakt u afspeellijsten van dashboards voor een scherm zonder inloggen.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Onder Demogegevens laadt u voorbeelddashboards om LaunchPad te proberen, en haalt u ze weer weg.",

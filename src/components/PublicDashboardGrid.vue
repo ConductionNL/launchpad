@@ -13,7 +13,7 @@
 				v-for="item in items"
 				:key="item.id"
 				class="public-share-view__cell"
-				:style="{ gridColumn: 'span ' + Math.min(item.gridWidth, 12) }">
+				:style="cellStyle(item)">
 				<!-- Tile — icon + label linking to its target. -->
 				<a
 					v-if="item.kind === 'tile'"
@@ -157,6 +157,8 @@ function displayItem(p) {
 	return {
 		id: p.id,
 		kind: placementKind(p),
+		gridX: Number.isFinite(Number(p.gridX)) ? Number(p.gridX) : null,
+		gridY: Number.isFinite(Number(p.gridY)) ? Number(p.gridY) : null,
 		gridWidth: p.gridWidth || 4,
 		gridHeight: p.gridHeight || 4,
 		title: firstFilled([
@@ -228,6 +230,26 @@ export default {
 		t,
 
 		/**
+		 * Where a cell sits: at its column and row when the placement has
+		 * them, so a narrow column beside a wide card stacks as on the
+		 * dashboard (boards LpPubliek, LpKiosk); else it flows by its width.
+		 *
+		 * @param {object} item The display item.
+		 * @return {object} The cell's grid style.
+		 * @spec openspec/specs/dashboard-public-share/spec.md
+		 */
+		cellStyle(item) {
+			const width = Math.min(item.gridWidth, 12)
+			if (item.gridX === null || item.gridY === null) {
+				return { gridColumn: 'span ' + width }
+			}
+			return {
+				gridColumn: (Math.min(item.gridX, 11) + 1) + ' / span ' + width,
+				gridRow: (item.gridY + 1) + ' / span ' + item.gridHeight,
+			}
+		},
+
+		/**
 		 * Where a tile links to: its target, '#' without one; inside an embed
 		 * nowhere (no href) unless the scope allows `interact`, and '#' when it
 		 * allows only `drillDown`, so the tile stays a focusable control.
@@ -297,8 +319,10 @@ export default {
 
 .public-share-view__grid {
 	display: grid;
-	grid-template-columns: repeat(12, 1fr);
-	gap: 12px;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	grid-auto-rows: minmax(0, auto);
+	gap: 16px;
+	align-items: start;
 	max-width: 1200px;
 }
 
@@ -329,17 +353,18 @@ export default {
 }
 
 .public-share-view__widget {
-	height: 100%;
-	padding: 16px;
+	box-sizing: border-box;
+	padding: 18px 20px;
 	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large);
+	border-radius: 12px;
 	background: var(--color-main-background);
+	font-size: 14px;
 }
 
 .public-share-view__widget-title {
 	margin: 0 0 8px;
-	font-size: 1.05em;
-	font-weight: 700;
+	font-size: 18px !important;
+	font-weight: 700 !important;
 }
 
 .public-share-view__widget-heading {

@@ -833,7 +833,7 @@
 						"showTitle": false,
 						"showViewModes": false,
 						"showActions": false,
-						"agendaLayout": "list"
+						"agendaLayout": "stacked"
 					}
 				},
 				{
@@ -850,7 +850,7 @@
 						"viewMode": "list",
 						"showThumbnails": true,
 						"mimeTypeFilter": [],
-						"allowUpload": false,
+						"allowUpload": true,
 						"allowDelete": false,
 						"sortBy": "modified",
 						"sortDescending": true,

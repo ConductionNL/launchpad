@@ -224,8 +224,8 @@ class DashboardVersionServiceTest extends TestCase {
 			]
 		);
 
-		$this->assertNotNull($result);
-		$this->assertSame('Widget Notes added', $result->getNote());
+		$this->assertNotNull(actual: $result);
+		$this->assertSame(expected: 'Widget Notes added', actual: $result->getNote());
 	}//end testAutomaticSnapshotNotesWhatChanged()
 
 	/**
@@ -245,8 +245,8 @@ class DashboardVersionServiceTest extends TestCase {
 			options: ['snapshotJson' => '{"placements":[]}']
 		);
 
-		$this->assertNotNull($result);
-		$this->assertNull($result->getNote());
+		$this->assertNotNull(actual: $result);
+		$this->assertNull(actual: $result->getNote());
 	}//end testAutomaticSnapshotSurvivesAFailingChangeLookup()
 
 	/**

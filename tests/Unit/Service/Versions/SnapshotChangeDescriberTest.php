@@ -89,7 +89,7 @@ class SnapshotChangeDescriberTest extends TestCase {
 	 * @return void
 	 */
 	public function testNoPreviousSnapshotGivesNull(): void {
-		$this->assertNull($this->describer->describe(previousJson: null, currentJson: $this->snapshot(placements: [])));
+		$this->assertNull(actual: $this->describer->describe(previousJson: null, currentJson: $this->snapshot(placements: [])));
 	}//end testNoPreviousSnapshotGivesNull()
 
 	/**
@@ -100,7 +100,7 @@ class SnapshotChangeDescriberTest extends TestCase {
 	public function testIdenticalSnapshotsGiveNull(): void {
 		$json = $this->snapshot(placements: [$this->placement(id: 1)]);
 
-		$this->assertNull($this->describer->describe(previousJson: $json, currentJson: $json));
+		$this->assertNull(actual: $this->describer->describe(previousJson: $json, currentJson: $json));
 	}//end testIdenticalSnapshotsGiveNull()
 
 	/**
@@ -109,7 +109,7 @@ class SnapshotChangeDescriberTest extends TestCase {
 	 * @return void
 	 */
 	public function testInvalidJsonGivesNull(): void {
-		$this->assertNull($this->describer->describe(previousJson: 'not json', currentJson: $this->snapshot(placements: [])));
+		$this->assertNull(actual: $this->describer->describe(previousJson: 'not json', currentJson: $this->snapshot(placements: [])));
 	}//end testInvalidJsonGivesNull()
 
 	/**
@@ -172,7 +172,7 @@ class SnapshotChangeDescriberTest extends TestCase {
 	 * @dataProvider singleChangeProvider
 	 */
 	public function testSingleChangeIsDescribed(string $previous, string $current, string $expected): void {
-		$this->assertSame($expected, $this->describer->describe(previousJson: $previous, currentJson: $current));
+		$this->assertSame(expected: $expected, actual: $this->describer->describe(previousJson: $previous, currentJson: $current));
 	}//end testSingleChangeIsDescribed()
 
 	/**
@@ -184,7 +184,7 @@ class SnapshotChangeDescriberTest extends TestCase {
 		$previous = $this->snapshot(placements: []);
 		$current  = $this->snapshot(placements: [$this->placement(id: 7, fields: ['widgetId' => 'calendar'])]);
 
-		$this->assertSame('Widget calendar added', $this->describer->describe(previousJson: $previous, currentJson: $current));
+		$this->assertSame(expected: 'Widget calendar added', actual: $this->describer->describe(previousJson: $previous, currentJson: $current));
 	}//end testNameFallsBackToTheWidgetId()
 
 	/**
@@ -231,7 +231,7 @@ class SnapshotChangeDescriberTest extends TestCase {
 
 		$note = (string)$this->describer->describe(previousJson: $previous, currentJson: $current);
 
-		$this->assertSame(SnapshotChangeDescriber::MAX_LENGTH, mb_strlen($note));
+		$this->assertSame(expected: SnapshotChangeDescriber::MAX_LENGTH, actual: mb_strlen($note));
 		$this->assertStringEndsWith('…', $note);
 	}//end testLongDescriptionIsShortened()
 

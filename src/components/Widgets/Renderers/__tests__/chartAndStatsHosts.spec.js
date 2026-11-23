@@ -9,7 +9,7 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { computed, nextTick } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import ChartHost from '../ChartHost.vue'
 import StatsBlockHost from '../StatsBlockHost.vue'
 import { useFilterBus } from '../../../../composables/useFilterBus.js'
@@ -49,6 +49,29 @@ function mountStats(content) {
 		global: { stubs: { CnStatsBlockWidget: StatsStub } },
 	}).findComponent(StatsStub)
 }
+
+// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+describe('ChartHost and the dashboard period (REQ-DPD-002)', () => {
+	function mountWithPeriod(content, period) {
+		return mount(ChartHost, {
+			props: { content, placement: { id: 1 } },
+			global: { stubs: { CnChartWidget: ChartStub }, provide: { dashboardPeriod: ref(period) } },
+		})
+	}
+
+	it('adds the period on its period field to the chart query, and follows a new choice', async () => {
+		const wrapper = mountWithPeriod({ dataSource: { register: 'zaken', schema: 'zaak', periodField: 'startDate' } }, 'quarter')
+		const filter = wrapper.findComponent(ChartStub).props('dataSource').filter
+		expect(Object.keys(filter)).toEqual(['startDate[gte]', 'startDate[lte]'])
+		expect(filter['startDate[gte]']).toMatch(/^\d{4}-(01|04|07|10)-01$/)
+	})
+
+	it('ignores the period without a period field', () => {
+		const source = { register: 'zaken', schema: 'zaak' }
+		const wrapper = mountWithPeriod({ dataSource: source }, 'year')
+		expect(wrapper.findComponent(ChartStub).props('dataSource')).toEqual(source)
+	})
+})
 
 describe('ChartHost', () => {
 	it('defaults to an area chart without data source, named after the placement id', () => {

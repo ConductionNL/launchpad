@@ -1420,6 +1420,8 @@
         "After this time the announcement disappears from every dashboard.": "Po tym czasie ogłoszenie zniknie ze wszystkich pulpitów.",
         "Visible until {when}": "Widoczne do {when}",
         "Choose until when the announcement shows": "Wybierz, do kiedy ogłoszenie jest widoczne",
-        "The end time must be after the publish time": "Czas zakończenia musi być późniejszy niż czas publikacji"
+        "The end time must be after the publish time": "Czas zakończenia musi być późniejszy niż czas publikacji",
+        "Quarter": "Kwartał",
+        "Year": "Rok"
     }
 }

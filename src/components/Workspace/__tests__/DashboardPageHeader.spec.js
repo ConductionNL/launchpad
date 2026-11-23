@@ -10,6 +10,7 @@
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import CnSegmentedControl from '@conduction/nextcloud-vue/src/components/CnSegmentedControl/CnSegmentedControl.vue'
 import DashboardPageHeader, { lastChangedText, rightsText } from '../DashboardPageHeader.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../../utils/headerActionsDock.js'
 
@@ -84,6 +85,27 @@ describe('the reader\'s rights in the meta line', () => {
 	it('adds nothing for the owner with full rights', () => {
 		const wrapper = mountHeader({ source: 'user', dashboard: { name: 'Mijn werkplek', description: '', updatedAt: null } })
 		expect(wrapper.find('.launchpad-page-header__meta').text()).toBe('Personal dashboard')
+	})
+})
+
+// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+describe('the period choice (REQ-DPD-002)', () => {
+	it('is absent on a dashboard without dated sources', () => {
+		expect(mountHeader({}).find('[data-testid="dashboard-period"]').exists()).toBe(false)
+	})
+
+	it('offers This month, Quarter and Year and asks the page for the chosen one', async () => {
+		const wrapper = mount(DashboardPageHeader, {
+			props: { dashboard: { name: 'Managementinformatie', description: '', updatedAt: null }, showsPeriod: true, period: 'month' },
+			global: { components: { CnSegmentedControl } },
+		})
+		const control = wrapper.find('[data-testid="dashboard-period"]')
+		expect(control.exists()).toBe(true)
+		const options = control.findAll('button')
+		expect(options.map((button) => button.text())).toEqual(['This month', 'Quarter', 'Year'])
+		expect(options[0].attributes('aria-checked')).toBe('true')
+		await options[1].trigger('click')
+		expect(wrapper.emitted('update:period')).toEqual([['quarter']])
 	})
 })
 

@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Ráithe",
+    "Year" : "Bliain",
     "Show until" : "Taispeáin go dtí",
     "After this time the announcement disappears from every dashboard." : "Tar éis an ama seo imíonn an fógra ó gach painéal.",
     "Visible until {when}" : "Le feiceáil go dtí {when}",

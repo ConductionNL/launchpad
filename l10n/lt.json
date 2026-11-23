@@ -1420,6 +1420,8 @@
         "After this time the announcement disappears from every dashboard.": "Po šio laiko skelbimas dingsta iš visų skydelių.",
         "Visible until {when}": "Matoma iki {when}",
         "Choose until when the announcement shows": "Pasirinkite, iki kada rodomas skelbimas",
-        "The end time must be after the publish time": "Pabaigos laikas turi būti po paskelbimo laiko"
+        "The end time must be after the publish time": "Pabaigos laikas turi būti po paskelbimo laiko",
+        "Quarter": "Ketvirtis",
+        "Year": "Metai"
     }
 }

@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Çeyrek",
+    "Year" : "Yıl",
     "Show until" : "Şu zamana kadar göster",
     "After this time the announcement disappears from every dashboard." : "Bu zamandan sonra duyuru tüm panolardan kaybolur.",
     "Visible until {when}" : "{when} tarihine kadar görünür",

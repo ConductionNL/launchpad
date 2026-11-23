@@ -18,9 +18,11 @@
 import { CnChartWidget } from '@conduction/nextcloud-vue'
 import { showInfo, showWarning } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
+import { unref } from 'vue'
 import { levelLabels as hierarchyLevelLabels } from '../../../composables/useDashboardFilterSession.js'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { clickedRow, missingAncestors } from '../../../utils/clickedRow.js'
+import { periodFieldOf, withPeriod } from '../../../utils/dashboardPeriod.js'
 import { logger } from '../../../utils/logger.js'
 import { busDeclarationsOf, consumedFilter, filterBusOf, publishedClauses, refetchClock, withBusFilter } from '../../../utils/widgetBusConsumption.js'
 import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
@@ -120,6 +122,8 @@ export default {
 	inject: {
 		/** The open dashboard's filter bus (a ref to it), or null. */
 		filterBus: { from: 'dashboardFilterBus', default: null },
+		/** The period the dashboard's dated widgets follow (REQ-DPD-002), a ref, or null. */
+		dashboardPeriod: { from: 'dashboardPeriod', default: null },
 	},
 
 	props: {
@@ -147,15 +151,19 @@ export default {
 		},
 
 		/**
-		 * The OpenRegister dataSource block CnChartWidget self-resolves, with the bus's filter when the chart consumes it.
+		 * The OpenRegister dataSource block CnChartWidget self-resolves, with the bus's filter when the chart consumes it,
+		 * and the dashboard's period when its source names a period field.
 		 *
 		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		dataSource() {
 			if (this.content.source === 'manual') {
 				return null
 			}
-			return withBusFilter(this.content.dataSource || this.content.props?.dataSource || null, this.busFilter)
+			const own = withBusFilter(this.content.dataSource || this.content.props?.dataSource || null, this.busFilter)
+			const period = unref(this.dashboardPeriod)
+			return period ? withPeriod(own, periodFieldOf(this.content), period, new Date()) : own
 		},
 
 		/**

@@ -1743,6 +1743,8 @@
         "The end time must be after the publish time": "The end time must be after the publish time",
         "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.": "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.",
         "Welcome to Launchpad, {name} · {date}": "Welcome to Launchpad, {name} · {date}",
-        "Welcome to Launchpad · {date}": "Welcome to Launchpad · {date}"
+        "Welcome to Launchpad · {date}": "Welcome to Launchpad · {date}",
+        "Quarter": "Quarter",
+        "Year": "Year"
     }
 }

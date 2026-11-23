@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Quartal",
+    "Year" : "Onn",
     "Show until" : "Mussar fin",
     "After this time the announcement disappears from every dashboard." : "Suenter quest temp sparescha l'annunzia da mintga dashboard.",
     "Visible until {when}" : "Visibel fin {when}",

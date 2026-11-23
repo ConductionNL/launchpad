@@ -1237,6 +1237,18 @@
 		"validator": false,
 		"default": "full"
 	},
+	"../../components/Workspace/DashboardPageHeader.vue | showsPeriod": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardPageHeader.vue | period": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "month"
+	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,

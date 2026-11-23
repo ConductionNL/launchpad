@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Kwartaal",
+    "Year" : "Jaar",
     "Show until" : "Tonen tot",
     "After this time the announcement disappears from every dashboard." : "Na dit tijdstip verdwijnt de aankondiging van elk dashboard.",
     "Visible until {when}" : "zichtbaar tot {when}",

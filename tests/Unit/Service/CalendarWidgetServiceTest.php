@@ -389,16 +389,20 @@ class CalendarWidgetServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testInternalCalendarsMatchByUriAndName(): void {
-		$personal = $this->createMock(\OCP\Calendar\ICalendar::class);
+		$personal = $this->createMock(originalClassName: \OCP\Calendar\ICalendar::class);
 		$personal->method('getKey')->willReturn('7311');
 		$personal->method('getUri')->willReturn('personal');
 		$personal->method('getDisplayName')->willReturn('Personal');
-		$team = $this->createMock(\OCP\Calendar\ICalendar::class);
+		$team = $this->createMock(originalClassName: \OCP\Calendar\ICalendar::class);
 		$team->method('getKey')->willReturn('7325');
 		$team->method('getUri')->willReturn('team');
 		$team->method('getDisplayName')->willReturn('Team');
-		$event = static fn (string $title): array => ['SUMMARY' => [$title, []], 'UID' => [$title, []], 'DTSTART' => [new \DateTimeImmutable('2026-11-24T09:30:00+01:00'), []]];
-		$calendars = $this->createMock(\OCP\Calendar\IManager::class);
+		$event = static fn (string $title): array => [
+			'SUMMARY' => [$title, []],
+			'UID' => [$title, []],
+			'DTSTART' => [new \DateTimeImmutable(datetime: '2026-11-24T09:30:00+01:00'), []],
+		];
+		$calendars = $this->createMock(originalClassName: \OCP\Calendar\IManager::class);
 		$calendars->method('getCalendars')->willReturn([$personal, $team]);
 		$calendars->method('search')->willReturn([
 			['calendar-key' => '7311', 'objects' => [$event('Week planning')]],
@@ -410,12 +414,15 @@ class CalendarWidgetServiceTest extends TestCase {
 			logger: $this->logger,
 			calendarMgr: $calendars
 		);
-		$titles = static fn (array $result): array => array_column($result['events'], 'title');
+		$titles = static fn (array $principals): array => array_column(
+			array: $service->fetchInternalEvents(principals: $principals, from: '2026-11-24', to: '2026-11-25')['events'],
+			column_key: 'title'
+		);
 
-		$this->assertSame(['Week planning'], $titles($service->fetchInternalEvents(['personal'], '2026-11-24', '2026-11-25')));
-		$this->assertSame(['Stand-up'], $titles($service->fetchInternalEvents(['Team'], '2026-11-24', '2026-11-25')));
-		$this->assertSame(['Week planning', 'Stand-up'], $titles($service->fetchInternalEvents(['7311', 'team'], '2026-11-24', '2026-11-25')));
-		$this->assertSame([], $titles($service->fetchInternalEvents(['contact_birthdays'], '2026-11-24', '2026-11-25')));
+		$this->assertSame(expected: ['Week planning'], actual: $titles(['personal']));
+		$this->assertSame(expected: ['Stand-up'], actual: $titles(['Team']));
+		$this->assertSame(expected: ['Week planning', 'Stand-up'], actual: $titles(['7311', 'team']));
+		$this->assertSame(expected: [], actual: $titles(['contact_birthdays']));
 	}//end testInternalCalendarsMatchByUriAndName()
 
 	/**

@@ -1136,6 +1136,7 @@ export default {
 		 * phone so app tiles sit four to a row (board LpMobiel).
 		 *
 		 * @return {object} the GridStack `columnOpts` bag.
+		 * @spec openspec/specs/grid-layout/spec.md#req-grid-007
 		 */
 		dashboardColumnOpts() {
 			return dashboardGridColumnOpts()

@@ -288,28 +288,18 @@ export function dashboardItems({
 	onSwitch,
 	onOpenAll,
 }) {
-	const shared = new Set(sharedDashboards.map((d) => d?.id))
-	const rows = [
-		...userDashboards.map((d) => ({ d, source: 'user' })),
-		...groupDashboards.map((d) => ({ d, source: shared.has(d?.id) ? 'shared' : 'group' })),
-	].filter(({ d }) => d && d.id !== undefined && d.id !== null)
-	const seen = new Set()
-	const items = []
-	for (const { d, source } of rows) {
-		if (seen.has(d.id) || items.length >= DASHBOARD_LIMIT) {
-			continue
-		}
-		seen.add(d.id)
-		const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
-		items.push({
-			id: `dashboard-${d.id}`,
-			label: d.name || t('launchpad', 'Dashboard'),
-			icon: markRaw(isDefault ? Home : ViewDashboardOutline),
-			meta: dashboardMeta(isDefault, source),
-			checked: d.id === activeId,
-			onClick: () => onSwitch(d.id, source),
+	const items = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
+		.map(({ d, source }) => {
+			const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
+			return {
+				id: `dashboard-${d.id}`,
+				label: d.name || t('launchpad', 'Dashboard'),
+				icon: markRaw(isDefault ? Home : ViewDashboardOutline),
+				meta: dashboardMeta(isDefault, source),
+				checked: d.id === activeId,
+				onClick: () => onSwitch(d.id, source),
+			}
 		})
-	}
 	items.push({
 		id: 'all-dashboards',
 		label: t('launchpad', 'All dashboards'),
@@ -317,6 +307,34 @@ export function dashboardItems({
 		onClick: () => onOpenAll(),
 	})
 	return items
+}
+
+/**
+ * The dashboards the Dashboards group lists, each once with its section:
+ * the person's own first, then the shared and group ones, at most
+ * DASHBOARD_LIMIT.
+ *
+ * @param {object[]} userDashboards The person's own dashboards.
+ * @param {object[]} groupDashboards The group, default and shared dashboards.
+ * @param {object[]} sharedDashboards Which of those came through a share.
+ * @return {Array<{d: object, source: string}>} The rows.
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+ */
+function dashboardRows(userDashboards, groupDashboards, sharedDashboards) {
+	const shared = new Set(sharedDashboards.map((d) => d?.id))
+	const seen = new Set()
+	return [
+		...userDashboards.map((d) => ({ d, source: 'user' })),
+		...groupDashboards.map((d) => ({ d, source: shared.has(d?.id) ? 'shared' : 'group' })),
+	]
+		.filter(({ d }) => {
+			const known = d && d.id !== undefined && d.id !== null && !seen.has(d.id)
+			if (known) {
+				seen.add(d.id)
+			}
+			return known
+		})
+		.slice(0, DASHBOARD_LIMIT)
 }
 
 /**
@@ -383,30 +401,16 @@ export function dashboardActionItems({
 	if (!dashboard) {
 		return []
 	}
-	const action = (id, label, icon, event, extra = {}) => ({
-		id,
-		label,
-		icon: markRaw(icon),
-		onClick: () => emit(event),
-		...extra,
-	})
-	return [
-		canEdit && action(
-			'edit',
-			isEditMode ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit'),
-			isEditMode ? ContentSave : Pencil,
-			'toggleEdit',
-		),
-		canEdit && action('add-widget', t('launchpad', 'Add widget'), Plus, 'addWidget'),
-		canShare && action('share', t('launchpad', 'Share'), ShareVariant, 'share'),
-		action('copy-link', t('launchpad', 'Copy link to this dashboard'), LinkVariant, 'copyLink'),
-		canDuplicate && action('duplicate', t('launchpad', 'Duplicate as new dashboard'), ContentCopy, 'duplicate'),
-		action(
-			'set-default',
-			isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default'),
-			isDefault ? StarCheck : Star,
-			'setDefault',
-		),
-		isOwner && action('delete', t('launchpad', 'Delete'), TrashCanOutline, 'delete', { destructive: true }),
-	].filter(Boolean)
+	const rows = [
+		{ offered: canEdit, id: 'edit', label: isEditMode ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit'), icon: isEditMode ? ContentSave : Pencil, event: 'toggleEdit' },
+		{ offered: canEdit, id: 'add-widget', label: t('launchpad', 'Add widget'), icon: Plus, event: 'addWidget' },
+		{ offered: canShare, id: 'share', label: t('launchpad', 'Share'), icon: ShareVariant, event: 'share' },
+		{ offered: true, id: 'copy-link', label: t('launchpad', 'Copy link to this dashboard'), icon: LinkVariant, event: 'copyLink' },
+		{ offered: canDuplicate, id: 'duplicate', label: t('launchpad', 'Duplicate as new dashboard'), icon: ContentCopy, event: 'duplicate' },
+		{ offered: true, id: 'set-default', label: isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
+		{ offered: isOwner, id: 'delete', label: t('launchpad', 'Delete'), icon: TrashCanOutline, event: 'delete', destructive: true },
+	]
+	return rows
+		.filter((row) => row.offered)
+		.map(({ offered, event, icon, ...item }) => ({ ...item, icon: markRaw(icon), onClick: () => emit(event) }))
 }

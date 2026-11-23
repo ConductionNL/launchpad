@@ -1401,6 +1401,11 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/Workspace/LaunchpadMoreMenuItem.vue | item": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,

@@ -55,24 +55,11 @@
 					<span :id="`${domId}-dashboards`" class="lp-more-menu__title">
 						{{ t('launchpad', 'Dashboards') }}
 					</span>
-					<component
-						:is="itemTag(item)"
+					<LaunchpadMoreMenuItem
 						v-for="item in dashboards"
 						:key="item.id"
-						v-bind="itemAttributes(item)"
-						class="lp-more-menu__item"
-						:class="{ 'lp-more-menu__item--checked': item.checked === true }"
-						:role="item.checked === undefined ? 'menuitem' : 'menuitemradio'"
-						:aria-checked="item.checked === undefined ? undefined : String(item.checked === true)"
-						tabindex="-1"
-						:data-testid="`launchpad-more-menu-item-${item.id}`"
-						@click="choose($event, item)">
-						<span class="lp-more-menu__icon" aria-hidden="true">
-							<component :is="item.icon" v-if="item.icon" :size="18" />
-						</span>
-						<span class="lp-more-menu__label">{{ item.label }}</span>
-						<span v-if="item.meta" class="lp-more-menu__meta">{{ item.meta }}</span>
-					</component>
+						:item="item"
+						@click="choose($event, item)" />
 				</div>
 				<template v-if="settings.length > 0">
 					<button
@@ -102,21 +89,12 @@
 						role="group"
 						:aria-label="t('launchpad', 'Settings')"
 						data-testid="launchpad-more-menu-group-settings">
-						<component
-							:is="itemTag(item)"
+						<LaunchpadMoreMenuItem
 							v-for="item in settings"
 							:key="item.id"
-							v-bind="itemAttributes(item)"
-							class="lp-more-menu__item lp-more-menu__subitem"
-							role="menuitem"
-							tabindex="-1"
-							:data-testid="`launchpad-more-menu-item-${item.id}`"
-							@click="choose($event, item)">
-							<span class="lp-more-menu__icon" aria-hidden="true">
-								<component :is="item.icon" v-if="item.icon" :size="18" />
-							</span>
-							<span class="lp-more-menu__label">{{ item.label }}</span>
-						</component>
+							:item="item"
+							class="lp-more-menu__subitem"
+							@click="choose($event, item)" />
 					</div>
 				</template>
 			</div>
@@ -129,22 +107,11 @@
 					<span :id="`${domId}-actions`" class="lp-more-menu__title">
 						{{ t('launchpad', 'This dashboard') }}
 					</span>
-					<component
-						:is="itemTag(item)"
+					<LaunchpadMoreMenuItem
 						v-for="item in actions"
 						:key="item.id"
-						v-bind="itemAttributes(item)"
-						class="lp-more-menu__item"
-						:class="{ 'lp-more-menu__item--destructive': item.destructive === true }"
-						role="menuitem"
-						tabindex="-1"
-						:data-testid="`launchpad-more-menu-item-${item.id}`"
-						@click="choose($event, item)">
-						<span class="lp-more-menu__icon" aria-hidden="true">
-							<component :is="item.icon" v-if="item.icon" :size="18" />
-						</span>
-						<span class="lp-more-menu__label">{{ item.label }}</span>
-					</component>
+						:item="item"
+						@click="choose($event, item)" />
 				</div>
 			</div>
 		</div>
@@ -158,6 +125,7 @@ import ChevronDown from 'vue-material-design-icons/ChevronDown.vue'
 import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import DotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue'
+import LaunchpadMoreMenuItem from './LaunchpadMoreMenuItem.vue'
 
 let menuCounter = 0
 
@@ -169,6 +137,7 @@ export default {
 		ChevronRight,
 		Cog,
 		DotsHorizontal,
+		LaunchpadMoreMenuItem,
 		NcButton,
 		NcPopover,
 	},
@@ -177,6 +146,7 @@ export default {
 		/**
 		 * The Dashboards group: `{ id, label, icon?, meta?, checked?, href?,
 		 * to?, onClick? }`. `checked` (true or false) makes a radio item.
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		dashboards: {
 			type: Array,
@@ -192,6 +162,7 @@ export default {
 		/**
 		 * The This dashboard group: `{ id, label, icon?, destructive?,
 		 * onClick? }`. A destructive item goes last, in the error colour.
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		actions: {
 			type: Array,
@@ -214,6 +185,7 @@ export default {
 		 * The button's text and the menu's name.
 		 *
 		 * @return {string}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		triggerLabel() {
 			return t('launchpad', 'More')
@@ -223,6 +195,7 @@ export default {
 		 * Whether the This dashboard column is drawn.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		hasActions() {
 			return this.actions.length > 0
@@ -230,6 +203,12 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Opening folds Settings again and tells the host.
+		 *
+		 * @param {boolean} isOpen Whether the menu is open.
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
 		open(isOpen) {
 			if (isOpen) {
 				this.settingsOpen = false
@@ -242,45 +221,12 @@ export default {
 		t,
 
 		/**
-		 * The element an item renders as: a link, a router link or a button.
-		 *
-		 * @param {object} item The item.
-		 * @return {string}
-		 */
-		itemTag(item) {
-			if (item.href) {
-				return 'a'
-			}
-			if (item.to) {
-				return 'router-link'
-			}
-			return 'button'
-		},
-
-		/**
-		 * The attributes of an item's element.
-		 *
-		 * @param {object} item The item.
-		 * @return {object}
-		 */
-		itemAttributes(item) {
-			const tag = this.itemTag(item)
-			if (tag === 'a') {
-				const target = item.target || undefined
-				return { href: item.href, target, rel: target === '_blank' ? 'noopener noreferrer' : undefined }
-			}
-			if (tag === 'router-link') {
-				return { to: item.to }
-			}
-			return { type: 'button' }
-		},
-
-		/**
 		 * Choose an item: run it, report it and close the menu.
 		 *
 		 * @param {MouseEvent} event The click.
 		 * @param {object} item The item.
 		 * @return {void}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		choose(event, item) {
 			if (typeof item.onClick === 'function') {
@@ -294,6 +240,7 @@ export default {
 		 * The visible items in reading order, as elements.
 		 *
 		 * @return {HTMLElement[]}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		itemElements() {
 			const panel = this.$refs.panel
@@ -309,6 +256,7 @@ export default {
 		 *
 		 * @param {number} index The index.
 		 * @return {void}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		focusItem(index) {
 			const items = this.itemElements()
@@ -326,6 +274,7 @@ export default {
 		 * @param {boolean} unfold Whether to unfold.
 		 * @param {EventTarget} from The focused element.
 		 * @return {Promise<boolean>} Whether the key was used.
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		async toggleSettingsFromKey(unfold, from) {
 			const toggle = this.$refs.panel?.querySelector('.lp-more-menu__settings')
@@ -352,6 +301,7 @@ export default {
 		 *
 		 * @param {KeyboardEvent} event The key.
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		async onKeydown(event) {
 			if (event.key === 'Escape') {
@@ -385,6 +335,7 @@ export default {
 		 * Where focus goes when the menu closes: back to More.
 		 *
 		 * @return {HTMLElement|false}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		returnFocus() {
 			return this.$refs.trigger?.$el ?? false
@@ -393,7 +344,8 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+/* Not scoped: LaunchpadMoreMenuItem draws the items with these classes. */
 .lp-more-menu__panel {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));

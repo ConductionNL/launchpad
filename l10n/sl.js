@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "samo ogled",
+    "you may add widgets" : "lahko dodajate gradnike",
+    "Own look" : "Lasten videz",
+    "{index} of {total} · next in {seconds} s" : "{index} od {total} · naslednja čez {seconds} s",
+    "Now showing {name}" : "Zdaj prikazano: {name}",
+    "Put LaunchPad on your home screen" : "Dodajte LaunchPad na začetni zaslon",
+    "Then your workplace opens with one tap, like an app" : "Vaše delovno mesto se nato odpre z enim dotikom, kot aplikacija",
+    "In your browser, choose Share and then Add to Home Screen." : "V brskalniku izberite Deli in nato Dodaj na začetni zaslon.",
+    "Not now" : "Ne zdaj",
     "Dashboard renamed to %s" : "Nadzorna plošča preimenovana v %s",
     "Columns from %1$s to %2$s" : "Stolpci iz %1$s v %2$s",
     "Widget %s added" : "Pripomoček %s dodan",

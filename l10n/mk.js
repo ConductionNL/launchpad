@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "само преглед",
+    "you may add widgets" : "може да додавате виџети",
+    "Own look" : "Сопствен изглед",
+    "{index} of {total} · next in {seconds} s" : "{index} од {total} · следно за {seconds} s",
+    "Now showing {name}" : "Сега се прикажува: {name}",
+    "Put LaunchPad on your home screen" : "Додајте го LaunchPad на почетниот екран",
+    "Then your workplace opens with one tap, like an app" : "Тогаш вашето работно место се отвора со еден допир, како апликација",
+    "In your browser, choose Share and then Add to Home Screen." : "Во прелистувачот изберете Сподели, а потоа Додај на почетен екран.",
+    "Not now" : "Не сега",
     "Dashboard renamed to %s" : "Контролната табла е преименувана во %s",
     "Columns from %1$s to %2$s" : "Колони од %1$s во %2$s",
     "Widget %s added" : "Додаден виџет %s",

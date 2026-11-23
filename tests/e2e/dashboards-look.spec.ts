@@ -129,8 +129,9 @@ async function drawn(
 async function openLookTab(page: Page): Promise<void> {
 	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 	await openDashboardSettings(page)
-	await page.locator('[data-test="config-tab-look"]').click()
-	await expect(page.locator('[data-test="config-panel-look"]')).toBeVisible()
+	// The look is the Own look block of the Details tab (REQ-THM-001).
+	await page.locator('[data-test="config-tab-general"]').click()
+	await expect(page.locator('[data-test="config-look"]')).toBeVisible()
 }
 
 /**

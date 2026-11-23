@@ -1401,6 +1401,15 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Αυτός ο πίνακας χωράει ακόμη {count}. Επιλέξτε λιγότερους φακέλους ή σελιδοδείκτες.",
         "The bookmarks could not be imported.": "Δεν ήταν δυνατή η εισαγωγή των σελιδοδεικτών.",
         "This file holds no bookmarks.": "Το αρχείο δεν περιέχει σελιδοδείκτες.",
-        "Folders": "Φάκελοι"
+        "Folders": "Φάκελοι",
+        "Put LaunchPad on your home screen": "Προσθέστε το LaunchPad στην αρχική οθόνη",
+        "Then your workplace opens with one tap, like an app": "Τότε ο χώρος εργασίας σας ανοίγει με ένα πάτημα, σαν εφαρμογή",
+        "In your browser, choose Share and then Add to Home Screen.": "Στο πρόγραμμα περιήγησης επιλέξτε Κοινοποίηση και μετά Προσθήκη στην οθόνη Αφετηρίας.",
+        "Not now": "Όχι τώρα",
+        "{index} of {total} · next in {seconds} s": "{index} από {total} · επόμενο σε {seconds} s",
+        "Now showing {name}": "Τώρα εμφανίζεται: {name}",
+        "Own look": "Δική του εμφάνιση",
+        "view only": "μόνο προβολή",
+        "you may add widgets": "μπορείτε να προσθέσετε widget"
     }
 }

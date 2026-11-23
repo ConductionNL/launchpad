@@ -1403,6 +1403,15 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Tato nástěnka pojme ještě {count}. Vyberte méně složek nebo záložek.",
         "The bookmarks could not be imported.": "Záložky se nepodařilo importovat.",
         "This file holds no bookmarks.": "Soubor neobsahuje žádné záložky.",
-        "Folders": "Složky"
+        "Folders": "Složky",
+        "Put LaunchPad on your home screen": "Přidejte si LaunchPad na plochu",
+        "Then your workplace opens with one tap, like an app": "Vaše pracoviště se pak otevře jedním klepnutím, jako aplikace",
+        "In your browser, choose Share and then Add to Home Screen.": "V prohlížeči zvolte Sdílet a potom Přidat na plochu.",
+        "Not now": "Teď ne",
+        "{index} of {total} · next in {seconds} s": "{index} z {total} · další za {seconds} s",
+        "Now showing {name}": "Nyní zobrazeno: {name}",
+        "Own look": "Vlastní vzhled",
+        "view only": "jen zobrazení",
+        "you may add widgets": "můžete přidávat widgety"
     }
 }

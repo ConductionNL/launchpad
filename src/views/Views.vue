@@ -201,7 +201,8 @@
 				v-if="activeDashboard && !kiosk && !hasGroundHeader && !isEditMode"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
-				:isDefault="activeDashboard.uuid === defaultDashboardUuid" />
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
+				:permissionLevel="permissionLevel" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -229,6 +230,9 @@
 			</p>
 			<!-- building-edit-a-dashboard-together: no lock in edit mode; a
 				refusal says so, and colleagues editing are shown. -->
+			<!-- platform-baseline REQ-PLB-009: on a phone, the offer to put
+			     LaunchPad on the home screen (board LpMobiel). -->
+			<InstallBanner v-if="!kiosk && !isEditMode" :kiosk="kiosk" />
 			<EditLockBanner :status="presence.state.status" />
 			<CoEditorsBanner
 				v-if="isEditMode"
@@ -508,6 +512,7 @@ import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherS
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
+import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
@@ -685,6 +690,7 @@ export default {
 		CoEditorsBanner,
 		EditLockBanner,
 		HiddenWidgetsControl,
+		InstallBanner,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state

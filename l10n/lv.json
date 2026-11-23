@@ -1403,6 +1403,15 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Šajā informācijas panelī vēl ietilpst {count}. Izvēlieties mazāk mapju vai grāmatzīmju.",
         "The bookmarks could not be imported.": "Grāmatzīmes neizdevās importēt.",
         "This file holds no bookmarks.": "Failā nav grāmatzīmju.",
-        "Folders": "Mapes"
+        "Folders": "Mapes",
+        "Put LaunchPad on your home screen": "Pievienojiet LaunchPad sākuma ekrānam",
+        "Then your workplace opens with one tap, like an app": "Tad jūsu darba vieta atveras ar vienu pieskārienu, kā lietotne",
+        "In your browser, choose Share and then Add to Home Screen.": "Pārlūkā izvēlieties Kopīgot un pēc tam Pievienot sākuma ekrānam.",
+        "Not now": "Ne tagad",
+        "{index} of {total} · next in {seconds} s": "{index} no {total} · nākamais pēc {seconds} s",
+        "Now showing {name}": "Tagad redzams: {name}",
+        "Own look": "Savs izskats",
+        "view only": "tikai skatīt",
+        "you may add widgets": "jūs varat pievienot logrīkus"
     }
 }

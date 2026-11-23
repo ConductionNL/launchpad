@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "nëmmen ukucken",
+    "you may add widgets" : "Dir dierft Widgeten derbäisetzen",
+    "Own look" : "Eegene Look",
+    "{index} of {total} · next in {seconds} s" : "{index} vun {total} · nächst an {seconds} s",
+    "Now showing {name}" : "Elo ze gesinn: {name}",
+    "Put LaunchPad on your home screen" : "Setzt LaunchPad op Ären Startbildschierm",
+    "Then your workplace opens with one tap, like an app" : "Da geet Är Aarbechtsplaz mat engem Tipp op, grad wéi eng App",
+    "In your browser, choose Share and then Add to Home Screen." : "Wielt an Ärem Browser Deelen an duerno Zum Home-Bildschierm.",
+    "Not now" : "Net elo",
     "Dashboard renamed to %s" : "Dashboard ëmbenannt an %s",
     "Columns from %1$s to %2$s" : "Kolonnen vu %1$s op %2$s",
     "Widget %s added" : "Widget %s derbäigesat",

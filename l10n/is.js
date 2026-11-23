@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "aðeins skoða",
+    "you may add widgets" : "þú mátt bæta við græjum",
+    "Own look" : "Eigið útlit",
+    "{index} of {total} · next in {seconds} s" : "{index} af {total} · næst eftir {seconds} s",
+    "Now showing {name}" : "Sýnt núna: {name}",
+    "Put LaunchPad on your home screen" : "Settu LaunchPad á heimaskjáinn",
+    "Then your workplace opens with one tap, like an app" : "Þá opnast vinnusvæðið þitt með einni snertingu, eins og forrit",
+    "In your browser, choose Share and then Add to Home Screen." : "Veldu Deila í vafranum og síðan Bæta á heimaskjá.",
+    "Not now" : "Ekki núna",
     "Dashboard renamed to %s" : "Stjórnborð endurnefnt í %s",
     "Columns from %1$s to %2$s" : "Dálkar úr %1$s í %2$s",
     "Widget %s added" : "Viðmótshluta %s bætt við",

@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "mo guardar",
+    "you may add widgets" : "Vus dastgais agiuntar widgets",
+    "Own look" : "Agen aspect",
+    "{index} of {total} · next in {seconds} s" : "{index} da {total} · proxim en {seconds} s",
+    "Now showing {name}" : "Ussa vesaivel: {name}",
+    "Put LaunchPad on your home screen" : "Agiuntai LaunchPad al visur da partenza",
+    "Then your workplace opens with one tap, like an app" : "Lura s'avra Voss plaz da lavur cun in tip, sco ina app",
+    "In your browser, choose Share and then Add to Home Screen." : "Tschernai en Voss navigatur Cundivider e lura Agiuntar al visur da partenza.",
+    "Not now" : "Betg ussa",
     "Dashboard renamed to %s" : "Tavla renumnada en %s",
     "Columns from %1$s to %2$s" : "Colonnas da %1$s a %2$s",
     "Widget %s added" : "Widget %s agiuntà",

@@ -81,7 +81,7 @@ class AnnouncementInputTest extends TestCase {
 		self::assertSame(expected: 0, actual: $announcement->getAllowComments());
 		self::assertSame(expected: ['medewerkers', 'ict'], actual: $announcement->getTargetGroupList());
 		self::assertSame(expected: '["medewerkers","ict"]', actual: $announcement->getTargetGroups(), message: 'blank groups are not stored');
-		self::assertSame(expected: '2026-11-23T07:00:00+00:00', actual: $announcement->getPublishAt()->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM));
+		self::assertSame(expected: '2026-11-23T08:00:00+01:00', actual: $announcement->getPublishAt()->format(DATE_ATOM));
 		self::assertSame(expected: '2026-11-24T20:00:00+01:00', actual: $announcement->getExpiresAt()->format(DATE_ATOM));
 	}//end testACompleteNoticeIsCopied()
 
@@ -185,8 +185,8 @@ class AnnouncementInputTest extends TestCase {
 	 */
 	#[DataProvider('refusedInputs')]
 	public function testRefusedInput(array $input, string $message): void {
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage($message);
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: $message);
 
 		$this->input->apply(announcement: new Announcement(), input: $input);
 	}//end testRefusedInput()
@@ -200,7 +200,7 @@ class AnnouncementInputTest extends TestCase {
 		self::assertSame(expected: 'Gemeente', actual: $this->input->category(value: ' Gemeente '));
 		self::assertSame(expected: str_repeat('c', 64), actual: $this->input->category(value: str_repeat('c', 64)));
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(exception: InvalidArgumentException::class);
 		$this->input->category(value: '');
 	}//end testCategoryIsTrimmedUpToItsLimit()
 }//end class

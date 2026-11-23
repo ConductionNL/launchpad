@@ -220,7 +220,13 @@ class McpInstanceToolsTest extends TestCase {
 			->willReturn(self::dashboard(name: 'Start'));
 
 		$result = $this->tools->createTemplate(
-			args: ['name' => 'Start', 'description' => 'Voor iedereen', 'targetGroups' => ['all'], 'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY, 'uuid' => 'x']
+			args: [
+				'name'            => 'Start',
+				'description'     => 'Voor iedereen',
+				'targetGroups'    => ['all'],
+				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
+				'uuid'            => 'x',
+			]
 		);
 
 		$this->assertSame(expected: 'Start', actual: $result['name']);
@@ -235,10 +241,13 @@ class McpInstanceToolsTest extends TestCase {
 		$this->templates->expects($this->never())->method('createTemplate');
 		$this->templates->expects($this->never())->method('updateTemplate');
 
-		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools->createTemplate(args: ['name' => 'Start', 'permissionLevel' => 'owner'])['error']);
-		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools->createTemplate(args: ['name' => 'Start', 'targetGroups' => 'all'])['error']);
-		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools->updateTemplate(args: ['templateId' => 0])['error']);
-		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools->updateTemplate(args: ['templateId' => 4, 'name' => ''])['error']);
+		$refused = [
+			$this->tools->createTemplate(args: ['name' => 'Start', 'permissionLevel' => 'owner']),
+			$this->tools->createTemplate(args: ['name' => 'Start', 'targetGroups' => 'all']),
+			$this->tools->updateTemplate(args: ['templateId' => 0]),
+			$this->tools->updateTemplate(args: ['templateId' => 4, 'name' => '']),
+		];
+		$this->assertSame(expected: array_fill(0, 4, 'invalid_arguments'), actual: array_column($refused, 'error'));
 	}//end testTemplateFieldsAreChecked()
 
 	/**
@@ -276,8 +285,10 @@ class McpInstanceToolsTest extends TestCase {
 	public function testResyncTemplateChecksItsArguments(): void {
 		$this->resync->expects($this->once())->method('resync')->with(3, 'overwrite', false, 'root')->willReturn(['changed' => 2]);
 
-		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'replace'])['error']);
-		$this->assertSame(expected: 'invalid_arguments', actual: $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'merge', 'dryRun' => 'no'])['error']);
+		$unknownStrategy = $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'replace']);
+		$textDryRun      = $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'merge', 'dryRun' => 'no']);
+		$this->assertSame(expected: 'invalid_arguments', actual: $unknownStrategy['error']);
+		$this->assertSame(expected: 'invalid_arguments', actual: $textDryRun['error']);
 		$this->assertSame(expected: ['changed' => 2], actual: $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'overwrite', 'dryRun' => false]));
 	}//end testResyncTemplateChecksItsArguments()
 

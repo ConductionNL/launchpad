@@ -73,6 +73,8 @@ class EmbedTokenMiddleware extends Middleware {
 	 * @throws EmbedRefusalException When the token is missing, invalid or out of scope.
 	 *
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-004--read-only-enforcement-at-the-api-tier
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $methodName is required by the Middleware signature.
 	 */
 	public function beforeController($controller, $methodName): void {
 		$renderRoute = ($controller instanceof EmbedController);
@@ -107,6 +109,8 @@ class EmbedTokenMiddleware extends Middleware {
 	 * @throws Exception When the exception is not an embed refusal.
 	 *
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $methodName is required by the Middleware signature.
 	 */
 	public function afterException($controller, $methodName, Exception $exception): Response {
 		if (($exception instanceof EmbedRefusalException) === false) {

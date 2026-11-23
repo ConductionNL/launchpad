@@ -65,15 +65,17 @@ export default {
 </script>
 
 <style scoped>
+/* Board LpWerkplek: the title over its one line, on the grid's line, the
+   rule under both; the one-row cell holds them without clipping the line. */
 .lp-section-heading {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	gap: 2px;
+	gap: 0;
 	box-sizing: border-box;
 	width: 100%;
 	height: 100%;
-	padding: 0 4px 6px;
+	padding: 0 0 4px;
 	border-bottom: 1px solid var(--color-border);
 }
 
@@ -82,7 +84,7 @@ export default {
 	color: var(--color-main-text);
 	font-size: 20px;
 	font-weight: 700;
-	line-height: 1.3;
+	line-height: 1.25;
 }
 
 .lp-section-heading__description {
@@ -90,7 +92,8 @@ export default {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 14px;
-	line-height: 1.4;
+	line-height: 1.3;
+	flex: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

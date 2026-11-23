@@ -366,6 +366,19 @@ export default {
 
 <style>
 /* Not scoped: LaunchpadMoreMenuItem draws the items with these classes. */
+
+/* The More button is 40px high, and open it is tinted with a brand border
+   (LpWerkplek, LpVandaag). */
+.lp-more-menu__trigger {
+	min-height: 40px;
+}
+
+.lp-more-menu__trigger[aria-expanded='true']:not(#lp-more-menu-a) {
+	border-color: var(--color-primary-element) !important;
+	background-color: var(--color-primary-element-light) !important;
+	color: var(--color-primary-element-light-text) !important;
+}
+
 .lp-more-menu__panel {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));

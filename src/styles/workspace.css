@@ -214,7 +214,35 @@
 }
 
 /* The card gives the inset; a widget inside it adds none of its own, so its
-   first line starts on the title's 18px (the agenda, recent work, mail). */
+   first line starts on the title's 18px (the agenda, recent work, mail). The
+   renderer's own 16px padding added a second inset. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget) {
+	padding: 0;
+}
+
+/* "Vandaag eerst" draws its own heading inside the card, 14px from the top
+   (LpVandaag); the card's title row is not shown for it. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .widget-renderer:has(> .attention-widget) {
+	padding: 14px 0 4px;
+}
+
+/* Bookmark groups are headed by a small uppercase label (LpWerkplek). */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-links-widget__section-title {
+	margin: 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* A list in a card starts with a rule under the title, as the boards draw
+   the rows of recent work, mail, the agenda and status lists. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.cn-nc-widget-widget__item--vertical, .cn-calendar-widget__list-row):first-child,
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-status-list__item:first-child {
+	border-top: 1px solid var(--color-border);
+}
+
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-calendar-widget__body,
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-nc-widget-widget__body {
 	padding: 0;

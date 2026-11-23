@@ -142,11 +142,13 @@ export default {
 </script>
 
 <style scoped>
+/* The title starts on the grid's 28px line (the container's 20px inset plus
+   8px here) and the meta line sits 14px under it (LpWerkplek). */
 .launchpad-page-header {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	padding: 16px 20px 8px;
+	gap: 14px;
+	padding: 16px 8px 8px;
 }
 
 .launchpad-page-header__row {

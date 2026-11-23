@@ -195,17 +195,13 @@
 				:dashboard="activeDashboard"
 				:sharedWithMe="sharedWithMeDashboards"
 				:currentUserId="currentUserId" />
-			<!-- Every dashboard without a greeting row opens with its name, its
-			     actions and the "Meer" menu (LpWerkplek, LpIntranet). -->
+			<!-- Every dashboard without a greeting row opens with its name and
+			     the "Meer" menu, its only action (LpWerkplek, LpIntranet). -->
 			<DashboardPageHeader
-				v-if="activeDashboard && !kiosk && !hasGroundHeader"
+				v-if="activeDashboard && !kiosk && !hasGroundHeader && !isEditMode"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
-				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
-				:permissionLevel="permissionLevel"
-				:isEditMode="isEditMode"
-				@edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
-				@addWidget="openWidgetModal" />
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -3729,12 +3725,13 @@ export default {
    in the single .launchpad-container rule further below. */
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
-   frosted-glass tile look (was DashboardGrid's local style) by overriding
-   the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
+   translucent tile look (was DashboardGrid's local style) by overriding
+   the grid-item-content surface. :deep penetrates into CnDashboardGrid.
+   No backdrop blur: the content area behind is already blurred, and each
+   blurred item was blurred again on every repaint, which made a pointer
+   move over the grid cost 100 ms or more. */
 .launchpad-container :deep(.grid-stack-item-content) {
 	background: var(--color-main-background-blur);
-	backdrop-filter: var(--filter-background-blur);
-	-webkit-backdrop-filter: var(--filter-background-blur);
 	border-radius: var(--border-radius-large);
 	overflow: hidden;
 }

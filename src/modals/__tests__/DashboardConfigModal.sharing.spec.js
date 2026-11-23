@@ -189,7 +189,7 @@ describe('DashboardConfigModal: opening', () => {
 
 	it('labels the primary button while saving', async () => {
 		const wrapper = mountModal()
-		expect(wrapper.vm.modalTitle).toBe('Dashboard configuration')
+		expect(wrapper.vm.modalTitle).toBe('Dashboard settings')
 		expect(wrapper.vm.primaryButtonLabel).toBe('Save')
 		wrapper.vm.saving = true
 		expect(wrapper.vm.primaryButtonLabel).toBe('Saving…')

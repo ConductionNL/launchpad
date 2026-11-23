@@ -51,6 +51,23 @@ describe('TileWidget', () => {
 		document.head.querySelectorAll('style[id^="tile-"]').forEach((el) => el.remove())
 	})
 
+	it('shows only the glyph of an icon-only tile, with its name as tooltip and accessible name', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }), content: { iconOnly: true } } })
+
+		expect(wrapper.classes()).toContain('tile-widget--icon-only')
+		expect(wrapper.find('.tile-widget__title').exists()).toBe(false)
+		expect(wrapper.find('a').attributes('title')).toBe('TOPdesk')
+		expect(wrapper.find('a').attributes('aria-label')).toBe('TOPdesk')
+	})
+
+	it('keeps the name under the glyph without iconOnly', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }) } })
+
+		expect(wrapper.classes()).not.toContain('tile-widget--icon-only')
+		expect(wrapper.find('.tile-widget__title').text()).toBe('TOPdesk')
+		expect(wrapper.find('a').attributes('title')).toBeUndefined()
+	})
+
 	it('links an app tile through generateUrl in the same tab', () => {
 		const link = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: 'deck' }) } }).find('a')
 

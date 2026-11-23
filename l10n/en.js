@@ -1929,7 +1929,7 @@ OC.L10N.register(
     "Pie chart" : "Pie chart",
     "Graph" : "Graph",
     "You are editing {name}" : "You are editing {name}",
-    "Changes are saved straight away" : "Changes are saved straight away",
+    "Changes are saved immediately" : "Changes are saved immediately",
     "Dashboard settings" : "Dashboard settings",
     "The number of columns could not be saved." : "The number of columns could not be saved.",
     "Versions" : "Versions",

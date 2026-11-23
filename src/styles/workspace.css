@@ -168,24 +168,60 @@
 }
 
 /* =========================================================
-   The start page, which has no navigation panel (REQ-SHELL-009), reads
-   as one centred column, as LpStart draws it: 1214px of content between
-   even margins on a 1440px screen, instead of a grid that runs from edge
-   to edge.
-   The container is also the page's scroller, so the column comes from
-   padding, not from a max-width: the scroller spans the whole window and
-   its scrollbar sits at the window edge instead of beside the column.
+   A dashboard without a navigation panel (REQ-SHELL-009) runs from edge to
+   edge, 28px in from the window: 20px here and the grid's own 8px item
+   margin (LpVandaag, LpWerkplek, LpIntranet).
+   The container is also the page's scroller, so the inset is padding, not a
+   max-width: the scrollbar sits at the window edge. The id outranks the
+   page's own scoped `padding: 8px 0 0`.
    ========================================================= */
-.app-launchpad .launchpad-container:not(.launchpad-container--fill) {
+#content.app-launchpad .launchpad-container {
 	box-sizing: border-box;
 	width: 100%;
-	padding-inline: max(0px, calc((100% - 1214px) / 2));
+	padding-inline: 20px;
 }
 
-/* A start page that fills the height (LpVandaag) runs from edge to edge, 28px
-   in from the window with the grid's own 8px item margin. */
-.app-launchpad .launchpad-container.launchpad-container--fill {
-	padding-inline: 20px;
+/* =========================================================
+   A widget card in the board look, as the Launchpad boards draw it: a white
+   card with a hairline and a 12px radius, a 16px bold title 16px from the
+   top and 18px in, its content on that same inset, and no title icon. The
+   Nextcloud look keeps the native dashboard panel (chrome="nc-dashboard").
+   ========================================================= */
+.cn-look-board .launchpad-container .cn-widget-wrapper.cn-widget-wrapper--nc-dashboard {
+	border: 1px solid var(--cn-board-hairline, var(--color-border));
+	border-radius: var(--cn-board-card-radius, 12px);
+	background: var(--color-main-background);
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding: 16px 18px 8px;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__icon {
+	display: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__title {
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__content {
+	padding: 0 18px 12px;
+}
+
+/* The card gives the inset; a widget inside it adds none of its own, so its
+   first line starts on the title's 18px (the agenda, recent work, mail). */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-calendar-widget__body,
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-nc-widget-widget__body {
+	padding: 0;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-nc-widget-widget__body--vertical {
+	gap: 0;
 }
 
 /* =========================================================
@@ -345,6 +381,80 @@
 	.cn-widget-wrapper__content,
 .launchpad-container .launchpad-widget:has(.cn-label-widget) .widget-renderer,
 .launchpad-container .cn-label-widget.cn-label-widget {
+	padding: 0;
+}
+
+/* =========================================================
+   A counter in the board look, as LpVandaag draws "Mijn werk": the app's
+   glyph in a 36px tinted square beside two lines, the label in 13px muted
+   and the number in 26px bold with its caption on the same baseline, the
+   card padded 12px 16px. The glyph leaves the title row so it can sit
+   beside both lines.
+   ========================================================= */
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board {
+	padding: 12px 16px !important;
+	border: none !important;
+	color: var(--color-main-text) !important;
+	text-decoration: none !important;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__body {
+	display: grid;
+	grid-template-columns: 36px minmax(0, 1fr);
+	column-gap: 12px;
+	row-gap: 1px;
+	align-items: center;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__title {
+	display: contents;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__glyph {
+	display: flex;
+	grid-row: 1 / span 2;
+	grid-column: 1;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background: var(--color-primary-element-light, #eaf0f7);
+	color: var(--color-primary-element-light-text, #234a78);
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__title-text {
+	grid-column: 2;
+	overflow: hidden;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__value-row {
+	display: flex;
+	grid-column: 2;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__value {
+	color: var(--color-main-text);
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__label {
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}
+
+/* The counter pads itself; its card adds no inset. */
+.cn-look-board .launchpad-container .launchpad-widget:has(.cn-stat-widget) .cn-widget-wrapper__content {
 	padding: 0;
 }
 

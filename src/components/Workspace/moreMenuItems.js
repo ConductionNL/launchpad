@@ -7,9 +7,10 @@
  * This dashboard group. LaunchpadMoreMenu draws them.
  */
 
+import { CnDashboardIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { markRaw } from 'vue'
+import { h, markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
@@ -279,6 +280,33 @@ export function dashboardMeta(isDefault, source) {
  * @return {object[]} The items.
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
  */
+/**
+ * The glyph a dashboard row shows: the dashboard's own icon (LpMeer draws
+ * Today's house, a chart for management information, a megaphone for the
+ * intranet), else the default dashboard's house or the generic dashboard.
+ *
+ * @param {object} dashboard The dashboard.
+ * @param {boolean} isDefault Whether it opens first.
+ * @return {object} A component that takes `size`.
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+ */
+export function dashboardIcon(dashboard, isDefault) {
+	const name = typeof dashboard?.icon === 'string' ? dashboard.icon.trim() : ''
+	if (name === '') {
+		return markRaw(isDefault ? Home : ViewDashboardOutline)
+	}
+	return markRaw({
+		name: 'DashboardMenuIcon',
+		props: { size: { type: Number, default: 18 } },
+		/**
+		 * @return {object} The dashboard icon at the menu's size.
+		 */
+		render() {
+			return h(CnDashboardIcon, { name, size: this.size })
+		},
+	})
+}
+
 export function dashboardItems({
 	userDashboards = [],
 	groupDashboards = [],
@@ -294,7 +322,7 @@ export function dashboardItems({
 			return {
 				id: `dashboard-${d.id}`,
 				label: d.name || t('launchpad', 'Dashboard'),
-				icon: markRaw(isDefault ? Home : ViewDashboardOutline),
+				icon: dashboardIcon(d, isDefault),
 				meta: dashboardMeta(isDefault, source),
 				checked: d.id === activeId,
 				onClick: () => onSwitch(d.id, source),

@@ -383,6 +383,10 @@ registerDashboardWidget('section-heading', {
 	},
 	displayName: 'Section heading',
 	icon: 'FormatHeader1',
+	// One row, as the boards draw it. Under the grid's two-row minimum a
+	// heading seeded one row high grew into the tiles below it, and the grid
+	// moved it under every other widget.
+	minHeight: 1,
 })
 
 // wiki-widget REQ-WIKI-001..004: the wiki through OpenRegister's XWiki

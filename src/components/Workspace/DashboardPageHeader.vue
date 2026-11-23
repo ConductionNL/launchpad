@@ -10,16 +10,6 @@
 				{{ dashboard.name }}
 			</h1>
 			<div class="launchpad-page-header__actions">
-				<NcButton
-					v-if="editAction"
-					variant="secondary"
-					data-testid="dashboard-page-header-action"
-					@click="$emit(editAction.event)">
-					<template #icon>
-						<component :is="editAction.icon" :size="20" />
-					</template>
-					{{ editAction.label }}
-				</NcButton>
 				<!-- The top-right controls teleport in here (headerActionsDock.js). -->
 				<div :class="dockClass" />
 			</div>
@@ -36,10 +26,7 @@
 
 <script>
 import { getLanguage, t } from '@nextcloud/l10n'
-import { NcButton } from '@nextcloud/vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../utils/headerActionsDock.js'
 
@@ -79,15 +66,13 @@ export function lastChangedText(updatedAt, now, locale) {
 /**
  * DashboardPageHeader: the page title row of a dashboard without a greeting
  * on the page ground (LpWerkplek, LpIntranet, LpAfdeling, LpManagement): the
- * dashboard name, the edit or add action, the docked "Meer" menu, and a line
+ * dashboard name, the docked "Meer" menu as its only action, and a line
  * saying what kind of dashboard it is and when it last changed.
  *
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  */
 export default {
 	name: 'DashboardPageHeader',
-
-	components: { NcButton },
 
 	props: {
 		/** The active dashboard (`name`, `description`, `updatedAt`). */
@@ -107,21 +92,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-
-		/** The reader's permission level on the dashboard. */
-		permissionLevel: {
-			type: String,
-			default: 'view_only',
-		},
-
-		/** Whether the dashboard is being edited. */
-		isEditMode: {
-			type: Boolean,
-			default: false,
-		},
 	},
-
-	emits: ['edit', 'addWidget'],
 
 	/** @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu */
 	data() {
@@ -129,26 +100,6 @@ export default {
 	},
 
 	computed: {
-		/**
-		 * The action beside "Meer": edit with full rights, add a widget with
-		 * add-only rights, none while editing or for a read-only reader.
-		 *
-		 * @return {{label: string, icon: object, event: string}|null}
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
-		 */
-		editAction() {
-			if (this.isEditMode) {
-				return null
-			}
-			if (this.permissionLevel === 'full') {
-				return { label: t('launchpad', 'Edit'), icon: Pencil, event: 'edit' }
-			}
-			if (this.permissionLevel === 'add_only') {
-				return { label: t('launchpad', 'Add widget'), icon: Plus, event: 'addWidget' }
-			}
-			return null
-		},
-
 		/**
 		 * @return {string} The kind of dashboard for the chip, '' for a group dashboard.
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu

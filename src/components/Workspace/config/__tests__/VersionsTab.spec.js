@@ -15,7 +15,7 @@ import VersionsTab from '../VersionsTab.vue'
 import { api } from '../../../../services/api.js'
 
 vi.mock('@nextcloud/l10n', () => ({
-	getLanguage: () => 'en',
+	getCanonicalLocale: () => 'en-GB',
 	t: (_app, text, vars = {}) =>
 		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
 }))

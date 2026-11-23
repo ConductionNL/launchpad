@@ -145,7 +145,7 @@ import {
 	NcLoadingIcon,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
-import { getLanguage, t } from '@nextcloud/l10n'
+import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import Restore from 'vue-material-design-icons/Restore.vue'
 import { TEXT_PROP } from '../../../constants/propDefinitions.js'
 import { api } from '../../../services/api.js'
@@ -324,7 +324,7 @@ export default {
 			if (parsed === null) {
 				return value ? String(value) : ''
 			}
-			const locale = getLanguage()
+			const locale = getCanonicalLocale()
 			const time = parsed.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 			const now = new Date()
 			if (parsed.toDateString() === now.toDateString()) {

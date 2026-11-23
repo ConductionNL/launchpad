@@ -26,6 +26,7 @@ use PHPUnit\Framework\TestCase;
  * Who an admin template is offered to (REQ-TMPL-018).
  *
  * @covers \OCA\LaunchPad\Service\TemplateAudience
+ * @uses \OCA\LaunchPad\Db\Dashboard
  */
 class TemplateAudienceTest extends TestCase {
 

@@ -53,6 +53,7 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses   \OCA\LaunchPad\Controller\ActionCaller
  * @uses   \OCA\LaunchPad\Controller\TranslationSources
  * @uses   \OCA\LaunchPad\Controller\TranslationVariantDraft
+ * @uses   \OCA\LaunchPad\Controller\UserResponses
  */
 class DashboardTranslationCreateGoldenTest extends TestCase {
 

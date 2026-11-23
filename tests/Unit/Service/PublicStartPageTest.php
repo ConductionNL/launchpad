@@ -31,6 +31,7 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -39,6 +40,9 @@ use ReflectionMethod;
  */
 #[CoversClass(PublicStartPage::class)]
 #[CoversClass(PublicStartController::class)]
+#[UsesClass(\OCA\LaunchPad\Db\AdminSetting::class)]
+#[UsesClass(\OCA\LaunchPad\Db\Dashboard::class)]
+#[UsesClass(\OCA\LaunchPad\Db\PublicShare::class)]
 class PublicStartPageTest extends TestCase {
 
 	/**

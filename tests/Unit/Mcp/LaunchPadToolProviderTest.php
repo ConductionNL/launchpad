@@ -29,6 +29,7 @@ use OCP\IUserSession;
  *
  * @covers \OCA\LaunchPad\Mcp\LaunchPadToolProvider
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Exception\McpToolRefusedException
  */
 class LaunchPadToolProviderTest extends TestCase {
 

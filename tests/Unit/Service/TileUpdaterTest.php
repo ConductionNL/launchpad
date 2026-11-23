@@ -27,6 +27,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Service\TileUpdater
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Service\TileLinkValidator
+ * @uses   \OCA\LaunchPad\Service\TileLinkTarget
  */
 class TileUpdaterTest extends TestCase {
 	public function testApplyTileConfigFillsDefaultsForAnEmptyPayload(): void {

@@ -36,6 +36,10 @@ use OCA\LaunchPad\Service\TileService;
  *
  * @covers \OCA\LaunchPad\Mcp\McpCatalogueTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses   \OCA\LaunchPad\Mcp\McpCatalogueSources
+ * @uses   \OCA\LaunchPad\Db\Dashboard
  */
 class McpCatalogueToolsTest extends TestCase {
 

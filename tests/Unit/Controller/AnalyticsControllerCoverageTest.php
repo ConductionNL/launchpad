@@ -42,6 +42,7 @@ use OCA\LaunchPad\Controller\AnalyticsContext;
  * @covers \OCA\LaunchPad\Controller\AnalyticsController
  * @uses   \OCA\LaunchPad\Controller\SessionActionCheck
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\AnalyticsContext
  */
 class AnalyticsControllerCoverageTest extends TestCase {
 	private AnalyticsService&MockObject $analytics;

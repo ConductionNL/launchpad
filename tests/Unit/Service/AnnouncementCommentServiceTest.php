@@ -42,6 +42,7 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass(AnnouncementCommentService::class)]
 #[UsesClass(Announcement::class)]
+#[UsesClass(\OCA\LaunchPad\Exception\ForbiddenException::class)]
 class AnnouncementCommentServiceTest extends TestCase {
 
 	private const UUID = '11111111-2222-4333-8444-555555555555';

@@ -51,6 +51,7 @@ use OCA\LaunchPad\Controller\AdminContext;
  * @uses   \OCA\LaunchPad\Controller\AdminTemplateTools
  * @uses   \OCA\LaunchPad\Controller\AdminSettingsTools
  * @uses   \OCA\LaunchPad\Controller\AdminCallerAndRoles
+ * @uses   \OCA\LaunchPad\Controller\AdminContext
  */
 class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 

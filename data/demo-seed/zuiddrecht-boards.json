@@ -593,19 +593,32 @@
 					}
 				},
 				{
-					"widgetId": "nc-widget",
 					"gridX": 7,
 					"gridY": 7,
 					"gridWidth": 5,
 					"gridHeight": 8,
 					"showTitle": 1,
 					"customTitle": "Verder waar u was",
+					"widgetId": "recent-work",
 					"content": {
-						"title": "Verder waar u was",
-						"widgetId": "activity",
-						"displayMode": "vertical",
-						"showHeader": false,
+						"limit": 6,
 						"showActions": false
+					},
+					"fallback": {
+						"widgetId": "nc-widget",
+						"gridX": 7,
+						"gridY": 7,
+						"gridWidth": 5,
+						"gridHeight": 8,
+						"showTitle": 1,
+						"customTitle": "Verder waar u was",
+						"content": {
+							"title": "Verder waar u was",
+							"widgetId": "activity",
+							"displayMode": "vertical",
+							"showHeader": false,
+							"showActions": false
+						}
 					}
 				}
 			]

@@ -387,7 +387,8 @@ class PageControllerIndexTest extends TestCase {
 		$this->signIn(uid: 'pieter');
 		$this->adminSettings->method('getSettings')->willReturn([]);
 		$this->templates->method('resolvePrimaryGroup')->willReturn('medewerkers');
-		$this->tree->method('resolvePath')->willReturnOnConsecutiveCalls(null, $this->throwException(exception: new RuntimeException(message: 'tree broken')));
+		$broken = $this->throwException(exception: new RuntimeException(message: 'tree broken'));
+		$this->tree->method('resolvePath')->willReturnOnConsecutiveCalls(null, $broken);
 		$this->dashboards->expects($this->exactly(count: 2))->method('resolveActiveDashboard')->willReturn(null);
 		$this->logger->expects($this->once())->method('warning');
 		$this->logger->expects($this->exactly(count: 2))->method('info');

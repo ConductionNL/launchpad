@@ -52,6 +52,7 @@ const APP_LABELS = { dav: 'calendar', spreed: 'talk' }
  * @param {string} locale BCP 47 locale.
  * @return {string}
  * @spec openspec/specs/widgets/spec.md
+ * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
  */
 export function recentWhen(value, now, locale) {
 	const when = new Date(value ?? '')
@@ -83,6 +84,7 @@ export function recentWhen(value, now, locale) {
  * @param {Array<string>} [apps] Only these apps' activity, all when empty.
  * @return {Array<{key: string, title: string, meta: string, link: string}>}
  * @spec openspec/specs/widgets/spec.md
+ * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
  */
 export function recentWorkRows(activities, limit, now, locale, apps = []) {
 	const rows = []
@@ -128,6 +130,7 @@ export function recentWorkRows(activities, limit, now, locale, apps = []) {
  * or other apps did does not show here.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
  */
 export default {
 	name: 'RecentWorkWidget',
@@ -151,6 +154,7 @@ export default {
 		/**
 		 * @return {Array<object>} The rows to show.
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
 		 */
 		rows() {
 			const limit = Number(this.content?.limit) > 0 ? Number(this.content.limit) : 6
@@ -164,6 +168,7 @@ export default {
 	 *
 	 * @return {Promise<void>}
 	 * @spec openspec/specs/widgets/spec.md
+	 * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
 	 */
 	async mounted() {
 		const [{ default: axios }, { generateOcsUrl }] = await Promise.all([

@@ -59,6 +59,9 @@ import { runtimeManifestRequest } from './utils/runtimeManifestRequest.js'
 
 import './publicPath.js'
 import './services/widgetBridge.js'
+// Captures the browser's install prompt early, for the phone install banner
+// (platform-baseline REQ-PLB-009).
+import './utils/installPrompt.js'
 import 'gridstack/dist/gridstack.min.css'
 // The library's own stylesheet (board look, widgets, dialogs). Without it
 // the page only had the library CSS another app's bundle happened to load.

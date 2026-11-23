@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Put LaunchPad on your home screen" : "Додайте LaunchPad на головний екран",
+    "Then your workplace opens with one tap, like an app" : "Тоді ваше робоче місце відкриватиметься одним дотиком, як застосунок",
+    "In your browser, choose Share and then Add to Home Screen." : "У браузері виберіть «Поділитися», а потім «На початковий екран».",
+    "Not now" : "Не зараз",
     "Dashboard renamed to %s" : "Панель перейменовано на %s",
     "Columns from %1$s to %2$s" : "Стовпці: з %1$s на %2$s",
     "Widget %s added" : "Додано віджет %s",

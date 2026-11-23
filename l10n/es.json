@@ -1401,6 +1401,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Este panel admite {count} más. Elija menos carpetas o marcadores.",
         "The bookmarks could not be imported.": "No se pudieron importar los marcadores.",
         "This file holds no bookmarks.": "Este archivo no contiene marcadores.",
-        "Folders": "Carpetas"
+        "Folders": "Carpetas",
+        "Put LaunchPad on your home screen": "Añade LaunchPad a tu pantalla de inicio",
+        "Then your workplace opens with one tap, like an app": "Así tu espacio de trabajo se abre con un toque, como una aplicación",
+        "In your browser, choose Share and then Add to Home Screen.": "En tu navegador, elige Compartir y luego Añadir a pantalla de inicio.",
+        "Not now": "Ahora no"
     }
 }

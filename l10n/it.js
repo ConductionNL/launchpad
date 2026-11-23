@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Put LaunchPad on your home screen" : "Aggiungi LaunchPad alla schermata Home",
+    "Then your workplace opens with one tap, like an app" : "Così il tuo spazio di lavoro si apre con un tocco, come un'app",
+    "In your browser, choose Share and then Add to Home Screen." : "Nel browser scegli Condividi e poi Aggiungi alla schermata Home.",
+    "Not now" : "Non ora",
     "Dashboard renamed to %s" : "Dashboard rinominata in %s",
     "Columns from %1$s to %2$s" : "Colonne da %1$s a %2$s",
     "Widget %s added" : "Widget %s aggiunto",

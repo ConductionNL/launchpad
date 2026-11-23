@@ -1401,6 +1401,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Оваа контролна табла може да прими уште {count}. Изберете помалку папки или обележувачи.",
         "The bookmarks could not be imported.": "Обележувачите не можеа да се увезат.",
         "This file holds no bookmarks.": "Датотеката не содржи обележувачи.",
-        "Folders": "Папки"
+        "Folders": "Папки",
+        "Put LaunchPad on your home screen": "Додајте го LaunchPad на почетниот екран",
+        "Then your workplace opens with one tap, like an app": "Тогаш вашето работно место се отвора со еден допир, како апликација",
+        "In your browser, choose Share and then Add to Home Screen.": "Во прелистувачот изберете Сподели, а потоа Додај на почетен екран.",
+        "Not now": "Не сега"
     }
 }

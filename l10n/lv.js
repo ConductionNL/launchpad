@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Put LaunchPad on your home screen" : "Pievienojiet LaunchPad sākuma ekrānam",
+    "Then your workplace opens with one tap, like an app" : "Tad jūsu darba vieta atveras ar vienu pieskārienu, kā lietotne",
+    "In your browser, choose Share and then Add to Home Screen." : "Pārlūkā izvēlieties Kopīgot un pēc tam Pievienot sākuma ekrānam.",
+    "Not now" : "Ne tagad",
     "Dashboard renamed to %s" : "Panelis pārdēvēts par %s",
     "Columns from %1$s to %2$s" : "Kolonnas no %1$s uz %2$s",
     "Widget %s added" : "Pievienots logrīks %s",

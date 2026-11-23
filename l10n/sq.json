@@ -1401,6 +1401,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ky panel mund të marrë edhe {count}. Zgjidhni më pak dosje ose faqeruajtës.",
         "The bookmarks could not be imported.": "Faqeruajtësit nuk mund të importoheshin.",
         "This file holds no bookmarks.": "Skedari nuk përmban faqeruajtës.",
-        "Folders": "Dosjet"
+        "Folders": "Dosjet",
+        "Put LaunchPad on your home screen": "Vendoseni LaunchPad në ekranin bazë",
+        "Then your workplace opens with one tap, like an app": "Atëherë vendi juaj i punës hapet me një prekje, si një aplikacion",
+        "In your browser, choose Share and then Add to Home Screen.": "Në shfletues zgjidhni Ndaj dhe pastaj Shto në ekranin bazë.",
+        "Not now": "Jo tani"
     }
 }

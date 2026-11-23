@@ -162,3 +162,12 @@ describe('dashboardActionItems', () => {
 		])
 	})
 })
+
+describe('dashboardIcon', () => {
+	it('draws the dashboard\'s own icon by name, else the house or the generic dashboard', async () => {
+		const { dashboardIcon } = await import('../moreMenuItems.js')
+		expect(dashboardIcon({ icon: 'Bullhorn' }, false).name).toBe('DashboardMenuIcon')
+		expect(dashboardIcon({ icon: '' }, true).name).toMatch(/Home/)
+		expect(dashboardIcon({}, false).name).toMatch(/ViewDashboard/)
+	})
+})

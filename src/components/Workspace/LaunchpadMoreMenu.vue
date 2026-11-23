@@ -422,19 +422,44 @@ export default {
 /* A theme that underlines, colours and bolds every link and button with
    `!important` and an id in its selector made the link items look different
    from the button items. The two `:not(#…)` raise this rule above it. */
+/* The same theme also gives every button a tinted background, a height and
+   padding of its own and no border, so each row read as a selected button
+   and the rules above Delete and Settings were gone (LpMeer). */
 .lp-more-menu__item:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	min-height: 34px !important;
+	padding: 0 10px !important;
+	border-top: none !important;
+	background: transparent !important;
 	color: var(--color-main-text) !important;
 	font-weight: 400 !important;
 	text-decoration: none !important;
 }
 
+.lp-more-menu__item:not(#lp-more-menu-a):not(#lp-more-menu-b):hover,
+.lp-more-menu__item:not(#lp-more-menu-a):not(#lp-more-menu-b):focus-visible {
+	background: var(--color-background-hover) !important;
+}
+
 .lp-more-menu__item--checked:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	background: var(--color-primary-element-light) !important;
 	color: var(--color-primary-element-light-text) !important;
 	font-weight: 600 !important;
 }
 
 .lp-more-menu__item--destructive:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	border-top: 1px solid var(--color-border) !important;
 	color: var(--color-error-text, var(--color-error)) !important;
+}
+
+.lp-more-menu__settings:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	min-height: 38px !important;
+	padding-top: 6px !important;
+	border-top: 1px solid var(--color-border) !important;
+}
+
+.lp-more-menu__column > .lp-more-menu__settings:first-child:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	padding-top: 0 !important;
+	border-top: none !important;
 }
 
 .lp-more-menu__settings--open:not(#lp-more-menu-a):not(#lp-more-menu-b) {

@@ -364,7 +364,7 @@
 				},
 				{
 					"widgetId": "stat",
-					"gridX": 3,
+					"gridX": 6,
 					"gridY": 5,
 					"gridWidth": 3,
 					"gridHeight": 2,
@@ -398,7 +398,7 @@
 				},
 				{
 					"widgetId": "stat",
-					"gridX": 6,
+					"gridX": 9,
 					"gridY": 5,
 					"gridWidth": 3,
 					"gridHeight": 2,
@@ -427,7 +427,7 @@
 				},
 				{
 					"widgetId": "stat",
-					"gridX": 9,
+					"gridX": 3,
 					"gridY": 5,
 					"gridWidth": 3,
 					"gridHeight": 2,
@@ -462,7 +462,8 @@
 					"gridY": 7,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"fitRows": true
 				},
 				{
 					"tile": "outlook",
@@ -470,7 +471,8 @@
 					"gridY": 7,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"fitRows": true
 				},
 				{
 					"tile": "topdesk",
@@ -478,7 +480,8 @@
 					"gridY": 9,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"fitRows": true
 				},
 				{
 					"tile": "raadsinformatie",
@@ -486,7 +489,8 @@
 					"gridY": 9,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"fitRows": true
 				},
 				{
 					"tile": "kadaster",
@@ -494,7 +498,8 @@
 					"gridY": 11,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"fitRows": true
 				},
 				{
 					"tile": "talk",
@@ -502,14 +507,15 @@
 					"gridY": 11,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"fitRows": true
 				},
 				{
 					"widgetId": "calendar",
 					"gridX": 2,
 					"gridY": 7,
 					"gridWidth": 5,
-					"gridHeight": 6,
+					"gridHeight": 8,
 					"showTitle": 1,
 					"customTitle": "Agenda vandaag",
 					"content": {
@@ -536,7 +542,7 @@
 					"gridX": 7,
 					"gridY": 7,
 					"gridWidth": 5,
-					"gridHeight": 6,
+					"gridHeight": 8,
 					"showTitle": 1,
 					"customTitle": "Verder waar u was",
 					"content": {
@@ -791,12 +797,12 @@
 									{
 										"label": "Omgevingsloket",
 										"url": "https://omgevingswet.overheid.nl/",
-										"icon": "Bookmark"
+										"icon": "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
 									},
 									{
 										"label": "wetten.overheid.nl",
 										"url": "https://wetten.overheid.nl/",
-										"icon": "Bookmark"
+										"icon": "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
 									}
 								]
 							},
@@ -806,12 +812,12 @@
 									{
 										"label": "BAG-viewer Kadaster",
 										"url": "https://bagviewer.kadaster.nl/",
-										"icon": "Bookmark"
+										"icon": "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
 									},
 									{
 										"label": "PDOK luchtfoto",
 										"url": "https://www.pdok.nl/",
-										"icon": "Bookmark"
+										"icon": "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
 									}
 								]
 							},
@@ -821,18 +827,18 @@
 									{
 										"label": "Personeelsgids",
 										"url": "https://personeelsgids.zuiddrecht.nl/",
-										"icon": "Bookmark"
+										"icon": "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
 									},
 									{
 										"label": "Werkinstructies Vergunningen",
 										"url": "https://intranet.zuiddrecht.nl/werkinstructies",
-										"icon": "Bookmark"
+										"icon": "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
 									}
 								]
 							}
 						],
 						"columns": 1,
-						"linkLayout": "list",
+						"linkLayout": "inline",
 						"iconSize": "small",
 						"openInNewTab": true,
 						"showSectionTitles": true,
@@ -913,32 +919,32 @@
 							{
 								"label": "Verlof aanvragen",
 								"url": "https://rooster.zuiddrecht.nl/",
-								"icon": "Airplane"
+								"icon": "M20.56,3.91C21.15,4.5 21.15,5.45 20.56,6.03L16.67,9.92L18.79,19.11L17.38,20.53L13.5,13.1L9.6,17L9.96,19.47L8.89,20.53L7.13,17.35L3.94,15.58L5,14.5L7.5,14.87L11.37,11L3.94,7.09L5.36,5.68L14.55,7.8L18.44,3.91C19,3.33 20,3.33 20.56,3.91Z"
 							},
 							{
 								"label": "Declaratie",
 								"url": "https://declaraties.zuiddrecht.nl/",
-								"icon": "Receipt"
+								"icon": "M3,22L4.5,20.5L6,22L7.5,20.5L9,22L10.5,20.5L12,22L13.5,20.5L15,22L16.5,20.5L18,22L19.5,20.5L21,22V2L19.5,3.5L18,2L16.5,3.5L15,2L13.5,3.5L12,2L10.5,3.5L9,2L7.5,3.5L6,2L4.5,3.5L3,2M18,9H6V7H18M18,13H6V11H18M18,17H6V15H18V17Z"
 							},
 							{
 								"label": "IT-melding",
 								"url": "https://zuiddrecht.topdesk.net/",
-								"icon": "Laptop"
+								"icon": "M4,6H20V16H4M20,18A2,2 0 0,0 22,16V6C22,4.89 21.1,4 20,4H4C2.89,4 2,4.89 2,6V16A2,2 0 0,0 4,18H0V20H24V18H20Z"
 							},
 							{
 								"label": "Telefoonlijst",
 								"url": "/index.php/apps/contacts/",
-								"icon": "Phone"
+								"icon": "M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"
 							},
 							{
 								"label": "Lunch bestellen",
 								"url": "https://intranet.zuiddrecht.nl/kantine",
-								"icon": "SilverwareForkKnife"
+								"icon": "M11,9H9V2H7V9H5V2H3V9C3,11.12 4.66,12.84 6.75,12.97V22H9.25V12.97C11.34,12.84 13,11.12 13,9V2H11V9M16,6V14H18.5V22H21V2C18.24,2 16,4.24 16,6Z"
 							},
 							{
 								"label": "Smoelenboek",
 								"url": "/index.php/apps/contacts/",
-								"icon": "AccountGroup"
+								"icon": "M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"
 							}
 						],
 						"iconSize": "medium",

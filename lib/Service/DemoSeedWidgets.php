@@ -33,6 +33,15 @@ namespace OCA\LaunchPad\Service;
  */
 class DemoSeedWidgets {
 	/**
+	 * Flags a tile entry may set that go into its placement's content: a tile
+	 * that shows only its glyph, and one whose rows take its own size on a
+	 * dashboard that fills the screen.
+	 *
+	 * @var array<int, string>
+	 */
+	private const TILE_CONTENT_FLAGS = ['iconOnly', 'fitRows'];
+
+	/**
 	 * The widget type of a single app tile.
 	 *
 	 * @var string
@@ -175,8 +184,10 @@ class DemoSeedWidgets {
 		];
 
 		$payload = [...$layout, ...$this->tileFields(tile: $tile)];
-		if (($entry['iconOnly'] ?? false) === true) {
-			$payload['content']['iconOnly'] = true;
+		foreach (self::TILE_CONTENT_FLAGS as $flag) {
+			if (($entry[$flag] ?? false) === true) {
+				$payload['content'][$flag] = true;
+			}
 		}
 
 		return $payload;

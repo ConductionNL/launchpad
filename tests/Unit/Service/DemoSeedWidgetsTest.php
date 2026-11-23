@@ -94,9 +94,10 @@ class DemoSeedWidgetsTest extends TestCase {
 	 * @return void
 	 */
 	public function testIconOnlyTileCarriesTheFlagInItsContent(): void {
-		$result = $this->expander(types: ['tile'])->expand(entries: [['tile' => 'topdesk', 'iconOnly' => true], ['tile' => 'talk']]);
+		$result = $this->expander(types: ['tile'])->expand(entries: [['tile' => 'topdesk', 'iconOnly' => true, 'fitRows' => true], ['tile' => 'talk']]);
 
 		$this->assertTrue(condition: $result['placed'][0]['content']['iconOnly']);
+		$this->assertTrue(condition: $result['placed'][0]['content']['fitRows']);
 		$this->assertArrayNotHasKey(key: 'iconOnly', array: $result['placed'][1]['content']);
 	}//end testIconOnlyTileCarriesTheFlagInItsContent()
 

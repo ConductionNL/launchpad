@@ -721,7 +721,7 @@
 					"gridX": 0,
 					"gridY": 7,
 					"gridWidth": 8,
-					"gridHeight": 4,
+					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Mail",
 					"content": {
@@ -735,7 +735,7 @@
 				{
 					"widgetId": "calendar",
 					"gridX": 0,
-					"gridY": 11,
+					"gridY": 12,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -762,7 +762,7 @@
 				{
 					"widgetId": "files",
 					"gridX": 4,
-					"gridY": 11,
+					"gridY": 12,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -784,7 +784,7 @@
 				{
 					"widgetId": "links",
 					"gridX": 8,
-					"gridY": 11,
+					"gridY": 12,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -849,7 +849,7 @@
 				{
 					"widgetId": "wiki-pages",
 					"gridX": 0,
-					"gridY": 17,
+					"gridY": 18,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -863,7 +863,7 @@
 				{
 					"widgetId": "work-packages",
 					"gridX": 4,
-					"gridY": 17,
+					"gridY": 18,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -878,7 +878,7 @@
 				{
 					"widgetId": "assigned-cases",
 					"gridX": 8,
-					"gridY": 17,
+					"gridY": 18,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -893,7 +893,7 @@
 				{
 					"widgetId": "text",
 					"gridX": 0,
-					"gridY": 23,
+					"gridY": 24,
 					"gridWidth": 8,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -911,7 +911,7 @@
 					"gridX": 8,
 					"gridY": 3,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Snelkoppelingen",
 					"content": {
@@ -956,7 +956,7 @@
 				{
 					"widgetId": "link",
 					"gridX": 8,
-					"gridY": 23,
+					"gridY": 24,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -973,7 +973,7 @@
 				{
 					"widgetId": "menu",
 					"gridX": 0,
-					"gridY": 26,
+					"gridY": 27,
 					"gridWidth": 4,
 					"gridHeight": 8,
 					"showTitle": 1,

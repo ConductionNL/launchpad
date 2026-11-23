@@ -111,9 +111,11 @@ class PageControllerStartTest extends TestCase {
 			/**
 			 * Nextcloud's asset registry is not loaded in a unit test.
 			 *
+			 * @param string $script The script.
+			 *
 			 * @return void
 			 */
-			protected function addPublicAssets(): void {
+			protected function addAssets(string $script): void {
 			}
 		};
 	}//end controller()

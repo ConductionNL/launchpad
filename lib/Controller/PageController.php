@@ -119,8 +119,7 @@ class PageController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(string $deepLink = ''): TemplateResponse {
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		$this->addAssets(script: 'launchpad-main');
 
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
@@ -735,7 +734,7 @@ class PageController extends Controller {
 	 * @return TemplateResponse The public page response.
 	 */
 	private function publicPage(): TemplateResponse {
-		$this->addPublicAssets();
+		$this->addAssets(script: 'launchpad-public');
 
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
@@ -772,13 +771,17 @@ class PageController extends Controller {
 	}//end kioskRenderAs()
 
 	/**
-	 * Add the `launchpad-public` script and the app stylesheet to the page.
+	 * Add an app script and the app stylesheet to the page.
+	 *
+	 * @param string $script The script, `launchpad-main` or `launchpad-public`.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
 	 */
-	protected function addPublicAssets(): void {
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
+	protected function addAssets(string $script): void {
+		Util::addScript(application: Application::APP_ID, file: $script);
 		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
-	}//end addPublicAssets()
+	}//end addAssets()
 
 }//end class

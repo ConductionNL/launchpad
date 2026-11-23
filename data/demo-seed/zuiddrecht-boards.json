@@ -602,7 +602,12 @@
 					"widgetId": "recent-work",
 					"content": {
 						"limit": 6,
-						"showActions": false
+						"showActions": false,
+						"apps": [
+							"files",
+							"deck",
+							"dav"
+						]
 					},
 					"fallback": {
 						"widgetId": "nc-widget",

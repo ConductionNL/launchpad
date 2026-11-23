@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} z {total} · další za {seconds} s",
+    "Now showing {name}" : "Nyní zobrazeno: {name}",
     "Put LaunchPad on your home screen" : "Přidejte si LaunchPad na plochu",
     "Then your workplace opens with one tap, like an app" : "Vaše pracoviště se pak otevře jedním klepnutím, jako aplikace",
     "In your browser, choose Share and then Add to Home Screen." : "V prohlížeči zvolte Sdílet a potom Přidat na plochu.",

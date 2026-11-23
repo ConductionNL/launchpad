@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} minn {total} · li jmiss f'{seconds} s",
+    "Now showing {name}" : "Qed jintwera issa: {name}",
     "Put LaunchPad on your home screen" : "Poġġi LaunchPad fuq l-iskrin ewlieni tiegħek",
     "Then your workplace opens with one tap, like an app" : "Imbagħad il-post tax-xogħol tiegħek jinfetaħ b'tapp wieħed, bħal app",
     "In your browser, choose Share and then Add to Home Screen." : "Fil-browser tiegħek, agħżel Aqsam u mbagħad Żid mal-Iskrin Ewlieni.",

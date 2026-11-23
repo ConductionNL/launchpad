@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} nga {total} · tjetra pas {seconds} s",
+    "Now showing {name}" : "Tani shfaqet: {name}",
     "Put LaunchPad on your home screen" : "Vendoseni LaunchPad në ekranin bazë",
     "Then your workplace opens with one tap, like an app" : "Atëherë vendi juaj i punës hapet me një prekje, si një aplikacion",
     "In your browser, choose Share and then Add to Home Screen." : "Në shfletues zgjidhni Ndaj dhe pastaj Shto në ekranin bazë.",

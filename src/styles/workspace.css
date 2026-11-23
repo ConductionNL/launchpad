@@ -383,3 +383,72 @@
 .launchpad-container .cn-label-widget.cn-label-widget {
 	padding: 0;
 }
+
+/* =========================================================
+   A counter in the board look, as LpVandaag draws "Mijn werk": the app's
+   glyph in a 36px tinted square beside two lines, the label in 13px muted
+   and the number in 26px bold with its caption on the same baseline, the
+   card padded 12px 16px. The glyph leaves the title row so it can sit
+   beside both lines.
+   ========================================================= */
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board {
+	padding: 12px 16px !important;
+	border: none !important;
+	color: var(--color-main-text) !important;
+	text-decoration: none !important;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__body {
+	display: grid;
+	grid-template-columns: 36px minmax(0, 1fr);
+	column-gap: 12px;
+	row-gap: 1px;
+	align-items: center;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__title {
+	display: contents;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__glyph {
+	display: flex;
+	grid-row: 1 / span 2;
+	grid-column: 1;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background: var(--color-primary-element-light, #eaf0f7);
+	color: var(--color-primary-element-light-text, #234a78);
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__title-text {
+	grid-column: 2;
+	overflow: hidden;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__value-row {
+	display: flex;
+	grid-column: 2;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__value {
+	color: var(--color-main-text);
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__label {
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}

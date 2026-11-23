@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<div class="section-heading-widget-form">
+	<fieldset class="section-heading-widget-form">
 		<NcTextField
 			:modelValue="title"
 			:label="t('launchpad', 'Heading')"
@@ -17,13 +17,13 @@
 			:helperText="t('launchpad', 'One line under the heading. Leave empty for none.')"
 			data-testid="section-heading-form-description"
 			@update:modelValue="update({ description: String($event) })" />
-	</div>
+	</fieldset>
 </template>
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcTextField } from '@nextcloud/vue'
-import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/propDefinitions.js'
+import { objectProp } from '../../../constants/propDefinitions.js'
 
 /**
  * SectionHeadingWidgetForm: the heading and the one line of explanation of
@@ -42,7 +42,10 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: NULLABLE_OBJECT_PROP,
+		editingWidget: {
+			type: Object,
+			default: null,
+		},
 
 		/**
 		 * Initial content values, used when not editing.
@@ -92,6 +95,9 @@ export default {
 
 <style scoped>
 .section-heading-widget-form {
+	margin: 0;
+	padding: 0;
+	border: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 12px;

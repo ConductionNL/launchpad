@@ -328,7 +328,7 @@ class RecurrenceResolver {
 		}
 
 		$daysOfWeek = array_values(array_unique(array_map(
-			static fn (int $d): int => $d % 7,
+			static fn (int $day): int => $day % 7,
 			self::cronField(field: $fields[4], bounds: [0, 7])
 		)));
 		sort($daysOfWeek);
@@ -359,12 +359,12 @@ class RecurrenceResolver {
 		[$min, $max] = $bounds;
 		$values = [];
 		foreach (explode(',', strtoupper($field)) as $part) {
-			if (preg_match('/^(\*|[0-9A-Z]+(?:-[0-9A-Z]+)?)(?:\/([0-9]+))?$/', $part, $m) !== 1) {
+			if (preg_match('/^(\*|[0-9A-Z]+(?:-[0-9A-Z]+)?)(?:\/([0-9]+))?$/', $part, $match) !== 1) {
 				throw new InvalidArgumentException(sprintf('The cron field "%s" is not valid.', $field));
 			}
 
-			$step = (int)($m[2] ?? 1);
-			[$from, $to] = self::cronRange(range: $m[1], bounds: $bounds, stepped: isset($m[2]));
+			$step = (int)($match[2] ?? 1);
+			[$from, $to] = self::cronRange(range: $match[1], bounds: $bounds, stepped: isset($match[2]));
 			if ($step < 1 || $from < $min || $to > $max || $from > $to) {
 				throw new InvalidArgumentException(sprintf('The cron field "%s" is out of range.', $field));
 			}
@@ -435,11 +435,11 @@ class RecurrenceResolver {
 	 * @return array{int, int}|null
 	 */
 	private static function timeOf(mixed $value): ?array {
-		if (is_string($value) === false || preg_match('/^([01][0-9]|2[0-3]):([0-5][0-9])$/', $value, $m) !== 1) {
+		if (is_string($value) === false || preg_match('/^([01][0-9]|2[0-3]):([0-5][0-9])$/', $value, $match) !== 1) {
 			return null;
 		}
 
-		return [(int)$m[1], (int)$m[2]];
+		return [(int)$match[1], (int)$match[2]];
 	}//end timeOf()
 
 	/**

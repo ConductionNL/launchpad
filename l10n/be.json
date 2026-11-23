@@ -1403,6 +1403,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "На гэту панэль можна дадаць яшчэ {count}. Выберыце менш папак або закладак.",
         "The bookmarks could not be imported.": "Не ўдалося імпартаваць закладкі.",
         "This file holds no bookmarks.": "У файле няма закладак.",
-        "Folders": "Папкі"
+        "Folders": "Папкі",
+        "Put LaunchPad on your home screen": "Дадайце LaunchPad на галоўны экран",
+        "Then your workplace opens with one tap, like an app": "Тады ваша працоўнае месца адкрываецца адным дотыкам, як праграма",
+        "In your browser, choose Share and then Add to Home Screen.": "У браўзеры выберыце «Падзяліцца», а потым «На галоўны экран».",
+        "Not now": "Не цяпер"
     }
 }

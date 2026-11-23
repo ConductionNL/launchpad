@@ -1401,6 +1401,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Aquest tauler admet {count} més. Trieu menys carpetes o adreces d'interès.",
         "The bookmarks could not be imported.": "No s'han pogut importar les adreces d'interès.",
         "This file holds no bookmarks.": "Aquest fitxer no conté adreces d'interès.",
-        "Folders": "Carpetes"
+        "Folders": "Carpetes",
+        "Put LaunchPad on your home screen": "Afegiu LaunchPad a la pantalla d'inici",
+        "Then your workplace opens with one tap, like an app": "Així el vostre lloc de treball s'obre amb un toc, com una aplicació",
+        "In your browser, choose Share and then Add to Home Screen.": "Al navegador, trieu Comparteix i després Afegeix a la pantalla d'inici.",
+        "Not now": "Ara no"
     }
 }

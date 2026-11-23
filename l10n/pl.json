@@ -1403,6 +1403,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ten pulpit pomieści jeszcze {count}. Wybierz mniej folderów lub zakładek.",
         "The bookmarks could not be imported.": "Nie udało się zaimportować zakładek.",
         "This file holds no bookmarks.": "Ten plik nie zawiera zakładek.",
-        "Folders": "Foldery"
+        "Folders": "Foldery",
+        "Put LaunchPad on your home screen": "Dodaj LaunchPad do ekranu głównego",
+        "Then your workplace opens with one tap, like an app": "Wtedy Twoje miejsce pracy otworzy się jednym dotknięciem, jak aplikacja",
+        "In your browser, choose Share and then Add to Home Screen.": "W przeglądarce wybierz Udostępnij, a następnie Do ekranu początkowego.",
+        "Not now": "Nie teraz"
     }
 }

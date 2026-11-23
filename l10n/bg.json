@@ -1401,6 +1401,10 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Това табло може да поеме още {count}. Изберете по-малко папки или отметки.",
         "The bookmarks could not be imported.": "Отметките не можаха да бъдат импортирани.",
         "This file holds no bookmarks.": "Файлът не съдържа отметки.",
-        "Folders": "Папки"
+        "Folders": "Папки",
+        "Put LaunchPad on your home screen": "Добавете LaunchPad към началния екран",
+        "Then your workplace opens with one tap, like an app": "Тогава работното ви място се отваря с едно докосване, като приложение",
+        "In your browser, choose Share and then Add to Home Screen.": "В браузъра изберете Споделяне и след това Добавяне към началния екран.",
+        "Not now": "Не сега"
     }
 }

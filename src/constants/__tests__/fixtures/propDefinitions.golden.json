@@ -1442,6 +1442,18 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/Workspace/InstallBanner.vue | kiosk": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/InstallBanner.vue | isPublic": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/LaunchpadMoreMenu.vue | dashboards": {
 		"type": "Array",
 		"required": false,

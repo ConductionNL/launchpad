@@ -15,6 +15,7 @@ import VersionsTab from '../VersionsTab.vue'
 import { api } from '../../../../services/api.js'
 
 vi.mock('@nextcloud/l10n', () => ({
+	getLanguage: () => 'en',
 	t: (_app, text, vars = {}) =>
 		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
 }))
@@ -129,7 +130,8 @@ describe('VersionsTab', () => {
 		})
 		const wrapper = mountModal()
 		await flushPromises()
-		await wrapper.findAll('[data-testid="version-restore"]')[1].trigger('click')
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
+		await wrapper.find('[data-testid="version-restore"]').trigger('click')
 		expect(api.restoreVersion).not.toHaveBeenCalled()
 		await wrapper
 			.find('[data-testid="cn-confirm-dialog-confirm"]')
@@ -143,10 +145,11 @@ describe('VersionsTab', () => {
 	})
 
 	it('cancelling the confirmation restores nothing', async () => {
-		api.listVersions.mockResolvedValue({ data: { versions: [v(1)], modeSupported: true } })
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2), v(1)], modeSupported: true } })
 		const wrapper = mountModal()
 		await flushPromises()
 
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
 		await wrapper.find('[data-testid="version-restore"]').trigger('click')
 		wrapper.findComponent({ name: 'CnConfirmDialog' }).vm.$emit('close')
 		await flushPromises()
@@ -191,7 +194,8 @@ describe('VersionsTab', () => {
 		const wrapper = mountModal()
 		await flushPromises()
 
-		await wrapper.findAll('[data-testid="version-restore"]')[1].trigger('click')
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
+		await wrapper.find('[data-testid="version-restore"]').trigger('click')
 		await wrapper.find('[data-testid="cn-confirm-dialog-confirm"]').trigger('click')
 		await flushPromises()
 
@@ -242,5 +246,24 @@ describe('VersionsTab', () => {
 		await wrapper.setProps({ dashboardUuid: 'other-uuid' })
 		await flushPromises()
 		expect(api.listVersions).toHaveBeenLastCalledWith('other-uuid')
+	})
+
+	it('marks the newest as the current version, previews a chosen older one and offers no restore for the current (LpVersies)', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2, 'Widget News moved'), { ...v(1), createdByName: 'Sanne de Vries' }], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		const rows = wrapper.findAll('[data-testid="version-row"]')
+		expect(rows[0].find('[data-testid="version-current"]').exists()).toBe(true)
+		expect(rows[1].text()).toContain('Sanne de Vries')
+		expect(wrapper.find('[data-testid="version-restore"]').attributes('disabled')).toBeDefined()
+		expect(wrapper.find('[data-testid="version-preview"]').exists()).toBe(false)
+
+		await rows[1].trigger('click')
+		expect(wrapper.find('[data-testid="version-preview"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="version-restore"]').attributes('disabled')).toBeUndefined()
+
+		await wrapper.find('[data-testid="version-close"]').trigger('click')
+		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 })

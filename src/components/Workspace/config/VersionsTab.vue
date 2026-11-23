@@ -27,20 +27,9 @@
 		</p>
 
 		<template v-else>
-			<div class="launchpad-versions__save">
-				<NcTextField
-					v-model="note"
-					:label="
-						t('launchpad', 'Note for this version (optional)')
-					" />
-				<NcButton
-					variant="secondary"
-					:disabled="saving"
-					data-testid="version-save"
-					@click="saveVersion">
-					{{ t('launchpad', 'Save this version now') }}
-				</NcButton>
-			</div>
+			<p class="launchpad-versions__intro">
+				{{ t('launchpad', 'Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.') }}
+			</p>
 
 			<p v-if="sortedVersions.length === 0">
 				{{ t('launchpad', 'No versions saved yet.') }}
@@ -52,7 +41,7 @@
 							{{ heading }}
 						</th>
 						<th scope="col">
-							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
+							<span class="hidden-visually">{{ t('launchpad', 'Status') }}</span>
 						</th>
 					</tr>
 				</thead>
@@ -60,22 +49,77 @@
 					<tr
 						v-for="version in sortedVersions"
 						:key="version.versionNumber"
-						data-testid="version-row">
-						<td>{{ version.versionNumber }}</td>
-						<td>{{ formatDate(version.createdAt) }}</td>
-						<td>{{ version.createdBy }}</td>
+						class="launchpad-versions__row"
+						:class="{ 'launchpad-versions__row--selected': selected && selected.versionNumber === version.versionNumber }"
+						:aria-selected="selected && selected.versionNumber === version.versionNumber ? 'true' : 'false'"
+						tabindex="0"
+						data-testid="version-row"
+						@click="select(version)"
+						@keydown.enter="select(version)">
+						<td>{{ whenText(version.createdAt) }}</td>
+						<td>{{ version.createdByName || version.createdBy }}</td>
 						<td>{{ noteLabel(version.note) }}</td>
-						<td>
-							<NcButton
-								variant="tertiary"
-								data-testid="version-restore"
-								@click="askRestore(version)">
-								{{ t('launchpad', 'Restore') }}
-							</NcButton>
+						<td class="launchpad-versions__status">
+							<span
+								v-if="version.versionNumber === currentNumber"
+								class="launchpad-versions__current"
+								data-testid="version-current">
+								{{ t('launchpad', 'Current version') }}
+							</span>
 						</td>
 					</tr>
 				</tbody>
 			</table>
+
+			<!-- The chosen older version and what restoring it does (LpVersies). -->
+			<div
+				v-if="selected && selected.versionNumber !== currentNumber"
+				class="launchpad-versions__preview"
+				data-testid="version-preview">
+				<span class="launchpad-versions__thumb" aria-hidden="true">
+					<span /><span /><span /><span />
+				</span>
+				<span class="launchpad-versions__preview-text">
+					<strong>{{ t('launchpad', 'Version of {date}', { date: whenText(selected.createdAt) }) }}</strong>
+					<span>
+						{{ selected.note ? noteLabel(selected.note) + '. ' : '' }}{{ t('launchpad', 'Restoring it drops the changes made after it. The current version stays in this list.') }}
+					</span>
+				</span>
+			</div>
+
+			<div class="launchpad-versions__save">
+				<NcTextField
+					v-model="note"
+					:label="
+						t('launchpad', 'Note for this version (optional)')
+					" />
+				<NcButton
+					variant="tertiary"
+					:disabled="saving"
+					data-testid="version-save"
+					@click="saveVersion">
+					{{ t('launchpad', 'Save this version now') }}
+				</NcButton>
+			</div>
+
+			<div class="launchpad-versions__actions">
+				<NcButton
+					variant="secondary"
+					data-testid="version-close"
+					@click="$emit('close')">
+					{{ t('launchpad', 'Close') }}
+				</NcButton>
+				<NcButton
+					variant="primary"
+					:disabled="!selected || selected.versionNumber === currentNumber"
+					data-testid="version-restore"
+					@click="askRestore(selected)">
+					<template #icon>
+						<Restore :size="20" />
+					</template>
+					{{ t('launchpad', 'Restore this version') }}
+				</NcButton>
+			</div>
 		</template>
 
 		<CnConfirmDialog
@@ -101,7 +145,8 @@ import {
 	NcLoadingIcon,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
-import { t } from '@nextcloud/l10n'
+import { getLanguage, t } from '@nextcloud/l10n'
+import Restore from 'vue-material-design-icons/Restore.vue'
 import { TEXT_PROP } from '../../../constants/propDefinitions.js'
 import { api } from '../../../services/api.js'
 import { parseServerStamp } from '../../../utils/serverStamp.js'
@@ -123,13 +168,14 @@ export default {
 		NcButton,
 		NcLoadingIcon,
 		NcTextField,
+		Restore,
 	},
 
 	props: {
 		dashboardUuid: TEXT_PROP,
 	},
 
-	emits: ['restored'],
+	emits: ['restored', 'close'],
 
 	/** @spec openspec/specs/dashboard-versioning/spec.md */
 	data() {
@@ -141,6 +187,7 @@ export default {
 			error: '',
 			note: '',
 			restoreTarget: null,
+			selectedNumber: null,
 		}
 	},
 
@@ -153,11 +200,24 @@ export default {
 		 */
 		headings() {
 			return [
-				t('launchpad', 'Version'),
-				t('launchpad', 'Saved on'),
+				t('launchpad', 'When'),
 				t('launchpad', 'By'),
-				t('launchpad', 'Note'),
+				t('launchpad', 'What changed'),
 			]
+		},
+
+		/**
+		 * @return {number|null} The newest version's number: the current one.
+		 */
+		currentNumber() {
+			return this.sortedVersions.length > 0 ? this.sortedVersions[0].versionNumber : null
+		},
+
+		/**
+		 * @return {object|null} The version picked in the list.
+		 */
+		selected() {
+			return this.sortedVersions.find((version) => version.versionNumber === this.selectedNumber) ?? null
 		},
 
 		/**
@@ -243,6 +303,37 @@ export default {
 		 * @param {object} version The version row.
 		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
+		/**
+		 * Pick a version in the list.
+		 *
+		 * @param {object} version The version.
+		 */
+		select(version) {
+			this.selectedNumber = version.versionNumber
+		},
+
+		/**
+		 * When a version was saved, as the board words it: "today 10:12",
+		 * else "Friday 2 October, 16:40".
+		 *
+		 * @param {string} value The stamp.
+		 * @return {string}
+		 */
+		whenText(value) {
+			const parsed = value ? parseServerStamp(value) : null
+			if (parsed === null) {
+				return value ? String(value) : ''
+			}
+			const locale = getLanguage()
+			const time = parsed.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+			const now = new Date()
+			if (parsed.toDateString() === now.toDateString()) {
+				return t('launchpad', 'today {time}', { time })
+			}
+			const day = parsed.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+			return `${day}, ${time}`
+		},
+
 		askRestore(version) {
 			this.restoreTarget = version
 		},
@@ -325,11 +416,99 @@ export default {
 	border-collapse: collapse;
 }
 
-.launchpad-versions__table th,
-.launchpad-versions__table td {
-	padding: 4px 8px;
-	text-align: start;
+/* The table, the chosen row and the preview as LpVersies draws them. */
+.launchpad-versions__intro {
+	margin: 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 14px;
+}
+
+.launchpad-versions__table th {
+	padding: 10px 12px;
 	border-bottom: 1px solid var(--color-border);
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+	font-weight: 600;
+	text-align: start;
+	white-space: nowrap;
+}
+
+.launchpad-versions__table td {
+	padding: 12px;
+	border-bottom: 1px solid var(--color-border);
+	font-size: 14px;
+	text-align: start;
+	vertical-align: middle;
+}
+
+.launchpad-versions__row {
+	cursor: pointer;
+}
+
+.launchpad-versions__row:hover,
+.launchpad-versions__row:focus-visible {
+	background: var(--color-background-hover);
+}
+
+.launchpad-versions__row--selected,
+.launchpad-versions__row--selected:hover {
+	background: var(--color-primary-element-light);
+}
+
+.launchpad-versions__status {
+	text-align: end;
+}
+
+.launchpad-versions__current {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 10px;
+	border-radius: 12px;
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text);
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.launchpad-versions__preview {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	padding: 16px;
+	border: 1px solid var(--color-border);
+	border-radius: 12px;
+	background: var(--color-background-hover);
+}
+
+.launchpad-versions__thumb {
+	display: grid;
+	flex: none;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+	width: 120px;
+	padding: 8px;
+	border-radius: 8px;
+	background: var(--color-main-background);
+}
+
+.launchpad-versions__thumb > span {
+	height: 22px;
+	border-radius: 4px;
+	background: var(--color-border);
+}
+
+.launchpad-versions__preview-text {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 14px;
+}
+
+.launchpad-versions__actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
 }
 
 .launchpad-versions__error {

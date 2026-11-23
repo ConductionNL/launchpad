@@ -1563,7 +1563,8 @@ export default {
 	justify-content: flex-start;
 	gap: 4px;
 	list-style: none;
-	margin: 8px 0 16px;
+	/* Against the dialog's 20px gap: 12px under the title, 16px over the panel. */
+	margin: -8px 0 -4px;
 	padding: 0;
 	border-bottom: 1px solid var(--color-border);
 }

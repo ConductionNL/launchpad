@@ -208,6 +208,7 @@ export default {
 
 		/**
 		 * @return {number|null} The newest version's number: the current one.
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		currentNumber() {
 			return this.sortedVersions.length > 0 ? this.sortedVersions[0].versionNumber : null
@@ -215,6 +216,7 @@ export default {
 
 		/**
 		 * @return {object|null} The version picked in the list.
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		selected() {
 			return this.sortedVersions.find((version) => version.versionNumber === this.selectedNumber) ?? null
@@ -307,6 +309,7 @@ export default {
 		 * Pick a version in the list.
 		 *
 		 * @param {object} version The version.
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		select(version) {
 			this.selectedNumber = version.versionNumber
@@ -318,6 +321,7 @@ export default {
 		 *
 		 * @param {string} value The stamp.
 		 * @return {string}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		whenText(value) {
 			const parsed = value ? parseServerStamp(value) : null

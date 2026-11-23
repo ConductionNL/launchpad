@@ -117,6 +117,10 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 // LaunchPad-only types.
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
+// `section-heading` — "Tussenkop": a full-width heading with one line of
+// explanation over the widgets or tiles that follow it (REQ-WDG-040).
+import SectionHeadingWidget from '../components/Widgets/Renderers/SectionHeadingWidget.vue'
+import SectionHeadingWidgetForm from '../components/Widgets/Renderers/SectionHeadingWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
 import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
@@ -361,6 +365,20 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// REQ-WDG-040: "Tussenkop" of boards LpIntranet and LpWerkplek, a heading on
+// the page ground; the label widget's group heading has no line of
+// explanation, so this is a type of its own.
+registerDashboardWidget('section-heading', {
+	renderer: SectionHeadingWidget,
+	form: SectionHeadingWidgetForm,
+	defaultContent: {
+		title: '',
+		description: '',
+	},
+	displayName: 'Section heading',
+	icon: 'FormatHeader1',
 })
 
 // wiki-widget REQ-WIKI-001..004: the wiki through OpenRegister's XWiki

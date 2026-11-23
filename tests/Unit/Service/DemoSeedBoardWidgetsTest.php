@@ -4,8 +4,8 @@
  * DemoSeedBoardWidgetsTest
  *
  * The Zuiddrecht board seed places the new widgets in the shape their types
- * read: app tiles in one of the eight theme colours, and tile groups headed by
- * a group heading label.
+ * read: app tiles in one of the eight theme colours, and widget groups headed
+ * by a full-width section heading (Tussenkop).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Service
@@ -84,17 +84,71 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	}//end testEveryTileHasAnAppTileColour()
 
 	/**
-	 * Every tile group heading is a group heading label.
+	 * The section headings are the ones the boards draw, each full width with
+	 * a title and one line of explanation, and no label heading is left.
 	 *
 	 * @return void
 	 */
-	public function testTileGroupsAreHeadedByGroupHeadingLabels(): void {
-		$labels = self::placementsOf(type: 'label');
-		$this->assertNotEmpty(actual: $labels);
-		foreach ($labels as $label) {
-			$this->assertTrue(condition: $label['content']['groupHeading'] ?? false, message: (string)$label['content']['text']);
+	public function testGroupsAreHeadedBySectionHeadings(): void {
+		$expected = [
+			'Mijn werkplek'        => ['Mijn apps', 'Samenwerken'],
+			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', "Collega's", 'Wegwijs'],
+			'Team Vergunningen'    => ['Apps van het team'],
+		];
+		foreach (self::seed()['dashboards'] as $dashboard) {
+			$titles = [];
+			foreach ($dashboard['widgets'] as $widget) {
+				$this->assertNotSame(expected: 'label', actual: ($widget['widgetId'] ?? null), message: $dashboard['name']);
+				if (($widget['widgetId'] ?? null) !== 'section-heading') {
+					continue;
+				}
+
+				$titles[] = $widget['content']['title'];
+				$this->assertSame(expected: $dashboard['gridColumns'], actual: $widget['gridWidth'], message: $widget['content']['title']);
+				$this->assertNotSame(expected: '', actual: $widget['content']['description'], message: $widget['content']['title']);
+			}
+
+			$this->assertSame(expected: ($expected[$dashboard['name']] ?? []), actual: $titles, message: $dashboard['name']);
 		}
-	}//end testTileGroupsAreHeadedByGroupHeadingLabels()
+	}//end testGroupsAreHeadedBySectionHeadings()
+
+	/**
+	 * No two sized placements of a dashboard share a grid cell, so the
+	 * headings sit on rows of their own.
+	 *
+	 * @return void
+	 */
+	public function testSizedPlacementsDoNotOverlap(): void {
+		foreach (self::seed()['dashboards'] as $dashboard) {
+			$cells = [];
+			foreach ($dashboard['widgets'] as $index => $widget) {
+				$width  = ($widget['gridWidth'] ?? (isset($widget['tile']) === true ? 2 : 0));
+				$height = ($widget['gridHeight'] ?? (isset($widget['tile']) === true ? 2 : 0));
+				for ($x = $widget['gridX']; $x < $widget['gridX'] + $width; $x++) {
+					for ($y = $widget['gridY']; $y < $widget['gridY'] + $height; $y++) {
+						$key = $x.':'.$y;
+						$this->assertArrayNotHasKey(key: $key, array: $cells, message: $dashboard['name'].' placement '.$index);
+						$cells[$key] = $index;
+					}
+				}
+			}
+		}
+	}//end testSizedPlacementsDoNotOverlap()
+
+	/**
+	 * The start page puts its six app tiles straight on the grid, with no
+	 * heading above them (board LpVandaag).
+	 *
+	 * @return void
+	 */
+	public function testTheStartPageTilesHaveNoHeading(): void {
+		$today = array_values(array_filter(self::seed()['dashboards'], static fn (array $d): bool => $d['name'] === 'Vandaag'))[0];
+		$tiles = array_filter($today['widgets'], static fn (array $w): bool => isset($w['tile']) === true);
+		$this->assertCount(expectedCount: 6, haystack: $tiles);
+		foreach ($today['widgets'] as $widget) {
+			$this->assertNotContains(needle: ($widget['widgetId'] ?? null), haystack: ['label', 'section-heading']);
+		}
+	}//end testTheStartPageTilesHaveNoHeading()
 
 	/**
 	 * The wiki widgets carry the wiki-pages content: a space and a list length.

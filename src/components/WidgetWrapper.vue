@@ -265,7 +265,7 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile', 'app-tile'].includes(
+			return ['label', 'section-heading', 'divider', 'header', 'tile', 'app-tile'].includes(
 				this.placement?.widgetId,
 			)
 		},

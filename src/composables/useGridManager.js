@@ -223,11 +223,12 @@ export const MIN_CELLS = 2
 
 /**
  * Widget types that may be one row tall, below {@link MIN_CELLS}. A divider
- * is a single line between sections (REQ-DIV-006).
+ * is a single line between sections (REQ-DIV-006), a section heading one
+ * heading over them (REQ-WDG-040).
  *
  * @type {ReadonlyArray<string>}
  */
-export const ONE_ROW_TYPES = Object.freeze(['divider'])
+export const ONE_ROW_TYPES = Object.freeze(['divider', 'section-heading'])
 
 /**
  * New-widget sizes for types whose spec names one other than the default.
@@ -254,7 +255,7 @@ const TYPE_DEFAULT_SIZES = Object.freeze({
  * @spec openspec/specs/quicklinks-widget/spec.md
  */
 export function defaultSizeFor(type, columns = DEFAULT_COLUMNS) {
-	if (type === 'divider') {
+	if (type === 'divider' || type === 'section-heading') {
 		return { w: columns, h: 1 }
 	}
 	const own = TYPE_DEFAULT_SIZES[type]

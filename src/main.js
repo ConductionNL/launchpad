@@ -72,6 +72,7 @@ registerBuiltinDashboardWidgets()
 // its dialogs and empty states) live in the `nextcloud-vue` translation
 // domain, which only exists once the app registers it. Without this call a
 // Dutch start page greeted in English.
+// @spec openspec/changes/start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
 registerTranslations()
 
 // Populate the shared CnIcon registry with the MDI icons LaunchPad's

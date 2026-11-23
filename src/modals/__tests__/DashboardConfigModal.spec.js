@@ -108,6 +108,11 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.find('[data-test="config-tab-sharing"]').exists()).toBe(true)
 	})
 
+	it('keeps the theme button look off the tab strip', () => {
+		const wrapper = mountModal()
+		expect(wrapper.find('[data-test="config-tabs"]').classes()).toContain('cn-look-board')
+	})
+
 	it('does not show the sharee picker on the General panel', async () => {
 		const wrapper = mountModal()
 		await wrapper.vm.$nextTick()

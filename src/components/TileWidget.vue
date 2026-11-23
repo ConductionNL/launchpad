@@ -42,7 +42,7 @@
 			class="tile-widget__link"
 			:target="anchorTarget"
 			:title="iconOnly ? tile.title : null"
-			:aria-label="iconOnly ? tile.title : null"
+			:aria-label="iconOnly ? accessibleName : null"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -76,6 +76,26 @@
 					:size="64"
 					:style="{ color: tile.textColor || '#ffffff' }" />
 			</div>
+			<!-- An icon-only tile marks itself as the app tiles do (LpVandaag):
+			     a pin at the top left, a count or an outage dot at the top right. -->
+			<template v-if="iconOnly">
+				<Pin
+					v-if="content?.pinned === true"
+					class="tile-widget__pin"
+					:size="14"
+					aria-hidden="true"
+					data-testid="tile-pin" />
+				<span
+					v-if="content?.status === 'down'"
+					class="tile-widget__outage"
+					aria-hidden="true"
+					data-testid="tile-outage" />
+				<span
+					v-else-if="badgeText !== ''"
+					class="tile-widget__badge"
+					aria-hidden="true"
+					data-testid="tile-badge">{{ badgeText }}</span>
+			</template>
 			<div
 				v-if="!iconOnly"
 				class="tile-widget__title"
@@ -115,6 +135,7 @@ import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { defineAsyncComponent } from 'vue'
+import Pin from 'vue-material-design-icons/Pin.vue'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
@@ -131,6 +152,7 @@ export default {
 	name: 'TileWidget',
 
 	components: {
+		Pin,
 		CnWidgetEditCog,
 		CnDashboardIcon,
 		HealthPingBadge,
@@ -228,6 +250,37 @@ export default {
 		 */
 		iconOnly() {
 			return this.content?.iconOnly === true
+		},
+
+		/**
+		 * The count on an icon-only tile, '' for none; above 99 it reads 99+.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		badgeText() {
+			const count = Number(this.content?.badge)
+			if (!Number.isFinite(count) || count <= 0) {
+				return ''
+			}
+			return count > 99 ? '99+' : String(Math.floor(count))
+		},
+
+		/**
+		 * The tile's name with its outage, count and pin, for a reader that
+		 * cannot see the marks.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		accessibleName() {
+			let name = this.tile.title
+			if (this.content?.status === 'down') {
+				name = t('launchpad', '{app}, outage', { app: name })
+			} else if (this.badgeText !== '') {
+				name = t('launchpad', '{app}, {count} new', { app: name, count: this.badgeText })
+			}
+			return this.content?.pinned === true ? t('launchpad', '{app}, pinned', { app: name }) : name
 		},
 
 		/**
@@ -558,6 +611,44 @@ export default {
 	width: 48px;
 	height: 48px;
 	background-size: 48px;
+}
+
+/* The marks of an icon-only tile, as CnAppTile draws them. */
+.tile-widget__pin {
+	position: absolute;
+	top: 6px;
+	inset-inline-start: 6px;
+	display: flex;
+	opacity: 0.85;
+}
+
+.tile-widget__badge {
+	position: absolute;
+	top: 6px;
+	inset-inline-end: 6px;
+	box-sizing: border-box;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 10px;
+	background: #fff;
+	color: #1b1c1d;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 20px;
+	text-align: center;
+}
+
+.tile-widget__outage {
+	position: absolute;
+	top: 6px;
+	inset-inline-end: 6px;
+	box-sizing: border-box;
+	width: 12px;
+	height: 12px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	background: var(--color-error, #d91f11);
 }
 
 /* Position the shared white cog over the tile's top-right corner. The

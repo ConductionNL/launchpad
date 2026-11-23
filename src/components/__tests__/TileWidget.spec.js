@@ -60,6 +60,21 @@ describe('TileWidget', () => {
 		expect(wrapper.find('a').attributes('aria-label')).toBe('TOPdesk')
 	})
 
+	it('marks an icon-only tile with its pin, count and outage, and names them', () => {
+		const marked = mount(TileWidget, { props: { tile: tile({ title: 'Outlook web' }), content: { iconOnly: true, pinned: true, badge: 3 } } })
+		expect(marked.find('[data-testid="tile-pin"]').exists()).toBe(true)
+		expect(marked.find('[data-testid="tile-badge"]').text()).toBe('3')
+		expect(marked.find('a').attributes('aria-label')).toBe('Outlook web, 3 new, pinned')
+
+		const down = mount(TileWidget, { props: { tile: tile({ title: 'Council' }), content: { iconOnly: true, status: 'down', badge: 4 } } })
+		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(true)
+		expect(down.find('[data-testid="tile-badge"]').exists()).toBe(false)
+		expect(down.find('a').attributes('aria-label')).toBe('Council, outage')
+
+		const many = mount(TileWidget, { props: { tile: tile(), content: { iconOnly: true, badge: 140 } } })
+		expect(many.find('[data-testid="tile-badge"]').text()).toBe('99+')
+	})
+
 	it('keeps the name under the glyph without iconOnly', () => {
 		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }) } })
 

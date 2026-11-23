@@ -42,6 +42,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Mcp\McpMetadataTools
  * @covers \OCA\LaunchPad\Mcp\McpEngagementTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @uses   \OCA\LaunchPad\Db\DashboardVersion
  */
 class McpDashboardDetailToolsTest extends TestCase {
 

@@ -81,6 +81,9 @@ use OCA\LaunchPad\Controller\WidgetApiAccess;
 #[UsesClass(CalculatedFieldEvaluator::class)]
 #[UsesClass(\OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources::class)]
 #[UsesClass(CalculatedFieldValidationError::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\ActorResponses::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\UserResponses::class)]
+#[UsesClass(\OCA\LaunchPad\Controller\WidgetApiAccess::class)]
 class WidgetApiControllerCalculatedFieldsTest extends TestCase {
 
 	/**

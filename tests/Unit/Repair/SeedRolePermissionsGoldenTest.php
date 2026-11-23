@@ -36,6 +36,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Repair\SeedRolePermissions
  * @uses   \OCA\LaunchPad\Db\RoleFeaturePermission
  * @uses   \OCA\LaunchPad\Db\RoleLayoutDefault
+ * @uses   \OCA\LaunchPad\Support\WidgetTypeList
  */
 class SeedRolePermissionsGoldenTest extends TestCase {
 

@@ -34,6 +34,10 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Mcp\McpWidgetTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Controller\WidgetApiSources
+ * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Exception\StalePlacementException
+ * @uses   \OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources
  */
 class McpWidgetToolsTest extends TestCase {
 

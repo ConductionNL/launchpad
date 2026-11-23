@@ -84,7 +84,7 @@ class EmbedTokenApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		return $this->asAdmin(action: fn (string $admin): JSONResponse => new JSONResponse(data: ['results' => $this->tokens->listTokens()]));
+		return $this->asAdmin(action: fn (): JSONResponse => new JSONResponse(data: ['results' => $this->tokens->listTokens()]));
 	}//end index()
 
 	/**
@@ -98,7 +98,7 @@ class EmbedTokenApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function show(string $id): JSONResponse {
-		return $this->asAdmin(action: fn (string $admin): JSONResponse => self::found(data: $this->tokens->getToken(id: $id)));
+		return $this->asAdmin(action: fn (): JSONResponse => self::found(data: $this->tokens->getToken(id: $id)));
 	}//end show()
 
 	/**
@@ -131,7 +131,7 @@ class EmbedTokenApiController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(string $id): JSONResponse {
 		return $this->asAdmin(
-			action: fn (string $admin): JSONResponse => self::found(
+			action: fn (): JSONResponse => self::found(
 				data: $this->tokens->updateToken(id: $id, input: $this->input(fields: self::UPDATE_FIELDS))
 			)
 		);
@@ -206,7 +206,7 @@ class EmbedTokenApiController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function purgeCache(string $id): JSONResponse {
 		return $this->asAdmin(
-			action: function (string $admin) use ($id): JSONResponse {
+			action: function () use ($id): JSONResponse {
 				$at = $this->tokens->purgeCache(id: $id);
 				if ($at === null) {
 					return self::notFound();
@@ -231,7 +231,7 @@ class EmbedTokenApiController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function usage(string $id): JSONResponse {
 		return $this->asAdmin(
-			action: function (string $admin) use ($id): JSONResponse {
+			action: function () use ($id): JSONResponse {
 				$token = $this->tokens->getToken(id: $id);
 				if ($token === null) {
 					return self::notFound();
@@ -251,7 +251,7 @@ class EmbedTokenApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function telemetry(): JSONResponse {
-		return $this->asAdmin(action: fn (string $admin): JSONResponse => new JSONResponse(data: ['enabled' => $this->telemetry->isEnabled()]));
+		return $this->asAdmin(action: fn (): JSONResponse => new JSONResponse(data: ['enabled' => $this->telemetry->isEnabled()]));
 	}//end telemetry()
 
 	/**

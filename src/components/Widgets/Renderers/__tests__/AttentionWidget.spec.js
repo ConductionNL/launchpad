@@ -312,7 +312,24 @@ describe('AttentionWidget one card per record (LpVandaag)', () => {
 	})
 
 	it('counts only, one card per source, without itemCards', async () => {
-		await mountWith({ items: [item('dossiq', 'dossiq', 'error', 2)], failedApps: [], sourceCount: 1 }, { limit: 3 })
+		const wrapper = await mountWith({ items: [item('dossiq', 'dossiq', 'error', 2)], failedApps: [], sourceCount: 1 }, { limit: 3 })
 		expect(loadAttentionFeed).toHaveBeenCalledWith({ perSource: 1 })
+		expect(wrapper.findAll('.attention-widget__item')).toHaveLength(1)
+		expect(wrapper.find('.attention-widget__title').text()).toContain('dossiq title')
+	})
+
+	// @spec openspec/changes/start-page-board-sync/specs/attention-feed/spec.md#requirement-vandaag-eerst-can-draw-one-card-per-record-req-att-007
+	it('stops at the limit in total across sources, in ranking order', async () => {
+		expandToRecords.mockImplementationOnce((items) => items.flatMap((i) => [
+			{ ...i, key: i.key + '/1', title: i.appName + ' record 1' },
+			{ ...i, key: i.key + '/2', title: i.appName + ' record 2' },
+		]))
+		const wrapper = await mountWith({
+			items: [item('dossiq', 'dossiq', 'error', 2), item('decidiq', 'decidiq', 'warning', 2)],
+			failedApps: [],
+			sourceCount: 2,
+		}, { layout: 'columns', limit: 3, itemCards: true })
+		const titles = wrapper.findAll('.attention-widget__title').map((n) => n.text())
+		expect(titles).toEqual(['Urgent: dossiq record 1', 'Urgent: dossiq record 2', 'Soon: decidiq record 1'])
 	})
 })

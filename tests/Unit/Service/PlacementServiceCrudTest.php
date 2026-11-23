@@ -39,6 +39,9 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Service\PublicShareContext
  * @uses   \OCA\LaunchPad\Exception\ShareReadOnlyException
  * @uses   \OCA\LaunchPad\Exception\ResourceException
+ * @uses   \OCA\LaunchPad\Service\FreeSpotFinder
+ * @uses   \OCA\LaunchPad\Service\TileLinkTarget
+ * @uses   \OCA\LaunchPad\Service\TileLinkValidator
  */
 class PlacementServiceCrudTest extends TestCase {
 	private WidgetPlacementMapper&MockObject $mapper;

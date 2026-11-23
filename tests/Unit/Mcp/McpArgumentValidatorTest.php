@@ -22,6 +22,8 @@ use OCP\AppFramework\Db\DoesNotExistException;
  * Each check refuses with a structured error and accepts a valid value.
  *
  * @covers \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses \OCA\LaunchPad\Exception\ForbiddenException
+ * @uses \OCA\LaunchPad\Exception\ResourceException
  */
 class McpArgumentValidatorTest extends TestCase {
 

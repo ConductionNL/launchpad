@@ -1405,6 +1405,13 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ta nadzorna plošča sprejme še {count}. Izberite manj map ali zaznamkov.",
         "The bookmarks could not be imported.": "Zaznamkov ni bilo mogoče uvoziti.",
         "This file holds no bookmarks.": "Datoteka ne vsebuje zaznamkov.",
-        "Folders": "Mape"
+        "Folders": "Mape",
+        "Put LaunchPad on your home screen": "Dodajte LaunchPad na začetni zaslon",
+        "Then your workplace opens with one tap, like an app": "Vaše delovno mesto se nato odpre z enim dotikom, kot aplikacija",
+        "In your browser, choose Share and then Add to Home Screen.": "V brskalniku izberite Deli in nato Dodaj na začetni zaslon.",
+        "Not now": "Ne zdaj",
+        "{index} of {total} · next in {seconds} s": "{index} od {total} · naslednja čez {seconds} s",
+        "Now showing {name}": "Zdaj prikazano: {name}",
+        "Own look": "Lasten videz"
     }
 }

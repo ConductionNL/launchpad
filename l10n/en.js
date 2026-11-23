@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Own look",
+    "{index} of {total} · next in {seconds} s" : "{index} of {total} · next in {seconds} s",
+    "Now showing {name}" : "Now showing {name}",
+    "Put LaunchPad on your home screen" : "Put LaunchPad on your home screen",
+    "Then your workplace opens with one tap, like an app" : "Then your workplace opens with one tap, like an app",
+    "In your browser, choose Share and then Add to Home Screen." : "In your browser, choose Share and then Add to Home Screen.",
+    "Not now" : "Not now",
     "Dashboard renamed to %s" : "Dashboard renamed to %s",
     "Columns from %1$s to %2$s" : "Columns from %1$s to %2$s",
     "Widget %s added" : "Widget %s added",

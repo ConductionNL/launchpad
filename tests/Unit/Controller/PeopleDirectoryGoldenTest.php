@@ -56,6 +56,9 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses   \OCA\LaunchPad\Service\PeopleQuery
  * @uses   \OCA\LaunchPad\Service\PeoplePage
  * @uses   \OCA\LaunchPad\Service\DisplayNamePageCollector
+ * @uses   \OCA\LaunchPad\Controller\ActorResponses
+ * @uses   \OCA\LaunchPad\Controller\RequestActor
+ * @uses   \OCA\LaunchPad\Controller\UserResponses
  */
 class PeopleDirectoryGoldenTest extends TestCase {
 

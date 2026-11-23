@@ -49,6 +49,7 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Controller\PageSettingsSources
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Support\FleetAppId
  */
 class PageControllerHelpersTest extends TestCase {
 	private WidgetService&MockObject $widgets;

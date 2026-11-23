@@ -1403,6 +1403,13 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Tento panel pojme ešte {count}. Vyberte menej priečinkov alebo záložiek.",
         "The bookmarks could not be imported.": "Záložky sa nepodarilo importovať.",
         "This file holds no bookmarks.": "Súbor neobsahuje žiadne záložky.",
-        "Folders": "Priečinky"
+        "Folders": "Priečinky",
+        "Put LaunchPad on your home screen": "Pridajte si LaunchPad na plochu",
+        "Then your workplace opens with one tap, like an app": "Vaše pracovisko sa potom otvorí jedným ťuknutím, ako aplikácia",
+        "In your browser, choose Share and then Add to Home Screen.": "V prehliadači zvoľte Zdieľať a potom Pridať na plochu.",
+        "Not now": "Teraz nie",
+        "{index} of {total} · next in {seconds} s": "{index} z {total} · ďalší o {seconds} s",
+        "Now showing {name}": "Teraz zobrazené: {name}",
+        "Own look": "Vlastný vzhľad"
     }
 }

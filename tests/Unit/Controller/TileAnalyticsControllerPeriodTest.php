@@ -41,6 +41,7 @@ use OCA\LaunchPad\Controller\TileAnalyticsContext;
  * @covers \OCA\LaunchPad\Controller\TileAnalyticsController
  * @uses   \OCA\LaunchPad\Controller\SessionActionCheck
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\TileAnalyticsContext
  */
 class TileAnalyticsControllerPeriodTest extends TestCase {
 	private TileAnalyticsService&MockObject $service;

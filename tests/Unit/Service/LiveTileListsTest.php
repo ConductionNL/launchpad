@@ -44,6 +44,12 @@ use Psr\Log\LoggerInterface;
 #[Small]
 #[CoversClass(LiveTileService::class)]
 #[UsesClass(LiveTileListMapper::class)]
+#[UsesClass(\OCA\LaunchPad\Db\WidgetPlacement::class)]
+#[UsesClass(\OCA\LaunchPad\Service\HostAllowList::class)]
+#[UsesClass(\OCA\LaunchPad\Service\LiveTileSettings::class)]
+#[UsesClass(\OCA\LaunchPad\Service\NoRedirectGet::class)]
+#[UsesClass(\OCA\LaunchPad\Service\ReadingSources::class)]
+#[UsesClass(\OCA\LaunchPad\Support\FleetAppId::class)]
 class LiveTileListsTest extends TestCase {
 
 	/** @var array<string,string> What the service wrote to the cache. */

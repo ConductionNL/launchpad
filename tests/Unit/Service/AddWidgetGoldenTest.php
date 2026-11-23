@@ -72,6 +72,14 @@ use OCA\LaunchPad\Controller\WidgetApiAccess;
  * @uses   \OCA\LaunchPad\Service\PlacementUpdaters
  * @uses   \OCA\LaunchPad\Service\WidgetRendering
  * @uses   \OCA\LaunchPad\Service\WidgetPlatform
+ * @uses   \OCA\LaunchPad\Controller\ActorResponses
+ * @uses   \OCA\LaunchPad\Controller\UserResponses
+ * @uses   \OCA\LaunchPad\Controller\WidgetApiAccess
+ * @uses   \OCA\LaunchPad\Service\CalculatedFieldService
+ * @uses   \OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldServerFields
+ * @uses   \OCA\LaunchPad\Service\FreeSpotFinder
+ * @uses   \OCA\LaunchPad\Service\TextTableValidator
+ * @uses   \OCA\LaunchPad\Service\VideoContent
  */
 class AddWidgetGoldenTest extends TestCase {
 

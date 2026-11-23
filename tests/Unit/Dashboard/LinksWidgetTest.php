@@ -32,6 +32,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Dashboard\LinksWidget
  * @covers \OCA\LaunchPad\Dashboard\LaunchPadApiWidget
+ * @uses \OCA\LaunchPad\Db\WidgetPlacement
  */
 class LinksWidgetTest extends TestCase {
 

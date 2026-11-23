@@ -108,6 +108,9 @@ class PendingManager implements IManager {
 /**
  * @covers \OCA\LaunchPad\Service\DashboardWidgetRegistry
  * @covers \OCA\LaunchPad\Service\WidgetService
+ * @uses \OCA\LaunchPad\Service\WidgetFormatter
+ * @uses \OCA\LaunchPad\Service\WidgetPlatform
+ * @uses \OCA\LaunchPad\Service\WidgetRendering
  */
 class DashboardWidgetRegistryTest extends TestCase {
 	/** @var array<string, IWidget> */

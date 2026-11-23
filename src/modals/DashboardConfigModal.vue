@@ -202,6 +202,84 @@
 				<DetailsTab
 					v-if="!isCreate && canManageShares && dashboard?.uuid"
 					:dashboardUuid="dashboard.uuid" />
+				<!-- Own look (REQ-THM-001/002, board LpDashboardInstellingen):
+				     accent, background colour and background image of THIS
+				     dashboard, a block on Details with the same contrast check
+				     the server applies; there is no separate Look tab. -->
+				<section
+					v-if="!isCreate && canManageShares"
+					class="dashboard-config__look"
+					data-test="config-look">
+					<h3 class="dashboard-config__section-heading">
+						{{ t('launchpad', 'Own look') }}
+					</h3>
+					<p class="dashboard-config__hint">
+						{{ t('launchpad', 'Give this dashboard its own colors. Leave a field empty to follow the theme.') }}
+					</p>
+					<div class="dashboard-config__field dashboard-config__look-row">
+						<NcTextField
+							:modelValue="look.accent"
+							:label="t('launchpad', 'Accent color')"
+							placeholder="#1f5c3a"
+							data-testid="look-accent"
+							@update:modelValue="look.accent = $event" />
+						<input
+							type="color"
+							class="dashboard-config__swatch"
+							:value="lookAccentHex || '#000000'"
+							:aria-label="t('launchpad', 'Accent color')"
+							@input="look.accent = $event.target.value">
+					</div>
+					<div class="dashboard-config__field dashboard-config__look-row">
+						<NcTextField
+							:modelValue="look.background"
+							:label="t('launchpad', 'Background color')"
+							placeholder="#ffffff"
+							data-testid="look-background"
+							@update:modelValue="look.background = $event" />
+						<input
+							type="color"
+							class="dashboard-config__swatch"
+							:value="lookBackgroundHex || '#ffffff'"
+							:aria-label="t('launchpad', 'Background color')"
+							@input="look.background = $event.target.value">
+					</div>
+					<p
+						v-if="lookFormatError"
+						class="dashboard-config__error"
+						role="alert"
+						data-testid="look-format-error">
+						{{ lookFormatError }}
+					</p>
+					<p
+						v-else-if="!lookAccentCheck.readable"
+						class="dashboard-config__error"
+						role="alert"
+						data-testid="look-contrast-error">
+						{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
+					</p>
+					<div class="dashboard-config__field">
+						<label class="dashboard-config__label" for="look-image-input">
+							{{ t('launchpad', 'Image') }}
+						</label>
+						<input
+							id="look-image-input"
+							type="file"
+							accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+							data-testid="look-image-input"
+							:disabled="lookUploading"
+							@change="onLookImage">
+						<p v-if="look.resource" class="dashboard-config__hint" data-testid="look-image-name">
+							{{ look.resource }}
+							<NcButton variant="tertiary" data-testid="look-image-clear" @click="look.resource = ''">
+								{{ t('launchpad', 'Remove') }}
+							</NcButton>
+						</p>
+						<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
+							{{ lookUploadError }}
+						</p>
+					</div>
+				</section>
 			</div>
 			<!-- /general panel -->
 
@@ -215,83 +293,6 @@
 				<LanguagesTab :dashboardUuid="dashboard.uuid" />
 			</div>
 
-
-			<!-- Look panel (platform-dashboard-theme-and-css REQ-THM-001/002):
-			     accent, background colour and background image of THIS
-			     dashboard, with the same contrast check the server applies. -->
-			<div
-				v-if="!isCreate && currentTab === 'look'"
-				id="config-panel-look"
-				role="tabpanel"
-				data-test="config-panel-look"
-				class="dashboard-config__panel">
-				<p class="dashboard-config__hint">
-					{{ t('launchpad', 'Give this dashboard its own colors. Leave a field empty to follow the theme.') }}
-				</p>
-				<div class="dashboard-config__field dashboard-config__look-row">
-					<NcTextField
-						:modelValue="look.accent"
-						:label="t('launchpad', 'Accent color')"
-						placeholder="#1f5c3a"
-						data-testid="look-accent"
-						@update:modelValue="look.accent = $event" />
-					<input
-						type="color"
-						class="dashboard-config__swatch"
-						:value="lookAccentHex || '#000000'"
-						:aria-label="t('launchpad', 'Accent color')"
-						@input="look.accent = $event.target.value">
-				</div>
-				<div class="dashboard-config__field dashboard-config__look-row">
-					<NcTextField
-						:modelValue="look.background"
-						:label="t('launchpad', 'Background color')"
-						placeholder="#ffffff"
-						data-testid="look-background"
-						@update:modelValue="look.background = $event" />
-					<input
-						type="color"
-						class="dashboard-config__swatch"
-						:value="lookBackgroundHex || '#ffffff'"
-						:aria-label="t('launchpad', 'Background color')"
-						@input="look.background = $event.target.value">
-				</div>
-				<p
-					v-if="lookFormatError"
-					class="dashboard-config__error"
-					role="alert"
-					data-testid="look-format-error">
-					{{ lookFormatError }}
-				</p>
-				<p
-					v-else-if="!lookAccentCheck.readable"
-					class="dashboard-config__error"
-					role="alert"
-					data-testid="look-contrast-error">
-					{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
-				</p>
-				<div class="dashboard-config__field">
-					<label class="dashboard-config__label" for="look-image-input">
-						{{ t('launchpad', 'Image') }}
-					</label>
-					<input
-						id="look-image-input"
-						type="file"
-						accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-						data-testid="look-image-input"
-						:disabled="lookUploading"
-						@change="onLookImage">
-					<p v-if="look.resource" class="dashboard-config__hint" data-testid="look-image-name">
-						{{ look.resource }}
-						<NcButton variant="tertiary" data-testid="look-image-clear" @click="look.resource = ''">
-							{{ t('launchpad', 'Remove') }}
-						</NcButton>
-					</p>
-					<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
-						{{ lookUploadError }}
-					</p>
-				</div>
-			</div>
 
 			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
 			     per-share permission rows are reachable ONLY from this tab. -->
@@ -596,7 +597,6 @@ import Delete from 'vue-material-design-icons/Delete.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import History from 'vue-material-design-icons/History.vue'
 import Lock from 'vue-material-design-icons/Lock.vue'
-import Palette from 'vue-material-design-icons/Palette.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
@@ -864,6 +864,7 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-039-versions-are-a-tab-of-the-dashboard-settings
 		 * @spec openspec/specs/dashboards/spec.md#requirement-a-manager-can-publish-unpublish-and-schedule-a-dashboard-req-schedui-001
 		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
+		 * @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		tabs() {
@@ -874,8 +875,6 @@ export default {
 				// owner (a dashboard needs a uuid first, so the strip is hidden
 				// while creating).
 				{ id: 'languages', label: t('launchpad', 'Languages'), icon: Translate, offered: this.canManageShares && hasUuid },
-				// REQ-THM-001: the look is the owner's, like sharing.
-				{ id: 'look', label: t('launchpad', 'Look'), icon: Palette, offered: this.canManageShares },
 				{ id: 'sharing', label: t('launchpad', 'Sharing'), icon: ShareVariant, count: this.localShares.length, offered: this.canManageShares },
 				{ id: 'publication', label: t('launchpad', 'Publication'), icon: CalendarClock, offered: this.canManagePublication && hasUuid },
 				{ id: 'exports', label: t('launchpad', 'Exports'), icon: CalendarExport, offered: this.canScheduleExports && hasUuid },
@@ -1823,6 +1822,16 @@ export default {
 	font-weight: 700;
 	line-height: 22px;
 	text-align: center;
+}
+
+.dashboard-config__look {
+	margin-top: 16px;
+}
+
+.dashboard-config__section-heading {
+	margin: 0 0 8px;
+	font-size: 1.1em;
+	font-weight: bold;
 }
 
 .dashboard-config__look-row {

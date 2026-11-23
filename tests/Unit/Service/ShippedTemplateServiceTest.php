@@ -410,6 +410,8 @@ class ShippedTemplateServiceTest extends TestCase {
 
 		$instance = $this->makeInstance();
 		$service = $this->makeService($instance);
+		// The fixture names the shipped version, so a template edit that bumps it needs no re-recording.
+		$shippedVersion = $service->readDefinition(templateId: 'mijn-werkdag')['templateVersion'];
 		$uuids = [];
 		$actual = [];
 		foreach ($steps as $name => $options) {
@@ -417,6 +419,9 @@ class ShippedTemplateServiceTest extends TestCase {
 				$result = self::runInstall($service, $options);
 				$uuids[$result['uuid']] ??= 'uuid-' . count($uuids);
 				$result['uuid'] = $uuids[$result['uuid']];
+				if ($result['version'] === $shippedVersion) {
+					$result['version'] = 'shipped';
+				}
 			} catch (InvalidArgumentException $e) {
 				$result = ['error' => $e->getMessage()];
 			}
@@ -437,6 +442,10 @@ class ShippedTemplateServiceTest extends TestCase {
 			foreach ($config as $key => $value) {
 				if (is_string($value) === true && isset($uuids[$value]) === true) {
 					$config[$key] = $uuids[$value];
+				}
+
+				if ($key === 'shipped_template_version_mijn-werkdag' && $value === $shippedVersion) {
+					$config[$key] = 'shipped';
 				}
 			}
 

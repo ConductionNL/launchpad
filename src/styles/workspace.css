@@ -172,9 +172,10 @@
    edge, 28px in from the window: 20px here and the grid's own 8px item
    margin (LpVandaag, LpWerkplek, LpIntranet).
    The container is also the page's scroller, so the inset is padding, not a
-   max-width: the scrollbar sits at the window edge.
+   max-width: the scrollbar sits at the window edge. The id outranks the
+   page's own scoped `padding: 8px 0 0`.
    ========================================================= */
-.app-launchpad .launchpad-container {
+#content.app-launchpad .launchpad-container {
 	box-sizing: border-box;
 	width: 100%;
 	padding-inline: 20px;

@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Las predefiniziuns cun las qualas mintga dashboard cumenza: tgi che dastga crear dashboards, il nivel da permissiun e la grilla. Questa tura vegn mussada ina giada.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Sut Kiosk fas Vus glistas da reproducziun da dashboards per in visur senza annunzia.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Sut Datas da demo chargias Vus dashboards d'exempel per empruvar LaunchPad e las allontanais puspè.",
+    "Quarter" : "Quartal",
+    "Year" : "Onn",
     "Show until" : "Mussar fin",
     "After this time the announcement disappears from every dashboard." : "Suenter quest temp sparescha l'annunzia da mintga dashboard.",
     "Visible until {when}" : "Visibel fin {when}",

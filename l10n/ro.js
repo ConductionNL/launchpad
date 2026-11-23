@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Valorile implicite ale fiecărui tablou de bord: cine poate crea tablouri, nivelul de permisiune și grila. Acest tur se afișează o singură dată.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "La Chioșc creați liste de redare cu tablouri de bord pentru un ecran fără autentificare.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "La Date demo încărcați tablouri de exemplu pentru a încerca LaunchPad și le eliminați din nou.",
+    "Quarter" : "Trimestru",
+    "Year" : "An",
     "Show until" : "Afișează până la",
     "After this time the announcement disappears from every dashboard." : "După această oră, anunțul dispare de pe toate tablourile de bord.",
     "Visible until {when}" : "Vizibil până la {when}",

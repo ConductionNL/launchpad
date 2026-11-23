@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Типові налаштування кожної панелі: хто може створювати панелі, рівень прав і сітка. Цей тур показується один раз.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "У розділі «Кіоск» ви складаєте списки відтворення панелей для екрана без входу.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "У розділі «Демо-дані» ви завантажуєте приклади панелей, щоб спробувати LaunchPad, і знову їх видаляєте.",
+    "Quarter" : "Квартал",
+    "Year" : "Рік",
     "Show until" : "Показувати до",
     "After this time the announcement disappears from every dashboard." : "Після цього часу оголошення зникне з усіх панелей.",
     "Visible until {when}" : "Видно до {when}",

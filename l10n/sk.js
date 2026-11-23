@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Predvolené nastavenia každej nástenky: kto smie vytvárať nástenky, úroveň oprávnení a mriežka. Táto prehliadka sa zobrazí raz.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "V časti Kiosk vytvárate zoznamy násteniek pre obrazovku bez prihlásenia.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "V časti Ukážkové údaje načítate ukážkové nástenky na vyskúšanie LaunchPadu a znova ich odstránite.",
+    "Quarter" : "Štvrťrok",
+    "Year" : "Rok",
     "Show until" : "Zobraziť do",
     "After this time the announcement disappears from every dashboard." : "Po tomto čase oznámenie zmizne zo všetkých nástenok.",
     "Visible until {when}" : "Viditeľné do {when}",

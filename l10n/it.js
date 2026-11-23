@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Le impostazioni predefinite di ogni dashboard: chi può creare dashboard, il livello di permesso e la griglia. Questo tour viene mostrato una volta.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "In Chiosco crei playlist di dashboard per uno schermo senza accesso.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "In Dati demo carichi dashboard di esempio per provare LaunchPad e poi le rimuovi.",
+    "Quarter" : "Trimestre",
+    "Year" : "Anno",
     "Show until" : "Mostra fino al",
     "After this time the announcement disappears from every dashboard." : "Dopo questo momento l'annuncio scompare da ogni dashboard.",
     "Visible until {when}" : "Visibile fino al {when}",

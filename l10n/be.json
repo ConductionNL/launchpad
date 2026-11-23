@@ -1423,6 +1423,8 @@
         "The end time must be after the publish time": "Час заканчэння павінен быць пасля часу публікацыі",
         "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.": "Прадвызначаныя налады кожнай панэлі: хто можа ствараць панэлі, узровень правоў і сетка. Гэты тур паказваецца адзін раз.",
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "У раздзеле «Кіёск» вы складаеце плэйлісты панэляў для экрана без уваходу.",
-        "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "У раздзеле «Дэма-даныя» вы загружаеце прыклады панэляў, каб паспрабаваць LaunchPad, і зноў іх выдаляеце."
+        "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "У раздзеле «Дэма-даныя» вы загружаеце прыклады панэляў, каб паспрабаваць LaunchPad, і зноў іх выдаляеце.",
+        "Quarter": "Квартал",
+        "Year": "Год"
     }
 }

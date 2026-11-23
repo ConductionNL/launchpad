@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Parazgjedhjet me të cilat nis çdo panel: kush mund të krijojë panele, niveli i lejeve dhe rrjeta. Ky tur shfaqet një herë.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Te Kiosku krijoni lista luajtjeje panelesh për një ekran pa hyrje.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Te Të dhëna demo ngarkoni panele shembull për të provuar LaunchPad dhe i hiqni përsëri.",
+    "Quarter" : "Tremujor",
+    "Year" : "Vit",
     "Show until" : "Shfaq deri më",
     "After this time the announcement disappears from every dashboard." : "Pas kësaj kohe njoftimi zhduket nga çdo panel.",
     "Visible until {when}" : "I dukshëm deri më {when}",

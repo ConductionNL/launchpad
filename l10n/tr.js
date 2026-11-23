@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Her panonun başladığı varsayılanlar: kimlerin pano oluşturabileceği, izin düzeyi ve ızgara. Bu tur bir kez gösterilir.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Kiosk altında, oturum açma gerektirmeyen bir ekran için pano oynatma listeleri oluşturursunuz.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Demo verileri altında LaunchPad'i denemek için örnek panolar yükler ve sonra yeniden kaldırırsınız.",
+    "Quarter" : "Çeyrek",
+    "Year" : "Yıl",
     "Show until" : "Şu zamana kadar göster",
     "After this time the announcement disappears from every dashboard." : "Bu zamandan sonra duyuru tüm panolardan kaybolur.",
     "Visible until {when}" : "{when} tarihine kadar görünür",

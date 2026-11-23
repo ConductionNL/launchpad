@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Noklusējumi, ar kuriem sākas katrs panelis: kas drīkst veidot paneļus, atļauju līmenis un režģis. Šī ekskursija tiek rādīta vienreiz.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Sadaļā Kiosks veidojat paneļu atskaņošanas sarakstus ekrānam bez pieteikšanās.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Sadaļā Demonstrācijas dati ielādējat paraugpaneļus, lai izmēģinātu LaunchPad, un atkal tos noņemat.",
+    "Quarter" : "Ceturksnis",
+    "Year" : "Gads",
     "Show until" : "Rādīt līdz",
     "After this time the announcement disappears from every dashboard." : "Pēc šī laika paziņojums pazūd no visiem informācijas paneļiem.",
     "Visible until {when}" : "Redzams līdz {when}",

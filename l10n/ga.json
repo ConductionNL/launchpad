@@ -1427,6 +1427,8 @@
         "The end time must be after the publish time": "Caithfidh an t-am deiridh a bheith tar éis am an fhoilsithe",
         "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.": "Na réamhshocruithe a dtosaíonn gach painéal leo: cé a fhéadann painéil a chruthú, an leibhéal ceada agus an ghreille. Taispeántar an turas seo uair amháin.",
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Faoi Ciosc déanann tú seinmliostaí painéal do scáileán nach gá logáil isteach air.",
-        "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Faoi Sonraí taispeána lódálann tú painéil shamplacha chun LaunchPad a thriail, agus baineann tú arís iad."
+        "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Faoi Sonraí taispeána lódálann tú painéil shamplacha chun LaunchPad a thriail, agus baineann tú arís iad.",
+        "Quarter": "Ráithe",
+        "Year": "Bliain"
     }
 }

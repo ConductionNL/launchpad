@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Az alapértékek, amelyekkel minden irányítópult indul: ki hozhat létre irányítópultot, a jogosultsági szint és a rács. Ez a bemutató egyszer jelenik meg.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "A Kioszk alatt irányítópult-lejátszási listákat készít egy bejelentkezés nélküli képernyőhöz.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "A Bemutatóadatok alatt példa-irányítópultokat tölt be a LaunchPad kipróbálásához, majd újra eltávolítja őket.",
+    "Quarter" : "Negyedév",
+    "Year" : "Év",
     "Show until" : "Megjelenítés eddig",
     "After this time the announcement disappears from every dashboard." : "Ezután a közlemény minden irányítópultról eltűnik.",
     "Visible until {when}" : "Látható eddig: {when}",

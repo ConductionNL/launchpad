@@ -10,6 +10,16 @@
 				{{ dashboard.name }}
 			</h1>
 			<div class="launchpad-page-header__actions">
+				<!-- REQ-DPD-002: the period the dated widgets follow, shown only
+				     when one of them names a period field. -->
+				<CnSegmentedControl
+					v-if="showsPeriod"
+					:modelValue="period"
+					:options="periodOptions"
+					:ariaLabel="t('launchpad', 'Period')"
+					size="compact"
+					data-testid="dashboard-period"
+					@update:modelValue="$emit('update:period', $event)" />
 				<!-- The top-right controls teleport in here (headerActionsDock.js). -->
 				<div :class="dockClass" />
 			</div>
@@ -25,6 +35,7 @@
 </template>
 
 <script>
+import { CnSegmentedControl } from '@conduction/nextcloud-vue'
 import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
@@ -89,9 +100,12 @@ export function rightsText(permissionLevel) {
  *
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+ * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export default {
 	name: 'DashboardPageHeader',
+
+	components: { CnSegmentedControl },
 
 	props: {
 		/** The active dashboard (`name`, `description`, `updatedAt`). */
@@ -117,7 +131,21 @@ export default {
 			type: String,
 			default: 'full',
 		},
+
+		/** Whether a widget on the dashboard names a period field (REQ-DPD-002). */
+		showsPeriod: {
+			type: Boolean,
+			default: false,
+		},
+
+		/** The chosen period: `month`, `quarter` or `year`. */
+		period: {
+			type: String,
+			default: 'month',
+		},
 	},
+
+	emits: ['update:period'],
 
 	/** @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu */
 	data() {
@@ -125,6 +153,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The period choices, This month first.
+		 *
+		 * @return {Array<{value: string, label: string}>}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		periodOptions() {
+			return [
+				{ value: 'month', label: t('launchpad', 'This month') },
+				{ value: 'quarter', label: t('launchpad', 'Quarter') },
+				{ value: 'year', label: t('launchpad', 'Year') },
+			]
+		},
+
 		/**
 		 * @return {string} The kind of dashboard for the chip, '' for a group dashboard.
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
@@ -168,6 +210,8 @@ export default {
 			return parts.join(' · ')
 		},
 	},
+
+	methods: { t },
 }
 </script>
 

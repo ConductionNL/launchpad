@@ -4,6 +4,8 @@ OC.L10N.register(
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Oletukset, joilla jokainen koontinäyttö alkaa: kuka saa luoda koontinäyttöjä, oikeustaso ja ruudukko. Tämä esittely näytetään kerran.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Kioskissa teet koontinäytöistä soittolistoja näytölle, joka ei vaadi kirjautumista.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Esittelytiedoissa lataat esimerkkinäyttöjä LaunchPadin kokeilemiseen ja poistat ne taas.",
+    "Quarter" : "Vuosineljännes",
+    "Year" : "Vuosi",
     "Show until" : "Näytä asti",
     "After this time the announcement disappears from every dashboard." : "Tämän jälkeen tiedote katoaa kaikilta koontinäytöiltä.",
     "Visible until {when}" : "Näkyvissä {when} asti",

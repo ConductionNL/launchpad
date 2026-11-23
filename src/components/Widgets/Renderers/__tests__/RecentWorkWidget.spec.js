@@ -52,6 +52,14 @@ describe('recentWorkRows', () => {
 		expect(rows.map((row) => row.title)).toEqual(['b.pdf'])
 	})
 
+	it('shows a file saved again under a new id once', () => {
+		const rows = recentWorkRows([
+			{ app: 'files', object_type: 'files', object_id: 1, object_name: '/a/plan.pdf', link: '/f/1', datetime: NOW.toISOString() },
+			{ app: 'files', object_type: 'files', object_id: 2, object_name: '/a/plan.pdf', link: '/f/2', datetime: NOW.toISOString() },
+		], 6, NOW, 'en-GB')
+		expect(rows).toHaveLength(1)
+	})
+
 	it('stops at the limit', () => {
 		const many = Array.from({ length: 9 }, (_, i) => ({ app: 'deck', object_type: 'card', object_id: i, object_name: 'Card ' + i, link: '/d/' + i, datetime: NOW.toISOString() }))
 		expect(recentWorkRows(many, 3, NOW, 'en-GB')).toHaveLength(3)

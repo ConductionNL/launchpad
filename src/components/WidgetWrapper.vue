@@ -91,8 +91,18 @@
 				</NcActionLink>
 			</NcActions>
 		</div>
+		<!-- LpBewerken: in edit mode every widget shows a drag grip at its top
+		     left and the three-dot menu at its top right. -->
+		<span
+			v-if="editMode"
+			class="launchpad-widget__grip"
+			aria-hidden="true"
+			data-testid="widget-drag-grip">
+			<DragVertical :size="16" />
+		</span>
 		<div v-if="editMode" class="launchpad-widget__cog">
 			<CnWidgetEditCog
+				icon="kebab"
 				:menuLabel="t('launchpad', 'Widget menu')"
 				:editLabel="t('launchpad', 'Edit widget')"
 				:deleteLabel="t('launchpad', 'Delete widget')"
@@ -112,6 +122,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import { NcActionLink } from '@nextcloud/vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
+import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
@@ -148,6 +159,7 @@ export default {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
 		CodeTags,
+		DragVertical,
 		EyeOff,
 		NcActionButton,
 		NcActionLink,
@@ -286,15 +298,16 @@ export default {
 		},
 
 		/**
-		 * Whether the card's overflow menu shows. On by default; a placement
-		 * whose content says `showActions: false` (Mijn werkdag 4, as LpStart
-		 * draws it) hides it outside edit mode. The cog stays for editing.
+		 * Whether the card's overflow menu shows. On by default outside edit
+		 * mode; a placement whose content says `showActions: false` hides it.
+		 * In edit mode the widget's own three-dot menu takes its place
+		 * (LpBewerken).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 * @return {boolean} false only for an opted-out placement in view mode.
 		 */
 		showActionsMenu() {
-			return this.editMode || this.placement?.content?.showActions !== false
+			return !this.editMode && this.placement?.content?.showActions !== false
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -423,6 +436,35 @@ export default {
 
 .launchpad-widget__wrapper {
 	height: 100%;
+}
+
+/* The drag grip sits at the top left of a widget in edit mode; the card's
+   title moves right to make room for it (LpBewerken). On a tile both the
+   grip and the menu are small white squares. */
+.launchpad-widget__grip {
+	position: absolute;
+	top: 18px;
+	inset-inline-start: 14px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	color: var(--color-text-maxcontrast);
+	pointer-events: none;
+}
+
+.launchpad-widget--editing :deep(.cn-widget-wrapper__header) {
+	padding-inline-start: 42px;
+}
+
+.launchpad-widget--editing:has(.tile-widget, .cn-app-tile-widget) .launchpad-widget__grip {
+	top: 6px;
+	inset-inline-start: 6px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

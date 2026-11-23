@@ -20,8 +20,16 @@
 		     `position: relative` at equal specificity, so positioning the
 		     component directly loses the cascade tie and the cog drops into
 		     flow. Wrapping matches the shared nc-vue CnDashboardPage pattern. -->
+		<span
+			v-if="editMode"
+			class="tile-widget__grip"
+			aria-hidden="true"
+			data-testid="tile-drag-grip">
+			<DragVertical :size="16" />
+		</span>
 		<div v-if="editMode" class="tile-widget__edit">
 			<CnWidgetEditCog
+				icon="kebab"
 				:menuLabel="t('launchpad', 'Tile menu')"
 				:editLabel="t('launchpad', 'Edit tile')"
 				:deleteLabel="t('launchpad', 'Delete tile')"
@@ -135,6 +143,7 @@ import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { defineAsyncComponent } from 'vue'
+import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import Pin from 'vue-material-design-icons/Pin.vue'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
@@ -153,6 +162,7 @@ export default {
 
 	components: {
 		Pin,
+		DragVertical,
 		CnWidgetEditCog,
 		CnDashboardIcon,
 		HealthPingBadge,
@@ -649,6 +659,24 @@ export default {
 	border: 2px solid #fff;
 	border-radius: 50%;
 	background: var(--color-error, #d91f11);
+}
+
+/* In edit mode a tile shows a drag grip at its top left, a small white
+   square as LpBewerken draws it. */
+.tile-widget__grip {
+	position: absolute;
+	top: 6px;
+	inset-inline-start: 6px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	pointer-events: none;
 }
 
 /* Position the shared white cog over the tile's top-right corner. The

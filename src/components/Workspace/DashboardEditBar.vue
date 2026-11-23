@@ -142,7 +142,8 @@ export default {
 
 <style scoped>
 /* The bar runs from window edge to window edge right under the top bar, in
-   the deep brand colour (LpBewerken); it sits inside the dashboard's 20px
+   the deep brand colour (LpBewerken; an NL Design theme names it its primary
+   hover colour); it sits inside the dashboard's 20px
    inset and 8px top padding, hence the negative margins. */
 .launchpad-edit-bar {
 	display: flex;
@@ -151,7 +152,7 @@ export default {
 	gap: 12px 16px;
 	margin: -8px -20px 16px;
 	padding: 12px 28px;
-	background: var(--sc-primary-deep, var(--color-primary-element));
+	background: var(--sc-primary-deep, var(--nldesign-color-primary-hover, var(--color-primary-element)));
 	color: var(--color-primary-element-text);
 }
 

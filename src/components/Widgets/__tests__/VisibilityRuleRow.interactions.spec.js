@@ -33,7 +33,7 @@ const stubs = {
 		props: ['modelValue', 'options'],
 		emits: ['update:modelValue'],
 		template:
-			'<div class="nc-selecttags-stub"><button v-for="o in options" :key="o" class="tag" @click="$emit(\'update:modelValue\', [o])">{{ o }}</button></div>',
+			'<div class="nc-selecttags-stub"><button v-for="o in options" :key="o.id" class="tag" @click="$emit(\'update:modelValue\', [o.id])">{{ o.displayName }}</button></div>',
 	},
 	NcTextField: {
 		props: ['modelValue', 'label', 'error', 'helperText'],

@@ -618,7 +618,7 @@ function inputsOf(ast, context, options) {
  * @param {{expression?: string, compiledExpression: object}} field The calculated field.
  * @param {object} [context] As for {@link evaluate}.
  * @param {object} [options] As for {@link evaluate}.
- * @return {{value: *}|{error: string, expression: string, inputs: object}} The value, or the error.
+ * @return {{value: unknown}|{error: string, expression: string, inputs: object}} The value, or the error.
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-008-inline-error-display-preserves-dashboard-usability
  */
 export function evaluateField(field, context = {}, options = {}) {

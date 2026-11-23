@@ -8,6 +8,7 @@ TBD - created by archiving change clock-weather-widgets. Update Purpose after ar
 The system MUST register a `launchpad_clock` widget with the Nextcloud Dashboard Widget API (v2) that is rendered entirely client-side, with no backend endpoint and no data fetch on discovery.
 
 #### Scenario: Widget appears in discovery
+@e2e exclude never built: no `launchpad_clock` or `launchpad_weather` widget is registered with Nextcloud's dashboard (no widget provider class in lib/, no registerWidget call; `git log --all -Slaunchpad_clock -- src lib appinfo templates` returns nothing). LaunchPad's own Add Widget modal offers the types as `clock` and `weather` (src/constants/widgetRegistry.js), which is not the id this scenario names; the written-out test is kept as test.fixme in tests/e2e/clock-weather-widgets.spec.ts
 - GIVEN the LaunchPad app is installed and enabled
 - WHEN the user opens the "Add Widget" modal on a dashboard
 - THEN the clock widget MUST appear in the widget list with id `launchpad_clock`
@@ -15,11 +16,13 @@ The system MUST register a `launchpad_clock` widget with the Nextcloud Dashboard
 - AND the widget MUST NOT fetch any data on discovery — it is fully client-side
 
 #### Scenario: Registration via IManager
+@e2e exclude a PHP boot-time call with no browser surface, and never built: lib/ holds no ClockWidgetProvider and no registerWidget call, `git log --all -SClockWidgetProvider -- src lib appinfo templates` returns nothing, and no unit test pins it
 - GIVEN `OCP\Dashboard\IManager` is available
 - WHEN the LaunchPad app boots
 - THEN the app MUST register `ClockWidgetProvider` by calling `$manager->registerWidget(...)`
 
 #### Scenario: No backend endpoint or migration
+@e2e exclude asserts that source artefacts are absent across an app upgrade (no clock route, no migration); an upgrade and the migration list cannot be observed from Playwright. The client-side half is pinned by src/components/Widgets/Renderers/__tests__/ClockWidget.spec.js (renders without ever importing axios or calling a LaunchPad endpoint); nothing pins the absence of a migration
 - GIVEN the clock widget is implemented
 - WHEN the LaunchPad app is upgraded
 - THEN NO custom API endpoint (e.g. `/api/clock/...`) MUST exist for the clock
@@ -70,12 +73,14 @@ The system MUST render the clock in the browser using the configured timezone an
 The system MUST register a `launchpad_weather` widget (v2) whose reading is fetched server-side, so any provider API key stays on the server and the browser calls only a LaunchPad endpoint.
 
 #### Scenario: Widget appears in discovery
+@e2e exclude never built: no `launchpad_clock` or `launchpad_weather` widget is registered with Nextcloud's dashboard (no widget provider class in lib/, no registerWidget call; `git log --all -Slaunchpad_clock -- src lib appinfo templates` returns nothing). LaunchPad's own Add Widget modal offers the types as `clock` and `weather` (src/constants/widgetRegistry.js), which is not the id this scenario names; the written-out test is kept as test.fixme in tests/e2e/clock-weather-widgets.spec.ts
 - GIVEN the LaunchPad app is installed and enabled
 - WHEN the user opens the "Add Widget" modal on a dashboard
 - THEN the weather widget MUST appear in the widget list with id `launchpad_weather`
 - AND the widget MUST have a title and an icon
 
 #### Scenario: Registration via IManager
+@e2e exclude a PHP boot-time call with no browser surface, and never built: lib/ holds no WeatherWidgetProvider and no registerWidget call, `git log --all -SWeatherWidgetProvider -- src lib appinfo templates` returns nothing, and no unit test pins it
 - GIVEN `OCP\Dashboard\IManager` is available
 - WHEN the LaunchPad app boots
 - THEN the app MUST register `WeatherWidgetProvider` by calling `$manager->registerWidget(...)`
@@ -96,6 +101,7 @@ The system MUST register a `launchpad_weather` widget (v2) whose reading is fetc
 The system MUST resolve the weather reading via the Nextcloud `weather_status` provider when available, otherwise via a configurable provider URL with a server-held API key, fetching via `OCP\Http\Client` and caching in `ICache`.
 
 #### Scenario: Reuse weather_status when present
+@e2e exclude the weather_status path fetches from met.no, an external service the CI fixture cannot reach, and its provider URL is not configurable; pinned by tests/Unit/Service/WeatherServiceBranchesTest.php (testWeatherStatusMetricReadingUsesNextHourSymbolAndAddress, testWeatherStatusImperialReadingFallsBackToSixHourSymbolAndDefaultLabel, testWeatherStatusDisabledGivesUnavailable)
 - GIVEN the Nextcloud `weather_status` provider is available on the instance
 - WHEN `WeatherService` resolves a placement's location
 - THEN it MUST obtain the reading through the `weather_status` provider pattern rather than a bespoke external call

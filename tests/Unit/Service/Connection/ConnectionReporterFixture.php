@@ -73,7 +73,7 @@ trait ConnectionReporterFixture {
 			fn (string $app, string $key, string $default = ''): string => ($this->configStore[$key] ?? $default)
 		);
 		$appConfig->method('getValueInt')->willReturnCallback(
-			static fn (string $app, string $key, int $default = 0): int => $default
+			fn (string $app, string $key, int $default = 0): int => (int)($this->configStore[$key] ?? $default)
 		);
 		$appConfig->method('setValueString')->willReturnCallback(
 			function (string $app, string $key, string $value): bool {

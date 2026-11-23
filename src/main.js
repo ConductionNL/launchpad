@@ -39,9 +39,7 @@ import {
 	registerTranslations,
 	useAppManifest,
 } from '@conduction/nextcloud-vue'
-import axios from '@nextcloud/axios'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { createPinia } from 'pinia'
 import { createApp, h, reactive } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -49,11 +47,15 @@ import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import registry from './registry.js'
+// Captures the boot address before the router's catch-all redirects it.
+import { appBase } from './utils/bootPath.js'
+import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
+import { runtimeManifestRequest } from './utils/runtimeManifestRequest.js'
 
 import './publicPath.js'
 import './services/widgetBridge.js'
@@ -63,6 +65,7 @@ import 'gridstack/dist/gridstack.min.css'
 import '@conduction/nextcloud-vue/css/index.css'
 import './styles/workspace.css'
 import './styles/modals.css'
+import './styles/kiosk.css'
 registerBuiltinDashboardWidgets()
 
 // The library's own strings ("Good afternoon, {name}" in the greeting header,
@@ -115,7 +118,8 @@ registerDashboardWidget('nc-widget', {
 // does not expose (it declares no `exports` map) — so the require always threw
 // and the surrounding try/catch silently skipped manifest registration
 // entirely. Importing it from the barrel makes the registration actually run.
-useAppManifest('launchpad', bundledStub)
+// nc-vue's merge and the runtime loader below share one `/api/manifest` request.
+useAppManifest('launchpad', bundledStub, { fetcher: runtimeManifestRequest })
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive
 // breakpoints are now generated dynamically by the engine at init time.
@@ -133,6 +137,10 @@ const pinia = createPinia()
 // declared in REQ-INIT-002 is filled (defaults applied for missing keys
 // by the reader); descendants `inject(key, default)` to read.
 const initialState = loadInitialState('workspace')
+
+// platform-dashboard-theme-and-css REQ-THM-003 / D4: the administrator CSS for
+// all of LaunchPad, already cleaned and scoped by the server, inserted as text.
+applyCustomCss(GLOBAL_STYLE_ID, initialState.customCss)
 
 // --- Runtime manifest loader (ADR-036 Decision 8) ---
 //
@@ -152,8 +160,7 @@ const manifestLoading = reactive({ value: true })
 
 ;(async () => {
 	try {
-		const url = generateUrl('/apps/launchpad/api/manifest')
-		const response = await axios.get(url)
+		const response = await runtimeManifestRequest()
 
 		if (
 			response
@@ -192,8 +199,7 @@ const RoutePageRenderer = { ...CnPageRenderer }
  * @return {string} The router base.
  */
 function routerBase() {
-	const match = window.location.pathname.match(/^(.*\/apps\/launchpad)(?:\/|$)/)
-	return match ? match[1] : generateUrl('/apps/launchpad')
+	return appBase(window.location.pathname)
 }
 
 // The permissions this account holds, from the server's own answer rather than

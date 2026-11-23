@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The workspace page's edit-mode gate (already editing, no dashboard,
- * lock granted or refused) and what it guards: the widget picker and the
+ * editing accepted or refused) and what it guards: the widget picker and the
  * tile editor. Also the read-confirmation save without a placement, and
  * the dashboard config save (create, edit with tree fields, refusals the
  * form explains). Run against the real Views methods on a stand-in host;
@@ -36,7 +36,7 @@ function makeHost(state = {}) {
 	const host = {
 		activeDashboard: null,
 		isEditMode: false,
-		editLock: { acquire: vi.fn() },
+		presence: { start: vi.fn() },
 		isWidgetModalOpen: false,
 		isTileEditorOpen: false,
 		editingTile: null,
@@ -53,35 +53,35 @@ beforeEach(async () => {
 })
 
 describe('Views edit-mode gate', () => {
-	it('is already open in edit mode without asking for the lock', async () => {
+	it('is already open in edit mode without announcing the presence again', async () => {
 		const host = makeHost({ isEditMode: true, activeDashboard: { uuid: 'd' } })
 		expect(await host.enterEditMode()).toBe(true)
-		expect(host.editLock.acquire).not.toHaveBeenCalled()
+		expect(host.presence.start).not.toHaveBeenCalled()
 	})
 
 	it('stays closed without an active dashboard', async () => {
 		const host = makeHost({ activeDashboard: {} })
 		expect(await host.enterEditMode()).toBe(false)
-		expect(host.editLock.acquire).not.toHaveBeenCalled()
+		expect(host.presence.start).not.toHaveBeenCalled()
 		expect(host.isEditMode).toBe(false)
 	})
 
-	it('opens the widget picker once the lock is granted and reads the discovered apps', async () => {
+	it('opens the widget picker once the presence is accepted and reads the discovered apps', async () => {
 		const host = makeHost({ activeDashboard: { id: 12 } })
-		host.editLock.acquire.mockResolvedValue(true)
+		host.presence.start.mockResolvedValue(true)
 		host.loadDiscoveredApps = vi.fn()
 
 		await host.openWidgetModal()
 
-		expect(host.editLock.acquire).toHaveBeenCalledWith('12')
+		expect(host.presence.start).toHaveBeenCalledWith('12')
 		expect(host.isEditMode).toBe(true)
 		expect(host.isWidgetModalOpen).toBe(true)
 		expect(host.loadDiscoveredApps).toHaveBeenCalledTimes(1)
 	})
 
-	it('keeps the widget picker closed when the lock is refused', async () => {
+	it('keeps the widget picker closed when editing is refused', async () => {
 		const host = makeHost({ activeDashboard: { uuid: 'd' } })
-		host.editLock.acquire.mockResolvedValue(false)
+		host.presence.start.mockResolvedValue(false)
 		host.loadDiscoveredApps = vi.fn()
 
 		await host.openWidgetModal()
@@ -104,13 +104,13 @@ describe('Views edit-mode gate', () => {
 		expect(host.isTileEditorOpen).toBe(true)
 	})
 
-	it('keeps the tile editor closed when the lock is refused', async () => {
+	it('keeps the tile editor closed when editing is refused', async () => {
 		const host = makeHost({ activeDashboard: { uuid: 'd' } })
-		host.editLock.acquire.mockResolvedValue(false)
+		host.presence.start.mockResolvedValue(false)
 
 		await host.openTileEditor({ id: 3 })
 
-		expect(host.editLock.acquire).toHaveBeenCalledWith('d')
+		expect(host.presence.start).toHaveBeenCalledWith('d')
 		expect(host.isTileEditorOpen).toBe(false)
 		expect(host.editingTile).toBeNull()
 	})

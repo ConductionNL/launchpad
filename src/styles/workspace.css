@@ -168,19 +168,88 @@
 }
 
 /* =========================================================
-   The start page without the navigation panel (REQ-SHELL-009) reads as
-   one centred column, as LpStart draws it: 1214px of content between
-   even margins on a 1440px screen, instead of a grid that runs from edge
-   to edge. Only that page carries the hidden marker, so a dashboard with
-   the panel keeps its full width.
-   The container is also the page's scroller, so the column comes from
-   padding, not from a max-width: the scroller spans the whole window and
-   its scrollbar sits at the window edge instead of beside the column.
+   A dashboard without a navigation panel (REQ-SHELL-009) runs from edge to
+   edge, 28px in from the window: 20px here and the grid's own 8px item
+   margin (LpVandaag, LpWerkplek, LpIntranet).
+   The container is also the page's scroller, so the inset is padding, not a
+   max-width: the scrollbar sits at the window edge. The id outranks the
+   page's own scoped `padding: 8px 0 0`.
    ========================================================= */
-.app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container {
+#content.app-launchpad .launchpad-container {
 	box-sizing: border-box;
 	width: 100%;
-	padding-inline: max(0px, calc((100% - 1214px) / 2));
+	padding-inline: 20px;
+}
+
+/* =========================================================
+   A widget card in the board look, as the Launchpad boards draw it: a white
+   card with a hairline and a 12px radius, a 16px bold title 16px from the
+   top and 18px in, its content on that same inset, and no title icon. The
+   Nextcloud look keeps the native dashboard panel (chrome="nc-dashboard").
+   ========================================================= */
+.cn-look-board .launchpad-container .cn-widget-wrapper.cn-widget-wrapper--nc-dashboard {
+	border: 1px solid var(--cn-board-hairline, var(--color-border));
+	border-radius: var(--cn-board-card-radius, 12px);
+	background: var(--color-main-background);
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding: 16px 18px 8px;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__icon {
+	display: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__title {
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__content {
+	padding: 0 18px 12px;
+}
+
+/* The card gives the inset; a widget inside it adds none of its own, so its
+   first line starts on the title's 18px (the agenda, recent work, mail). The
+   renderer's own 16px padding added a second inset. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget) {
+	padding: 0;
+}
+
+/* "Vandaag eerst" draws its own heading inside the card, 14px from the top
+   (LpVandaag); the card's title row is not shown for it. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .widget-renderer:has(> .attention-widget) {
+	padding: 14px 0 4px;
+}
+
+/* Bookmark groups are headed by a small uppercase label (LpWerkplek). */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-links-widget__section-title {
+	margin: 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* A list in a card starts with a rule under the title, as the boards draw
+   the rows of recent work, mail, the agenda and status lists. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.cn-nc-widget-widget__item--vertical, .cn-calendar-widget__list-row):first-child,
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-status-list__item:first-child {
+	border-top: 1px solid var(--color-border);
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-calendar-widget__body,
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-nc-widget-widget__body {
+	padding: 0;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-nc-widget-widget__body--vertical {
+	gap: 0;
 }
 
 /* =========================================================
@@ -209,13 +278,18 @@
 	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
 .launchpad-container
 	.launchpad-widget:has(.cn-label-widget)
-	[class*='widget']:not(#lp-ground-a):not(#lp-ground-b) {
+	[class*='widget']:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.lp-section-heading):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.lp-section-heading)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b) {
 	background: transparent;
 	border: none;
 	box-shadow: none;
 }
 
-/* "Startpagina aanpassen" at the right of the greeting row, as a plain
+/* A greeting's call to action at the right of the greeting row, as a plain
    outlined button. */
 .launchpad-container .cn-header-widget--ground {
 	position: relative;
@@ -246,9 +320,9 @@
 
 /* With the workspace controls docked in the greeting row
    (headerActionsDock.js), the row is the greeting, then the actions at its
-   right, as LpStart draws it. "Startpagina aanpassen" stays at the right of
-   the greeting text, which now ends where the controls begin, so the two
-   never overlap. */
+   right, as LpStart draws it. A call to action stays at the right of the
+   greeting text, which now ends where the controls begin, so the two never
+   overlap. */
 .launchpad-container .cn-header-widget--ground:has(> .launchpad-header-actions) {
 	display: flex;
 	align-items: center;
@@ -282,49 +356,41 @@
 	align-items: center;
 }
 
+/* On a phone the greeting takes the row, and a call to action wraps
+   under it with the controls at its right, instead of covering the heading
+   (LpVandaag at 390px). */
+@media (max-width: 640px) {
+	.launchpad-container .cn-header-widget--ground:has(> .launchpad-header-actions) {
+		flex-wrap: wrap;
+	}
+
+	.launchpad-container
+		.cn-header-widget--ground:has(> .launchpad-header-actions)
+		> .cn-header-widget__content {
+		flex-basis: 100%;
+	}
+
+	.launchpad-container
+		.cn-header-widget--ground:has(> .launchpad-header-actions)
+		.cn-header-widget__cta {
+		position: static;
+		align-self: flex-start;
+		margin-top: 8px;
+		transform: none;
+	}
+
+	.launchpad-container .cn-header-widget--ground > .launchpad-header-actions {
+		position: absolute;
+		inset-inline-end: 0;
+		bottom: 0;
+	}
+}
+
 /* A section label reads as a heading at the left edge. */
 .launchpad-container .cn-label-widget {
 	justify-content: flex-start !important;
 	align-items: flex-end !important;
 	padding-inline: 0;
-}
-
-/* "Alle apps": the links are chips in one row, without the placeholder
-   icon a link without an icon gets. */
-.launchpad-container .cn-links-widget .cn-links-widget__items {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-}
-
-.launchpad-container .cn-links-widget .cn-links-widget__icon-wrap {
-	display: none;
-}
-
-.launchpad-container
-	.cn-links-widget
-	.cn-links-widget__link.cn-links-widget__link:not(#lp-chip-a) {
-	padding: 10px 18px;
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-pill, 999px);
-	background: var(--color-main-background);
-	color: var(--color-main-text) !important;
-	font-weight: 600;
-	text-decoration: none !important;
-}
-
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget):not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget)
-	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget)
-	.cn-widget-wrapper__content:not(#lp-ground-a):not(#lp-ground-b) {
-	background: transparent;
-	border: none;
-	box-shadow: none;
-	padding: 0;
 }
 
 /* The app tiles: the number card fills its cell. The wrapper's and the
@@ -337,15 +403,6 @@
 	padding: 0;
 }
 
-.launchpad-container
-	.launchpad-widget:has(.cn-links-widget)
-	.widget-renderer:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container
-	.cn-links-widget.cn-links-widget:not(#lp-ground-a):not(#lp-ground-b) {
-	background: transparent;
-	padding: 0;
-}
-
 /* A section label starts at the card edge below it, as LpStart draws it. */
 .launchpad-container
 	.launchpad-widget:has(.cn-label-widget)
@@ -353,4 +410,129 @@
 .launchpad-container .launchpad-widget:has(.cn-label-widget) .widget-renderer,
 .launchpad-container .cn-label-widget.cn-label-widget {
 	padding: 0;
+}
+
+/* =========================================================
+   A counter in the board look, as LpVandaag draws "Mijn werk": the app's
+   glyph in a 36px tinted square beside two lines, the label in 13px muted
+   and the number in 26px bold with its caption on the same baseline, the
+   card padded 12px 16px. The glyph leaves the title row so it can sit
+   beside both lines.
+   ========================================================= */
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board {
+	padding: 12px 16px !important;
+	border: none !important;
+	color: var(--color-main-text) !important;
+	text-decoration: none !important;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__body {
+	display: grid;
+	grid-template-columns: 36px minmax(0, 1fr);
+	column-gap: 12px;
+	row-gap: 1px;
+	align-items: center;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__title {
+	display: contents;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__glyph {
+	display: flex;
+	grid-row: 1 / span 2;
+	grid-column: 1;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background: var(--color-primary-element-light, #eaf0f7);
+	color: var(--color-primary-element-light-text, #234a78);
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__title-text {
+	grid-column: 2;
+	overflow: hidden;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__value-row {
+	display: flex;
+	grid-column: 2;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__value {
+	color: var(--color-main-text);
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+}
+
+.cn-look-board .launchpad-container .cn-kpi-card--horizontal.cn-kpi-card--board .cn-kpi-card__label {
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}
+
+/* The counter pads itself; its card adds no inset. */
+.cn-look-board .launchpad-container .launchpad-widget:has(.cn-stat-widget) .cn-widget-wrapper__content {
+	padding: 0;
+}
+
+/* A tile on a dashboard that fills the screen is square: its rows take the
+   tile's own size (fitRows) and the cards beside it take the rest of the
+   height (LpVandaag). The square comes from the cell's width. */
+.launchpad-container--fill .grid-stack-item:is([data-cn-widget-id='tile'], [data-cn-widget-id='app-tile']) {
+	aspect-ratio: 1 / 1;
+}
+
+/* An app tile fills its cell like a launcher tile: the renderer's 16px
+   padding made it a 68px square in a 100px cell. */
+.launchpad-container .launchpad-widget:has(.cn-app-tile-widget) .cn-widget-wrapper__content,
+.launchpad-container .launchpad-widget:has(.cn-app-tile-widget) .widget-renderer {
+	padding: 0;
+}
+
+/* The organisation menu as LpWerkplek draws it: each group a small uppercase
+   label and its links in a flat list on the card's inset, no carets. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row {
+	padding: 6px 0 2px !important;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
+	display: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row .cn-menu-tree-node__label {
+	color: var(--color-text-maxcontrast);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row {
+	padding-inline-start: 0 !important;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node__label-button {
+	min-height: 0;
+	margin: 0;
+	padding-inline: 0;
+}
+
+/* The first group label stands 14px under the title (LpWerkplek). */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1:first-child > .cn-menu-tree-node__row {
+	padding-top: 6px !important;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
+	display: none;
 }

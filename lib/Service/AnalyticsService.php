@@ -38,12 +38,13 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardView;
 use OCA\LaunchPad\Db\DashboardViewMapper;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Reporting service for the dashboard view-analytics capability.
  */
-class AnalyticsService {
+class AnalyticsService implements AnalyticsServiceInterface {
 	/**
 	 * App-config key for the global instance-wide enable/disable
 	 * toggle (REQ-ANLT-005). Default `'true'`.

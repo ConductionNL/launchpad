@@ -251,6 +251,9 @@ async function createDashboard(
 	// Registered BEFORE the caller can throw, so a failing test still gets
 	// its dashboard cleaned up — see the teardown note on `createdDashboards`.
 	createdDashboards.push(Number(dash.id))
+	// A draft stays hidden from recipients (REQ-DASH-036).
+	const published = await api.post(`/index.php/apps/launchpad/api/dashboards/${dash.uuid}/publish`)
+	expect(published.status(), await published.text()).toBe(200)
 	return { id: Number(dash.id), uuid: dash.uuid }
 }
 
@@ -313,6 +316,8 @@ let carol: { user: string; pass: string }
 let dave: { user: string; pass: string }
 let salesGroup: string
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
 	const admin = await apiAs(ADMIN)
 	const before = await admin.get(SETTINGS)
@@ -324,13 +329,17 @@ test.beforeAll(async () => {
 
 	// Pin the role-feature widget allow-list instead of inheriting whatever
 	// the previously-run specs left behind — see the ALLOWED_WIDGET note.
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	bob = await makeUser('bob')
 	carol = await makeUser('carol')
 	dave = await makeUser('dave')
 	salesGroup = await makeGroup('sales')
 	await addToGroup(carol.user, salesGroup)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {
@@ -829,10 +838,10 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 
 	/*
 	 * The spec's scenario has two clauses: "no rows MUST change" and "no
-	 * notifications MUST be published". Only the first is observable from a
-	 * browser — a notification is a server-side dispatch to a recipient's
-	 * queue, which is why REQ-SHARE-008 carries its own `@e2e exclude`. This
-	 * test asserts the row clause, exactly and completely.
+	 * notifications MUST be published". This test asserts the row clause,
+	 * exactly and completely; the notification clause is asserted by the test
+	 * of the same scenario in `dashboard-share-notifications.spec.ts`, which
+	 * reads each recipient's notifications feed.
 	 */
 	// @e2e dashboard-sharing::idempotent-re-put-publishes-nothing
 	test('replaying the same PUT changes no rows', async () => {

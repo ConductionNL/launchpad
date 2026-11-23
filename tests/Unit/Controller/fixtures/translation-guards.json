@@ -473,9 +473,16 @@
                 "unpublishAt": null,
                 "dashboardFooterMode": "inherit",
                 "dashboardFooterHtml": null,
+                "defaultLinkTarget": null,
+                "hierarchies": [],
                 "templateCategory": null,
                 "templateDescription": null,
-                "templatePreviewImage": null
+                "templatePreviewImage": null,
+                "themeAccent": null,
+                "themeBackgroundColor": null,
+                "themeBackgroundResource": null,
+                "themeTextColor": null,
+                "customCss": null
             },
             "translation": {
                 "id": null,
@@ -530,9 +537,16 @@
                 "unpublishAt": null,
                 "dashboardFooterMode": "inherit",
                 "dashboardFooterHtml": null,
+                "defaultLinkTarget": null,
+                "hierarchies": [],
                 "templateCategory": null,
                 "templateDescription": null,
-                "templatePreviewImage": null
+                "templatePreviewImage": null,
+                "themeAccent": null,
+                "themeBackgroundColor": null,
+                "themeBackgroundResource": null,
+                "themeTextColor": null,
+                "customCss": null
             },
             "translation": {
                 "id": null,

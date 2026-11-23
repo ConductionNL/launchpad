@@ -63,10 +63,12 @@ class ActivitySettingsTest extends TestCase {
 		$this->assertSame('launchpad', $setting->getGroupIdentifier());
 		$this->assertSame('LaunchPad', $setting->getGroupName());
 		$this->assertNotSame('', $setting->getName());
-		$this->assertTrue($setting->canChangeStream());
+		$this->assertFalse(condition: $setting->canChangeStream());
 		$this->assertTrue($setting->isDefaultEnabledStream());
 		$this->assertTrue($setting->canChangeMail());
 		$this->assertSame($mail, $setting->isDefaultEnabledMail());
+		$this->assertTrue(condition: $setting->canChangeNotification());
+		$this->assertSame(expected: $mail, actual: $setting->isDefaultEnabledNotification());
 		$this->assertGreaterThanOrEqual(0, $setting->getPriority());
 		$this->assertLessThanOrEqual(100, $setting->getPriority());
 	}

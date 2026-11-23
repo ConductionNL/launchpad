@@ -6,7 +6,7 @@
  * Task 8 of the `nc-dashboard-widget-proxy` OpenSpec change.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Nextcloud Widget" →
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Nextcloud Widget" →
  * choose a widget in the grid picker → save.
  *
  * Scenarios (REQ-WDG-018, REQ-WDG-019, REQ-WDG-021):
@@ -32,8 +32,14 @@ import {
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 /**
@@ -44,11 +50,8 @@ test.beforeAll(async () => {
  *   had no widgets (NC instance without dashboard widgets).
  */
 async function addNcWidget(page: Page): Promise<boolean> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'nc-widget')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog
-		.getByLabel(/widget type/i)
-		.selectOption({ label: 'Nextcloud widget' })
 
 	// The grid picker lists discovered Nextcloud dashboard widgets.
 	const cards = dialog.locator('.cn-nc-widget-grid-picker__card')

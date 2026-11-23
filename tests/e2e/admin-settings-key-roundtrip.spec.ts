@@ -205,7 +205,7 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		 * lives in `.launchpad-floating-controls`, which renders only once a
 		 * dashboard is ACTIVE. `tests/e2e/seed.sh` creates the `e2e-grantee`
 		 * USER and nothing else, so on the cold instance CI provisions
-		 * LaunchPad renders "No dashboards available" and the toggle is simply
+		 * LaunchPad renders "You have no dashboard yet" and the toggle is simply
 		 * absent — the failure mode that had four other specs excluded from
 		 * this suite. Seeding here rather than leaning on whatever an earlier
 		 * spec left behind is why this passes on a cold rig as well as a warm

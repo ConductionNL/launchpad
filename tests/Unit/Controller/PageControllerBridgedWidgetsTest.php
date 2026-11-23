@@ -3,7 +3,9 @@
 /**
  * PageControllerBridgedWidgetsTest
  *
- * Covers the legacy-widget-bridge decision on the workspace render path.
+ * Covers which widget catalogue the workspace page carries: the loaded
+ * registry with the legacy widget bridge on, the registry read without
+ * loading it otherwise (REQ-RFP-010).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Controller
@@ -70,7 +72,8 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 				logger: $this->createMock(LoggerInterface::class),
 				adminSettingsService: $this->createMock(AdminSettingsService::class),
 				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
-				urlGenerator: $this->createMock(\OCP\IURLGenerator::class)
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class),
+				searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class)
 			)
 		);
 	}//end makeController()
@@ -86,7 +89,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 	private function resolve(PageController $controller, array $settings): array {
 		$method = new ReflectionMethod(
 			PageController::class,
-			'resolveBridgedWidgets'
+			'resolveWidgetCatalogue'
 		);
 		$method->setAccessible(accessible: true);
 
@@ -114,20 +117,42 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 	}//end testBridgeEnabledReadsTheWidgetRegistry()
 
 	/**
-	 * Bridge OFF: the registry is NOT touched at all.
+	 * Bridge OFF: the registry is NOT loaded, its widgets are read without
+	 * loading them, so the card library needs no `GET /api/widgets`.
 	 *
-	 * `never()` is the assertion that matters — the point of this change is not
-	 * that the returned array is empty, it is that `getAvailableWidgets()` (and
-	 * through it `IManager::getWidgets()`) is never called, so no widget's
-	 * `load()` runs and no scripts are injected. An assertion on the return
-	 * value alone would still pass if the registry were read and discarded.
+	 * `never()` on getAvailableWidgets() is the assertion that matters: through
+	 * it `IManager::getWidgets()` runs every widget's `load()`, which injects
+	 * its scripts into the page.
 	 *
 	 * @return void
 	 */
-	public function testBridgeDisabledNeverTouchesTheRegistry(): void {
+	public function testBridgeDisabledReadsTheCatalogueWithoutLoading(): void {
 		$widgetService = $this->createMock(WidgetService::class);
 		$widgetService->expects($this->never())
 			->method('getAvailableWidgets');
+		$widgetService->expects($this->once())
+			->method('getWidgetCatalogue')
+			->willReturn([['id' => 'activity']]);
+
+		$result = $this->resolve(
+			controller: $this->makeController(widgetService: $widgetService),
+			settings: ['legacyWidgetBridgeEnabled' => false]
+		);
+
+		$this->assertSame([['id' => 'activity']], $result);
+	}//end testBridgeDisabledReadsTheCatalogueWithoutLoading()
+
+	/**
+	 * A registry that cannot be read without loading gives an empty list, and
+	 * the frontend then asks `GET /api/widgets`.
+	 *
+	 * @return void
+	 */
+	public function testAnUnreadableCatalogueGivesAnEmptyList(): void {
+		$widgetService = $this->createMock(WidgetService::class);
+		$widgetService->expects($this->never())
+			->method('getAvailableWidgets');
+		$widgetService->method('getWidgetCatalogue')->willReturn(null);
 
 		$result = $this->resolve(
 			controller: $this->makeController(widgetService: $widgetService),
@@ -135,7 +160,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 		);
 
 		$this->assertSame([], $result);
-	}//end testBridgeDisabledNeverTouchesTheRegistry()
+	}//end testAnUnreadableCatalogueGivesAnEmptyList()
 
 	/**
 	 * An absent key defaults to OFF, matching AdminSettingsService's default.
@@ -149,6 +174,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 		$widgetService = $this->createMock(WidgetService::class);
 		$widgetService->expects($this->never())
 			->method('getAvailableWidgets');
+		$widgetService->method('getWidgetCatalogue')->willReturn([]);
 
 		$resolved = $this->resolve(
 			controller: $this->makeController(widgetService: $widgetService),

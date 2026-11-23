@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\IGroupManager;
@@ -194,16 +195,17 @@ class PeopleWidgetService {
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When the request cannot be listed.
+	 * @throws InvalidPeopleRequestException When the window is out of range.
+	 * @throws InvalidArgumentException       When the sort key is not implemented.
 	 */
 	private function assertListable(PeopleQuery $request): void {
 		$limit = $request->page->limit;
 		if ($limit < 1 || $limit > self::MAX_LIMIT) {
-			throw new InvalidArgumentException(message: 'limit must be between 1 and ' . self::MAX_LIMIT);
+			throw new InvalidPeopleRequestException(message: 'limit must be between 1 and ' . self::MAX_LIMIT);
 		}
 
 		if ($request->page->offset < 0) {
-			throw new InvalidArgumentException(message: 'offset must be >= 0');
+			throw new InvalidPeopleRequestException(message: 'offset must be >= 0');
 		}
 
 		if ($request->sortBy === 'recent-activity') {
@@ -220,12 +222,12 @@ class PeopleWidgetService {
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 *
-	 * @throws InvalidArgumentException When the query is shorter than MIN_QUERY_LENGTH.
+	 * @throws InvalidPeopleRequestException When the query is shorter than MIN_QUERY_LENGTH.
 	 */
 	private function listSearchMatches(PeopleQuery $request, ?array $groupFilter): array {
 		$query = trim(string: (string)$request->search);
 		if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
-			throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
+			throw new InvalidPeopleRequestException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
 		}
 
 		return $this->paginateCandidates(
@@ -287,21 +289,13 @@ class PeopleWidgetService {
 	private function listDirectoryPageByDisplayName(PeoplePage $window): array {
 		$page = $this->collectDisplayNamePage(window: $window);
 		$total = $this->countDirectory(excludeDisabled: $window->excludeDisabled);
-		$offset = $window->offset;
-		$showBirthdays = $window->showBirthdays;
-
-		$users = [];
-		foreach ($page as $user) {
-			$users[] = $this->buildUserProfile(
-				user: $user,
-				showBirthdays: $showBirthdays
-			);
-		}
 
 		return [
-			'users' => $this->attachCustomFields(users: $users),
+			'users' => $this->attachCustomFields(
+				users: $this->buildUserProfiles(page: $page, showBirthdays: $window->showBirthdays)
+			),
 			'total' => $total,
-			'hasMore' => ($offset + count(value: $page)) < $total,
+			'hasMore' => ($window->offset + count(value: $page)) < $total,
 		];
 	}//end listDirectoryPageByDisplayName()
 
@@ -395,26 +389,57 @@ class PeopleWidgetService {
 		PeoplePage $window,
 		string $sortBy,
 	): array {
-		$offset = $window->offset;
-		$showBirthdays = $window->showBirthdays;
-		if ($window->excludeDisabled === true) {
-			$candidates = array_values(
-				array: array_filter(
-					array: $candidates,
-					callback: static fn (IUser $candidate): bool => $candidate->isEnabled() === true
-				)
-			);
-		}
-
-		$candidates = $this->sortCandidates(users: $candidates, sortBy: $sortBy);
+		$candidates = $this->sortCandidates(
+			users: $this->withoutDisabled(candidates: $candidates, window: $window),
+			sortBy: $sortBy
+		);
 
 		$total = count(value: $candidates);
 		$page = array_slice(
 			array: $candidates,
-			offset: $offset,
+			offset: $window->offset,
 			length: $window->limit
 		);
 
+		return [
+			'users' => $this->attachCustomFields(
+				users: $this->buildUserProfiles(page: $page, showBirthdays: $window->showBirthdays)
+			),
+			'total' => $total,
+			'hasMore' => ($window->offset + count(value: $page)) < $total,
+		];
+	}//end paginateCandidates()
+
+	/**
+	 * Drop disabled accounts from the candidate pool when the window asks for it.
+	 *
+	 * @param IUser[]    $candidates The resolved candidate pool.
+	 * @param PeoplePage $window     The pagination window.
+	 *
+	 * @return IUser[] The candidates, without disabled accounts when excluded.
+	 */
+	private function withoutDisabled(array $candidates, PeoplePage $window): array {
+		if ($window->excludeDisabled !== true) {
+			return $candidates;
+		}
+
+		return array_values(
+			array: array_filter(
+				array: $candidates,
+				callback: static fn (IUser $candidate): bool => $candidate->isEnabled() === true
+			)
+		);
+	}//end withoutDisabled()
+
+	/**
+	 * Build the profile payload of every user on one page.
+	 *
+	 * @param IUser[] $page          The users on the page.
+	 * @param bool    $showBirthdays Whether birthdates are included.
+	 *
+	 * @return array<int, array<string, mixed>> The user profiles, in page order.
+	 */
+	private function buildUserProfiles(array $page, bool $showBirthdays): array {
 		$users = [];
 		foreach ($page as $user) {
 			$users[] = $this->buildUserProfile(
@@ -423,12 +448,8 @@ class PeopleWidgetService {
 			);
 		}
 
-		return [
-			'users' => $this->attachCustomFields(users: $users),
-			'total' => $total,
-			'hasMore' => ($offset + count(value: $page)) < $total,
-		];
-	}//end paginateCandidates()
+		return $users;
+	}//end buildUserProfiles()
 
 	/**
 	 * Name, email and profile-field matches for a search (REQ-PEX-003),

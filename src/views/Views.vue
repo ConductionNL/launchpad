@@ -1,5 +1,5 @@
 <template>
-	<div id="launchpad-app">
+	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight, 'launchpad-app--kiosk': kiosk }">
 		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
 		     `isOpen` prop / `update:open` event pair mandated by the spec.
 		     Vue 3 removed the component-level `model: { prop, event }`
@@ -27,7 +27,8 @@
 		     again would not have helped. Teleporting makes the sidebar a
 		     sibling of the navigation rather than a descendant of the content,
 		     which is the only place its z-index means what it says. -->
-		<Teleport to="body">
+		<!-- REQ-KIOSK-001: a kiosk view has no switcher and no top controls. -->
+		<Teleport v-if="!kiosk" to="body">
 			<DashboardSwitcherSidebar
 				:isOpen="sidebarOpen"
 				:groupName="primaryGroupName"
@@ -48,18 +49,14 @@
 				@deleteDashboard="onSidebarDeleteDashboard"
 				@toggleEdit="onRowToggleEdit"
 				@openConfig="onRowOpenConfig"
-				@addCustomWidget="onRowAddCustomWidget"
+				@addWidget="onRowAddWidget"
+				@importBookmarks="onRowImportBookmarks"
 				@setDefault="onRowSetDefault" />
 			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
 		</Teleport>
 
-		<!-- Floating controls in top right.
-		     Wave3.3 removed the floating `DashboardConfigMenu` (cog) — its
-		     entries (Edit / Configure / Add widget / Delete) now live in
-		     the left sidebar's header NcActions menu so the per-dashboard
-		     destructive + edit actions sit alongside switching. The
-		     hamburger keeps its place (top-right entry point when the
-		     sidebar is closed). -->
+		<!-- The page's top-right controls: the "Meer" menu, and the
+		     acknowledgement count and hidden-widgets control when they apply. -->
 		<!-- TELEPORTED FOR THE SAME REASON AS THE SIDEBAR, and specifically
 		     because of it. These controls are `position: fixed` with
 		     `z-index: 1000`, chosen to sit just above the backdrop's original
@@ -77,73 +74,44 @@
 		     Both halves have to move for the ordering between them to mean
 		     anything. -->
 		<!-- On a dashboard with a greeting on the page ground, the controls
-		     dock into that row (headerActionsDock.js), right of "Startpagina
-		     aanpassen" as LpStart draws the page's actions. Floating there,
-		     they covered that button. -->
-		<Teleport :to="headerActionsTarget || 'body'">
+		     dock into that row (headerActionsDock.js); in edit mode they dock
+		     at the end of the edit bar. -->
+		<Teleport v-if="!kiosk" :to="controlsDock || 'body'">
 			<div
 				class="launchpad-floating-controls"
-				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
+				:class="{ 'launchpad-floating-controls--docked': controlsDock !== null }"
 				data-testid="launchpad-top-controls">
-				<!-- Active-dashboard cog: the same per-dashboard action menu that
-			     sits on every sidebar row (DashboardRowActions), but bound to
-			     the currently active dashboard so the user can Edit / Configure
-			     / Add widget / Set default / Delete it directly from the
-			     top-right cluster without opening the sidebar first. Reuses the
-			     existing onRow* handlers; `maybeSwitchTo` is a no-op because the
-			     target is already active. -->
-				<!-- Active-dashboard cog. Styled `secondary` with a 20px icon so
-			     it matches the adjacent dashboards (hamburger) button, and
-			     carries the Share action (dashboard-sharing spec) in-menu
-			     rather than as a standalone top-bar button. -->
-				<DashboardRowActions
-					v-if="activeDashboard"
+				<!-- Board LpMeer: More is the page header's only control. -->
+				<DashboardMoreMenu
 					:dashboard="activeDashboard"
 					:source="activeDashboardSource"
+					:userDashboards="sidebarUserDashboards"
+					:groupDashboards="sidebarGroupDashboards"
+					:sharedDashboards="sharedWithMeDashboards"
+					:defaultUuid="defaultDashboardUuid"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
-					:canManagePublication="canManagePublication"
-					:canViewHistory="canViewVersionHistory"
-					:defaultUuid="defaultDashboardUuid"
+					:canDuplicate="canDuplicateActiveDashboard"
+					:canViewReadReceipts="
+						canEdit && acknowledgementAnnouncementKeys.length > 0
+					"
 					:isEditMode="isEditMode"
-					:activeDashboardId="activeDashboard.id"
-					buttonType="secondary"
-					:iconSize="20"
-					class="launchpad-active-dashboard-cog"
+					@switch="onSidebarSwitch"
+					@openAll="sidebarOpen = true"
 					@toggleEdit="
 						onRowToggleEdit(activeDashboard, activeDashboardSource)
 					"
-					@openConfig="
-						onRowOpenConfig(activeDashboard, activeDashboardSource)
-					"
-					@addCustomWidget="
-						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
-					"
+					@addWidget="openWidgetModal"
 					@setDefault="
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
-					@publish="onPublishActive"
-					@unpublish="onUnpublishActive"
-					@schedule="scheduleDialogOpen = true"
-					@versionHistory="versionHistoryOpen = true"
-					@menuOpen="checkVersionSupport"
+					@copyLink="copyDashboardLink"
+					@duplicate="onSidebarCreateDashboard"
+					@readReceipts="
+						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
+					"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
-				<NcButton
-					variant="secondary"
-					:aria-label="t('launchpad', 'Dashboards')"
-					class="launchpad-sidebar-toggle"
-					@click="sidebarOpen = !sidebarOpen">
-					<template #icon>
-						<MenuIcon :size="20" />
-					</template>
-				</NcButton>
-				<!-- runtime-shell REQ-SHELL-009: when the start page renders
-				     without the left navigation panel, the panel's destinations
-				     (Documentation, Store, Reports, Features & roadmap, the
-				     settings entries) are in this menu, beside the dashboard
-				     switcher above. Renders nothing while the panel is there. -->
-				<StartPageMenu />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -164,9 +132,6 @@
 						)
 					}}
 				</span>
-				<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
-			     report opener. Only shown to an editor when the active
-			     dashboard carries at least one acknowledgement requirement. -->
 				<!-- dashboards-personal-hide-ui REQ-PERSUI-002: what this
 				     person hid, with Show again and Reset my view. -->
 				<HiddenWidgetsControl
@@ -175,28 +140,6 @@
 					:availableWidgets="availableWidgets"
 					@showAgain="onShowAgain"
 					@reset="onResetPersonalView" />
-				<NcButton
-					v-if="canShareActiveDashboard"
-					variant="tertiary"
-					:aria-label="t('launchpad', 'Share')"
-					class="mydash-share-action"
-					data-test="dashboard-share-action"
-					@click="openShareDrawer">
-					<template #icon>
-						<ShareVariant :size="20" />
-					</template>
-					{{ t('launchpad', 'Share') }}
-				</NcButton>
-				<NcButton
-					v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
-					variant="secondary"
-					:aria-label="t('launchpad', 'Read receipts')"
-					data-testid="open-acknowledgement-report"
-					@click="
-						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
-					">
-					{{ t('launchpad', 'Read receipts') }}
-				</NcButton>
 			</div>
 		</Teleport>
 
@@ -208,46 +151,7 @@
 			@update:open="onDeleteDialog"
 			@confirm="confirmDeleteDashboard" />
 
-		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
-		<CnConfirmDialog
-			v-if="forceReleaseDialogOpen"
-			:dialogTitle="t('launchpad', 'Take over editing?')"
-			:message="
-				t(
-					'launchpad',
-					'{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.',
-					{
-						name:
-							editLock.state.holderName
-							|| t('launchpad', 'A colleague'),
-					},
-				)
-			"
-			:confirmLabel="t('launchpad', 'Take over')"
-			@confirm="onTakeOverConfirmed"
-			@close="forceReleaseDialogOpen = false" />
 
-		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
-		<ScheduleDashboardDialog
-			v-if="scheduleDialogOpen"
-			:open="true"
-			:error="scheduleError"
-			@update:open="
-				(v) => {
-					if (!v) {
-						scheduleDialogOpen = false
-						scheduleError = ''
-					}
-				}
-			"
-			@save="onScheduleActive" />
-		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
-		<VersionHistoryModal
-			:open="versionHistoryOpen"
-			:dashboardUuid="activeDashboard?.uuid ?? ''"
-			:dashboardName="activeDashboard?.name ?? ''"
-			@close="versionHistoryOpen = false"
-			@restored="onVersionRestored" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -256,13 +160,48 @@
 			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
+		<!-- platform-dashboard-theme-and-css REQ-THM-001: the dashboard's own
+		     look is drawn on this region only, as scoped CSS variables; the
+		     header, the navigation and other dashboards keep the theme. -->
 		<div
-			class="launchpad-container"
-			:class="{ 'launchpad-edit-mode': isEditMode }">
+			class="launchpad-container launchpad-dashboard"
+			:class="{
+				'launchpad-edit-mode': isEditMode,
+				'launchpad-container--fill': fillsHeight,
+			}"
+			:data-dashboard-uuid="activeDashboard?.uuid || null"
+			:style="dashboardLookStyle"
+			data-testid="launchpad-dashboard-region">
+			<!-- Board LpBewerken: the edit bar, with the edit actions. -->
+			<DashboardEditBar
+				v-if="isEditMode && activeDashboard"
+				:dashboardName="activeDashboard.name || ''"
+				:columns="activeDashboard.gridColumns || 12"
+				:canConfigure="canConfigureActiveDashboard"
+				@setColumns="setGridColumns"
+				@addWidget="openWidgetModal"
+				@openSettings="openConfigModal"
+				@done="toggleEditMode"
+				@dock="editBarDock = $event" />
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
 				:dashboardUuid="activeDashboard.uuid" />
+			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
+			     discussion of a shared or group dashboard; the access chain
+			     is documented in DashboardDiscussion. -->
+			<DashboardDiscussion
+				v-if="activeDashboard?.uuid && !isEditMode"
+				:dashboard="activeDashboard"
+				:sharedWithMe="sharedWithMeDashboards"
+				:currentUserId="currentUserId" />
+			<!-- Every dashboard without a greeting row opens with its name and
+			     the "Meer" menu, its only action (LpWerkplek, LpIntranet). -->
+			<DashboardPageHeader
+				v-if="activeDashboard && !kiosk && !hasGroundHeader && !isEditMode"
+				:dashboard="activeDashboard"
+				:source="activeDashboardSource"
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -275,6 +214,12 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<FilterBreadcrumb
+				v-if="activeDashboard && filterSession"
+				:hierarchies="filterSession.bus.hierarchies"
+				:clauses="filterClauses"
+				:labels="filterSession.labels"
+				@pop="onFilterPop" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -282,16 +227,17 @@
 				data-testid="publication-note">
 				{{ publicationNote }}
 			</p>
-			<EditLockBanner
-				:status="editLock.state.status"
-				:holderName="editLock.state.holderName"
-				:expiresIn="editLock.state.expiresIn"
-				:isAdmin="isAdmin === true"
-				@takeOver="forceReleaseDialogOpen = true" />
+			<!-- building-edit-a-dashboard-together: no lock in edit mode; a
+				refusal says so, and colleagues editing are shown. -->
+			<EditLockBanner :status="presence.state.status" />
+			<CoEditorsBanner
+				v-if="isEditMode"
+				:editors="presence.state.editors" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
-				:layout="shownPlacements"
+				:layout="gridLayout"
 				:editable="isEditMode"
+				:fillHeight="fillsHeight"
 				:columns="activeDashboard.gridColumns || 12"
 				:cellHeight="60"
 				:margin="8"
@@ -313,9 +259,18 @@
 						class="launchpad-grid-item"
 						:class="{
 							'launchpad-grid-item--dimmed': isTileDimmed(item),
+							'launchpad-grid-item--hidden-for-viewers': item.hiddenForViewers === true,
 						}"
 						:data-placement-id="item.id"
 						@contextmenu="onWidgetRightClick($event, item)">
+						<!-- REQ-VIS-013: the visibility rules hide this widget for its
+						     viewers; the owner and editors still see it, dimmed. -->
+						<span
+							v-if="item.hiddenForViewers === true"
+							class="launchpad-grid-item__hidden-badge"
+							data-testid="hidden-for-viewers-badge">
+							{{ t('launchpad', 'Hidden for viewers') }}
+						</span>
 						<!-- Tile placements render the launcher tile directly. -->
 						<TileWidget
 							v-if="isTilePlacement(item)"
@@ -328,6 +283,9 @@
 								&& item.content.healthPingEnabled === true
 							"
 							:pingInterval="item.content && item.content.pingInterval"
+							:linkTarget="(item.content && item.content.linkTarget) || null"
+							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
+							:removeLocked="!isRemovablePlacement(item)"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -341,6 +299,8 @@
 								isPlacementOutstanding(item)
 							"
 							:canHideForMe="canHideForMe"
+							:embedHref="placementEmbedHref(item)"
+							:removeLocked="!isRemovablePlacement(item)"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -387,9 +347,14 @@
 			:placedWidgetIds="placedWidgetIds"
 			:discoveredApps="discoveredApps"
 			:placedAppIds="placedDiscoveredAppIds"
-			@close="closeWidgetModal"
+			:catalogueApps="catalogueApps"
+			:customTypes="customWidgetTypes"
+			:requestAppFn="requestCatalogueApp"
+			@close="onWidgetPickerClose"
 			@add="addWidget"
+			@addCustom="onPickCustomWidget"
 			@addApp="addDiscoveredApp"
+			@addCatalogueApp="addCatalogueApp"
 			@addOfficePack="addOfficePack" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
@@ -398,10 +363,13 @@
 		<CnAddWidgetModal
 			:show="isCustomWidgetModalOpen"
 			:preselectedType="customWidgetPreselectedType"
+			:initialType="customWidgetInitialType"
 			:editingWidget="customWidgetEditing"
+			:notices="customWidgetNotices"
 			:uploadFn="iconUploadFn"
 			:fileUploadFn="imageFileUpload"
 			:calendarsFetcher="fetchCalendars"
+			:setReturnFocus="dialogReturnFocus"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
 
@@ -415,10 +383,15 @@
 			:initialTab="configModalInitialTab"
 			:parentOptions="dashboards"
 			:saveError="configSaveError"
+			:canManagePublication="canManagePublication"
+			:canScheduleExports="canEdit"
+			:canViewVersions="canManagePublication"
+			:exportSubjects="exportSubjects"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
-			@setDefault="onModalSetDefault" />
+			@setDefault="onModalSetDefault"
+			@versionRestored="onVersionRestored" />
 
 		<!-- Style editor modal. `extra-icon-options` is gone: CnIconBrowser now
 		     ships the NL Design sets itself (RVO lazily), so passing the pack here
@@ -433,6 +406,11 @@
 			@delete="deleteWidget" />
 
 		<!-- Tile editor modal -->
+		<BookmarkImportModal
+			:open="isBookmarkImportOpen"
+			:importBookmarks="importChosenBookmarks"
+			@close="isBookmarkImportOpen = false" />
+
 		<TileEditor
 			:open="isTileEditorOpen"
 			:tile="editingTile"
@@ -449,6 +427,7 @@
 			v-if="contextMenuVisible"
 			:top="contextMenuTop"
 			:left="contextMenuLeft"
+			:removeLocked="!contextMenuCanRemove"
 			@edit="grid.triggerEdit()"
 			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"
@@ -498,7 +477,6 @@
 <script>
 import {
 	CnAddWidgetModal,
-	CnConfirmDialog,
 	CnDashboardGrid,
 	CnWidgetStyleEditorModal,
 	getDashboardColumnOpts,
@@ -506,13 +484,10 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
-import { showError } from '@nextcloud/dialogs'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
-import { computed, provide, reactive, shallowRef } from 'vue'
-import MenuIcon from 'vue-material-design-icons/Menu.vue'
-import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
+import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TileWidget from '../components/TileWidget.vue'
@@ -520,30 +495,35 @@ import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
+import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
+import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue'
+import DashboardEditBar from '../components/Workspace/DashboardEditBar.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
+import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
+import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
+import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
+import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
-import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
-import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
+import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
-import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
+import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 // Composables
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
-import { useDashboardLock } from '../composables/useDashboardLock.js'
+import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
-import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import {
@@ -552,17 +532,119 @@ import {
 	sourceKey,
 } from '../services/sourceAvailability.js'
 // Stores
+import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
-import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
+import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
+import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
+import { lookStyle } from '../utils/dashboardLook.js'
+import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
+import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
+import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
+import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
+import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
+import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
+import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/** The workspace grid's row height in pixels; matches `:cellHeight` above. */
+const GRID_ROW_HEIGHT = 60
+
+/**
+ * A pathname without the `/index.php` front controller or a trailing slash,
+ * so an address and the canonical deep link compare as the same route
+ * whether or not the instance rewrites URLs.
+ *
+ * @param {string} path The pathname.
+ * @return {string} The bare pathname.
+ */
+function barePath(path) {
+	return path.replace(/^\/index\.php(?=\/)/, '').replace(/\/+$/, '')
+}
+
+/**
+ * Whether a placement is a tile: a launcher tile (`tile`, `tile-{id}`, or an
+ * inline tile with a `tileType`) or an app tile.
+ *
+ * @param {object} placement The placement.
+ * @return {boolean}
+ * @spec openspec/specs/widgets/spec.md
+ */
+export function isTilePlacement(placement) {
+	const id = String(placement?.widgetId ?? '')
+	return id === 'tile' || id === 'app-tile' || id.startsWith('tile-') || Boolean(placement?.tileType)
+}
+
+/**
+ * A placement with the minimum size its widget type registers, so the grid
+ * lets a divider be one row and a tile one column while other widgets keep
+ * the grid's minimum.
+ *
+ * @param {object} placement The placement.
+ * @return {object} The placement, or a copy carrying `minHeight` / `minWidth`.
+ * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
+ */
+export function withTypeMinHeight(placement) {
+	const entry = getWidgetTypeEntry(placement?.widgetId)
+	const extra = {}
+	if (Number.isFinite(entry?.minHeight) && placement.minHeight === undefined) {
+		extra.minHeight = entry.minHeight
+	}
+	const minWidth = isTilePlacement(placement) ? 1 : entry?.minWidth
+	if (Number.isFinite(minWidth) && placement.minWidth === undefined) {
+		extra.minWidth = minWidth
+	}
+	return Object.keys(extra).length === 0 ? placement : { ...placement, ...extra }
+}
+
+
+/**
+ * The update body of a dashboard settings save: the fields the modal sent.
+ *
+ * @param {object} config The modal's save.
+ * @param {string} config.name Display name.
+ * @param {string} config.description Short description.
+ * @param {string} config.icon Icon key or URL.
+ * @param {string} [config.parentUuid] Parent uuid, '' for none.
+ * @param {string} [config.slug] Web address name.
+ * @param {object} [config.look] The changed look fields (REQ-THM-001).
+ * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule.
+ * @param {Array<object>} [config.hierarchies] The hierarchy descriptors, only when changed.
+ * @return {object} The body for `api.updateDashboard`.
+ * @spec openspec/specs/dashboards/spec.md
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ */
+function dashboardUpdateData({ name, description, icon, parentUuid, slug, look, defaultLinkTarget, hierarchies }) {
+	const data = { name, description, icon }
+	// dashboard-tree-navigation: '' clears the parent; an
+	// empty web address name leaves the stored one alone.
+	if (parentUuid !== undefined) {
+		data.parentUuid = parentUuid
+	}
+	if (slug) {
+		data.slug = slug
+	}
+	// REQ-THM-001: only a changed look is sent, so a rename
+	// stays a metadata edit.
+	if (look) {
+		Object.assign(data, look)
+	}
+	// launcher-tile-open-behaviour D2: '' clears the default.
+	if (defaultLinkTarget !== undefined) {
+		data.defaultLinkTarget = defaultLinkTarget
+	}
+	if (hierarchies !== undefined) {
+		data.hierarchies = hierarchies
+	}
+	return data
+}
 
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
@@ -574,14 +656,13 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		ViewDashboard,
-		MenuIcon,
-		ShareVariant,
 		CnDashboardGrid,
 		WidgetWrapper,
 		AcknowledgementReportModal,
 		TileWidget,
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
+		BookmarkImportModal,
 		TileEditor,
 		DashboardConfigModal,
 		CnAddWidgetModal,
@@ -589,19 +670,20 @@ export default {
 		WidgetMovePanel,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
-		DashboardRowActions,
+		DashboardEditBar,
+		DashboardMoreMenu,
 		SidebarBackdrop,
-		StartPageMenu,
+		DashboardDiscussion,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
+		DashboardPageHeader,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		FilterBreadcrumb,
 		DeleteDashboardDialog,
-		ScheduleDashboardDialog,
+		CoEditorsBanner,
 		EditLockBanner,
-		CnConfirmDialog,
-		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
 
@@ -611,6 +693,13 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
+		},
+
+		// Which apps behind the integration widgets are enabled for the
+		// viewer (wiki-widget REQ-WIKI-004); the picker leaves out the rest.
+		integrationApps: {
+			from: 'integrationApps',
+			default: () => ({}),
 		},
 
 		primaryGroupName: {
@@ -632,6 +721,13 @@ export default {
 		// rendered (handles renamed parents / stale bookmarks).
 		injectedDeepLinkPath: {
 			from: 'deepLinkPath',
+			default: '',
+		},
+
+		// UUID of the dashboard the server resolved for this request; for a
+		// slug address, the dashboard that address names (REQ-DDL-002).
+		injectedActiveDashboardId: {
+			from: 'activeDashboardId',
 			default: '',
 		},
 	},
@@ -729,12 +825,18 @@ export default {
 
 	data() {
 		return {
+			/** REQ-KIOSK-001: opened with `?kiosk=1`. */
+			kiosk: isKioskMode(),
+			stopKiosk: null,
+			kioskRefresh: null,
 			isEditMode: false,
 			/**
 			 * The greeting row's actions element the top-right controls are
 			 * teleported into, or null while they float (headerActionsDock.js).
 			 */
 			headerActionsTarget: null,
+			// The edit bar's end, where the controls dock in edit mode.
+			editBarDock: null,
 			/**
 			 * Sources (`register/schema`) OpenRegister said are not here,
 			 * keyed by source (REQ-TMPL-022).
@@ -742,6 +844,7 @@ export default {
 			unavailableSources: {},
 			isWidgetModalOpen: false,
 			discoveredApps: [],
+			catalogueApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
 			// Tab the config drawer lands on when opened (dashboard-sharing
@@ -754,13 +857,19 @@ export default {
 			// keeps the live store placement untouched until the patch persists.
 			styleEditorWidget: null,
 			isTileEditorOpen: false,
+			isBookmarkImportOpen: false,
 			editingTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
 			// non-null = edit mode; `customWidgetPreselectedType` non-null =
 			// type-specific deep-link from the toolbar.
 			isCustomWidgetModalOpen: false,
 			customWidgetPreselectedType: null,
+			// The type picked in the widget picker: the form opens on it and
+			// keeps its type select.
+			customWidgetInitialType: null,
 			customWidgetEditing: null,
+			// The element focused when a widget dialog opened (REQ-WDG-013).
+			widgetDialogOpener: null,
 			// Per-widget conditional-visibility editor state. Non-null
 			// `visibilityPlacementId` + `isVisibilityModalOpen` opens the
 			// modal for that placement (conditional-visibility spec).
@@ -781,6 +890,10 @@ export default {
 			// Different uuids are tracked independently per spec
 			// scenario "Different dashboards are not debounced".
 			viewEventLastSent: Object.create(null),
+			// Whether the boot (stored active dashboard, then the deep-linked
+			// one) is over; until then a dashboard change replaces the address
+			// instead of pushing a history entry.
+			historyBooted: false,
 
 			// Wave3.7 — UUID of the user's pinned default dashboard, or
 			// '' when no pin is set. Fetched once on mount via
@@ -805,33 +918,77 @@ export default {
 			deleteChildCount: 0,
 			// Why the dashboard configuration could not be saved.
 			configSaveError: '',
-			// dashboard-edit-lock-ui: the editing lock of the active
-			// dashboard (REQ-LOCKUI-001..003) and the take-over dialog.
-			editLock: useDashboardLock({
-				onLost: () => this.onEditLockLost(),
+			// building-edit-a-dashboard-together: who else edits the active
+			// dashboard; edit mode no longer takes a lock.
+			presence: useDashboardPresence({
+				onRefused: () => this.onPresenceRefused(),
 			}),
-
-			forceReleaseDialogOpen: false,
-			// sharing-dashboard-schedule-screen: the schedule dialog.
-			scheduleDialogOpen: false,
-			scheduleError: '',
-			// dashboard-version-history-ui: the history modal, and per
-			// dashboard uuid whether versioning is supported (read when the
-			// dashboard menu opens; absent means not known yet).
-			versionHistoryOpen: false,
-			versionSupport: {},
 		}
 	},
 
 	computed: {
+		/**
+		 * The active dashboard's own look as scoped CSS variables, or no style
+		 * for a dashboard that follows the theme (REQ-THM-001).
+		 *
+		 * @return {object} the inline style for the dashboard region.
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		dashboardLookStyle() {
+			return lookStyle(this.activeDashboard)
+		},
+
 		/**
 		 * The open dashboard's filter clauses, for the active-filters panel.
 		 *
 		 * @return {object[]}
 		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 		 */
+		/**
+		 * What the widget dialog says about the edited widget's filter
+		 * declarations on this dashboard (REQ-CWF-008).
+		 *
+		 * @return {Array<{id: string, type: string, text: string}>}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 */
+		customWidgetNotices() {
+			const content = this.customWidgetEditing?.content ?? null
+			const bus = this.filterSession ? this.filterSession.bus : null
+			return busNotices(content, bus ? bus.hierarchies : [])
+		},
+
 		filterClauses() {
 			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * What the Exports tab of the settings can export: the active
+		 * dashboard and its widgets.
+		 *
+		 * @return {object[]} `{type, id, label}` per subject.
+		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
+		 */
+		exportSubjects() {
+			const dashboard = this.activeDashboard
+			const dashboards = dashboard?.uuid
+				? [{ type: 'dashboard', id: dashboard.uuid, label: dashboard.name || dashboard.uuid }]
+				: []
+			const widgets = (this.widgetPlacements || []).map((placement) => ({
+				type: 'widget',
+				id: String(placement.id),
+				label: resolveWidgetTitle(placement, this.availableWidgets),
+			}))
+			return [...dashboards, ...widgets]
+		},
+
+		/**
+		 * The signed-in user's id, for the dashboard discussion.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf/spec.md#requirement-req-leaf-002-discussion-surface-renders-only-on-shared-dashboards
+		 */
+		currentUserId() {
+			return typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : ''
 		},
 
 		/**
@@ -850,23 +1007,78 @@ export default {
 		},
 
 		/**
-		 * The placements the grid shows: every placement in edit mode, and
-		 * outside it every placement but an object-list that asked to be
-		 * hidden when its register is not on this instance (REQ-TMPL-022).
-		 * In edit mode the list stays, so whoever edits sees it is there.
+		 * The placements the grid shows. A placement with `isVisible` 0 never
+		 * renders (REQ-WDG-009; the server sets it for a widget the viewer's
+		 * role does not permit, REQ-RFP-001). Of the rest: every placement in
+		 * edit mode, and outside it every placement but an object-list that
+		 * asked to be hidden when its register is not on this instance
+		 * (REQ-TMPL-022), and every widget that reads through an app that is
+		 * not enabled for the viewer (REQ-CASES-004). In edit mode they stay,
+		 * so whoever edits sees they are there.
 		 *
 		 * @return {object[]} the placements to lay out.
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
 		 */
 		shownPlacements() {
-			const all = this.widgetPlacements || []
+			const all = (this.widgetPlacements || []).filter(
+				(p) => p.isVisible !== 0 && p.isVisible !== false,
+			)
 			if (this.isEditMode) {
 				return all
 			}
 			return all.filter(
 				(p) =>
-					!hidesWhenUnavailable(p)
-					|| this.unavailableSources[sourceKey(p.content)] !== true,
+					(!hidesWhenUnavailable(p)
+					|| this.unavailableSources[sourceKey(p.content)] !== true)
+					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
+			)
+		},
+
+		/**
+		 * Whether the dashboard opens with a greeting on the page ground (a
+		 * header widget with `ground`), which then carries the page title.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+		 */
+		hasGroundHeader() {
+			return this.shownPlacements.some(
+				(p) => p?.widgetId === 'header' && p?.content?.ground === true,
+			)
+		},
+
+		/**
+		 * Whether the dashboard fills the height below the top bar instead
+		 * of scrolling (LpVandaag): a placement asks for it with
+		 * `content.fillHeight: true`. The grid then divides its height over
+		 * the rows, and long widgets scroll inside their card.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		fillsHeight() {
+			return this.shownPlacements.some((p) => p?.content?.fillHeight === true)
+		},
+
+		/**
+		 * The layout the grid draws: the shown placements, each carrying the
+		 * minimum height its widget type registers (a divider may be one row),
+		 * and outside edit mode a placement with `content.fitRows: true`
+		 * marked so its rows take its content's height on a filled grid.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
+		 */
+		gridLayout() {
+			const placements = this.shownPlacements.map(withTypeMinHeight)
+			if (this.isEditMode || !this.fillsHeight) {
+				return placements
+			}
+			return placements.map((p) =>
+				p?.content?.fitRows === true ? { ...p, fitRows: true } : p,
 			)
 		},
 
@@ -996,6 +1208,44 @@ export default {
 		},
 
 		/**
+		 * Where the top-right controls render: in the edit bar while editing,
+		 * in the greeting row when there is one, else floating (null).
+		 *
+		 * @return {HTMLElement|null}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		controlsDock() {
+			return this.isEditMode ? this.editBarDock : this.headerActionsTarget
+		},
+
+		/**
+		 * Whether the dashboard settings open for this person: the owner, or
+		 * whoever may manage the publication (the gate of the former
+		 * "Settings" menu item).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		canConfigureActiveDashboard() {
+			return isOwnedDashboard(this.activeDashboard, this.activeDashboardSource)
+				|| this.canManagePublication
+		},
+
+		/**
+		 * Whether More offers "Duplicate as new dashboard": the gates of the
+		 * switcher's create, personal dashboards allowed and the quota not
+		 * reached (REQ-ASET-003, REQ-QUOTA-006).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		canDuplicateActiveDashboard() {
+			return Boolean(this.activeDashboard?.uuid)
+				&& (this.allowUserDashboards === true || this.isAdmin === true)
+				&& !this.dashboardQuotaReached
+		},
+
+		/**
 		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
 		 *
 		 * @return {string} The note, or empty.
@@ -1019,23 +1269,6 @@ export default {
 				)
 			}
 			return parts.join(' ')
-		},
-
-		/**
-		 * Whether the dashboard menu offers "Version history…": the owner or
-		 * an administrator, and the server said this dashboard keeps
-		 * versions (REQ-VERSUI-001). The server checks ownership again.
-		 *
-		 * @return {boolean}
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		canViewVersionHistory() {
-			const dash = this.activeDashboard
-			if (!dash?.uuid) {
-				return false
-			}
-			const mayManage = dash.isOwner === true || this.isAdmin === true
-			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -1078,12 +1311,35 @@ export default {
 			return this.grid.state.contextMenuPosition.x
 		},
 
+		/**
+		 * Whether the context menu offers Remove for the widget it opened on.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		contextMenuCanRemove() {
+			return this.isRemovablePlacement(this.grid.state.selectedWidget)
+		},
+
+		/**
+		 * The widget types Launchpad builds itself, as the picker lists them.
+		 *
+		 * @return {Array<{type: string, title: string}>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		customWidgetTypes() {
+			return listWidgetTypes()
+				.filter((type) => offeredForViewer(getWidgetTypeEntry(type), this.integrationApps))
+				.map((type) => ({ type, title: getWidgetTypeEntry(type)?.displayName || type }))
+				.sort((left, right) => left.title.localeCompare(right.title))
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
 			return this.widgetPlacements.map((p) => p.widgetId)
 		},
 
-		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
 		placedDiscoveredAppIds() {
 			return discoveredAppIdsOnDashboard(this.widgetPlacements, this.discoveredApps)
 		},
@@ -1111,7 +1367,7 @@ export default {
 
 		/**
 		 * Section discriminator for the currently active dashboard, so the
-		 * top-right active-dashboard cog (DashboardRowActions) gates its
+		 * start page's "Meer" menu (DashboardMoreMenu) gates its
 		 * owner-only entries (Configure / Delete) exactly like the matching
 		 * sidebar row. Resolved by locating the active id in the same buckets
 		 * the sidebar renders; falls back to the dashboard's own `isOwner`
@@ -1179,10 +1435,43 @@ export default {
 
 	watch: {
 		/**
+		 * The calculated fields re-evaluate when the dashboard's filters change (REQ-CALC-003).
+		 *
+		 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+		 */
+		filterClauses: {
+			immediate: true,
+			/**
+			 * @param {object[]} clauses The active filter clauses.
+			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+			 */
+			handler(clauses) {
+				useCalculatedFieldsStore().setFilters(clauses || [])
+			},
+		},
+
+		/**
+		 * The administrator CSS of the dashboard on screen, already scoped to
+		 * its region by the server, inserted as text (REQ-THM-003, D4).
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 */
+		'activeDashboard.customCss': {
+			immediate: true,
+			/**
+			 * @param {string|null} css The scoped CSS of the dashboard on screen.
+			 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+			 */
+			handler(css) {
+				applyCustomCss(DASHBOARD_STYLE_ID, css)
+			},
+		},
+
+		/**
 		 * Editing makes the greeting row a draggable grid item: the controls
 		 * float while editing and dock again after.
 		 *
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 */
 		isEditMode() {
 			this.$nextTick(() => this.dockHeaderActions())
@@ -1190,17 +1479,21 @@ export default {
 
 		/**
 		 * Ask, once per source, whether the registers the hideable lists read
-		 * are on this instance (REQ-TMPL-022).
+		 * are on this instance (REQ-TMPL-022), and hand the placements to the
+		 * calculated fields (widget-calculated-fields REQ-CALC-003).
 		 *
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 		 */
 		widgetPlacements: {
 			immediate: true,
 			/**
+			 * @param {object[]} placements The open dashboard's placements.
 			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
 			 */
-			handler() {
+			handler(placements) {
 				this.probeHideableSources()
+				useCalculatedFieldsStore().setWidgets(placements || [])
 			},
 		},
 
@@ -1263,23 +1556,24 @@ export default {
 			 * Fire a view-event when the active dashboard changes.
 			 *
 			 * @param {string|null} uuid UUID of the newly-active dashboard.
-			 * @param {string|null} prevUuid UUID that was active before.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
-			handler(uuid, prevUuid) {
+			handler(uuid) {
 				if (!uuid) {
 					return
 				}
 				// Filters belong to a dashboard: a switch starts a fresh
-				// session; only the first one reads a bookmarked `?f=`.
-				this.openFilterSession(prevUuid === undefined)
+				// session. Every session of the boot reads a bookmarked
+				// `?f=`: the boot can pass through more than one uuid (the
+				// stored active dashboard, then the one the address names).
+				this.openFilterSession(!this.historyBooted)
 				this.recordViewEventDebounced(uuid)
-				// Outbound URL sync — every uuid change pushes a new
-				// history entry so back/forward navigates between
-				// dashboards. The first hydration is `replaceState`
-				// (handled in mounted) so we don't pollute history with
-				// the bootstrap entry.
-				if (prevUuid !== undefined) {
+				// Outbound URL sync — every uuid change after the boot pushes
+				// a new history entry so back/forward navigates between
+				// dashboards. The boot's changes (the stored active
+				// dashboard, then the one the address names) are covered by
+				// `replaceState` in mounted, so they add no entry.
+				if (this.historyBooted) {
 					this.pushUrlForActiveDashboard()
 				}
 			},
@@ -1309,6 +1603,12 @@ export default {
 			widgetStore.loadAvailableWidgets(),
 			tileStore.loadTiles(),
 		])
+		await this.openDeepLinkedDashboard(bootPath())
+		await this.openHashLinkedDashboard(bootHash())
+		await this.replaceUrlAfterBoot()
+		// After the watcher has seen the deep-linked switch.
+		await nextTick()
+		this.historyBooted = true
 
 		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
 		// mandatory-read items so the forced-delivery gate and the outstanding
@@ -1337,6 +1637,14 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
+		if (this.kiosk) {
+			this.stopKiosk = startKioskView(window)
+			// REQ-KIOSK-004: a kiosk view re-reads its widgets in place.
+			this.kioskRefresh = setInterval(
+				() => useDashboardStore().reloadPlacements(),
+				KIOSK_REFRESH_MS,
+			)
+		}
 		// dashboard-language-and-details-tabs: fields for "Filter by detail".
 		this.loadDetailFields()
 		// Attach the document-level click listener (REQ-WDG-016 outside-
@@ -1353,6 +1661,8 @@ export default {
 
 		// Browser back / forward → re-resolve the URL and switch.
 		window.addEventListener('popstate', this.handleHistoryPopState)
+		// A search result opened while LaunchPad is already showing.
+		window.addEventListener('hashchange', this.onDashboardHashChange)
 
 		// The greeting row mounts with the grid, after this view; watch the
 		// container so the controls dock once it is there, and move again
@@ -1367,24 +1677,46 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		this.stopKiosk?.()
+		clearInterval(this.kioskRefresh)
+		applyCustomCss(DASHBOARD_STYLE_ID, '')
 		this.filterSession?.stop()
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		window.removeEventListener('hashchange', this.onDashboardHashChange)
 		this.headerActionsObserver?.disconnect()
 		this.headerActionsObserver = null
-		// Leaving the page while editing gives the lock back.
-		this.editLock.release()
+		// Leaving the page while editing withdraws the presence.
+		this.presence.stop()
 	},
 
 	methods: {
+		dialogReturnFocus,
+
+		/**
+		 * The Beheer ▸ Embeds link that creates an embed token for one widget
+		 * of the active dashboard; '' for a non-administrator, or without a
+		 * saved dashboard and placement.
+		 *
+		 * @param {object} placement The widget placement.
+		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		placementEmbedHref(placement) {
+			if (this.isAdmin !== true || !this.activeDashboard?.id || !placement?.id) {
+				return ''
+			}
+			return embedAdminHref(this.activeDashboard, placement)
+		},
+
 		/**
 		 * Dock the top-right controls into the greeting row when the page
 		 * has one and is not being edited; float them otherwise.
 		 *
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 */
 		dockHeaderActions() {
 			const container = document.querySelector('.launchpad-container')
@@ -1498,6 +1830,8 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				// launcher-tile-internal-address REQ-TIA-002: the office-network address, in `content`.
+				internalUrl: (placement.content && placement.content.internalUrl) || '',
 			}
 		},
 
@@ -1530,8 +1864,10 @@ export default {
 			'forkDashboard',
 			'loadDashboards',
 			'updatePlacements',
+			'setGridColumns',
 			'addWidgetToDashboard',
 			'addTileToDashboard',
+			'importBookmarks',
 			'removeWidgetFromDashboard',
 			'updateWidgetPlacement',
 			'recordViewEvent',
@@ -1543,11 +1879,14 @@ export default {
 		 * `data.viewEventLastSent` (Object.create(null)) so different
 		 * dashboards are tracked independently per spec scenario
 		 * "Different dashboards are not debounced against each other".
-		 * The debounce is per-mount (not cross-tab), matching the
-		 * spec's reload semantics.
+		 * Across the tabs of one browser, the tab that sends holds a Web
+		 * Lock named after the dashboard for a second; another tab that
+		 * finds it held sends nothing ("Debouncing prevents multi-tab
+		 * double-counting"). A reload drops the lock with the page, so it
+		 * counts again. Without the Locks API every tab sends.
 		 *
 		 * @param {string} uuid The dashboard UUID to record.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
 			if (!uuid) {
@@ -1559,7 +1898,25 @@ export default {
 				return
 			}
 			this.viewEventLastSent[uuid] = now
-			this.recordViewEvent(uuid)
+			const locks = globalThis.navigator?.locks
+			if (typeof locks?.request !== 'function') {
+				this.recordViewEvent(uuid)
+				return
+			}
+			let sent = false
+			locks.request(`launchpad-view-event:${uuid}`, { ifAvailable: true }, (lock) => {
+				if (!lock) {
+					return undefined
+				}
+				sent = true
+				this.recordViewEvent(uuid)
+				return new Promise((resolve) => setTimeout(resolve, 1000))
+			}).catch((e) => {
+				logger.debug('[Views] view-event lock unavailable:', e)
+				if (!sent) {
+					this.recordViewEvent(uuid)
+				}
+			})
 		},
 
 		/*
@@ -1700,97 +2057,13 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		formatStamp(value) {
-			const parsed = new Date(String(value).replace(' ', 'T'))
-			return Number.isNaN(parsed.getTime())
+			const parsed = parseServerStamp(value)
+			return parsed === null
 				? String(value)
 				: parsed.toLocaleString(undefined, {
 						dateStyle: 'medium',
 						timeStyle: 'short',
 					})
-		},
-
-		/**
-		 * Publish the active dashboard.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onPublishActive() {
-			await useDashboardStore().publishDashboard(this.activeDashboard.uuid)
-		},
-
-		/**
-		 * Unpublish the active dashboard.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onUnpublishActive() {
-			await useDashboardStore().unpublishDashboard(this.activeDashboard.uuid)
-		},
-
-		/**
-		 * Schedule the active dashboard; a refusal stays in the dialog.
-		 *
-		 * @param {{publishAt: (string|null), unpublishAt: (string|null)}} times The chosen times.
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboards/spec.md
-		 */
-		async onScheduleActive({ publishAt, unpublishAt }) {
-			this.scheduleError = ''
-			try {
-				await useDashboardStore().scheduleDashboard(
-					this.activeDashboard.uuid,
-					publishAt,
-					unpublishAt,
-				)
-				this.scheduleDialogOpen = false
-			} catch (error) {
-				const message = error?.response?.data?.message ?? ''
-				if (message === 'unpublishAt must be after publishAt') {
-					this.scheduleError = t(
-						'launchpad',
-						'The dashboard has to go live before it comes down.',
-					)
-				} else if (message === 'publishAt must be a future timestamp') {
-					this.scheduleError = t(
-						'launchpad',
-						'Choose a time in the future.',
-					)
-				} else {
-					this.scheduleError = t(
-						'launchpad',
-						'The dashboard could not be scheduled.',
-					)
-				}
-			}
-		},
-
-		/**
-		 * The dashboard menu opened: find out once per dashboard whether it
-		 * keeps versions, so "Version history…" is offered only where it
-		 * works. A refusal (not owner, not admin) reads as not offered.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		async checkVersionSupport() {
-			const dash = this.activeDashboard
-			if (!dash?.uuid || dash.uuid in this.versionSupport) {
-				return
-			}
-			if (dash.isOwner !== true && this.isAdmin !== true) {
-				return
-			}
-			try {
-				const { data } = await api.listVersions(dash.uuid)
-				this.versionSupport = {
-					...this.versionSupport,
-					[dash.uuid]: data?.modeSupported !== false,
-				}
-			} catch {
-				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
-			}
 		},
 
 		/**
@@ -1841,11 +2114,12 @@ export default {
 		},
 
 		/**
-		 * Enter or leave edit mode. Entering asks for the dashboard's
-		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
+		 * Enter or leave edit mode. Entering announces this person as an
+		 * editor of the dashboard; leaving withdraws it
+		 * (building-edit-a-dashboard-together, task 1.4).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async toggleEditMode() {
 			if (!this.isEditMode) {
@@ -1853,18 +2127,22 @@ export default {
 				return
 			}
 			this.leaveEditMode()
-			await this.editLock.release()
+			await this.presence.stop()
 		},
 
 		/**
-		 * Enter edit mode only when the lock is granted. A colleague's lock
-		 * (409), a refusal (403) or a failed request all leave the page
-		 * read-only and the banner says why.
+		 * Enter edit mode, also while colleagues edit the same dashboard:
+		 * every change is saved per widget, so nobody's change is lost. Only a
+		 * refusal (no edit rights, or an unknown dashboard) keeps the page
+		 * read-only, and the banner says why.
 		 *
 		 * @return {Promise<boolean>} Whether the page is in edit mode now.
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async enterEditMode() {
+			if (this.kiosk) {
+				return false
+			}
 			if (this.isEditMode) {
 				return true
 			}
@@ -1872,16 +2150,16 @@ export default {
 			if (!uuid) {
 				return false
 			}
-			const granted = await this.editLock.acquire(String(uuid))
-			if (granted) {
+			const allowed = await this.presence.start(String(uuid))
+			if (allowed) {
 				this.isEditMode = true
 			}
-			return granted
+			return allowed
 		},
 
 		/**
-		 * Drop edit mode and every edit-only surface. The lock itself is
-		 * released by the caller.
+		 * Drop edit mode and every edit-only surface. The presence itself is
+		 * withdrawn by the caller.
 		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
@@ -1895,42 +2173,29 @@ export default {
 		},
 
 		/**
-		 * Before another dashboard becomes active: leave edit mode, give the
-		 * lock back and clear a banner that was about the previous one.
+		 * A renewal was refused (edit rights gone, or the dashboard deleted):
+		 * back to view mode; the banner says why.
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
+		 */
+		onPresenceRefused() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+		},
+
+		/**
+		 * Before another dashboard becomes active: leave edit mode, withdraw
+		 * the presence and clear a banner that was about the previous one.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async dropEditLock() {
 			if (this.isEditMode) {
 				this.leaveEditMode()
 			}
-			await this.editLock.release()
-		},
-
-		/**
-		 * A refresh answered 404: someone else holds the lock now. Back to
-		 * view mode; the banner says what happened (REQ-LOCKUI-002).
-		 *
-		 * @spec openspec/specs/dashboard-locking/spec.md
-		 */
-		onEditLockLost() {
-			if (this.isEditMode) {
-				this.leaveEditMode()
-			}
-		},
-
-		/**
-		 * Administrator confirmed the take-over: force-release, then edit.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
-		 */
-		async onTakeOverConfirmed() {
-			this.forceReleaseDialogOpen = false
-			if (await this.editLock.takeOver()) {
-				this.isEditMode = true
-			}
+			await this.presence.stop()
 		},
 
 		/**
@@ -1944,6 +2209,9 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onWidgetRightClick(event, placement) {
+			if (this.kiosk) {
+				return
+			}
 			this.grid.onWidgetRightClick(event, placement)
 		},
 
@@ -2117,8 +2385,9 @@ export default {
 
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRulesChanged() {
-			// Rules are evaluated server-side at render; nothing to refetch
-			// here. Hook kept so future live-preview can refresh placements.
+			// Rules are applied server-side when the dashboard renders, so
+			// ask again which widgets they hide for viewers.
+			useDashboardStore().refreshPlacementVisibility()
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -2126,8 +2395,10 @@ export default {
 			if (!(await this.enterEditMode())) {
 				return
 			}
+			this.widgetDialogOpener = document.activeElement
 			this.isWidgetModalOpen = true
 			this.loadDiscoveredApps()
+			this.loadCatalogueApps()
 		},
 
 		/**
@@ -2135,7 +2406,7 @@ export default {
 		 * "Discovered on this server" section. A failure leaves the section
 		 * out; the rest of the picker works as before.
 		 *
-		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+		 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 		 */
 		async loadDiscoveredApps() {
 			try {
@@ -2151,7 +2422,7 @@ export default {
 		 * Place a discovered app as a tile through the normal tile path.
 		 *
 		 * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
-		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+		 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
 		 */
 		/**
 		 * Place the office tile pack as one container titled "Office" at the
@@ -2180,12 +2451,61 @@ export default {
 			}
 		},
 
+		/**
+		 * Place a discovered app as its own app tile.
+		 *
+		 * @param {{appId: string}} app The discovered app.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
 		async addDiscoveredApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+				await this.addWidgetToDashboard(appTileFromDiscoveredApp(app))
 			} catch (error) {
 				logger.error('[Views] Failed to place a discovered app:', error)
 			}
+		},
+
+		/**
+		 * Read the app catalogue entries the user's groups may see, for the
+		 * picker's "From the app catalogue" section. A failure leaves the
+		 * section out; the rest of the picker works as before.
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 */
+		async loadCatalogueApps() {
+			try {
+				const response = await api.catalogueApps()
+				this.catalogueApps = Array.isArray(response?.data?.apps) ? response.data.apps : []
+			} catch (error) {
+				this.catalogueApps = []
+				logger.warn('[Views] Could not load the app catalogue:', error)
+			}
+		},
+
+		/**
+		 * Place a catalogue entry as an ordinary tile through the normal tile path.
+		 *
+		 * @param {object} app The catalogue entry.
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 */
+		async addCatalogueApp(app) {
+			try {
+				await this.addTileToDashboard(tileFromCatalogueApp(app))
+			} catch (error) {
+				logger.error('[Views] Failed to place a catalogue app:', error)
+			}
+		},
+
+		/**
+		 * Send a request for a missing app; the picker shows the outcome.
+		 *
+		 * @param {{appName: string, purpose: string}} request The request.
+		 * @return {Promise} The API call.
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		requestCatalogueApp(request) {
+			return api.requestCatalogueApp(request)
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -2194,19 +2514,48 @@ export default {
 		},
 
 		/**
+		 * The picker was dismissed (Escape, its close button or the backdrop):
+		 * close it and make sure focus does not fall to the page.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/widgets/spec.md#requirement-modal-close-discipline-req-wdg-013
+		 */
+		onWidgetPickerClose() {
+			this.closeWidgetModal()
+			nextTick(() => restoreLostFocus(this.widgetDialogOpener))
+		},
+
+		/**
+		 * A Launchpad widget type was picked: close the picker and open the
+		 * custom widget form on that type, its type select still changeable.
+		 *
+		 * @param {string} type The registry key.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		async onPickCustomWidget(type) {
+			this.closeWidgetModal()
+			await this.openCustomWidgetModal(null, type)
+		},
+
+		/**
 		 * Open the registry-driven custom widget modal in create mode.
 		 * Pass a `type` to deep-link to a specific sub-form (REQ-WDG-010
 		 * preselected-type scenario); omit it for the type-picker flow.
 		 *
 		 * @param {string|null} type registry key, or null for picker flow
+		 * @param {string|null} initialType registry key the form opens on while
+		 *   its type select stays visible
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		async openCustomWidgetModal(type = null) {
+		async openCustomWidgetModal(type = null, initialType = null) {
 			if (!(await this.enterEditMode())) {
 				return
 			}
 			this.customWidgetPreselectedType = type
+			this.customWidgetInitialType = initialType
 			this.customWidgetEditing = null
+			this.widgetDialogOpener = document.activeElement
 			this.isCustomWidgetModalOpen = true
 		},
 
@@ -2221,6 +2570,8 @@ export default {
 		openCustomWidgetEdit(placement) {
 			this.customWidgetEditing = placement
 			this.customWidgetPreselectedType = null
+			this.customWidgetInitialType = null
+			this.widgetDialogOpener = document.activeElement
 			this.isCustomWidgetModalOpen = true
 		},
 
@@ -2228,7 +2579,9 @@ export default {
 		closeCustomWidgetModal() {
 			this.isCustomWidgetModalOpen = false
 			this.customWidgetPreselectedType = null
+			this.customWidgetInitialType = null
 			this.customWidgetEditing = null
+			nextTick(() => restoreLostFocus(this.widgetDialogOpener))
 		},
 
 		/**
@@ -2259,10 +2612,13 @@ export default {
 					// Create the placement, then apply the chrome (title /
 					// background / icon) from the same modal as a follow-up
 					// patch against the new id.
-					const created = await this.addWidgetToDashboard({
-						type: payload.type,
-						content: payload.content,
-					})
+					const created = await this.addWidgetToDashboard(
+						{
+							type: payload.type,
+							content: payload.content,
+						},
+						newWidgetSize(payload, this.activeDashboard?.gridColumns, GRID_ROW_HEIGHT),
+					)
 					if (created?.id) {
 						await this.updateWidgetPlacement(
 							created.id,
@@ -2359,6 +2715,35 @@ export default {
 			this.isConfigModalOpen = true
 		},
 
+		/**
+		 * More's "Copy link to this dashboard": the open dashboard's own
+		 * address (its slug path, else `/dashboards/:id`) on the clipboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		async copyDashboardLink() {
+			const dash = this.activeDashboard
+			if (!dash) {
+				return
+			}
+			let path = ''
+			try {
+				const res = dash.uuid ? await api.getDashboardPath(dash.uuid) : null
+				path = res?.data?.path ?? ''
+			} catch (error) {
+				logger.warn('[Views] no path for the dashboard link:', error)
+			}
+			const url = window.location.origin + this.buildDeepLinkUrl(path || `/dashboards/${dash.id}`)
+			try {
+				await navigator.clipboard.writeText(url)
+				showSuccess(t('launchpad', 'Link copied'))
+			} catch (error) {
+				logger.warn('[Views] could not copy the dashboard link:', error)
+				showError(t('launchpad', 'The link could not be copied.'))
+			}
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		openCreateDashboardModal() {
 			this.configModalMode = 'create'
@@ -2382,6 +2767,21 @@ export default {
 		},
 
 		/**
+		 * Whether the user may remove a placement: not a compulsory widget
+		 * on a dashboard the user holds with less than full permission.
+		 *
+		 * @param {object|null} placement The placement.
+		 * @return {boolean} True when it may be removed.
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		isRemovablePlacement(placement) {
+			return !(
+				Number(placement?.isCompulsory) === 1
+				&& this.permissionLevel !== 'full'
+			)
+		},
+
+		/**
 		 * Remove a placement from the active dashboard.
 		 *
 		 * @param {number|string} placementId Id of the placement to remove.
@@ -2395,10 +2795,7 @@ export default {
 			const placement = (this.widgetPlacements || []).find(
 				(p) => p.id === placementId,
 			)
-			if (
-				Number(placement?.isCompulsory) === 1
-				&& this.permissionLevel !== 'full'
-			) {
+			if (!this.isRemovablePlacement(placement)) {
 				showError(
 					t(
 						'launchpad',
@@ -2500,12 +2897,15 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				internalUrl: content.internalUrl || '',
 				// service-health-ping: config lives in the placement's
 				// `content` JSON blob, no schema change (REQ-HPING-001).
 				healthPingEnabled: content.healthPingEnabled === true,
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// Launcher-tile-open-behaviour D1: '' follows the dashboard.
+				linkTarget: content.linkTarget || '',
 				// launcher-tile-launch-types: remote-desktop and sso settings.
 				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
@@ -2534,6 +2934,13 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002: validated by the server.
+				internalUrl: tileData.internalUrl || '',
+			}
+			// Launcher-tile-open-behaviour D1: the link target rides in the
+			// same content blob; absent means "follow the dashboard".
+			if (tileData.linkTarget) {
+				healthPingContent.linkTarget = tileData.linkTarget
 			}
 			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
 			// settings in the same blob, checked by the server with the link.
@@ -2565,7 +2972,7 @@ export default {
 		 * @param {object} tileData Assembled tile fields.
 		 * @param {object} content The placement's content blob.
 		 * @spec openspec/specs/service-health-ping/spec.md
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		async createTile(tileData, content) {
 			// A launch tile is checked on create, so it carries its content.
@@ -2574,9 +2981,10 @@ export default {
 			)
 			// `addTile` has no `content` parameter (mirrors the
 			// `addWidget` create-then-patch pattern above) — persist
-			// the health-ping block with a follow-up patch only when
-			// the author actually enabled it.
-			if (newPlacement?.id && content.healthPingEnabled) {
+			// the health-ping block (and the office-network address,
+			// launcher-tile-internal-address REQ-TIA-002, and the link target)
+			// with a follow-up patch only when the author actually set one.
+			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget)) {
 				await this.updateWidgetPlacement(newPlacement.id, {
 					content,
 				})
@@ -2588,7 +2996,7 @@ export default {
 		 *
 		 * @param {object} tileData Assembled tile fields.
 		 * @param {Error} error The failure.
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		reportTileSaveError(tileData, error) {
 			logger.error('[Views] Failed to save tile:', error)
@@ -2620,32 +3028,25 @@ export default {
 		 * @param {string} config.icon Icon key or URL.
 		 * @param {string} [config.parentUuid] Parent uuid, '' for none (edit only).
 		 * @param {string} [config.slug] Web address name (edit only).
+		 * @param {object} [config.look] The changed look fields (REQ-THM-001), edit only.
+		 * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule (edit only).
+		 * @param {Array<object>} [config.hierarchies] The hierarchy descriptors, only when changed (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 		 */
-		async saveDashboardConfig({
-			id,
-			name,
-			description,
-			icon,
-			parentUuid,
-			slug,
-		}) {
+		async saveDashboardConfig(config) {
+			const { id, name, description, icon, hierarchies } = config
 			this.configSaveError = ''
 			try {
 				if (id === null || id === undefined) {
 					await this.createDashboard({ name, description, icon })
 				} else {
-					const data = { name, description, icon }
-					// dashboard-tree-navigation: '' clears the parent; an
-					// empty web address name leaves the stored one alone.
-					if (parentUuid !== undefined) {
-						data.parentUuid = parentUuid
-					}
-					if (slug) {
-						data.slug = slug
-					}
-					await api.updateDashboard(id, data)
+					await api.updateDashboard(id, dashboardUpdateData(config))
 					await this.loadDashboards()
+					// REQ-CWF-011: the open dashboard's bus is rebuilt on what it now stores.
+					if (hierarchies !== undefined && this.activeDashboard?.id === id) {
+						this.openFilterSession(false)
+					}
 				}
 				this.closeConfigModal()
 			} catch (error) {
@@ -2665,6 +3066,14 @@ export default {
 		 */
 		treeSaveMessage(error) {
 			const message = error?.response?.data?.message ?? ''
+			// REQ-THM-002: the server's measured ratio, in the user's language.
+			if (error?.response?.data?.error === 'contrast_too_low') {
+				return t(
+					'launchpad',
+					'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)',
+					{ ratio: Number(error.response.data.ratio).toFixed(1) },
+				)
+			}
 			if (message === 'Setting this parent would create a cycle') {
 				return t(
 					'launchpad',
@@ -2731,11 +3140,9 @@ export default {
 		},
 
 		/**
-		 * Compute the absolute URL for a slug-chain path. The launchpad
-		 * routes mount under whatever prefix `generateUrl` produces
-		 * (typically `/index.php/apps/launchpad` or `/apps/launchpad` when
-		 * URL rewriting is enabled), so we anchor onto the same prefix
-		 * the API client uses.
+		 * Compute the absolute URL for a slug-chain path, under the app
+		 * prefix the page was opened on (`/index.php/apps/launchpad` or
+		 * `/apps/launchpad`), which is the prefix the router is mounted on.
 		 *
 		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
 		 * @return {string} Absolute pathname for `history.pushState`.
@@ -2745,9 +3152,65 @@ export default {
 			if (!path) {
 				return ''
 			}
-			const prefix = generateUrl('/apps/launchpad')
+			const prefix = appBase()
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
+		},
+
+		/**
+		 * Open the dashboard a slug address names. The store loads the
+		 * stored active dashboard, so without this a slug address showed
+		 * whichever dashboard was open last. Only an address the server
+		 * resolved to its canonical path counts: any other address (a stale
+		 * slug, a router path) keeps what the store chose.
+		 *
+		 * @param {string} bootPath `window.location.pathname` at boot.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-deeplinking/spec.md
+		 */
+		async openDeepLinkedDashboard(bootPath) {
+			const uuid = this.injectedActiveDashboardId
+			const canonical = this.buildDeepLinkUrl(this.injectedDeepLinkPath)
+			if (!uuid || !canonical || this.activeDashboard?.uuid === uuid) {
+				return
+			}
+			if (barePath(bootPath) !== barePath(canonical)) {
+				return
+			}
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.switchDashboard(target.id)
+			}
+		},
+
+		/**
+		 * Open the dashboard a `#dashboard/<uuid>` hash names: the link a
+		 * unified search result carries. A uuid the user has no dashboard
+		 * for keeps what the store chose.
+		 *
+		 * @param {string} hash The location hash.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-011-nextcloud-search-ui-integration
+		 */
+		async openHashLinkedDashboard(hash) {
+			const uuid = dashboardUuidFromHash(hash)
+			if (!uuid || this.activeDashboard?.uuid === uuid) {
+				return
+			}
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.switchDashboard(target.id)
+			}
+		},
+
+		/**
+		 * Follow a `#dashboard/<uuid>` hash set after the page loaded.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-011-nextcloud-search-ui-integration
+		 */
+		async onDashboardHashChange() {
+			await this.openHashLinkedDashboard(window.location.hash)
 		},
 
 		/**
@@ -2763,20 +3226,18 @@ export default {
 			if (!target) {
 				return
 			}
-			if (
-				window.location.pathname.replace(/\/+$/, '')
-				=== target.replace(/\/+$/, '')
-			) {
+			if (barePath(window.location.pathname) === barePath(target)) {
 				return
 			}
 			try {
+				// The query and hash stay: `?kiosk=1` must survive a reload.
 				window.history.replaceState(
 					{
 						uuid: this.activeDashboard?.uuid ?? null,
 						source: 'launchpad-deeplink',
 					},
 					'',
-					target,
+					target + window.location.search + window.location.hash,
 				)
 			} catch (e) {
 				// SecurityError when running outside the page's origin
@@ -2800,13 +3261,41 @@ export default {
 		 * Open the filter session of the active dashboard, stopping the
 		 * previous one (drill-down-cross-widget-filter REQ-CWF-003).
 		 *
+		 * Drill-down performance (Task 35, measured 2026-11-21 by
+		 * tests/e2e/cross-widget-filter-performance.spec.ts on a local stack:
+		 * 50,000 OpenRegister objects, 12 provinces, 342 gemeenten, 3,073
+		 * wijken, OpenRegister 2.2.0-dev, PostgreSQL 16; 12 gemeente-then-wijk
+		 * clicks per run, median / p95):
+		 * - OpenRegister time of a filtered aggregation: 113 / 125 ms
+		 *   (gemeente step), 108 / 118 ms (wijk step); a consumer's request
+		 *   leaves 5 / 9 ms after the press.
+		 * - Click to every consumer showing the filtered data, `bar-list`
+		 *   charts: 176 / 244 ms (wijk step 161 / 191 ms), inside 300 ms.
+		 * - The same with ApexCharts bars: 9.8 / 13.6 s, almost all of it the
+		 *   chart redraw after the response (ApexCharts measures each SVG text
+		 *   with getComputedStyle and getBBox); the bus and the query are not
+		 *   the cost. A consumer whose data lands over 200 ms after a filter
+		 *   change logs a warning (`refetchClock` in widgetBusConsumption.js).
+		 * - Non-consumers sent no request and did not redraw.
+		 * - Heap of 110 charts on the bus over the same charts off it:
+		 *   +0.32 MB (bound 1 MB).
+		 *
 		 * @param {boolean} readUrl Whether the URL's `f` seeds the bus.
 		 * @return {void}
 		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
 		 */
 		openFilterSession(readUrl) {
 			this.filterSession?.stop()
-			this.filterSession = useDashboardFilterSession({ dashboard: this.activeDashboard, readUrl })
+			this.filterSession = useDashboardFilterSession({
+				dashboard: this.activeDashboard,
+				readUrl,
+				// REQ-CWF-010: rows are written only when the organisation opted in.
+				telemetry: createFilterTelemetry({
+					enabled: () => loadInitialState('workspace').filterTelemetryEnabled === true,
+					dashboardId: this.activeDashboard?.uuid ?? '',
+					userId: typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : '',
+				}),
+			})
 		},
 
 		/**
@@ -2830,19 +3319,67 @@ export default {
 			this.filterSession?.reset()
 		},
 
-		async pushUrlForActiveDashboard() {
+		/**
+		 * A drill-down breadcrumb step was chosen: go back up to that level.
+		 *
+		 * @param {string} dimension The level's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		onFilterPop(dimension) {
+			this.filterSession?.popTo(dimension)
+		},
+
+		/**
+		 * Write the address of the dashboard the boot ended on when it is not
+		 * the one the server rendered. A `/dashboards/:id` route or a
+		 * `#dashboard/<uuid>` hash opens another dashboard after mounted()
+		 * wrote the server's dashboard's address, so without this the
+		 * address named the wrong dashboard. Replaces rather than pushes, so
+		 * the boot adds no history entry.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 */
+		async replaceUrlAfterBoot() {
+			const uuid = this.activeDashboard?.uuid
+			if (!uuid || uuid === this.injectedActiveDashboardId) {
+				return
+			}
+			await this.pushUrlForActiveDashboard(true)
+		},
+
+		/**
+		 * Write the active dashboard's canonical path to the address bar.
+		 *
+		 * @param {boolean} [replace] Replace the current entry, keeping the
+		 *   query and hash, and fall back to `/dashboards/:id` for a dashboard
+		 *   without a path. Otherwise push a new entry.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async pushUrlForActiveDashboard(replace = false) {
 			const uuid = this.activeDashboard?.uuid
 			if (!uuid) {
 				return
 			}
 			try {
 				const res = await api.getDashboardPath(uuid)
-				const path = res?.data?.path ?? ''
+				const path = res?.data?.path
+					|| (replace && this.activeDashboard.id !== undefined ? `/dashboards/${this.activeDashboard.id}` : '')
 				const target = this.buildDeepLinkUrl(path)
 				if (!target) {
 					return
 				}
-				if (window.location.pathname === target) {
+				if (barePath(window.location.pathname) === barePath(target)) {
+					return
+				}
+				if (replace) {
+					window.history.replaceState(
+						{ uuid, source: 'launchpad-deeplink' },
+						'',
+						target + window.location.search + window.location.hash,
+					)
 					return
 				}
 				window.history.pushState(
@@ -2873,7 +3410,7 @@ export default {
 				return
 			}
 
-			const prefix = generateUrl('/apps/launchpad')
+			const prefix = appBase()
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {
@@ -2929,16 +3466,41 @@ export default {
 		},
 
 		/**
-		 * Row cog "Add widget" — switch to the row's dashboard, then open the
-		 * custom-widget picker.
+		 * Row cog "Add widget": switch to the row's dashboard, then open the
+		 * widget picker.
 		 *
 		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
 		 */
-		async onRowAddCustomWidget(dashboard, source) {
+		async onRowAddWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
-			this.openCustomWidgetModal()
+			await this.openWidgetModal()
+		},
+
+		/**
+		 * Open the bookmark import for the row's dashboard, switching to it
+		 * first so the new containers and tiles land where the user looks
+		 * (launcher-bookmark-import REQ-BMI-001).
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		async onRowImportBookmarks(dashboard, source) {
+			await this.maybeSwitchTo(dashboard.id, source)
+			this.isBookmarkImportOpen = true
+		},
+
+		/**
+		 * Send the chosen bookmarks for the active dashboard through the store.
+		 *
+		 * @param {{folders: Array<object>, bookmarks: Array<object>}} chosen The chosen items.
+		 * @return {Promise<{placements: Array<object>, skipped: Array<object>}>}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		importChosenBookmarks(chosen) {
+			return this.importBookmarks(chosen)
 		},
 
 		/**
@@ -3135,6 +3697,27 @@ export default {
 	background: transparent;
 }
 
+/* A dashboard that fills the height (LpVandaag): the page keeps the height
+   below the top bar and the grid divides it, so nothing here scrolls. */
+#launchpad-app.launchpad-app--fill {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.launchpad-container.launchpad-container--fill {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.launchpad-container--fill > .cn-dashboard-grid {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
 /* Nextcloud insets the content area horizontally but not at the top, so the
    grid sat flush under the navbar (8px top gap from the grid margin vs 16px
    on the sides). Add a matching top inset so the dashboard breathes evenly.
@@ -3142,12 +3725,13 @@ export default {
    in the single .launchpad-container rule further below. */
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
-   frosted-glass tile look (was DashboardGrid's local style) by overriding
-   the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
+   translucent tile look (was DashboardGrid's local style) by overriding
+   the grid-item-content surface. :deep penetrates into CnDashboardGrid.
+   No backdrop blur: the content area behind is already blurred, and each
+   blurred item was blurred again on every repaint, which made a pointer
+   move over the grid cost 100 ms or more. */
 .launchpad-container :deep(.grid-stack-item-content) {
 	background: var(--color-main-background-blur);
-	backdrop-filter: var(--filter-background-blur);
-	-webkit-backdrop-filter: var(--filter-background-blur);
 	border-radius: var(--border-radius-large);
 	overflow: hidden;
 }
@@ -3193,6 +3777,29 @@ export default {
 	opacity: 0.35;
 }
 
+.launchpad-grid-item--hidden-for-viewers {
+	position: relative;
+}
+
+.launchpad-grid-item--hidden-for-viewers > :not(.launchpad-grid-item__hidden-badge) {
+	opacity: 0.5;
+}
+
+.launchpad-grid-item__hidden-badge {
+	position: absolute;
+	top: calc(var(--default-grid-baseline) * 2);
+	inset-inline-start: calc(var(--default-grid-baseline) * 2);
+	z-index: 2;
+	padding: 0 calc(var(--default-grid-baseline) * 2);
+	border-radius: var(--border-radius-pill);
+	background-color: var(--color-main-background);
+	color: var(--color-main-text);
+	border: 1px solid var(--color-border-dark);
+	font-size: var(--font-size-small, 13px);
+	line-height: 24px;
+	pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.launchpad-grid-item {
 		transition: none;
@@ -3234,12 +3841,6 @@ export default {
 	font-size: 0.8em;
 	font-weight: 600;
 	white-space: nowrap;
-}
-
-.launchpad-sidebar-toggle {
-	/* Hint that the sidebar opens from the left even though the toggle
-	   itself lives in the top-right cluster. */
-	margin-right: auto;
 }
 
 /* Strip the visible text on the menu trigger button — we want icon-only.

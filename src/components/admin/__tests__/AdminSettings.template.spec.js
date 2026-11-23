@@ -65,6 +65,7 @@ const TABS = [
 	'OrgNavigationTab',
 	'DemoDataTab',
 	'GroupDashboardsTab',
+	'EmbedsTab',
 	'MetadataFieldsSettings',
 	'ProfileFieldsTab',
 	'SetupWizardModal',
@@ -117,6 +118,7 @@ describe('AdminSettings tab slots', () => {
 			'tab-org-navigation': 'OrgNavigationTab',
 			'tab-demo-data': 'DemoDataTab',
 			'tab-group-dashboards': 'GroupDashboardsTab',
+			'tab-embeds': 'EmbedsTab',
 			'tab-detail-fields': 'MetadataFieldsSettings',
 			'tab-profile-fields': 'ProfileFieldsTab',
 		}
@@ -195,7 +197,7 @@ describe('AdminSettings General controls', () => {
 
 	it('saves each switch under its own setting', async () => {
 		const wrapper = await mountPage()
-		const [allowUser, allowMultiple, noNavigation] = wrapper.findAllComponents({ name: 'NcCheckboxRadioSwitch' })
+		const [allowUser, allowMultiple] = wrapper.findAllComponents({ name: 'NcCheckboxRadioSwitch' })
 
 		allowUser.vm.$emit('update:modelValue', true)
 		await flushPromises()
@@ -205,9 +207,7 @@ describe('AdminSettings General controls', () => {
 		await flushPromises()
 		expect(savedPayload().allowMultiDash).toBe(false)
 
-		noNavigation.vm.$emit('update:modelValue', true)
-		await flushPromises()
-		expect(savedPayload().startPageWithoutNavigation).toBe(true)
+		expect(savedPayload()).not.toHaveProperty('startPageWithoutNavigation')
 	})
 
 	it('clamps and saves each quota field', async () => {

@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Support\FleetAppId;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -124,9 +125,12 @@ class PageController extends Controller {
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
 		$settings = $this->settings->adminSettingsService->getSettings();
-		$bridgedWidgets = $this->resolveBridgedWidgets(settings: $settings);
-
 		$userId = $this->resolveUserId();
+		$allowedWidgets = $this->allowedWidgets(userId: $userId);
+		$widgets = AllowedWidgetFilter::permitted(
+			widgets: $this->resolveWidgetCatalogue(settings: $settings),
+			allowed: $allowedWidgets
+		);
 
 		$routingGroup = $this->resolveRoutingGroup(userId: $userId);
 		$primaryGroupId = $routingGroup['id'];
@@ -149,7 +153,7 @@ class PageController extends Controller {
 		}
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
-		$activeState = $this->describeActive(active: $active);
+		$activeState = $this->describeActive(active: $active, userId: $userId);
 
 		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
 
@@ -159,7 +163,7 @@ class PageController extends Controller {
 		);
 
 		$builder
-			->setWidgets($bridgedWidgets)
+			->setWidgets($widgets)
 			->setLayout($activeState['layout'])
 			->setPrimaryGroup($primaryGroupId)
 			->setPrimaryGroupName($primaryGroupName)
@@ -169,15 +173,6 @@ class PageController extends Controller {
 			->setGroupDashboards($descriptors['group'])
 			->setUserDashboards($descriptors['user'])
 			->setAllowUserDashboards($allowUserDashboards);
-
-		// PR #95 (role-based-content): per-user widget allow-list.
-		// `null` = no admin policy for this user (unlimited).
-		$allowedWidgets = null;
-		if ($userId !== '') {
-			$allowedWidgets = $this->settings->roleFeaturePerm->getAllowedWidgetIds(
-				userId: $userId
-			);
-		}
 
 		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
 		// no-match fallback target. `getSettings()` already resolves the
@@ -190,11 +185,15 @@ class PageController extends Controller {
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
-			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
-			->setTileLaunchOptions(
-				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
-				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
-			)
+			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
+			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
+			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
+			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
+			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
+			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
+			->setIntegrationApps($this->integrationApps())
+			->setUserTimezone($this->userTimezone(userId: $userId))
+			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass
@@ -211,47 +210,77 @@ class PageController extends Controller {
 		//
 		// The slide-in sidebar is unaffected; it lives inside the workspace
 		// view, not in the chrome slot.
-		$response = new TemplateResponse(
-			appName: Application::APP_ID,
-			templateName: 'index'
-		);
-
-		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
-
-		return $response;
+		return $this->workspaceResponse();
 	}//end index()
 
 	/**
-	 * Resolve the widgets to bridge into the workspace, if any.
+	 * The workspace page, without the Nextcloud layout for `kiosk=1`
+	 * (REQ-KIOSK-001).
 	 *
-	 * Legacy-widget-bridge spec: touching the Nextcloud widget registry at all is
-	 * what costs us. `IManager::getWidgets()` is not a getter — it calls
-	 * loadLazyPanels(), which calls load() on EVERY widget of every app enabled
-	 * for the user, ignoring the dashboard layout, and load() is where widgets
-	 * call `Util::addScript()`. Measured on this instance that is ~147 MB of
-	 * widget JS injected into a page rendering no Nextcloud dashboard, every one
-	 * of which then throws because `OCA.Dashboard` exists only on
-	 * `/apps/dashboard`.
+	 * @return TemplateResponse The page.
+	 */
+	private function workspaceResponse(): TemplateResponse {
+		$response = new TemplateResponse(
+			appName: Application::APP_ID,
+			templateName: 'index',
+			params: [],
+			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_USER)
+		);
+		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
+
+		return $response;
+	}//end workspaceResponse()
+
+	/**
+	 * The per-user widget allow-list (PR #95, role-based-content).
 	 *
-	 * So the registry is touched only when the bridge is actually on. When it is
-	 * off the workspace renders without paying for widgets it will never bridge,
-	 * and the SPA still has everything it needs: Views.vue fetches the
-	 * available-widget list from `GET /api/widgets` on boot.
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return array|null The allowed widget ids, or null when no admin policy
+	 *                    applies to this user (unlimited).
+	 */
+	private function allowedWidgets(string $userId): ?array {
+		if ($userId === '') {
+			return null;
+		}
+
+		return $this->settings->roleFeaturePerm->getAllowedWidgetIds(
+			userId: $userId
+		);
+	}//end allowedWidgets()
+
+	/**
+	 * The Nextcloud dashboard widgets the workspace page carries in its
+	 * `widgets` initial state, so the card library lists them without a
+	 * `GET /api/widgets` call (REQ-RFP-010).
+	 *
+	 * `IManager::getWidgets()` is not a getter: it calls loadLazyPanels(),
+	 * which calls load() on EVERY widget of every app enabled for the user,
+	 * and load() is where widgets call `Util::addScript()`. Measured on this
+	 * instance that is ~147 MB of widget JS injected into a page rendering no
+	 * Nextcloud dashboard, every one of which then throws because
+	 * `OCA.Dashboard` exists only on `/apps/dashboard`.
+	 *
+	 * So the registry is loaded only when the legacy widget bridge is on and
+	 * needs those scripts. When it is off the widgets are read without loading
+	 * them; when even that is not possible the list is empty and the card
+	 * library falls back to `GET /api/widgets`.
 	 *
 	 * @param array $settings Resolved admin settings (see AdminSettingsService).
 	 *
-	 * @return array The widget descriptors to bridge, empty when the bridge is off.
+	 * @return array The widget descriptors, not yet narrowed to the user's role.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
 	 */
-	private function resolveBridgedWidgets(array $settings): array {
+	private function resolveWidgetCatalogue(array $settings): array {
 		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? false);
-		if ($bridgeEnabled === false) {
-			return [];
+		if ($bridgeEnabled === true) {
+			return $this->sources->widgetService->getAvailableWidgets();
 		}
 
-		return $this->sources->widgetService->getAvailableWidgets();
-	}//end resolveBridgedWidgets()
+		return $this->sources->widgetService->getWidgetCatalogue() ?? [];
+	}//end resolveWidgetCatalogue()
 
 	/**
 	 * Resolve the primary group this request routes through.
@@ -287,6 +316,91 @@ class PageController extends Controller {
 			'name' => $primaryGroupName,
 		];
 	}//end resolveRoutingGroup()
+
+	/**
+	 * The viewer's Nextcloud timezone, which a clock without its own zone
+	 * shows (REQ-CLOCK-002), or '' when it is unknown.
+	 *
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return string The IANA timezone name, or ''.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	private function userTimezone(string $userId): string {
+		if ($userId === '' || $this->settings->config === null) {
+			return '';
+		}
+
+		return $this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'timezone', default: '');
+	}//end userTimezone()
+
+	/**
+	 * Which apps behind the integration widgets are enabled for the
+	 * signed-in user, by app id (wiki-widget REQ-WIKI-004).
+	 *
+	 * @return array<string, bool|string> Whether each app is enabled, or the id it is installed under.
+	 *
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 */
+	private function integrationApps(): array {
+		return [
+			'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
+			'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+			'dossiq'                  => $this->enabledFleetAppId(canonical: 'dossiq'),
+		];
+	}//end integrationApps()
+
+	/**
+	 * Whether an app is enabled for the signed-in user. Talk and the apps
+	 * behind the integration widgets are optional: when one is absent,
+	 * disabled for this user, or the check fails, its widget explains itself
+	 * or stays out of the picker (engagement-communities REQ-COMM-004,
+	 * wiki-widget REQ-WIKI-004).
+	 *
+	 * @param string $appId The app id.
+	 *
+	 * @return bool True when the app is enabled for the viewer.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 */
+	private function isAppEnabledForViewer(string $appId): bool {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->settings->appManager === null) {
+			return false;
+		}
+
+		try {
+			return $this->settings->appManager->isEnabledForUser(appId: $appId, user: $user);
+		} catch (Throwable) {
+			return false;
+		}
+	}//end isAppEnabledForViewer()
+
+	/**
+	 * The id under which a renamed fleet app is installed and enabled for the
+	 * signed-in user, or false. The app is looked up by every name it has had
+	 * ({@see FleetAppId}), never by one spelling (assigned-cases-widget REQ-CASES-004).
+	 *
+	 * @param string $canonical The app's current name.
+	 *
+	 * @return string|false The installed id, or false.
+	 *
+	 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
+	 */
+	private function enabledFleetAppId(string $canonical): string|false {
+		if ($this->settings->appManager === null) {
+			return false;
+		}
+
+		$installed = FleetAppId::resolve(appManager: $this->settings->appManager, canonical: $canonical);
+		if ($installed === null || $this->isAppEnabledForViewer(appId: $installed) === false) {
+			return false;
+		}
+
+		return $installed;
+	}//end enabledFleetAppId()
 
 	/**
 	 * Resolve the active session's user id.
@@ -429,11 +543,15 @@ class PageController extends Controller {
 	 * Returns the documented empty defaults when nothing is active, so
 	 * the contract is fully populated either way.
 	 *
+	 * The layout leaves out nothing but marks a widget the user's role does
+	 * not permit with `isVisible` 0, as the dashboard reads do (REQ-RFP-001).
+	 *
 	 * @param array{dashboard: Dashboard, source: string}|null $active The active entry.
+	 * @param string                                           $userId The user, or '' when nobody is logged in.
 	 *
 	 * @return array{activeDashboardId: string, dashboardSource: string, layout: array<int, mixed>, deepLinkPath: string}
 	 */
-	private function describeActive(?array $active): array {
+	private function describeActive(?array $active, string $userId): array {
 		if ($active === null) {
 			return [
 				'activeDashboardId' => '',
@@ -451,15 +569,40 @@ class PageController extends Controller {
 		return [
 			'activeDashboardId' => (string)$activeDashboard->getUuid(),
 			'dashboardSource' => (string)$active['source'],
-			'layout' => array_map(
-				callback: function ($placement) {
-					return $placement->jsonSerialize();
-				},
-				array: $placements
+			'layout' => $this->hideUnpermitted(
+				placements: array_map(
+					callback: function ($placement) {
+						return $placement->jsonSerialize();
+					},
+					array: $placements
+				),
+				userId: $userId
 			),
 			'deepLinkPath' => $this->computeDeepLinkPath(dashboard: $activeDashboard),
 		];
 	}//end describeActive()
+
+	/**
+	 * The serialised placements with the ones the user's role does not
+	 * permit marked `isVisible` 0; unchanged when nobody is logged in.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The user, or ''.
+	 *
+	 * @return array<int, array<string, mixed>> The placements.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	private function hideUnpermitted(array $placements, string $userId): array {
+		if ($userId === '') {
+			return $placements;
+		}
+
+		return $this->settings->roleFeaturePerm->hideUnpermittedPlacements(
+			placements: $placements,
+			userId: $userId
+		);
+	}//end hideUnpermitted()
 
 	/**
 	 * Compute the canonical slug-chain for the active dashboard.
@@ -598,7 +741,7 @@ class PageController extends Controller {
 			appName: Application::APP_ID,
 			templateName: 'public',
 			params: [],
-			renderAs: TemplateResponse::RENDER_AS_PUBLIC
+			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_PUBLIC)
 		);
 
 		$csp = new ContentSecurityPolicy();
@@ -610,6 +753,23 @@ class PageController extends Controller {
 
 		return $response;
 	}//end publicPage()
+
+	/**
+	 * The page layout: without any Nextcloud chrome (header, navigation)
+	 * when the request carries `kiosk=1` (REQ-KIOSK-001), else the default.
+	 * The flag only changes the layout; every access check runs unchanged.
+	 *
+	 * @param string $default The layout without the flag.
+	 *
+	 * @return string The layout to render as.
+	 */
+	private function kioskRenderAs(string $default): string {
+		if ($this->request->getParam(key: 'kiosk') === '1') {
+			return TemplateResponse::RENDER_AS_BASE;
+		}
+
+		return $default;
+	}//end kioskRenderAs()
 
 	/**
 	 * Add the `launchpad-public` script and the app stylesheet to the page.

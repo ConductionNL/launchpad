@@ -25,6 +25,7 @@ namespace Unit\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\PeopleWidgetController;
+use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
@@ -35,6 +36,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\RequestActor;
+use OCA\LaunchPad\Controller\UserResponses;
 
 class PeopleWidgetControllerTest extends TestCase {
 
@@ -173,6 +179,30 @@ class PeopleWidgetControllerTest extends TestCase {
 	}//end testReturns400WhenServiceRejectsArguments()
 
 	/**
+	 * A refused window answers with the message that names the parameter.
+	 *
+	 * @return void
+	 */
+	public function testReturns400WithTheMessageOfARefusedWindow(): void {
+		$this->service->method('listUsers')
+			->willThrowException(
+				exception: new InvalidPeopleRequestException(message: 'limit must be between 1 and 100')
+			);
+
+		$controller = $this->buildController(userId: 'alice');
+		$response = $controller->getUsers(limit: 200);
+
+		$this->assertSame(
+			expected: Http::STATUS_BAD_REQUEST,
+			actual: $response->getStatus()
+		);
+		$this->assertSame(
+			expected: 'limit must be between 1 and 100',
+			actual: $response->getData()['error']
+		);
+	}//end testReturns400WithTheMessageOfARefusedWindow()
+
+	/**
 	 * @return void
 	 */
 	public function testParsesValidFilterJson(): void {
@@ -201,6 +231,50 @@ class PeopleWidgetControllerTest extends TestCase {
 	}//end testParsesValidFilterJson()
 
 	/**
+	 * A limit that is not a whole number is refused with a message naming
+	 * it, and the directory is not read.
+	 *
+	 * @return void
+	 */
+	public function testReturns400ForANonIntegerLimit(): void {
+		$this->service->expects($this->never())->method('listUsers');
+
+		$controller = $this->buildController(userId: 'alice');
+		$response = $controller->getUsers(limit: 'abc');
+
+		$this->assertSame(
+			expected: Http::STATUS_BAD_REQUEST,
+			actual: $response->getStatus()
+		);
+		$this->assertSame(
+			expected: 'limit must be an integer',
+			actual: $response->getData()['error']
+		);
+	}//end testReturns400ForANonIntegerLimit()
+
+	/**
+	 * A limit sent as a numeric string reaches the service as an integer.
+	 *
+	 * @return void
+	 */
+	public function testReadsANumericLimitString(): void {
+		$this->service->expects($this->once())
+			->method('listUsers')
+			->with(
+				new PeopleQuery(
+					filters: [],
+					sortBy: 'displayName',
+					search: null,
+					page: PeopleQuery::window(excludeDisabled: true, showBirthdays: true, limit: 20, offset: 0)
+				),
+			)
+			->willReturn(['users' => [], 'total' => 0, 'hasMore' => false]);
+
+		$controller = $this->buildController(userId: 'alice');
+		$controller->getUsers(limit: '20');
+	}//end testReadsANumericLimitString()
+
+	/**
 	 * @param string|null $userId The user id (null for anonymous).
 	 *
 	 * @return PeopleWidgetController
@@ -217,10 +291,12 @@ class PeopleWidgetControllerTest extends TestCase {
 		return new PeopleWidgetController(
 			request: $this->request,
 			service: $this->service,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			logger: $this->logger,
-			userId: $userId,
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}//end buildController()
 }//end class

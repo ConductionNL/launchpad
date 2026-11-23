@@ -414,7 +414,7 @@ class StoreServiceTest extends TestCase {
 	public function testTheRegistryTokenIsNeverReadBack(): void {
 		$this->configValues = [
 			StoreService::CONFIG_URL => 'https://registry.example.org/',
-			StoreService::CONFIG_TOKEN => 'super-secret-token',
+			StoreService::CONFIG_REGISTRY_AUTH => 'super-secret-token',
 			StoreService::CONFIG_REGISTER => 'launchpad',
 		];
 
@@ -432,7 +432,7 @@ class StoreServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnOmittedKeyIsLeftAloneAndAnEmptyOneClears(): void {
-		$this->configValues = [StoreService::CONFIG_TOKEN => 'super-secret-token'];
+		$this->configValues = [StoreService::CONFIG_REGISTRY_AUTH => 'super-secret-token'];
 		$service = $this->service(discovery: null);
 
 		$service->updateRegistryConfig(registryUrl: 'https://registry.example.org/');

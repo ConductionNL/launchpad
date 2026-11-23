@@ -43,6 +43,7 @@
 			{{ t('launchpad', 'Read confirmation…') }}
 		</button>
 		<button
+			v-if="!removeLocked"
 			type="button"
 			class="widget-context-menu__item widget-context-menu__item--danger"
 			role="menuitem"
@@ -79,6 +80,7 @@ import { t } from '@nextcloud/l10n'
  * Props:
  *  - `top` (number): clamped pixel offset from the viewport top
  *  - `left` (number): clamped pixel offset from the viewport left
+ *  - `removeLocked` (boolean): leave Remove out (default false)
  *
  * Emits:
  *  - `edit`: user clicked Edit — parent should open `AddWidgetModal` with
@@ -102,6 +104,12 @@ export default {
 		left: {
 			type: Number,
 			required: true,
+		},
+
+		/** Leaves Remove out, for a widget the user may not remove. */
+		removeLocked: {
+			type: Boolean,
+			default: false,
 		},
 	},
 

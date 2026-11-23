@@ -15,7 +15,12 @@
 			v-if="registryEntry"
 			:content="normalizedContent"
 			:placement="placement"
-			v-bind="rendererProps" />
+			v-bind="rendererProps"
+			@data="onWidgetData"
+			@edit="$emit('editRequest')"
+			@editRequest="$emit('editRequest')" />
+
+		<CalculatedValues v-if="registryEntry" :placement="placement" />
 
 		<!-- Custom Tile Widget (legacy path: widgetId === 'tile-{id}') -->
 		<TileWidget
@@ -24,7 +29,8 @@
 			:placementId="placement.id"
 			:content="normalizedContent"
 			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
-			:pingInterval="normalizedContent.pingInterval" />
+			:pingInterval="normalizedContent.pingInterval"
+			:linkTarget="normalizedContent.linkTarget || null" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">
@@ -47,16 +53,16 @@
 
 		<!-- Legacy Widget - Mount via callback -->
 		<div
-			v-else-if="!loading"
+			v-else-if="(widget || isTileWidget) && !loading"
 			ref="legacyWidgetContainer"
 			class="widget-renderer__legacy" />
 
-		<!-- Loading state for unknown widget types -->
+		<!-- Loading state while a widget initialises -->
 		<div v-else-if="loading" class="widget-renderer__loading">
 			<NcLoadingIcon :size="32" />
 		</div>
 
-		<!-- Unknown widget type -->
+		<!-- Unknown widget type: no registry entry, tile or installed widget -->
 		<NcEmptyContent v-else :description="t('launchpad', 'Widget not available')">
 			<template #icon>
 				<AlertCircleOutline :size="48" />
@@ -74,7 +80,9 @@ import {
 import { mapActions, storeToRefs } from 'pinia'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import TileWidget from './TileWidget.vue'
+import CalculatedValues from './Widgets/CalculatedFields/CalculatedValues.vue'
 import {
+	FLAG_PROP,
 	NULLABLE_OBJECT_PROP,
 	REQUIRED_OBJECT_PROP,
 } from '../constants/propDefinitions.js'
@@ -84,12 +92,20 @@ import {
 	buildRendererExtraProps,
 	buildWidgetDataProvide,
 } from '../services/widgetDataAdapters.js'
+import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { logger } from '../utils/logger.js'
+import { placementContent } from '../utils/placementContent.js'
 
 /** How many times a legacy widget mount is retried before giving up. */
 const LEGACY_MOUNT_ATTEMPTS = 20
+
+/*
+ * Shared widgets that read edit mode from `isAdmin` + `canEdit`: they suppress
+ * their clicks then, and the menu's empty-state gear asks for the editor.
+ */
+const EDIT_FLAG_WIDGETS = ['menu', 'link', 'links', 'quicklinks', 'tile', 'video']
 
 /**
  * The first truthy value among an item's fields, or ''.
@@ -137,6 +153,7 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		AlertCircleOutline,
+		CalculatedValues,
 		TileWidget,
 	},
 
@@ -149,14 +166,18 @@ export default {
 	 * @return {object} the injected data-source adapters.
 	 */
 	provide() {
-		return buildWidgetDataProvide(() => this.placement?.id)
+		return buildWidgetDataProvide(() => this.placement?.id, () => this.placement?.content)
 	},
 
 	props: {
 		widget: NULLABLE_OBJECT_PROP,
 
 		placement: REQUIRED_OBJECT_PROP,
+
+		editMode: FLAG_PROP,
 	},
+
+	emits: ['editRequest'],
 
 	data() {
 		return {
@@ -179,9 +200,10 @@ export default {
 		 * @return {object} the content object (empty when unset).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/specs/files-widget/spec.md
 		 */
 		normalizedContent() {
-			return this.placement?.content || {}
+			return placementContent(this.placement)
 		},
 
 		/**
@@ -228,7 +250,11 @@ export default {
 		 * @return {object} extra props for `<component :is>` (empty for most types).
 		 */
 		rendererProps() {
-			return buildRendererExtraProps(this.placement?.widgetId)
+			const props = buildRendererExtraProps(this.placement?.widgetId)
+			if (EDIT_FLAG_WIDGETS.includes(this.placement?.widgetId)) {
+				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
+			}
+			return props
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -268,6 +294,7 @@ export default {
 					textColor: this.placement.tileTextColor,
 					linkType: this.placement.tileLinkType,
 					linkValue: this.placement.tileLinkValue,
+					internalUrl: (this.placement.content && this.placement.content.internalUrl) || '',
 				}
 			}
 			// Referenced tile: resolve the Tile entity from the store by id.
@@ -391,6 +418,20 @@ export default {
 
 	methods: {
 		...mapActions(useWidgetStore, ['loadWidgetItems', 'refreshWidgetItems']),
+
+		/**
+		 * Hand what a self-fetching widget shows to the calculated fields of
+		 * its placement, so they evaluate over it (REQ-CALC-003).
+		 *
+		 * @param {object} data The widget's `data` summary.
+		 * @return {void}
+		 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+		 */
+		onWidgetData(data) {
+			if (this.placement?.id !== undefined && this.placement?.id !== null) {
+				useCalculatedFieldsStore().setWidgetData(String(this.placement.id), data)
+			}
+		},
 
 		/** @spec openspec/specs/widgets/spec.md */
 		setupStoreSubscription() {

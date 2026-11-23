@@ -104,6 +104,9 @@ export default {
 	props: {
 		content: OBJECT_PROP,
 
+		/** The container's own placement; its id keys children that have none. */
+		placement: OBJECT_PROP,
+
 		editMode: FLAG_PROP,
 	},
 
@@ -121,10 +124,26 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/specs/container-widget/spec.md */
+		/**
+		 * The stored children. A child without an id or uuid of its own (a
+		 * bookmark import writes them that way) gets `<container id>-<index>`
+		 * as its uuid, so its use can be counted and it keeps one key.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
 		children() {
 			const list = this.content?.placements
-			return Array.isArray(list) ? list : []
+			if (!Array.isArray(list)) {
+				return []
+			}
+			const owner = this.placement?.id
+			if (owner === undefined || owner === null) {
+				return list
+			}
+			return list.map((child, index) => (childUseKey(child) === ''
+				? { ...child, uuid: `${owner}-${index}` }
+				: child))
 		},
 
 		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
@@ -243,9 +262,37 @@ export default {
 		 * @return {void}
 		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
 		 */
-		forgetUsage() {
+		async forgetUsage() {
 			forgetTileUse(this.children.map(childUseKey).filter((key) => key !== ''))
 			this.tileUse = readTileUse()
+			await this.$nextTick()
+			this.moveGridItemsToAttributes()
+		},
+
+		/**
+		 * Move every inner grid item to the position its `gs-*` attributes now
+		 * name. GridStack keeps its own copy of each item's position, so a
+		 * re-sorted view only shows its new order once the grid is told.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		moveGridItemsToAttributes() {
+			const grid = this.gridInstance
+			if (!grid || typeof grid.update !== 'function' || !this.$refs.innerGrid) {
+				return
+			}
+			const items = this.$refs.innerGrid.querySelectorAll(':scope > .grid-stack-item')
+			grid.batchUpdate?.()
+			for (const el of items) {
+				grid.update(el, {
+					x: Number(el.getAttribute('gs-x') ?? 0),
+					y: Number(el.getAttribute('gs-y') ?? 0),
+					w: Number(el.getAttribute('gs-w') ?? 2),
+					h: Number(el.getAttribute('gs-h') ?? 2),
+				})
+			}
+			grid.batchUpdate?.(false)
 		},
 
 		/**

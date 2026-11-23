@@ -36,8 +36,8 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -47,7 +47,6 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin-only controller for dashboard view-analytics endpoints.
@@ -61,15 +60,17 @@ class AnalyticsController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param AnalyticsService $analyticsService The analytics reporting service.
+	 * @param AnalyticsServiceInterface $analyticsService The analytics reporting service.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession Current user session.
+	 * @param AnalyticsContext $context Holds the userSession and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AnalyticsService $analyticsService,
+		private readonly AnalyticsServiceInterface $analyticsService,
 		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
+		private readonly AnalyticsContext $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -83,6 +84,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function topDashboards(
@@ -103,7 +105,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end topDashboards()
 
 	/**
@@ -116,6 +118,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function dashboardDetail(
@@ -138,7 +141,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}//end try
 
-		return ResponseHelper::success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end dashboardDetail()
 
 	/**
@@ -149,6 +152,7 @@ class AnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function instanceSummary(string $period = '30d'): JSONResponse {
@@ -165,7 +169,7 @@ class AnalyticsController extends Controller {
 			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $summary);
+		return $this->context->responseHelper->success(data: $summary);
 	}//end instanceSummary()
 
 	/**
@@ -209,9 +213,11 @@ class AnalyticsController extends Controller {
 	 * @param string $action The action identifier to require.
 	 *
 	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		$check = new SessionActionCheck(userSession: $this->userSession, actionAuth: $this->actionAuth);
+		$check = new SessionActionCheck(userSession: $this->context->userSession, actionAuth: $this->actionAuth);
 		return $check->refusal(action: $action);
 	}//end actionRefusal()
 }//end class

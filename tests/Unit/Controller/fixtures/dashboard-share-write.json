@@ -1911,7 +1911,26 @@
                 },
                 "alice",
                 [
-                    "carol"
+                    "carol",
+                    "bob"
+                ]
+            ],
+            [
+                "activity shared",
+                1,
+                {
+                    "id": 11,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "2020-01-01 00:00:00",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol",
+                    "bob"
                 ]
             ],
             [
@@ -1940,23 +1959,6 @@
                 ]
             ],
             "notify",
-            [
-                "activity shared",
-                1,
-                {
-                    "id": 11,
-                    "dashboardId": 1,
-                    "shareType": "user",
-                    "shareWith": "bob",
-                    "permissionLevel": "full",
-                    "createdAt": "2020-01-01 00:00:00",
-                    "updatedAt": "<now>"
-                },
-                "alice",
-                [
-                    "bob"
-                ]
-            ],
             [
                 "notification",
                 [
@@ -2072,6 +2074,23 @@
                 ]
             ],
             [
+                "activity shared",
+                1,
+                {
+                    "id": 101,
+                    "dashboardId": 1,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "alice",
+                [
+                    "carol"
+                ]
+            ],
+            [
                 "notification",
                 [
                     "setApp",
@@ -2097,23 +2116,6 @@
                 ]
             ],
             "notify",
-            [
-                "activity shared",
-                1,
-                {
-                    "id": 101,
-                    "dashboardId": 1,
-                    "shareType": "user",
-                    "shareWith": "carol",
-                    "permissionLevel": "full",
-                    "createdAt": "<now>",
-                    "updatedAt": "<now>"
-                },
-                "alice",
-                [
-                    "carol"
-                ]
-            ],
             [
                 "notification",
                 [
@@ -2695,6 +2697,7 @@
                 }
             ],
             "commit",
+            "group staff",
             [
                 "activity shared",
                 2,
@@ -2708,9 +2711,11 @@
                     "updatedAt": "<now>"
                 },
                 "bob",
-                []
+                [
+                    "alice",
+                    "carol"
+                ]
             ],
-            "group staff",
             [
                 "activity shared",
                 2,
@@ -2866,6 +2871,7 @@
                 }
             ],
             "commit",
+            "group staff",
             [
                 "activity shared",
                 2,
@@ -2880,7 +2886,44 @@
                 },
                 "bob",
                 [
-                    "carol"
+                    "carol",
+                    "alice"
+                ]
+            ],
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 103,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "bob",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol",
+                    "alice"
+                ]
+            ],
+            [
+                "activity shared",
+                2,
+                {
+                    "id": 104,
+                    "dashboardId": 2,
+                    "shareType": "group",
+                    "shareWith": "staff",
+                    "permissionLevel": "view_only",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol",
+                    "alice"
                 ]
             ],
             [
@@ -2909,40 +2952,6 @@
                 ]
             ],
             "notify",
-            [
-                "activity shared",
-                2,
-                {
-                    "id": 103,
-                    "dashboardId": 2,
-                    "shareType": "user",
-                    "shareWith": "bob",
-                    "permissionLevel": "full",
-                    "createdAt": "<now>",
-                    "updatedAt": "<now>"
-                },
-                "bob",
-                []
-            ],
-            "group staff",
-            [
-                "activity shared",
-                2,
-                {
-                    "id": 104,
-                    "dashboardId": 2,
-                    "shareType": "group",
-                    "shareWith": "staff",
-                    "permissionLevel": "view_only",
-                    "createdAt": "<now>",
-                    "updatedAt": "<now>"
-                },
-                "bob",
-                [
-                    "alice",
-                    "carol"
-                ]
-            ],
             [
                 "notification",
                 [
@@ -3084,6 +3093,23 @@
                 ]
             ],
             [
+                "activity shared",
+                2,
+                {
+                    "id": 102,
+                    "dashboardId": 2,
+                    "shareType": "user",
+                    "shareWith": "carol",
+                    "permissionLevel": "full",
+                    "createdAt": "<now>",
+                    "updatedAt": "<now>"
+                },
+                "bob",
+                [
+                    "carol"
+                ]
+            ],
+            [
                 "notification",
                 [
                     "setApp",
@@ -3109,23 +3135,6 @@
                 ]
             ],
             "notify",
-            [
-                "activity shared",
-                2,
-                {
-                    "id": 102,
-                    "dashboardId": 2,
-                    "shareType": "user",
-                    "shareWith": "carol",
-                    "permissionLevel": "full",
-                    "createdAt": "<now>",
-                    "updatedAt": "<now>"
-                },
-                "bob",
-                [
-                    "carol"
-                ]
-            ],
             [
                 "notification",
                 [

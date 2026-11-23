@@ -207,16 +207,18 @@ class DashboardShareMapperTest extends TestCase {
 
 		$this->assertSame(1, (new DashboardShareMapper($recorder->connection()))->deleteByOwnerAndRecipient('group', 'staff', 'owner'));
 
-		$this->assertContains('qb1.select("id")', $recorder->calls);
-		$this->assertContains('qb1.from("launchpad_dashboards", null)', $recorder->calls);
-		$this->assertContains('qb1.createNamedParameter("owner", 2, null)', $recorder->calls);
-		$this->assertContains('qb1.expr.eq("user_id", ":p1", null)', $recorder->calls);
-		$this->assertContains('qb2.delete("launchpad_dashboard_shares", null)', $recorder->calls);
-		$this->assertContains('qb2.createNamedParameter("group", 2, null)', $recorder->calls);
-		$this->assertContains('qb2.createNamedParameter("staff", 2, null)', $recorder->calls);
-		$this->assertNotSame([], preg_grep('/^qb2\.createFunction\("\(sql\)"\)$/', $recorder->calls));
-		$this->assertNotSame([], preg_grep('/^qb2\.expr\.in\("dashboard_id", /', $recorder->calls));
-		$this->assertContains('qb2.executeStatement(null)', $recorder->calls);
+		$this->assertContains(needle: 'qb1.delete("launchpad_dashboard_shares", null)', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.createNamedParameter("owner", 2, null)', haystack: $recorder->calls);
+		$this->assertContains(
+			needle: 'qb1.createFunction("(SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1)")',
+			haystack: $recorder->calls
+		);
+		$this->assertContains(needle: 'qb1.createNamedParameter("group", 2, null)', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.createNamedParameter("staff", 2, null)', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.expr.eq("share_type", ":p2", null)', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.expr.eq("share_with", ":p3", null)', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.executeStatement(null)', haystack: $recorder->calls);
+		$this->assertSame(expected: [], actual: preg_grep('/^qb2\./', $recorder->calls), message: 'one query builder binds every value');
 	}//end testDeleteByOwnerAndRecipientScopesToTheOwnersDashboards()
 
 	/**

@@ -21,13 +21,13 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use Exception;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 
@@ -189,17 +189,36 @@ class PermissionService {
 			return false;
 		}
 
-		// L4: admin-template owners retain full metadata-edit rights
-		// (REQ-PERM-011). An admin who owns a template must not be blocked
-		// from renaming it. Non-admin users can never edit admin templates.
+		// REQ-ROLE-008: Viewer role blocks any mutation, renames included.
+		if ($this->roleService->isViewer(userId: $userId) === true) {
+			return false;
+		}
+
+		// REQ-PERM-011: admin templates are edited by Nextcloud admins only,
+		// and belong to nobody (their userId is null), so ownership is not
+		// asked. Non-admin users can never edit admin templates.
 		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
-			return $dashboard->getUserId() === $userId
-				&& $this->groupManager->isAdmin(userId: $userId);
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
 		// Only owner can rename / change description.
 		return $dashboard->getUserId() === $userId;
 	}//end canEditDashboardMetadata()
+
+	/**
+	 * Check if the user's role lets them delete dashboards at all. Which
+	 * dashboard they may delete is the owner check of the delete itself.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return bool Whether the user may delete dashboards.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md#requirement-req-role-008-authorize-viewer-read-only-access
+	 */
+	public function canDeleteDashboards(string $userId): bool {
+		// REQ-ROLE-008: Viewer role blocks any mutation, even of what they own.
+		return $this->roleService->isViewer(userId: $userId) === false;
+	}//end canDeleteDashboards()
 
 	/**
 	 * Check if user can add widgets to a dashboard.
@@ -223,6 +242,38 @@ class PermissionService {
 			level: $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId)
 		);
 	}//end canAddWidget()
+
+	/**
+	 * Why a widget change was refused, in the words of REQ-PERM-001 and
+	 * REQ-PERM-004: a view-only dashboard says so, and so does a compulsory
+	 * widget on an add-only dashboard; anything else is "Access denied".
+	 *
+	 * @param string   $userId      The user ID.
+	 * @param int|null $dashboardId The dashboard, for an add.
+	 * @param int|null $placementId The placement, for a removal.
+	 *
+	 * @return string The refusal message.
+	 *
+	 * @spec openspec/specs/permissions/spec.md
+	 */
+	public function widgetRefusal(string $userId, ?int $dashboardId = null, ?int $placementId = null): string {
+		$placement = null;
+		if ($placementId !== null) {
+			$placement   = $this->findPlacement(placementId: $placementId);
+			$dashboardId = $placement?->getDashboardId();
+		}
+
+		$level = $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId);
+		if ($level === Dashboard::PERMISSION_VIEW_ONLY) {
+			return 'This dashboard is view-only';
+		}
+
+		if ($level === Dashboard::PERMISSION_ADD_ONLY && $placement?->getIsCompulsory() === 1) {
+			return 'Compulsory widgets cannot be removed at this permission level';
+		}
+
+		return 'Access denied';
+	}//end widgetRefusal()
 
 	/**
 	 * Check if user can remove a widget.
@@ -318,6 +369,12 @@ class PermissionService {
 		$placed = $this->findPlacedWidget(placementId: $placementId);
 		if ($placed === null) {
 			return false;
+		}
+
+		// REQ-PERM-011: an admin template belongs to nobody and is never
+		// shared, so only Nextcloud admin status lets its widgets change.
+		if ($placed->dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
 		return $this->allowsEditing(
@@ -614,7 +671,7 @@ class PermissionService {
 		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		return $dashboard;
@@ -756,7 +813,9 @@ class PermissionService {
 	}//end findPlacedWidget()
 
 	/**
-	 * Verify user owns a placement's dashboard.
+	 * Verify user owns a placement's dashboard, or is a Nextcloud
+	 * administrator, who may manage the visibility rules of every dashboard
+	 * (REQ-VIS-001..004).
 	 *
 	 * @param string $userId The user ID.
 	 * @param int $placementId The placement ID.
@@ -766,12 +825,17 @@ class PermissionService {
 	 * @throws \Exception If access is denied.
 	 *
 	 * @spec openspec/specs/permissions/spec.md
+	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function verifyPlacementOwnership(
 		string $userId,
 		int $placementId,
 	): WidgetPlacement {
 		$placement = $this->placementMapper->find(id: $placementId);
+		if ($this->groupManager->isAdmin(userId: $userId) === true) {
+			return $placement;
+		}
+
 		$this->verifyDashboardOwnership(
 			userId: $userId,
 			dashboardId: $placement->getDashboardId()

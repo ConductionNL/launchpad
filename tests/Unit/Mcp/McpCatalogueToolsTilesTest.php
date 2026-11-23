@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * Unit tests for the MCP tile read tools.
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+ */
+
+declare(strict_types=1);
+
+namespace Unit\Mcp;
+
+use OCA\LaunchPad\Db\Tile;
+use OCA\LaunchPad\Mcp\McpArgumentValidator;
+use OCA\LaunchPad\Mcp\McpDashboardGate;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Kernel\Contracts\AnalyticsServiceInterface;
+use OCA\LaunchPad\Mcp\McpCatalogueSources;
+use OCA\LaunchPad\Mcp\McpCatalogueTools;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\DashboardVersionService;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Service\TileService;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * listTiles is the caller's own tiles, behind the `tile.index` action.
+ *
+ * @covers \OCA\LaunchPad\Mcp\McpCatalogueTools
+ * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Db\Tile
+ */
+class McpCatalogueToolsTilesTest extends TestCase {
+
+	private McpDashboardGate&MockObject $gate;
+
+	private TileService&MockObject $tiles;
+
+	protected function setUp(): void {
+		$this->gate = $this->createMock(McpDashboardGate::class);
+		$this->gate->method('currentUserId')->willReturn('alice');
+		$this->tiles = $this->createMock(TileService::class);
+	}//end setUp()
+
+	/**
+	 * The catalogue tools, whose listTiles reads the tile service.
+	 *
+	 * @return McpCatalogueTools
+	 */
+	private function tools(): McpCatalogueTools {
+		return new McpCatalogueTools(
+			gate: $this->gate,
+			services: new DashboardApiServices(dashboardService: $this->createMock(originalClassName: DashboardService::class)),
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(originalClassName: DashboardTreeService::class),
+				versionService: $this->createMock(originalClassName: DashboardVersionService::class),
+				analyticsService: $this->createMock(originalClassName: AnalyticsServiceInterface::class),
+				logger: new NullLogger()
+			),
+			sources: new McpCatalogueSources(templates: $this->createMock(originalClassName: AdminTemplateService::class), tiles: $this->tiles)
+		);
+	}//end tools()
+
+	/**
+	 * The tool lists exactly the tiles the service returns for the caller.
+	 *
+	 * @return void
+	 */
+	public function testListTilesIsTheCallersTiles(): void {
+		$this->gate->expects($this->once())->method('requireAction')->with('tile.index')->willReturn(null);
+		$tile = new Tile();
+		$tile->setId(3);
+		$tile->setTitle('Intranet');
+		$this->tiles->expects($this->once())->method('getUserTiles')->with('alice')->willReturn([$tile]);
+
+		$result = $this->tools()->listTiles(args: []);
+
+		$this->assertCount(1, $result['items']);
+		$this->assertSame($tile->jsonSerialize(), $result['items'][0]);
+		$this->assertSame('Intranet', $result['items'][0]['title']);
+	}//end testListTilesIsTheCallersTiles()
+
+	/**
+	 * A refused action reads no tiles.
+	 *
+	 * @return void
+	 */
+	public function testARefusedActionReadsNothing(): void {
+		$refusal = McpArgumentValidator::error(code: 'forbidden', message: 'no');
+		$this->gate->method('requireAction')->willReturn($refusal);
+		$this->tiles->expects($this->never())->method('getUserTiles');
+
+		$this->assertSame(expected: $refusal, actual: $this->tools()->listTiles(args: []));
+	}//end testARefusedActionReadsNothing()
+}//end class

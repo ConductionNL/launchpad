@@ -64,4 +64,13 @@ describe('PublicDashboardGrid', () => {
 		const wrapper = mount(PublicDashboardGrid, { props: { placements: [] } })
 		expect(wrapper.text()).toContain('no publicly viewable content')
 	})
+
+	it('names a tile that shows only its icon, and leaves a titled tile to its text', () => {
+		const tile = { widgetId: 'tile-mail', tileType: 'app', gridX: 0, gridY: 0, tileLinkValue: '/apps/mail', tileIcon: '/apps/mail/img/mail.svg' }
+		const wrapper = mount(PublicDashboardGrid, { props: { placements: [{ id: 1, ...tile }, { id: 2, ...tile, gridX: 1, tileTitle: 'Mail' }] } })
+		const [untitled, titled] = wrapper.findAll('.public-share-view__tile')
+		expect(untitled.attributes('aria-label')).toBe('Tile')
+		expect(titled.attributes('aria-label')).toBeUndefined()
+		expect(titled.text()).toBe('Mail')
+	})
 })

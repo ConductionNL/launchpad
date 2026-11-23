@@ -33,8 +33,14 @@ import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.describe('resource-serving', () => {
@@ -44,9 +50,8 @@ test.describe('resource-serving', () => {
 		await gotoLaunchPad(page)
 
 		// Upload a tiny PNG via the Image widget upload UI (cog-menu flow).
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'image')
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
 		// nc-vue's CnImageWidgetForm replaced the URL/Upload radio pair with a
 		// single file <label> wrapping a hidden input, and defers the upload to

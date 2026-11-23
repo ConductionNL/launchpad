@@ -19,9 +19,12 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
+use InvalidArgumentException;
 
 /**
  * Service for discovering and querying Nextcloud dashboard widgets.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One validator per widget type, each a small injected or inline class.
  */
 class WidgetService {
 	/**
@@ -31,24 +34,48 @@ class WidgetService {
 	 * @param PlacementService $placementService Placement service for CRUD.
 	 * @param WidgetRendering  $rendering The formatter and item loader.
 	 * @param MenuService      $menuService Validator for `menu` widgets (REQ-MENU-002).
+	 * @param IframeService|null $iframeService Allow-list check for `iframe` widgets (REQ-IFRAME-002).
+	 * @param HealthPingService|null $healthPing Checks a health-ping config against the allow-list (REQ-HPING-001).
 	 */
 	public function __construct(
 		private readonly WidgetPlatform $platform,
 		private readonly PlacementService $placementService,
 		private readonly WidgetRendering $rendering,
 		private readonly MenuService $menuService = new MenuService(),
+		private readonly ?IframeService $iframeService = null,
+		private readonly ?HealthPingService $healthPing = null,
 	) {
 	}//end __construct()
 
 	/**
 	 * Validate the `content` blob of a widget placement before save.
 	 *
-	 * REQ-MENU-002 server-side hook. Currently only the `menu` widget type
-	 * has a server-side validator; any future widget that needs save-time
-	 * validation should add its own branch here so the dispatcher stays
-	 * single-responsibility.
+	 * REQ-MENU-002 server-side hook. The `menu`, `map`, `links` and `text`
+	 * widget types have a server-side validator; any future widget that
+	 * needs save-time validation should add its own branch here so the
+	 * dispatcher stays single-responsibility. A health-ping config is checked
+	 * on every type, since any tile may carry one (REQ-HPING-001).
 	 *
 	 * @param string $widgetType Widget type identifier (e.g. `menu`).
+	 * @param array $content Widget content blob.
+	 *
+	 * @return void
+	 * @throws InvalidWidgetContentException When the content blob is invalid.
+	 *
+	 * @spec openspec/specs/widgets/spec.md
+	 */
+	public function validateWidgetContent(string $widgetType, array $content): void {
+		try {
+			$this->validateContentOfType(widgetType: $widgetType, content: $content);
+		} catch (\InvalidArgumentException $e) {
+			throw new InvalidWidgetContentException(message: $e->getMessage(), previous: $e);
+		}
+	}//end validateWidgetContent()
+
+	/**
+	 * Run the validator of a widget type over its content blob.
+	 *
+	 * @param string $widgetType Widget type identifier.
 	 * @param array $content Widget content blob.
 	 *
 	 * @return void
@@ -56,7 +83,32 @@ class WidgetService {
 	 *
 	 * @spec openspec/specs/widgets/spec.md
 	 */
-	public function validateWidgetContent(string $widgetType, array $content): void {
+	private function validateContentOfType(string $widgetType, array $content): void {
+		$pingErrors = ($this->healthPing?->validateConfig(config: $content) ?? []);
+		if ($pingErrors !== []) {
+			throw new InvalidArgumentException(message: 'Invalid health check: ' . implode(separator: ', ', array: $pingErrors));
+		}
+
+		if ($widgetType === 'map') {
+			(new MapContentValidator())->validate(content: $content);
+			return;
+		}
+
+		if ($widgetType === 'links') {
+			(new LinksContentValidator())->validate(content: $content);
+			return;
+		}
+
+		if ($widgetType === 'text') {
+			(new TextTableValidator())->validate(content: $content);
+			return;
+		}
+
+		if ($widgetType === 'iframe') {
+			$this->validateIframeHost(content: $content);
+			return;
+		}
+
 		if ($widgetType !== 'menu') {
 			return;
 		}
@@ -68,7 +120,30 @@ class WidgetService {
 
 		$this->menuService->validateMenuConfig(content: $content);
 		$this->menuService->validateMenuItems(items: $items);
-	}//end validateWidgetContent()
+	}//end validateContentOfType()
+
+	/**
+	 * Refuse an `iframe` placement whose URL host is not on the allow-list,
+	 * naming the host (REQ-IFRAME-002 "rejected at save time").
+	 *
+	 * @param array $content Widget content blob.
+	 *
+	 * @return void
+	 * @throws \InvalidArgumentException When the host is not allow-listed.
+	 *
+	 * @spec openspec/specs/iframe-embed-widget/spec.md
+	 */
+	private function validateIframeHost(array $content): void {
+		$url = trim(string: (string)($content['url'] ?? ''));
+		if ($this->iframeService === null
+			|| in_array(needle: 'host_not_allowed', haystack: $this->iframeService->validateConfig(config: $content), strict: true) === false
+		) {
+			return;
+		}
+
+		$host = (string)parse_url(url: $url, component: PHP_URL_HOST);
+		throw new InvalidArgumentException(message: sprintf('The host %s is not on the allow-list.', $host));
+	}//end validateIframeHost()
 
 	/**
 	 * Get all available widgets from Nextcloud.
@@ -78,9 +153,36 @@ class WidgetService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
 	 */
 	public function getAvailableWidgets(): array {
-		$widgets = $this->platform->dashboardManager->getWidgets();
-		$result = [];
+		return $this->describe(widgets: $this->platform->dashboardManager->getWidgets());
+	}//end getAvailableWidgets()
 
+	/**
+	 * The widgets getAvailableWidgets() describes, read without running any
+	 * widget's `load()`, so the workspace page can carry them in its initial
+	 * state without injecting every widget's scripts (REQ-RFP-010).
+	 *
+	 * @return array|null The widget descriptors, or null when the registry cannot be read that way.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
+	 */
+	public function getWidgetCatalogue(): ?array {
+		$widgets = $this->platform->registry?->widgetsWithoutLoading();
+		if ($widgets === null) {
+			return null;
+		}
+
+		return $this->describe(widgets: $widgets);
+	}//end getWidgetCatalogue()
+
+	/**
+	 * The descriptors of the given widgets for the current user, in widget order.
+	 *
+	 * @param array $widgets The widgets.
+	 *
+	 * @return array The widget descriptors.
+	 */
+	private function describe(array $widgets): array {
+		$result = [];
 		foreach ($widgets as $widget) {
 			$user = $this->platform->userSession->getUser();
 			$userId = '';
@@ -102,7 +204,7 @@ class WidgetService {
 		);
 
 		return $result;
-	}//end getAvailableWidgets()
+	}//end describe()
 
 	/**
 	 * Get widget items for multiple widgets.
@@ -178,6 +280,20 @@ class WidgetService {
 			tileData: $tileData
 		);
 	}//end addTileFromArray()
+
+	/**
+	 * Import chosen bookmarks onto a dashboard as containers and tiles.
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return list<WidgetPlacement> The created placements.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+	 */
+	public function importBookmarks(int $dashboardId, BookmarkImportPlan $plan): array {
+		return $this->placementService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
+	}//end importBookmarks()
 
 	/**
 	 * Update a widget placement.

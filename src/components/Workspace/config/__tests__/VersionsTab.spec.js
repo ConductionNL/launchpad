@@ -1,0 +1,269 @@
+/**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * VersionsTab, the Versions tab of the dashboard settings: lists versions newest first, saves a named version
+ * and restores after confirmation (dashboard-versioning REQ-VERSUI-001..003).
+ * Response shapes are DashboardVersionApiController's: `{versions,
+ * modeSupported}` for the list, `{version}` (201) for a save, `{version,
+ * snapshot}` for a restore; each version is DashboardVersion::jsonSerialize.
+ */
+
+import { flushPromises, mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import VersionsTab from '../VersionsTab.vue'
+import { api } from '../../../../services/api.js'
+
+vi.mock('@nextcloud/l10n', () => ({
+	getCanonicalLocale: () => 'en-GB',
+	t: (_app, text, vars = {}) =>
+		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
+}))
+
+vi.mock('../../../../services/api.js', () => ({
+	api: {
+		listVersions: vi.fn(),
+		createVersion: vi.fn(),
+		restoreVersion: vi.fn(),
+	},
+}))
+
+vi.mock('@conduction/nextcloud-vue', () => ({
+	CnConfirmDialog: {
+		name: 'CnConfirmDialog',
+		props: ['dialogTitle', 'message', 'confirmLabel'],
+		emits: ['confirm', 'close'],
+		template:
+			'<div class="dialog">{{ message }}<button data-testid="cn-confirm-dialog-confirm" @click="$emit(\'confirm\')">{{ confirmLabel }}</button></div>',
+	},
+	NcButton: {
+		name: 'NcButton',
+		props: ['disabled'],
+		emits: ['click'],
+		template:
+			'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+	},
+	NcTextField: {
+		name: 'NcTextField',
+		props: ['modelValue', 'label'],
+		emits: ['update:modelValue'],
+		template:
+			'<input :aria-label="label" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
+	},
+	NcLoadingIcon: { name: 'NcLoadingIcon', template: '<span class="loading" />' },
+}))
+
+function v(n, note = null, createdBy = 'sanne') {
+	return {
+		id: n,
+		dashboardUuid: 'dash-uuid',
+		versionNumber: n,
+		createdBy,
+		createdAt: `2026-09-2${n} 10:00:00`,
+		note,
+		sizeBytes: 120,
+	}
+}
+
+function mountModal() {
+	return mount(VersionsTab, {
+		props: { dashboardUuid: 'dash-uuid' },
+	})
+}
+
+beforeEach(() => {
+	vi.clearAllMocks()
+})
+
+describe('VersionsTab', () => {
+	it('REQ-VERSUI-001: lists versions newest first with author and note', async () => {
+		api.listVersions.mockResolvedValue({
+			data: {
+				versions: [v(2), v(4, 'before the reorganisation'), v(1), v(3)],
+				modeSupported: true,
+			},
+		})
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(api.listVersions).toHaveBeenCalledWith('dash-uuid')
+		const rows = wrapper.findAll('[data-testid="version-row"]')
+		expect(rows).toHaveLength(4)
+		expect(rows[0].text()).toContain('4')
+		expect(rows[0].text()).toContain('before the reorganisation')
+		expect(rows[0].text()).toContain('sanne')
+		expect(rows[3].text()).toContain('1')
+	})
+
+	it('REQ-VERSUI-002: saves a named version and puts it on top', async () => {
+		api.listVersions.mockResolvedValue({
+			data: { versions: [v(1)], modeSupported: true },
+		})
+		api.createVersion.mockResolvedValue({
+			data: { version: v(2, 'before the reorganisation') },
+		})
+		const wrapper = mountModal()
+		await flushPromises()
+		await wrapper.find('input').setValue('before the reorganisation')
+		await wrapper.find('[data-testid="version-save"]').trigger('click')
+		await flushPromises()
+		expect(api.createVersion).toHaveBeenCalledWith(
+			'dash-uuid',
+			'before the reorganisation',
+		)
+		const rows = wrapper.findAll('[data-testid="version-row"]')
+		expect(rows).toHaveLength(2)
+		expect(rows[0].text()).toContain('before the reorganisation')
+	})
+
+	it('REQ-VERSUI-003: restore asks first, restores, reloads the list and tells the page', async () => {
+		api.listVersions.mockResolvedValueOnce({
+			data: { versions: [v(2), v(1)], modeSupported: true },
+		})
+		api.restoreVersion.mockResolvedValue({
+			data: { version: v(1), snapshot: '{}' },
+		})
+		api.listVersions.mockResolvedValueOnce({
+			data: {
+				versions: [v(3, 'pre-restore'), v(2), v(1)],
+				modeSupported: true,
+			},
+		})
+		const wrapper = mountModal()
+		await flushPromises()
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
+		await wrapper.find('[data-testid="version-restore"]').trigger('click')
+		expect(api.restoreVersion).not.toHaveBeenCalled()
+		await wrapper
+			.find('[data-testid="cn-confirm-dialog-confirm"]')
+			.trigger('click')
+		await flushPromises()
+		expect(api.restoreVersion).toHaveBeenCalledWith('dash-uuid', 1)
+		expect(wrapper.emitted('restored')).toHaveLength(1)
+		expect(wrapper.findAll('[data-testid="version-row"]')[0].text()).toContain(
+			'3',
+		)
+	})
+
+	it('cancelling the confirmation restores nothing', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2), v(1)], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
+		await wrapper.find('[data-testid="version-restore"]').trigger('click')
+		wrapper.findComponent({ name: 'CnConfirmDialog' }).vm.$emit('close')
+		await flushPromises()
+		expect(wrapper.vm.restoreTarget).toBeNull()
+		await wrapper.vm.confirmRestore()
+		expect(api.restoreVersion).not.toHaveBeenCalled()
+	})
+
+	it('saves a blank note as none, and keeps the list when the answer has no version', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(1)], modeSupported: true } })
+		api.createVersion.mockResolvedValue({ data: {} })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.find('input').setValue('   ')
+		await wrapper.find('[data-testid="version-save"]').trigger('click')
+		await flushPromises()
+
+		expect(api.createVersion).toHaveBeenCalledWith('dash-uuid', null)
+		expect(wrapper.findAll('[data-testid="version-row"]')).toHaveLength(1)
+		expect(wrapper.vm.error).toBe('')
+	})
+
+	it('says so when a version cannot be saved, keeping the note', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [], modeSupported: true } })
+		api.createVersion.mockRejectedValue(new Error('500'))
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.find('input').setValue('before the move')
+		await wrapper.find('[data-testid="version-save"]').trigger('click')
+		await flushPromises()
+
+		expect(wrapper.vm.error).toBe('The version could not be saved.')
+		expect(wrapper.vm.note).toBe('before the move')
+		expect(wrapper.vm.saving).toBe(false)
+	})
+
+	it('says so when a restore fails, without telling the page or reloading', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2), v(1)], modeSupported: true } })
+		api.restoreVersion.mockRejectedValue(new Error('409'))
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
+		await wrapper.find('[data-testid="version-restore"]').trigger('click')
+		await wrapper.find('[data-testid="cn-confirm-dialog-confirm"]').trigger('click')
+		await flushPromises()
+
+		expect(api.restoreVersion).toHaveBeenCalledWith('dash-uuid', 1)
+		expect(wrapper.vm.error).toBe('The version could not be restored.')
+		expect(wrapper.emitted('restored')).toBeUndefined()
+		expect(api.listVersions).toHaveBeenCalledTimes(1)
+	})
+
+	it('formats no date as empty and an unreadable one as itself', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		expect(wrapper.vm.formatDate('')).toBe('')
+		expect(wrapper.vm.formatDate(null)).toBe('')
+		expect(wrapper.vm.formatDate('yesterday')).toBe('yesterday')
+		expect(wrapper.vm.formatDate('2026-09-21 10:00:00')).not.toBe('2026-09-21 10:00:00')
+	})
+
+	it('says so when versioning is not supported for the dashboard', async () => {
+		api.listVersions.mockResolvedValue({
+			data: { versions: [], modeSupported: false },
+		})
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(wrapper.find('[data-testid="version-unsupported"]').exists()).toBe(
+			true,
+		)
+		expect(wrapper.find('[data-testid="version-save"]').exists()).toBe(false)
+	})
+
+	it('shows the error when the list cannot be read', async () => {
+		api.listVersions.mockRejectedValue(
+			Object.assign(new Error('x'), {
+				response: { status: 403, data: { error: 'forbidden' } },
+			}),
+		)
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(wrapper.find('[data-testid="version-error"]').exists()).toBe(true)
+	})
+
+	it('reads the list again for another dashboard', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+		await wrapper.setProps({ dashboardUuid: 'other-uuid' })
+		await flushPromises()
+		expect(api.listVersions).toHaveBeenLastCalledWith('other-uuid')
+	})
+
+	it('marks the newest as the current version, previews a chosen older one and offers no restore for the current (LpVersies)', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2, 'Widget News moved'), { ...v(1), createdByName: 'Sanne de Vries' }], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		const rows = wrapper.findAll('[data-testid="version-row"]')
+		expect(rows[0].find('[data-testid="version-current"]').exists()).toBe(true)
+		expect(rows[1].text()).toContain('Sanne de Vries')
+		expect(wrapper.find('[data-testid="version-restore"]').attributes('disabled')).toBeDefined()
+		expect(wrapper.find('[data-testid="version-preview"]').exists()).toBe(false)
+
+		await rows[1].trigger('click')
+		expect(wrapper.find('[data-testid="version-preview"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="version-restore"]').attributes('disabled')).toBeUndefined()
+
+		await wrapper.find('[data-testid="version-close"]').trigger('click')
+		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+})

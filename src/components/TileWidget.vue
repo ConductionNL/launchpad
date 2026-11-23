@@ -7,6 +7,7 @@
 	<div
 		v-if="tile"
 		class="tile-widget"
+		:class="{ 'tile-widget--icon-only': iconOnly }"
 		:data-tile-id="tile.id"
 		:style="{
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
@@ -19,11 +20,20 @@
 		     `position: relative` at equal specificity, so positioning the
 		     component directly loses the cascade tie and the cog drops into
 		     flow. Wrapping matches the shared nc-vue CnDashboardPage pattern. -->
+		<span
+			v-if="editMode"
+			class="tile-widget__grip"
+			aria-hidden="true"
+			data-testid="tile-drag-grip">
+			<DragVertical :size="16" />
+		</span>
 		<div v-if="editMode" class="tile-widget__edit">
 			<CnWidgetEditCog
+				icon="kebab"
 				:menuLabel="t('launchpad', 'Tile menu')"
 				:editLabel="t('launchpad', 'Edit tile')"
 				:deleteLabel="t('launchpad', 'Delete tile')"
+				:canDelete="!removeLocked"
 				@edit="$emit('edit')"
 				@remove="$emit('remove')" />
 		</div>
@@ -38,7 +48,9 @@
 		<a
 			:href="tileUrl"
 			class="tile-widget__link"
-			:target="tileTarget"
+			:target="anchorTarget"
+			:title="iconOnly ? tile.title : null"
+			:aria-label="iconOnly ? accessibleName : null"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -72,7 +84,28 @@
 					:size="64"
 					:style="{ color: tile.textColor || '#ffffff' }" />
 			</div>
+			<!-- An icon-only tile marks itself as the app tiles do (LpVandaag):
+			     a pin at the top left, a count or an outage dot at the top right. -->
+			<template v-if="iconOnly">
+				<Pin
+					v-if="content?.pinned === true"
+					class="tile-widget__pin"
+					:size="14"
+					aria-hidden="true"
+					data-testid="tile-pin" />
+				<span
+					v-if="content?.status === 'down'"
+					class="tile-widget__outage"
+					aria-hidden="true"
+					data-testid="tile-outage" />
+				<span
+					v-else-if="badgeText !== ''"
+					class="tile-widget__badge"
+					aria-hidden="true"
+					data-testid="tile-badge">{{ badgeText }}</span>
+			</template>
 			<div
+				v-if="!iconOnly"
 				class="tile-widget__title"
 				:style="{
 					color: tile.textColor || '#ffffff',
@@ -110,12 +143,17 @@ import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { defineAsyncComponent } from 'vue'
+import DragVertical from 'vue-material-design-icons/DragVertical.vue'
+import Pin from 'vue-material-design-icons/Pin.vue'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
+import { useTilePanelStore } from '../stores/tilePanel.js'
+import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
+import { isSameOrigin, NEW_TAB, resolveLinkTarget, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 const { recordTileClick } = useTileClickTracking()
 
@@ -123,6 +161,8 @@ export default {
 	name: 'TileWidget',
 
 	components: {
+		Pin,
+		DragVertical,
 		CnWidgetEditCog,
 		CnDashboardIcon,
 		HealthPingBadge,
@@ -134,6 +174,9 @@ export default {
 		tile: REQUIRED_OBJECT_PROP,
 
 		editMode: FLAG_PROP,
+
+		/** The host refuses removing this tile, so the cog offers no Delete. */
+		removeLocked: FLAG_PROP,
 
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}
@@ -174,6 +217,27 @@ export default {
 			type: Number,
 			default: 60,
 		},
+
+		/**
+		 * The tile's own link target (`content.linkTarget`): `same-tab`,
+		 * `new-tab` or `side-panel`, or null to follow the dashboard.
+		 *
+		 * @type {string|null}
+		 */
+		linkTarget: {
+			type: String,
+			default: null,
+		},
+
+		/**
+		 * The dashboard's default link target, or null for the link-type rule.
+		 *
+		 * @type {string|null}
+		 */
+		defaultLinkTarget: {
+			type: String,
+			default: null,
+		},
 	},
 
 	emits: ['edit', 'remove'],
@@ -188,6 +252,73 @@ export default {
 
 	computed: {
 		/**
+		 * Whether the tile shows only its glyph, with the name as its tooltip
+		 * and accessible name (the app tiles of LpVandaag and LpWerkplek).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		iconOnly() {
+			return this.content?.iconOnly === true
+		},
+
+		/**
+		 * The count on an icon-only tile, '' for none; above 99 it reads 99+.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		badgeText() {
+			const count = Number(this.content?.badge)
+			if (!Number.isFinite(count) || count <= 0) {
+				return ''
+			}
+			return count > 99 ? '99+' : String(Math.floor(count))
+		},
+
+		/**
+		 * The tile's name with its outage, count and pin, for a reader that
+		 * cannot see the marks.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		accessibleName() {
+			let name = this.tile.title
+			if (this.content?.status === 'down') {
+				name = t('launchpad', '{app}, outage', { app: name })
+			} else if (this.badgeText !== '') {
+				name = t('launchpad', '{app}, {count} new', { app: name, count: this.badgeText })
+			}
+			return this.content?.pinned === true ? t('launchpad', '{app}, pinned', { app: name }) : name
+		},
+
+		/**
+		 * How this tile opens: its own target, the dashboard default, or the
+		 * link-type rule (launcher-tile-open-behaviour D2).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		resolvedTarget() {
+			return resolveLinkTarget(this.linkTarget, this.defaultLinkTarget, this.tile.linkType)
+		},
+
+		/**
+		 * The anchor's `target`: a launch type's own target first
+		 * (launcher-tile-launch-types D2), else the resolved open-in target. A
+		 * `side-panel` tile keeps `_self` so that, if
+		 * the panel cannot take it, a plain click still navigates somewhere;
+		 * handleActivate() opens the panel instead.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		anchorTarget() {
+			return launchTarget(this.tile, this.content) ?? (this.resolvedTarget === NEW_TAB ? '_blank' : '_self')
+		},
+
+		/**
 		 * Whether the tile creates a file instead of opening a link (REQ-OFT-002).
 		 *
 		 * @return {boolean} True for a `create` tile.
@@ -198,19 +329,33 @@ export default {
 		},
 
 		/**
+		 * Whether this tile opens its office-network address: only when the
+		 * server saw the request come from an office network and the tile has one.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 */
+		opensInternalUrl() {
+			return typeof this.tile.internalUrl === 'string'
+				&& this.tile.internalUrl !== ''
+				&& isOnOfficeNetwork()
+		},
+
+		/**
 		 * @spec openspec/specs/tiles/spec.md
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
 		 */
 		tileUrl() {
 			const launch = launchHref(this.tile, this.content, this.placementId, generateUrl)
 			if (launch !== null) {
 				return launch
 			}
-			const value = this.tile.linkValue
+			const value = this.opensInternalUrl ? this.tile.internalUrl : this.tile.linkValue
 			if (this.isCreateTile) {
 				return '#'
 			}
-			if (this.tile.linkType === 'app') {
+			if (this.opensInternalUrl === false && this.tile.linkType === 'app') {
 				return generateUrl('/apps/' + value)
 			}
 			// Internal absolute paths (e.g. /apps/deck, /apps/text) MUST go
@@ -225,17 +370,6 @@ export default {
 				return generateUrl(value)
 			}
 			return value
-		},
-
-		/**
-		 * Where the link opens: a web address in a new tab, a Nextcloud page
-		 * in place, and per launch type as design D2 says.
-		 *
-		 * @return {string}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
-		 */
-		tileTarget() {
-			return launchTarget(this.tile, this.content) ?? (this.tile.linkType === 'url' ? '_blank' : '_self')
 		},
 	},
 
@@ -290,6 +424,7 @@ export default {
 		 * @return {void}
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
 		handleActivate(event) {
 			recordTileClick(this.tile?.id)
@@ -301,7 +436,22 @@ export default {
 				if (!this.editMode) {
 					this.createDialogOpen = true
 				}
+				return
 			}
+
+			// Launcher-tile-open-behaviour D3: a side-panel tile opens beside
+			// the grid instead of navigating. In edit mode the tile is being
+			// arranged, so it never opens anything new.
+			if (this.resolvedTarget !== SIDE_PANEL || this.editMode || !this.tileUrl) {
+				return
+			}
+			event?.preventDefault?.()
+			useTilePanelStore().open({
+				url: this.tileUrl,
+				title: this.tile?.title || '',
+				sameOrigin: isSameOrigin(this.tileUrl),
+				opener: event?.currentTarget || null,
+			})
 		},
 
 		/**
@@ -440,6 +590,93 @@ export default {
 /* Very specific selector to override nldesign CSS */
 .tile-widget .tile-widget__link .tile-widget__title {
 	color: var(--tile-text-color) !important;
+}
+
+/* An icon-only tile is a square of colour with a 48px white glyph and no
+   label, as the boards draw the app tiles. The theme underlines and colours
+   every link with !important, hence the weight here. */
+.tile-widget.tile-widget--icon-only {
+	border-radius: 8px;
+}
+
+.tile-widget--icon-only .tile-widget__link {
+	padding: 0;
+	gap: 0;
+	text-decoration: none !important;
+}
+
+.tile-widget--icon-only .tile-widget__icon {
+	min-width: 0;
+	width: 48px;
+	height: 48px;
+	font-size: 48px;
+}
+
+.tile-widget--icon-only .tile-widget__icon :deep(svg) {
+	width: 48px;
+	height: 48px;
+}
+
+.tile-widget--icon-only .tile-widget__icon span.icon {
+	width: 48px;
+	height: 48px;
+	background-size: 48px;
+}
+
+/* The marks of an icon-only tile, as CnAppTile draws them. */
+.tile-widget__pin {
+	position: absolute;
+	top: 6px;
+	inset-inline-start: 6px;
+	display: flex;
+	opacity: 0.85;
+}
+
+.tile-widget__badge {
+	position: absolute;
+	top: 6px;
+	inset-inline-end: 6px;
+	box-sizing: border-box;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 10px;
+	background: #fff;
+	color: #1b1c1d;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 20px;
+	text-align: center;
+}
+
+.tile-widget__outage {
+	position: absolute;
+	top: 6px;
+	inset-inline-end: 6px;
+	box-sizing: border-box;
+	width: 12px;
+	height: 12px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	background: var(--color-error, #d91f11);
+}
+
+/* In edit mode a tile shows a drag grip at its top left, a small white
+   square as LpBewerken draws it. */
+.tile-widget__grip {
+	position: absolute;
+	top: 6px;
+	inset-inline-start: 6px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	pointer-events: none;
 }
 
 /* Position the shared white cog over the tile's top-right corner. The

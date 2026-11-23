@@ -29,6 +29,8 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Controller;
@@ -56,6 +58,8 @@ use Psr\Log\LoggerInterface;
  *      MaxDelayReached and the PublicPage / NoCSRFRequired attributes.
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+ *
+ * @psalm-import-type LaunchPadPublicShare from ResponseDefinitions
  */
 class PublicShareController extends Controller {
 	/**
@@ -66,6 +70,7 @@ class PublicShareController extends Controller {
 	 * @param PublicShareContext $shareContext Request-scoped bearer marker (Task 7).
 	 * @param LoggerInterface $logger PSR-3 logger.
 	 * @param string|null $userId Authenticated user ID (null for public endpoints).
+	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -73,6 +78,7 @@ class PublicShareController extends Controller {
 		private readonly PublicShareContext $shareContext,
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
+		private readonly ?ConditionalServiceInterface $visibility = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -88,6 +94,10 @@ class PublicShareController extends Controller {
 	 *
 	 * @return DataResponse HTTP 201 with share payload or 403/404 on failure.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_CREATED, LaunchPadPublicShare, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -124,6 +134,10 @@ class PublicShareController extends Controller {
 	 *
 	 * @return DataResponse HTTP 200 array of active shares or 403/404.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_OK, list<LaunchPadPublicShare>, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -157,6 +171,10 @@ class PublicShareController extends Controller {
 	 *
 	 * @return DataResponse HTTP 204 or 403/404.
 	 *
+	 * @psalm-return DataResponse<Http::STATUS_NO_CONTENT, array{}, array<string, mixed>>|
+	 *     DataResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
 	 */
 	#[NoAdminRequired]
@@ -247,7 +265,7 @@ class PublicShareController extends Controller {
 	#[PublicPage]
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 10, period: 60)]
-	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_PASSWORD)]
+	#[BruteForceProtection(action: PublicShareService::BRUTE_FORCE_ACTION_SHARE_UNLOCK)]
 	public function unlock(string $token, #[\SensitiveParameter] ?string $password = null): DataResponse {
 		$ipAddress = $this->request->getRemoteAddress();
 
@@ -382,13 +400,15 @@ class PublicShareController extends Controller {
 	private function renderPayload(array $result): array {
 		$shareData = $result['share']->jsonSerialize();
 		unset($shareData['createdBy']);
+		$placements = array_map(
+			callback: static fn ($placement) => $placement->jsonSerialize(),
+			array: $result['placements']
+		);
+		// A visitor cannot edit, so a widget the rules hide is left out (REQ-VIS-013).
 		return [
 			'share' => $shareData,
 			'dashboard' => $result['dashboard']->jsonSerialize(),
-			'placements' => array_map(
-				callback: static fn ($placement) => $placement->jsonSerialize(),
-				array: $result['placements']
-			),
+			'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: (string)$this->userId, canEdit: false) ?? $placements),
 		];
 	}//end renderPayload()
 

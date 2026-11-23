@@ -30,9 +30,12 @@ use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Db\AcknowledgementMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AcknowledgementService;
+use OCA\LaunchPad\Service\AdminTemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IGroup;
@@ -81,6 +84,20 @@ class AcknowledgementServiceTest extends TestCase {
 	private ActivityPublisher&MockObject $activityPublisher;
 
 	/**
+	 * Dashboard share mapper double.
+	 *
+	 * @var DashboardShareMapper&MockObject
+	 */
+	private DashboardShareMapper&MockObject $shareMapper;
+
+	/**
+	 * Admin template service double (a user's groups).
+	 *
+	 * @var AdminTemplateService&MockObject
+	 */
+	private AdminTemplateService&MockObject $adminTemplateService;
+
+	/**
 	 * The service under test.
 	 *
 	 * @var AcknowledgementService
@@ -98,6 +115,8 @@ class AcknowledgementServiceTest extends TestCase {
 		$this->dashboardMapper = $this->createMock(originalClassName: DashboardMapper::class);
 		$this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
 		$this->activityPublisher = $this->createMock(originalClassName: ActivityPublisher::class);
+		$this->shareMapper = $this->createMock(originalClassName: DashboardShareMapper::class);
+		$this->adminTemplateService = $this->createMock(originalClassName: AdminTemplateService::class);
 
 		$this->service = new AcknowledgementService(
 			acknowledgementMapper: $this->ackMapper,
@@ -105,6 +124,8 @@ class AcknowledgementServiceTest extends TestCase {
 			dashboardMapper: $this->dashboardMapper,
 			groupManager: $this->groupManager,
 			activityPublisher: $this->activityPublisher,
+			shareMapper: $this->shareMapper,
+			adminTemplateService: $this->adminTemplateService,
 		);
 	}
 
@@ -736,4 +757,115 @@ class AcknowledgementServiceTest extends TestCase {
 
 		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
 	}//end testReportListsEveryRecipientInAudienceOrder()
+
+	/**
+	 * Build a share of a dashboard.
+	 *
+	 * @param int    $dashboardId The shared dashboard.
+	 * @param string $type        The share type.
+	 * @param string $with        The recipient user or group.
+	 *
+	 * @return DashboardShare The share.
+	 */
+	private function makeShare(int $dashboardId, string $type, string $with): DashboardShare {
+		$share = new DashboardShare();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$share->setDashboardId($dashboardId);
+		$share->setShareType($type);
+		$share->setShareWith($with);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		return $share;
+	}
+
+	/**
+	 * Tom's personal dashboard 2 holds ak-s and is shared with pieter and
+	 * with group g-team (gina); alice's fork 4 holds a version-1 copy.
+	 *
+	 * @return void
+	 */
+	private function shareTomsAnnouncement(): void {
+		$this->dashboards(specs: [
+			2 => [Dashboard::TYPE_USER, 'tom', []],
+			4 => [Dashboard::TYPE_USER, 'alice', []],
+		]);
+		$original = $this->makePlacement(key: 'ak-s', dashboardId: 2, version: 3);
+		$this->placementMapper->method('findByAnnouncementKey')->willReturnMap([
+			['ak-s', [$this->makePlacement(key: 'ak-s', dashboardId: 4), $original]],
+		]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[2, [$original]],
+			[4, [$this->makePlacement(key: 'ak-s', dashboardId: 4)]],
+		]);
+		$toPieter = $this->makeShare(dashboardId: 2, type: DashboardShare::SHARE_TYPE_USER, with: 'pieter');
+		$toTeam = $this->makeShare(dashboardId: 2, type: DashboardShare::SHARE_TYPE_GROUP, with: 'g-team');
+		$this->shareMapper->method('findByDashboardId')->willReturnMap([
+			[2, [$toPieter, $toTeam]],
+			[4, []],
+		]);
+		$this->shareMapper->method('findForRecipient')->willReturnMap([
+			['pieter', [], [$toPieter]],
+		]);
+		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
+		$team = $this->createMock(originalClassName: IGroup::class);
+		$team->method('getUsers')->willReturn([$this->makeUser(uid: 'gina')]);
+		$this->groupManager->method('get')->willReturnMap([['g-team', $team]]);
+		$this->ackMapper->method('findByUserForAnnouncement')->willReturn([]);
+	}
+
+	/**
+	 * REQ-ACK-003: the recipients of a share of a personal dashboard holding
+	 * the announcement, users and group members alike, are in its audience.
+	 *
+	 * @return void
+	 */
+	public function testShareRecipientsOfAPersonalDashboardAreInTheAudience(): void {
+		$this->shareTomsAnnouncement();
+
+		foreach (['tom', 'alice', 'pieter', 'gina'] as $member) {
+			$this->assertTrue(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-s', userId: $member), message: $member);
+		}
+
+		$this->assertFalse(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-s', userId: 'mallory'));
+	}
+
+	/**
+	 * REQ-ACK-003: an announcement on a personal dashboard shared with the
+	 * user is pending for them, once, at the version of the shared copy.
+	 *
+	 * @return void
+	 */
+	public function testPendingListsAnAnnouncementOnADashboardSharedWithTheUser(): void {
+		$this->shareTomsAnnouncement();
+		$this->dashboardMapper->method('findByUserId')->willReturn([]);
+
+		$pending = $this->service->getPending(userId: 'pieter');
+
+		$this->assertSame(expected: 1, actual: $pending['count']);
+		$this->assertSame(expected: 20, actual: $pending['items'][0]['placementId']);
+		$this->assertSame(expected: 'd-2', actual: $pending['items'][0]['dashboardUuid']);
+		$this->assertSame(expected: 3, actual: $this->service->currentContentVersion(announcementKey: 'ak-s', userId: 'pieter'));
+	}
+
+	/**
+	 * REQ-ACK-002: a user who holds a copy and also sees the shared original
+	 * is asked once for the announcement, on their own copy.
+	 *
+	 * @return void
+	 */
+	public function testPendingListsAnAnnouncementOnceAcrossOwnAndSharedDashboards(): void {
+		$this->shareTomsAnnouncement();
+		$fork = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$fork->setId(4);
+		$fork->setUuid('d-4');
+		$fork->setType(Dashboard::TYPE_USER);
+		$fork->setUserId('pieter');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->dashboardMapper->method('findByUserId')->willReturn([$fork]);
+
+		$pending = $this->service->getPending(userId: 'pieter');
+
+		$this->assertSame(expected: 1, actual: $pending['count']);
+		$this->assertSame(expected: 'd-4', actual: $pending['items'][0]['dashboardUuid']);
+	}
 }

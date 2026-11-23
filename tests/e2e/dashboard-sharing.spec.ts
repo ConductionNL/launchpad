@@ -38,8 +38,9 @@
  *   @e2e dashboard-sharing::owner-changes-permission-level-persists
  *   @e2e dashboard-sharing::owner-removes-a-share-persists
  *   @e2e dashboard-sharing::recipient-sees-shared-dashboard
+ *   @e2e dashboard-sharing::a-user-drives-the-full-sharing-flow-through-the-browser
  *
- * @spec openspec/changes/add-dashboard-sharing-e2e-coverage/tasks.md
+ * @spec openspec/specs/dashboard-sharing/spec.md
  */
 
 import type { APIRequestContext, Locator } from '@playwright/test'
@@ -53,6 +54,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
@@ -84,17 +86,7 @@ let seeded: SeededDashboard | null = null
  */
 async function openSharingTab(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
-	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	} catch {
-		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	}
-
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
+	await openDashboardSwitcher(page)
 
 	// Open THIS FILE'S dashboard's cog menu → "Dashboard settings".
 	//
@@ -309,7 +301,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		//    rows. A dashboard merely SHARED with a user was in none of
 		//    those buckets, so a recipient with nothing of their own landed
 		//    on WorkspaceApp's empty state (`hasActiveDashboard` is
-		//    server-injected and was false) and `.launchpad-sidebar-toggle`
+		//    server-injected and was false) and the shell's controls
 		//    — mounted by `v-if="hasActiveDashboard"` — never rendered at
 		//    all, regardless of the share.
 		//    FIXED: shares are now a source-tagged bucket in the visibility
@@ -339,7 +331,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			// a blank page), which is exactly the kind of assertion that
 			// proves nothing.
 			await recipientPage.waitForSelector(
-				'.launchpad-sidebar-toggle, .workspace-shell__empty',
+				`${MORE_MENU}, .workspace-shell__empty`,
 				{ timeout: 30_000 },
 			)
 
@@ -352,13 +344,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 
 			// (3) The shell renders — which also requires every bootstrap
 			// AJAX call to have passed the action matrix as a non-admin.
-			await recipientPage.waitForSelector('.launchpad-sidebar-toggle', {
-				timeout: 30_000,
-			})
-			await recipientPage.locator('.launchpad-sidebar-toggle').first().click()
-			await recipientPage.waitForSelector('.dashboard-switcher-sidebar.open', {
-				timeout: 10_000,
-			})
+			await openDashboardSwitcher(recipientPage)
 
 			// (4) Visibility: the share shows up in its own switcher
 			// section, not smuggled in under the recipient's group heading.

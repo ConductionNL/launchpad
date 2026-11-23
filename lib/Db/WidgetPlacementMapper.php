@@ -23,6 +23,8 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
+use InvalidArgumentException;
+use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -108,6 +110,38 @@ class WidgetPlacementMapper extends QBMapper {
 	}//end findByWidgetId()
 
 	/**
+	 * Find the placements of one widget type on the dashboards a user owns,
+	 * in one query: the user's own sources for the Nextcloud dashboard
+	 * widgets.
+	 *
+	 * @param string $userId   The dashboard owner.
+	 * @param string $widgetId The widget type (e.g. `'news'`, `'links'`).
+	 *
+	 * @return WidgetPlacement[] The matching placements, active dashboard first.
+	 * @spec   openspec/specs/news-widget/spec.md#requirement-req-news-001-widget-registration
+	 * @spec   openspec/specs/links-widget/spec.md#requirement-req-lnks-001-widget-registration
+	 */
+	public function findOwnedByUserAndWidgetId(string $userId, string $widgetId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('p.*')
+			->from(from: $this->getTableName(), alias: 'p')
+			->innerJoin(
+				fromAlias: 'p',
+				join: 'launchpad_dashboards',
+				alias: 'd',
+				condition: 'd.id = p.dashboard_id'
+			)
+			->where($qb->expr()->eq(x: 'd.user_id', y: $qb->createNamedParameter(value: $userId)))
+			->andWhere($qb->expr()->eq(x: 'd.type', y: $qb->createNamedParameter(value: Dashboard::TYPE_USER)))
+			->andWhere($qb->expr()->eq(x: 'p.widget_id', y: $qb->createNamedParameter(value: $widgetId)))
+			->orderBy(sort: 'd.is_active', order: 'DESC')
+			->addOrderBy(sort: 'p.sort_order', order: 'ASC')
+			->addOrderBy(sort: 'p.id', order: 'ASC');
+
+		return $this->findEntities(query: $qb);
+	}//end findOwnedByUserAndWidgetId()
+
+	/**
 	 * Return every widget placement in the instance, unfiltered.
 	 *
 	 * Used by {@see \OCA\LaunchPad\Service\HealthPingService::refreshDuePlacements()}
@@ -157,10 +191,58 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardId(int $dashboardId): void {
+		$this->deleteRulesOfPlacementsWhere(column: 'dashboard_id', value: $dashboardId);
 		$qb = $this->deleteWhere(match: ['dashboard_id' => $dashboardId]);
 
 		$qb->executeStatement();
 	}//end deleteByDashboardId()
+
+	/**
+	 * Delete a placement together with its conditional rules (REQ-VIS-011).
+	 *
+	 * @param Entity $entity The placement.
+	 *
+	 * @return Entity The deleted placement.
+	 *
+	 * @throws InvalidArgumentException When the entity is not a widget placement.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-req-vis-011
+	 */
+	public function delete(Entity $entity): Entity {
+		if (($entity instanceof WidgetPlacement) === false) {
+			throw new InvalidArgumentException(message: 'WidgetPlacementMapper deletes widget placements only');
+		}
+
+		$this->deleteRulesOfPlacementsWhere(column: 'id', value: (int)$entity->getId());
+
+		return parent::delete(entity: $entity);
+	}//end delete()
+
+	/**
+	 * Delete the conditional rules of the placements whose `$column`
+	 * equals `$value`, before those placements are deleted: the rules
+	 * table has no foreign key to cascade on.
+	 *
+	 * @param string $column The placement column to match (`id` or `dashboard_id`).
+	 * @param int    $value  The value it must have.
+	 *
+	 * @return void
+	 */
+	private function deleteRulesOfPlacementsWhere(string $column, int $value): void {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete(delete: 'launchpad_conditional_rules')
+			->where(
+				$qb->expr()->in(
+					x: 'widget_placement_id',
+					y: $qb->createFunction(
+						call: '(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `' . $column . '` = '
+							. $qb->createNamedParameter(value: $value, type: IQueryBuilder::PARAM_INT) . ')'
+					)
+				)
+			);
+
+		$qb->executeStatement();
+	}//end deleteRulesOfPlacementsWhere()
 
 	/**
 	 * Delete all placements for a dashboard identified by UUID.
@@ -262,7 +344,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return bool True when the version was claimed; false when a colleague saved first.
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	public function claimVersion(int $id, int $expected): bool {
 		$qb = $this->db->getQueryBuilder();

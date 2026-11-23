@@ -63,7 +63,8 @@ describe('useDashboardFilterSession', () => {
 		)
 
 		expect(session.clauses.value.find((clause) => clause.dimension === 'gemeenteCode')).toMatchObject({ value: 'GM0355', source: 'parentScope' })
-		expect(session.labels).toEqual({ provincieCode: 'Provincie', gemeenteCode: 'Gemeente', wijkCode: 'Wijk' })
+		// The nl-administrative preset's own labels, in the reader's language (REQ-CWF-011).
+		expect(session.labels).toEqual({ provincieCode: 'Province', gemeenteCode: 'Municipality', wijkCode: 'District' })
 	})
 
 	it('remove and reset reach the bus, stop writes the URL one last time', () => {
@@ -85,5 +86,11 @@ describe('hierarchiesOf / levelLabels', () => {
 		expect(hierarchies).toEqual([ADMINISTRATIVE])
 		expect(hierarchiesOf({})).toEqual([])
 		expect(levelLabels([{ id: 'x', levels: [{ dimension: 'a', label: '' }, { dimension: 'b', label: 'B' }] }])).toEqual({ b: 'B' })
+	})
+
+	it('labels a preset\'s levels with the preset\'s labels in the reader\'s language (REQ-CWF-011)', () => {
+		const stored = { id: 'nl-administrative', levels: [{ dimension: 'provincieCode', label: 'Province' }, { dimension: 'blokCode', label: 'Blok' }] }
+
+		expect(levelLabels([stored])).toEqual({ provincieCode: 'Province', blokCode: 'Blok' })
 	})
 })

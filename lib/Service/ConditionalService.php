@@ -28,6 +28,7 @@ use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -35,7 +36,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *
  * @spec openspec/specs/conditional-visibility/spec.md
  */
-class ConditionalService {
+class ConditionalService implements ConditionalServiceInterface {
 	/**
 	 * Constructor
 	 *
@@ -80,7 +81,8 @@ class ConditionalService {
 	 * Fetches the rules for the placement and delegates to
 	 * {@see VisibilityChecker::checkRules()} for include/exclude
 	 * aggregation logic (REQ-VIS-003). Returns `true` when no rules
-	 * are configured (no restriction = visible).
+	 * are configured (no restriction = visible). A placement with
+	 * `isVisible: 0` is hidden without evaluating its rules (REQ-VIS-010).
 	 *
 	 * @param int $placementId The widget placement ID.
 	 * @param string $userId The acting user's UID.
@@ -90,6 +92,10 @@ class ConditionalService {
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function checkRulesForPlacement(int $placementId, string $userId): bool {
+		if ($this->placementMapper->find(id: $placementId)->getIsVisible() === 0) {
+			return false;
+		}
+
 		$rules = $this->ruleMapper->findByPlacementId(
 			placementId: $placementId
 		);
@@ -103,6 +109,65 @@ class ConditionalService {
 			userId: $userId
 		);
 	}//end checkRulesForPlacement()
+
+	/**
+	 * Apply the visibility rules to the placements a dashboard renders.
+	 *
+	 * A placement whose rules hide it for this user, or whose `isVisible`
+	 * flag is 0 (REQ-VIS-010), is left out, unless the
+	 * user may edit the dashboard: then it stays, marked `hiddenForViewers`,
+	 * so the owner and editors still see and edit it. Every other placement
+	 * carries `hiddenForViewers: false`.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The viewing user, '' for a visitor without an account.
+	 * @param bool                             $canEdit    Whether the viewer may edit the dashboard.
+	 *
+	 * @return array<int, array<string, mixed>> The placements to render, in order.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
+		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
+
+		$visible = [];
+		foreach ($placements as $placement) {
+			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
+			$hidden = (int)($placement['isVisible'] ?? 1) === 0
+				|| ($rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false);
+			if ($hidden === true && $canEdit === false) {
+				continue;
+			}
+
+			$placement['hiddenForViewers'] = $hidden;
+			$visible[] = $placement;
+		}
+
+		return $visible;
+	}//end visiblePlacements()
+
+	/**
+	 * The rules of the given placements, keyed by placement ID.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 *
+	 * @return array<int, ConditionalRule[]> The rules per placement ID.
+	 */
+	private function rulesByPlacement(array $placements): array {
+		$ids = [];
+		foreach ($placements as $placement) {
+			if (isset($placement['id']) === true) {
+				$ids[] = (int)$placement['id'];
+			}
+		}
+
+		$grouped = [];
+		foreach ($this->ruleMapper->findByPlacementIds(placementIds: $ids) as $rule) {
+			$grouped[(int)$rule->getWidgetPlacementId()][] = $rule;
+		}
+
+		return $grouped;
+	}//end rulesByPlacement()
 
 	/**
 	 * Evaluate an in-memory (not persisted) rule set against a supplied

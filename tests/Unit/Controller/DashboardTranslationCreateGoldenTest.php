@@ -36,6 +36,9 @@ use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * The create endpoint's variant rows, case by case.
@@ -129,7 +132,7 @@ class DashboardTranslationCreateGoldenTest extends TestCase {
 					actionAuth: $this->createMock(ActionAuthService::class),
 					userSession: $session
 				),
-				userId: 'alice'
+				context: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger()))
 			);
 
 			$response      = $controller->create('uuid-1', ...$args);

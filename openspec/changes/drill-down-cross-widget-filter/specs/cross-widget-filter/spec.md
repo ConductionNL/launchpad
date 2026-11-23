@@ -7,7 +7,7 @@ status: draft
 
 ## Context
 
-This capability adds a shared filter bus to launchpad dashboards, allowing widgets to publish filter events (on click) and other widgets to consume them (on render). Filter state is persisted in the URL, made available via saved views, and optionally logged for aggregate telemetry.
+This capability adds a shared filter bus to launchpad dashboards, allowing widgets to publish filter events (on click) and other widgets to consume them (on render). Filter state is persisted in the URL and optionally logged for aggregate telemetry. A dashboard with its filters is the unit a user keeps and shares; there are no saved views (REQ-CWF-009 was removed by decision on 22 Nov 2026).
 
 ## NEW Requirements
 
@@ -79,7 +79,7 @@ The system SHALL serialise the active filter state into a URL query parameter an
 
 ### Requirement: REQ-CWF-004 Drill-down hierarchies update breadcrumb and descendant filters
 
-When a click publishes a clause for a dimension that is part of a `hierarchy_descriptor`, the system SHALL update the breadcrumb UI to show the active path and SHALL clear any descendant-level clauses from the bus before applying the new clause.
+When a click publishes a clause for a dimension that is part of a `hierarchy_descriptor`, the system SHALL update the breadcrumb UI to show the active path and SHALL clear any descendant-level clauses from the bus before applying the new clause. The breadcrumb SHALL show one step per active level of each hierarchy, broadest first, as the level's label in the reader's language and its value ("Provincie PV26 > Gemeente GM0355 > Wijk WK035501"); each step above the deepest SHALL go back up to that level. A chart click names only the field the chart groups by, so the ancestor values SHALL be read from the clicked row when it carries them, and otherwise from one record of the clicked category in the chart's register and schema, in the record's field named like the ancestor's dimension; an ancestor that cannot be read is skipped with a console warning.
 
 #### Scenario: Drilling up clears descendant filters
 
@@ -92,6 +92,12 @@ When a click publishes a clause for a dimension that is part of a `hierarchy_des
 - **GIVEN** the same dashboard with no active filters
 - **WHEN** the user clicks a wijk on a wijk-level widget (publishing `wijkCode=WK0355001`)
 - **THEN** the bus SHALL contain `{wijkCode=WK0355001}` AND the hierarchy resolver SHALL infer and add ancestor clauses (`gemeenteCode=GM0355`, `provincieCode=PV09`) marked with `source=parentScope` so the breadcrumb shows the full path
+
+#### Scenario: Going back up the breadcrumb clears the levels below
+
+- **GIVEN** the breadcrumb shows "Provincie PV26 > Gemeente GM0355 > Wijk WK035501" after a wijk click
+- **WHEN** the user chooses the "Provincie PV26" step
+- **THEN** the gemeente and wijk clauses SHALL be cleared (pinned ones stay), the provincie clause SHALL stay as the user's own (`source=userExplicit`), the breadcrumb SHALL show "Provincie PV26", and a later click on a wijk in another gemeente SHALL replace the provincie and gemeente with that wijk's ancestors
 
 #### Scenario: Permission-denied on hierarchy level
 
@@ -179,30 +185,6 @@ The widget loader SHALL read `publishes` and `consumes` from the widget manifest
 
 ---
 
-### Requirement: REQ-CWF-009 Saved views persist named filter combinations
-
-The system SHALL allow users with edit permission on a dashboard to save the current filter state as a named view, list saved views in a dashboard-header dropdown, and apply a saved view with one click.
-
-#### Scenario: Save current filter state as named view
-
-- **GIVEN** a dashboard with three active clauses
-- **WHEN** the user invokes "Save view" and provides the name "Open bezwaren Zeist 6w+"
-- **THEN** a `saved_view` row SHALL be persisted with those three clauses, scoped to that dashboard, and the saved view SHALL appear in the header dropdown
-
-#### Scenario: Apply saved view
-
-- **GIVEN** a saved view with five clauses
-- **WHEN** a user with view permission on the dashboard selects it from the dropdown
-- **THEN** all current non-pinned clauses SHALL be replaced with the saved view's clauses and the URL SHALL update accordingly
-
-#### Scenario: Shared saved views appear for other users
-
-- **GIVEN** a saved view marked `isShared: true`
-- **WHEN** a different user with view permission opens the dashboard
-- **THEN** the saved view SHALL appear in their dropdown (under a "Shared" section) and SHALL be applicable but not editable by them
-
----
-
 ### Requirement: REQ-CWF-010 Telemetry of filter usage is opt-in and aggregated
 
 When org-level telemetry is enabled, the system SHALL persist `filter_event` rows for `apply` / `reset` / `bookmark` / `share` events with no PII beyond the user id, and SHALL expose an aggregate report ("most-used drill-down paths per dashboard") to dashboard owners.
@@ -227,15 +209,55 @@ When org-level telemetry is enabled, the system SHALL persist `filter_event` row
 
 ---
 
+### Requirement: REQ-CWF-011 A dashboard stores its hierarchies
+
+A dashboard SHALL store its `hierarchies` (a list of hierarchy_descriptor objects) and return them on every read of the dashboard, so the filter bus of every viewer joins widgets on them without any per-page configuration. An owner or editor SHALL pick the hierarchies in the dashboard settings from the shipped presets; the `nl-administrative` preset (province > municipality > district > neighbourhood: `provincieCode` > `gemeenteCode` > `wijkCode` > `buurtCode`) SHALL be one of them. The dashboard API SHALL validate every descriptor before it stores it.
+
+#### Scenario: An owner picks the nl-administrative preset
+
+- **GIVEN** a dashboard without hierarchies and its owner in the dashboard settings
+- **WHEN** the owner picks the "Dutch administrative areas" preset and saves
+- **THEN** the dashboard SHALL store the `nl-administrative` descriptor with the levels `provincieCode`, `gemeenteCode`, `wijkCode` and `buurtCode`, every later read of the dashboard SHALL return it, and the dashboard's filter bus SHALL be rebuilt on it
+
+#### Scenario: Stored hierarchies put consuming widgets on the bus
+
+- **GIVEN** a dashboard that stores the `nl-administrative` hierarchy, a chart that publishes `gemeenteCode` and a chart that consumes `gemeenteCode`
+- **WHEN** a viewer opens the dashboard and clicks a gemeente on the publishing chart
+- **THEN** the consuming chart SHALL refetch with the clicked gemeente as its filter, with no hierarchy added to the dashboard anywhere but in its stored settings
+
+#### Scenario: A malformed descriptor is refused
+
+- **GIVEN** an update whose `hierarchies` is not a list, or holds a descriptor without an `id`, without levels, with a level without a `dimension`, with a dimension used twice, or with a `parentDimension` that is not the level above
+- **WHEN** the update is sent to the dashboard API
+- **THEN** the API SHALL answer 400 with a message naming the problem and SHALL store nothing of the update
+
+#### Scenario: A viewer cannot change the hierarchies
+
+- **GIVEN** a user who may view but not edit a dashboard
+- **WHEN** that user sends an update with `hierarchies`
+- **THEN** the API SHALL refuse it as it refuses a layout change, and the stored hierarchies SHALL stay as they were
+
+#### Scenario: Copies keep the hierarchies
+
+- **GIVEN** a dashboard or admin template that stores the `nl-administrative` hierarchy
+- **WHEN** a user forks it as a personal copy, a dashboard is made from the template, or the dashboard is exported and imported again
+- **THEN** the copy SHALL store the same hierarchies, so its filter bus joins widgets as the original's does; a malformed list in an imported archive SHALL be left out without failing the import
+
+#### Scenario: Clearing the hierarchies
+
+- **GIVEN** a dashboard that stores the `nl-administrative` hierarchy
+- **WHEN** the owner removes it in the settings and saves (an update with `hierarchies: []`)
+- **THEN** the dashboard SHALL store no hierarchies, reads SHALL return `hierarchies: []`, and widgets that consume a hierarchy dimension SHALL leave the bus with the REQ-CWF-008 warning
+
+---
+
 ## Data Model
 
 ### dashboard_filter_state
 
-Holds the active filter set for a dashboard view. In steady state, the URL is the system of record; saved views persist this shape to the register.
+Holds the active filter set for a dashboard view. The URL is the system of record; the shape is not stored in the register.
 
-- `id` (UUID, nullable) — set only for saved views
 - `dashboardId` (UUID) — references a dashboard
-- `name` (string, nullable) — set only for saved views
 - `filters` (array of filter_clause objects) — active clauses
 - `appliedAt` (ISO timestamp) — for telemetry
 
@@ -244,7 +266,6 @@ Holds the active filter set for a dashboard view. In steady state, the URL is th
 ```json
 {
   "dashboardId": "d1a2b3c4-5678-90ab-cdef-1234567890ab",
-  "name": "Open bezwaren Zeist > 6w",
   "filters": [
     {
       "dimension": "gemeenteCode",
@@ -279,7 +300,7 @@ Describes one active filter. Keyed in compact form for URL encoding as `{d, o, v
 - `dimension` (string, e.g. `gemeenteCode`, `wijkCode`, `period.month`) — the filtered attribute
 - `operator` (enum: `eq`, `in`, `between`, `gte`, `lte`, `contains`, `notNull`) — comparison operator
 - `value` (scalar, array, or `[low, high]` tuple) — depends on operator; never stored in telemetry
-- `source` (enum: `userExplicit`, `widgetClick`, `urlBootstrap`, `savedView`, `parentScope`) — origin
+- `source` (enum: `userExplicit`, `widgetClick`, `urlBootstrap`, `savedView`, `parentScope`) — origin; `savedView` is no longer written but still decodes, so a link copied while saved views existed keeps its filters
 - `sourceWidgetId` (UUID, nullable) — set when `source=widgetClick`
 - `pinned` (boolean, default false) — pinned clauses survive "Reset filters"
 
@@ -434,75 +455,6 @@ Declares a drill-down chain for inferring ancestor and descendant relationships.
         "parentDimension": "period.month"
       }
     ]
-  }
-]
-```
-
-### saved_view
-
-Persisted named filter combination, scoped to a dashboard.
-
-- `id` (UUID) — primary key
-- `dashboardId` (UUID) — references the dashboard
-- `name` (string) — user-visible name
-- `description` (string, nullable) — optional explanation
-- `filters` (array of filter_clause objects) — the saved filter set
-- `isShared` (boolean) — whether other users can apply this view
-- `sharedWith` (array of user/group IDs, nullable) — explicit share list (used only if `isShared=true`)
-- `createdBy` (UUID) — user who created this view
-- `createdAt` (ISO timestamp) — creation timestamp
-
-#### Seed Data
-
-```json
-[
-  {
-    "id": "sv-001",
-    "dashboardId": "d1a2b3c4-5678-90ab-cdef-1234567890ab",
-    "name": "Open bezwaren Zeist > 6w",
-    "description": "All open complaints in Zeist older than 6 weeks",
-    "filters": [
-      {
-        "dimension": "gemeenteCode",
-        "operator": "eq",
-        "value": "GM0355",
-        "source": "savedView"
-      },
-      {
-        "dimension": "status",
-        "operator": "eq",
-        "value": "open",
-        "source": "savedView"
-      },
-      {
-        "dimension": "ageInDays",
-        "operator": "gte",
-        "value": 42,
-        "source": "savedView"
-      }
-    ],
-    "isShared": true,
-    "sharedWith": null,
-    "createdBy": "u-analyst-01",
-    "createdAt": "2026-05-15T10:00:00Z"
-  },
-  {
-    "id": "sv-002",
-    "dashboardId": "d1a2b3c4-5678-90ab-cdef-1234567890ab",
-    "name": "2026 Q2 Trend by Wijk",
-    "description": "Filter to 2026 Q2 aggregated by wijk within the user's gemeente",
-    "filters": [
-      {
-        "dimension": "period.quarter",
-        "operator": "eq",
-        "value": "2026-Q2",
-        "source": "savedView"
-      }
-    ],
-    "isShared": false,
-    "sharedWith": null,
-    "createdBy": "u-manager-01",
-    "createdAt": "2026-05-20T14:22:00Z"
   }
 ]
 ```

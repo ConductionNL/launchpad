@@ -29,6 +29,7 @@ namespace OCA\LaunchPad\Service;
 use DOMDocument;
 use DOMNode;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
@@ -155,6 +156,9 @@ class NewsWidgetService {
 	 * @param IAppConfig            $appConfig Reads admin settings: `news_widget_feed_cache_ttl_seconds` and
 	 *                                         `news_widget_allowed_feed_hosts`.
 	 * @param LoggerInterface       $logger PSR logger.
+	 * @param MetadataService|null  $metadata Reads a dashboard's metadata for the placement's metadata filter;
+	 *                                        without it a configured filter never matches.
+	 * @param DashboardMapper|null  $dashboards Resolves the placement's dashboard to its uuid.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
@@ -163,6 +167,8 @@ class NewsWidgetService {
 		private readonly FeedFetchTools $fetch,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
+		private readonly ?MetadataService $metadata=null,
+		private readonly ?DashboardMapper $dashboards=null,
 	) {
 	}//end __construct()
 
@@ -955,12 +961,10 @@ class NewsWidgetService {
 	}//end checkAllowList()
 
 	/**
-	 * Hook for the (out-of-branch) `dashboard-metadata-fields` capability.
-	 * Until that capability ships, the metadata store is unavailable and
-	 * the filter result is "no metadata defined" — which means a
-	 * configured filter never matches and the widget returns no items
-	 * (REQ-NEWS-007 scenarios "Metadata field missing" and "spec not
-	 * yet implemented").
+	 * Whether the dashboard's metadata value for the filter's field equals
+	 * the filter's value (REQ-NEWS-007). A field the dashboard has no value
+	 * for is null and never matches; so does a dashboard that cannot be
+	 * read, or a service built without the metadata store.
 	 *
 	 * @param integer $dashboardId The dashboard whose
 	 *                             metadata to consult.
@@ -971,13 +975,23 @@ class NewsWidgetService {
 	 * @spec openspec/specs/news-widget/spec.md
 	 */
 	public function checkMetadataFilter(int $dashboardId, array $metadataFilter): bool {
-		unset($dashboardId);
-		unset($metadataFilter);
+		if ($this->metadata === null || $this->dashboards === null) {
+			return false;
+		}
 
-		// REQ-NEWS-007: gracefully treat missing dashboard-metadata-fields
-		// implementation as "no fields defined", which causes any
-		// configured equality filter to fail.
-		return false;
+		try {
+			$uuid   = (string)$this->dashboards->find(id: $dashboardId)->getUuid();
+			$values = $this->metadata->getMetadataForDashboard(dashboardUuid: $uuid);
+		} catch (Throwable $exception) {
+			$this->logger->warning(
+				message: 'News widget: dashboard metadata unreadable, metadata filter fails',
+				context: ['app' => Application::APP_ID, 'dashboardId' => $dashboardId, 'exception' => $exception->getMessage()]
+			);
+			return false;
+		}
+
+		$actual = ($values[$metadataFilter['fieldKey']] ?? null);
+		return $actual !== null && (string)$actual === $metadataFilter['value'];
 	}//end checkMetadataFilter()
 
 	/**

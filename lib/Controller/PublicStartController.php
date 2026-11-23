@@ -23,7 +23,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\PublicStartPage;
+use OCA\LaunchPad\Kernel\Contracts\PublicStartPageInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -41,12 +41,12 @@ class PublicStartController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest        $request   The request.
-	 * @param PublicStartPage $startPage Chooses and checks the start page.
+	 * @param IRequest                 $request   The request.
+	 * @param PublicStartPageInterface $startPage Chooses and checks the start page.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PublicStartPage $startPage,
+		private readonly PublicStartPageInterface $startPage,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()

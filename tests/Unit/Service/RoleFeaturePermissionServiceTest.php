@@ -193,6 +193,49 @@ class RoleFeaturePermissionServiceTest extends TestCase {
 	}//end testIsWidgetAllowedTrueWhenUnconfigured()
 
 	/**
+	 * A placement of a widget the role does not permit comes back hidden,
+	 * not dropped; a permitted one and a tile (type `tile`) stay visible.
+	 */
+	public function testHideUnpermittedPlacementsHidesOnlyTheUnpermitted(): void {
+		$this->withUserGroups(userId: 'jan', groupIds: ['employees']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: ['employees']);
+		$this->permMapper->method('findByGroupIds')
+			->willReturn(value: [
+				$this->makePerm(groupId: 'employees', allowed: ['recommendations', 'tile']),
+			]);
+
+		$result = $this->service->hideUnpermittedPlacements(
+			placements: [
+				['id' => 1, 'widgetId' => 'files-favorites', 'isVisible' => 1],
+				['id' => 2, 'widgetId' => 'recommendations', 'isVisible' => 1],
+				['id' => 3, 'widgetId' => 'tile-6566f0a1b2c3d', 'isVisible' => 1],
+			],
+			userId: 'jan'
+		);
+
+		$this->assertSame(
+			expected: [[1, 0], [2, 1], [3, 1]],
+			actual: array_map(callback: static fn (array $p): array => [$p['id'], $p['isVisible']], array: $result)
+		);
+	}//end testHideUnpermittedPlacementsHidesOnlyTheUnpermitted()
+
+	/**
+	 * With nothing configured every placement keeps its visibility.
+	 */
+	public function testHideUnpermittedPlacementsLeavesAllWhenUnconfigured(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: []);
+		$this->permMapper->method('findByGroupId')
+			->will($this->throwException(exception: new DoesNotExistException(msg: 'no row')));
+
+		$placements = [['id' => 1, 'widgetId' => 'files-favorites', 'isVisible' => 1]];
+		$this->assertSame(
+			expected: $placements,
+			actual: $this->service->hideUnpermittedPlacements(placements: $placements, userId: 'alice')
+		);
+	}//end testHideUnpermittedPlacementsLeavesAllWhenUnconfigured()
+
+	/**
 	 * Admin break-glass: a Nextcloud admin is never restricted by the
 	 * role-feature-permission allow-list, even when a restrictive `default`
 	 * row exists (the bug — admins were falling back to the demo-seeded

@@ -62,6 +62,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Contract tests for newsItems, calendarEvents and calendars.
@@ -159,16 +164,14 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 				calendarService: $this->calendarService,
 				placementService: $this->createMock(WidgetPlacementService::class)
 			),
-			permissionService: $this->permissionService,
-			policy: new WidgetApiPolicy(
+			access: new WidgetApiAccess(permissionService: $this->permissionService, policy: new WidgetApiPolicy(
 				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
 				logger: $this->createMock(LoggerInterface::class)
-			),
-			actor: new RequestActor(
+			)),
+			context: new ActorResponses(actor: new RequestActor(
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			),
-			userId: $userId
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 
 	}//end makeController()
@@ -267,6 +270,29 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 		);
 
 	}//end testNewsItemsEnforcesTheLimitRange()
+
+	/**
+	 * Nextcloud's dispatcher refuses an int parameter named `limit` outside
+	 * 1..500 with an unhandled exception (a 500) unless the method declares a
+	 * psalm int range for it. The declared range must be unbounded, so a
+	 * limit of 0 or below reaches the controller and is answered 400. The
+	 * pattern is the one Nextcloud's ControllerMethodReflector reads.
+	 *
+	 * @return void
+	 */
+	public function testNewsItemsLeavesTheLimitRangeToTheController(): void {
+		$docs = (string)(new \ReflectionMethod(WidgetApiController::class, 'newsItems'))->getDocComment();
+		$found = preg_match(
+			'/@(?:psalm-)?param\h+(\?)?int<(?P<min>-?\d+|min),\h*(?P<max>-?\d+|max)>(\|null)?\h+\$limit/',
+			$docs,
+			$range
+		);
+
+		$this->assertSame(expected: 1, actual: $found);
+		$this->assertSame(expected: 'min', actual: $range['min']);
+		$this->assertSame(expected: 'max', actual: $range['max']);
+
+	}//end testNewsItemsLeavesTheLimitRangeToTheController()
 
 	/**
 	 * Boundary cases for the news `limit` parameter.

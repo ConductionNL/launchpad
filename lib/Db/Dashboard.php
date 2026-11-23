@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
+use OCA\LaunchPad\Service\DashboardLook;
 use OCP\AppFramework\Db\Entity;
 
 /**
@@ -77,6 +78,14 @@ use OCP\AppFramework\Db\Entity;
  * @method void setReactionsEnabled(?int $reactionsEnabled)
  * @method string getDashboardFooterMode()
  * @method void setDashboardFooterMode(string $dashboardFooterMode)
+ * @method string|null getThemeAccent()
+ * @method void setThemeAccent(?string $themeAccent)
+ * @method string|null getThemeBackgroundColor()
+ * @method void setThemeBackgroundColor(?string $themeBackgroundColor)
+ * @method string|null getThemeBackgroundResource()
+ * @method void setThemeBackgroundResource(?string $themeBackgroundResource)
+ * @method string|null getCustomCss()
+ * @method void setCustomCss(?string $customCss)
  * @method string|null getDashboardFooterHtml()
  * @method void setDashboardFooterHtml(?string $dashboardFooterHtml)
  * @method string|null getTemplateCategory()
@@ -85,6 +94,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplateDescription(?string $templateDescription)
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
+ * @method string|null getDefaultLinkTarget()
+ * @method void setDefaultLinkTarget(?string $defaultLinkTarget)
+ * @method string|null getHierarchies()
+ * @method void setHierarchies(?string $hierarchies)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
  *                                        column on `oc_launchpad_dashboards`
@@ -550,6 +563,23 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected string $dashboardFooterMode = self::FOOTER_MODE_INHERIT;
 
 	/**
+	 * How a tile on this dashboard opens when the tile has no choice of its
+	 * own: `same-tab`, `new-tab` or `side-panel`. NULL keeps the rule from
+	 * before the setting existed (launcher-tile-open-behaviour D2).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $defaultLinkTarget = null;
+
+	/**
+	 * The hierarchy descriptors the filter bus joins widgets on, as JSON
+	 * (REQ-CWF-011). NULL reads as the empty list.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $hierarchies = null;
+
+	/**
 	 * Per-dashboard footer HTML (REQ-FTR-006).
 	 *
 	 * Sanitised server-side via the same allow-list as the global
@@ -596,6 +626,34 @@ class Dashboard extends Entity implements JsonSerializable {
 	 * @var string|null
 	 */
 	protected ?string $templatePreviewImage = null;
+
+	/**
+	 * The dashboard's accent colour, `#rrggbb` (REQ-THM-001). NULL follows the theme.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeAccent = null;
+
+	/**
+	 * The dashboard's background colour, `#rrggbb` (REQ-THM-001). NULL follows the theme.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeBackgroundColor = null;
+
+	/**
+	 * The dashboard's background image: the file name of a LaunchPad resource upload (REQ-THM-001).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeBackgroundResource = null;
+
+	/**
+	 * Administrator CSS for this dashboard, stored cleaned and scoped (REQ-THM-003). NULL when none.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $customCss = null;
 
 	/**
 	 * Constructor
@@ -655,14 +713,77 @@ class Dashboard extends Entity implements JsonSerializable {
 	}//end setTargetGroupsArray()
 
 	/**
+	 * The stored hierarchy descriptors as a list (REQ-CWF-011).
+	 *
+	 * @return list<array<string, mixed>> The descriptors, or the empty list.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function getHierarchiesArray(): array {
+		if ($this->hierarchies === null || $this->hierarchies === '') {
+			return [];
+		}
+
+		$decoded = json_decode(json: $this->hierarchies, associative: true);
+		if (is_array($decoded) === true && array_is_list($decoded) === true) {
+			return $decoded;
+		}
+
+		return [];
+	}//end getHierarchiesArray()
+
+	/**
+	 * Store hierarchy descriptors; the empty list stores NULL (REQ-CWF-011).
+	 *
+	 * @param list<array<string, mixed>> $hierarchies The validated descriptors.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function setHierarchiesArray(array $hierarchies): void {
+		$encoded = null;
+		if ($hierarchies !== []) {
+			$encoded = json_encode($hierarchies, JSON_THROW_ON_ERROR);
+		}
+
+		// Entity setters resolve via __call which uses $args[0].
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setHierarchies($encoded);
+	}//end setHierarchiesArray()
+
+	/**
 	 * Serialize to JSON (owner / admin view — full payload).
 	 *
 	 * @return array The serialized dashboard.
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
-		return $this->identityFields() + $this->treeAndPublicationFields() + $this->footerAndTemplateFields();
+		return $this->identityFields() + $this->treeAndPublicationFields() + $this->footerAndTemplateFields() + $this->lookFields();
 	}//end jsonSerialize()
+
+	/**
+	 * The look of the dashboard (REQ-THM-001): accent, background and the
+	 * derived text colour, all NULL when the dashboard follows the theme.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 */
+	private function lookFields(): array {
+		$textColor = null;
+		if ($this->themeBackgroundColor !== null) {
+			$textColor = DashboardLook::textColorFor(background: $this->themeBackgroundColor);
+		}
+
+		return [
+			'themeAccent' => $this->themeAccent,
+			'themeBackgroundColor' => $this->themeBackgroundColor,
+			'themeBackgroundResource' => $this->themeBackgroundResource,
+			'themeTextColor' => $textColor,
+			'customCss' => $this->customCss,
+		];
+	}//end lookFields()
 
 	/**
 	 * The identity, ownership and behaviour fields of the wire format.
@@ -723,6 +844,9 @@ class Dashboard extends Entity implements JsonSerializable {
 		return [
 			'dashboardFooterMode' => $this->dashboardFooterMode,
 			'dashboardFooterHtml' => $this->dashboardFooterHtml,
+			'defaultLinkTarget' => $this->defaultLinkTarget,
+			// REQ-CWF-011: every viewer's filter bus joins widgets on these.
+			'hierarchies' => $this->getHierarchiesArray(),
 			'templateCategory' => $this->templateCategory,
 			'templateDescription' => $this->templateDescription,
 			'templatePreviewImage' => $this->templatePreviewImage,

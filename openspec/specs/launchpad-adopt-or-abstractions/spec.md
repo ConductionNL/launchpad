@@ -18,7 +18,8 @@ The manifest MUST set:
 - `$schema` to the published nc-vue schema URL (for editor
   validation)
 - `version` to a semver string, bumped on shape change
-- `dependencies: []` (explicit empty array)
+- `dependencies` listing OpenRegister only as optional
+  (`[{"id": "openregister", "required": false, "name": "OpenRegister"}]`)
 - a `menu` array with at least the Dashboards entry
 - a `pages` array including the per-dashboard page
   (`type: "dashboard"`)
@@ -46,17 +47,16 @@ The manifest MUST set:
 - AND the error MUST identify the offending JSON path
 - AND CI MUST fail on the same script
 
-@e2e exclude the subject is a build script's exit code and stderr — `scripts/check-manifest.js`, exposed as `npm run check:manifest` and chained into `npm run lint`, which the shared quality workflow runs with `enable-eslint: true`. A browser cannot observe a non-zero exit status, and by construction the scenario describes a tree that never builds and therefore never reaches an instance. The hydra `manifest-validation` gate enforces the same shape independently.
+@e2e exclude the subject is a build script's exit code and stderr — `scripts/check-manifest.js`, exposed as `npm run check:manifest` and chained into `npm run lint`, which the shared quality workflow runs with `enable-eslint: true`. A browser cannot observe a non-zero exit status, and by construction the scenario describes a tree that never builds and therefore never reaches an instance. The hydra `manifest-validation` gate enforces the same shape independently. Re-checked 2026-11-19: `scripts/check-manifest.js` validates only `$schema`, a semver `version`, that `dependencies`, `menu` and `pages` are arrays, and that `dependencies` holds no bare `"openregister"`/`"openconnector"` string; it does not check a page's `type` against an allowed set and prints no JSON path, so the THEN describes behaviour the script does not have. No unit test pins the script.
 
 #### Scenario: Manifest declares no install-time OR dependency
 
 - GIVEN the file `src/manifest.json`
 - WHEN `manifest.dependencies` is read
-- THEN it MUST be an empty array `[]`
-- AND no review MAY add `"openregister"`, `"openconnector"`, or any
-  other Conduction app ID to the array
-
-@e2e exclude a static assertion about one key in a checked-in JSON file (`src/manifest.json` currently reads `"dependencies": []`), plus a rule addressed to reviewers rather than to the product. Neither has a browser surface: the runtime manifest served to the page is assembled server-side and replaces this file's contents outright, so a rendered page cannot report what the bundled literal said.
+- THEN it MUST be an array whose only entry is OpenRegister marked
+  optional (`required: false`)
+- AND no review MAY add a required entry, a bare app-id string, or
+  `"openconnector"` or any other Conduction app ID to the array
 
 ### Requirement: LaunchPad MUST NOT declare an install-time dependency on OpenRegister or OpenConnector
 
@@ -100,9 +100,9 @@ Any LaunchPad widget that reads or writes OR objects MUST guard the
 call with `useOrFeatureDetect()` and render a documented empty
 state when OR is absent or returns 5xx.
 
-@e2e exclude there is nothing to observe yet: `useOrFeatureDetect` appears nowhere under `src/`, and no LaunchPad widget fetches OpenRegister from the browser at all — the string `apps/openregister/api` does not occur in any `.js` or `.vue` source outside tests. Every OR round-trip LaunchPad makes is server-side, through AppHost. A Playwright test written against these scenarios today could only assert that an absent code path stays absent. The first scenario additionally requires an OR-less instance, which the CI fixture is not. This is a spec-ahead-of-code divergence, reported rather than annotated away.
-
 #### Scenario: OR-backed widget on OR-less install
+
+@e2e exclude the GIVEN is an instance with OpenRegister NOT installed, and the Playwright fixture installs it on purpose (`additional-apps` in `.github/workflows/code-quality.yml`); one CI job cannot be two instances. The THEN is also unbuilt: `useOrFeatureDetect` occurs nowhere under `src/` (only in `docs/widgets/or-data.md` and `docs/architecture.md`; `git log --all -S useOrFeatureDetect -- src lib` finds no commit), so no unit test pins it either. The OR-present half of this requirement (a 503) is cited in `tests/e2e/launchpad-adopt-or-abstractions.spec.ts`.
 
 - GIVEN OR is not installed on the Nextcloud instance
 - AND an operator has placed an OR-backed widget on a dashboard
@@ -136,9 +136,9 @@ current Nextcloud locale.
 This is a downstream consumer of
 `openregister/openspec/changes/i18n-api-language-negotiation/`.
 
-@e2e exclude both scenarios assert the shape of an outbound request a LaunchPad widget makes to OpenRegister from the browser — a `?_lang=` query parameter, an `X-Translation-Target-Language` header. No such request exists to inspect: `apps/openregister/api` does not appear in any `.js` or `.vue` file under `src/` outside tests, so there is no browser-issued OR fetch for a network assertion to attach to. Spec ahead of code, reported rather than annotated away.
-
 #### Scenario: Locale stamping on OR fetch
+
+@e2e exclude the WHEN is a widget fetching ONE OpenRegister object by uuid (`/objects/cases/melding/abc`), and no widget LaunchPad can place does that from the browser: the browser-side OR reads in `src/` and in nc-vue's `CnObjectListWidget` are collection reads (`/objects/{register}/{schema}?_limit=...`), and the single-object paths they build are only PATCH/DELETE writes. The `?_lang=` contract on the collection read a widget does issue is cited as `runtime-or-consumption::widget-passes-current-user-locale` and `::widget-falls-back-to-en-when-lang-attribute-is-absent`. No unit test pins `_lang` stamping; no source file under `src/` sends it.
 
 - GIVEN the user's Nextcloud locale is `en_GB`
 - AND a widget fetches OR object `register=cases, schema=melding,
@@ -167,7 +167,7 @@ once the `multi-tenancy-context` change in
 LaunchPad widgets MUST use the composable to refetch on tenant switch
 and to stamp `X-OpenRegister-Organisation` on writes.
 
-@e2e exclude the requirement is explicitly conditional on an upstream release that has not happened — neither `useTenantContext` nor `X-OpenRegister-Organisation` occurs anywhere under `src/`, and the pinned dependency is `@conduction/nextcloud-vue` 2.2.0-vue3.9. There is no tenant switcher on the instance to drive and no header to inspect. The second scenario asserts a guarded import, i.e. that nothing happens when a symbol is missing, which is a bundler-level property with no rendered consequence.
+@e2e exclude no tenant switcher exists for a test to drive, and nothing would react to it. Re-checked 2026-11-19: the upstream release has now happened — the installed `@conduction/nextcloud-vue` is 2.180.0 and its `src/index.js` exports `useTenantContext` — but no LaunchPad source imports it (`useTenantContext`, `provideTenantContext` and `X-OpenRegister-Organisation` occur nowhere under `src/` or `lib/`; `git log --all -S useTenantContext -- src` finds no commit). `CnAppRoot` mounts a tenant provider and a `CnTenantBadge`, which is display-only, and nc-vue's `CnObjectListWidget` does not subscribe to a switch. OpenRegister itself reads no tenant header: it scopes by the user's stored `active_organisation`. The second scenario's GIVEN (nc-vue NOT exporting the composable) can no longer be arranged against the pinned package, and its THEN is a guarded import, a bundler property with no rendered consequence. No unit test pins either scenario.
 
 #### Scenario: Tenant switch refetches widget data
 
@@ -198,7 +198,7 @@ OR per-object RBAC delegation MAY be wired as an OPTIONAL runtime
 delegation when a dashboard's `permissions.delegate` field
 references an OR object UUID and OR is enabled.
 
-@e2e exclude the first scenario requires an instance with OpenRegister ABSENT, and the Playwright fixture installs it on purpose (`additional-apps` in `.github/workflows/code-quality.yml`). The second describes a MAY, not a MUST, and its trigger does not exist: no `permissions.delegate` field and no call to OpenRegister's `/can?action=read` occurs anywhere in `lib/` or `src/`. The OR-independent half of the sharing model — that a recipient sees a shared dashboard at the granted permission level — is the subject of `tests/e2e/dashboard-sharing.spec.ts`, which is currently withheld from the CI config because the fixture seeds only `e2e-grantee` and the spec needs a `recipient` account; that is recorded against the file in `playwright.config.ts`, not hidden here.
+@e2e exclude the first scenario requires an instance with OpenRegister ABSENT, and the Playwright fixture installs it on purpose (`additional-apps` in `.github/workflows/code-quality.yml`). Its OR-independent outcome — an `add_only` recipient can add widgets but not change the dashboard — runs on the OR-present fixture in `tests/e2e/dashboard-permission-levels.spec.ts` ("an add-only user can add, restyle and remove a widget they added"), and sharing itself in `tests/e2e/dashboard-sharing.spec.ts`, which `playwright.config.ts` no longer withholds. The second scenario is a MAY whose trigger was never built: no `permissions.delegate` field and no call to OpenRegister's `/can?action=read` occurs in `lib/` or `src/` (`permissions.delegate` appears only in `docs/architecture.md`).
 
 #### Scenario: Sharing on OR-less install
 
@@ -232,7 +232,7 @@ MUST persist in the local `oc_launchpad_admin_settings` table.
 
 Admin templates MUST NOT be persisted in OR.
 
-@e2e exclude both scenarios assert things a browser cannot reach. The first is a database-row assertion — one row in `oc_launchpad_admin_settings` under a specific key, and the ABSENCE of any row in any OpenRegister table plus the absence of any `/api/objects/...` call; a rendered template list looks identical whichever store produced it. The second is about a regex, `lib/Service/FileService.php::FILENAME_PATTERN`, and its rejection path is an HTTP 400 on import, which is Newman's contract territory here. `FILENAME_PATTERN` is directly unit-tested in `tests/Unit/Service/FileServiceTest.php`, which pins both the accepted set (including `template_v2.json`) and the rejected set (including `../../etc/passwd`) through data providers.
+@e2e exclude neither scenario describes what the product does, and neither outcome is readable over HTTP. Admin templates do not persist in `oc_launchpad_admin_settings` at all: they are `oc_launchpad_dashboards` rows of type admin-template (`lib/Service/AdminTemplateService.php` inserts through `dashboardMapper`; `DashboardMapper::findAdminTemplates()` reads them back), and no API exposes raw table rows, so the first scenario's row-and-key assertion has no read to stand on and no test pins it. The second was never built as written: the only export is `POST /api/admin/export`, which streams a ZIP (`ExportService::streamZipResponse`), not a JSON file, and `AdminController::import` never looks at the uploaded filename, so no path rejects a name with 400. `FILENAME_PATTERN` guards `FileService::createFile` only, and is unit-tested in `tests/Unit/Service/FileServiceTest.php::testFilenamePatternAllowsValidNames` (with `template_v2.json`) and `::testFilenamePatternRejectsInvalidNames`.
 
 #### Scenario: Template persistence
 
@@ -279,7 +279,7 @@ in `lib/Db/AdminSetting.php` MUST be collected into a single
 `AdminSettingKey` const-list (or PHP 8.1 `enum`). Existing constants MAY
 be kept as aliases for BC.
 
-@e2e exclude the scenario is a source-organisation rule — where a string literal is declared, and that no second file declares a duplicate for the same logical key. It is satisfied today by the `AdminSettingKey` enum in `lib/Db/AdminSettingKey.php`, which carries 20 cases. Two files agreeing on where a constant lives produces no observable difference in a rendered page; the settings behave identically whether the key is defined once or twice.
+@e2e exclude the scenario is a source-organisation rule — where a string literal is declared, and that no second file declares a duplicate for the same logical key. It is satisfied today by the `AdminSettingKey` enum in `lib/Db/AdminSettingKey.php`, which carries 33 cases (re-counted 2026-11-19). Two files agreeing on where a constant lives produces no observable difference in a rendered page; the settings behave identically whether the key is defined once or twice.
 
 #### Scenario: Key list is single-source-of-truth
 
@@ -301,7 +301,7 @@ be kept as aliases for BC.
   - rejected: `../etc/passwd`, `name.with.two.dots.json`,
     paths containing slashes (`a/b.json`), paths starting with `.`
 
-@e2e exclude the requirement names its own coverage mechanism — "covered by a unit test" — and both scenarios end in "AND the unit test MUST assert true/false". They are assertions about `preg_match()` against a class constant, with no HTTP request and no rendered output between the regex and the verdict. That unit test exists and was opened before this exclusion was written: `tests/Unit/Service/FileServiceTest.php` calls `preg_match(FileService::FILENAME_PATTERN, $filename)` under data providers covering the allowed set (`template_v2.json` among them) and the rejected set (`../../etc/passwd` among them).
+@e2e exclude the requirement names its own coverage mechanism — "covered by a unit test" — and both scenarios end in "AND the unit test MUST assert true/false". They are assertions about `preg_match()` against a class constant, with no HTTP request and no rendered output between the regex and the verdict. Re-checked 2026-11-19 in `tests/Unit/Service/FileServiceTest.php`: `testFilenamePatternAllowsValidNames` calls `preg_match(FileService::FILENAME_PATTERN, ...)` with `template_v2.json` in its data provider, which pins the second scenario. The rejected-set provider does NOT contain a traversal path; `../../etc/passwd` is pinned one layer up by `testPathTraversalIsRejected` (through `createFile`, where the `..` substring check fires before the regex) and `testForwardSlashIsRejected`. No test calls the regex on `../etc/passwd` directly.
 
 #### Scenario: Path traversal rejected
 

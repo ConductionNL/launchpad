@@ -24,10 +24,12 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
+use OCA\LaunchPad\Kernel\Contracts\QuotaServiceInterface;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\MetadataService;
-use OCA\LaunchPad\Service\QuotaService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 
 /**
  * The dashboard service and the optional quota, translation and metadata services of the dashboard
@@ -40,17 +42,21 @@ class DashboardApiServices {
 	 * Constructor.
 	 *
 	 * @param DashboardService                 $dashboardService The dashboard service.
-	 * @param QuotaService|null                $quotaService The quota-enforcement service used to gate dashboard
+	 * @param QuotaServiceInterface|null                $quotaService The quota-enforcement service used to gate dashboard
 	 *                                                       creation (dashboard-quota-limits).
 	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one
 	 *                                                             language.
 	 * @param MetadataService|null             $metadataService Filters the visible list by detail fields.
+	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules when a dashboard renders.
+	 * @param RoleFeaturePermissionService|null $roleWidgets Hides the widgets the viewer's role does not permit.
 	 */
 	public function __construct(
 		public readonly DashboardService $dashboardService,
-		public readonly ?QuotaService $quotaService=null,
+		public readonly ?QuotaServiceInterface $quotaService=null,
 		public readonly ?DashboardTranslationService $translationService=null,
 		public readonly ?MetadataService $metadataService=null,
+		public readonly ?ConditionalServiceInterface $visibility=null,
+		public readonly ?RoleFeaturePermissionService $roleWidgets=null,
 	) {
 	}//end __construct()
 }//end class

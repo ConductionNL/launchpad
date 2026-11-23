@@ -20,15 +20,15 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for conditional rule API endpoints.
@@ -38,19 +38,17 @@ class RuleApiController extends Controller {
 	 * Constructor
 	 *
 	 * @param IRequest $request The request.
-	 * @param ConditionalService $conditionalService The conditional service.
+	 * @param ConditionalServiceInterface $conditionalService The conditional service.
 	 * @param PermissionService $permissionService The permission service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId The user ID.
+	 * @param CallerResponses $context Holds the caller, userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConditionalService $conditionalService,
+		private readonly ConditionalServiceInterface $conditionalService,
 		private readonly PermissionService $permissionService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly ?string $userId,
+		private readonly CallerResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -63,6 +61,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The conditional rules.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-9
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getRules(int $placementId): JSONResponse {
@@ -73,7 +72,7 @@ class RuleApiController extends Controller {
 
 		try {
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $placementId
 			);
 			$rules = $this->conditionalService->getRules(
@@ -81,17 +80,19 @@ class RuleApiController extends Controller {
 			);
 			$isVisible = $this->conditionalService->checkRulesForPlacement(
 				placementId: $placementId,
-				userId: $this->userId
+				userId: $this->context->userId
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: [
-					'rules' => ResponseHelper::serializeList(entities: $rules),
+					'rules' => $this->context->responseHelper->serializeList(entities: $rules),
 					'isVisible' => $isVisible,
 				]
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end getRules()
 
@@ -106,6 +107,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The created rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function addRule(
@@ -123,7 +125,7 @@ class RuleApiController extends Controller {
 		// 400 instead of a TypeError 500 from the dispatcher. Mirrors the
 		// hardening on WidgetApiController::addWidget.
 		if ($ruleType === null || $ruleType === '') {
-			return ResponseHelper::error(
+			return $this->context->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: ruleType'
 				),
@@ -132,7 +134,7 @@ class RuleApiController extends Controller {
 		}
 
 		if ($ruleConfig === null) {
-			return ResponseHelper::error(
+			return $this->context->responseHelper->error(
 				exception: new InvalidArgumentException(
 					'Missing required field: ruleConfig'
 				),
@@ -140,9 +142,13 @@ class RuleApiController extends Controller {
 			);
 		}
 
+		if (self::isAllowedRuleType(ruleType: $ruleType) === false) {
+			return $this->invalidRuleType();
+		}
+
 		try {
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $placementId
 			);
 			$rule = $this->conditionalService->addRule(
@@ -152,12 +158,14 @@ class RuleApiController extends Controller {
 				isInclude: $isInclude
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: $rule->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end addRule()
 
@@ -178,6 +186,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The updated rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function updateRule(
@@ -191,12 +200,18 @@ class RuleApiController extends Controller {
 			return $refusal;
 		}
 
+		if ($ruleType !== null
+			&& self::isAllowedRuleType(ruleType: $ruleType) === false
+		) {
+			return $this->invalidRuleType();
+		}
+
 		try {
 			// C4 fix: load the rule first to get its placement, then verify
 			// the caller owns that placement before applying any update.
 			$rule = $this->conditionalService->findRule(ruleId: $ruleId);
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $rule->getWidgetPlacementId()
 			);
 
@@ -211,11 +226,13 @@ class RuleApiController extends Controller {
 				data: $data
 			);
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: $rule->jsonSerialize()
 			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end updateRule()
 
@@ -233,6 +250,7 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse The deletion confirmation.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function deleteRule(int $ruleId): JSONResponse {
@@ -246,17 +264,41 @@ class RuleApiController extends Controller {
 			// the caller owns that placement before deleting.
 			$rule = $this->conditionalService->findRule(ruleId: $ruleId);
 			$this->permissionService->verifyPlacementOwnership(
-				userId: $this->userId,
+				userId: $this->context->userId,
 				placementId: $rule->getWidgetPlacementId()
 			);
 
 			$this->conditionalService->deleteRule(ruleId: $ruleId);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}
 	}//end deleteRule()
+
+	/**
+	 * Whether a rule type is one the evaluator knows.
+	 *
+	 * @param string $ruleType The rule type.
+	 *
+	 * @return bool True for group, time, date and attribute.
+	 */
+	private static function isAllowedRuleType(string $ruleType): bool {
+		return in_array($ruleType, ConditionalRule::ALLOWED_TYPES, true);
+	}//end isAllowedRuleType()
+
+	/**
+	 * The 400 answer for a rule type outside the allowed set.
+	 *
+	 * @return JSONResponse The invalid-argument response.
+	 */
+	private function invalidRuleType(): JSONResponse {
+		return $this->context->responseHelper->invalidArgument(
+			message: 'Invalid ruleType: only group, time, date and attribute are accepted'
+		);
+	}//end invalidRuleType()
 
 	/**
 	 * Build rule update data from nullable parameters.
@@ -296,8 +338,10 @@ class RuleApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
 	 * @see ActionCaller::refusal()
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		return (new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession))->refusal(userId: $this->userId, action: $action);
+		return $this->context->caller->refusal(userId: $this->context->userId, action: $action);
 	}//end actionRefusal()
 }//end class

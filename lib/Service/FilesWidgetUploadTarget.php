@@ -37,10 +37,12 @@ final class FilesWidgetUploadTarget {
 	 *
 	 * @param Folder       $folder     The writable destination folder.
 	 * @param list<string> $mimeFilter Normalised MIME filter; `[]` means allow all.
+	 * @param Folder|null  $root       The widget's configured root folder.
 	 */
 	public function __construct(
 		public readonly Folder $folder,
 		public readonly array $mimeFilter,
+		public readonly ?Folder $root=null,
 	) {
 	}//end __construct()
 }//end class

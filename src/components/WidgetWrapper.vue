@@ -31,12 +31,18 @@
 			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
 			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
+			:headerLink="headerLink"
+			:headerActions="headerActions"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
 			:showRequestFeature="false"
 			:showActions="showActionsMenu">
-			<WidgetRenderer :widget="widget" :placement="placement" />
+			<WidgetRenderer
+				:widget="widget"
+				:placement="placement"
+				:editMode="editMode"
+				@editRequest="$emit('edit', placement)" />
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
@@ -59,9 +65,14 @@
 		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
 		     on a shared dashboard can be hidden for this person only. Not
 		     offered for a compulsory widget (the server refuses it anyway). -->
-		<div v-if="showHideForMe" class="launchpad-widget__cog">
-			<NcActions :aria-label="t('launchpad', 'Widget options')">
+		<!-- embedded-analytics task 40: an administrator can create an embed
+		     token for this one widget, in Beheer ▸ Embeds with it pre-selected. -->
+		<div v-if="showHideForMe || showEmbed" class="launchpad-widget__cog">
+			<NcActions
+				:aria-label="t('launchpad', 'Widget options')"
+				:forceMenu="true">
 				<NcActionButton
+					v-if="showHideForMe"
 					:closeAfterClick="true"
 					data-testid="widget-hide-for-me"
 					@click="$emit('hideForMe', placement)">
@@ -70,13 +81,33 @@
 					</template>
 					{{ t('launchpad', 'Hide for me') }}
 				</NcActionButton>
+				<NcActionLink
+					v-if="showEmbed"
+					:href="embedHref"
+					data-testid="widget-create-embed-token">
+					<template #icon>
+						<CodeTags :size="20" />
+					</template>
+					{{ t('launchpad', 'Create embed token') }}
+				</NcActionLink>
 			</NcActions>
 		</div>
+		<!-- LpBewerken: in edit mode every widget shows a drag grip at its top
+		     left and the three-dot menu at its top right. -->
+		<span
+			v-if="editMode"
+			class="launchpad-widget__grip"
+			aria-hidden="true"
+			data-testid="widget-drag-grip">
+			<DragVertical :size="16" />
+		</span>
 		<div v-if="editMode" class="launchpad-widget__cog">
 			<CnWidgetEditCog
+				icon="kebab"
 				:menuLabel="t('launchpad', 'Widget menu')"
 				:editLabel="t('launchpad', 'Edit widget')"
 				:deleteLabel="t('launchpad', 'Delete widget')"
+				:canDelete="canRemove"
 				@edit="$emit('edit', placement)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
@@ -90,6 +121,9 @@ import {
 	NcActionButton,
 	NcActions,
 } from '@conduction/nextcloud-vue'
+import { NcActionLink } from '@nextcloud/vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
+import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
@@ -98,8 +132,26 @@ import {
 	LIST_PROP,
 	NULLABLE_OBJECT_PROP,
 	REQUIRED_OBJECT_PROP,
+	TEXT_PROP,
 } from '../constants/propDefinitions.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/**
+ * Whether two links lead to the same page, ignoring the host, `/index.php`
+ * and a trailing slash.
+ *
+ * @param {string} a A link.
+ * @param {string} b Another link.
+ * @return {boolean}
+ */
+export function sameDestination(a, b) {
+	const path = (link) =>
+		String(link ?? '')
+			.replace(/^[a-z]+:\/\/[^/]+/i, '')
+			.replace(/^\/index\.php/, '')
+			.replace(/\/+$/, '')
+	return a !== undefined && a !== null && path(a) === path(b)
+}
 
 export default {
 	name: 'WidgetWrapper',
@@ -107,8 +159,11 @@ export default {
 	components: {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
+		CodeTags,
+		DragVertical,
 		EyeOff,
 		NcActionButton,
+		NcActionLink,
 		NcActions,
 		WidgetRenderer,
 		AcknowledgementPrompt,
@@ -140,6 +195,14 @@ export default {
 		// dashboards-personal-hide-ui: the host allows "Hide for me" here
 		// (a shared dashboard the viewer does not own).
 		canHideForMe: FLAG_PROP,
+
+		// REQ-PERM: the host refuses removal (a compulsory widget on a dashboard
+		// held with less than full permission), so the cog offers no Delete.
+		removeLocked: FLAG_PROP,
+
+		// embedded-analytics task 40: the Beheer ▸ Embeds link that creates an
+		// embed token for this widget; '' when the viewer may not create one.
+		embedHref: TEXT_PROP,
 	},
 
 	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
@@ -158,6 +221,17 @@ export default {
 				&& !this.editMode
 				&& Number(this.placement?.isCompulsory) !== 1
 			)
+		},
+
+		/**
+		 * Whether "Create embed token" is offered: view mode, with a link
+		 * from the host (only an administrator gets one).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		showEmbed() {
+			return this.embedHref !== '' && !this.editMode
 		},
 
 		/**
@@ -195,7 +269,7 @@ export default {
 
 		/**
 		 * Widget types that own their entire visual surface — labels, dividers,
-		 * header banners, and the registry-driven `tile`. They keep a borderless
+		 * header banners, the registry-driven `tile` and the `app-tile`. They keep a borderless
 		 * / flush wrapper (no frame, no wrapper header) so the renderer paints
 		 * edge to edge; the edit cog still overlays on top. (nc-widget is NOT
 		 * here: CnNcWidgetWidget renders just a header + content, so it needs the
@@ -204,7 +278,7 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile'].includes(
+			return ['label', 'section-heading', 'divider', 'header', 'tile', 'app-tile'].includes(
 				this.placement?.widgetId,
 			)
 		},
@@ -218,19 +292,46 @@ export default {
 		 * @return {boolean} true when the renderer owns the header.
 		 */
 		rendersOwnHeader() {
-			return this.placement?.widgetId === 'nc-widget'
+			return (
+				this.placement?.widgetId === 'nc-widget'
+				&& this.placement?.content?.showHeader !== false
+			)
 		},
 
 		/**
-		 * Whether the card's overflow menu shows. On by default; a placement
-		 * whose content says `showActions: false` (Mijn werkdag 4, as LpStart
-		 * draws it) hides it outside edit mode. The cog stays for editing.
+		 * Whether the card's overflow menu shows. On by default outside edit
+		 * mode; a placement whose content says `showActions: false` hides it.
+		 * In edit mode the widget's own three-dot menu takes its place
+		 * (LpBewerken).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 * @return {boolean} false only for an opted-out placement in view mode.
 		 */
 		showActionsMenu() {
-			return this.editMode || this.placement?.content?.showActions !== false
+			return !this.editMode && this.placement?.content?.showActions !== false
+		},
+
+		/**
+		 * Buttons in the card's title row. The compact Files list draws its
+		 * Upload there (LpWerkplek "Bestanden") and asks the widget to open
+		 * its file picker.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		headerActions() {
+			const content = this.placement?.content || {}
+			if (this.editMode || this.placement?.widgetId !== 'files' || content.layout !== 'compact' || content.allowUpload !== true) {
+				return []
+			}
+			const placementId = this.placement.id
+			return [{
+				key: 'upload',
+				label: this.t('launchpad', 'Upload'),
+				icon: 'Upload',
+				variant: 'secondary',
+				run: () => window.dispatchEvent(new CustomEvent('cn-files-widget:upload', { detail: { placementId } })),
+			}]
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -296,13 +397,41 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetButtons() {
-			return this.widget?.buttons || []
+			const buttons = this.widget?.buttons || []
+			const headerHref = this.headerLink?.href
+			if (!headerHref) {
+				return buttons
+			}
+			return buttons.filter(
+				(button) => !sameDestination(button?.link, headerHref),
+			)
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * The text link in the card's header (`content.headerLink`,
+		 * `{ label, href }`), as LpVandaag's "Open agenda". Null without a
+		 * label and a link.
+		 *
+		 * @return {{label: string, href: string}|null}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		headerLink() {
+			const link = this.placement?.content?.headerLink
+			if (
+				!link
+				|| typeof link.label !== 'string'
+				|| link.label === ''
+				|| typeof link.href !== 'string'
+				|| link.href === ''
+			) {
+				return null
+			}
+			return { label: link.label, href: link.href }
+		},
+
+		/** @spec openspec/specs/permissions/spec.md */
 		canRemove() {
-			// Can't remove compulsory widgets unless full permission
-			return !this.placement.isCompulsory
+			return !this.removeLocked
 		},
 
 		/**
@@ -331,6 +460,35 @@ export default {
 
 .launchpad-widget__wrapper {
 	height: 100%;
+}
+
+/* The drag grip sits at the top left of a widget in edit mode; the card's
+   title moves right to make room for it (LpBewerken). On a tile both the
+   grip and the menu are small white squares. */
+.launchpad-widget__grip {
+	position: absolute;
+	top: 18px;
+	inset-inline-start: 14px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	color: var(--color-text-maxcontrast);
+	pointer-events: none;
+}
+
+.launchpad-widget--editing :deep(.cn-widget-wrapper__header) {
+	padding-inline-start: 42px;
+}
+
+.launchpad-widget--editing:has(.tile-widget, .cn-app-tile-widget) .launchpad-widget__grip {
+	top: 6px;
+	inset-inline-start: 6px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

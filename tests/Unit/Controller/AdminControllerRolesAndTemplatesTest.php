@@ -50,6 +50,9 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerRolesAndTemplatesTest extends TestCase {
 	/**
@@ -128,12 +131,12 @@ class AdminControllerRolesAndTemplatesTest extends TestCase {
 				footerService: $this->createMock(originalClassName: FooterService::class),
 				setupWizardService: $this->createMock(originalClassName: SetupWizardService::class)
 			),
-			caller: new AdminCallerAndRoles(
+			context: new AdminContext(caller: new AdminCallerAndRoles(
 				roleService: $this->roleService,
 				feedRefresh: $this->feedRefresh,
 				userSession: $this->userSession,
 				actionAuth: $this->actionAuth
-			)
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end setUp()
 

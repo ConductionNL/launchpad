@@ -75,7 +75,7 @@ class OrphanedWidgetPlacementsCategoryTest extends TestCase {
 	 * @return void
 	 */
 	public function testTierAndAvailability(): void {
-		$this->assertFalse(condition: $this->category->getSafeToPurgeAutomatically());
+		$this->assertFalse(condition: $this->category->isSafeToPurgeAutomatically());
 		$this->assertTrue(condition: $this->category->isAvailable());
 	}
 

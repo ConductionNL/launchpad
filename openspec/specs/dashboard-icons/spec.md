@@ -59,8 +59,6 @@ Two shared Vue components consume these exports:
 ## Requirements
 
 
-@e2e exclude icon-system scenarios test frontend registry + resource-upload API — resource uploads require admin API access not covered by UI-only tests
-
 ### Requirement: REQ-ICON-001 Curated registry of built-in icons
 
 The system MUST maintain a curated registry of at least 15 built-in dashboard icons drawn from `vue-material-design-icons`. The registry MUST include at minimum these names: `ViewDashboard`, `Home`, `ChartBar`, `Cog`, `AccountGroup`, `Calendar`, `FileDocument`, `Bell`, `Star`, `Heart`, `BookOpenVariant`, `Lightbulb`, `RocketLaunch`, `Earth`, `Briefcase`. Any consumer that renders an icon by name MUST resolve it through this registry — there MUST NOT be parallel ad-hoc registries elsewhere.
@@ -118,20 +116,22 @@ The system MUST maintain a curated registry of at least 15 built-in dashboard ic
 
 ### Requirement: REQ-ICON-003 Single picker source for admin UI
 
-When the admin UI renders an icon picker (e.g. when creating or editing a dashboard), the available options MUST be enumerated from `Object.keys(DASHBOARD_ICONS)` directly. Hardcoding option lists in the picker template is forbidden so the picker stays in lock-step with the registry whenever icons are added or removed.
+When the UI renders the dashboard icon picker (the dashboard settings modal and the group dashboard dialog), the available options MUST be enumerated from `Object.keys(DASHBOARD_ICONS)` of the shared nextcloud-vue registry directly, 57 names today, and a picked option MUST be stored as its registry name (Ruben, 21 Nov 2026). Hardcoding option lists in the picker template is forbidden so the picker stays in lock-step with the registry whenever icons are added or removed. Tile and organisation-navigation icon pickers are not dashboard icon pickers and keep the full MDI catalogue.
 
 #### Scenario: Picker reflects registry size
 
-- GIVEN the registry has 15 entries
-- WHEN the icon picker `<select>` renders
-- THEN it MUST emit exactly 15 `<option>` elements (one per registry key)
-- AND each option's `value` MUST match a registry key string
+- GIVEN the registry has 57 entries
+- WHEN the dashboard icon picker's Icons tab renders
+- THEN it MUST offer exactly 57 icons (one per registry key)
+- AND each icon's stored value MUST match a registry key string
 
 #### Scenario: Picker stays in sync when registry grows
 
-- GIVEN the registry is extended to 17 entries in a future change
-- WHEN the icon picker `<select>` renders without code changes
-- THEN it MUST emit exactly 17 `<option>` elements
+@e2e exclude Needs a code change to the registry module (a 17-entry DASHBOARD_ICONS), which an e2e run cannot make. The e2e for "Picker reflects registry size" compares the picker against the registry read at test time rather than a fixed 15, so it would catch this drift; no LaunchPad Vitest test pins it (tests/vitest/stubs/conduction-nextcloud-vue.js stubs the library wholesale).
+
+- GIVEN the registry is extended to 59 entries in a future change
+- WHEN the dashboard icon picker renders without code changes
+- THEN it MUST offer exactly 59 icons
 
 ### Requirement: REQ-ICON-004 Tree-shakeable imports
 
@@ -139,12 +139,16 @@ Each icon component import in the registry module MUST be a separate `import` st
 
 #### Scenario: Bundle includes only referenced icons
 
+@e2e exclude A production-bundle inspection of js/main.js, not browser behaviour. No test pins it: no LaunchPad Vitest or build check inspects the bundle. Its GIVEN (no other consumer of vue-material-design-icons) does not hold in LaunchPad, which imports many of those icons directly.
+
 - GIVEN a production webpack build with no other consumers of `vue-material-design-icons`
 - WHEN the bundled `js/main.js` is inspected
 - THEN it MUST include at most the 15 icons listed in REQ-ICON-001
 - AND it MUST NOT include the full library
 
 #### Scenario: No wildcard imports in registry module
+
+@e2e exclude A source-code fact, not browser behaviour. `src/constants/dashboardIcons.js` never existed in this repository (`git log --all`); the registry is `components/CnWidgetGrid/widgetIcons.js` in @conduction/nextcloud-vue, which imports each icon on its own line. No LaunchPad test pins it.
 
 - GIVEN the source file `src/constants/dashboardIcons.js`
 - WHEN its import statements are inspected
@@ -218,13 +222,15 @@ The shared `IconRenderer` component MUST accept a single `name` prop (string or 
 
 #### Scenario: Alt text for custom URL icons
 
+@e2e exclude No LaunchPad surface passes an `alt` prop to the renderer (CnDashboardIcon in @conduction/nextcloud-vue; grep `CnDashboardIcon` under src/), so `alt="Marketing"` cannot be reached from the browser. No LaunchPad Vitest test pins the prop (the library is stubbed in tests/vitest/stubs/conduction-nextcloud-vue.js). The fallback clause, a non-empty alt with no prop, is asserted in passing by tests/e2e/dashboard-icons.spec.ts on every URL icon in the switcher.
+
 - GIVEN `IconRenderer` is rendered with `name="/apps/launchpad/resource/abc.png"` and an `alt` prop of `"Marketing"`
 - THEN the rendered `<img>` MUST have `alt="Marketing"`
 - AND when no `alt` prop is supplied the rendered `<img>` MUST fall back to a non-empty default (e.g. the dashboard or widget name)
 
 ### Requirement: IconPicker dual-input UX (REQ-ICON-008)
 
-The `IconPicker` component MUST present BOTH affordances visible simultaneously: a `<select>` of registry option names (per REQ-ICON-003) AND an "Upload icon" `<input type="file" accept="image/*">` button. Selecting either MUST update the same `v-model` value: a registry option assigns the option string, an upload POSTs to the resource-uploads endpoint and assigns the returned URL string. A 24×24 preview thumbnail of the current value MUST be rendered via `IconRenderer`.
+The dashboard icon picker is nextcloud-vue's `CnIconBrowser`, shown inline. It MUST offer BOTH affordances: an Icons tab with the registry names (per REQ-ICON-003) AND a Custom tab with an upload (`<input type="file" accept="image/*">`). Either MUST update the same value: a registry icon assigns its name, an upload POSTs to the resource-uploads endpoint and assigns the returned URL string. A preview of the current value MUST be rendered via `CnDashboardIcon` (Ruben, 21 Nov 2026, following the product).
 
 #### Scenario: Switching from built-in to custom
 
@@ -236,7 +242,7 @@ The `IconPicker` component MUST present BOTH affordances visible simultaneously:
 #### Scenario: Switching from custom back to built-in
 
 - GIVEN v-model value is `/apps/launchpad/resource/abc.png`
-- WHEN the user picks `"Home"` from the `<select>`
+- WHEN the user picks `"Home"` on the Icons tab
 - THEN the v-model value MUST become `"Home"`
 - AND the preview MUST switch from `<img>` to `<svg>` (Home)
 - NOTE: switching away does NOT delete the previously uploaded resource (resource lifecycle is owned by `resource-uploads` capability)

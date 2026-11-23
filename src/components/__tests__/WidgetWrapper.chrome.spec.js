@@ -9,7 +9,7 @@
  */
 
 import { shallowMount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WidgetWrapper from '../WidgetWrapper.vue'
 
 beforeEach(() => {
@@ -69,15 +69,45 @@ describe('WidgetWrapper — chrome and frame', () => {
 		expect(bare.widgetButtons).toEqual([])
 	})
 
-	it('hides the actions menu only when the content opts out outside edit mode', () => {
+	it('hides the actions menu when the content opts out, and in edit mode, where the three-dot menu takes its place', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data' }).vm.showActionsMenu).toBe(true)
 		expect(mountWrapper({ id: 1, widgetId: 'data', content: { showActions: false } }).vm.showActionsMenu).toBe(false)
-		expect(mountWrapper({ id: 1, widgetId: 'data', content: { showActions: false } }, { editMode: true }).vm.showActionsMenu).toBe(true)
+		expect(mountWrapper({ id: 1, widgetId: 'data' }, { editMode: true }).vm.showActionsMenu).toBe(false)
 	})
 
-	it('lets only non-compulsory placements be removed', () => {
+	it('puts Upload in the title row of a compact Files card that allows uploads, and asks the widget', () => {
+		const files = { id: 9, widgetId: 'files', content: { layout: 'compact', allowUpload: true } }
+		const actions = mountWrapper(files).vm.headerActions
+		expect(actions.map((a) => a.label)).toEqual(['Upload'])
+		const heard = vi.fn()
+		window.addEventListener('cn-files-widget:upload', heard)
+		actions[0].run()
+		window.removeEventListener('cn-files-widget:upload', heard)
+		expect(heard.mock.calls[0][0].detail).toEqual({ placementId: 9 })
+
+		expect(mountWrapper({ ...files, content: { layout: 'compact' } }).vm.headerActions).toEqual([])
+		expect(mountWrapper(files, { editMode: true }).vm.headerActions).toEqual([])
+	})
+
+	it('shows a drag grip in edit mode only (LpBewerken)', () => {
+		expect(mountWrapper({ id: 1, widgetId: 'data' }).find('[data-testid="widget-drag-grip"]').exists()).toBe(false)
+		expect(mountWrapper({ id: 1, widgetId: 'data' }, { editMode: true }).find('[data-testid="widget-drag-grip"]').exists()).toBe(true)
+	})
+
+	it('offers removal unless the host locks it', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data' }).vm.canRemove).toBe(true)
-		expect(mountWrapper({ id: 1, widgetId: 'data', isCompulsory: true }).vm.canRemove).toBe(false)
+		expect(mountWrapper({ id: 1, widgetId: 'data', isCompulsory: true }, { removeLocked: true }).vm.canRemove).toBe(false)
+	})
+
+	it('tells the edit cog to leave Delete out when removal is locked', () => {
+		const CogStub = { name: 'CnWidgetEditCog', props: ['canDelete'], template: '<div />' }
+		const cog = (props) => shallowMount(WidgetWrapper, {
+			propsData: { placement: { id: 1, widgetId: 'data', isCompulsory: 1 }, widget: { title: 'Widget' }, editMode: true, ...props },
+			mocks: { t: (_app, key) => key },
+			global: { stubs: { CnWidgetEditCog: CogStub } },
+		}).findComponent(CogStub)
+		expect(cog({}).props('canDelete')).toBe(true)
+		expect(cog({ removeLocked: true }).props('canDelete')).toBe(false)
 	})
 })
 

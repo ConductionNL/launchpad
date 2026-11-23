@@ -115,6 +115,8 @@ class ActivityPublisher {
 	 * Emit one activity row per recipient in `$recipientUserIds`, plus
 	 * one row to the actor (REQ-ACT-005). Recipients are de-duplicated
 	 * to prevent double-emission when the actor is also a recipient.
+	 * A row that does not tell its actor skips the actor entirely, also
+	 * when they are among the recipients (REQ-DIGE-002).
 	 *
 	 * @param ActivityRow $row              The activity to write.
 	 * @param string[]    $recipientUserIds Recipient NC user IDs.
@@ -129,6 +131,9 @@ class ActivityPublisher {
 				array: array_merge([$row->actorUserId], $recipientUserIds)
 			)
 		);
+		if ($row->tellsActor() === false) {
+			$unique = array_values(array: array_diff($unique, [$row->actorUserId]));
+		}
 
 		$count = 0;
 		foreach ($unique as $userId) {
@@ -143,9 +148,9 @@ class ActivityPublisher {
 	/**
 	 * Emit activity rows to every member of `$groupId` (REQ-ACT-006).
 	 *
-	 * Returns 0 (without raising) when the group is unknown or empty.
-	 * The actor is included exactly once even when they are also a
-	 * member of the group.
+	 * Returns 0 (without raising) when the group is unknown or empty; an
+	 * empty group writes no row, not even the actor's. The actor is
+	 * included exactly once even when they are also a member of the group.
 	 *
 	 * @param ActivityRow $row     The activity to write.
 	 * @param string      $groupId The target group ID.
@@ -165,8 +170,31 @@ class ActivityPublisher {
 			$userIds[] = $user->getUID();
 		}
 
+		if ($userIds === []) {
+			return 0;
+		}
+
 		return $this->publishToRecipients(row: $row, recipientUserIds: $userIds);
 	}//end publishToGroup()
+
+	/**
+	 * The absolute link that opens a dashboard in LaunchPad, or '' when no
+	 * URL generator is available.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return string The link.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function dashboardLink(string $uuid): string {
+		if ($this->tools->urlGenerator === null || $uuid === '') {
+			return '';
+		}
+
+		return $this->tools->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.page.index')
+			. '?dashboard=' . urlencode(string: $uuid);
+	}//end dashboardLink()
 
 	/**
 	 * Emit activity rows to every authenticated NC user (REQ-ACT-008).
@@ -201,6 +229,10 @@ class ActivityPublisher {
 		$this->userManager->callForAllUsers(
 			callback: function (IUser $user) use ($row, &$count): void {
 				$userId = $user->getUID();
+				if ($row->tellsActor() === false && $userId === $row->actorUserId) {
+					return;
+				}
+
 				if ($this->publish(row: $row->forRecipient(recipientUserId: $userId), recipientUserId: $userId) === true) {
 					$count++;
 				}

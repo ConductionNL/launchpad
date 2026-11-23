@@ -130,14 +130,14 @@ export default {
 		 * Whether the new template has every field filled in.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6
 		 */
 		templateComplete() {
 			return ['name', 'key', 'urlTemplate'].every((field) => this.newTemplate[field].trim() !== '')
 		},
 	},
 
-	/** @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6 */
+	/** @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6 */
 	created() {
 		this.load()
 	},
@@ -149,7 +149,7 @@ export default {
 		 * Read both lists from the admin settings.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6
 		 */
 		async load() {
 			try {
@@ -169,7 +169,7 @@ export default {
 		 * @param {string} key `tileAllowedSchemes` or `ssoLaunchTemplates`.
 		 * @param {Array} value The whole new list.
 		 * @return {Promise<boolean>} Whether it was saved.
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6
 		 */
 		async save(key, value) {
 			this.saving = true
@@ -187,7 +187,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6 */
 		async addScheme() {
 			if (await this.save('tileAllowedSchemes', [...this.schemes, this.newScheme.trim()])) {
 				this.newScheme = ''
@@ -196,13 +196,13 @@ export default {
 
 		/**
 		 * @param {string} scheme The scheme to drop.
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6
 		 */
 		async removeScheme(scheme) {
 			await this.save('tileAllowedSchemes', this.schemes.filter((entry) => entry !== scheme))
 		},
 
-		/** @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6 */
+		/** @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6 */
 		async addTemplate() {
 			const template = {
 				key: this.newTemplate.key.trim(),
@@ -216,7 +216,7 @@ export default {
 
 		/**
 		 * @param {string} key The key of the template to drop.
-		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-6
 		 */
 		async removeTemplate(key) {
 			await this.save('ssoLaunchTemplates', this.templates.filter((entry) => entry.key !== key))

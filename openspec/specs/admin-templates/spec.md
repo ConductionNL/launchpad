@@ -46,8 +46,6 @@ Admin templates are stored as dashboards in `oc_launchpad_dashboards` with `type
 Templates own their widget placements (in `oc_launchpad_widget_placements`) which serve as the blueprint for user copies. The template's placements include `isCompulsory` flags that are copied to user dashboards. When a user copy is created, `TemplateService::createDashboardFromTemplate()` clones all placements from the template to the new user dashboard.
 ## Requirements
 
-@e2e exclude all scenarios test REST CRUD for admin template dashboards — template distribution and UI admin forms are not yet implemented in this version
-
 ### Requirement: Create Admin Template (REQ-TMPL-001)
 
 Nextcloud administrators MUST be able to create dashboard templates for distribution to users.
@@ -129,6 +127,8 @@ Administrators MUST be able to view all existing templates with their configurat
 - GIVEN no admin templates have been created
 - WHEN the admin sends GET /api/admin/templates
 - THEN the system MUST return HTTP 200 with an empty array
+
+@e2e exclude Needs an instance with no admin template at all; the e2e instance is shared and other suites' templates may be on it, and deleting them is not this suite's to do. Pinned by AdminTemplateServiceGalleryTest::testGalleryReturnsEmptyListWhenNoTemplates and AdminControllerRolesAndTemplatesTest::testListTemplatesSerialisesEveryTemplate.
 
 #### Scenario: Templates filtered from user dashboard list
 - GIVEN 3 admin templates and 2 user dashboards exist
@@ -237,6 +237,8 @@ When a user accesses LaunchPad for the first time, the system MUST create person
 - WHEN carol navigates to LaunchPad
 - THEN the system MUST NOT create any dashboard for carol from the marketing template
 - AND if `allowUserDashboards` is true, the system MUST create a default "My Dashboard" with recommendations and activity widgets
+
+@e2e exclude The last clause needs an instance without the dashboard for everyone: SeedDefaultDashboard seeds it on install, it outranks the personal "My Dashboard" (DashboardService::resolveRoleLayoutOrDefaultGroupDashboard), and removing it would empty a fixture every suite uses. The personal path is pinned by DashboardServiceCreateDefaultsTest::testSeedDefaultsInsertsThreeTilesAndFilesWidget (which also shows the bundle is tiles and a files widget, not recommendations and activity). The THEN clause runs in tests/e2e/template-reaches-member.spec.ts (the outsider test).
 
 #### Scenario: Template already distributed to user
 - GIVEN user "alice" already has a personal copy of template "Company Dashboard"
@@ -448,9 +450,11 @@ All workspace-rendering and dashboard-resolution code paths (REQ-DASH-013, REQ-D
 - THEN it MUST go through `AdminTemplateService::resolvePrimaryGroup` (or its declared service interface)
 - AND duplicating the algorithm inline is forbidden by code review
 
+@e2e exclude A code-review rule about where code lives, with no runtime behaviour. Pinned by AdminTemplateServiceGrepGuardTest::testIGroupManagerCallIsConfinedToResolver.
+
 ### Requirement: Template Gallery Endpoint (REQ-TMPL-014)
 
-The system MUST expose a read-only gallery endpoint that lists all `admin_template` dashboards with metadata suitable for discovery and instantiation.
+The system MUST expose a read-only gallery endpoint that lists the `admin_template` dashboards offered to the calling user (REQ-TMPL-018) with metadata suitable for discovery and instantiation.
 
 > NOTE (D2 — Index): The `WHERE type='admin_template' AND templateCategory=?` filter path MUST be backed by a composite index on `(type, templateCategory)`. The migration adding the three new metadata columns MUST also add this composite index to keep the optional category-filter query indexed at scale. The base `WHERE type='admin_template'` path already benefits from the existing index on `type`.
 
@@ -490,6 +494,25 @@ The system MUST expose a read-only gallery endpoint that lists all `admin_templa
 - THEN the template MUST be included
 - AND when calling `GET /api/templates/gallery?category=marketing`, the template with `null` category MUST NOT be included
 
+### Requirement: The gallery offers a template to the groups it names (REQ-TMPL-018)
+
+The gallery (`GET /api/templates/gallery` and the MCP tool `launchpad.listTemplates`) MUST list only the admin templates offered to the calling user. A template is offered to a user when its `targetGroups` is empty, contains the `default` group, or contains one of the user's groups. Forking (`POST /api/dashboards/{uuid}/fork` and the MCP tool `launchpad.forkDashboard`) MUST accept exactly the templates the gallery offers the user, as well as the dashboards the user can see, and MUST answer any other template as not found.
+
+#### Scenario: The gallery lists the templates for the user's groups
+
+- GIVEN admin templates for no group, for the `default` group, for group `sales` and for group `finance`
+- AND user "alice" is a member of `sales` only
+- WHEN alice sends `GET /api/templates/gallery`
+- THEN the response MUST list the first three templates
+- AND it MUST NOT list the template for `finance`
+
+#### Scenario: A fork accepts exactly what the gallery offers
+
+- GIVEN the templates of the previous scenario
+- WHEN alice forks the template for `sales`
+- THEN she MUST get a personal copy of it
+- AND forking the template for `finance` MUST answer HTTP 404, as for a dashboard she cannot see
+
 ### Requirement: Template Metadata Fields (REQ-TMPL-016)
 
 Admin templates MUST support three new metadata fields for categorization and discovery: `templateCategory` (VARCHAR 64, nullable), `templateDescription` (TEXT, nullable), and `templatePreviewImage` (TEXT, nullable). The fields are stored as nullable columns on `oc_launchpad_dashboards` and only meaningful for rows with `type = 'admin_template'`.
@@ -511,11 +534,15 @@ Admin templates MUST support three new metadata fields for categorization and di
 - GIVEN user "alice" saves her dashboard as a template with `category: 'product'`
 - THEN the new template's `templateCategory` MUST be set to `'product'`
 
+@e2e exclude Never built: there is no save-as-template route in appinfo/routes.php and no saveAsTemplate in lib/ or src/ in any commit (`git log --all -S saveAsTemplate -- lib appinfo src` is empty); tasks 4.2 and 5.3 of the archived dashboard-templates change are unchecked.
+
 #### Scenario: Template description field length
 
 - GIVEN a user provides a `description` string of 500 characters when calling save-as-template
 - THEN the system MUST accept and store the full 500 characters (unlike the regular `description` field, which may be shorter)
 - NOTE: The `templateDescription` column stores longer text; validation MUST NOT truncate
+
+@e2e exclude Never built: it is a save-as-template scenario, and that endpoint does not exist (see the scenario above).
 
 #### Scenario: Metadata fields are nullable
 
@@ -627,6 +654,8 @@ All workspace-rendering and dashboard-resolution code paths (REQ-DASH-013, REQ-D
 - WHEN it computes a group ID
 - THEN it MUST go through `AdminTemplateService::resolvePrimaryGroup` (or its declared service interface)
 - AND duplicating the algorithm inline is forbidden by code review
+
+@e2e exclude A code-review rule about where code lives, with no runtime behaviour. Pinned by AdminTemplateServiceGrepGuardTest::testIGroupManagerCallIsConfinedToResolver.
 
 ### Requirement: REQ-RESYNC-001 Re-sync action pushes template updates to existing copies
 
@@ -755,6 +784,8 @@ A real (non-dry-run) re-sync MUST be idempotent — applying the same plan twice
 - THEN the system MUST enqueue `TemplateResyncJob` and return a prompt accepted response
 - AND the job MUST apply the plan per copy and notify each affected user on completion
 
+@e2e exclude Needs more than 50 provisioned copies and a cron run of TemplateResyncJob, which the e2e instance does not run on demand. Pinned by TemplateResyncServiceTest::testLargeGroupsEnqueueTheAsyncJobInsteadOfApplyingInline and TemplateResyncJobTest::testRunDelegatesToApplyResyncWithTheGivenArguments.
+
 ### Requirement: REQ-TMPL-018 Templates that ship with LaunchPad
 
 LaunchPad MUST ship ready-made admin templates as data, one file per template at `data/templates/<id>.json`. A definition holds `templateId`, an integer `templateVersion`, a `language`, and one `dashboard` in the shape an export writes to `dashboards/<uuid>.json` (REQ-EXIM-001). The list of shipped ids is fixed in `ShippedTemplateService::SHIPPED_IDS`.
@@ -777,22 +808,16 @@ The first shipped template is `mijn-werkdag`, a start page for a municipal emplo
 - THEN the template list MUST show "Mijn werkdag" with the group "medewerkers"
 - AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the "First today" list marked compulsory
 
-@e2e exclude No Playwright test was written for this. The install is pinned by ShippedTemplateServiceTest::testInstallAddsTheTemplateThroughTheImporter, the compulsory flags by ::testTheShippedTemplateSurvivesExportAndImport, and the page by TemplatesPage.shipped.spec.js. It has not been run in a browser.
-
 #### Scenario: Installing twice adds one template
 - GIVEN `mijn-werkdag` is installed
 - WHEN an administrator installs it again without forcing
 - THEN no second template MUST be added
 - AND the response MUST say it was already installed and name the same UUID
 
-@e2e exclude Service behaviour with no page of its own: pinned by ShippedTemplateServiceTest::testASecondInstallAddsNothing.
-
 #### Scenario: A template deleted by the administrator can be added again
 - GIVEN `mijn-werkdag` was installed and the administrator deleted that template
 - WHEN the administrator installs it again
 - THEN a new template MUST be added without forcing
-
-@e2e exclude Pinned by ShippedTemplateServiceTest::testADeletedTemplateCountsAsNotInstalled.
 
 #### Scenario: A broken definition fails loudly
 - GIVEN the file for a shipped template is missing or has no widgets
@@ -806,8 +831,6 @@ The first shipped template is `mijn-werkdag`, a start page for a municipal emplo
 - GIVEN no app on the instance registers the `activity` widget
 - WHEN an administrator lists the shipped templates
 - THEN `mijn-werkdag` MUST list `activity` under `missingWidgets`
-
-@e2e exclude Needs an instance without the app: pinned by ShippedTemplateServiceTest::testTheListingNamesWidgetsNothingRegisters.
 
 #### Scenario: The shipped template renders as installed
 - GIVEN the shipped definition `data/templates/mijn-werkdag.json` and an instance with dossiq and default LaunchPad settings
@@ -878,23 +901,17 @@ A user who owns a personal dashboard, or has a saved choice, MUST NOT be affecte
 - THEN she MUST see the template itself, view only
 - AND no personal dashboard MUST be created for her
 
-@e2e exclude Pinned by DashboardServiceTemplateRungTest::testWithPersonalDashboardsOffTheTemplateItselfIsShownViewOnly. Not run in a browser.
-
 #### Scenario: The default template replaces the dashboard for everyone
 - GIVEN the seeded dashboard for everyone exists and a default template exists
 - AND Mark is in no group that a template targets and his primary group has no default dashboard
 - WHEN Mark opens LaunchPad for the first time
 - THEN he MUST get the default template, not the seeded dashboard
 
-@e2e exclude Making a template the instance default changes what every other suite's fresh user lands on. Pinned by DashboardServiceTemplateRungTest::testTheDefaultTemplateReplacesTheSeededDashboard and ::testTheDefaultTemplateStepsAsideForTheUsersOwnGroupDefault.
-
 #### Scenario: People already using LaunchPad are left alone
 - GIVEN Pieter owns a personal dashboard, and Lotte has a last-used dashboard she can still see
 - AND a template now targets a group both are in
 - WHEN each opens LaunchPad
 - THEN neither MUST be moved to the template and no copy MUST be made for them
-
-@e2e exclude Pinned by DashboardServiceTemplateRungTest::testAUserWhoOwnsADashboardGetsNoTemplate and ::testASavedChoiceIsKept.
 
 ### Requirement: REQ-TMPL-020 Updating an installed shipped template in place
 
@@ -926,16 +943,12 @@ When the installed version is the shipped one or newer, the update MUST change n
 - WHEN the administrator confirms
 - THEN the same template MUST hold version 3's widgets, still target "behandelaars", and the button MUST be gone
 
-@e2e exclude Staging "a newer version ships" needs a second definition file on the server, which a browser test cannot place. The page and the dialog are pinned by TemplatesPage.shippedUpdate.spec.js, the update by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate. On 5 October 2026 the command was run on a test instance and a member's page was seen in a browser afterwards; the button and the dialog were not opened in a browser.
-
 #### Scenario: A member's copy follows and keeps what the member added
 - GIVEN Pieter has a copy of the installed template and added a widget of his own to it
 - WHEN the administrator updates the template to a version that adds a compulsory widget and drops another widget
 - THEN Pieter's copy MUST hold the new compulsory widget
 - AND the dropped widget MUST be gone from his copy
 - AND the widget Pieter added MUST still be there
-
-@e2e exclude Same reason as above. Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget, which makes the copy with the service a first visit uses and re-syncs it with the real re-sync service.
 
 #### Scenario: A dry run writes nothing
 - GIVEN `mijn-werkdag` is installed at an older version
@@ -949,8 +962,6 @@ Pinned by ShippedTemplateUpdateServiceTest::testADryRunWritesNothing and, on a r
 - GIVEN the installed template and the new version both hold the list "Mijn zaken", with other settings
 - WHEN the template is updated
 - THEN the list's row MUST keep its id and carry the new settings
-
-@e2e exclude A database row id has no browser surface. Pinned by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate and ::testTheShippedDefinitionPairsWithItsOwnInstall.
 
 #### Scenario: Nothing to do
 - GIVEN the installed version is the version LaunchPad ships
@@ -983,21 +994,15 @@ A template that targets one of the user's groups still goes before the default t
 - WHEN Pieter opens LaunchPad for the first time
 - THEN he MUST get "Zaken"
 
-@e2e exclude Two templates for one group would change what every other suite's fresh user of that group lands on. Pinned by TemplateServiceApplicableTemplateTest::testTheLowestIdWinsAmongHandMadeTemplates.
-
 #### Scenario: After a forced install the recorded copy wins
 - GIVEN a forced install left the earlier "Mijn werkdag" (id 7) next to the recorded one (id 9), both for "behandelaars"
 - WHEN a new member of "behandelaars" opens LaunchPad
 - THEN they MUST get the template with id 9
 
-@e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testTheInstalledShippedTemplateGoesBeforeAnEarlierForcedCopy.
-
 #### Scenario: A shipped template goes before a hand-made one
 - GIVEN the hand-made template "Afdeling" (id 3) and the installed shipped template "Mijn werkdag" (id 9) both target a group Pieter is in
 - WHEN Pieter opens LaunchPad for the first time
 - THEN he MUST get "Mijn werkdag"
-
-@e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testAShippedTemplateGoesBeforeAHandMadeOneWithALowerId.
 
 ### Requirement: REQ-TMPL-022 A list on a register that is not here is hidden
 
@@ -1019,14 +1024,10 @@ LaunchPad does not know on the server which registers an instance has. So the li
 - WHEN the page is shown
 - THEN the list MUST be on the page, with its own error line
 
-@e2e exclude A 500 from OpenRegister cannot be staged on the e2e instance. Pinned by ViewsHideUnavailableSource.spec.js.
-
 #### Scenario: In edit mode the list is there
 - GIVEN a list is hidden for Pieter because its register is not here
 - WHEN Pieter enters edit mode
 - THEN the list MUST be on the page
-
-@e2e exclude Pinned by ViewsHideUnavailableSource.spec.js.
 
 ### Requirement: REQ-TMPL-023 A refused delete of a compulsory widget says why
 
@@ -1040,14 +1041,10 @@ When a member asks to delete a compulsory widget from a copy made from an admin 
 - THEN a message MUST say "Vandaag eerst" is part of the start page his administrator set for his group and cannot be removed
 - AND no request MUST be sent and the widget MUST stay
 
-@e2e exclude Pinned by src/views/__tests__/ViewsCompulsoryRemove.spec.js from the page's own method, both menus end there. Not seen in a browser by this change.
-
 #### Scenario: A widget that is not compulsory is deleted as before
 - GIVEN Pieter's copy also holds "Mijn zaken", not compulsory
 - WHEN he chooses "Delete widget" on it
 - THEN it MUST be removed as before, with no message
-
-@e2e exclude Pinned by src/views/__tests__/ViewsCompulsoryRemove.spec.js.
 
 ## Non-Functional Requirements
 

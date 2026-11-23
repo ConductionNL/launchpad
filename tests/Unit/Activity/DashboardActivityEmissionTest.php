@@ -171,24 +171,54 @@ class DashboardActivityEmissionTest extends TestCase {
 		);
 	}
 
-	public function testSharingWithAUserSendsDashboardSharedToThatUser(): void {
+	/**
+	 * One user share tells the sharer once and the recipient once.
+	 *
+	 * @return void
+	 */
+	public function testSharingWithAUserTellsTheSharerAndThatUser(): void {
+		$named = static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_SHARED
+			&& $row->actorUserId === 'alice'
+			&& $row->dashboard == new ActivitySubject(uuid: 'dash-7', name: 'Team board')
+			&& ($row->extraParams['recipient'] ?? '') === 'bob'
+			&& ($row->extraParams['role'] ?? '') === Dashboard::PERMISSION_VIEW_ONLY;
+		$this->publisher->expects($this->once())->method('publish')
+			->with($this->callback(callback: static fn (ActivityRow $row): bool => $named($row) && $row->extraParams['self'] === true), 'alice')
+			->willReturn(true);
 		$this->publisher->expects($this->once())->method('publishToRecipients')
-			->with(
-				$this->callback(
-					static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_SHARED
-						&& $row->actorUserId === 'alice'
-						&& $row->dashboard == new ActivitySubject(uuid: 'dash-7', name: 'Team board')
-						&& ($row->extraParams['recipient'] ?? '') === 'bob'
-						&& ($row->extraParams['role'] ?? '') === Dashboard::PERMISSION_VIEW_ONLY
-				),
-				['bob']
-			)
-			->willReturn(2);
+			->with($this->callback(callback: static fn (ActivityRow $row): bool => $named($row) && $row->tellsActor() === false), ['bob'])
+			->willReturn(1);
 
-		$this->shareService($this->dashboard())->addShare(
+		$this->shareService(dashboard: $this->dashboard())->addShare(
 			dashboardId: 7,
 			grant: new ShareGrant(shareType: DashboardShare::SHARE_TYPE_USER, shareWith: 'bob', permissionLevel: Dashboard::PERMISSION_VIEW_ONLY),
 			callerId: 'alice'
+		);
+	}
+
+	/**
+	 * Replacing the share list tells the sharer once, naming every recipient.
+	 *
+	 * @return void
+	 */
+	public function testReplacingSharesTellsTheSharerOnceNamingEveryRecipient(): void {
+		$this->shareMapper->method('findByDashboardId')->willReturn([]);
+		$this->shareMapper->method('findShare')->willReturn(null);
+		$this->shareMapper->method('insert')->willReturnArgument(0);
+		$this->publisher->expects($this->once())->method('publish')
+			->with($this->callback(callback: static fn (ActivityRow $row): bool => $row->extraParams['recipient'] === 'bob, carol'), 'alice')
+			->willReturn(true);
+		$this->publisher->expects($this->once())->method('publishToRecipients')
+			->with($this->anything(), ['bob', 'carol'])
+			->willReturn(2);
+
+		$this->shareService(dashboard: $this->dashboard())->replaceShares(
+			dashboardId: 7,
+			shares: [
+				['shareType' => DashboardShare::SHARE_TYPE_USER, 'shareWith' => 'bob', 'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY],
+				['shareType' => DashboardShare::SHARE_TYPE_USER, 'shareWith' => 'carol', 'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY],
+			],
+			userId: 'alice'
 		);
 	}
 
@@ -207,19 +237,67 @@ class DashboardActivityEmissionTest extends TestCase {
 		$service->publishDashboard(uuid: 'dash-7', userId: 'alice');
 	}
 
-	public function testAScheduledDashboardThatSurfacesIsAnnouncedByItsOwner(): void {
-		$dashboard = $this->dashboard(Dashboard::TYPE_GROUP_SHARED, 'staff');
+	/**
+	 * A due schedule this request flips is announced to the group, not to
+	 * the owner who scheduled it.
+	 *
+	 * @return void
+	 */
+	public function testAScheduledDashboardThatSurfacesIsAnnouncedButNotToItsScheduler(): void {
+		$dashboard = $this->dashboard(type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
 		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
 		$this->dashboardMapper->method('findDueScheduled')->willReturn([$dashboard]);
+		$this->dashboardMapper->method('setPublishedIfScheduled')->willReturn(true);
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 
 		$this->publisher->expects($this->once())->method('publishToGroup')
 			->with(
-				$this->callback(static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_PUBLISHED && $row->actorUserId === 'alice'),
+				$this->callback(
+					callback: static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_PUBLISHED
+						&& $row->actorUserId === 'alice'
+						&& $row->tellsActor() === false
+				),
 				'staff'
 			);
 
-		$this->assertSame(1, $this->dashboardService()->materialiseScheduledDashboards());
+		$this->assertSame(expected: 1, actual: $this->dashboardService()->materialiseScheduledDashboards());
+		$this->assertSame(expected: Dashboard::STATUS_PUBLISHED, actual: $dashboard->getPublicationStatus());
+		$this->assertNull(actual: $dashboard->getPublishAt());
+	}
+
+	/**
+	 * A schedule another request flipped first is not announced twice.
+	 *
+	 * @return void
+	 */
+	public function testADashboardAnotherRequestAlreadyFlippedIsNotAnnouncedAgain(): void {
+		$dashboard = $this->dashboard(type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
+		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+		$this->dashboardMapper->method('findDueScheduled')->willReturn([$dashboard]);
+		$this->dashboardMapper->method('setPublishedIfScheduled')->willReturn(false);
+
+		$this->publisher->expects($this->never())->method('publishToGroup');
+
+		$this->assertSame(expected: 0, actual: $this->dashboardService()->materialiseScheduledDashboards());
+	}
+
+	/**
+	 * Reading the visible dashboards is what surfaces a due schedule.
+	 *
+	 * @return void
+	 */
+	public function testReadingTheVisibleDashboardsSurfacesADueSchedule(): void {
+		$dashboard = $this->dashboard(type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
+		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+		$this->dashboardMapper->expects($this->once())->method('findDueScheduled')->willReturn([$dashboard]);
+		$this->dashboardMapper->method('setPublishedIfScheduled')->willReturn(true);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->shareMapper->method('findByDashboardId')->willReturn([]);
+
+		$this->publisher->expects($this->once())->method('publishToGroup')
+			->with($this->isInstanceOf(className: ActivityRow::class), 'staff');
+
+		$this->dashboardService()->getVisibleToUser(userId: 'bob');
 	}
 
 	public function testSavingAGroupDashboardIsAnnouncedAtMostOnceADay(): void {

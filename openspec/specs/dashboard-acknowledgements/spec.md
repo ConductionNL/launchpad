@@ -1,7 +1,7 @@
 # dashboard-acknowledgements Specification
 
 ## Purpose
-TBD - created by archiving change dashboard-acknowledgements. Update Purpose after archive.
+Mandatory-read announcements: an author asks the readers of a widget to confirm they have read it, every reader in the announcement's audience is blocked by a sign-off prompt until they do, and the author gets a read-receipt report (with CSV export) of who confirmed which version.
 ## Requirements
 ### Requirement: REQ-ACK-001 Declare an acknowledgement requirement on a placement
 
@@ -17,8 +17,6 @@ all acknowledgement fields — to every user placement cloned from that template
 placement, so all recipients of one announcement share one identity. A caller
 who is not an admin or the template owner MUST be rejected with `403` and the
 placement MUST be unchanged.
-
-@e2e exclude Configuration + persistence + clone-propagation path; covered by PlacementUpdater / TemplateService / WidgetPlacementMapper PHPUnit and the non-author 403 by AcknowledgementControllerTest — no dedicated admin form UI in this pass.
 
 #### Scenario: Admin requires acknowledgement on a template announcement
 
@@ -43,8 +41,6 @@ placement MUST be unchanged.
 - **AND** existing acknowledgement receipts MUST be retained as history (not deleted)
 
 #### Scenario: A recipient cannot change the requirement on their copy
-
-@e2e exclude Asserted in PermissionServiceAcknowledgementTest; a template copy for a second user is set up outside the dashboard UI.
 
 - **GIVEN** user "bob" holds a copy of announcement `ak-1` from a template owned by "tom"
 - **WHEN** bob updates his copy's placement with `requiresAcknowledgement = 0`, `reacknowledgeOnChange = 0` or another `acknowledgementContentVersion`
@@ -72,8 +68,6 @@ outstanding (unacknowledged) mandatory items.
 
 #### Scenario: Already-acknowledged item renders normally
 
-@e2e exclude Asserted in AcknowledgementServiceTest::isOutstanding (no-receipt vs receipt) and the dashboard store vitest — the "already acknowledged" state renders the plain widget, the same negative path the covered sign-off scenario exits into.
-
 - **GIVEN** user "alice" has a receipt for `announcementKey` `ak-1` at `acknowledgementContentVersion = 1`
 - **WHEN** she reopens the dashboard and the placement is still at version `1`
 - **THEN** the widget MUST render its normal content with no forced-delivery prompt
@@ -81,16 +75,12 @@ outstanding (unacknowledged) mandatory items.
 
 #### Scenario: Deadline is presented but does not auto-acknowledge
 
-@e2e exclude Deadline/overdue presentation is unit-covered (AcknowledgementService::isOverdue + AcknowledgementPrompt vitest) and requires a fixed system date; the prompt still requires an explicit sign-off, covered by the main gate scenario.
-
 - **GIVEN** placement `p-integriteitscode` with `acknowledgementDeadline = 2026-08-01` and the current date is `2026-08-02`
 - **WHEN** an unacknowledged user opens the dashboard
 - **THEN** the prompt MUST still require an explicit sign-off (a passed deadline MUST NOT auto-acknowledge)
 - **AND** the item MUST be reportable as overdue in the read-receipt report (REQ-ACK-004)
 
 #### Scenario: A copy kept after leaving the audience is not pending
-
-@e2e exclude Asserted in AcknowledgementServiceTest::testPendingListsOnlyAnnouncementsStillAddressedToTheUser; group membership changes are set up outside the dashboard UI.
 
 - **GIVEN** user "alice" holds a copy of announcement `ak-1`, whose template routes to group "sociaal-domein", and she is no longer a member of that group
 - **WHEN** her outstanding items are listed
@@ -107,6 +97,16 @@ create a second row and MUST return success. A recipient MUST be able to write a
 receipt **only for their own** `userId`; any attempt to write a receipt on
 behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
+Only the announcement's audience MAY acknowledge it. The audience is the live
+members of the groups its template routes to or, without group routing, the
+owners of the dashboards holding a copy. In both cases the recipients of a
+share of a personal dashboard holding the announcement (every user it is
+shared with and every live member of a group it is shared with) MUST be in the
+audience: they see the widget, so they MUST confirm it like the owner, the
+announcement MUST be pending for them (REQ-ACK-002), and they MUST appear in
+the read-receipt report (REQ-ACK-004). A user reached through several
+dashboards MUST be asked once per announcement.
+
 #### Scenario: First acknowledgement writes exactly one receipt
 
 - **GIVEN** user "alice" with no receipt for `announcementKey` `ak-1` at version `1`
@@ -116,16 +116,12 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
 #### Scenario: Repeated acknowledgement is idempotent
 
-@e2e exclude Row-level idempotency (no second row, original timestamp) is asserted in AcknowledgementServiceTest::testRepeatedAcknowledgeIsIdempotent + the race test — not observable through the UI.
-
 - **GIVEN** user "alice" already has a receipt for `(ak-1, alice, 1)`
 - **WHEN** she `POST`s the same acknowledgement again
 - **THEN** the system MUST NOT insert a second row
 - **AND** MUST return success with the original `acknowledgedAt` unchanged
 
 #### Scenario: A user cannot acknowledge on behalf of another user
-
-@e2e exclude Cross-user 403 (no IDOR) is asserted in AcknowledgementControllerTest::testAcknowledgeRejectsCrossUser — a server-side auth contract, not a UI flow.
 
 - **GIVEN** authenticated user "alice"
 - **WHEN** she `POST`s an acknowledgement whose body names `userId = "bob"`
@@ -134,13 +130,19 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
 #### Scenario: Only the announcement's audience can acknowledge it
 
-@e2e exclude The audience refusal is asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAUserOutsideTheAudience and AcknowledgementServiceTest::testIsInAudienceFollowsTheGroupRouting, a server-side auth contract, not a UI flow.
-
 - **GIVEN** an announcement whose template routes to group "sociaal-domein", and authenticated user "mallory" who is not a member
 - **WHEN** she `POST`s an acknowledgement for that announcement, or for an announcement key that no placement carries
 - **THEN** the system MUST return `403`
 - **AND** MUST NOT write any receipt
 - **AND** the audience MUST be resolved for the session user, never for a user named in the request
+
+#### Scenario: A share recipient of a personal dashboard must confirm
+
+- **GIVEN** user "tom" asks for a read confirmation on a widget of his personal dashboard and shares the dashboard view-only with "pieter", who holds no copy
+- **WHEN** pieter's outstanding items are listed
+- **THEN** the announcement MUST be pending for pieter and his view of tom's dashboard MUST show the blocking prompt
+- **AND** pieter MUST appear as pending in tom's read-receipt report
+- **AND** a user the dashboard is not shared with, and who holds no copy, MUST still be rejected with `403`
 
 ### Requirement: REQ-ACK-004 Admin read-receipt report scoped to the audience
 
@@ -164,16 +166,12 @@ an admin nor the template owner MUST be rejected with `403`.
 
 #### Scenario: A newly added group member becomes pending automatically
 
-@e2e exclude Live-audience resolution via IGroupManager is asserted in AcknowledgementServiceTest::testReportSeparatesAcknowledgedFromPending — mutating group membership mid-session is out of scope for a single UI run.
-
 - **GIVEN** the report above, and `dave` is subsequently added to group "sociaal-domein"
 - **WHEN** the report is requested again
 - **THEN** the audience MUST include `dave`
 - **AND** `dave` MUST appear in the pending list until he acknowledges
 
 #### Scenario: Non-author cannot read the report
-
-@e2e exclude Non-author 403 on the report is asserted in AcknowledgementControllerTest::testReportRejectsNonOwner / testReportCsvRejectsNonManager — a server-side auth contract, not a UI flow.
 
 - **GIVEN** user "bob" who is a recipient of `ak-1` but not an admin or template owner
 - **WHEN** bob requests the read-receipt report for `ak-1`
@@ -187,8 +185,6 @@ when an author bumps `acknowledgementContentVersion` on a placement whose
 Receipts for prior versions MUST be retained as history and MUST NOT satisfy the
 new version. When `reacknowledgeOnChange = 0`, bumping the version MUST NOT
 re-force delivery for users who already acknowledged a prior version.
-
-@e2e exclude Version-bump re-force logic (both branches) is asserted in AcknowledgementServiceTest::isOutstanding — a content-version bump is not directly UI-observable in a single session.
 
 #### Scenario: Version bump re-forces delivery when re-acknowledge is on
 
@@ -206,16 +202,12 @@ re-force delivery for users who already acknowledged a prior version.
 
 #### Scenario: A version that is not published yet cannot be acknowledged
 
-@e2e exclude Asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAFutureContentVersion and its accept cases; the UI only ever sends the version its copy shows, so a future version is not reachable from it.
-
 - **GIVEN** announcement `ak-1` at `acknowledgementContentVersion = 2`
 - **WHEN** user "alice" `POST`s an acknowledgement for `ak-1` with `contentVersion = 3`
 - **THEN** the system MUST return `400` and MUST NOT write any receipt
 - **AND** a `contentVersion` at or below `2` MUST still be accepted, so a copy that was not re-synced yet can be signed off
 
 #### Scenario: Without a template the user's own copy sets the current version
-
-@e2e exclude Asserted in AcknowledgementServiceTest::testCurrentContentVersionWithoutATemplateIsTheUsersCopy; deleting a template under live copies is not a UI flow.
 
 - **GIVEN** announcement `ak-1` whose template was deleted, and user "alice" whose copy is at version `2` while another copy is at version `1`
 - **WHEN** alice acknowledges `ak-1` at version `2`
@@ -230,14 +222,14 @@ containing one row per audience member with acknowledged/pending status and, for
 acknowledged rows, the timestamp — so the result can be filed as compliance
 evidence.
 
-@e2e exclude Single-shot activity emission and the CSV export body are asserted in AcknowledgementServiceTest / AcknowledgementControllerTest — the CSV `DataDownloadResponse` cannot be exercised under the OCP stub bootstrap and the Activity row is not UI-observable on the dashboard.
-
 #### Scenario: Acknowledging emits one activity event
 
 - **GIVEN** the Activity provider is registered
 - **WHEN** user "alice" acknowledges `ak-1`
 - **THEN** exactly one activity entry MUST be emitted for the acknowledgement (subject `dashboard_acknowledged`) naming alice and the announcement
 - **AND** no activity entry MUST be emitted for an idempotent repeat acknowledgement (REQ-ACK-003)
+
+@e2e exclude the Activity app is an optional Nextcloud app the e2e fixture does not set up (tests/e2e/seed.sh and tests/e2e/global-setup.ts enable no app), so its feed is not a surface this suite can rely on, and its OCS feed returns the rendered line rather than the `dashboard_acknowledged` subject. Pinned by tests/Unit/Service/AcknowledgementServiceTest.php testFirstAcknowledgeRecordsAndEmitsActivity (exactly one event) and testRepeatedAcknowledgeIsIdempotent / testAcknowledgeRaceReturnsWinnerWithoutActivity (none on a repeat).
 
 #### Scenario: Report exports as CSV compliance evidence
 
@@ -250,15 +242,14 @@ evidence.
 
 #### Scenario: The activity line names the acknowledged version
 
-@e2e exclude Asserted in ExtensionTest::testParseNamesTheAcknowledgedVersion; the Activity row is not UI-observable on the dashboard.
-
 - **GIVEN** user "alice" acknowledges `ak-1` at version `2`
 - **WHEN** the activity line is rendered
 - **THEN** it MUST read "You acknowledged version 2 of {dashboard}" (or "{actor} acknowledged version 2 of {dashboard}")
 - **AND** a line stored before versions were recorded MUST keep its old text
-### Requirement: An editor can ask for confirmation from the widget form (REQ-ACK-007)
 
-@e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php
+@e2e exclude the Activity app is an optional Nextcloud app the e2e fixture does not set up (tests/e2e/seed.sh and tests/e2e/global-setup.ts enable no app), so its feed is not a surface this suite can rely on, and its OCS feed returns the rendered line rather than the `dashboard_acknowledged` subject. The second clause also needs an activity row stored before versions were recorded, which no HTTP call can create. Pinned by tests/Unit/Activity/ExtensionTest.php testParseNamesTheAcknowledgedVersion (both wordings, and the old text without a version) and tests/Unit/Service/AcknowledgementServiceTest.php testActivityNamesTheAcknowledgedVersion.
+
+### Requirement: An editor can ask for confirmation from the widget form (REQ-ACK-007)
 
 The widget edit form MUST offer "Ask readers to confirm they have read this". Saving with it ticked MUST send `requiresAcknowledgement: 1` in the placement update; unticking MUST send `0`.
 
@@ -269,8 +260,6 @@ The widget edit form MUST offer "Ask readers to confirm they have read this". Sa
 - **THEN** Pieter sees the confirmation prompt on that widget the next time he opens the dashboard
 
 ### Requirement: An editor can see who has confirmed (REQ-ACK-008)
-
-@e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php
 
 When a widget on the dashboard asks for confirmation, people who may edit the dashboard MUST find "Read receipts" at the top of the dashboard, showing the confirmed count, the names still pending and a CSV download from the existing report.
 

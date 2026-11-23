@@ -63,14 +63,39 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
-		// runtime-shell REQ-SHELL-009: the dashboard view without the left
-		// navigation panel. Optional key, same rationale as `deepLinkPath`:
-		// a server without the setter keeps the panel.
-		startPageWithoutNavigation: false,
+		// search-ai-prefix-shortcuts REQ-SPX-002: the admin's search
+		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
+		// list keeps every search box as it was.
+		searchShortcuts: [],
+		// platform-dashboard-theme-and-css REQ-THM-003: the administrator CSS
+		// for all of LaunchPad, cleaned and scoped by the server. Optional key.
+		customCss: '',
+		// drill-down-cross-widget-filter REQ-CWF-010: whether the dashboard's
+		// filter bus records filter_event rows. Optional key; off by default.
+		filterTelemetryEnabled: false,
 		// launcher-tile-launch-types: what the tile editor offers for program
 		// and single sign-on tiles. Optional keys; empty lists offer nothing.
 		tileAllowedSchemes: [],
 		ssoLaunchTemplates: [],
+		// launcher-tile-internal-address REQ-TIA-003: whether the server saw
+		// this request come from an office network. Optional key: a server
+		// without the setter leaves every tile on its main address.
+		onOfficeNetwork: false,
+		// engagement-communities REQ-COMM-004: whether Talk is enabled for the
+		// viewer. Optional key; `false` makes the Communities widget explain
+		// that Talk is needed instead of calling it.
+		talkEnabled: false,
+		// wiki-widget REQ-WIKI-004: which apps behind the integration widgets
+		// are enabled for the viewer, by app id. Optional key; `{}` keeps every
+		// integration widget out of the picker.
+		integrationApps: {},
+		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
+		// organisation pinned, in the order pinned. Optional key.
+		pinnedCommunities: [],
+		// clock-weather-widgets REQ-CLOCK-002: the viewer's Nextcloud timezone,
+		// which a clock without its own zone shows. Optional key; '' follows
+		// the device.
+		userTimezone: '',
 	},
 	admin: {
 		allGroups: [],
@@ -117,6 +142,29 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * Whether the server saw this request come from inside the office networks.
+ *
+ * @return {boolean} True only when the server said so.
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ */
+export function isOnOfficeNetwork() {
+	return readKey('onOfficeNetwork', false) === true
+}
+
+/**
+ * The Nextcloud dashboard widgets the page carries for the card library,
+ * already narrowed to the user's role (REQ-RFP-010). Empty when the server
+ * could not list them without loading them, or on a page without the key.
+ *
+ * @return {object[]} The widget descriptors.
+ * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
+ */
+export function initialWidgetCatalogue() {
+	const widgets = readKey('widgets', [])
+	return Array.isArray(widgets) ? widgets : []
 }
 
 /**

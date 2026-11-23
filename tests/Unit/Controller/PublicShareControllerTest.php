@@ -26,6 +26,8 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\PublicShareController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\PublicShare;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
 use OCA\LaunchPad\Service\PublicShareContext;
@@ -306,5 +308,39 @@ class PublicShareControllerTest extends TestCase {
 
 		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
 		$this->assertSame(['error' => 'Internal error'], $response->getData());
+	}
+
+	/**
+	 * A visitor cannot edit: the placements go through the visibility rules
+	 * with no edit rights (REQ-VIS-013).
+	 *
+	 * @return void
+	 */
+	public function testShowAppliesTheVisibilityRulesForAVisitor(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+		$this->request->method('getHeader')->willReturn('');
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$placement = new WidgetPlacement();
+		$placement->setId(9);
+		$this->shareService
+			->method('renderShareContent')
+			->willReturn(['share' => $share, 'dashboard' => new Dashboard(), 'placements' => [$placement]]);
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
+		$visibility->expects($this->once())
+			->method('visiblePlacements')
+			->with($this->callback(callback: static fn (array $placements): bool => $placements[0]['id'] === 9), '', false)
+			->willReturn([]);
+
+		$controller = new PublicShareController(
+			request: $this->request,
+			shareService: $this->shareService,
+			shareContext: $this->shareContext,
+			logger: $this->logger,
+			userId: null,
+			visibility: $visibility,
+		);
+
+		$this->assertSame(expected: [], actual: $controller->show(token: 'tok')->getData()['placements']);
 	}
 }

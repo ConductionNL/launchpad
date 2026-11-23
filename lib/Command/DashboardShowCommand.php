@@ -25,7 +25,7 @@ namespace OCA\LaunchPad\Command;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputArgument;
@@ -47,13 +47,13 @@ class DashboardShowCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
 	 * @param WidgetPlacementMapper $placementMapper Widget mapper.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
@@ -133,7 +133,7 @@ class DashboardShowCommand extends CommandBase {
 	 */
 	private static function invalidUuidError(string $uuid): array {
 		return [
-			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS,
 			'code'     => 'INVALID_ARGUMENT',
 			'message'  => "Invalid UUID format: '" . $uuid . "'",
 			'context'  => ['field' => 'uuid', 'providedValue' => $uuid],

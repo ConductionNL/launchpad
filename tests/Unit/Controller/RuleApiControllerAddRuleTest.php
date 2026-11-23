@@ -30,6 +30,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use OCA\LaunchPad\Controller\ActionCaller;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\CallerResponses;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * @covers \OCA\LaunchPad\Controller\RuleApiController
@@ -62,9 +67,12 @@ class RuleApiControllerAddRuleTest extends TestCase {
 			request: $this->createMock(IRequest::class),
 			conditionalService: $this->rules,
 			permissionService: $this->permissions,
-			actionAuth: $this->actionAuth,
-			userSession: $this->session,
-			userId: $userId
+			context: new CallerResponses(caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->session
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 	}
 
@@ -104,6 +112,36 @@ class RuleApiControllerAddRuleTest extends TestCase {
 		$response = $this->controller()->addRule(placementId: 4, ruleType: 'group');
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}
+
+	/**
+	 * A rule type outside group, time, date and attribute is refused before ownership is checked.
+	 *
+	 * @return void
+	 */
+	public function testUnknownRuleTypeIsABadRequestNamingTheRuleType(): void {
+		$this->permissions->expects($this->never())->method('verifyPlacementOwnership');
+		$this->rules->expects($this->never())->method('addRule');
+
+		$response = $this->controller()->addRule(placementId: 4, ruleType: 'weather', ruleConfig: []);
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'ruleType', haystack: (string)$response->getData()['message']);
+	}
+
+	/**
+	 * An update to an unknown rule type is refused before the rule is loaded.
+	 *
+	 * @return void
+	 */
+	public function testUnknownRuleTypeOnUpdateIsABadRequest(): void {
+		$this->rules->expects($this->never())->method('findRule');
+		$this->rules->expects($this->never())->method('updateRule');
+
+		$response = $this->controller()->updateRule(ruleId: 7, ruleType: 'weather');
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'ruleType', haystack: (string)$response->getData()['message']);
 	}
 
 	public function testOwnershipFailureStopsTheCreate(): void {

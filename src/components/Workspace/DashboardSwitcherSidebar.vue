@@ -22,9 +22,9 @@
 	The `source` discriminator on each emit is load-bearing — the parent
 	uses it to pick the correct API endpoint (group vs default vs user).
 
-	Personal rows expose a hover-revealed delete button (CSS `display: none →
-	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
-	never triggers a switch (REQ-SWITCH-004).
+	Each row's options menu (DashboardRowActions) carries Delete for a
+	dashboard the user owns; choosing it emits `deleteDashboard(id, source)`
+	and never triggers a switch (REQ-SWITCH-004).
 
 	A dedicated "Add Dashboard" card button (NcButton secondary) renders
 	below the personal dashboards list — still inside the scroll container,
@@ -172,8 +172,11 @@
 								:activeDashboardId="activeDashboardId"
 								@toggleEdit="onRowToggleEdit(dashboard, section.source)"
 								@openConfig="onRowOpenConfig(dashboard, section.source)"
-								@addCustomWidget="
-									onRowAddCustomWidget(dashboard, section.source)
+								@addWidget="
+									onRowAddWidget(dashboard, section.source)
+								"
+								@importBookmarks="
+									onRowImportBookmarks(dashboard, section.source)
 								"
 								@delete="onRowDelete(dashboard, section.source)"
 								@setDefault="onRowSetDefault(dashboard, section.source)" />
@@ -442,7 +445,7 @@ export default {
 
 		/*
 		 * `canEdit` flows down to each per-row cog (wave3.6) so the
-		 * Edit / Add-custom-widget entries can hide for view-only
+		 * Edit / Add widget entries can hide for view-only
 		 * users. Configure / Delete remain owner-gated per row via
 		 * `dashboard.isOwner`. The wave3.3 `isEditMode` /
 		 * `isActiveOwner` props were removed when the cog moved out
@@ -494,7 +497,9 @@ export default {
 		// switch-then-apply orchestration.
 		'toggleEdit',
 		'openConfig',
-		'addCustomWidget',
+		'addWidget',
+		// launcher-bookmark-import REQ-BMI-001 — `(dashboard, source)`.
+		'importBookmarks',
 		// wave3.7 — `(dashboard, source)`. The host pins this row as
 		// the user's default via `POST /api/dashboards/default`.
 		'setDefault',
@@ -783,8 +788,19 @@ export default {
 		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		onRowAddCustomWidget(dashboard, source) {
-			this.$emit('addCustomWidget', dashboard, source)
+		onRowAddWidget(dashboard, source) {
+			this.$emit('addWidget', dashboard, source)
+		},
+
+		/**
+		 * Re-emit the row's "Import bookmarks" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		onRowImportBookmarks(dashboard, source) {
+			this.$emit('importBookmarks', dashboard, source)
 		},
 
 		/**
@@ -832,8 +848,18 @@ export default {
 			this.$emit('update:open', false)
 		},
 
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
-		onEscClose() {
+		/**
+		 * Escape closes the sidebar, unless it was meant for an open menu
+		 * inside it (a row's action menu keeps focus on its toggle, which
+		 * reports `aria-expanded="true"`): that Escape closes the menu only.
+		 *
+		 * @param {KeyboardEvent} event the keydown.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
+		onEscClose(event) {
+			if (event?.target?.closest?.('[aria-expanded="true"], [role="menu"]')) {
+				return
+			}
 			if (this.isOpen) {
 				this.$emit('update:open', false)
 			}
@@ -977,31 +1003,6 @@ export default {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 14px;
-}
-
-.dashboard-switcher-sidebar__delete {
-	display: none;
-	background: transparent;
-	border: 0;
-	padding: 2px;
-	border-radius: 3px;
-	cursor: pointer;
-	color: var(--color-text-maxcontrast, #757575);
-	align-items: center;
-	justify-content: center;
-}
-
-.dashboard-switcher-sidebar__delete:hover,
-.dashboard-switcher-sidebar__delete:focus {
-	background: var(--color-background-darker, #ececec);
-	color: var(--color-error, #c0392b);
-}
-
-.dashboard-switcher-sidebar__item--personal:hover
-	.dashboard-switcher-sidebar__delete,
-.dashboard-switcher-sidebar__item--personal:focus-within
-	.dashboard-switcher-sidebar__delete {
-	display: inline-flex;
 }
 
 .dashboard-switcher-sidebar__add-dashboard-card {

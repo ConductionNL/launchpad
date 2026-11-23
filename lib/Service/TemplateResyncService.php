@@ -43,6 +43,7 @@ use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\BackgroundJob\TemplateResyncJob;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -57,7 +58,7 @@ use Throwable;
  *  manager, and the async job dispatcher for one cohesive re-sync
  *  operation — splitting further would fragment a single atomic concern.
  */
-class TemplateResyncService {
+class TemplateResyncService implements TemplateResyncServiceInterface {
 	/**
 	 * Replace each copy's layout with the current template layout.
 	 */
@@ -102,12 +103,14 @@ class TemplateResyncService {
 	 *                                                  storage policy), so the `x-openregister-
 	 *                                                  notifications` branch is not wired in.
 	 * @param LoggerInterface      $logger PSR-3 logger.
+	 * @param PersonalLayerService $personalLayers Drops personal-layer entries for removed placements (REQ-DWMS-001).
 	 */
 	public function __construct(
 		private readonly ResyncStores $stores,
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,
+		private readonly PersonalLayerService $personalLayers,
 	) {
 	}//end __construct()
 
@@ -387,8 +390,40 @@ class TemplateResyncService {
 		$tally->reports[] = $this->summarizeCopy(copy: $copy, diff: $diff, applied: ($error === null), error: $error);
 		if ($changed === true && $error === null) {
 			$tally->affected[] = $copy;
+			$this->pruneLayers(copy: $copy, diff: $diff);
 		}
 	}//end resyncCopy()
+
+	/**
+	 * After a re-sync removed placements, drop the personal-layer entries that named them.
+	 *
+	 * @param Dashboard $copy The copy that was re-synced.
+	 * @param array     $diff The applied diff.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-001-a-personal-layer-over-a-shared-dashboard
+	 */
+	private function pruneLayers(Dashboard $copy, array $diff): void {
+		if ($diff['toRemove'] === []) {
+			return;
+		}
+
+		$liveIds = array_map(
+			static fn (WidgetPlacement $placement): int => (int)$placement->getId(),
+			$this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId())
+		);
+
+		try {
+			$this->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
+		} catch (Throwable $t) {
+			// The re-sync itself landed; a stale layer entry is ignored at render time.
+			$this->logger->warning(
+				message: 'launchpad.template_resync.layer_prune_failed',
+				context: ['dashboardId' => $copy->getId(), 'exception' => $t]
+			);
+		}
+	}//end pruneLayers()
 
 	/**
 	 * Notify the owner of every affected copy.
@@ -537,45 +572,28 @@ class TemplateResyncService {
 		}
 
 		$matchedTemplateIds = [];
-		$toUpdate = [];
-		$toRemove = [];
-		$toPreserve = [];
+		$buckets = [
+			'toUpdate' => [],
+			'toRemove' => [],
+			'toPreserve' => [],
+		];
 
 		foreach ($copyPlacements as $cp) {
 			$originId = $cp->getTemplatePlacementId();
-
 			if ($originId !== null && isset($templateById[$originId]) === true) {
 				$matchedTemplateIds[$originId] = true;
-				$tp = $templateById[$originId];
+			}
 
-				if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
-					$toUpdate[] = [
-						'copy' => $cp,
-						'template' => $tp,
-					];
-					continue;
+			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById);
+			if ($bucket === null) {
+				// No known origin — a genuinely user-added placement.
+				$bucket = 'toPreserve';
+				if ($strategy === self::STRATEGY_OVERWRITE) {
+					$bucket = 'toRemove';
 				}
-
-				$toPreserve[] = $cp;
-				continue;
 			}
 
-			if ($originId !== null && isset($templateById[$originId]) === false) {
-				// Template-origin, but the admin has since deleted this
-				// placement from the template — remove it under both
-				// strategies (REQ-RESYNC-003 "Template widget removed by
-				// admin is removed under merge").
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			// No known origin — a genuinely user-added placement.
-			if ($strategy === self::STRATEGY_OVERWRITE) {
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			$toPreserve[] = $cp;
+			$buckets[$bucket][] = $entry;
 		}//end foreach
 
 		return [
@@ -583,11 +601,51 @@ class TemplateResyncService {
 				templatePlacements: $templatePlacements,
 				matchedTemplateIds: $matchedTemplateIds
 			),
-			'toUpdate' => $toUpdate,
-			'toRemove' => $toRemove,
-			'toPreserve' => $toPreserve,
+			'toUpdate' => $buckets['toUpdate'],
+			'toRemove' => $buckets['toRemove'],
+			'toPreserve' => $buckets['toPreserve'],
 		];
 	}//end diffCopy()
+
+	/**
+	 * Classify one copy placement against the template placements it may
+	 * originate from (REQ-RESYNC-003).
+	 *
+	 * A placement whose template origin still exists goes to `toUpdate`
+	 * when its fields differ and to `toPreserve` when they are equal; one
+	 * whose origin the admin has since deleted goes to `toRemove` under
+	 * both strategies. A placement with no known origin is user-added: the
+	 * bucket is null and the strategy decides.
+	 *
+	 * @param WidgetPlacement             $copy         The copy placement.
+	 * @param array<int, WidgetPlacement> $templateById The template placements by ID.
+	 *
+	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement}}
+	 *     The bucket name (null for a user-added placement) and the entry to put in it.
+	 */
+	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById): array {
+		$originId = $copy->getTemplatePlacementId();
+		if ($originId === null) {
+			return [null, $copy];
+		}
+
+		if (isset($templateById[$originId]) === false) {
+			return ['toRemove', $copy];
+		}
+
+		$template = $templateById[$originId];
+		if ($this->placementDiffers(copy: $copy, template: $template) === true) {
+			return [
+				'toUpdate',
+				[
+					'copy' => $copy,
+					'template' => $template,
+				],
+			];
+		}
+
+		return ['toPreserve', $copy];
+	}//end classifyCopyPlacement()
 
 	/**
 	 * Template placements the copy has no counterpart for — i.e. the

@@ -56,8 +56,6 @@ class ActionAuthBaselineTest extends TestCase {
 	 * @var array<int, string>
 	 */
 	private const ADMIN_ONLY_ACTIONS = [
-		'admin-org-navigation.get-org-navigation',
-		'admin-org-navigation.get-position',
 		'analytics.top-dashboards',
 		'analytics.dashboard-detail',
 		'analytics.instance-summary',
@@ -65,34 +63,23 @@ class ActionAuthBaselineTest extends TestCase {
 		'tile-analytics.top-tiles',
 		'tile-analytics.dashboard-breakdown',
 		'tile-analytics.export-csv',
-		'dashboard.publish',
-		'dashboard.unpublish',
-		'dashboard.schedule',
 		'dashboard-lock.force-release',
-		'dashboard-metadata.set-metadata',
-		'dashboard-translation.create',
-		'dashboard-translation.update',
-		'dashboard-translation.destroy',
-		'dashboard-translation.set-primary',
-		'dashboard-version.list-versions',
-		'dashboard-version.fetch-version',
-		'dashboard-version.create-version',
-		'dashboard-version.restore-version',
 		'metadata-admin.list-fields',
 		'metadata-admin.create-field',
 		'metadata-admin.get-field',
 		'metadata-admin.update-field',
 		'metadata-admin.delete-field',
 		'people-widget.get-users',
+		'search-shortcut.list',
+		'search-shortcut.save',
 		'profile-fields.get-definitions',
 		'profile-fields.save-definitions',
-		'rule.get-rules',
-		'rule.add-rule',
-		'rule.update-rule',
-		'rule.delete-rule',
 		'tile.create',
 		'tile.update',
 		'tile.destroy',
+		// launcher-app-catalogue D4: keeping the catalogue and deciding on requests.
+		'catalogue.manage',
+		'catalogue.decide',
 	];
 
 	/**
@@ -101,6 +88,9 @@ class ActionAuthBaselineTest extends TestCase {
 	 * @var array<int, string>
 	 */
 	private const BASELINE_ACTIONS = [
+		// REQ-ONAV-002: the organisation menu, filtered by the reader's groups.
+		'admin-org-navigation.get-org-navigation',
+		'admin-org-navigation.get-position',
 		'dashboard.list',
 		'dashboard.visible',
 		'dashboard.get-active',
@@ -123,9 +113,38 @@ class ActionAuthBaselineTest extends TestCase {
 		// The `admin.` prefix is the controller's, not a privilege level:
 		// getMyRole() only ever answers for the caller.
 		'admin.get-my-role',
+		// The dashboard owner's own versions, metadata values and rules
+		// (REQ-VERS-002..005, REQ-MDFL-005, REQ-VIS-002). Each route checks
+		// ownership per object, so the action reaches only the caller's own.
+		'dashboard-metadata.set-metadata',
+		'dashboard-version.list-versions',
+		'dashboard-version.fetch-version',
+		'dashboard-version.create-version',
+		'dashboard-version.restore-version',
+		'rule.get-rules',
+		// REQ-DASH-032..034: the owner publishes, unpublishes and schedules
+		// their own dashboard; each route checks owner-or-admin.
+		'dashboard.publish',
+		'dashboard.unpublish',
+		'dashboard.schedule',
+		// REQ-VIS-001: the owner adds rules to the widgets of their own
+		// dashboard; the route checks placement ownership first.
+		'rule.add-rule',
+		// REQ-VIS-003/004: the owner changes and removes those rules.
+		'rule.update-rule',
+		'rule.delete-rule',
+		// REQ-LANGUI-001: the owner manages their dashboard's language
+		// versions; each translation write checks ownership per dashboard.
+		'dashboard-translation.create',
+		'dashboard-translation.update',
+		'dashboard-translation.destroy',
+		'dashboard-translation.set-primary',
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',
+		// launcher-app-catalogue D4: every user sees the catalogue and may ask for an app.
+		'catalogue.list',
+		'catalogue.request',
 	];
 
 	/** @var IAppConfig&MockObject */

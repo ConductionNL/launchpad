@@ -4,7 +4,10 @@
 -->
 
 <template>
-	<div class="public-dashboard-grid">
+	<div
+		class="public-dashboard-grid"
+		:class="{ 'public-dashboard-grid--embed': embedContext !== null }"
+		:data-embed-mode="embedContext ? embedMode : undefined">
 		<div v-if="items.length > 0" class="public-share-view__grid">
 			<div
 				v-for="item in items"
@@ -15,11 +18,15 @@
 				<a
 					v-if="item.kind === 'tile'"
 					class="public-share-view__tile"
-					:href="item.tileLink || '#'"
+					:href="tileHref(item)"
+					:target="embedContext ? '_blank' : undefined"
+					:rel="embedContext ? 'noopener noreferrer' : undefined"
+					:aria-label="item.title ? undefined : t('launchpad', 'Tile')"
 					:style="{
 						backgroundColor: item.tileBackgroundColor || undefined,
 						color: item.tileTextColor || undefined,
-					}">
+					}"
+					@click="drillDown(item, $event)">
 					<img
 						v-if="
 							item.tileIcon
@@ -179,9 +186,31 @@ export default {
 
 	props: {
 		placements: LIST_PROP,
+
+		/**
+		 * embedded-analytics task 13: set when the grid renders inside an embed,
+		 * `{scope: {mode, allowedActions}, filters}`. The tenant theme's `--c-*`
+		 * variables then colour the tiles and widgets, a tile link opens outside
+		 * the embed and only when the scope allows `interact`. Null (the
+		 * default) is the normal public-share rendering, unchanged.
+		 */
+		embedContext: {
+			type: Object,
+			default: null,
+		},
 	},
 
+	emits: ['drillDown'],
+
 	computed: {
+		/**
+		 * @return {string} The embed's scope mode, read when unknown.
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		embedMode() {
+			return this.embedContext?.scope?.mode === 'read-with-interactions' ? 'read-with-interactions' : 'read'
+		},
+
 		/**
 		 * @return {Array<object>} Visible placements in reading order, normalised for display.
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
@@ -197,11 +226,75 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Where a tile links to: its target, '#' without one; inside an embed
+		 * nowhere (no href) unless the scope allows `interact`, and '#' when it
+		 * allows only `drillDown`, so the tile stays a focusable control.
+		 *
+		 * @param {object} item The display item.
+		 * @return {string|undefined}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		tileHref(item) {
+			if (this.embedContext !== null && !this.embedAllows('interact')) {
+				return this.embedAllows('drillDown') ? '#' : undefined
+			}
+			return item.tileLink || '#'
+		},
+
+		/**
+		 * Inside an embed whose scope allows `drillDown`, emit `drillDown` with
+		 * what the visitor opened; without `interact` the link is not followed.
+		 *
+		 * @param {object} item The display item.
+		 * @param {MouseEvent} event The click.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-006--js-sdk-exposes-render-event-and-resize-apis
+		 */
+		drillDown(item, event) {
+			if (this.embedContext === null || !this.embedAllows('drillDown')) {
+				return
+			}
+			if (!this.embedAllows('interact')) {
+				event.preventDefault()
+			}
+			this.$emit('drillDown', {
+				placementId: item.id,
+				title: item.title,
+				link: item.tileLink || null,
+				source: 'user-interaction',
+			})
+		},
+
+		/**
+		 * Whether the embed's scope allows an action.
+		 *
+		 * @param {string} action The action.
+		 * @return {boolean}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		embedAllows(action) {
+			const scope = this.embedContext?.scope ?? {}
+			return scope.mode === 'read-with-interactions' && (scope.allowedActions ?? []).includes(action)
+		},
 	},
 }
 </script>
 
 <style scoped>
+/* embedded-analytics task 13: inside an embed the tenant theme's variables,
+   injected on :root by the embed page, colour the grid; without a theme
+   they fall back to the Nextcloud ones. */
+.public-dashboard-grid--embed .public-share-view__tile {
+	background: var(--c-primary, var(--color-primary-element));
+}
+
+.public-dashboard-grid--embed .public-share-view__widget {
+	border-color: var(--c-border, var(--color-border));
+	background: var(--c-surface, var(--color-main-background));
+	color: var(--c-text, var(--color-main-text));
+}
+
 .public-share-view__grid {
 	display: grid;
 	grid-template-columns: repeat(12, 1fr);

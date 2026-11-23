@@ -63,9 +63,9 @@ describe('DashboardBulkOperations interaction', () => {
 		expect(rows[1].text()).toContain('published')
 	})
 
-	it('accepts a { dashboards } envelope and an envelope without one', async () => {
+	it('reads the { items, quota } envelope /api/dashboards/visible answers, and an envelope without items', async () => {
 		api.getVisibleDashboards.mockResolvedValueOnce({
-			data: { dashboards: [{ uuid: 'z', name: 'Zed' }] },
+			data: { items: [{ uuid: 'z', name: 'Zed' }], quota: { maxDashboards: 0 } },
 		})
 		const wrapper = await mountWidget()
 		expect(wrapper.vm.dashboards).toEqual([{ uuid: 'z', name: 'Zed' }])

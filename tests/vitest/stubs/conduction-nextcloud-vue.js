@@ -42,6 +42,9 @@
 
 import { h } from 'vue'
 
+// The real loader: a registry entry built with it behaves as in the app.
+export { lazyComponent, loadLazyComponent, resolveLazyComponent } from '@conduction/nextcloud-vue/src/utils/lazyComponent.js'
+
 const stub = (name) => ({ name, render: () => h('div') })
 
 export const NcModal = stub('NcModal')
@@ -273,6 +276,14 @@ export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
 export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 // Analytics widgets (OpenBuild parity) — renderers + config forms.
 export const CnStatWidget = stub('CnStatWidget')
+export const CnAppTilesWidget = stub('CnAppTilesWidget')
+export const CnAppTilesWidgetForm = stub('CnAppTilesWidgetForm')
+export const CnAppTile = stub('CnAppTile')
+export const CnAppTileWidget = stub('CnAppTileWidget')
+export const CnAppTileWidgetForm = stub('CnAppTileWidgetForm')
+export const CnStatusList = stub('CnStatusList')
+export const appTileColourValue = (key, appId = '') => `var(--cn-app-tile-${key || appId})`
+export const CnGroupedMenu = stub('CnGroupedMenu')
 export const CnStatWidgetForm = stub('CnStatWidgetForm')
 export const CnDeltaWidget = stub('CnDeltaWidget')
 export const CnDeltaWidgetForm = stub('CnDeltaWidgetForm')
@@ -385,6 +396,16 @@ const _DASH = {
 		defaultContent: { folderPath: '/' },
 	},
 	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
+	'app-tiles': {
+		renderer: CnAppTilesWidget,
+		form: CnAppTilesWidgetForm,
+		defaultContent: {},
+	},
+	'app-tile': {
+		renderer: CnAppTileWidget,
+		form: CnAppTileWidgetForm,
+		defaultContent: { appId: '', colour: '', showCount: true },
+	},
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
 	'object-list': {
@@ -501,6 +522,14 @@ export default {
 	CnSpendAnalyticsWidgetForm,
 	CnStatWidget,
 	CnStatWidgetForm,
+	CnAppTilesWidget,
+	CnAppTilesWidgetForm,
+	CnAppTile,
+	CnAppTileWidget,
+	CnAppTileWidgetForm,
+	CnStatusList,
+	appTileColourValue,
+	CnGroupedMenu,
 	CnDeltaWidget,
 	CnDeltaWidgetForm,
 	CnGaugeWidget,

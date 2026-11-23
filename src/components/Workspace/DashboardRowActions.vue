@@ -7,7 +7,7 @@
 	DashboardRowActions — wave3.6 per-row cog menu
 
 	Lives at the right edge of every dashboard `<li>` in the sidebar.
-	The 4 actions (Edit / Configure / Add custom widget / Delete) act on
+	The 4 actions (Edit / Configure / Add widget / Delete) act on
 	the row's own dashboard, not on whichever dashboard happens to be
 	"active" — so the user can edit, configure, or delete any dashboard
 	they have access to without having to switch first.
@@ -19,11 +19,11 @@
 	    event so the host can decide whether to switch + enter edit
 	    mode or no-op).
 	  - Dashboard configuration → only when the row's `dashboard.isOwner !== false`.
-	  - Add custom widget       → only when `canEdit` is true.
+	  - Add widget              → only when `canEdit` is true.
 	  - Delete dashboard        → only when the row's `dashboard.isOwner !== false`.
 
 	Emits raw events; the host (`DashboardSwitcherSidebar.vue`) maps
-	them to its `toggle-edit` / `open-config` / `add-custom-widget` /
+	them to its `toggle-edit` / `open-config` / `add-widget` /
 	`delete-dashboard` outputs with the per-row dashboard payload.
 
 	`@click.stop` is set on the cog trigger so opening the menu never
@@ -71,11 +71,21 @@
 			v-if="canEdit"
 			:closeAfterClick="true"
 			data-testid="cog-add-widget"
-			@click="$emit('addCustomWidget')">
+			@click="$emit('addWidget')">
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
 			</template>
-			{{ t('launchpad', 'Add custom widget…') }}
+			{{ t('launchpad', 'Add widget') }}
+		</NcActionButton>
+		<NcActionButton
+			v-if="canEdit"
+			:closeAfterClick="true"
+			data-testid="cog-import-bookmarks"
+			@click="$emit('importBookmarks')">
+			<template #icon>
+				<BookmarkPlusOutline :size="20" />
+			</template>
+			{{ t('launchpad', 'Import bookmarks') }}
 		</NcActionButton>
 		<NcActionButton
 			:closeAfterClick="true"
@@ -91,37 +101,6 @@
 					: t('launchpad', 'Set as default')
 			}}
 		</NcActionButton>
-		<template v-if="canManagePublication">
-			<NcActionButton
-				v-if="dashboard.publicationStatus !== 'published'"
-				:closeAfterClick="true"
-				data-testid="cog-publish"
-				@click="$emit('publish')">
-				<template #icon>
-					<Publish :size="20" />
-				</template>
-				{{ t('launchpad', 'Publish') }}
-			</NcActionButton>
-			<NcActionButton
-				v-else
-				:closeAfterClick="true"
-				data-testid="cog-unpublish"
-				@click="$emit('unpublish')">
-				<template #icon>
-					<PublishOff :size="20" />
-				</template>
-				{{ t('launchpad', 'Unpublish') }}
-			</NcActionButton>
-			<NcActionButton
-				:closeAfterClick="true"
-				data-testid="cog-schedule"
-				@click="$emit('schedule')">
-				<template #icon>
-					<CalendarClock :size="20" />
-				</template>
-				{{ t('launchpad', 'Schedule…') }}
-			</NcActionButton>
-		</template>
 		<NcActionButton
 			v-if="canViewHistory"
 			:closeAfterClick="true"
@@ -143,6 +122,16 @@
 			{{ t('launchpad', 'Share') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canEmbed && dashboard.uuid"
+			:closeAfterClick="true"
+			data-testid="cog-embed"
+			@click="openEmbed">
+			<template #icon>
+				<CodeTags :size="20" />
+			</template>
+			{{ t('launchpad', 'Create embed token') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="isOwner"
 			:closeAfterClick="true"
 			data-testid="cog-delete"
@@ -157,14 +146,14 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
-import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import BookmarkPlusOutline from 'vue-material-design-icons/BookmarkPlusOutline.vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import History from 'vue-material-design-icons/History.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
-import Publish from 'vue-material-design-icons/Publish.vue'
-import PublishOff from 'vue-material-design-icons/PublishOff.vue'
 import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Star from 'vue-material-design-icons/Star.vue'
@@ -176,6 +165,40 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
+import { embedAdminSearch } from '../../utils/embedToken.js'
+
+/**
+ * The address of Beheer ▸ Embeds with a dashboard pre-selected, or one
+ * widget placement of it when `placement` is given.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @param {object|null} placement A widget placement on the dashboard.
+ * @return {string}
+ * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+ */
+export function embedAdminHref(dashboard, placement = null) {
+	const search = placement
+		? embedAdminSearch('widget', placement.id ?? '', dashboard?.id ?? null)
+		: embedAdminSearch('dashboard', dashboard?.uuid ?? '', dashboard?.id ?? null)
+	return `${generateUrl('/settings/admin/launchpad')}?${search}`
+}
+
+/**
+ * Whether the caller owns a dashboard: a row under "My dashboards" (the
+ * `user` source) always, any other row only when the dashboard says
+ * `isOwner: true`. Owner-gated actions (configure, delete) use it.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @param {string} source The dashboard's section.
+ * @return {boolean}
+ * @spec openspec/specs/dashboard-switcher/spec.md
+ */
+export function isOwnedDashboard(dashboard, source) {
+	if (source === 'user') {
+		return true
+	}
+	return dashboard?.isOwner === true
+}
 
 export default {
 	name: 'DashboardRowActions',
@@ -183,18 +206,17 @@ export default {
 	components: {
 		NcActions,
 		NcActionButton,
+		CodeTags,
 		Cog,
 		Pencil,
 		ContentSave,
 		Tune,
 		ShapePolygonPlus,
+		BookmarkPlusOutline,
 		TrashCanOutline,
 		Star,
 		StarCheck,
 		ShareVariant,
-		CalendarClock,
-		Publish,
-		PublishOff,
 		History,
 	},
 
@@ -243,11 +265,11 @@ export default {
 		canShare: FLAG_PROP,
 
 		/*
-		 * sharing-dashboard-schedule-screen REQ-SCHEDUI-001: the host allows
-		 * Publish / Unpublish / Schedule… (owner or administrator). Off by
-		 * default, so sidebar rows do not show them.
+		 * embedded-analytics task 40: the viewer is an administrator, so the
+		 * menu offers "Create embed token", a link to Beheer ▸ Embeds with
+		 * this dashboard pre-selected. Off by default.
 		 */
-		canManagePublication: FLAG_PROP,
+		canEmbed: FLAG_PROP,
 
 		/*
 		 * When true the menu renders "Version history…" (REQ-VERSUI-001).
@@ -281,18 +303,27 @@ export default {
 	emits: [
 		'toggleEdit',
 		'openConfig',
-		'addCustomWidget',
+		'addWidget',
+		// launcher-bookmark-import REQ-BMI-001: only where the user may add.
+		'importBookmarks',
 		'delete',
 		'setDefault',
 		'share',
-		'publish',
-		'unpublish',
-		'schedule',
 		'versionHistory',
 		'menuOpen',
 	],
 
 	computed: {
+		/**
+		 * Beheer ▸ Embeds with this dashboard pre-selected for a new token.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		embedHref() {
+			return embedAdminHref(this.dashboard)
+		},
+
 		/*
 		 * Owner-gated actions (Configure, Delete) require the user to
 		 * own this dashboard. The visibility API doesn't always set
@@ -305,10 +336,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		isOwner() {
-			if (this.source === 'user') {
-				return true
-			}
-			return this.dashboard?.isOwner === true
+			return isOwnedDashboard(this.dashboard, this.source)
 		},
 
 		/*
@@ -344,6 +372,15 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Open Beheer ▸ Embeds with this dashboard pre-selected.
+		 *
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+		 */
+		openEmbed() {
+			window.location.assign(this.embedHref)
+		},
 	},
 }
 </script>

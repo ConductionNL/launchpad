@@ -39,6 +39,7 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCP\Constants;
+use OCP\Files\Cache\IFileAccess;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -58,6 +59,7 @@ use Throwable;
  *                                                 unavoidable for this
  *                                                 capability.
  * @spec                                           openspec/specs/files-widget/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength) The listing, paths and previews of one widget belong together.
  */
 class FilesWidgetService {
 	/**
@@ -95,11 +97,15 @@ class FilesWidgetService {
 	 *                                    deep links into the Files app.
 	 * @param IPreview $previewManager Decides which files have a
 	 *                                 previewable thumbnail.
+	 * @param IFileAccess|null $fileAccess File cache lookup that tells a
+	 *                                     folder the viewer cannot see
+	 *                                     from one that is gone.
 	 */
 	public function __construct(
 		private readonly IRootFolder $rootFolder,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly IPreview $previewManager,
+		private readonly ?IFileAccess $fileAccess=null,
 	) {
 	}//end __construct()
 
@@ -136,7 +142,7 @@ class FilesWidgetService {
 			throw new NoAccessException();
 		}
 
-		$items = $this->listVisibleItems(folder: $target, config: $config);
+		$items = $this->listVisibleItems(folder: $target, config: $config, root: $rootFolder);
 
 		return $this->paginate(items: $items, limit: $this->clampLimit(limit: $limit), cursor: $cursor);
 	}//end getContentsForPlacement()
@@ -148,17 +154,18 @@ class FilesWidgetService {
 	 *
 	 * @param Folder $folder The readable folder being listed.
 	 * @param array  $config Placement config.
+	 * @param Folder $root   The widget's configured root folder.
 	 *
 	 * @return list<array<string,mixed>> The sorted item metadata.
 	 */
-	private function listVisibleItems(Folder $folder, array $config): array {
+	private function listVisibleItems(Folder $folder, array $config, Folder $root): array {
 		$children = $folder->getDirectoryListing();
 		$mimeFilter = $this->normaliseMimeFilter(filter: ($config['mimeTypeFilter'] ?? []));
 
 		$items = [];
 		foreach ($children as $child) {
 			if ($this->isListed(node: $child, mimeFilter: $mimeFilter) === true) {
-				$items[] = $this->buildFileMetadata(node: $child);
+				$items[] = $this->buildFileMetadata(node: $child, root: $root);
 			}
 		}
 
@@ -217,7 +224,7 @@ class FilesWidgetService {
 		$root = $this->resolveConfiguredFolder(userId: $userId, config: $config);
 		$target = $this->writableFolder(root: $root, subPath: $currentSubPath);
 
-		return $this->storeUploads(target: $this->uploadTarget(folder: $target, config: $config), uploadedFiles: $uploadedFiles);
+		return $this->storeUploads(target: $this->uploadTarget(folder: $target, config: $config, root: $root), uploadedFiles: $uploadedFiles);
 	}//end uploadFiles()
 
 	/**
@@ -246,17 +253,18 @@ class FilesWidgetService {
 	 *
 	 * @param Folder $folder The writable destination folder.
 	 * @param array  $config Placement config.
+	 * @param Folder $root   The widget's configured root folder.
 	 *
 	 * @return FilesWidgetUploadTarget The destination.
 	 */
-	private function uploadTarget(Folder $folder, array $config): FilesWidgetUploadTarget {
+	private function uploadTarget(Folder $folder, array $config, Folder $root): FilesWidgetUploadTarget {
 		// M3: normalise the placement's MIME type filter so we can gate
 		// uploads against it (same filter already enforced on reads).
 		$mimeFilter = $this->normaliseMimeFilter(
 			filter: ($config['mimeTypeFilter'] ?? [])
 		);
 
-		return new FilesWidgetUploadTarget(folder: $folder, mimeFilter: $mimeFilter);
+		return new FilesWidgetUploadTarget(folder: $folder, mimeFilter: $mimeFilter, root: $root);
 	}//end uploadTarget()
 
 	/**
@@ -308,10 +316,16 @@ class FilesWidgetService {
 	 * @param FilesWidgetUploadTarget $target The destination.
 	 * @param array                   $entry  One screened `$_FILES` entry.
 	 *
-	 * @return array<string,mixed>|string The stored file's metadata, or
+	 * @return array<string,mixed>|string The stored file's metadata,
+	 *                                    `insufficient_storage` or
 	 *                                    `storage_failed`.
 	 */
 	private function writeUpload(FilesWidgetUploadTarget $target, array $entry): array|string {
+		$free = $target->folder->getFreeSpace();
+		if (is_numeric(value: $free) === true && $free >= 0 && (int)$entry['size'] > $free) {
+			return 'insufficient_storage';
+		}
+
 		$safeName = (new UploadNamePicker())->availableName(folder: $target->folder, desired: (string)$entry['name']);
 		try {
 			$file = $this->streamToNewFile(
@@ -319,7 +333,7 @@ class FilesWidgetService {
 				tmp: (string)$entry['tmp_name'],
 				safeName: $safeName
 			);
-			return $this->buildFileMetadata(node: $file);
+			return $this->buildFileMetadata(node: $file, root: $target->root);
 		} catch (Throwable $e) {
 			return 'storage_failed';
 		}
@@ -424,9 +438,16 @@ class FilesWidgetService {
 			throw new RuntimeException('Cannot open destination file');
 		}
 
-		stream_copy_to_stream(from: $handle, to: $outHandle);
+		$copied = stream_copy_to_stream(from: $handle, to: $outHandle);
 		fclose($handle);
 		fclose($outHandle);
+
+		// A quota or storage limit can cut the write short without an error:
+		// a partly written file is removed rather than listed.
+		if ($copied !== filesize(filename: $tmp)) {
+			$file->delete();
+			throw new RuntimeException('Short write to destination file');
+		}
 
 		return $file;
 	}//end streamToNewFile()
@@ -536,13 +557,14 @@ class FilesWidgetService {
 	 * Build the normalised JSON-friendly file metadata blob the
 	 * frontend renderer consumes (REQ-FLS-003).
 	 *
-	 * @param Node $node A file or folder node.
+	 * @param Node        $node A file or folder node.
+	 * @param Folder|null $root The widget's configured root folder, which `path` is relative to.
 	 *
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
-	public function buildFileMetadata(Node $node): array {
+	public function buildFileMetadata(Node $node, ?Folder $root=null): array {
 		$isFolder = $node instanceof Folder;
 
 		// Emit a preview URL for any file Nextcloud can render a thumbnail
@@ -572,7 +594,7 @@ class FilesWidgetService {
 		return [
 			'fileId' => (int)$node->getId(),
 			'name' => $node->getName(),
-			'path' => $node->getInternalPath(),
+			'path' => $this->pathWithinRoot(node: $node, root: $root),
 			'mimeType' => $node->getMimetype(),
 			'size' => (int)$node->getSize(),
 			'modifiedAt' => $this->formatTimestamp(timestamp: $node->getMTime()),
@@ -582,6 +604,24 @@ class FilesWidgetService {
 			'canDelete' => $canDelete,
 		];
 	}//end buildFileMetadata()
+
+	/**
+	 * A node's path relative to the widget's root folder, with a leading
+	 * slash; just `/<name>` when no root is known or the node is outside it.
+	 *
+	 * @param Node        $node The listed node.
+	 * @param Folder|null $root The widget's configured root folder.
+	 *
+	 * @return string The root-relative path.
+	 */
+	private function pathWithinRoot(Node $node, ?Folder $root): string {
+		$relative = $root?->getRelativePath(path: $node->getPath());
+		if (is_string($relative) === true && $relative !== '') {
+			return $relative;
+		}
+
+		return '/' . $node->getName();
+	}//end pathWithinRoot()
 
 	/**
 	 * Resolve the placement's configured folder for the given user.
@@ -609,6 +649,10 @@ class FilesWidgetService {
 
 		$node = $this->configuredNode(userFolder: $userFolder, config: $config);
 		if ($node === null) {
+			if ($this->existsOutsideViewer(fileId: $this->extractFileId(config: $config)) === true) {
+				throw new NoAccessException();
+			}
+
 			throw new FolderNotFoundException();
 		}
 
@@ -618,6 +662,31 @@ class FilesWidgetService {
 
 		return $node;
 	}//end resolveConfiguredFolder()
+
+	/**
+	 * Whether a folder id the viewer cannot resolve still exists in
+	 * someone's files: then the viewer lacks access, rather than the
+	 * folder being gone. A trashed folder counts as gone.
+	 *
+	 * @param integer|null $fileId The configured folder id.
+	 *
+	 * @return bool True when the folder exists outside the viewer's view.
+	 *
+	 * @spec openspec/specs/files-widget/spec.md
+	 */
+	private function existsOutsideViewer(?int $fileId): bool {
+		if ($fileId === null || $this->fileAccess === null) {
+			return false;
+		}
+
+		try {
+			$entry = $this->fileAccess->getByFileId(fileId: $fileId);
+		} catch (Throwable $e) {
+			return false;
+		}
+
+		return $entry !== null && str_starts_with(haystack: $entry->getPath(), needle: 'files/') === true;
+	}//end existsOutsideViewer()
 
 	/**
 	 * The folder a placement config names: by `fileId` first, else by

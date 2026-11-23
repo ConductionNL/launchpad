@@ -95,13 +95,13 @@
         "https://nc.example/apps/launchpad/img/activity/dashboard_shared.svg"
     ],
     "dashboard_shared / other": [
-        "alice shared dashboard Dashboard A with bob",
-        "alice shared dashboard Dashboard A with bob",
+        "alice shared dashboard Dashboard A with you",
+        "alice shared dashboard Dashboard A with you",
         "https://nc.example/apps/launchpad/img/activity/dashboard_shared.svg"
     ],
     "dashboard_shared / fallbacks": [
-        "dave shared dashboard Board 9 with ",
-        "dave shared dashboard Board 9 with ",
+        "dave shared dashboard Board 9 with you",
+        "dave shared dashboard Board 9 with you",
         "https://nc.example/apps/launchpad/img/activity/dashboard_shared.svg"
     ],
     "dashboard_public_share_created / self": [

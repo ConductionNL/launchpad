@@ -11,7 +11,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
  */
 
 declare(strict_types=1);

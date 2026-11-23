@@ -78,7 +78,7 @@ class AdminSettingsUpdateGoldenTest extends TestCase {
 			'url fallback'       => ['quicksearchFallbackTarget' => 'https://example.org/?q={query}'],
 			'bad fallback'       => ['defaultPermLevel' => 'full', 'quicksearchFallbackTarget' => 'http://x', 'startPageWithoutNavigation' => true],
 			'bad share level'    => ['allowUserDash' => true, 'defaultSharePermissionLevel' => 'owner', 'startPageWithoutNavigation' => true],
-			'only last'          => ['startPageWithoutNavigation' => true],
+			'only retired key'   => ['startPageWithoutNavigation' => true],
 		];
 
 		$actual = [];

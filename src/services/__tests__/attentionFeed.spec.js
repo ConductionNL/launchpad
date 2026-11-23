@@ -20,6 +20,7 @@ import {
 	actionPath,
 	checkSource,
 	countPath,
+	expandToRecords,
 	filterPairs,
 	loadAttentionFeed,
 	needsAttention,
@@ -418,5 +419,30 @@ describe('loadAttentionFeed', () => {
 		get.mockRejectedValue(new Error('Request failed with status code 500'))
 
 		await expect(loadAttentionFeed()).rejects.toThrow('500')
+	})
+})
+
+describe('expandToRecords (LpVandaag one card per record)', () => {
+	const entry = { key: 'dossiq/late', id: 'late', appId: 'dossiq', appName: 'dossiq', title: 'Cases past their deadline', severity: 'error', count: 2, itemPath: '/apps/dossiq/cases', schema: 'case' }
+
+	it('makes one item per listed record, named by it, with the source title as reason and a link to it', () => {
+		const items = expandToRecords([{ ...entry, objects: [{ id: 'a1', title: 'Parking permit Stationsstraat 3' }, { id: 'b2', title: 'Parking permit Kerkstraat 12' }] }], (schema) => `Open ${schema}`)
+		expect(items.map((i) => [i.title, i.reason, i.actionLabel, i.href])).toEqual([
+			['Parking permit Stationsstraat 3', 'Cases past their deadline', 'Open case', '/index.php/apps/dossiq/cases/a1'],
+			['Parking permit Kerkstraat 12', 'Cases past their deadline', 'Open case', '/index.php/apps/dossiq/cases/b2'],
+		])
+		expect(new Set(items.map((i) => i.key)).size).toBe(2)
+	})
+
+	it('keeps a source that listed no records as one item', () => {
+		expect(expandToRecords([{ ...entry, objects: [] }], () => 'Open')).toEqual([{ ...entry, objects: [] }])
+	})
+})
+
+describe('countPath with records', () => {
+	it('asks for as many records as the cards can show', () => {
+		const source = { source: { register: 'dossiq', schema: 'case', filter: {} } }
+		expect(countPath(source, { perSource: 3 })).toContain('_limit=3')
+		expect(countPath(source, {})).toContain('_limit=1')
 	})
 })

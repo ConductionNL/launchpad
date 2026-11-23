@@ -21,6 +21,8 @@
  *                         separate props)
  *       - `tile`        → TileHost        (a `create` office tile opens the new-file
  *                         dialog; every other tile renders through CnDashTileWidget)
+ *       - `video`       → VideoHost       (resolves a Nextcloud-file source's streaming
+ *                         URL for the viewer, REQ-VID-006)
  *     `files` keeps the communal CnFilesWidget renderer — its launchpad backend
  *     `apiBase` is injected by WidgetRenderer.rendererProps, not the registry.
  *
@@ -50,13 +52,62 @@ import {
 	// registration guard below.
 	CnNcWidgetWidget,
 	dashboardWidgetRegistry,
+	lazyComponent,
 	CnNcDashboardWidgetForm as NcDashboardForm,
 	CnPeopleWidgetForm as PeopleForm,
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
-import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
-import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+
+// Renderers and forms load with the first widget of their type, not with the
+// dashboard bundle.
+const ActivityReportWidget = lazyComponent(() => import('../components/Widgets/Renderers/ActivityReportWidget.vue'), 'ActivityReportWidget')
+const ActivityReportWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ActivityReportWidgetForm.vue'), 'ActivityReportWidgetForm')
+const AiAssistantWidget = lazyComponent(() => import('../components/Widgets/Renderers/AiAssistantWidget.vue'), 'AiAssistantWidget')
+const AiAssistantWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AiAssistantWidgetForm.vue'), 'AiAssistantWidgetForm')
+const AnnouncementsWidget = lazyComponent(() => import('../components/Widgets/Renderers/AnnouncementsWidget.vue'), 'AnnouncementsWidget')
+const AnnouncementsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'), 'AnnouncementsWidgetForm')
+const AssignedCasesWidget = lazyComponent(() => import('../components/Widgets/Renderers/AssignedCasesWidget.vue'), 'AssignedCasesWidget')
+const AssignedCasesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'), 'AssignedCasesWidgetForm')
+const AttentionWidget = lazyComponent(() => import('../components/Widgets/Renderers/AttentionWidget.vue'), 'AttentionWidget')
+const AttentionWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AttentionWidgetForm.vue'), 'AttentionWidgetForm')
+const ChartHost = lazyComponent(() => import('../components/Widgets/Renderers/ChartHost.vue'), 'ChartHost')
+const ChartSourceForm = lazyComponent(() => import('../components/Widgets/Renderers/ChartSourceForm.vue'), 'ChartSourceForm')
+const ClockWidget = lazyComponent(() => import('../components/Widgets/Renderers/ClockWidget.vue'), 'ClockWidget')
+const ClockWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ClockWidgetForm.vue'), 'ClockWidgetForm')
+const RecentWorkWidget = lazyComponent(() => import('../components/Widgets/Renderers/RecentWorkWidget.vue'), 'RecentWorkWidget')
+const RecentWorkWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/RecentWorkWidgetForm.vue'), 'RecentWorkWidgetForm')
+const ColleagueActivityWidget = lazyComponent(() => import('../components/Widgets/Renderers/ColleagueActivityWidget.vue'), 'ColleagueActivityWidget')
+const ColleagueActivityWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'), 'ColleagueActivityWidgetForm')
+const CommunitiesWidget = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidget.vue'), 'CommunitiesWidget')
+const CommunitiesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidgetForm.vue'), 'CommunitiesWidgetForm')
+const ContainerWidget = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidget.vue'), 'ContainerWidget')
+const ContainerWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidgetForm.vue'), 'ContainerWidgetForm')
+const IframeWidget = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidget.vue'), 'IframeWidget')
+const IframeWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidgetForm.vue'), 'IframeWidgetForm')
+const LinkButtonWidget = lazyComponent(() => import('../components/Widgets/Renderers/LinkButtonHost.vue'), 'LinkButtonWidget')
+const LiveTileWidget = lazyComponent(() => import('../components/Widgets/Renderers/LiveTileWidget.vue'), 'LiveTileWidget')
+const LiveTileWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/LiveTileWidgetForm.vue'), 'LiveTileWidgetForm')
+const NewsWidget = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidget.vue'), 'NewsWidget')
+const NewsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidgetForm.vue'), 'NewsWidgetForm')
+const SearchWidget = lazyComponent(() => import('../components/Widgets/Renderers/SearchWidget.vue'), 'SearchWidget')
+const SearchWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/SearchWidgetForm.vue'), 'SearchWidgetForm')
+// `section-heading` — "Tussenkop": a full-width heading with one line of
+// explanation over the widgets or tiles that follow it (REQ-WDG-031).
+const SectionHeadingWidget = lazyComponent(() => import('../components/Widgets/Renderers/SectionHeadingWidget.vue'), 'SectionHeadingWidget')
+const SectionHeadingWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/SectionHeadingWidgetForm.vue'), 'SectionHeadingWidgetForm')
+const StatsBlockHost = lazyComponent(() => import('../components/Widgets/Renderers/StatsBlockHost.vue'), 'StatsBlockHost')
+const StatusReportWidget = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidget.vue'), 'StatusReportWidget')
+const StatusReportWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidgetForm.vue'), 'StatusReportWidgetForm')
+const TileHost = lazyComponent(() => import('../components/Widgets/Renderers/TileHost.vue'), 'TileHost')
+const VideoHost = lazyComponent(() => import('../components/Widgets/Renderers/VideoHost.vue'), 'VideoHost')
+const VideoWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/VideoWidgetForm.vue'), 'VideoWidgetForm')
+const WeatherWidget = lazyComponent(() => import('../components/Widgets/Renderers/WeatherWidget.vue'), 'WeatherWidget')
+const WeatherWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/WeatherWidgetForm.vue'), 'WeatherWidgetForm')
+const WikiPagesWidget = lazyComponent(() => import('../components/Widgets/Renderers/WikiPagesWidget.vue'), 'WikiPagesWidget')
+const WikiPagesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/WikiPagesWidgetForm.vue'), 'WikiPagesWidgetForm')
+const WorkPackagesWidget = lazyComponent(() => import('../components/Widgets/Renderers/WorkPackagesWidget.vue'), 'WorkPackagesWidget')
+const WorkPackagesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'), 'WorkPackagesWidgetForm')
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
 // communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
@@ -66,42 +117,32 @@ import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWi
 // `ai-assistant` — ask Hermiq about the dashboard (search-ai-dashboard-assistant,
 // openspec/specs/launchpad-ai-dashboard-assistant). Same LaunchPad-only
 // registration pattern as `clock`/`weather`.
-import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
-import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
-import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
-import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
-import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
-import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
-import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
-import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
-import ContainerWidgetForm from '../components/Widgets/Renderers/ContainerWidgetForm.vue'
+// `assigned-cases` — the viewer's open cases from an OpenRegister register,
+// dossiq's by default (openspec/changes/assigned-cases-widget).
+// `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
+// CnChartWidget) with a source form for a register query or entered values
+// (openspec/changes/chart-presets).
+// `communities` — the open Talk conversations the viewer may join
+// (openspec/changes/engagement-communities). Same LaunchPad-only registration
+// pattern as `clock`/`weather`.
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
 // refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
 // Same LaunchPad-only registration pattern as `clock`/`weather`/`livetile`.
-import IframeWidget from '../components/Widgets/Renderers/IframeWidget.vue'
-import IframeWidgetForm from '../components/Widgets/Renderers/IframeWidgetForm.vue'
 // LaunchPad-specific host wrappers (app-side orchestration, NOT generic
 // dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
-import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
 // `livetile` — server-fetched, ICache-cached data-bound tile
 // (REQ-LIVETILE-001..005, openspec/specs/live-data-tile-widget/spec.md). Same
 // LaunchPad-only registration pattern as `clock`/`weather`.
-import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
-import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
 // `news` — moved out of nc-vue, whose renderer had no way to fetch a feed.
 // LaunchPad owns the feed path, so it owns the widget.
-import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
-import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 // `search` — the quick-search / launcher bar, formerly runtime-shell chrome
 // (openspec/specs/tile-quick-search). Registered below like the other
 // LaunchPad-only types.
-import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
-import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
-import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
-import TileHost from '../components/Widgets/Renderers/TileHost.vue'
-import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
-import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
+// `wiki-pages` — search, favourites and recent pages of the wiki, read through
+// OpenRegister's XWiki integration (openspec/changes/wiki-widget).
+// `work-packages` — open OpenProject work packages through the official
+// integration (openspec/changes/work-packages-widget).
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -111,6 +152,7 @@ import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm
  * @property {string} displayName Human-readable type name for the type picker
  * @property {string} icon Material Design icon name used in the type picker
  * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
+ * @property {string} [requiresApp] The app the widget reads through; the picker offers the type only when the initial state's `integrationApps` says it is enabled for the viewer.
  */
 
 /**
@@ -127,6 +169,8 @@ const RENDERER_OVERRIDES = {
 	// integrations-office-tiles: a `create` tile opens the new-file dialog;
 	// every other tile still renders through CnDashTileWidget.
 	tile: TileHost,
+	// REQ-VID-006: a Nextcloud-file video is resolved for its viewer first.
+	video: VideoHost,
 }
 
 /**
@@ -143,6 +187,8 @@ const FORM_OVERRIDES = {
 	'nc-widget': NcDashboardForm,
 	// launcher-tile-sorting: the communal fields plus "Sort tiles".
 	container: ContainerWidgetForm,
+	// REQ-VID-005: the URL is checked by the parse endpoint.
+	video: VideoWidgetForm,
 }
 
 // The shared bundle (beta.155) exports CnNcWidgetWidget but its self-
@@ -194,6 +240,55 @@ registerDashboardWidget('attention', {
 	icon: 'AlertCircleOutline',
 })
 
+// `colleague-activity`: what colleagues did recently, filtered server-side to
+// what the reader may see (dashboards-and-who-may-see-them REQ-DWMS-007).
+registerDashboardWidget('colleague-activity', {
+	renderer: ColleagueActivityWidget,
+	form: ColleagueActivityWidgetForm,
+	defaultContent: {
+		limit: 10,
+		days: 7,
+	},
+	displayName: 'Colleague activity',
+	icon: 'AccountMultipleOutline',
+})
+
+// `recent-work`: "Verder waar u was" on LpVandaag, the reader's own recent
+// work from the Activity app.
+registerDashboardWidget('recent-work', {
+	renderer: RecentWorkWidget,
+	form: RecentWorkWidgetForm,
+	defaultContent: {
+		limit: 6,
+	},
+	displayName: 'Recent work',
+	icon: 'History',
+})
+
+// `activity-report`: a person's activity per type and per day, with the purpose
+// shown whenever it is about a named person; the server gates who may read whom
+// and logs every such read (dashboards-and-who-may-see-them REQ-DWMS-005/006).
+registerDashboardWidget('activity-report', {
+	renderer: ActivityReportWidget,
+	form: ActivityReportWidgetForm,
+	defaultContent: {
+		days: 30,
+	},
+	displayName: 'Activity report',
+	icon: 'CalendarMonthOutline',
+})
+
+// `status-report`: a dated status report on one body of work, prefilled by the
+// product and kept with the person's rating and summary; the kept report says
+// which values were computed and which were written (REQ-DWMS-004).
+registerDashboardWidget('status-report', {
+	renderer: StatusReportWidget,
+	form: StatusReportWidgetForm,
+	defaultContent: {},
+	displayName: 'Status report',
+	icon: 'ClipboardTextOutline',
+})
+
 registerDashboardWidget('clock', {
 	renderer: ClockWidget,
 	form: ClockWidgetForm,
@@ -209,6 +304,17 @@ registerDashboardWidget('clock', {
 
 // `weather` — server-fetched, ICache-cached ambient tile (REQ-WEATHER-
 // 001..003). Same LaunchPad-only registration pattern as `clock`.
+registerDashboardWidget('communities', {
+	renderer: CommunitiesWidget,
+	form: CommunitiesWidgetForm,
+	defaultContent: {
+		title: '',
+		onlyPinned: false,
+	},
+	displayName: 'Communities',
+	icon: 'AccountGroupOutline',
+})
+
 registerDashboardWidget('weather', {
 	renderer: WeatherWidget,
 	form: WeatherWidgetForm,
@@ -277,6 +383,108 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// REQ-WDG-031: "Tussenkop" of boards LpIntranet and LpWerkplek, a heading on
+// the page ground; the label widget's group heading has no line of
+// explanation, so this is a type of its own.
+registerDashboardWidget('section-heading', {
+	renderer: SectionHeadingWidget,
+	form: SectionHeadingWidgetForm,
+	defaultContent: {
+		title: '',
+		description: '',
+	},
+	displayName: 'Section heading',
+	icon: 'FormatHeader1',
+	// One row, as the boards draw it. Under the grid's two-row minimum a
+	// heading seeded one row high grew into the tiles below it, and the grid
+	// moved it under every other widget.
+	minHeight: 1,
+})
+
+// wiki-widget REQ-WIKI-001..004: the wiki through OpenRegister's XWiki
+// integration; offered only where OpenRegister is enabled for the viewer.
+registerDashboardWidget('wiki-pages', {
+	renderer: WikiPagesWidget,
+	form: WikiPagesWidgetForm,
+	defaultContent: {
+		space: '',
+		limit: 3,
+	},
+	displayName: 'Wiki',
+	icon: 'BookOpenPageVariantOutline',
+	requiresApp: 'openregister',
+})
+
+// work-packages-widget REQ-WP-001..004: open OpenProject work packages, read
+// through integration_openproject with the viewer's own token.
+registerDashboardWidget('work-packages', {
+	renderer: WorkPackagesWidget,
+	form: WorkPackagesWidgetForm,
+	defaultContent: {
+		scope: 'mine',
+		project: '',
+		limit: 4,
+	},
+	displayName: 'My work packages',
+	icon: 'ClipboardCheckOutline',
+	requiresApp: 'integration_openproject',
+})
+
+// assigned-cases-widget REQ-CASES-001..004: the viewer's open cases, deadline
+// first, with counts per status; offered and shown only where dossiq is.
+registerDashboardWidget('assigned-cases', {
+	renderer: AssignedCasesWidget,
+	form: AssignedCasesWidgetForm,
+	defaultContent: {
+		register: 'dossiq',
+		schema: 'case',
+		limit: 4,
+	},
+	displayName: 'My cases',
+	icon: 'BriefcaseOutline',
+	requiresApp: 'dossiq',
+})
+
+// chart-presets REQ-CHARTP-001..003: "Cirkeldiagram" and "Grafiek" of board
+// LpManagement as presets of the chart stack, not a second one.
+registerDashboardWidget('pie-chart', {
+	renderer: ChartHost,
+	form: ChartSourceForm,
+	defaultContent: {
+		chartKind: 'donut',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			groupBy: { field: '', metric: 'count', metricField: '', sort: 'desc', limit: 8 },
+		},
+		showTotal: true,
+		legendValues: true,
+		legendPosition: 'right',
+	},
+	displayName: 'Pie chart',
+	icon: 'ChartDonut',
+})
+
+registerDashboardWidget('graph', {
+	renderer: ChartHost,
+	form: ChartSourceForm,
+	defaultContent: {
+		chartKind: 'bar',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			bucket: { field: '', interval: 'month', metric: 'count', metricField: '' },
+		},
+		legendPosition: 'bottom',
+	},
+	displayName: 'Graph',
+	icon: 'ChartBar',
 })
 
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,
@@ -411,4 +619,19 @@ export function getWidgetTypeEntry(type) {
  */
 export function getDefaultContent(type) {
 	return cnGetDefaultContent(type)
+}
+
+/**
+ * Whether the picker offers a widget type to this viewer: always, unless the
+ * type reads through an app (`requiresApp`) that is not enabled for them.
+ *
+ * @param {WidgetRegistryEntry|null} entry The type's entry.
+ * @param {Record<string, boolean|string>} integrationApps Which apps are enabled for the viewer; a renamed fleet app answers with its installed id.
+ * @return {boolean} Whether to offer it.
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+ */
+export function offeredForViewer(entry, integrationApps) {
+	const app = entry?.requiresApp
+	const enabled = integrationApps?.[app]
+	return !app || enabled === true || (typeof enabled === 'string' && enabled !== '')
 }

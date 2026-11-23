@@ -14,6 +14,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import WidgetRenderer from '../WidgetRenderer.vue'
+import { useCalculatedFieldsStore } from '../../stores/calculatedFields.js'
 import { useTileStore } from '../../stores/tiles.js'
 import { useWidgetStore } from '../../stores/widgets.js'
 
@@ -77,6 +78,23 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.rendererProps.call({ placement: { widgetId: 'label' } })).toEqual({})
 	})
 
+	it('lets the menu offer its editor only in edit mode', () => {
+		expect(computed.rendererProps.call({ placement: { widgetId: 'menu' }, editMode: true }))
+			.toEqual({ isAdmin: true, canEdit: true })
+		expect(computed.rendererProps.call({ placement: { widgetId: 'menu' }, editMode: false }))
+			.toEqual({ isAdmin: false, canEdit: false })
+		expect(computed.rendererProps.call({ placement: { widgetId: 'label' }, editMode: true })).toEqual({})
+	})
+
+	it('tells the link, links, quicklinks, tile and video widgets when the dashboard is in edit mode', () => {
+		for (const widgetId of ['link', 'links', 'quicklinks', 'tile', 'video']) {
+			expect(computed.rendererProps.call({ placement: { widgetId }, editMode: true }))
+				.toEqual({ isAdmin: true, canEdit: true })
+			expect(computed.rendererProps.call({ placement: { widgetId }, editMode: false }))
+				.toEqual({ isAdmin: false, canEdit: false })
+		}
+	})
+
 	it('treats a tile- widget id or a tileType as a tile', () => {
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'tile-3' } })).toBe(true)
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'mydash-tile', tileType: 'link' } })).toBe(true)
@@ -110,6 +128,7 @@ describe('WidgetRenderer dispatch computeds', () => {
 			textColor: '#fff',
 			linkType: 'url',
 			linkValue: 'https://example.org',
+			internalUrl: '',
 		})
 	})
 
@@ -284,5 +303,21 @@ describe('WidgetRenderer.setupAutoRefresh', () => {
 		expect(ctx.refreshWidgetItems).toHaveBeenCalledTimes(1)
 
 		clearInterval(ctx.refreshInterval)
+	})
+})
+
+describe('WidgetRenderer.onWidgetData (widget-calculated-fields task 19)', () => {
+	it('hands what the widget shows to the calculated fields of its placement', () => {
+		const store = useCalculatedFieldsStore()
+		const spy = vi.spyOn(store, 'setWidgetData')
+		instance({ placement: { id: 12 } }).onWidgetData({ total: 7 })
+		expect(spy).toHaveBeenCalledWith('12', { total: 7 })
+	})
+
+	it('does nothing for a placement without an id', () => {
+		const store = useCalculatedFieldsStore()
+		const spy = vi.spyOn(store, 'setWidgetData')
+		instance({ placement: {} }).onWidgetData({ total: 7 })
+		expect(spy).not.toHaveBeenCalled()
 	})
 })

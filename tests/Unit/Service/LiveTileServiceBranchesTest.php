@@ -453,14 +453,14 @@ class LiveTileServiceBranchesTest extends TestCase {
 		$this->assertSame($expected, $result['badge']);
 	}
 
-	public function testFreshValueIsCachedForTheClampedRefresh(): void {
+	public function testFreshValueIsCachedLongEnoughToServeItStale(): void {
 		$this->placementWith(['sourceMode' => 'url', 'url' => 'https://example.com/api', 'valueExpr' => '$.n', 'refresh' => 45]);
 		$this->httpAnswers(200, '{"n":3}');
 		$this->cache->method('get')->willReturn(null);
 		$this->cache->expects($this->once())->method('set')->with(
 			$this->stringStartsWith('value_7_'),
 			$this->isType('string'),
-			45
+			LiveTileService::LAST_KNOWN_TTL_SECONDS
 		);
 
 		$result = $this->service()->resolveForPlacement(placementId: 7);
@@ -470,13 +470,26 @@ class LiveTileServiceBranchesTest extends TestCase {
 		$this->assertFalse($result['stale']);
 	}
 
-	public function testDefaultRefreshIsUsedWhenUnset(): void {
+	public function testACachedReadingInsideTheDefaultRefreshIsServed(): void {
 		$this->placementWith(['sourceMode' => 'url', 'url' => 'https://example.com/api', 'valueExpr' => '$.n']);
 		$this->httpAnswers(200, '{"n":3}');
-		$this->cache->method('get')->willReturn(null);
-		$this->cache->expects($this->once())->method('set')->with($this->anything(), $this->anything(), 300);
+		$this->cache->method('get')->willReturn(json_encode(['rawValue' => 1, 'fetchedAtTs' => (time() - 290)]));
+		$this->cache->expects($this->never())->method('set');
 
-		$this->service()->resolveForPlacement(placementId: 7);
+		$result = $this->service()->resolveForPlacement(placementId: 7);
+
+		$this->assertSame(1, $result['value']);
+		$this->assertFalse($result['stale']);
+	}
+
+	public function testACachedReadingPastTheDefaultRefreshIsRefetched(): void {
+		$this->placementWith(['sourceMode' => 'url', 'url' => 'https://example.com/api', 'valueExpr' => '$.n']);
+		$this->httpAnswers(200, '{"n":3}');
+		$this->cache->method('get')->willReturn(json_encode(['rawValue' => 1, 'fetchedAtTs' => (time() - 310)]));
+
+		$result = $this->service()->resolveForPlacement(placementId: 7);
+
+		$this->assertSame(3, $result['value']);
 	}
 
 	public function testFutureStampedCacheIsRefetched(): void {

@@ -96,6 +96,20 @@ function levelOf(hierarchies, dimension) {
 }
 
 /**
+ * The ancestor levels of a dimension in the dashboard's hierarchies,
+ * broadest first; none when it is no hierarchy level.
+ *
+ * @param {Array<object>} hierarchies The dashboard's hierarchy descriptors.
+ * @param {string} dimension The dimension.
+ * @return {string[]}
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ */
+export function ancestorDimensions(hierarchies, dimension) {
+	const position = levelOf(hierarchies, dimension)
+	return position === null ? [] : position.levels.slice(0, position.index).map((level) => level.dimension)
+}
+
+/**
  * Apply the hierarchy to a publication: the descendant dimensions to clear and
  * the ancestor clauses to infer from the clicked row.
  *
@@ -156,6 +170,30 @@ function ancestorOf(level, row) {
 }
 
 /**
+ * The active path of one hierarchy, broadest level first: each level that
+ * has a clause, with its value.
+ *
+ * @param {Array<object>} hierarchies The dashboard's hierarchy descriptors.
+ * @param {Array<object>} clauses The bus's clauses.
+ * @param {string} hierarchyId The hierarchy id.
+ * @return {Array<{dimension: string, label: string, value: unknown, pinned: boolean}>}
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ */
+export function breadcrumbPath(hierarchies, clauses, hierarchyId) {
+	const hierarchy = (Array.isArray(hierarchies) ? hierarchies : []).find((entry) => entry && entry.id === hierarchyId)
+	const levels = Array.isArray(hierarchy?.levels) ? hierarchy.levels : []
+	const list = Array.isArray(clauses) ? clauses : []
+	const path = []
+	for (const level of levels) {
+		const clause = list.find((entry) => entry.dimension === level.dimension)
+		if (clause) {
+			path.push({ dimension: level.dimension, label: level.label, value: clause.value, pinned: clause.pinned === true })
+		}
+	}
+	return path
+}
+
+/**
  * Whether a published clause names a dimension.
  *
  * @param {object} clause The clause.
@@ -204,10 +242,11 @@ function replaceAudit(incoming, existing) {
  * @param {object} [options] Bus options.
  * @param {Array<object>} [options.hierarchies] The dashboard's hierarchy descriptors.
  * @param {(clause: object) => boolean} [options.canAccess] False refuses the clause.
- * @return {object} The bus: `clauses` (a read-only ref), `publish`, `remove`, `reset`, `hydrate`, `subscribe`, `clausesFor`, `breadcrumb`.
+ * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes (REQ-CWF-010); none by default.
+ * @return {object} The bus: `clauses` (a read-only ref), `hierarchies` (as given, for widget validation), `publish`, `remove`, `reset`, `hydrate`, `subscribe`, `clausesFor`, `breadcrumb`, `popTo`.
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
  */
-export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) {
+export function useFilterBus({ hierarchies = [], canAccess = () => true, telemetry = null } = {}) {
 	const clauses = shallowRef([])
 	const subscribers = new Set()
 
@@ -335,6 +374,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 		})
 		const inferred = ancestors.filter((ancestor) => !kept.some((entry) => entry.dimension === ancestor.dimension))
 		commit(pruneOrphanedAncestors([...kept, ...inferred, incoming]))
+		telemetry?.record('apply', [incoming], incoming.sourceWidgetId)
 		return { accepted: true, toggled: false, audit: decision.audit }
 	}
 
@@ -366,7 +406,9 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 		if (kept.length === clauses.value.length) {
 			return false
 		}
+		const cleared = clauses.value.filter((entry) => !entry.pinned)
 		commit(kept)
+		telemetry?.record('reset', cleared)
 		return true
 	}
 
@@ -410,6 +452,11 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 			}
 		}
 		commit(next)
+		const bookmarked = next.filter((entry) => !pinned.includes(entry))
+		if (telemetry && source === 'urlBootstrap' && bookmarked.length > 0) {
+			// REQ-CWF-010: a bookmarked URL is recorded on the next tick, after the page settled.
+			setTimeout(() => telemetry.record('bookmark', bookmarked), 0)
+		}
 	}
 
 	/**
@@ -445,18 +492,35 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 	 */
 	function breadcrumb(hierarchyId) {
-		const hierarchy = (Array.isArray(hierarchies) ? hierarchies : []).find((entry) => entry && entry.id === hierarchyId)
-		const levels = Array.isArray(hierarchy?.levels) ? hierarchy.levels : []
-		const path = []
-		for (const level of levels) {
-			const clause = clauses.value.find((entry) => entry.dimension === level.dimension)
-			if (!clause) {
-				continue
-			}
-			path.push({ dimension: level.dimension, label: level.label, value: clause.value })
-		}
-		return path
+		return breadcrumbPath(hierarchies, clauses.value, hierarchyId)
 	}
 
-	return { clauses, publish, remove, reset, hydrate, subscribe, clausesFor, breadcrumb }
+	/**
+	 * Go back up a hierarchy to one level, the way a breadcrumb click does:
+	 * the levels below it are cleared (pinned ones stay), and an inferred
+	 * clause on that level becomes the reader's own, so it stays once
+	 * nothing below it is left.
+	 *
+	 * @param {string} dimension The level to go back to.
+	 * @return {boolean} Whether anything changed.
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+	 */
+	function popTo(dimension) {
+		const position = levelOf(hierarchies, dimension)
+		const target = clauses.value.find((entry) => entry.dimension === dimension)
+		if (position === null || !target) {
+			return false
+		}
+		const below = position.levels.slice(position.index + 1).map((level) => level.dimension)
+		const next = clauses.value
+			.filter((entry) => entry.pinned || !below.includes(entry.dimension))
+			.map((entry) => (entry === target && entry.source === 'parentScope' ? { ...entry, source: 'userExplicit' } : entry))
+		if (next.length === clauses.value.length && next.every((entry, index) => entry === clauses.value[index])) {
+			return false
+		}
+		commit(pruneOrphanedAncestors(next))
+		return true
+	}
+
+	return { clauses, hierarchies, publish, remove, reset, hydrate, subscribe, clausesFor, breadcrumb, popTo }
 }

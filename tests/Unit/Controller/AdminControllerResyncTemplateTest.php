@@ -45,6 +45,9 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerResyncTemplateTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -81,12 +84,12 @@ class AdminControllerResyncTemplateTest extends TestCase {
 				footerService: $this->createMock(FooterService::class),
 				setupWizardService: $this->createMock(SetupWizardService::class)
 			),
-			caller: new AdminCallerAndRoles(
+			context: new AdminContext(caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(RoleService::class),
 				feedRefresh: $this->createMock(FeedRefreshService::class),
 				userSession: $this->userSession,
 				actionAuth: $this->createMock(ActionAuthService::class)
-			)
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}
 

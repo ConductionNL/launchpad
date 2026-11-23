@@ -403,6 +403,156 @@
         "actions": [],
         "reachedServices": false
     },
+    "AdminSettingsController::listSearchShortcuts / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "search-shortcut.list"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "AdminSettingsController::listSearchShortcuts / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::listSearchShortcuts / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::saveSearchShortcuts / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "search-shortcut.save"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "AdminSettingsController::saveSearchShortcuts / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::saveSearchShortcuts / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::showCustomCss / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminSettingsController::showCustomCss / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::showCustomCss / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateCustomCss / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateCustomCss / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateCustomCss / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateDashboardCustomCss / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateDashboardCustomCss / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateDashboardCustomCss / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
     "AdminSettingsController::updateGroupOrder / alice (admin)": {
         "status": 400,
         "isAdmin": [

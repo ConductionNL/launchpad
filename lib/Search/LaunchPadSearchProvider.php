@@ -82,8 +82,8 @@ class LaunchPadSearchProvider implements IProvider {
 	private const PER_BUCKET_LIMIT = 10;
 
 	/**
-	 * Discriminator for the text-display widget shape stored in the
-	 * `styleConfig` JSON column (text-display-widget spec).
+	 * The text widget's id, and the discriminator of its older shape in
+	 * the `styleConfig` JSON column (text-display-widget spec).
 	 *
 	 * @var string
 	 */
@@ -394,15 +394,23 @@ class LaunchPadSearchProvider implements IProvider {
 	}//end textWidgetContains()
 
 	/**
-	 * Decode the text-display content from a placement's `styleConfig`
-	 * JSON column. Returns `null` when the placement is not a text
-	 * widget or the column is malformed.
+	 * The body of a text widget: the `text` of a `text` placement's content
+	 * column, which is where the add-widget flow stores it, else the older
+	 * shape in the `styleConfig` JSON column. Returns `null` when the
+	 * placement is not a text widget or holds no text.
 	 *
 	 * @param WidgetPlacement $placement The placement entity.
 	 *
-	 * @return string|null The raw `content.text` value, or null.
+	 * @return string|null The raw text, or null.
 	 */
 	private function extractTextWidgetContent(WidgetPlacement $placement): ?string {
+		if ($placement->getWidgetId() === self::TEXT_WIDGET_TYPE) {
+			$text = ($placement->getContentArray()['text'] ?? null);
+			if (is_string(value: $text) === true && $text !== '') {
+				return $text;
+			}
+		}
+
 		$decoded = $this->decodeStyleConfig(placement: $placement);
 		if ($decoded === null) {
 			return null;

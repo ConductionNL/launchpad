@@ -19,7 +19,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
  */
 
 declare(strict_types=1);
@@ -27,12 +27,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\ServiceDiscoveryServiceInterface;
 use OCP\INavigationManager;
 
 /**
  * Lists the apps in the current user's Nextcloud app menu.
  */
-class ServiceDiscoveryService {
+class ServiceDiscoveryService implements ServiceDiscoveryServiceInterface {
 	/**
 	 * Constructor
 	 *
@@ -48,7 +49,7 @@ class ServiceDiscoveryService {
 	 *
 	 * @return array<int, array{appId: string, name: string, href: string, icon: string}> The apps, in menu order.
 	 *
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 	 */
 	public function discover(): array {
 		$apps = [];

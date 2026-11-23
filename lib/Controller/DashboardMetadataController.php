@@ -53,13 +53,15 @@ class DashboardMetadataController extends Controller {
 	 * @param MetadataApiCaller $caller The metadata sources, session and action check.
 	 * @param PermissionService $permissionService Authoritative ACL service (replaces inline canRead /
 	 *                                             canWrite helpers — H5).
-	 * @param string|null       $userId The active user id.
+	 * @param UserResponses $context Holds the userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly MetadataApiCaller $caller,
 		private readonly PermissionService $permissionService,
-		private readonly ?string $userId,
+		private readonly UserResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -73,6 +75,7 @@ class DashboardMetadataController extends Controller {
 	 *                      403 when the caller cannot see the dashboard.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
@@ -88,18 +91,18 @@ class DashboardMetadataController extends Controller {
 
 		// H5: delegate to PermissionService — the single ACL source of truth.
 		if ($this->permissionService->canViewDashboard(
-			userId: $this->userId,
+			userId: $this->context->userId,
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		$metadata = $this->caller->sources->metadataService->getMetadataForDashboard(
 			dashboardUuid: $uuid
 		);
 
-		return ResponseHelper::success(data: $metadata);
+		return $this->metadataResponse(metadata: $metadata);
 	}//end getMetadata()
 
 	/**
@@ -112,15 +115,16 @@ class DashboardMetadataController extends Controller {
 	 * @return JSONResponse `{fields: [...]}`, or 401 without a login.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function fields(): JSONResponse {
-		if ($this->userId === null || $this->caller->userSession->getUser() === null) {
+		if ($this->context->userId === null || $this->caller->userSession->getUser() === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		return ResponseHelper::success(
-			data: ['fields' => ResponseHelper::serializeList(entities: $this->caller->sources->metadataService->listFields())]
+		return $this->context->responseHelper->success(
+			data: ['fields' => $this->context->responseHelper->serializeList(entities: $this->caller->sources->metadataService->listFields())]
 		);
 	}//end fields()
 
@@ -137,6 +141,7 @@ class DashboardMetadataController extends Controller {
 	 *                      failure, 404 when missing, 403 otherwise.
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
@@ -155,11 +160,11 @@ class DashboardMetadataController extends Controller {
 		// This replaces the previous inline canWrite() which incorrectly
 		// allowed any group member to write group-shared metadata.
 		if ($this->permissionService->canEditDashboardMetadata(
-			userId: $this->userId,
+			userId: $this->context->userId,
 			dashboardId: $dashboard->getId()
 		) === false
 		) {
-			return ResponseHelper::forbidden();
+			return $this->context->responseHelper->forbidden();
 		}
 
 		try {
@@ -177,8 +182,20 @@ class DashboardMetadataController extends Controller {
 			);
 		}
 
-		return ResponseHelper::success(data: $updated);
+		return $this->metadataResponse(metadata: $updated);
 	}//end setMetadata()
+
+	/**
+	 * Answer a dashboard's values as a JSON object, `{}` when there are none
+	 * and with all-digit keys kept as keys (REQ-MDFL-004).
+	 *
+	 * @param array<string, string> $metadata The values by field key.
+	 *
+	 * @return JSONResponse 200 with the object.
+	 */
+	private function metadataResponse(array $metadata): JSONResponse {
+		return new JSONResponse(data: (object)$metadata);
+	}//end metadataResponse()
 
 	/**
 	 * Resolve a UUID to a dashboard or null.
@@ -203,8 +220,10 @@ class DashboardMetadataController extends Controller {
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
 	 * @see ActionCaller::refusal()
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		return $this->caller->refusal(userId: $this->userId, action: $action);
+		return $this->caller->refusal(userId: $this->context->userId, action: $action);
 	}//end actionRefusal()
 }//end class

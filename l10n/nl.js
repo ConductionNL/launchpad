@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later." : "Deze {count} startwidgets komen erop. Apps zet één tegel per app neer. U kunt alles later verplaatsen of weghalen.",
+    "Welcome to Launchpad, {name} · {date}" : "Welkom bij Launchpad, {name} · {date}",
+    "Welcome to Launchpad · {date}" : "Welkom bij Launchpad · {date}",
     "{app}, outage" : "{app}, storing",
     "{app}, {count} open" : "{app}, {count} open",
     "{app}, pinned" : "{app}, vastgezet",
@@ -306,7 +309,6 @@ OC.L10N.register(
     "Apps" : "Apps",
     "Weather" : "Weer",
     "News from the organisation" : "Nieuws van de organisatie",
-    "These {count} starter widgets go on it. You can move or remove them later." : "Deze {count} startwidgets komen erop. U kunt ze later verplaatsen of weghalen.",
     "Create my first dashboard (with starter widgets)" : "Maak mijn eerste dashboard (met startwidgets)",
     "Start empty" : "Leeg beginnen",
     "Create your first dashboard" : "Maak je eerste dashboard",

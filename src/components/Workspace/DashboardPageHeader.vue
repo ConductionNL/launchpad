@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { getLanguage, t } from '@nextcloud/l10n'
+import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../utils/headerActionsDock.js'
@@ -163,7 +163,7 @@ export default {
 			const parts = [
 				(this.dashboard.description ?? '').trim(),
 				rightsText(this.permissionLevel),
-				lastChangedText(this.dashboard.updatedAt, new Date(), getLanguage().replace('_', '-')),
+				lastChangedText(this.dashboard.updatedAt, new Date(), getCanonicalLocale()),
 			].filter((part) => part !== '')
 			return parts.join(' · ')
 		},

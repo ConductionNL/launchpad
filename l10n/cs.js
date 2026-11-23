@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Zobrazit do",
+    "After this time the announcement disappears from every dashboard." : "Po této době oznámení zmizí ze všech nástěnek.",
+    "Visible until {when}" : "Viditelné do {when}",
+    "Choose until when the announcement shows" : "Zvolte, do kdy se oznámení zobrazuje",
+    "The end time must be after the publish time" : "Konec musí být po čase zveřejnění",
     "{app}, outage" : "{app}, výpadek",
     "{app}, {count} open" : "{app}, {count} otevřených",
     "{app}, pinned" : "{app}, připnuto",

@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Прикажувај до",
+    "After this time the announcement disappears from every dashboard." : "По ова време известувањето исчезнува од сите контролни табли.",
+    "Visible until {when}" : "Видливо до {when}",
+    "Choose until when the announcement shows" : "Изберете до кога се прикажува известувањето",
+    "The end time must be after the publish time" : "Времето на крај мора да биде по времето на објава",
     "{app}, outage" : "{app}, прекин",
     "{app}, {count} open" : "{app}, {count} отворени",
     "{app}, pinned" : "{app}, закачено",

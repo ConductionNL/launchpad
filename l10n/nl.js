@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Tonen tot",
+    "After this time the announcement disappears from every dashboard." : "Na dit tijdstip verdwijnt de aankondiging van elk dashboard.",
+    "Visible until {when}" : "zichtbaar tot {when}",
+    "Choose until when the announcement shows" : "Kies tot wanneer de aankondiging te zien is",
+    "The end time must be after the publish time" : "Het eindtijdstip moet na het publicatietijdstip liggen",
     "{app}, outage" : "{app}, storing",
     "{app}, {count} open" : "{app}, {count} open",
     "{app}, pinned" : "{app}, vastgezet",

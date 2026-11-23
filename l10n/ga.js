@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Taispeáin go dtí",
+    "After this time the announcement disappears from every dashboard." : "Tar éis an ama seo imíonn an fógra ó gach painéal.",
+    "Visible until {when}" : "Le feiceáil go dtí {when}",
+    "Choose until when the announcement shows" : "Roghnaigh cá fhad a thaispeánfar an fógra",
+    "The end time must be after the publish time" : "Caithfidh an t-am deiridh a bheith tar éis am an fhoilsithe",
     "{app}, outage" : "{app}, briseadh seirbhíse",
     "{app}, {count} open" : "{app}, {count} oscailte",
     "{app}, pinned" : "{app}, pionnáilte",

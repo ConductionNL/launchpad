@@ -10,7 +10,7 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import AnnouncementEditorModal, { toIso } from '../../../modals/AnnouncementEditorModal.vue'
+import AnnouncementEditorModal, { endTimeProblem, toIso, visibleUntilText } from '../../../modals/AnnouncementEditorModal.vue'
 import AnnouncementsWidget from '../../Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../../Widgets/Renderers/AnnouncementsWidgetForm.vue'
 import NoticeBanner from '../NoticeBanner.vue'
@@ -297,8 +297,57 @@ describe('AnnouncementEditorModal', () => {
 		Object.assign(wrapper.vm.form, { kind: 'notice', title: 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00' })
 		await wrapper.vm.toPreview()
 
-		expect(wrapper.find('[data-test="editor-error"]').text()).toBe('A notice needs an end time')
+		expect(wrapper.find('[data-test="editor-error"]').text()).toBe('Choose until when the announcement shows')
 		expect(announcementsApi.create).not.toHaveBeenCalled()
+	})
+
+	// @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	it('requires "Show until" for news too, and explains it', async () => {
+		const wrapper = mountWith(AnnouncementEditorModal)
+		const input = wrapper.find('[data-test="editor-expires-at"]')
+		expect(input.attributes('required')).toBeDefined()
+		expect(wrapper.text()).toContain('Show until')
+		expect(wrapper.find('[data-test="editor-show-until-hint"]').text()).toBe('After this time the announcement disappears from every dashboard.')
+
+		wrapper.vm.form.title = 'Inloopspreekuur privacy'
+		await wrapper.vm.toPreview()
+		expect(wrapper.find('[data-test="editor-error"]').text()).toBe('Choose until when the announcement shows')
+		expect(announcementsApi.create).not.toHaveBeenCalled()
+	})
+
+	it('refuses an end time before the publish time', async () => {
+		const wrapper = mountWith(AnnouncementEditorModal)
+		Object.assign(wrapper.vm.form, { title: 'Inloopspreekuur privacy', publishAt: '2099-11-02T08:00', expiresAt: '2099-11-01T17:00' })
+		await wrapper.vm.toPreview()
+		expect(wrapper.find('[data-test="editor-error"]').text()).toBe('The end time must be after the publish time')
+		expect(announcementsApi.create).not.toHaveBeenCalled()
+	})
+
+	it('names the end time in the preview and schedules a future publish time', async () => {
+		announcementsApi.create.mockResolvedValue({ uuid: 'u3' })
+		announcementsApi.reach.mockResolvedValue(5)
+		const wrapper = mountWith(AnnouncementEditorModal)
+		Object.assign(wrapper.vm.form, { title: 'Inloopspreekuur privacy', publishAt: '2099-11-02T08:00', expiresAt: '2099-11-06T17:00' })
+		await wrapper.vm.toPreview()
+		await flushPromises()
+		const until = wrapper.find('[data-test="editor-visible-until"]').text()
+		expect(until.startsWith('Visible until ')).toBe(true)
+		expect(until).toMatch(/6/)
+		expect(until).toMatch(/November/)
+		expect(wrapper.find('[data-test="editor-publish"]').text()).toBe('Schedule')
+	})
+
+	it('reads Publish when the publish time is empty or past', async () => {
+		announcementsApi.create.mockResolvedValue({ uuid: 'u4' })
+		announcementsApi.reach.mockResolvedValue(5)
+		const wrapper = mountWith(AnnouncementEditorModal)
+		Object.assign(wrapper.vm.form, { title: 'Inloopspreekuur privacy', expiresAt: '2099-11-06T17:00' })
+		await wrapper.vm.toPreview()
+		await flushPromises()
+		expect(wrapper.find('[data-test="editor-publish"]').text()).toBe('Publish')
+		wrapper.vm.form.publishAt = '2020-01-01T08:00'
+		await wrapper.vm.$nextTick()
+		expect(wrapper.find('[data-test="editor-publish"]').text()).toBe('Publish')
 	})
 
 	it('saves a draft, previews the banner with its reach, checks "Preview as", then publishes', async () => {
@@ -313,7 +362,7 @@ describe('AnnouncementEditorModal', () => {
 			targetGroups: ['Burgerzaken'],
 			level: 'warning',
 			dismissible: false,
-			expiresAt: '2026-11-14T12:00',
+			expiresAt: '2099-11-14T12:00',
 		})
 		await wrapper.vm.toPreview()
 		await flushPromises()
@@ -344,6 +393,7 @@ describe('AnnouncementEditorModal', () => {
 		announcementsApi.publish.mockRejectedValue({ response: { data: { message: 'The end time has already passed' } } })
 		const wrapper = mountWith(AnnouncementEditorModal)
 		wrapper.vm.form.title = 'Nieuwe werkplekken op de 3e verdieping'
+		wrapper.vm.form.expiresAt = '2099-11-06T17:00'
 		await wrapper.vm.toPreview()
 		expect(wrapper.find('[data-test="announcement-card"]').exists()).toBe(true)
 		expect(wrapper.find('[data-test="editor-reach"]').text()).toBe('Reaches 1 person')
@@ -354,6 +404,16 @@ describe('AnnouncementEditorModal', () => {
 		wrapper.vm.step = 'write'
 		await wrapper.vm.toPreview()
 		expect(announcementsApi.update).toHaveBeenCalledWith('u2', expect.objectContaining({ kind: 'news', allowComments: true, level: null }))
+	})
+
+	it('checks the end time against the publish time or now', () => {
+		const now = new Date('2026-10-29T12:00')
+		expect(endTimeProblem('', '', now)).toBe('Choose until when the announcement shows')
+		expect(endTimeProblem('', '2026-10-29T11:00', now)).toBe('The end time must be after the publish time')
+		expect(endTimeProblem('', '2026-10-30T17:00', now)).toBe('')
+		expect(endTimeProblem('2026-10-30T17:00', '2026-10-30T17:00', now)).toBe('The end time must be after the publish time')
+		expect(visibleUntilText('', 'nl-NL')).toBe('')
+		expect(visibleUntilText('2026-10-30T17:00', 'nl-NL')).toBe('30 oktober 17:00')
 	})
 
 	it('turns a datetime-local value into ISO, and empty into null', () => {

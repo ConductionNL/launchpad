@@ -51,10 +51,20 @@
 					{{ t('launchpad', 'Publish at (empty for when you publish)') }}
 					<input v-model="form.publishAt" type="datetime-local" data-test="editor-publish-at">
 				</label>
+				<!-- REQ-ANN-001 (board LpAankondiging): every announcement has an
+				     end time, "Show until". -->
 				<label class="announcement-editor__label">
-					{{ form.kind === 'notice' ? t('launchpad', 'Ends at') : t('launchpad', 'Ends at (optional)') }}
-					<input v-model="form.expiresAt" type="datetime-local" :required="form.kind === 'notice'" data-test="editor-expires-at">
+					{{ t('launchpad', 'Show until') }}
+					<input
+						v-model="form.expiresAt"
+						type="datetime-local"
+						required
+						aria-describedby="announcement-editor-show-until-hint"
+						data-test="editor-expires-at">
 				</label>
+				<p id="announcement-editor-show-until-hint" class="announcement-editor__hint" data-test="editor-show-until-hint">
+					{{ t('launchpad', 'After this time the announcement disappears from every dashboard.') }}
+				</p>
 				<div class="announcement-editor__actions">
 					<NcButton type="submit" variant="primary" :disabled="busy || form.title.trim() === ''" data-test="editor-preview">
 						{{ t('launchpad', 'Preview') }}
@@ -65,6 +75,9 @@
 			<div v-else class="announcement-editor__preview" data-test="editor-preview-step">
 				<NoticeBanner v-if="form.kind === 'notice'" :notice="previewItem" :preview="true" />
 				<AnnouncementCard v-else :announcement="previewItem" :preview="true" />
+				<p v-if="visibleUntil" data-test="editor-visible-until">
+					{{ t('launchpad', 'Visible until {when}', { when: visibleUntil }) }}
+				</p>
 				<p data-test="editor-reach">
 					{{ n('launchpad', 'Reaches {count} person', 'Reaches {count} people', reach, { count: reach }) }}
 				</p>
@@ -82,7 +95,7 @@
 						{{ t('launchpad', 'Back') }}
 					</NcButton>
 					<NcButton variant="primary" :disabled="busy" data-test="editor-publish" @click="publish">
-						{{ t('launchpad', 'Publish') }}
+						{{ scheduled ? t('launchpad', 'Schedule') : t('launchpad', 'Publish') }}
 					</NcButton>
 				</div>
 			</div>
@@ -96,7 +109,7 @@
 
 <script>
 import { NcModal } from '@conduction/nextcloud-vue'
-import { n, t } from '@nextcloud/l10n'
+import { getCanonicalLocale, n, t } from '@nextcloud/l10n'
 import { NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextArea, NcTextField } from '@nextcloud/vue'
 import AnnouncementCard from '../components/Announcements/AnnouncementCard.vue'
 import NoticeBanner from '../components/Announcements/NoticeBanner.vue'
@@ -118,6 +131,48 @@ export function toIso(value) {
 }
 
 /**
+ * Why the form cannot go on: no end time, or an end time not after the
+ * publish time; '' when it can (REQ-ANN-001).
+ *
+ * @param {string} publishAt The publish time (`datetime-local`), '' for when it is published.
+ * @param {string} expiresAt The end time (`datetime-local`).
+ * @param {Date} now The current moment, standing in for an empty publish time.
+ * @return {string} The refusal, or ''.
+ * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ */
+export function endTimeProblem(publishAt, expiresAt, now) {
+	const end = toIso(expiresAt)
+	if (end === null) {
+		return t('launchpad', 'Choose until when the announcement shows')
+	}
+	const start = toIso(publishAt) ?? now.toISOString()
+	if (new Date(end) <= new Date(start)) {
+		return t('launchpad', 'The end time must be after the publish time')
+	}
+	return ''
+}
+
+/**
+ * The end time as the preview names it, "30 October 17:00" in the
+ * reader's language, or '' without one.
+ *
+ * @param {string} expiresAt The end time (`datetime-local`).
+ * @param {string} [locale] BCP 47 locale.
+ * @return {string}
+ * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ */
+export function visibleUntilText(expiresAt, locale) {
+	const iso = toIso(expiresAt)
+	if (iso === null) {
+		return ''
+	}
+	const date = new Date(iso)
+	const day = date.toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+	const time = date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+	return `${day} ${time}`
+}
+
+/**
  * AnnouncementEditorModal — write an announcement, see it as readers will
  * (the same card or banner component), with the number of people its
  * targeting reaches and "Preview as" one person, then publish as a separate
@@ -125,6 +180,7 @@ export function toIso(value) {
  * and administrators see.
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
+ * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 export default {
 	name: 'AnnouncementEditorModal',
@@ -192,6 +248,28 @@ export default {
 			}
 		},
 
+		/**
+		 * The end time as the preview names it.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+		 */
+		visibleUntil() {
+			return visibleUntilText(this.form.expiresAt, getCanonicalLocale())
+		},
+
+		/**
+		 * Whether the publish time lies in the future, so the confirm button
+		 * schedules rather than publishes.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+		 */
+		scheduled() {
+			const start = toIso(this.form.publishAt)
+			return start !== null && new Date(start).getTime() > Date.now()
+		},
+
 		/** @return {object} The draft as the card or banner renders it. */
 		previewItem() {
 			return { uuid: this.uuid || 'preview', ...this.payload }
@@ -206,10 +284,12 @@ export default {
 		 * Save the draft and show the preview with its reach.
 		 *
 		 * @spec openspec/changes/engagement-announcements/tasks.md#task-8
+		 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 		 */
 		async toPreview() {
-			if (this.form.kind === 'notice' && !this.form.expiresAt) {
-				this.error = t('launchpad', 'A notice needs an end time')
+			const problem = endTimeProblem(this.form.publishAt, this.form.expiresAt, new Date())
+			if (problem !== '') {
+				this.error = problem
 				return
 			}
 			await this.run(async () => {
@@ -281,6 +361,11 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
+}
+
+.announcement-editor__hint {
+	margin: -8px 0 0;
+	color: var(--color-text-maxcontrast);
 }
 
 .announcement-editor__preview-as,

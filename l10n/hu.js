@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Megjelenítés eddig",
+    "After this time the announcement disappears from every dashboard." : "Ezután a közlemény minden irányítópultról eltűnik.",
+    "Visible until {when}" : "Látható eddig: {when}",
+    "Choose until when the announcement shows" : "Válassza ki, meddig látható a közlemény",
+    "The end time must be after the publish time" : "A befejezésnek a közzététel után kell lennie",
     "{app}, outage" : "{app}, üzemzavar",
     "{app}, {count} open" : "{app}, {count} nyitott",
     "{app}, pinned" : "{app}, rögzítve",

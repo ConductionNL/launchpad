@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Vis til",
+    "After this time the announcement disappears from every dashboard." : "Etter dette tidspunktet forsvinner kunngjøringen fra alle dashbord.",
+    "Visible until {when}" : "Synlig til {when}",
+    "Choose until when the announcement shows" : "Velg hvor lenge kunngjøringen vises",
+    "The end time must be after the publish time" : "Sluttidspunktet må være etter publiseringstidspunktet",
     "{app}, outage" : "{app}, driftsforstyrrelse",
     "{app}, {count} open" : "{app}, {count} åpne",
     "{app}, pinned" : "{app}, festet",

@@ -1413,6 +1413,11 @@
         "you may add widgets": "Vus dastgais agiuntar widgets",
         "{app}, outage": "{app}, disturbi",
         "{app}, {count} open": "{app}, {count} averts",
-        "{app}, pinned": "{app}, fixà"
+        "{app}, pinned": "{app}, fixà",
+        "Show until": "Mussar fin",
+        "After this time the announcement disappears from every dashboard.": "Suenter quest temp sparescha l'annunzia da mintga dashboard.",
+        "Visible until {when}": "Visibel fin {when}",
+        "Choose until when the announcement shows": "Tscherni fin cura che l'annunzia vegn mussada",
+        "The end time must be after the publish time": "La fin sto esser suenter la publicaziun"
     }
 }

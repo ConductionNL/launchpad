@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Rādīt līdz",
+    "After this time the announcement disappears from every dashboard." : "Pēc šī laika paziņojums pazūd no visiem informācijas paneļiem.",
+    "Visible until {when}" : "Redzams līdz {when}",
+    "Choose until when the announcement shows" : "Izvēlieties, līdz kuram laikam paziņojums ir redzams",
+    "The end time must be after the publish time" : "Beigu laikam jābūt pēc publicēšanas laika",
     "{app}, outage" : "{app}, traucējums",
     "{app}, {count} open" : "{app}, {count} atvērti",
     "{app}, pinned" : "{app}, piesprausts",

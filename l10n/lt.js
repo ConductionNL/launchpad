@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Rodyti iki",
+    "After this time the announcement disappears from every dashboard." : "Po šio laiko skelbimas dingsta iš visų skydelių.",
+    "Visible until {when}" : "Matoma iki {when}",
+    "Choose until when the announcement shows" : "Pasirinkite, iki kada rodomas skelbimas",
+    "The end time must be after the publish time" : "Pabaigos laikas turi būti po paskelbimo laiko",
     "{app}, outage" : "{app}, sutrikimas",
     "{app}, {count} open" : "{app}, {count} atviri",
     "{app}, pinned" : "{app}, prisegta",

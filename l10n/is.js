@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Sjálfgildin sem hvert mælaborð byrjar með: hver má búa til mælaborð, heimildastigið og hnitanetið. Þessi kynning birtist einu sinni.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Undir Kiosk býrðu til spilunarlista af mælaborðum fyrir skjá án innskráningar.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Undir Sýnigögn hleðurðu inn dæmamælaborðum til að prófa LaunchPad og fjarlægir þau aftur.",
     "Quarter" : "Ársfjórðungur",
     "Year" : "Ár",
     "Show until" : "Sýna til",

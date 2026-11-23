@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Privzete nastavitve vsake nadzorne plošče: kdo sme ustvarjati plošče, raven dovoljenj in mreža. Ta predstavitev se prikaže enkrat.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Pod Kiosk ustvarite sezname predvajanja plošč za zaslon brez prijave.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Pod Predstavitveni podatki naložite vzorčne plošče za preizkus LaunchPada in jih znova odstranite.",
     "Quarter" : "Četrtletje",
     "Year" : "Leto",
     "Show until" : "Prikaži do",

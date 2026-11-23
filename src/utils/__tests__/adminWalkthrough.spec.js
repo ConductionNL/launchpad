@@ -55,8 +55,11 @@ describe('the admin tour in src/manifest.json', () => {
 		expect(wt.autoStartTour.value.id).toBe('launchpad:getting-started')
 	})
 
-	it('starts on the general settings and walks the templates, roles, sharing and operations tabs', () => {
-		expect(tour.steps.map((step) => step.id)).toEqual(['general', 'templates', 'roles', 'sharing', 'operations'])
+	// @spec openspec/changes/setup-five-steps-and-admin-tour/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+	it('walks six stops: General, Templates, Roles, Sharing, Kiosk and Demo data', () => {
+		expect(tour.steps.map((step) => step.id)).toEqual(['general', 'templates', 'roles', 'sharing', 'kiosk', 'demo-data'])
+		expect(tour.steps.map((step) => step.title)).toEqual(['General', 'Templates', 'Roles and permissions', 'Sharing', 'Kiosk', 'Demo data'])
+		expect(tour.steps[0].body).toContain('This tour is shown once.')
 		expect(tour.steps[0].target).toEqual({ kind: 'element', ref: 'admin-default-settings' })
 		for (const step of tour.steps) {
 			expect(step.title).not.toBe('')

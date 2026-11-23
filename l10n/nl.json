@@ -2163,6 +2163,8 @@
         "Not now": "Niet nu",
         "{index} of {total} · next in {seconds} s": "{index} van {total} · volgende over {seconds} s",
         "Now showing {name}": "Nu te zien: {name}",
-        "Own look": "Eigen uitstraling"
+        "Own look": "Eigen uitstraling",
+        "view only": "alleen bekijken",
+        "you may add widgets": "u mag widgets toevoegen"
     }
 }

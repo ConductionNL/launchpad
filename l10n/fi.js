@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "vain katselu",
+    "you may add widgets" : "voit lisätä pienoisohjelmia",
     "Own look" : "Oma ulkoasu",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · seuraava {seconds} s kuluttua",
     "Now showing {name}" : "Nyt näytössä: {name}",

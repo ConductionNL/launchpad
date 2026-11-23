@@ -1408,6 +1408,8 @@
         "Not now": "Ara no",
         "{index} of {total} · next in {seconds} s": "{index} de {total} · el següent d'aquí a {seconds} s",
         "Now showing {name}": "Ara es mostra: {name}",
-        "Own look": "Aspecte propi"
+        "Own look": "Aspecte propi",
+        "view only": "només visualització",
+        "you may add widgets": "podeu afegir ginys"
     }
 }

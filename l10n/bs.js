@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "samo pregled",
+    "you may add widgets" : "smijete dodavati widgete",
     "Own look" : "Vlastiti izgled",
     "{index} of {total} · next in {seconds} s" : "{index} od {total} · sljedeće za {seconds} s",
     "Now showing {name}" : "Sada se prikazuje: {name}",

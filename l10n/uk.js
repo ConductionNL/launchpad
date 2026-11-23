@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "лише перегляд",
+    "you may add widgets" : "можна додавати віджети",
     "Own look" : "Власний вигляд",
     "{index} of {total} · next in {seconds} s" : "{index} з {total} · наступний через {seconds} с",
     "Now showing {name}" : "Зараз показується: {name}",

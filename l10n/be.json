@@ -1410,6 +1410,8 @@
         "Not now": "Не цяпер",
         "{index} of {total} · next in {seconds} s": "{index} з {total} · наступны праз {seconds} с",
         "Now showing {name}": "Зараз паказваецца: {name}",
-        "Own look": "Уласны выгляд"
+        "Own look": "Уласны выгляд",
+        "view only": "толькі прагляд",
+        "you may add widgets": "можна дадаваць віджэты"
     }
 }

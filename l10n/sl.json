@@ -1412,6 +1412,8 @@
         "Not now": "Ne zdaj",
         "{index} of {total} · next in {seconds} s": "{index} od {total} · naslednja čez {seconds} s",
         "Now showing {name}": "Zdaj prikazano: {name}",
-        "Own look": "Lasten videz"
+        "Own look": "Lasten videz",
+        "view only": "samo ogled",
+        "you may add widgets": "lahko dodajate gradnike"
     }
 }

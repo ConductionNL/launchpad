@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "só ver",
+    "you may add widgets" : "pode adicionar widgets",
     "Own look" : "Aspeto próprio",
     "{index} of {total} · next in {seconds} s" : "{index} de {total} · seguinte em {seconds} s",
     "Now showing {name}" : "Agora a mostrar: {name}",

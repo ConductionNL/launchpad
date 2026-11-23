@@ -1412,6 +1412,8 @@
         "Not now": "Mhux issa",
         "{index} of {total} · next in {seconds} s": "{index} minn {total} · li jmiss f'{seconds} s",
         "Now showing {name}": "Qed jintwera issa: {name}",
-        "Own look": "Dehra proprja"
+        "Own look": "Dehra proprja",
+        "view only": "tara biss",
+        "you may add widgets": "tista' żżid widgets"
     }
 }

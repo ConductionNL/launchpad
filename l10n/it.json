@@ -1408,6 +1408,8 @@
         "Not now": "Non ora",
         "{index} of {total} · next in {seconds} s": "{index} di {total} · prossimo tra {seconds} s",
         "Now showing {name}": "Ora in mostra: {name}",
-        "Own look": "Aspetto proprio"
+        "Own look": "Aspetto proprio",
+        "view only": "solo visualizzazione",
+        "you may add widgets": "puoi aggiungere widget"
     }
 }

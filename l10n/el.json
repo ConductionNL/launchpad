@@ -1408,6 +1408,8 @@
         "Not now": "Όχι τώρα",
         "{index} of {total} · next in {seconds} s": "{index} από {total} · επόμενο σε {seconds} s",
         "Now showing {name}": "Τώρα εμφανίζεται: {name}",
-        "Own look": "Δική του εμφάνιση"
+        "Own look": "Δική του εμφάνιση",
+        "view only": "μόνο προβολή",
+        "you may add widgets": "μπορείτε να προσθέσετε widget"
     }
 }

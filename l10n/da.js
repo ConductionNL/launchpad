@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "kun visning",
+    "you may add widgets" : "du må tilføje widgets",
     "Own look" : "Eget udseende",
     "{index} of {total} · next in {seconds} s" : "{index} af {total} · næste om {seconds} s",
     "Now showing {name}" : "Vises nu: {name}",

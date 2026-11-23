@@ -1408,6 +1408,8 @@
         "Not now": "Mitte praegu",
         "{index} of {total} · next in {seconds} s": "{index}/{total} · järgmine {seconds} s pärast",
         "Now showing {name}": "Praegu kuvatakse: {name}",
-        "Own look": "Oma välimus"
+        "Own look": "Oma välimus",
+        "view only": "ainult vaatamine",
+        "you may add widgets": "võite lisada vidinaid"
     }
 }

@@ -1410,6 +1410,8 @@
         "Not now": "Nie teraz",
         "{index} of {total} · next in {seconds} s": "{index} z {total} · następny za {seconds} s",
         "Now showing {name}": "Teraz wyświetlane: {name}",
-        "Own look": "Własny wygląd"
+        "Own look": "Własny wygląd",
+        "view only": "tylko podgląd",
+        "you may add widgets": "możesz dodawać widżety"
     }
 }

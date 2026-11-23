@@ -1408,6 +1408,8 @@
         "Not now": "Şimdi değil",
         "{index} of {total} · next in {seconds} s": "{index}/{total} · sonraki {seconds} sn sonra",
         "Now showing {name}": "Şimdi gösteriliyor: {name}",
-        "Own look": "Kendi görünümü"
+        "Own look": "Kendi görünümü",
+        "view only": "yalnızca görüntüleme",
+        "you may add widgets": "widget ekleyebilirsiniz"
     }
 }

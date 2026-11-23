@@ -190,7 +190,12 @@ class DemoSeedWidgets {
 			'showTitle'  => 0,
 		];
 
-		$payload = [...$layout, ...$this->tileFields(tile: $tile)];
+		$fields = $this->tileFields(tile: $tile);
+		if ($fields === null) {
+			return null;
+		}
+
+		$payload = [...$layout, ...$fields];
 		foreach (self::TILE_CONTENT_SETTINGS as $key => $type) {
 			if (isset($entry[$key]) === true && gettype($entry[$key]) === $type) {
 				$payload['content'][$key] = $entry[$key];
@@ -204,14 +209,26 @@ class DemoSeedWidgets {
 	 * The type-specific fields of a tile: an app tile for an enabled app when
 	 * that type exists, a launcher tile otherwise.
 	 *
+	 * A tile whose address opens an app that is not enabled stays an app tile,
+	 * which names the app as not available; as a launcher tile it would link
+	 * to a page that does not exist. Without the app tile type such a tile is
+	 * not placed.
+	 *
 	 * @param array<string, mixed> $tile The catalogue tile.
 	 *
-	 * @return array<string, mixed> The placement fields.
+	 * @return array<string, mixed>|null The placement fields, null when the tile cannot work here.
 	 */
-	private function tileFields(array $tile): array {
-		$colour = (string)($tile['colour'] ?? 'primary');
-		$appId  = (string)($tile['appId'] ?? '');
-		if ($appId !== '' && isset($this->enabledApps[$appId], $this->knownTypes[self::APP_TILE_TYPE]) === true) {
+	private function tileFields(array $tile): ?array {
+		$colour   = (string)($tile['colour'] ?? 'primary');
+		$appId    = (string)($tile['appId'] ?? '');
+		$enabled  = $appId !== '' && isset($this->enabledApps[$appId]) === true;
+		$missing  = $appId !== '' && $enabled === false && str_contains((string)($tile['url'] ?? ''), '/apps/' . $appId . '/') === true;
+		$appTiles = isset($this->knownTypes[self::APP_TILE_TYPE]);
+		if ($missing === true && $appTiles === false) {
+			return null;
+		}
+
+		if (($enabled === true || $missing === true) && $appTiles === true) {
 			$content = ['appId' => $appId, 'colour' => $colour, 'showCount' => true];
 			// The board's glyph and the app's own counter (LpVandaag).
 			if (is_string($tile['icon'] ?? null) === true) {

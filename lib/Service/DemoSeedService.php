@@ -200,7 +200,7 @@ class DemoSeedService {
 	 * Publish the seed's public start page and kiosk playlists as its
 	 * publisher, an administrator account of the seed.
 	 *
-	 * @param array<string, mixed> $definition `{publisher, startPage, kioskPlaylists}`.
+	 * @param array<string, mixed> $definition `{publisher, startPage, enableStartPage, kioskPlaylists}`.
 	 *
 	 * @return array{startPage: string, kioskPlaylists: array<string, string>} The link and playlist tokens.
 	 *
@@ -216,6 +216,9 @@ class DemoSeedService {
 		$startPage = (string)($definition['startPage'] ?? '');
 		if ($startPage !== '') {
 			$published['startPage'] = $this->publishing->publishStartPage(dashboardUuid: $startPage, publisher: $publisher);
+			if (($definition['enableStartPage'] ?? false) === true) {
+				$this->publishing->enableStartPage();
+			}
 		}
 
 		foreach ((array)($definition['kioskPlaylists'] ?? []) as $playlist) {

@@ -285,7 +285,7 @@
 		{
 			"uuid": "5d0c3a91-7e2b-4f60-9a1d-2b8e6c4f0a12",
 			"kind": "notice",
-			"title": "Zaaksysteem in onderhoud zaterdag 10 oktober 08:00 tot 12:00",
+			"title": "Zaaksysteem in onderhoud zaterdag van 08:00 tot 12:00",
 			"body": "U kunt dan geen zaken openen of bijwerken. Meldingen van inwoners komen daarna binnen.",
 			"category": "Onderhoud",
 			"level": "warning",
@@ -2226,27 +2226,11 @@
 			"permissionLevel": "view_only",
 			"widgets": [
 				{
-					"widgetId": "header",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 12,
-					"gridHeight": 3,
-					"showTitle": 0,
-					"customTitle": "Gemeente Zuiddrecht",
-					"content": {
-						"title": "Welkom bij Gemeente Zuiddrecht",
-						"subtitle": "Nieuws, openingstijden en storingen van de gemeente",
-						"textAlign": "left",
-						"height": "small",
-						"cta": null
-					}
-				},
-				{
 					"widgetId": "announcements",
 					"gridX": 0,
-					"gridY": 3,
+					"gridY": 0,
 					"gridWidth": 8,
-					"gridHeight": 6,
+					"gridHeight": 8,
 					"showTitle": 1,
 					"customTitle": "Nieuws",
 					"content": {
@@ -2258,7 +2242,7 @@
 				{
 					"widgetId": "text",
 					"gridX": 8,
-					"gridY": 3,
+					"gridY": 0,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -2274,13 +2258,13 @@
 				{
 					"widgetId": "text",
 					"gridX": 8,
-					"gridY": 6,
+					"gridY": 3,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
 					"customTitle": "Storingen",
 					"content": {
-						"text": "Geen storingen op dit moment. Zaterdag 10 oktober van 08:00 tot 12:00 onderhoud aan het zaaksysteem.",
+						"text": "Geen storingen op dit moment. Zaterdag van 08:00 tot 12:00 onderhoud aan het zaaksysteem.",
 						"fontSize": "14px",
 						"textAlign": "left",
 						"contentMode": "markdown",
@@ -2289,9 +2273,9 @@
 				},
 				{
 					"widgetId": "text",
-					"gridX": 0,
-					"gridY": 9,
-					"gridWidth": 12,
+					"gridX": 8,
+					"gridY": 6,
+					"gridWidth": 4,
 					"gridHeight": 2,
 					"showTitle": 1,
 					"customTitle": "Contact",
@@ -2303,7 +2287,8 @@
 						"showActions": false
 					}
 				}
-			]
+			],
+			"description": "Voor inwoners, ondernemers en bezoekers"
 		},
 		{
 			"key": "kiosk",
@@ -2317,25 +2302,9 @@
 			"permissionLevel": "view_only",
 			"widgets": [
 				{
-					"widgetId": "header",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 12,
-					"gridHeight": 3,
-					"showTitle": 0,
-					"customTitle": "Vandaag in Zuiddrecht",
-					"content": {
-						"title": "Vandaag in Zuiddrecht",
-						"subtitle": "Kantine stadskantoor",
-						"textAlign": "left",
-						"height": "small",
-						"cta": null
-					}
-				},
-				{
 					"widgetId": "text",
 					"gridX": 0,
-					"gridY": 3,
+					"gridY": 0,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -2351,7 +2320,7 @@
 				{
 					"widgetId": "announcements",
 					"gridX": 4,
-					"gridY": 3,
+					"gridY": 0,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -2365,7 +2334,7 @@
 				{
 					"widgetId": "weather",
 					"gridX": 8,
-					"gridY": 3,
+					"gridY": 0,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -2379,7 +2348,7 @@
 				{
 					"widgetId": "livetile",
 					"gridX": 8,
-					"gridY": 6,
+					"gridY": 3,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -2410,6 +2379,7 @@
 	"publishing": {
 		"publisher": "beheer",
 		"startPage": "8a3e5c10-1f2b-4c3d-9e4f-000000000008",
+		"enableStartPage": false,
 		"kioskPlaylists": [
 			{
 				"name": "Kantine stadskantoor",

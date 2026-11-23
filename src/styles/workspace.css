@@ -220,6 +220,12 @@
 	padding: 0;
 }
 
+/* "Vandaag eerst" draws its own heading inside the card, 14px from the top
+   (LpVandaag); the card's title row is not shown for it. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .widget-renderer:has(> .attention-widget) {
+	padding: 14px 0 4px;
+}
+
 /* Bookmark groups are headed by a small uppercase label (LpWerkplek). */
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-links-widget__section-title {
 	margin: 0;

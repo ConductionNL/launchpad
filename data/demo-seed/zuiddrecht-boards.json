@@ -279,6 +279,45 @@
 			"dismissible": 1,
 			"author": "beheer",
 			"targetGroups": []
+		},
+		{
+			"uuid": "5d0c3a91-7e2b-4f60-9a1d-2b8e6c4f0a13",
+			"kind": "news",
+			"title": "Gemeente Zuiddrecht start proef met deelauto’s in Oosthaven",
+			"body": "",
+			"category": "zuiddrecht.nl",
+			"level": "info",
+			"dismissible": 0,
+			"author": "communicatie",
+			"targetGroups": [
+				"medewerkers"
+			]
+		},
+		{
+			"uuid": "5d0c3a91-7e2b-4f60-9a1d-2b8e6c4f0a14",
+			"kind": "news",
+			"title": "Raad stemt in met nieuw parkeerbeleid binnenstad",
+			"body": "",
+			"category": "zuiddrecht.nl",
+			"level": "info",
+			"dismissible": 0,
+			"author": "communicatie",
+			"targetGroups": [
+				"medewerkers"
+			]
+		},
+		{
+			"uuid": "5d0c3a91-7e2b-4f60-9a1d-2b8e6c4f0a15",
+			"kind": "news",
+			"title": "Inloopavond Havenpark op 14 oktober",
+			"body": "",
+			"category": "zuiddrecht.nl",
+			"level": "info",
+			"dismissible": 0,
+			"author": "communicatie",
+			"targetGroups": [
+				"medewerkers"
+			]
 		}
 	],
 	"dashboards": [
@@ -463,7 +502,9 @@
 					"gridWidth": 1,
 					"gridHeight": 2,
 					"iconOnly": true,
-					"fitRows": true
+					"fitRows": true,
+					"pinned": true,
+					"badge": 14
 				},
 				{
 					"tile": "outlook",
@@ -472,7 +513,9 @@
 					"gridWidth": 1,
 					"gridHeight": 2,
 					"iconOnly": true,
-					"fitRows": true
+					"fitRows": true,
+					"pinned": true,
+					"badge": 3
 				},
 				{
 					"tile": "topdesk",
@@ -490,7 +533,8 @@
 					"gridWidth": 1,
 					"gridHeight": 2,
 					"iconOnly": true,
-					"fitRows": true
+					"fitRows": true,
+					"status": "down"
 				},
 				{
 					"tile": "kadaster",
@@ -508,7 +552,8 @@
 					"gridWidth": 1,
 					"gridHeight": 2,
 					"iconOnly": true,
-					"fitRows": true
+					"fitRows": true,
+					"badge": 2
 				},
 				{
 					"widgetId": "calendar",
@@ -584,7 +629,9 @@
 					"gridY": 1,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"pinned": true,
+					"badge": 14
 				},
 				{
 					"tile": "outlook",
@@ -592,7 +639,9 @@
 					"gridY": 1,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"pinned": true,
+					"badge": 3
 				},
 				{
 					"tile": "topdesk",
@@ -608,7 +657,8 @@
 					"gridY": 1,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"status": "down"
 				},
 				{
 					"tile": "kadaster",
@@ -644,7 +694,8 @@
 					"gridY": 1,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true
+					"iconOnly": true,
+					"badge": 2
 				},
 				{
 					"tile": "agenda",
@@ -1049,6 +1100,134 @@
 			]
 		},
 		{
+			"key": "havenpark",
+			"board": "LpMeer",
+			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000006",
+			"name": "Project Havenpark",
+			"icon": "ChartBar",
+			"type": "user",
+			"owner": "pieter",
+			"gridColumns": 12,
+			"permissionLevel": "full",
+			"widgets": [
+				{
+					"widgetId": "work-packages",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 6,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Werkpakketten Havenpark",
+					"content": {
+						"scope": "project",
+						"project": "havenpark",
+						"limit": 6,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "files",
+					"gridX": 6,
+					"gridY": 0,
+					"gridWidth": 6,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Bestanden",
+					"content": {
+						"folderPath": "/Vergunningen",
+						"fileId": null,
+						"viewMode": "list",
+						"showThumbnails": false,
+						"mimeTypeFilter": [],
+						"allowUpload": false,
+						"allowDelete": false,
+						"sortBy": "modified",
+						"sortDescending": true,
+						"layout": "compact",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "assigned-cases",
+					"gridX": 0,
+					"gridY": 6,
+					"gridWidth": 6,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Mijn zaken",
+					"content": {
+						"register": "dossiq",
+						"schema": "case",
+						"limit": 4,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "wiki-pages",
+					"gridX": 6,
+					"gridY": 6,
+					"gridWidth": 6,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Wiki",
+					"content": {
+						"space": "",
+						"limit": 4,
+						"showActions": false
+					}
+				}
+			]
+		},
+		{
+			"key": "havenpark-planning",
+			"board": "LpMeer",
+			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000007",
+			"name": "Havenpark: planning",
+			"icon": "Calendar",
+			"type": "user",
+			"owner": "pieter",
+			"gridColumns": 12,
+			"permissionLevel": "full",
+			"widgets": [
+				{
+					"widgetId": "calendar",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 8,
+					"gridHeight": 8,
+					"showTitle": 1,
+					"customTitle": "Planning Havenpark",
+					"content": {
+						"title": "Planning Havenpark",
+						"viewMode": "week",
+						"daysAhead": 7,
+						"colorByCalendar": true,
+						"internalCalendars": [
+							"personal",
+							"team"
+						],
+						"externalIcsUrls": [],
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "work-packages",
+					"gridX": 8,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 8,
+					"showTitle": 1,
+					"customTitle": "Mijn werkpakketten",
+					"content": {
+						"scope": "mine",
+						"project": "",
+						"limit": 5,
+						"showActions": false
+					}
+				}
+			]
+		},
+		{
 			"key": "intranet",
 			"board": "LpIntranet",
 			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000003",
@@ -1199,127 +1378,23 @@
 					}
 				},
 				{
-					"widgetId": "news",
+					"widgetId": "announcements",
 					"gridX": 0,
 					"gridY": 13,
-					"gridWidth": 4,
-					"gridHeight": 5,
+					"gridWidth": 8,
+					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Nieuws",
 					"content": {
-						"feedUrls": [
-							"https://www.zuiddrecht.nl/rss"
-						],
-						"layout": "list",
-						"itemLimit": 5,
-						"showThumbnails": true,
-						"showSummary": true,
-						"summaryMaxChars": 160,
-						"dateFormat": "relative",
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "video",
-					"gridX": 4,
-					"gridY": 13,
-					"gridWidth": 4,
-					"gridHeight": 5,
-					"showTitle": 1,
-					"customTitle": "Video",
-					"content": {
-						"sourceType": "url",
-						"videoUrl": "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ",
-						"autoplay": false,
-						"muted": true,
-						"controls": true,
-						"aspectRatio": "16:9",
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "image",
-					"gridX": 8,
-					"gridY": 13,
-					"gridWidth": 4,
-					"gridHeight": 5,
-					"showTitle": 1,
-					"customTitle": "Afbeelding",
-					"content": {
-						"url": "/index.php/apps/theming/image/background",
-						"alt": "Het stadskantoor van Zuiddrecht",
-						"link": "",
-						"fit": "cover",
+						"category": "",
+						"limit": 4,
 						"showActions": false
 					}
 				},
 				{
 					"widgetId": "section-heading",
 					"gridX": 0,
-					"gridY": 18,
-					"gridWidth": 12,
-					"gridHeight": 1,
-					"showTitle": 0,
-					"content": {
-						"title": "Collega's",
-						"description": "Wie nieuw is, wie jarig is en wie wat weet"
-					}
-				},
-				{
-					"widgetId": "people",
-					"gridX": 0,
 					"gridY": 19,
-					"gridWidth": 4,
-					"gridHeight": 4,
-					"showTitle": 1,
-					"customTitle": "Nieuwe collega's",
-					"content": {
-						"layout": "list",
-						"filters": [],
-						"excludeDisabled": true,
-						"sortBy": "createdAt",
-						"columns": 2,
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "people",
-					"gridX": 4,
-					"gridY": 19,
-					"gridWidth": 4,
-					"gridHeight": 4,
-					"showTitle": 1,
-					"customTitle": "Verjaardagen",
-					"content": {
-						"layout": "list",
-						"filters": [],
-						"excludeDisabled": true,
-						"sortBy": "birthday",
-						"columns": 2,
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "people",
-					"gridX": 8,
-					"gridY": 19,
-					"gridWidth": 4,
-					"gridHeight": 4,
-					"showTitle": 1,
-					"customTitle": "Vind een collega op expertise",
-					"content": {
-						"layout": "list",
-						"filters": [],
-						"excludeDisabled": true,
-						"sortBy": "displayName",
-						"columns": 2,
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "section-heading",
-					"gridX": 0,
-					"gridY": 23,
 					"gridWidth": 12,
 					"gridHeight": 1,
 					"showTitle": 0,
@@ -1331,11 +1406,11 @@
 				{
 					"widgetId": "menu",
 					"gridX": 0,
-					"gridY": 24,
-					"gridWidth": 12,
-					"gridHeight": 3,
+					"gridY": 20,
+					"gridWidth": 4,
+					"gridHeight": 6,
 					"showTitle": 1,
-					"customTitle": "Menu",
+					"customTitle": "Intranetmenu",
 					"content": {
 						"items": [
 							{
@@ -1396,8 +1471,8 @@
 								]
 							}
 						],
-						"style": "mega",
-						"orientation": "horizontal",
+						"style": "tree",
+						"orientation": "vertical",
 						"showIcons": false,
 						"expandedByDefault": true,
 						"activeItemHighlight": "none",
@@ -1405,73 +1480,18 @@
 					}
 				},
 				{
-					"widgetId": "iframe",
-					"gridX": 0,
-					"gridY": 27,
-					"gridWidth": 8,
-					"gridHeight": 6,
-					"showTitle": 1,
-					"customTitle": "Personeelsgids",
-					"content": {
-						"url": "https://personeelsgids.zuiddrecht.nl/",
-						"title": "Personeelsgids",
-						"height": 360,
-						"aspect": "none",
-						"sandbox": [
-							"allow-scripts",
-							"allow-same-origin"
-						],
-						"allowListChecked": true,
-						"showActions": false
-					}
-				},
-				{
 					"widgetId": "text",
-					"gridX": 8,
-					"gridY": 27,
-					"gridWidth": 4,
+					"gridX": 4,
+					"gridY": 20,
+					"gridWidth": 8,
 					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Werken op het stadskantoor",
 					"content": {
-						"text": "## Werken op het stadskantoor\n\n- Werkplekken reserveert u via **Faciliteiten**.\n- De kantine is open van 08:00 tot 14:00.\n- Fietsenstalling onder het plein, ingang Havenkade.",
+						"text": "**Flexplekken**\n\n- Reserveer een plek via de app Werkplek, uiterlijk de avond ervoor.\n- Een stilteplek op de 3e verdieping is er alleen voor geconcentreerd werk.\n- Laat de plek om 17:30 leeg achter.\n\n**Openingstijden gebouw**\n\n| Dag | Open | Receptie |\n|---|---|---|\n| Maandag tot donderdag | 07:00 tot 19:00 | 08:00 tot 17:30 |\n| Vrijdag | 07:00 tot 17:00 | 08:00 tot 16:00 |\n| Zaterdag | 09:00 tot 12:00, alleen Burgerzaken | |",
 						"fontSize": "14px",
 						"textAlign": "left",
 						"contentMode": "markdown",
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "news",
-					"gridX": 0,
-					"gridY": 33,
-					"gridWidth": 6,
-					"gridHeight": 4,
-					"showTitle": 1,
-					"customTitle": "Nieuws van het oude intranet",
-					"content": {
-						"feedUrls": [
-							"https://zuiddrecht.sharepoint.com/sites/intranet/_layouts/15/feed.aspx"
-						],
-						"layout": "list",
-						"itemLimit": 4,
-						"showThumbnails": false,
-						"showSummary": false,
-						"dateFormat": "relative",
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "communities",
-					"gridX": 6,
-					"gridY": 33,
-					"gridWidth": 6,
-					"gridHeight": 4,
-					"showTitle": 1,
-					"customTitle": "Community Digitaal werken",
-					"content": {
-						"title": "Community Digitaal werken",
-						"onlyPinned": false,
 						"showActions": false
 					}
 				}

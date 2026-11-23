@@ -102,6 +102,23 @@ class DemoSeedWidgetsTest extends TestCase {
 	}//end testIconOnlyTileCarriesTheFlagInItsContent()
 
 	/**
+	 * A tile entry hands its pin, count and outage to its placement, and
+	 * drops a setting of the wrong type.
+	 *
+	 * @return void
+	 */
+	public function testTileCarriesItsMarks(): void {
+		$result = $this->expander(types: ['tile'])->expand(
+			entries: [['tile' => 'topdesk', 'pinned' => true, 'badge' => 3, 'status' => 'down'], ['tile' => 'talk', 'badge' => '3']]
+		);
+
+		$this->assertTrue(condition: $result['placed'][0]['content']['pinned']);
+		$this->assertSame(expected: 3, actual: $result['placed'][0]['content']['badge']);
+		$this->assertSame(expected: 'down', actual: $result['placed'][0]['content']['status']);
+		$this->assertArrayNotHasKey(key: 'badge', array: $result['placed'][1]['content']);
+	}//end testTileCarriesItsMarks()
+
+	/**
 	 * Unregistered type uses its fallback or is skipped.
 	 *
 	 * @return void

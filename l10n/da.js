@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Standarderne, som hvert dashboard starter med: hvem der må oprette dashboards, rettighedsniveauet og gitteret. Denne rundvisning vises én gang.",
+    "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Under Kiosk laver du afspilningslister med dashboards til en skærm uden login.",
+    "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Under Demodata indlæser du eksempeldashboards for at prøve LaunchPad og fjerner dem igen.",
     "Quarter" : "Kvartal",
     "Year" : "År",
     "Show until" : "Vis indtil",

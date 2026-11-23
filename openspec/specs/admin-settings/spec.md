@@ -333,7 +333,6 @@ The `defaultGridColumns` setting MUST be applied to new dashboards when no expli
 - GIVEN `defaultGridColumns` is set to `8`
 - WHEN user "alice" sends POST /api/dashboard with body `{"name": "My Dashboard"}`
 - THEN the created dashboard MUST have `gridColumns: 8`
-- NOTE: `DashboardFactory::create()` currently hardcodes `gridColumns: 12` and does NOT read the `defaultGridColumns` admin setting. This is a known gap.
 
 #### Scenario: Explicit grid columns overrides default
 - GIVEN `defaultGridColumns` is set to `8`
@@ -675,12 +674,8 @@ The admin settings MUST hold `tileAllowedSchemes` (stored as `tile_allowed_schem
 
 **Not yet implemented:**
 - REQ-ASET-002 validation: No server-side validation for permission level values (any string accepted), grid column range (any integer accepted), or boolean type coercion. Documented as NOTEs in the spec.
-- REQ-ASET-006 default grid columns: `DashboardFactory::create()` hardcodes `gridColumns: 12` and does NOT read the `defaultGridColumns` admin setting. The admin setting exists but is not applied when creating user dashboards.
 - REQ-ASET-003 fork endpoint: The `POST /api/dashboards/{uuid}/fork` route is owned by the separate `fork-current-as-personal` capability and does not yet exist; gating will be added there with the same `PersonalDashboardsDisabledException` envelope.
 - REQ-ASET-008 localization: UI labels use `t('launchpad', ...)` translation function but actual Dutch translations are not verified in l10n files.
-
-**Partial implementations:**
-- REQ-ASET-006 (Default Grid Columns): The setting can be stored and retrieved, but `DashboardFactory::create()` ignores it, hardcoding 12. Template copies correctly use the template's `gridColumns` via `TemplateService::buildDashboardFromTemplate()`.
 
 ### Standards & References
 - Nextcloud Admin Settings API: `OCP\Settings\ISettings`, `OCP\Settings\IIconSection`

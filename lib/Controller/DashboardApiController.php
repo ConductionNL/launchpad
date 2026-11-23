@@ -604,6 +604,7 @@ class DashboardApiController extends Controller {
 				'slug'        => $slug,
 				'sortOrder'   => $sortOrder,
 				'widgets'     => $this->requestedWidgets(),
+				'gridColumns' => $this->requestedGridColumns(),
 			]
 		);
 
@@ -2257,6 +2258,7 @@ class DashboardApiController extends Controller {
 			'slug' => ($flat['slug'] ?? null),
 			'sortOrder' => ($flat['sortOrder'] ?? 0),
 			'widgets' => ($flat['widgets'] ?? null),
+			'gridColumns' => self::offeredGridColumns(value: ($flat['gridColumns'] ?? null)),
 		];
 	}//end resolveCreateParams()
 
@@ -2277,8 +2279,24 @@ class DashboardApiController extends Controller {
 			'slug' => self::stringOrNull(value: ($body['slug'] ?? null)),
 			'sortOrder' => self::intOrZero(value: ($body['sortOrder'] ?? null)),
 			'widgets' => self::stringOrNull(value: ($body['widgets'] ?? null)),
+			'gridColumns' => self::offeredGridColumns(value: ($body['gridColumns'] ?? null)),
 		];
 	}//end resolveCreateBody()
+
+	/**
+	 * A requested column count when it is one of the offered counts, null otherwise.
+	 *
+	 * @param mixed $value The requested value.
+	 *
+	 * @return int|null The column count, or null for the administrator's default.
+	 */
+	private static function offeredGridColumns(mixed $value): ?int {
+		if (is_numeric($value) === true && in_array((int)$value, self::GRID_COLUMN_OPTIONS, true) === true) {
+			return (int)$value;
+		}
+
+		return null;
+	}//end offeredGridColumns()
 
 	/**
 	 * A string value as is, anything else as null.

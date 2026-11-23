@@ -1700,7 +1700,7 @@
 					"gridX": 4,
 					"gridY": 3,
 					"gridWidth": 8,
-					"gridHeight": 4,
+					"gridHeight": 3,
 					"showTitle": 1,
 					"customTitle": "Van de teamleider",
 					"content": {
@@ -1750,7 +1750,7 @@
 					"showTitle": 1,
 					"customTitle": "Wiki van het team",
 					"content": {
-						"space": "Vergunningen",
+						"space": "",
 						"limit": 3,
 						"showActions": false
 					}
@@ -1772,7 +1772,10 @@
 							"vergunningen"
 						],
 						"externalIcsUrls": [],
-						"showActions": false
+						"showActions": false,
+						"showTitle": false,
+						"showViewModes": false,
+						"agendaLayout": "stacked"
 					}
 				},
 				{
@@ -1818,7 +1821,8 @@
 						"allowDelete": false,
 						"sortBy": "modified",
 						"sortDescending": true,
-						"showActions": false
+						"showActions": false,
+						"layout": "compact"
 					}
 				}
 			]

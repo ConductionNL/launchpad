@@ -3706,12 +3706,13 @@ export default {
    in the single .launchpad-container rule further below. */
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
-   frosted-glass tile look (was DashboardGrid's local style) by overriding
-   the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
+   translucent tile look (was DashboardGrid's local style) by overriding
+   the grid-item-content surface. :deep penetrates into CnDashboardGrid.
+   No backdrop blur: the content area behind is already blurred, and each
+   blurred item was blurred again on every repaint, which made a pointer
+   move over the grid cost 100 ms or more. */
 .launchpad-container :deep(.grid-stack-item-content) {
 	background: var(--color-main-background-blur);
-	backdrop-filter: var(--filter-background-blur);
-	-webkit-backdrop-filter: var(--filter-background-blur);
 	border-radius: var(--border-radius-large);
 	overflow: hidden;
 }

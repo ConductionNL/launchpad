@@ -155,6 +155,12 @@ export default {
 		},
 	},
 
+	/**
+	 * Ask the Activity app for the reader's own recent activity.
+	 *
+	 * @return {Promise<void>}
+	 * @spec openspec/specs/widgets/spec.md
+	 */
 	async mounted() {
 		const [{ default: axios }, { generateOcsUrl }] = await Promise.all([
 			import('@nextcloud/axios'),

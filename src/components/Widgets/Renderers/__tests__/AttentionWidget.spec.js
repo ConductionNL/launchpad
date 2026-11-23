@@ -271,6 +271,11 @@ describe('AttentionWidget columns layout (LpVandaag "Vandaag eerst")', () => {
 		expect(wrapper.findAll('.attention-widget__item')).toHaveLength(3)
 	})
 
+	it('draws no filter field in the columns layout, as the board does', async () => {
+		const wrapper = await mountWith(feed, { layout: 'columns', limit: 3 })
+		expect(wrapper.findComponent({ name: 'WidgetRowFilter' }).exists()).toBe(false)
+	})
+
 	it('takes 1 to 4 columns and falls back to 3', async () => {
 		const two = await mountWith(feed, { layout: 'columns', columns: 2 })
 		expect(two.find('.attention-widget').attributes('style')).toContain(

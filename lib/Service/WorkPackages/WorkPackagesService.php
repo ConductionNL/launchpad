@@ -63,11 +63,11 @@ class WorkPackagesService {
 
 	/**
 	 * How long a person's answer is kept, so a dashboard that opens again
-	 * does not wait for OpenProject.
+	 * does not wait for OpenProject (one uncached read takes 1-1.5 s).
 	 *
 	 * @var int
 	 */
-	private const CACHE_SECONDS = 60;
+	private const CACHE_SECONDS = 300;
 
 	/**
 	 * Constructor.

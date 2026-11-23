@@ -1242,6 +1242,8 @@ The publication-state migration MUST preserve the visibility of every dashboard 
 
 A dashboard in `draft` state MUST be visible only to its owner and to Nextcloud administrators. Draft dashboards MUST NOT appear in any visible-dashboard listing for any other user.
 
+The administrator override applies only to dashboards the administrator can otherwise reach: group dashboards, the default dashboard, admin templates, and dashboards shared with them. Personal dashboards are private: another user's personal dashboard, draft or published, MUST NOT appear in an administrator's visible listing unless it is shared with them.
+
 #### Scenario: Draft dashboard hidden from other users
 
 - GIVEN user "alice" has a draft dashboard `D`
@@ -1256,10 +1258,18 @@ A dashboard in `draft` state MUST be visible only to its owner and to Nextcloud 
 
 #### Scenario: Admin can see draft dashboards of other users
 
-- GIVEN user "alice" has a draft dashboard `D`
+- GIVEN user "alice" has a draft dashboard `D` and shares it with "root" and "bob"
 - AND "root" is a Nextcloud administrator
 - WHEN root calls `GET /api/dashboards/visible`
-- THEN `D` MUST be present in the response (admin-override visibility)
+- THEN `D` MUST be present in the response with `publicationStatus = 'draft'` (admin-override visibility)
+- AND `D` MUST NOT be present in bob's response
+
+#### Scenario: An admin does not see other users' private dashboards
+
+- GIVEN user "alice" has a personal dashboard `P` that is not shared with anyone
+- AND "root" is a Nextcloud administrator
+- WHEN root calls `GET /api/dashboards/visible`
+- THEN `P` MUST NOT be present in the response
 
 ### Requirement: REQ-DASH-037 Frontend store mirrors publication state
 

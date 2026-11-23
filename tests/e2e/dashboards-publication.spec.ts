@@ -33,6 +33,7 @@
  *   @e2e dashboards::draft-dashboard-hidden-from-other-users
  *   @e2e dashboards::draft-dashboard-visible-to-owner
  *   @e2e dashboards::admin-can-see-draft-dashboards-of-other-users
+ *   @e2e dashboards::an-admin-does-not-see-other-users-private-dashboards
  *   @e2e dashboards::publish-unpublish-schedule-actions-patch-local-state
  *   @e2e dashboards::schedule-go-live
  *   @e2e dashboards::past-time-refused
@@ -73,6 +74,7 @@ const T = Date.now()
 const PAST_MESSAGE = 'publishAt must be a future timestamp'
 const FAR_FUTURE = '2099-04-01T10:00:00Z'
 const FAR_FUTURE_STORED = '2099-04-01 10:00:00'
+const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 
 let admin: APIRequestContext
 let restoreSettings: (() => Promise<void>) | null = null
@@ -544,18 +546,28 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 	})
 
 	// @e2e dashboards::admin-can-see-draft-dashboards-of-other-users
-	test("the administrator sees another user's draft", async () => {
-		const dash = await createDashboard(alice!.api, {
+	// @e2e dashboards::an-admin-does-not-see-other-users-private-dashboards
+	test("the administrator sees a draft shared with them, and not another user's private one", async () => {
+		const shared = await createDashboard(alice!.api, {
 			name: `Draft for admin ${T}`,
 		})
-		created.push(dash.id)
-		expect(dash.publicationStatus).toBe('draft')
+		created.push(shared.id)
+		expect(shared.publicationStatus).toBe('draft')
+		await shareWith(alice!.api, shared.id, ADMIN_USER, 'view_only')
+		await shareWith(alice!.api, shared.id, bob!.username, 'view_only')
 
-		const row = await visibleRow(admin, dash.uuid)
+		const row = await visibleRow(admin, shared.uuid)
 		expect(row).toBeDefined()
 		expect(row?.publicationStatus).toBe('draft')
-		// Control: an ordinary user does not.
-		expect(await visibleRow(bob!.api, dash.uuid)).toBeUndefined()
+		// Control: an ordinary recipient of the same share does not.
+		expect(await visibleRow(bob!.api, shared.uuid)).toBeUndefined()
+
+		// A personal dashboard nobody shared stays private, also from an admin.
+		const own = await createDashboard(alice!.api, {
+			name: `Private draft ${T}`,
+		})
+		created.push(own.id)
+		expect(await visibleRow(admin, own.uuid)).toBeUndefined()
 	})
 
 	// ── REQ-DASH-037 ────────────────────────────────────────────────────

@@ -179,6 +179,33 @@ describe('SearchWidget — internet search form (LpWerkplek)', () => {
 		open.mockRestore()
 	})
 
+	it('uses the configured engine, with the words encoded into its {q} slot', async () => {
+		const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+		const wrapper = mountWidget({
+			content: { layout: 'web', engine: { name: 'Startpage', url: 'https://www.startpage.com/do/search?query={q}' } },
+		})
+		expect(wrapper.find('[data-testid="search-widget-engine"]').text()).toBe('Startpage')
+
+		await wrapper.find('input[type="search"]').setValue('  bouw & wonen ')
+		await wrapper.find('form').trigger('submit')
+		expect(open).toHaveBeenCalledWith('https://www.startpage.com/do/search?query=bouw%20%26%20wonen', '_blank', 'noopener,noreferrer')
+		open.mockRestore()
+	})
+
+	it('falls back to DuckDuckGo for an engine url without a {q} slot', () => {
+		const wrapper = mountWidget({ content: { layout: 'web', engine: { name: 'Broken', url: 'https://example.org/search' } } })
+		expect(wrapper.vm.engine).toEqual({ name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q={q}' })
+	})
+
+	it('opens nothing for blank words', async () => {
+		const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+		const wrapper = mountWidget({ content: { layout: 'web' } })
+		await wrapper.find('input[type="search"]').setValue('   ')
+		await wrapper.find('form').trigger('submit')
+		expect(open).not.toHaveBeenCalled()
+		open.mockRestore()
+	})
+
 	it('keeps the tile search without the web layout', () => {
 		expect(mountWidget().find('[data-testid="search-widget-web"]').exists()).toBe(false)
 	})

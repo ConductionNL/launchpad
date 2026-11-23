@@ -96,7 +96,8 @@ class DemoSeedPublishingTest extends TestCase {
 			kiosk: $this->createMock(originalClassName: KioskService::class)
 		);
 
-		$this->assertSame(expected: 'open-token', actual: $publishing->publishStartPage(dashboardUuid: 'd8', publisher: 'beheer', enable: true));
+		$this->assertSame(expected: 'open-token', actual: $publishing->publishStartPage(dashboardUuid: 'd8', publisher: 'beheer'));
+		$publishing->enableStartPage();
 		$this->assertSame(expected: 'open-token', actual: $this->settings['public_start_share_token']);
 		$this->assertTrue(condition: $this->settings['public_start_enabled']);
 	}//end testStartPageReusesAnOpenLink()

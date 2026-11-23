@@ -76,19 +76,19 @@ class DemoSeedPublishing {
 	/**
 	 * Prepare a dashboard as the public start page: its first public link
 	 * without password or expiry, created when there is none, chosen as the
-	 * start page. The start page is only switched on when the seed asks for
-	 * it: while it is on, the plain login address shows the start page, and a
-	 * demo seed must not change how an installation signs in.
+	 * start page. This does not switch the start page on (see
+	 * enableStartPage()): while it is on, the plain login address shows the
+	 * start page, and a demo seed must not change how an installation signs
+	 * in unless it asks to.
 	 *
-	 * @param string  $dashboardUuid The dashboard.
-	 * @param string  $publisher     The administrator who publishes it.
-	 * @param boolean $enable        Whether to switch the start page on.
+	 * @param string $dashboardUuid The dashboard.
+	 * @param string $publisher     The administrator who publishes it.
 	 *
 	 * @return string The link token.
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	public function publishStartPage(string $dashboardUuid, string $publisher, bool $enable=false): string {
+	public function publishStartPage(string $dashboardUuid, string $publisher): string {
 		$token = '';
 		foreach ($this->shares->listActiveShares(dashboardUuid: $dashboardUuid, callerId: $publisher) as $share) {
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -105,12 +105,21 @@ class DemoSeedPublishing {
 		}
 
 		$this->settings->setSetting(key: AdminSettingKey::PUBLIC_START_SHARE_TOKEN->value, value: $token);
-		if ($enable === true) {
-			$this->settings->setSetting(key: AdminSettingKey::PUBLIC_START_ENABLED->value, value: true);
-		}
 
 		return $token;
 	}//end publishStartPage()
+
+	/**
+	 * Switch the public start page on, so signed-out visitors of the plain
+	 * login address see it. Only called when a seed asks for it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	public function enableStartPage(): void {
+		$this->settings->setSetting(key: AdminSettingKey::PUBLIC_START_ENABLED->value, value: true);
+	}//end enableStartPage()
 
 	/**
 	 * Bring a kiosk playlist to the seeded entries: the publisher's live

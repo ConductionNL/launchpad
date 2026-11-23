@@ -215,11 +215,10 @@ class DemoSeedService {
 
 		$startPage = (string)($definition['startPage'] ?? '');
 		if ($startPage !== '') {
-			$published['startPage'] = $this->publishing->publishStartPage(
-				dashboardUuid: $startPage,
-				publisher: $publisher,
-				enable: ($definition['enableStartPage'] ?? false) === true
-			);
+			$published['startPage'] = $this->publishing->publishStartPage(dashboardUuid: $startPage, publisher: $publisher);
+			if (($definition['enableStartPage'] ?? false) === true) {
+				$this->publishing->enableStartPage();
+			}
 		}
 
 		foreach ((array)($definition['kioskPlaylists'] ?? []) as $playlist) {

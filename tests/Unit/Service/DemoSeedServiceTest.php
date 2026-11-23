@@ -199,6 +199,33 @@ class DemoSeedServiceTest extends TestCase {
 	}//end testSecondRunLeavesTheSameState()
 
 	/**
+	 * A seed switches the public start page on only when it asks to.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	public function testStartPageIsSwitchedOnOnlyWhenTheSeedAsks(): void {
+		foreach ([true => 1, false => 0] as $asks => $calls) {
+			$publishing = $this->createMock(originalClassName: DemoSeedPublishing::class);
+			$publishing->expects($this->once())->method('publishStartPage')->willReturn('token');
+			$publishing->expects($this->exactly($calls))->method('enableStartPage');
+
+			$service = new DemoSeedService(
+				parts: $this->createMock(originalClassName: DemoSeedParts::class),
+				content: $this->createMock(originalClassName: DemoSeedContent::class),
+				showcases: $this->createMock(originalClassName: DemoShowcasesService::class),
+				appManager: $this->createMock(originalClassName: IAppManager::class),
+				publishing: $publishing
+			);
+			$publish = new \ReflectionMethod(objectOrMethod: $service, method: 'publish');
+			$result  = $publish->invoke($service, ['publisher' => 'beheer', 'startPage' => 'd8', 'enableStartPage' => (bool)$asks]);
+
+			$this->assertSame(expected: 'token', actual: $result['startPage']);
+		}
+	}//end testStartPageIsSwitchedOnOnlyWhenTheSeedAsks()
+
+	/**
 	 * Unregistered widgets are skipped or fall back.
 	 *
 	 * @return void

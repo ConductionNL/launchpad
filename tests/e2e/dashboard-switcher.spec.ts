@@ -699,7 +699,7 @@ test('opening animates the transform to translateX(0) over 250ms ease', async ({
 
 		// Sample the transform on every frame while the panel opens.
 		await page
-			.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+			.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 			.click()
 		await page.evaluate(() => {
 			const el = document.querySelector('.dashboard-switcher-sidebar')!
@@ -723,7 +723,7 @@ test('opening animates the transform to translateX(0) over 250ms ease', async ({
 			})
 		})
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-all-dashboards"]')
+			.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')
 			.click()
 		const samples = await page.evaluate(
 			() =>

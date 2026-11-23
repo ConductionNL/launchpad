@@ -309,12 +309,7 @@
 						"showDate": true,
 						"showWeek": true,
 						"greetingLine": true,
-						"ground": true,
-						"cta": {
-							"label": "Startpagina aanpassen",
-							"url": "/index.php/apps/launchpad/?edit=1",
-							"style": "secondary"
-						}
+						"ground": true
 					}
 				},
 				{

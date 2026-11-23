@@ -460,8 +460,8 @@ export async function openEditForm(
 ): Promise<{ dialog: Locator; form: Locator }> {
 	if ((await page.locator('.launchpad-edit-mode').count()) === 0) {
 		const more = page.locator(MORE_MENU)
-		await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-		await page.locator('[data-testid="cn-grouped-menu-item-edit"]').click()
+		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+		await page.locator('[data-testid="launchpad-more-menu-item-edit"]').click()
 		await expect(page.locator('.launchpad-edit-mode')).toBeVisible({
 			timeout: 10_000,
 		})

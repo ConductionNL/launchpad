@@ -2,268 +2,42 @@
   - SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
   - SPDX-License-Identifier: EUPL-1.2
   -
-  - StartPageMenu: the app's destinations as one compact More menu, for a
-  - shell without the navigation panel (runtime-shell REQ-SHELL-009). LaunchPad
-  - renders no panel, so this menu is at the top of every page but the
-  - dashboard view (App.vue) and in the workspace's empty state.
-  -
-  - Renders nothing while a panel is rendered, so the destinations are never
-  - offered twice. Otherwise every entry the panel would have shown is here,
-  - grouped and ordered like the dashboard view's More menu (LpVandaag,
-  - LpWerkplek): Dashboards, then Settings (the personal settings dialog and,
-  - for an administrator, the link to Nextcloud's admin settings), then the
-  - app's own destinations.
+  - StartPageMenu: the More menu on every page but the dashboard view, and in
+  - the workspace's empty state (runtime-shell REQ-SHELL-009, REQ-SHELL-013).
+  - It is the same menu as the dashboard view's (board LpMeer): the
+  - dashboards, then Settings unfolding in place. There is no open dashboard
+  - here, so there is no This dashboard group. Choosing a dashboard opens it.
 -->
 
 <template>
-	<NcActions
-		v-if="chrome.railSuppressed && groups.length > 0"
-		:ariaLabel="t('launchpad', 'More')"
-		:forceMenu="true"
+	<LaunchpadMoreMenu
+		v-if="chrome.railSuppressed"
+		:dashboards="dashboards"
+		:settings="settings"
 		class="launchpad-start-page-menu"
 		data-walkthrough-id="launchpad-more-menu"
-		data-testid="launchpad-start-page-menu">
-		<template v-for="(group, index) in groups" :key="group.id">
-			<NcActionSeparator v-if="index > 0" />
-			<template v-for="item in group.items" :key="item.id">
-				<NcActionLink
-					v-if="item.href"
-					:href="item.href"
-					:target="item.external ? '_blank' : '_self'"
-					:data-testid="`launchpad-start-page-menu-${item.id}`">
-					{{ item.label }}
-				</NcActionLink>
-				<NcActionRouter
-					v-else-if="item.to"
-					:to="item.to"
-					:data-testid="`launchpad-start-page-menu-${item.id}`">
-					{{ item.label }}
-				</NcActionRouter>
-				<NcActionButton
-					v-else
-					:data-testid="`launchpad-start-page-menu-${item.id}`"
-					@click="item.onClick">
-					{{ item.label }}
-				</NcActionButton>
-			</template>
-		</template>
-	</NcActions>
+		data-testid="launchpad-start-page-menu"
+		@open="onOpen" />
 </template>
 
 <script>
-import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
+import { mapState } from 'pinia'
+import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
+import { api } from '../../services/api.js'
+import { useDashboardStore } from '../../stores/dashboard.js'
+import { logger } from '../../utils/logger.js'
 import {
-	NcActionButton,
-	NcActionLink,
-	NcActionRouter,
-	NcActions,
-	NcActionSeparator,
-} from '@nextcloud/vue'
-
-/**
- * The sections of the navigation panel, in the panel's order.
- */
-const SECTIONS = ['main', 'footer', 'settings']
-
-/** The items of the Settings group, in the board's order. */
-const SETTINGS_ITEMS = ['personal-settings', 'admin-settings-link']
-
-/**
- * The order of the app's own destinations, as the boards list them. An
- * entry not named here follows, in the panel's order.
- */
-const LAUNCHPAD_ORDER = [
-	'StoreMenu',
-	'admin-templates',
-	'ReportsMenu',
-	'FlowsMenu',
-	'IntegrationsMenu',
-	'Documentation',
-	'FeaturesRoadmapMenu',
-]
-
-/**
- * Panel entries the Launchpad group leaves out because another item already
- * offers them: the dashboards (the Dashboards group) and the in-app admin
- * settings route (the Settings group links to the admin settings).
- */
-const OFFERED_ELSEWHERE = ['dashboards', 'admin-settings']
-
-/**
- * The app's own destinations in the board's order.
- *
- * @param {object[]} items The resolved panel items.
- * @return {object[]} The items, ordered.
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function orderDestinations(items) {
-	const rank = (item) => {
-		const at = LAUNCHPAD_ORDER.indexOf(item.id)
-		return at === -1 ? LAUNCHPAD_ORDER.length : at
-	}
-	return items
-		.map((item, index) => ({ item, index }))
-		.sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index)
-		.map(({ item }) => item)
-}
-
-/**
- * The Settings group's items: the personal settings and, for an
- * administrator, the admin settings link.
- *
- * @param {Record<string, object[]>} sections The menu items by section.
- * @return {object[]} The items.
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function settingsItems(sections) {
-	return SETTINGS_ITEMS.map((id) =>
-		sections.settings.find((item) => item.id === id),
-	).filter(Boolean)
-}
-
-/**
- * The Launchpad group's items: the app's own destinations in the board's
- * order, without the ones another group already offers.
- *
- * @param {Record<string, object[]>} sections The menu items by section.
- * @return {object[]} The items.
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function launchpadItems(sections) {
-	return orderDestinations(
-		[...sections.main, ...sections.footer, ...sections.settings].filter(
-			(item) =>
-				!OFFERED_ELSEWHERE.includes(item.id)
-				&& !SETTINGS_ITEMS.includes(item.id),
-		),
-	)
-}
-
-/**
- * Whether a destination leaves the instance (scheme-prefixed), which is
- * the same test the panel's `NcAppNavigationItem` applies before it opens
- * a new tab.
- *
- * @param {string} href The destination.
- * @return {boolean} True for a `scheme://` URL.
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function isExternal(href) {
-	return /^(https?:)?\/\//.test(String(href ?? ''))
-}
-
-/**
- * Resolve one panel entry to a menu item: a link for `href`, a router
- * target for `route`, a button for `action: "user-settings"`. The same
- * precedence as the panel (`CnAppNav.itemTo` / `itemHref`): an action
- * never carries a link.
- *
- * @param {object} item The manifest menu entry.
- * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
- * @return {object|null} The menu item, or null when the entry has no destination.
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function resolveMenuItem(item, openUserSettings) {
-	const label = t('launchpad', String(item.label ?? item.id ?? ''))
-	if (item.action === 'user-settings') {
-		if (typeof openUserSettings !== 'function') {
-			return null
-		}
-		return { id: item.id, label, onClick: openUserSettings }
-	}
-	if (item.href) {
-		return {
-			id: item.id,
-			label,
-			href: item.href,
-			external: isExternal(item.href),
-		}
-	}
-	if (item.route) {
-		return {
-			id: item.id,
-			label,
-			to: item.query
-				? { name: item.route, query: item.query }
-				: { name: item.route },
-		}
-	}
-	return null
-}
-
-/**
- * The panel's destinations by section (`main`, `footer`, `settings`) for
- * the chrome decision `App.vue` provides. The settings section opens with
- * the personal settings and, for an administrator, the link to the admin
- * settings, as the panel's settings foldout does.
- *
- * @param {{ entries: object[], isAdmin: boolean, includePersonalSettings: boolean }} chrome The chrome decision.
- * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
- * @return {Record<string, object[]>} The menu items by section.
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function startPageSections(chrome, openUserSettings) {
-	const bySection = Object.fromEntries(SECTIONS.map((s) => [s, []]))
-	for (const entry of chrome.entries) {
-		const section = entry.section ?? 'main'
-		if (!(section in bySection)) {
-			continue
-		}
-		const item = resolveMenuItem(entry, openUserSettings)
-		if (item) {
-			bySection[section].push(item)
-		}
-	}
-	const settings = []
-	if (chrome.includePersonalSettings && typeof openUserSettings === 'function') {
-		settings.push({
-			id: 'personal-settings',
-			label: t('launchpad', 'Personal settings'),
-			onClick: openUserSettings,
-		})
-	}
-	if (chrome.isAdmin) {
-		settings.push({
-			id: 'admin-settings-link',
-			label: t('launchpad', 'Admin settings'),
-			href: generateUrl('/settings/admin/{appId}', {
-				appId: 'launchpad',
-			}),
-			external: false,
-		})
-	}
-	bySection.settings = [...settings, ...bySection.settings]
-	return bySection
-}
-
-/**
- * Read the chrome decision `App.vue` provides, unwrapped, with defaults
- * that keep the panel.
- *
- * @param {object|null} provided The injected `launchpadChrome` (a ref or a plain value).
- * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
- * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- */
-export function readChrome(provided) {
-	const value = provided?.value ?? provided
-	return {
-		railSuppressed: value?.railSuppressed === true,
-		entries: Array.isArray(value?.entries) ? value.entries : [],
-		isAdmin: value?.isAdmin === true,
-		includePersonalSettings: value?.includePersonalSettings !== false,
-	}
-}
+	dashboardItems,
+	readChrome,
+	settingsMenuItems,
+	startPageSections,
+} from './moreMenuItems.js'
 
 export default {
 	name: 'StartPageMenu',
 
 	components: {
-		NcActionButton,
-		NcActionLink,
-		NcActionRouter,
-		NcActionSeparator,
-		NcActions,
+		LaunchpadMoreMenu,
 	},
 
 	inject: {
@@ -290,7 +64,24 @@ export default {
 		},
 	},
 
+	data() {
+		return {
+			/** The uuid of the person's default dashboard, read on first open. */
+			defaultUuid: '',
+			defaultRead: false,
+		}
+	},
+
 	computed: {
+		...mapState(useDashboardStore, [
+			'userDashboards',
+			'groupSharedDashboards',
+			'defaultGroupDashboards',
+			'sharedWithMeDashboards',
+			'activeDashboardId',
+			'loadedOnce',
+		]),
+
 		/**
 		 * The chrome decision, unwrapped. Defaults keep the panel.
 		 *
@@ -302,28 +93,82 @@ export default {
 		},
 
 		/**
-		 * The menu's groups in the order of the dashboard view's More menu:
-		 * Dashboards, Settings, then the app's own destinations. A group
-		 * with nothing to show is left out.
+		 * The Dashboards group, as on the dashboard view.
 		 *
-		 * @return {Array<{ id: string, items: object[] }>}
-		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+		 * @return {object[]}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
-		groups() {
-			const sections = startPageSections(this.chrome, this.cnOpenUserSettings)
-			return [
-				{
-					id: 'dashboards',
-					items: sections.main.filter((item) => item.id === 'dashboards'),
-				},
-				{ id: 'settings', items: settingsItems(sections) },
-				{ id: 'launchpad', items: launchpadItems(sections) },
-			].filter((group) => group.items.length > 0)
+		dashboards() {
+			return dashboardItems({
+				userDashboards: this.userDashboards,
+				groupDashboards: [
+					...this.groupSharedDashboards,
+					...this.defaultGroupDashboards,
+					...this.sharedWithMeDashboards,
+				],
+				sharedDashboards: this.sharedWithMeDashboards,
+				activeId: null,
+				defaultUuid: this.defaultUuid,
+				onSwitch: (id) => this.openDashboard(id),
+				onOpenAll: () => this.openWorkspace(),
+			})
+		},
+
+		/**
+		 * The items under Settings.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		settings() {
+			return settingsMenuItems(startPageSections(this.chrome, this.cnOpenUserSettings))
 		},
 	},
 
 	methods: {
-		t,
+		/**
+		 * Read the dashboards and the default one the first time the menu
+		 * opens, when the page has not read them yet.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		async onOpen() {
+			if (!this.loadedOnce) {
+				await useDashboardStore().loadDashboards()
+			}
+			if (this.defaultRead) {
+				return
+			}
+			this.defaultRead = true
+			try {
+				const res = await api.getDefaultDashboardPreference()
+				this.defaultUuid = res?.data?.uuid ?? ''
+			} catch (error) {
+				logger.warn('[StartPageMenu] could not read the default dashboard:', error)
+			}
+		},
+
+		/**
+		 * Open a dashboard on the dashboard view.
+		 *
+		 * @param {string|number} id The dashboard's id.
+		 * @return {void}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		openDashboard(id) {
+			this.$router?.push({ name: 'dashboard-detail', params: { id: String(id) } })
+		},
+
+		/**
+		 * Go to the dashboard view, where every dashboard is listed.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		openWorkspace() {
+			this.$router?.push({ name: 'Workspace' })
+		},
 	},
 }
 </script>

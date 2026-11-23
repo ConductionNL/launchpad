@@ -132,8 +132,8 @@ test('the form names dossiq\'s register and schema', async ({ browser }) => {
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {
 		await page.goto('/index.php/apps/launchpad')
-		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="cn-grouped-menu-trigger"]').click()
-		await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]').click()
+		await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 		await page.locator('[data-testid="widget-picker-type-assigned-cases"]').click()
 		await expect(page.locator('[data-testid="assigned-cases-form-register"] input')).toHaveValue('dossiq')
 		await expect(page.locator('[data-testid="assigned-cases-form-schema"] input')).toHaveValue('case')
@@ -150,8 +150,8 @@ test('without dossiq the widget is not shown and not offered', async ({ browser 
 		await page.goto('/index.php/apps/launchpad')
 		await expect(page.locator('[data-testid="launchpad-more-menu"]')).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('[data-testid="assigned-cases-widget"]')).toHaveCount(0)
-		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="cn-grouped-menu-trigger"]').click()
-		await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]').click()
+		await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 		await expect(page.locator('[data-testid="widget-picker-custom"]')).toBeVisible()
 		await expect(page.locator('[data-testid="widget-picker-type-assigned-cases"]')).toHaveCount(0)
 	} finally {

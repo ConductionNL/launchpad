@@ -44,6 +44,14 @@ describe('recentWorkRows', () => {
 		expect(recentWorkRows([{ app: 'openregister', object_type: 'object', object_id: 1, object_name: '83fc3a62-a06c-4da6-8112-70214b3cf607', link: '/o/1', datetime: NOW.toISOString() }], 6, NOW, 'en-GB')).toEqual([])
 	})
 
+	it('leaves out what the reader deleted', () => {
+		const rows = recentWorkRows([
+			{ app: 'files', type: 'file_deleted', subject: 'You deleted a.pdf', object_type: 'files', object_id: 1, object_name: '/a.pdf', link: '/f/1', datetime: NOW.toISOString() },
+			{ app: 'files', type: 'file_changed', object_type: 'files', object_id: 2, object_name: '/b.pdf', link: '/f/2', datetime: NOW.toISOString() },
+		], 6, NOW, 'en-GB')
+		expect(rows.map((row) => row.title)).toEqual(['b.pdf'])
+	})
+
 	it('stops at the limit', () => {
 		const many = Array.from({ length: 9 }, (_, i) => ({ app: 'deck', object_type: 'card', object_id: i, object_name: 'Card ' + i, link: '/d/' + i, datetime: NOW.toISOString() }))
 		expect(recentWorkRows(many, 3, NOW, 'en-GB')).toHaveLength(3)

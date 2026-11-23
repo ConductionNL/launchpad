@@ -89,6 +89,10 @@ export function recentWorkRows(activities, limit, now, locale, apps = []) {
 	const seen = new Set()
 	for (const activity of Array.isArray(activities) ? activities : []) {
 		const name = String(activity?.object_name ?? '').split('/').filter(Boolean).pop() || ''
+		// Something the reader removed is not work to pick up again.
+		if (/deleted|_delete/.test(String(activity.type ?? '')) || /deleted/.test(String(activity.subject ?? ''))) {
+			continue
+		}
 		if (name === '' || UUID.test(name) || !activity.link) {
 			continue
 		}
@@ -158,7 +162,7 @@ export default {
 		])
 		try {
 			const { data } = await axios.get(generateOcsUrl('/apps/activity/api/v2/activity/self'), {
-				params: { format: 'json', limit: 40 },
+				params: { format: 'json', limit: 200 },
 			})
 			this.activities = Array.isArray(data?.ocs?.data) ? data.ocs.data : []
 		} catch (error) {

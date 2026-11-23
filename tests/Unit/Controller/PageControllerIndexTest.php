@@ -212,11 +212,21 @@ class PageControllerIndexTest extends TestCase {
 			)
 		) extends PageController {
 			/**
-			 * Asset loading needs a running Nextcloud.
+			 * The scripts the page asked for.
+			 *
+			 * @var list<string>
+			 */
+			public array $scripts = [];
+
+			/**
+			 * Asset loading needs a running Nextcloud, so the script is only recorded.
+			 *
+			 * @param string $script The script.
 			 *
 			 * @return void
 			 */
-			protected function addWorkspaceAssets(): void {
+			protected function addAssets(string $script): void {
+				$this->scripts[] = $script;
 			}
 		};
 	}//end controller()
@@ -263,8 +273,10 @@ class PageControllerIndexTest extends TestCase {
 		$this->dashboards->expects($this->never())->method('getVisibleToUser');
 		$this->permissions->expects($this->never())->method('getAllowedWidgetIds');
 
-		$response = $this->controller()->index();
+		$controller = $this->controller();
+		$response   = $controller->index();
 
+		$this->assertSame(expected: ['launchpad-main'], actual: $controller->scripts);
 		$this->assertSame(expected: 'index', actual: $response->getTemplateName());
 		$this->assertSame(expected: TemplateResponse::RENDER_AS_USER, actual: $response->getRenderAs());
 		$this->assertSame(expected: [['id' => 'notes'], ['id' => 'calendar']], actual: $this->state['widgets']);

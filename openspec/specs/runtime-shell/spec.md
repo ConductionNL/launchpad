@@ -273,17 +273,17 @@ The admin option "Start page without navigation panel" is no longer offered: wit
 
 The page header MUST carry one control: More. There MUST be no "Startpagina aanpassen" button, no Menu button, no Edit button and no "Add widget" button in the header; editing starts from More, and the edit bar (dashboards REQ-DASH-038) carries the edit actions.
 
-More MUST be the same menu on every page (board `launchpad/LpMeer`): on the start page, on any dashboard, in the empty state and on every other page. It is a popover of 600 px with two columns, one column below 960 px:
+More MUST be the same menu on every page (board `launchpad/LpMeer`): on the start page, on any dashboard, in the empty state and on every other page. It is a popover of 600 px with two columns: the left column holds only Dashboards, the right column This dashboard and below it Settings. Below 960 px it is one column in the order Dashboards, This dashboard, Settings. Off the dashboard view there is no This dashboard group and Settings stands alone in the right column:
 
 - **Dashboards** (left): the person's own dashboards, then the shared and group ones, at most eight, as radio items (`role="menuitemradio"`) with the open one checked and highlighted, and the markers default, shared and group. Then "All dashboards". Off the dashboard view no dashboard is checked, and choosing one opens it on the dashboard view.
-- **Settings** (left, below Dashboards): ONE menu item with a cog and a chevron, `aria-haspopup="true"` and `aria-expanded`. It starts folded each time the menu opens and unfolds in place as an indented group with a 2 px rule at its start: Personal settings, Admin settings (administrators only), Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features and roadmap (nl Persoonlijke instellingen, Beheerinstellingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap). An entry the board does not name follows at the end.
+- **Settings** (right, at the bottom, below This dashboard's Delete and behind the same top rule): ONE menu item with a cog and a chevron, `aria-haspopup="true"` and `aria-expanded`. It starts folded each time the menu opens and unfolds in place as an indented group with a 2 px rule at its start: Personal settings, Admin settings (administrators only), Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features and roadmap (nl Persoonlijke instellingen, Beheerinstellingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap), unfolding below it in the right column. An entry the board does not name follows at the end.
 - **This dashboard** (right, only where a dashboard is open): Edit, Add widget, Share, Copy link to this dashboard, Duplicate as new dashboard, Set as default, and Delete last, in the error colour behind a rule. Each item keeps its rule: Edit and Add widget need edit rights, Share and Delete need ownership, Duplicate needs personal dashboards to be allowed and the quota not reached. Read receipts, for an editor of a dashboard that asks readers to confirm, sits before Delete.
 
 More MUST NOT offer Versions (a tab of the dashboard settings, REQ-DASH-039), Schedule or Unpublish (the Publication tab), or a second Settings item under This dashboard; the dashboard settings open from the edit bar.
 
-The menu is a WAI-ARIA menu: the arrow keys move through every visible item over both columns, Home and End jump to the first and last, Right unfolds Settings and Left folds it, and Escape closes the menu and returns focus to More.
+The menu is a WAI-ARIA menu: the arrow keys move through every visible item over both columns in the visual order (Dashboards, This dashboard, Settings and its unfolded group), Home and End jump to the first and last, Right unfolds Settings and Left folds it, and Escape closes the menu and returns focus to More.
 
-**Why.** Ruben's decision of 22 Nov 2026, drawn on boards LpMeer and LpBewerken (design-system #1193, #1194): one menu, identical everywhere, for the English demo film.
+**Why.** Ruben's decision of 22 Nov 2026, drawn on boards LpMeer and LpBewerken (design-system #1193, #1194): one menu, identical everywhere, for the English demo film. Ruben's decision of 23 Nov 2026 moved Settings from the left column, under Dashboards, to the bottom of the right column, so the left column lists only dashboards.
 
 #### Scenario: The header carries only More
 - GIVEN a member on the start page
@@ -295,7 +295,7 @@ The menu is a WAI-ARIA menu: the arrow keys move through every visible item over
 #### Scenario: Settings unfolds in place
 - GIVEN a member with More open
 - WHEN they choose Settings
-- THEN Settings MUST report `aria-expanded="true"` and its destinations MUST show indented below it, while the menu stays open
+- THEN Settings, at the bottom of the right column below Delete, MUST report `aria-expanded="true"` and its destinations MUST show indented below it in that column, while the menu stays open
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-013
 

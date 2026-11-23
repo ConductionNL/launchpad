@@ -661,7 +661,7 @@
 					"customTitle": "Mail",
 					"content": {
 						"title": "Mail",
-						"widgetId": "mail",
+						"widgetId": "mail-unread",
 						"displayMode": "vertical"
 					}
 				},
@@ -826,7 +826,7 @@
 					"showTitle": 1,
 					"customTitle": "Wiki",
 					"content": {
-						"space": "Kennisbank Zuiddrecht",
+						"space": "",
 						"limit": 3
 					}
 				},

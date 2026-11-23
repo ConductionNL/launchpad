@@ -375,15 +375,15 @@ class CalendarWidgetService implements CalendarWidgetServiceInterface {
 		$events    = [];
 		foreach ($matches as $match) {
 			$matchArr = (array)$match;
+			$matchArr = array_merge(
+				($calendars[(string)($matchArr['calendar-key'] ?? '')] ?? []),
+				$matchArr
+			);
 			if ($this->isCalendarInScope(match: $matchArr, principals: $principals) === false) {
 				// Caller restricted to a subset; skip out-of-scope calendars.
 				continue;
 			}
 
-			$matchArr = array_merge(
-				($calendars[(string)($matchArr['calendar-key'] ?? '')] ?? []),
-				$matchArr
-			);
 			foreach ($this->instancesOf(match: $matchArr) as $instance) {
 				$events[] = $this->normalizeInternalEvent(raw: $instance);
 			}
@@ -418,12 +418,12 @@ class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	}//end instancesOf()
 
 	/**
-	 * The display name and colour of the user's calendars, by calendar key,
-	 * in the keys a search match carries them under.
+	 * The URI, display name and colour of the user's calendars, by calendar
+	 * key, in the keys a search match carries them under.
 	 *
 	 * NC's search result names a calendar only by `calendar-key`.
 	 *
-	 * @return array<string, array{calendar-name: string, calendar-color: string|null}>
+	 * @return array<string, array{calendar-uri: string, calendar-name: string, calendar-color: string|null}>
 	 */
 	private function calendarDisplay(): array {
 		$display = [];
@@ -443,6 +443,7 @@ class CalendarWidgetService implements CalendarWidgetServiceInterface {
 			}
 
 			$display[(string)$calendar->getKey()] = [
+				'calendar-uri' => (string)$calendar->getUri(),
 				'calendar-name' => (string)$calendar->getDisplayName(),
 				'calendar-color' => $color,
 			];
@@ -452,10 +453,11 @@ class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	}//end calendarDisplay()
 
 	/**
-	 * Whether the match's calendar (by key or name) is among the principals; all are when none are given.
+	 * Whether the match's calendar (by key, URI such as `personal`, or name)
+	 * is among the principals; all are when none are given.
 	 *
-	 * @param array<string, mixed> $match      One raw search match.
-	 * @param string[]             $principals Calendar keys or names to keep.
+	 * @param array<string, mixed> $match      One search match, with its calendar's URI and name when known.
+	 * @param string[]             $principals Calendar keys, URIs or names to keep.
 	 *
 	 * @return bool
 	 */
@@ -464,11 +466,19 @@ class CalendarWidgetService implements CalendarWidgetServiceInterface {
 			return true;
 		}
 
-		$calId = (string)($match['calendar-key'] ?? $match['calendarUri'] ?? '');
-		$calName = (string)($match['calendar-name'] ?? $match['calendarName'] ?? '');
+		$identifiers = [
+			(string)($match['calendar-key'] ?? ''),
+			(string)($match['calendar-uri'] ?? $match['calendarUri'] ?? ''),
+			(string)($match['calendar-name'] ?? $match['calendarName'] ?? ''),
+		];
 
-		return in_array(needle: $calId, haystack: $principals, strict: true) === true
-			|| in_array(needle: $calName, haystack: $principals, strict: true) === true;
+		foreach ($identifiers as $identifier) {
+			if ($identifier !== '' && in_array(needle: $identifier, haystack: $principals, strict: true) === true) {
+				return true;
+			}
+		}
+
+		return false;
 	}//end isCalendarInScope()
 
 	/**

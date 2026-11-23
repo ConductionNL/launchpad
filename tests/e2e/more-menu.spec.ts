@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The one More menu of board LpMeer (runtime-shell REQ-SHELL-013): the only
- * control at the top, Settings unfolding in place, This dashboard ending in
- * Delete, and Escape returning focus to More.
+ * control at the top, Settings at the bottom of the right column unfolding
+ * in place, This dashboard ending in Delete, and Escape returning focus to
+ * More.
  *
  * Gate-19 @e2e traceability:
  *   @e2e runtime-shell::the-header-carries-only-more
@@ -78,6 +79,13 @@ test('the header carries only More', async ({ page }) => {
 test('Settings unfolds in place', async ({ page }) => {
 	const panel = await openMore(page)
 	const toggle = panel.locator('[data-testid="launchpad-more-menu-settings"]')
+	const columns = panel.locator('.lp-more-menu__column')
+	await expect(columns).toHaveCount(2)
+	await expect(columns.nth(0).locator('[data-testid="launchpad-more-menu-settings"]')).toHaveCount(0)
+	await expect(columns.nth(1).locator('[data-testid="launchpad-more-menu-settings"]')).toHaveCount(1)
+	const deleteBox = await panel.locator('[data-testid="launchpad-more-menu-item-delete"]').boundingBox()
+	const toggleBox = await toggle.boundingBox()
+	expect(toggleBox && deleteBox && toggleBox.y > deleteBox.y).toBe(true)
 	await expect(toggle).toHaveAttribute('aria-haspopup', 'true')
 	await expect(toggle).toHaveAttribute('aria-expanded', 'false')
 	await expect(panel.locator('[data-testid="launchpad-more-menu-item-StoreMenu"]')).toBeHidden()
@@ -85,7 +93,16 @@ test('Settings unfolds in place', async ({ page }) => {
 	await expect(toggle).toHaveAttribute('aria-expanded', 'true')
 	await expect(panel.locator('[data-testid="launchpad-more-menu-item-StoreMenu"]')).toBeVisible()
 	await expect(panel.locator('[data-testid="launchpad-more-menu-item-personal-settings"]')).toBeVisible()
+	await expect(columns.nth(1).locator('[data-testid="launchpad-more-menu-group-settings"]')).toBeVisible()
 	await expect(panel).toBeVisible()
+})
+
+test('the arrow keys follow the visual order, Settings last', async ({ page }) => {
+	await openMore(page)
+	await page.keyboard.press('End')
+	await expect(page.locator('[data-testid="launchpad-more-menu-settings"]')).toBeFocused()
+	await page.keyboard.press('ArrowUp')
+	await expect(page.locator('[data-testid="launchpad-more-menu-item-delete"]')).toBeFocused()
 })
 
 test('This dashboard ends in Delete', async ({ page }) => {

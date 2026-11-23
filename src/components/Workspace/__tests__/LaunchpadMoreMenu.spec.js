@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The one More menu of board LpMeer: its groups, the expandable Settings
- * item and the keyboard.
+ * item at the bottom of the right column and the keyboard.
  */
 
 import { flushPromises, mount } from '@vue/test-utils'
@@ -59,15 +59,32 @@ const ids = (wrapper) => wrapper.findAll('.lp-more-menu__item').map((el) => el.a
 const panel = (wrapper) => wrapper.find('[data-testid="launchpad-more-menu-panel"]')
 
 describe('LaunchpadMoreMenu', () => {
-	it('is a menu named More with Dashboards and Settings left, This dashboard right', async () => {
+	it('is a menu named More with Dashboards left, This dashboard and then Settings right', async () => {
 		const wrapper = await openMenu()
 		expect(panel(wrapper).attributes('role')).toBe('menu')
 		expect(panel(wrapper).attributes('aria-label')).toBe('More')
 		const columns = wrapper.findAll('.lp-more-menu__column')
 		expect(columns).toHaveLength(2)
 		expect(columns[0].text()).toContain('Dashboards')
-		expect(columns[0].text()).toContain('Settings')
+		expect(columns[0].find('[data-testid="launchpad-more-menu-settings"]').exists()).toBe(false)
 		expect(columns[1].text()).toContain('This dashboard')
+		const right = [...columns[1].element.children]
+		expect(right.map((el) => el.getAttribute('data-testid'))).toEqual([
+			'launchpad-more-menu-group-this-dashboard',
+			'launchpad-more-menu-settings',
+			'launchpad-more-menu-group-settings',
+		])
+		wrapper.unmount()
+	})
+
+	it('puts Settings alone in the right column off the dashboard view', async () => {
+		const wrapper = await openMenu({ actions: [] })
+		const columns = wrapper.findAll('.lp-more-menu__column')
+		expect(columns).toHaveLength(2)
+		expect(panel(wrapper).classes()).not.toContain('lp-more-menu__panel--single')
+		expect(columns[0].text()).toContain('Dashboards')
+		expect(columns[1].find('[data-testid="launchpad-more-menu-group-this-dashboard"]').exists()).toBe(false)
+		expect(columns[1].element.firstElementChild.getAttribute('data-testid')).toBe('launchpad-more-menu-settings')
 		wrapper.unmount()
 	})
 
@@ -155,20 +172,22 @@ describe('LaunchpadMoreMenu', () => {
 		const active = () => document.activeElement.getAttribute('data-testid')
 		expect(active()).toBe('launchpad-more-menu-item-dashboard-1')
 		await panel(wrapper).trigger('keydown', { key: 'ArrowUp' })
+		expect(active()).toBe('launchpad-more-menu-settings')
+		await panel(wrapper).trigger('keydown', { key: 'ArrowUp' })
 		expect(active()).toBe('launchpad-more-menu-item-delete')
 		await panel(wrapper).trigger('keydown', { key: 'Home' })
 		expect(active()).toBe('launchpad-more-menu-item-dashboard-1')
 		await panel(wrapper).trigger('keydown', { key: 'End' })
-		expect(active()).toBe('launchpad-more-menu-item-delete')
+		expect(active()).toBe('launchpad-more-menu-settings')
 		// The folded Settings items are skipped.
 		expect(ids(wrapper)).toContain('launchpad-more-menu-item-personal-settings')
 		expect(wrapper.vm.itemElements().map((el) => el.getAttribute('data-testid'))).toEqual([
 			'launchpad-more-menu-item-dashboard-1',
 			'launchpad-more-menu-item-dashboard-2',
 			'launchpad-more-menu-item-all-dashboards',
-			'launchpad-more-menu-settings',
 			'launchpad-more-menu-item-edit',
 			'launchpad-more-menu-item-delete',
+			'launchpad-more-menu-settings',
 		])
 		wrapper.unmount()
 	})
@@ -182,6 +201,12 @@ describe('LaunchpadMoreMenu', () => {
 		expect(toggle.attributes('aria-expanded')).toBe('true')
 		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-item-personal-settings')
 		await panel(wrapper).trigger('keydown', { key: 'ArrowDown' })
+		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-item-StoreMenu')
+		await panel(wrapper).trigger('keydown', { key: 'End' })
+		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-item-StoreMenu')
+		await panel(wrapper).trigger('keydown', { key: 'ArrowDown' })
+		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-item-dashboard-1')
+		await panel(wrapper).trigger('keydown', { key: 'ArrowUp' })
 		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-item-StoreMenu')
 
 		await panel(wrapper).trigger('keydown', { key: 'ArrowLeft' })

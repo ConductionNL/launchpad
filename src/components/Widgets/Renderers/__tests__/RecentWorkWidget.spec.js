@@ -34,6 +34,16 @@ describe('recentWorkRows', () => {
 		expect(rows[1].meta).toBe('calendar · Friday')
 	})
 
+	it('leaves out a record named only by its uuid, and other apps when apps are given', () => {
+		const rows = recentWorkRows([
+			{ app: 'openregister', object_type: 'object', object_id: 1, object_name: '83fc3a62-a06c-4da6-8112-70214b3cf607', link: '/o/1', datetime: NOW.toISOString() },
+			{ app: 'openregister', object_type: 'object', object_id: 2, object_name: 'Klacht behandeling', link: '/o/2', datetime: NOW.toISOString() },
+			{ app: 'files', object_type: 'files', object_id: 3, object_name: '/a.pdf', link: '/f/3', datetime: NOW.toISOString() },
+		], 6, NOW, 'en-GB', ['files'])
+		expect(rows.map((row) => row.title)).toEqual(['a.pdf'])
+		expect(recentWorkRows([{ app: 'openregister', object_type: 'object', object_id: 1, object_name: '83fc3a62-a06c-4da6-8112-70214b3cf607', link: '/o/1', datetime: NOW.toISOString() }], 6, NOW, 'en-GB')).toEqual([])
+	})
+
 	it('stops at the limit', () => {
 		const many = Array.from({ length: 9 }, (_, i) => ({ app: 'deck', object_type: 'card', object_id: i, object_name: 'Card ' + i, link: '/d/' + i, datetime: NOW.toISOString() }))
 		expect(recentWorkRows(many, 3, NOW, 'en-GB')).toHaveLength(3)

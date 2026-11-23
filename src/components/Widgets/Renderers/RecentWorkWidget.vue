@@ -36,6 +36,9 @@ import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 /** Milliseconds in a day. */
 const DAY_MS = 86400000
 
+/** A name that is only an id (a record's uuid) says nothing to the reader. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /** App ids the Activity app reports under another name than the reader knows. */
 const APP_LABELS = { dav: 'calendar', spreed: 'talk' }
 
@@ -77,15 +80,19 @@ export function recentWhen(value, now, locale) {
  * @param {number} limit The most rows to show.
  * @param {Date} now The current moment.
  * @param {string} locale BCP 47 locale.
+ * @param {Array<string>} [apps] Only these apps' activity, all when empty.
  * @return {Array<{key: string, title: string, meta: string, link: string}>}
  * @spec openspec/specs/widgets/spec.md
  */
-export function recentWorkRows(activities, limit, now, locale) {
+export function recentWorkRows(activities, limit, now, locale, apps = []) {
 	const rows = []
 	const seen = new Set()
 	for (const activity of Array.isArray(activities) ? activities : []) {
 		const name = String(activity?.object_name ?? '').split('/').filter(Boolean).pop() || ''
-		if (name === '' || !activity.link) {
+		if (name === '' || UUID.test(name) || !activity.link) {
+			continue
+		}
+		if (apps.length > 0 && !apps.includes(activity.app)) {
 			continue
 		}
 		const key = `${activity.object_type ?? ''}:${activity.object_id ?? name}`
@@ -120,7 +127,7 @@ export default {
 	components: { ChevronRight },
 
 	props: {
-		/** `{limit}`: how many rows to show (default 6). */
+		/** `{limit, apps}`: how many rows to show (default 6), and only these apps' work. */
 		content: OBJECT_PROP,
 	},
 
@@ -139,7 +146,8 @@ export default {
 		 */
 		rows() {
 			const limit = Number(this.content?.limit) > 0 ? Number(this.content.limit) : 6
-			return recentWorkRows(this.activities, limit, new Date(), getCanonicalLocale())
+			const apps = Array.isArray(this.content?.apps) ? this.content.apps : []
+			return recentWorkRows(this.activities, limit, new Date(), getCanonicalLocale(), apps)
 		},
 	},
 
@@ -172,7 +180,9 @@ export default {
 	list-style: none;
 }
 
-.recent-work__row {
+/* The theme colours and underlines every link with id weight; a row reads
+   as a list row in the main text colour. */
+.recent-work__row:not(#recent-work-a):not(#recent-work-b) {
 	display: flex;
 	align-items: center;
 	gap: 8px;

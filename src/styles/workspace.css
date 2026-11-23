@@ -522,6 +522,10 @@
 	padding-inline-start: 0 !important;
 }
 
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node__label-button {
+	padding-inline: 0;
+}
+
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
 	display: none;
 }

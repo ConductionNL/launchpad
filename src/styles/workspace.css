@@ -503,7 +503,7 @@
 /* The organisation menu as LpWerkplek draws it: each group a small uppercase
    label and its links in a flat list on the card's inset, no carets. */
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row {
-	padding: 6px 0 2px;
+	padding: 6px 0 2px !important;
 }
 
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
@@ -523,7 +523,13 @@
 }
 
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node__label-button {
+	margin: 0;
 	padding-inline: 0;
+}
+
+/* The first group label stands right under the title. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1:first-child > .cn-menu-tree-node__row {
+	padding-top: 0 !important;
 }
 
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {

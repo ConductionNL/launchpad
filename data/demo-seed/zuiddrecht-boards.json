@@ -2180,7 +2180,7 @@
 					"gridWidth": 8,
 					"gridHeight": 6,
 					"showTitle": 1,
-					"customTitle": "Meldingen",
+					"customTitle": "Meldingen openbare ruimte op de kaart",
 					"content": {
 						"tileSource": "pdok",
 						"register": "dossiq",

@@ -244,7 +244,7 @@ class DemoSeedServiceTest extends TestCase {
 		$this->assertNotContains(needle: 'Zaaksysteem', haystack: $names);
 
 		$titles = array_map(callback: fn (Announcement $row): string => (string)$row->getTitle(), array: array_values(array: $this->announcementRows));
-		$this->assertContains(needle: 'Case system maintenance on Saturday 10 October, 08:00 to 12:00', haystack: $titles);
+		$this->assertContains(needle: 'Case system maintenance on Saturday, 08:00 to 12:00', haystack: $titles);
 
 		$contents = array_map(callback: fn (WidgetPlacement $p): string => (string)$p->getContent(), array: $this->placements);
 		$joined   = implode(separator: "\n", array: $contents);

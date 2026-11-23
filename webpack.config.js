@@ -5,6 +5,7 @@
 
 const webpackConfig = require('@nextcloud/webpack-vue-config')
 const path = require('path')
+const webpack = require('webpack')
 
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
@@ -92,5 +93,16 @@ webpackConfig.module.rules.push({
 	test: /[\\/]node_modules[\\/]@nextcloud[\\/]vue[\\/]dist[\\/].*\.m?js$/,
 	sideEffects: false,
 })
+
+// A dynamic `import('@mdi/js')` (the icon pickers, the icon catalogue) uses
+// every export, and webpack keeps one copy of a module, so that copy lands
+// wherever a static `import { mdiX } from '@mdi/js'` puts it: the entry bundle,
+// with all 7,000 icons. Dynamic imports get a module of their own instead, so
+// the static imports stay tree-shaken and the full set stays in its own chunk.
+webpackConfig.plugins.push(new webpack.NormalModuleReplacementPlugin(/^@mdi\/js$/, (resource) => {
+	if ((resource.dependencies || []).some((dependency) => dependency.type === 'import()')) {
+		resource.request = '@mdi/js/mdi.js?on-demand'
+	}
+}))
 
 module.exports = webpackConfig

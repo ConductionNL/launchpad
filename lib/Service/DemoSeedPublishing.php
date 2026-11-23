@@ -62,9 +62,11 @@ class DemoSeedPublishing {
 		foreach ($values as $key => $value) {
 			if (is_array($value) === true && array_is_list($value) === true) {
 				$current = $this->settings->getValue(key: (string)$key, default: []);
-				$value   = array_values(
-					array: array_unique(array: [...(is_array($current) === true ? $current : []), ...$value])
-				);
+				if (is_array($current) === false) {
+					$current = [];
+				}
+
+				$value = array_values(array: array_unique(array: [...$current, ...$value]));
 			}
 
 			$this->settings->setSetting(key: (string)$key, value: $value);

@@ -140,7 +140,7 @@ class DemoSeedPublishingTest extends TestCase {
 		$kiosk->method('listPlaylists')->willReturn([$existing]);
 		$kiosk->expects($this->never())->method('createPlaylist');
 		$kiosk->expects($this->once())->method('updatePlaylist')
-			->with(4, $this->isInstanceOf(KioskPlaylistDraft::class), 'beheer')
+			->with(4, $this->isInstanceOf(className: KioskPlaylistDraft::class), 'beheer')
 			->willReturn($existing);
 
 		$publishing = new DemoSeedPublishing(

@@ -219,7 +219,8 @@ class DemoSeedService {
 		}
 
 		foreach ((array)($definition['kioskPlaylists'] ?? []) as $playlist) {
-			$published['kioskPlaylists'][(string)($playlist['name'] ?? '')] = $this->publishing->ensurePlaylist(playlist: (array)$playlist, publisher: $publisher);
+			$name = (string)($playlist['name'] ?? '');
+			$published['kioskPlaylists'][$name] = $this->publishing->ensurePlaylist(playlist: (array)$playlist, publisher: $publisher);
 		}
 
 		return $published;

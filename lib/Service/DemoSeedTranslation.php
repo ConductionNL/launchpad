@@ -39,7 +39,7 @@ final class DemoSeedTranslation {
 		'_comment', 'seedId', 'seedVersion', 'walkthroughSeenVersion', 'groups', 'users', 'files', 'appConfig',
 		'uuid', 'key', 'board', 'widgetId', 'tile', 'icon', 'url', 'link', 'appId', 'owner', 'group', 'targetGroups',
 		'author', 'shares', 'source', 'filter', 'status', 'values', 'with', 'internalCalendars', 'space', 'project',
-		'scope', 'feedUrls', 'videoUrl', 'colors', 'location', 'timezone',
+		'scope', 'feedUrls', 'videoUrl', 'colors', 'location', 'timezone', 'adminSettings', 'publishing',
 	];
 
 	/**

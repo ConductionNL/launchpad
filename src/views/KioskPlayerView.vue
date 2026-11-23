@@ -474,6 +474,11 @@ export default {
 <style scoped>
 /* Board LpKiosk: a canteen screen at 1920 x 1080 seen from across the room. */
 .kiosk-player {
+	/* The whole screen, whatever frame the page puts around the app. */
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	overflow: auto;
 	min-height: 100vh;
 	background: var(--color-background-hover, var(--color-main-background));
 	color: var(--color-main-text);
@@ -514,6 +519,13 @@ export default {
 	align-items: flex-end;
 	margin: 0;
 	line-height: 1.1;
+}
+
+/* The house style colours every paragraph with !important; the band and the
+   pill keep their own light text. */
+.kiosk-player__clock,
+.kiosk-player__clock span {
+	color: inherit !important;
 }
 
 .kiosk-player__time {
@@ -588,7 +600,7 @@ export default {
 	padding: 10px 22px;
 	border-radius: 999px;
 	background: rgba(27, 28, 29, 0.82);
-	color: #ffffff;
+	color: #ffffff !important;
 	font-size: 20px;
 	font-variant-numeric: tabular-nums;
 	pointer-events: none;

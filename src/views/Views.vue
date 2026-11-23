@@ -74,17 +74,14 @@
 		     Both halves have to move for the ordering between them to mean
 		     anything. -->
 		<!-- On a dashboard with a greeting on the page ground, the controls
-		     dock into that row (headerActionsDock.js), right of "Startpagina
-		     aanpassen" as LpStart draws the page's actions. Floating there,
-		     they covered that button. -->
-		<Teleport v-if="!kiosk" :to="headerActionsTarget || 'body'">
+		     dock into that row (headerActionsDock.js); in edit mode they dock
+		     at the end of the edit bar. -->
+		<Teleport v-if="!kiosk" :to="controlsDock || 'body'">
 			<div
 				class="launchpad-floating-controls"
-				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
+				:class="{ 'launchpad-floating-controls--docked': controlsDock !== null }"
 				data-testid="launchpad-top-controls">
-				<!-- LpVandaag: one "Meer" menu holds the dashboard switcher, the
-				     active dashboard's actions, the start page's destinations
-				     and Share, beside "Startpagina aanpassen". -->
+				<!-- Board LpMeer: More is the page header's only control. -->
 				<DashboardMoreMenu
 					:dashboard="activeDashboard"
 					:source="activeDashboardSource"
@@ -94,9 +91,7 @@
 					:defaultUuid="defaultDashboardUuid"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
-					:canEmbed="isAdmin === true"
-					:canManagePublication="canManagePublication"
-					:canViewHistory="canViewVersionHistory"
+					:canDuplicate="canDuplicateActiveDashboard"
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
@@ -106,22 +101,16 @@
 					@toggleEdit="
 						onRowToggleEdit(activeDashboard, activeDashboardSource)
 					"
-					@openConfig="
-						onRowOpenConfig(activeDashboard, activeDashboardSource)
-					"
 					@addWidget="openWidgetModal"
-					@importBookmarks="
-						onRowImportBookmarks(activeDashboard, activeDashboardSource)
-					"
 					@setDefault="
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
-					@versionHistory="versionHistoryOpen = true"
+					@copyLink="copyDashboardLink"
+					@duplicate="onSidebarCreateDashboard"
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
-					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
@@ -163,13 +152,6 @@
 			@confirm="confirmDeleteDashboard" />
 
 
-		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
-		<VersionHistoryModal
-			:open="versionHistoryOpen"
-			:dashboardUuid="activeDashboard?.uuid ?? ''"
-			:dashboardName="activeDashboard?.name ?? ''"
-			@close="versionHistoryOpen = false"
-			@restored="onVersionRestored" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -190,6 +172,17 @@
 			:data-dashboard-uuid="activeDashboard?.uuid || null"
 			:style="dashboardLookStyle"
 			data-testid="launchpad-dashboard-region">
+			<!-- Board LpBewerken: the edit bar, with the edit actions. -->
+			<DashboardEditBar
+				v-if="isEditMode && activeDashboard"
+				:dashboardName="activeDashboard.name || ''"
+				:columns="activeDashboard.gridColumns || 12"
+				:canConfigure="canConfigureActiveDashboard"
+				@setColumns="setGridColumns"
+				@addWidget="openWidgetModal"
+				@openSettings="openConfigModal"
+				@done="toggleEditMode"
+				@dock="editBarDock = $event" />
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
@@ -225,6 +218,12 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<FilterBreadcrumb
+				v-if="activeDashboard && filterSession"
+				:hierarchies="filterSession.bus.hierarchies"
+				:clauses="filterClauses"
+				:labels="filterSession.labels"
+				@pop="onFilterPop" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -390,11 +389,13 @@
 			:saveError="configSaveError"
 			:canManagePublication="canManagePublication"
 			:canScheduleExports="canEdit"
+			:canViewVersions="canManagePublication"
 			:exportSubjects="exportSubjects"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
-			@setDefault="onModalSetDefault" />
+			@setDefault="onModalSetDefault"
+			@versionRestored="onVersionRestored" />
 
 		<!-- Style editor modal. `extra-icon-options` is gone: CnIconBrowser now
 		     ships the NL Design sets itself (RVO lazily), so passing the pack here
@@ -487,7 +488,7 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
-import { showError } from '@nextcloud/dialogs'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
 import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
@@ -501,13 +502,15 @@ import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue'
+import DashboardEditBar from '../components/Workspace/DashboardEditBar.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
+import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
+import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
@@ -516,7 +519,6 @@ import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue
 import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
-import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
@@ -525,7 +527,7 @@ import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
-import { getWidgetTypeEntry, listWidgetTypes } from '../constants/widgetRegistry.js'
+import { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import {
@@ -543,7 +545,7 @@ import { useWidgetStore } from '../stores/widgets.js'
 import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
-import { discoveredAppIdsOnDashboard, tileFromCatalogueApp, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
+import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -551,6 +553,7 @@ import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
+import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -652,6 +655,7 @@ export default {
 		WidgetMovePanel,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
+		DashboardEditBar,
 		DashboardMoreMenu,
 		SidebarBackdrop,
 		DashboardDiscussion,
@@ -661,10 +665,10 @@ export default {
 		DashboardPageHeader,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		FilterBreadcrumb,
 		DeleteDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
-		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
 
@@ -674,6 +678,13 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
+		},
+
+		// Which apps behind the integration widgets are enabled for the
+		// viewer (wiki-widget REQ-WIKI-004); the picker leaves out the rest.
+		integrationApps: {
+			from: 'integrationApps',
+			default: () => ({}),
 		},
 
 		primaryGroupName: {
@@ -809,6 +820,8 @@ export default {
 			 * teleported into, or null while they float (headerActionsDock.js).
 			 */
 			headerActionsTarget: null,
+			// The edit bar's end, where the controls dock in edit mode.
+			editBarDock: null,
 			/**
 			 * Sources (`register/schema`) OpenRegister said are not here,
 			 * keyed by source (REQ-TMPL-022).
@@ -895,12 +908,6 @@ export default {
 			presence: useDashboardPresence({
 				onRefused: () => this.onPresenceRefused(),
 			}),
-
-			// dashboard-version-history-ui: the history modal, and per
-			// dashboard uuid whether versioning is supported (read when the
-			// dashboard menu opens; absent means not known yet).
-			versionHistoryOpen: false,
-			versionSupport: {},
 		}
 	},
 
@@ -990,12 +997,14 @@ export default {
 		 * role does not permit, REQ-RFP-001). Of the rest: every placement in
 		 * edit mode, and outside it every placement but an object-list that
 		 * asked to be hidden when its register is not on this instance
-		 * (REQ-TMPL-022). In edit mode the list stays, so whoever edits sees
-		 * it is there.
+		 * (REQ-TMPL-022), and every widget that reads through an app that is
+		 * not enabled for the viewer (REQ-CASES-004). In edit mode they stay,
+		 * so whoever edits sees they are there.
 		 *
 		 * @return {object[]} the placements to lay out.
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
 		 */
 		shownPlacements() {
 			const all = (this.widgetPlacements || []).filter(
@@ -1006,8 +1015,9 @@ export default {
 			}
 			return all.filter(
 				(p) =>
-					!hidesWhenUnavailable(p)
-					|| this.unavailableSources[sourceKey(p.content)] !== true,
+					(!hidesWhenUnavailable(p)
+					|| this.unavailableSources[sourceKey(p.content)] !== true)
+					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
 			)
 		},
 
@@ -1183,6 +1193,44 @@ export default {
 		},
 
 		/**
+		 * Where the top-right controls render: in the edit bar while editing,
+		 * in the greeting row when there is one, else floating (null).
+		 *
+		 * @return {HTMLElement|null}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		controlsDock() {
+			return this.isEditMode ? this.editBarDock : this.headerActionsTarget
+		},
+
+		/**
+		 * Whether the dashboard settings open for this person: the owner, or
+		 * whoever may manage the publication (the gate of the former
+		 * "Settings" menu item).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		canConfigureActiveDashboard() {
+			return isOwnedDashboard(this.activeDashboard, this.activeDashboardSource)
+				|| this.canManagePublication
+		},
+
+		/**
+		 * Whether More offers "Duplicate as new dashboard": the gates of the
+		 * switcher's create, personal dashboards allowed and the quota not
+		 * reached (REQ-ASET-003, REQ-QUOTA-006).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		canDuplicateActiveDashboard() {
+			return Boolean(this.activeDashboard?.uuid)
+				&& (this.allowUserDashboards === true || this.isAdmin === true)
+				&& !this.dashboardQuotaReached
+		},
+
+		/**
 		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
 		 *
 		 * @return {string} The note, or empty.
@@ -1206,23 +1254,6 @@ export default {
 				)
 			}
 			return parts.join(' ')
-		},
-
-		/**
-		 * Whether the dashboard menu offers "Version history…": the owner or
-		 * an administrator, and the server said this dashboard keeps
-		 * versions (REQ-VERSUI-001). The server checks ownership again.
-		 *
-		 * @return {boolean}
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		canViewVersionHistory() {
-			const dash = this.activeDashboard
-			if (!dash?.uuid) {
-				return false
-			}
-			const mayManage = dash.isOwner === true || this.isAdmin === true
-			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -1283,6 +1314,7 @@ export default {
 		 */
 		customWidgetTypes() {
 			return listWidgetTypes()
+				.filter((type) => offeredForViewer(getWidgetTypeEntry(type), this.integrationApps))
 				.map((type) => ({ type, title: getWidgetTypeEntry(type)?.displayName || type }))
 				.sort((left, right) => left.title.localeCompare(right.title))
 		},
@@ -1817,6 +1849,7 @@ export default {
 			'forkDashboard',
 			'loadDashboards',
 			'updatePlacements',
+			'setGridColumns',
 			'addWidgetToDashboard',
 			'addTileToDashboard',
 			'importBookmarks',
@@ -2009,40 +2042,13 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		formatStamp(value) {
-			const parsed = new Date(String(value).replace(' ', 'T'))
-			return Number.isNaN(parsed.getTime())
+			const parsed = parseServerStamp(value)
+			return parsed === null
 				? String(value)
 				: parsed.toLocaleString(undefined, {
 						dateStyle: 'medium',
 						timeStyle: 'short',
 					})
-		},
-
-		/**
-		 * The dashboard menu opened: find out once per dashboard whether it
-		 * keeps versions, so "Version history…" is offered only where it
-		 * works. A refusal (not owner, not admin) reads as not offered.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		async checkVersionSupport() {
-			const dash = this.activeDashboard
-			if (!dash?.uuid || dash.uuid in this.versionSupport) {
-				return
-			}
-			if (dash.isOwner !== true && this.isAdmin !== true) {
-				return
-			}
-			try {
-				const { data } = await api.listVersions(dash.uuid)
-				this.versionSupport = {
-					...this.versionSupport,
-					[dash.uuid]: data?.modeSupported !== false,
-				}
-			} catch {
-				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
-			}
 		},
 
 		/**
@@ -2430,9 +2436,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Place a discovered app as its own app tile.
+		 *
+		 * @param {{appId: string}} app The discovered app.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
 		async addDiscoveredApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+				await this.addWidgetToDashboard(appTileFromDiscoveredApp(app))
 			} catch (error) {
 				logger.error('[Views] Failed to place a discovered app:', error)
 			}
@@ -2685,6 +2698,35 @@ export default {
 			this.configModalMode = 'edit'
 			this.configModalInitialTab = 'sharing'
 			this.isConfigModalOpen = true
+		},
+
+		/**
+		 * More's "Copy link to this dashboard": the open dashboard's own
+		 * address (its slug path, else `/dashboards/:id`) on the clipboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		async copyDashboardLink() {
+			const dash = this.activeDashboard
+			if (!dash) {
+				return
+			}
+			let path = ''
+			try {
+				const res = dash.uuid ? await api.getDashboardPath(dash.uuid) : null
+				path = res?.data?.path ?? ''
+			} catch (error) {
+				logger.warn('[Views] no path for the dashboard link:', error)
+			}
+			const url = window.location.origin + this.buildDeepLinkUrl(path || `/dashboards/${dash.id}`)
+			try {
+				await navigator.clipboard.writeText(url)
+				showSuccess(t('launchpad', 'Link copied'))
+			} catch (error) {
+				logger.warn('[Views] could not copy the dashboard link:', error)
+				showError(t('launchpad', 'The link could not be copied.'))
+			}
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -3260,6 +3302,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * A drill-down breadcrumb step was chosen: go back up to that level.
+		 *
+		 * @param {string} dimension The level's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		onFilterPop(dimension) {
+			this.filterSession?.popTo(dimension)
 		},
 
 		/**

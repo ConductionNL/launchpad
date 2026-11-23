@@ -302,6 +302,10 @@
         {
             "name": "widget-api",
             "description": "Controller for managing dashboard widgets."
+        },
+        {
+            "name": "work-packages",
+            "description": "Open work packages for the signed-in person."
         }
     ],
     "paths": {
@@ -6147,7 +6151,7 @@
                                             "integer",
                                             "null"
                                         ],
-                                        "description": "Optional new sort order (REQ-DASH-029). The optional `defaultLinkTarget` body field sets the default tile link target; an empty string clears it (`self::requestedLinkTarget()`). The optional `hierarchies` body field sets the hierarchy descriptors of the filter bus; an empty list clears them (REQ-CWF-011). The look travels in the same body and is read by `self::lookParams()`: `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the theme, REQ-THM-001), `themeBackgroundResource` (a resource file name, empty for none) and `customCss` (administrator CSS, empty to clear, REQ-THM-003)."
+                                        "description": "Optional new sort order (REQ-DASH-029). The optional `defaultLinkTarget` body field sets the default tile link target; an empty string clears it (`self::requestedLinkTarget()`). The optional `hierarchies` body field sets the hierarchy descriptors of the filter bus; an empty list clears them (REQ-CWF-011). The optional `gridColumns` body field sets the number of grid columns, 6, 8 or 12 (`self::requestedGridColumns()`, REQ-DASH-038). The look travels in the same body and is read by `self::lookParams()`: `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the theme, REQ-THM-001), `themeBackgroundResource` (a resource file name, empty for none) and `customCss` (administrator CSS, empty to clear, REQ-THM-003)."
                                     },
                                     "hierarchies": {
                                         "type": "array",
@@ -6194,6 +6198,9 @@
                                                 }
                                             }
                                         }
+                                    },
+                                    "gridColumns": {
+                                        "type": "integer"
                                     },
                                     "defaultLinkTarget": {
                                         "type": [
@@ -14451,6 +14458,64 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/work-packages": {
+            "get": {
+                "operationId": "work-packages-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the open work packages: the person's own (`scope=mine`) or a project's (`scope=project&project=<identifier>`), due date first",
+                "description": "GET the open work packages: the person's own (`scope=mine`) or a project's (`scope=project&project=<identifier>`), due date first. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "work-packages"
+                ],
+                "parameters": [
+                    {
+                        "name": "scope",
+                        "in": "query",
+                        "required": false,
+                        "description": "`mine` or `project`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": false,
+                        "description": "The project identifier for scope `project`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many to list.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     }
                 }
             }

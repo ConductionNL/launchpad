@@ -4,109 +4,79 @@
 -->
 
 <template>
-	<NcModal
-		v-if="open"
-		class="launchpad-modal launchpad-modal--wide"
-		size="normal"
-		:name="title"
-		@close="$emit('close')">
-		<div class="launchpad-versions" data-testid="version-history">
-			<header>
-				<p
-					v-if="dashboardName"
-					class="launchpad-modal__kicker"
-					data-testid="version-kicker">
-					{{ dashboardName }}
-				</p>
-				<h2 class="launchpad-modal__title">
-					{{ title }}
-				</h2>
-			</header>
+	<div class="launchpad-versions" data-testid="version-history">
+		<div v-if="loading" class="launchpad-versions__loading">
+			<NcLoadingIcon :size="32" />
+		</div>
 
-			<div v-if="loading" class="launchpad-versions__loading">
-				<NcLoadingIcon :size="32" />
+		<p
+			v-else-if="error"
+			class="launchpad-versions__error"
+			role="alert"
+			data-testid="version-error">
+			{{ error }}
+		</p>
+
+		<p v-else-if="!modeSupported" data-testid="version-unsupported">
+			{{
+				t(
+					'launchpad',
+					'This dashboard is stored in a way that does not keep versions.',
+				)
+			}}
+		</p>
+
+		<template v-else>
+			<div class="launchpad-versions__save">
+				<NcTextField
+					v-model="note"
+					:label="
+						t('launchpad', 'Note for this version (optional)')
+					" />
+				<NcButton
+					variant="secondary"
+					:disabled="saving"
+					data-testid="version-save"
+					@click="saveVersion">
+					{{ t('launchpad', 'Save this version now') }}
+				</NcButton>
 			</div>
 
-			<p
-				v-else-if="error"
-				class="launchpad-versions__error"
-				role="alert"
-				data-testid="version-error">
-				{{ error }}
+			<p v-if="sortedVersions.length === 0">
+				{{ t('launchpad', 'No versions saved yet.') }}
 			</p>
-
-			<p v-else-if="!modeSupported" data-testid="version-unsupported">
-				{{
-					t(
-						'launchpad',
-						'This dashboard is stored in a way that does not keep versions.',
-					)
-				}}
-			</p>
-
-			<template v-else>
-				<div class="launchpad-versions__save">
-					<NcTextField
-						v-model="note"
-						:label="
-							t('launchpad', 'Note for this version (optional)')
-						" />
-					<NcButton
-						variant="secondary"
-						:disabled="saving"
-						data-testid="version-save"
-						@click="saveVersion">
-						{{ t('launchpad', 'Save this version now') }}
-					</NcButton>
-				</div>
-
-				<p v-if="sortedVersions.length === 0">
-					{{ t('launchpad', 'No versions saved yet.') }}
-				</p>
-				<table v-else class="launchpad-versions__table">
-					<thead>
-						<tr>
-							<th scope="col">
-								{{ t('launchpad', 'Version') }}
-							</th>
-							<th scope="col">
-								{{ t('launchpad', 'Saved on') }}
-							</th>
-							<th scope="col">
-								{{ t('launchpad', 'By') }}
-							</th>
-							<th scope="col">
-								{{ t('launchpad', 'Note') }}
-							</th>
-							<th scope="col">
-								<span class="hidden-visually">{{
-									t('launchpad', 'Actions')
-								}}</span>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr
-							v-for="version in sortedVersions"
-							:key="version.versionNumber"
-							data-testid="version-row">
-							<td>{{ version.versionNumber }}</td>
-							<td>{{ formatDate(version.createdAt) }}</td>
-							<td>{{ version.createdBy }}</td>
-							<td>{{ noteLabel(version.note) }}</td>
-							<td>
-								<NcButton
-									variant="tertiary"
-									data-testid="version-restore"
-									@click="askRestore(version)">
-									{{ t('launchpad', 'Restore') }}
-								</NcButton>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</template>
-		</div>
+			<table v-else class="launchpad-versions__table">
+				<thead>
+					<tr>
+						<th v-for="heading in headings" :key="heading" scope="col">
+							{{ heading }}
+						</th>
+						<th scope="col">
+							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="version in sortedVersions"
+						:key="version.versionNumber"
+						data-testid="version-row">
+						<td>{{ version.versionNumber }}</td>
+						<td>{{ formatDate(version.createdAt) }}</td>
+						<td>{{ version.createdBy }}</td>
+						<td>{{ noteLabel(version.note) }}</td>
+						<td>
+							<NcButton
+								variant="tertiary"
+								data-testid="version-restore"
+								@click="askRestore(version)">
+								{{ t('launchpad', 'Restore') }}
+							</NcButton>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</template>
 
 		<CnConfirmDialog
 			v-if="restoreTarget !== null"
@@ -121,7 +91,7 @@
 			:confirmLabel="t('launchpad', 'Restore')"
 			@confirm="confirmRestore"
 			@close="restoreTarget = null" />
-	</NcModal>
+	</div>
 </template>
 
 <script>
@@ -129,46 +99,37 @@ import {
 	CnConfirmDialog,
 	NcButton,
 	NcLoadingIcon,
-	NcModal,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
-import { api } from '../services/api.js'
+import { TEXT_PROP } from '../../../constants/propDefinitions.js'
+import { api } from '../../../services/api.js'
+import { parseServerStamp } from '../../../utils/serverStamp.js'
 
 /**
- * VersionHistoryModal: the saved versions of one dashboard, newest first,
- * with "Save this version now" and a confirmed restore. After a restore the
- * list is read again, so the `pre-restore` version that makes the restore
- * reversible shows at the top, and `restored` tells the page to reload.
+ * VersionsTab: the Versions tab of the dashboard settings (board LpVersies):
+ * the saved versions of one dashboard, newest first, with "Save this version
+ * now" and a confirmed restore. After a restore the list is read again, so
+ * the `pre-restore` version that makes the restore reversible shows at the
+ * top, and `restored` tells the page to reload.
  *
  * @spec openspec/specs/dashboard-versioning/spec.md
  */
 export default {
-	name: 'VersionHistoryModal',
+	name: 'VersionsTab',
 
 	components: {
 		CnConfirmDialog,
 		NcButton,
 		NcLoadingIcon,
-		NcModal,
 		NcTextField,
 	},
 
 	props: {
-		open: REQUIRED_FLAG_PROP,
-
 		dashboardUuid: TEXT_PROP,
-
-		/**
-		 * The dashboard's name, for the line over the title and the title
-		 * itself ("Versions of {name}", board LpVersies). Empty keeps the
-		 * plain "Version history".
-		 */
-		dashboardName: TEXT_PROP,
 	},
 
-	emits: ['close', 'restored'],
+	emits: ['restored'],
 
 	/** @spec openspec/specs/dashboard-versioning/spec.md */
 	data() {
@@ -185,16 +146,18 @@ export default {
 
 	computed: {
 		/**
-		 * The dialog title: "Versions of {name}" when the dashboard's name is
-		 * known (board LpVersies), else "Version history".
+		 * The table's column headings, before the actions column.
 		 *
-		 * @return {string} The translated title.
-		 * @spec exclude presentation only: the title of an existing dialog follows the board wording.
+		 * @return {string[]}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
-		title() {
-			return this.dashboardName
-				? t('launchpad', 'Versions of {name}', { name: this.dashboardName })
-				: t('launchpad', 'Version history')
+		headings() {
+			return [
+				t('launchpad', 'Version'),
+				t('launchpad', 'Saved on'),
+				t('launchpad', 'By'),
+				t('launchpad', 'Note'),
+			]
 		},
 
 		/**
@@ -209,16 +172,16 @@ export default {
 	},
 
 	watch: {
-		open: {
+		dashboardUuid: {
 			immediate: true,
 			/**
-			 * Read the list each time the dialog opens.
+			 * Read the list when the tab opens and for another dashboard.
 			 *
-			 * @param {boolean} isOpen New open state.
+			 * @param {string} uuid The dashboard's uuid.
 			 * @spec openspec/specs/dashboard-versioning/spec.md
 			 */
-			handler(isOpen) {
-				if (isOpen && this.dashboardUuid) {
+			handler(uuid) {
+				if (uuid) {
 					this.load()
 				}
 			},
@@ -317,8 +280,8 @@ export default {
 			if (!value) {
 				return ''
 			}
-			const parsed = new Date(String(value).replace(' ', 'T'))
-			if (Number.isNaN(parsed.getTime())) {
+			const parsed = parseServerStamp(value)
+			if (parsed === null) {
 				return String(value)
 			}
 			return parsed.toLocaleString(undefined, {
@@ -346,7 +309,6 @@ export default {
 
 <style scoped>
 .launchpad-versions {
-	padding: 24px;
 	display: flex;
 	flex-direction: column;
 	gap: 16px;

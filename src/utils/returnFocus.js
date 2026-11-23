@@ -6,7 +6,7 @@
  */
 
 /** The dashboard's More menu button. */
-export const MORE_MENU_TRIGGER = '[data-testid="launchpad-more-menu"] [data-testid="cn-grouped-menu-trigger"]'
+export const MORE_MENU_TRIGGER = '[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]'
 
 /**
  * The element a closing dialog returns focus to: the element that had focus

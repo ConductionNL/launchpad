@@ -16,8 +16,10 @@
  * Gate-19 @e2e traceability:
  *   @e2e runtime-shell::a-first-dashboard-with-starter-widgets
  *   @e2e runtime-shell::a-first-dashboard-started-empty
+ *   @e2e app-tile-widget::a-first-dashboard-for-a-person-with-files-and-mail
  *
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+ * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-a-first-dashboard-starts-with-a-tile-per-most-used-app-req-apptile-003
  */
 
 import type { APIRequestContext } from '@playwright/test'
@@ -34,7 +36,7 @@ import {
 	removePrincipal,
 } from './support/principals.ts'
 
-const STARTERS = ['app-tiles', 'calendar', 'nc-widget', 'files', 'weather', 'announcements']
+const STARTERS_AFTER_APPS = ['calendar', 'nc-widget', 'files', 'weather', 'announcements']
 
 test.describe('REQ-SHELL-005: the first dashboard starts with the starter widgets, or empty', () => {
 	let admin: APIRequestContext
@@ -72,10 +74,17 @@ test.describe('REQ-SHELL-005: the first dashboard starts with the starter widget
 	}
 
 	// @e2e runtime-shell::a-first-dashboard-with-starter-widgets
-	test('with starter widgets stores the six starters, and no choice keeps the default bundle', async () => {
+	// @e2e app-tile-widget::a-first-dashboard-for-a-person-with-files-and-mail
+	test('with starter widgets stores an app tile per most-used app and the other starters, and no choice keeps the default bundle', async () => {
 		const starters = await create({ name: 'My workspace', widgets: 'starters' })
 		const stored = await readPlacements(owner!.api, starters)
-		expect(stored.map((p) => p.widgetId)).toEqual(STARTERS)
+		const tiles = stored.filter((p) => p.widgetId === 'app-tile')
+		expect(tiles.length).toBeGreaterThan(0)
+		expect(tiles.length).toBeLessThanOrEqual(4)
+		expect(stored.slice(0, tiles.length).every((p) => p.widgetId === 'app-tile')).toBe(true)
+		expect(stored.slice(tiles.length).map((p) => p.widgetId)).toEqual(STARTERS_AFTER_APPS)
+		// Files is in every account's app menu and is the most-used app.
+		expect(tiles[0].content?.appId).toBe('files')
 
 		// CONTROL: the same request without a choice is still the default bundle.
 		const plain = await create({ name: 'Second' })

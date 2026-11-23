@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The top-right controls dock into a greeting row on the page ground and
- * float otherwise (LpStart; they covered "Startpagina aanpassen" floating).
+ * float otherwise (LpStart; floating, they covered the greeting).
  *
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  */

@@ -20,6 +20,7 @@ import { showInfo, showWarning } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
 import { levelLabels as hierarchyLevelLabels } from '../../../composables/useDashboardFilterSession.js'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
+import { clickedRow, missingAncestors } from '../../../utils/clickedRow.js'
 import { logger } from '../../../utils/logger.js'
 import { busDeclarationsOf, consumedFilter, filterBusOf, publishedClauses, refetchClock, withBusFilter } from '../../../utils/widgetBusConsumption.js'
 import { validateBusDeclarations } from '../../../utils/widgetBusDeclarations.js'
@@ -41,7 +42,52 @@ const CHART_PROP_KEYS = [
 	'stacked',
 	'horizontal',
 	'colorScheme',
+	'legendValues',
+	'legendPosition',
+	'colorMap',
 ]
+
+/**
+ * Whether manual series mix bars and lines (board LpManagement "Grafiek":
+ * bars for applications, a line for decisions). ApexCharts draws a mixed
+ * chart as type `line` with a `type` per series.
+ *
+ * @param {object} content The placement content.
+ * @return {boolean}
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-graph-draws-bars-and-lines-req-chartp-002
+ */
+export function isMixedSeries(content) {
+	const series = content?.source === 'manual' && Array.isArray(content.series) ? content.series : []
+	const types = new Set(series.map((entry) => entry?.type).filter(Boolean))
+	return types.has('line') && types.has('column')
+}
+
+/**
+ * Chart options with the donut's total written in its centre.
+ *
+ * @param {object|undefined} options The placement's own options.
+ * @param {string} label The total's label.
+ * @return {object}
+ * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-pie-chart-is-a-donut-with-its-total-in-the-centre-req-chartp-001
+ */
+export function withDonutTotal(options, label) {
+	const own = options && typeof options === 'object' ? options : {}
+	const pie = own.plotOptions?.pie || {}
+	const donut = pie.donut || {}
+	return {
+		...own,
+		plotOptions: {
+			...own.plotOptions,
+			pie: {
+				...pie,
+				donut: {
+					...donut,
+					labels: { show: true, ...donut.labels, total: { show: true, label, ...donut.labels?.total } },
+				},
+			},
+		},
+	}
+}
 
 /**
  * ChartHost — thin LaunchPad wrapper adapting the registry's `content` shape
@@ -62,7 +108,9 @@ const CHART_PROP_KEYS = [
  * CnChartWidget's `select` names the grouped field and the raw key, and the
  * host publishes a `widgetClick` clause for each dimension published from
  * that field (REQ-CWF-001). A replaced filter from another widget is named
- * in a toast (REQ-CWF-005).
+ * in a toast (REQ-CWF-005). A pick on a hierarchy level whose ancestors the
+ * click does not name reads them from one record of that category first, so
+ * the bus can infer the levels above it (REQ-CWF-004).
  */
 export default {
 	name: 'ChartHost',
@@ -85,8 +133,16 @@ export default {
 	emits: ['data'],
 
 	computed: {
-		/** apexcharts chart type, from `chartKind` (content or nested props). */
+		/**
+		 * apexcharts chart type, from `chartKind` (content or nested props);
+		 * `line` for entered bars and lines together.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-graph-draws-bars-and-lines-req-chartp-002
+		 */
 		chartType() {
+			if (isMixedSeries(this.content)) {
+				return 'line'
+			}
 			return this.content.chartKind || this.content.props?.chartKind || 'area'
 		},
 
@@ -96,6 +152,9 @@ export default {
 		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		dataSource() {
+			if (this.content.source === 'manual') {
+				return null
+			}
 			return withBusFilter(this.content.dataSource || this.content.props?.dataSource || null, this.busFilter)
 		},
 
@@ -179,7 +238,12 @@ export default {
 			return String(this.placement?.id ?? this.placement?.widgetId ?? 'chart')
 		},
 
-		/** Optional apexcharts overrides forwarded verbatim when present. */
+		/**
+		 * Optional apexcharts overrides forwarded verbatim when present, and
+		 * the donut's total in its centre when `showTotal` is set.
+		 *
+		 * @spec openspec/changes/chart-presets/specs/chart-presets/spec.md#requirement-a-pie-chart-is-a-donut-with-its-total-in-the-centre-req-chartp-001
+		 */
 		passthroughProps() {
 			const src = { ...(this.content.props || {}), ...this.content }
 			const out = {}
@@ -187,6 +251,9 @@ export default {
 				if (src[key] !== undefined) {
 					out[key] = src[key]
 				}
+			}
+			if (src.showTotal === true && this.chartType === 'donut') {
+				out.options = withDonutTotal(out.options, t('launchpad', 'Total'))
 			}
 			return out
 		},
@@ -249,9 +316,29 @@ export default {
 			if (!this.publishing) {
 				return
 			}
+			const clauses = publishedClauses(this.busDeclarations.publishes, selection, this.widgetId)
+			const row = { [selection.field]: selection.value }
+			if (missingAncestors(this.bus.hierarchies || [], clauses, row).length === 0) {
+				this.publishPick(clauses, row)
+				return
+			}
+			clickedRow({ selection, clauses, hierarchies: this.bus.hierarchies || [], dataSource: this.dataSource })
+				.then((completed) => this.publishPick(clauses, completed))
+		},
+
+		/**
+		 * Publish the clauses of a pick with the clicked row, and say so when
+		 * one replaced another widget's filter or was refused.
+		 *
+		 * @param {Array<object>} clauses The clauses the pick publishes.
+		 * @param {object} row The clicked row, ancestor levels included where known.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		publishPick(clauses, row) {
 			const labels = this.levelLabels
-			for (const clause of publishedClauses(this.busDeclarations.publishes, selection, this.widgetId)) {
-				const answer = this.bus.publish(clause, { row: { [selection.field]: selection.value } })
+			for (const clause of clauses) {
+				const answer = this.bus.publish(clause, { row })
 				const name = labels[clause.dimension] || clause.dimension
 				if (answer.reason === 'forbidden') {
 					showWarning(t('launchpad', 'You have no access to this scope: {name}', { name }))

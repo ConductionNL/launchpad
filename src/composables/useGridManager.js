@@ -223,20 +223,23 @@ export const MIN_CELLS = 2
 
 /**
  * Widget types that may be one row tall, below {@link MIN_CELLS}. A divider
- * is a single line between sections (REQ-DIV-006).
+ * is a single line between sections (REQ-DIV-006), a section heading one
+ * heading over them (REQ-WDG-031).
  *
  * @type {ReadonlyArray<string>}
  */
-export const ONE_ROW_TYPES = Object.freeze(['divider'])
+export const ONE_ROW_TYPES = Object.freeze(['divider', 'section-heading'])
 
 /**
  * New-widget sizes for types whose spec names one other than the default.
- * Quicklinks is a compact row of icons, 4 by 2 (REQ-QLNK-011).
+ * Quicklinks is a compact row of icons, 4 by 2 (REQ-QLNK-011). An app tile
+ * is one cell of two columns by two rows, the tile square inside it (REQ-APPTILE-002).
  *
  * @type {Readonly<Record<string, {w: number, h: number}>>}
  */
 const TYPE_DEFAULT_SIZES = Object.freeze({
 	quicklinks: Object.freeze({ w: 4, h: 2 }),
+	'app-tile': Object.freeze({ w: 2, h: 2 }),
 })
 
 /**
@@ -252,7 +255,7 @@ const TYPE_DEFAULT_SIZES = Object.freeze({
  * @spec openspec/specs/quicklinks-widget/spec.md
  */
 export function defaultSizeFor(type, columns = DEFAULT_COLUMNS) {
-	if (type === 'divider') {
+	if (type === 'divider' || type === 'section-heading') {
 		return { w: columns, h: 1 }
 	}
 	const own = TYPE_DEFAULT_SIZES[type]

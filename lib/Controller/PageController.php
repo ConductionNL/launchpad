@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Support\FleetAppId;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -187,12 +188,10 @@ class PageController extends Controller {
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
-			->setTileLaunchOptions(
-				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
-				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
-			)
+			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
-			->setTalkEnabled($this->isTalkEnabled())
+			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
+			->setIntegrationApps($this->integrationApps())
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
@@ -337,27 +336,71 @@ class PageController extends Controller {
 	}//end userTimezone()
 
 	/**
-	 * Whether Nextcloud Talk is enabled for the signed-in user. Talk is optional:
-	 * when it is absent, disabled for this user, or the check fails, the
-	 * Communities widget explains itself instead of calling Talk
-	 * (engagement-communities REQ-COMM-004).
+	 * Which apps behind the integration widgets are enabled for the
+	 * signed-in user, by app id (wiki-widget REQ-WIKI-004).
 	 *
-	 * @return bool True when Talk is enabled for the viewer.
+	 * @return array<string, bool|string> Whether each app is enabled, or the id it is installed under.
+	 *
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 */
+	private function integrationApps(): array {
+		return [
+			'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
+			'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+			'dossiq'                  => $this->enabledFleetAppId(canonical: 'dossiq'),
+		];
+	}//end integrationApps()
+
+	/**
+	 * Whether an app is enabled for the signed-in user. Talk and the apps
+	 * behind the integration widgets are optional: when one is absent,
+	 * disabled for this user, or the check fails, its widget explains itself
+	 * or stays out of the picker (engagement-communities REQ-COMM-004,
+	 * wiki-widget REQ-WIKI-004).
+	 *
+	 * @param string $appId The app id.
+	 *
+	 * @return bool True when the app is enabled for the viewer.
 	 *
 	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
 	 */
-	private function isTalkEnabled(): bool {
+	private function isAppEnabledForViewer(string $appId): bool {
 		$user = $this->userSession->getUser();
 		if ($user === null || $this->settings->appManager === null) {
 			return false;
 		}
 
 		try {
-			return $this->settings->appManager->isEnabledForUser(appId: 'spreed', user: $user);
+			return $this->settings->appManager->isEnabledForUser(appId: $appId, user: $user);
 		} catch (Throwable) {
 			return false;
 		}
-	}//end isTalkEnabled()
+	}//end isAppEnabledForViewer()
+
+	/**
+	 * The id under which a renamed fleet app is installed and enabled for the
+	 * signed-in user, or false. The app is looked up by every name it has had
+	 * ({@see FleetAppId}), never by one spelling (assigned-cases-widget REQ-CASES-004).
+	 *
+	 * @param string $canonical The app's current name.
+	 *
+	 * @return string|false The installed id, or false.
+	 *
+	 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
+	 */
+	private function enabledFleetAppId(string $canonical): string|false {
+		if ($this->settings->appManager === null) {
+			return false;
+		}
+
+		$installed = FleetAppId::resolve(appManager: $this->settings->appManager, canonical: $canonical);
+		if ($installed === null || $this->isAppEnabledForViewer(appId: $installed) === false) {
+			return false;
+		}
+
+		return $installed;
+	}//end enabledFleetAppId()
 
 	/**
 	 * Resolve the active session's user id.

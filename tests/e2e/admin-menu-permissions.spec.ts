@@ -51,6 +51,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { installBundleOverride } from './support/bundleOverride.ts'
+import { openSettingsGroup } from './support/dashboardSwitcher.ts'
 
 const APP_BASE = '/apps/launchpad'
 
@@ -103,7 +104,7 @@ const ADMIN_PAGES = [
 ] as const
 
 /** A menu entry every account holds, as the positive control. */
-const UNGATED_ENTRY_ID = 'dashboards'
+const UNGATED_ENTRY_ID = 'StoreMenu'
 
 /**
  * Who the browser is actually signed in as, read from Nextcloud itself rather
@@ -138,16 +139,17 @@ async function openApp(page: Page): Promise<void> {
 	await page.goto(`${APP_BASE}/store`, { waitUntil: 'domcontentloaded' })
 	const holder = page.locator('[data-testid="launchpad-page-menu"]')
 	await expect(holder).toBeVisible({ timeout: 60_000 })
-	await holder.locator('button').first().click()
+	await holder.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await openSettingsGroup(page)
 	await expect(
-		page.locator(`[data-testid="launchpad-start-page-menu-${UNGATED_ENTRY_ID}"]`),
+		page.locator(`[data-testid="launchpad-more-menu-item-${UNGATED_ENTRY_ID}"]`),
 	).toBeVisible({ timeout: 15_000 })
 }
 
 /**
  * The manifest menu-entry IDS the More menu currently holds.
  *
- * `StartPageMenu` renders `data-testid="launchpad-start-page-menu-${item.id}"`
+ * The More menu renders `data-testid="launchpad-more-menu-item-${item.id}"`
  * on every entry, keyed on the manifest id, which does not move when a route
  * is re-pointed. See the note on ADMIN_PAGES for what keying the question on
  * the route instead cost.
@@ -157,11 +159,11 @@ async function openApp(page: Page): Promise<void> {
  */
 async function navEntryIds(page: Page): Promise<string[]> {
 	return page
-		.locator('[data-testid^="launchpad-start-page-menu-"]')
+		.locator('[data-testid^="launchpad-more-menu-item-"]')
 		.evaluateAll((nodes) =>
 			nodes.map((n) =>
 				(n.getAttribute('data-testid') ?? '').replace(
-					/^launchpad-start-page-menu-/,
+					/^launchpad-more-menu-item-/,
 					'',
 				),
 			),
@@ -377,7 +379,7 @@ test.describe('manifest permission: the admin surfaces', () => {
 		for (const { menuId: id, href: routePath } of ADMIN_PAGES) {
 			await expect(
 				page
-					.locator(`[data-testid="launchpad-start-page-menu-${id}"]`)
+					.locator(`[data-testid="launchpad-more-menu-item-${id}"]`)
 					.locator(`xpath=descendant-or-self::a[contains(@href, "${routePath}")]`)
 					.first(),
 				`admin-gated menu entry "${id}" renders no working link`,

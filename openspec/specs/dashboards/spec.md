@@ -1531,6 +1531,49 @@ Administrators MUST be able to add CSS for all of LaunchPad and for one dashboar
 - **WHEN** Pieter opens Nextcloud Files
 - **THEN** Files looks as always, because the stored rule is scoped to the "Team Groen" dashboard region
 
+### Requirement: REQ-DASH-038 The edit bar
+
+While a dashboard is in edit mode, a bar MUST run across the top of the dashboard (board `launchpad/LpBewerken`), as a toolbar named "Edit dashboard". It MUST say which dashboard is being edited and that changes are saved straight away, and it MUST hold, in this order:
+
+- **Columns** 6, 8 and 12, a group of toggle buttons (`aria-pressed`) with the current count pressed. Choosing one gives the dashboard that many grid columns and stores it, through the personal endpoint (`PUT /api/dashboard/{id}` with `gridColumns`) or the group endpoint for a group dashboard. The server MUST refuse any other count with 400. A refused save MUST put the old count back and say so.
+- **Add widget**, which opens the widget picker.
+- **Dashboard settings** (`aria-haspopup="dialog"`), which opens the dashboard settings window. It is offered to the owner and to whoever may manage the publication, the gate of the former "Settings" item in More.
+- **Done**, which leaves edit mode.
+
+While the bar is shown, the page's More menu docks at its end, so the floating menu never covers Done.
+
+#### Scenario: Edit mode shows the edit bar
+- GIVEN the owner of a dashboard
+- WHEN they choose More, then Edit
+- THEN the edit bar MUST show the dashboard's name, Columns 6, 8 and 12, Add widget, Dashboard settings and Done
+
+@e2e openspec/specs/dashboards/spec.md#req-dash-038
+
+#### Scenario: Columns change the grid and are kept
+- GIVEN the owner in edit mode on a dashboard with 12 columns
+- WHEN they choose 8
+- THEN the grid MUST have 8 columns, 8 MUST be pressed, and the dashboard MUST store 8
+
+@e2e openspec/specs/dashboards/spec.md#req-dash-038
+
+#### Scenario: Done leaves edit mode
+- GIVEN the owner in edit mode
+- WHEN they choose Done
+- THEN the edit bar MUST go and the dashboard MUST be in view mode
+
+@e2e openspec/specs/dashboards/spec.md#req-dash-038
+
+### Requirement: REQ-DASH-039 Versions are a tab of the dashboard settings
+
+The saved versions of a dashboard (dashboard-versioning REQ-VERSUI-001..003) MUST be the last tab of the dashboard settings window, after Details, Languages, Sharing, Publication and Exports (board `launchpad/LpVersies`). The tab is offered to the owner and to an administrator, the same people who may manage the publication, and it says so when the dashboard is stored in a way that keeps no versions. There is no separate version history window and no Versions item in More.
+
+#### Scenario: The Versions tab lists the saved versions
+- GIVEN the owner in edit mode
+- WHEN they open Dashboard settings and choose Versions
+- THEN the tab MUST list the dashboard's versions newest first, with "Save this version now" and a restore per version
+
+@e2e openspec/specs/dashboards/spec.md#req-dash-039
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/dashboards MUST return within 500ms for users with up to 50 dashboards. GET /api/dashboard MUST return within 1 second including template distribution if needed.

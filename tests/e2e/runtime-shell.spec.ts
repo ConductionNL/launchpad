@@ -58,7 +58,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, openDashboardSwitcher, openSettingsGroup } from './support/dashboardSwitcher.ts'
 import {
 	ADMIN_TOUR_KEY,
 	quietFirstVisit,
@@ -320,15 +320,15 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 			// The More menu: its "This dashboard" group renders (Set as
 			// default is offered to everyone), the edit entries do not.
 			await page
-				.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+				.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 				.click()
-			const panel = page.locator('[data-testid="cn-grouped-menu-panel"]')
+			const panel = page.locator('[data-testid="launchpad-more-menu-panel"]')
 			await expect(
-				panel.locator('[data-testid="cn-grouped-menu-item-set-default"]'),
+				panel.locator('[data-testid="launchpad-more-menu-item-set-default"]'),
 			).toBeVisible()
 			for (const id of ['edit', 'add-widget', 'config']) {
 				await expect(
-					panel.locator(`[data-testid="cn-grouped-menu-item-${id}"]`),
+					panel.locator(`[data-testid="launchpad-more-menu-item-${id}"]`),
 				).toHaveCount(0)
 			}
 			await expect(panel).not.toContainText(
@@ -672,9 +672,10 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 			await expect(page.locator(MORE_MENU)).toBeVisible()
 
 			await page
-				.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+				.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 				.click()
-			await page.locator('[data-testid="cn-grouped-menu-item-FlowsMenu"]').click()
+			await openSettingsGroup(page)
+			await page.locator('[data-testid="launchpad-more-menu-item-FlowsMenu"]').click()
 			await expect(page).toHaveURL(/\/apps\/launchpad\/flows(\?|$)/)
 			await expect(page.locator(TOUR)).toHaveCount(0)
 		} finally {

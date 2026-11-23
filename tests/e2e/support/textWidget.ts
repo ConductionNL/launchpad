@@ -199,8 +199,8 @@ export async function openAddTextForm(
 ): Promise<{ dialog: Locator; form: Locator }> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	await page.locator('[data-testid="widget-picker-type-text"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

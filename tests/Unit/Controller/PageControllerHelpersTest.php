@@ -146,10 +146,57 @@ class PageControllerHelpersTest extends TestCase {
 			->with('spreed', $user)
 			->willReturnOnConsecutiveCalls(true, false);
 		$controller = $this->controllerWithApps(appManager: $apps);
-		$check = new ReflectionMethod(PageController::class, 'isTalkEnabled');
+		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
 
-		$this->assertTrue($check->invoke($controller));
-		$this->assertFalse($check->invoke($controller));
+		$this->assertTrue(condition: $check->invoke($controller, 'spreed'));
+		$this->assertFalse(condition: $check->invoke($controller, 'spreed'));
+	}
+
+	/**
+	 * Wiki-widget REQ-WIKI-004: the integration apps are asked about by id,
+	 * for the signed-in user.
+	 *
+	 * @return void
+	 */
+	public function testAnIntegrationAppIsAskedAboutForTheViewer(): void {
+		$user = $this->createMock(originalClassName: IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$apps = $this->createMock(originalClassName: IAppManager::class);
+		$apps->method('isEnabledForUser')->willReturnCallback(
+			static fn (string $appId, $viewer): bool => $appId === 'openregister' && $viewer === $user
+		);
+		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
+		$controller = $this->controllerWithApps(appManager: $apps);
+
+		$this->assertTrue(condition: $check->invoke($controller, 'openregister'));
+		$this->assertFalse(condition: $check->invoke($controller, 'integration_openproject'));
+	}
+
+	/**
+	 * Assigned-cases-widget REQ-CASES-004: dossiq answers with the id it is
+	 * installed under, or false when it is absent or not enabled for the viewer.
+	 *
+	 * @return void
+	 */
+	public function testARenamedFleetAppAnswersWithItsInstalledId(): void {
+		$user = $this->createMock(originalClassName: IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$check = new ReflectionMethod(PageController::class, 'enabledFleetAppId');
+
+		$legacy = $this->createMock(originalClassName: IAppManager::class);
+		$legacy->method('isInstalled')->willReturnCallback(static fn (string $appId): bool => $appId === 'procest');
+		$legacy->method('isEnabledForUser')->willReturn(true);
+		$this->assertSame(expected: 'procest', actual: $check->invoke($this->controllerWithApps(appManager: $legacy), 'dossiq'));
+
+		$disabled = $this->createMock(originalClassName: IAppManager::class);
+		$disabled->method('isInstalled')->willReturn(true);
+		$disabled->method('isEnabledForUser')->willReturn(false);
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $disabled), 'dossiq'));
+
+		$absent = $this->createMock(originalClassName: IAppManager::class);
+		$absent->method('isInstalled')->willReturn(false);
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $absent), 'dossiq'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'dossiq'));
 	}
 
 	/**
@@ -158,15 +205,15 @@ class PageControllerHelpersTest extends TestCase {
 	 * @return void
 	 */
 	public function testTalkIsOffWithoutASessionAnAppManagerOrWhenTheCheckFails(): void {
-		$check = new ReflectionMethod(PageController::class, 'isTalkEnabled');
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null)));
+		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
 
 		$this->session->method('getUser')->willReturn($this->createMock(IUser::class));
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null)));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
 
 		$failing = $this->createMock(IAppManager::class);
 		$failing->method('isEnabledForUser')->willThrowException(new RuntimeException('app store down'));
-		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $failing)));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $failing), 'spreed'));
 	}
 
 	public function testUserIdIsEmptyWithoutASession(): void {

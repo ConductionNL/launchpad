@@ -72,9 +72,17 @@ import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWi
 // registration pattern as `clock`/`weather`.
 import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
+// `assigned-cases` — the viewer's open cases from an OpenRegister register,
+// dossiq's by default (openspec/changes/assigned-cases-widget).
+import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
+import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+// `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
+// CnChartWidget) with a source form for a register query or entered values
+// (openspec/changes/chart-presets).
+import ChartSourceForm from '../components/Widgets/Renderers/ChartSourceForm.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
@@ -109,6 +117,10 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 // LaunchPad-only types.
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
+// `section-heading` — "Tussenkop": a full-width heading with one line of
+// explanation over the widgets or tiles that follow it (REQ-WDG-031).
+import SectionHeadingWidget from '../components/Widgets/Renderers/SectionHeadingWidget.vue'
+import SectionHeadingWidgetForm from '../components/Widgets/Renderers/SectionHeadingWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
 import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
@@ -117,6 +129,14 @@ import VideoHost from '../components/Widgets/Renderers/VideoHost.vue'
 import VideoWidgetForm from '../components/Widgets/Renderers/VideoWidgetForm.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
+// `wiki-pages` — search, favourites and recent pages of the wiki, read through
+// OpenRegister's XWiki integration (openspec/changes/wiki-widget).
+import WikiPagesWidget from '../components/Widgets/Renderers/WikiPagesWidget.vue'
+import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidgetForm.vue'
+// `work-packages` — open OpenProject work packages through the official
+// integration (openspec/changes/work-packages-widget).
+import WorkPackagesWidget from '../components/Widgets/Renderers/WorkPackagesWidget.vue'
+import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -126,6 +146,7 @@ import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm
  * @property {string} displayName Human-readable type name for the type picker
  * @property {string} icon Material Design icon name used in the type picker
  * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
+ * @property {string} [requiresApp] The app the widget reads through; the picker offers the type only when the initial state's `integrationApps` says it is enabled for the viewer.
  */
 
 /**
@@ -346,6 +367,104 @@ registerDashboardWidget('search', {
 	icon: 'Magnify',
 })
 
+// REQ-WDG-031: "Tussenkop" of boards LpIntranet and LpWerkplek, a heading on
+// the page ground; the label widget's group heading has no line of
+// explanation, so this is a type of its own.
+registerDashboardWidget('section-heading', {
+	renderer: SectionHeadingWidget,
+	form: SectionHeadingWidgetForm,
+	defaultContent: {
+		title: '',
+		description: '',
+	},
+	displayName: 'Section heading',
+	icon: 'FormatHeader1',
+})
+
+// wiki-widget REQ-WIKI-001..004: the wiki through OpenRegister's XWiki
+// integration; offered only where OpenRegister is enabled for the viewer.
+registerDashboardWidget('wiki-pages', {
+	renderer: WikiPagesWidget,
+	form: WikiPagesWidgetForm,
+	defaultContent: {
+		space: '',
+		limit: 3,
+	},
+	displayName: 'Wiki',
+	icon: 'BookOpenPageVariantOutline',
+	requiresApp: 'openregister',
+})
+
+// work-packages-widget REQ-WP-001..004: open OpenProject work packages, read
+// through integration_openproject with the viewer's own token.
+registerDashboardWidget('work-packages', {
+	renderer: WorkPackagesWidget,
+	form: WorkPackagesWidgetForm,
+	defaultContent: {
+		scope: 'mine',
+		project: '',
+		limit: 4,
+	},
+	displayName: 'My work packages',
+	icon: 'ClipboardCheckOutline',
+	requiresApp: 'integration_openproject',
+})
+
+// assigned-cases-widget REQ-CASES-001..004: the viewer's open cases, deadline
+// first, with counts per status; offered and shown only where dossiq is.
+registerDashboardWidget('assigned-cases', {
+	renderer: AssignedCasesWidget,
+	form: AssignedCasesWidgetForm,
+	defaultContent: {
+		register: 'dossiq',
+		schema: 'case',
+		limit: 4,
+	},
+	displayName: 'My cases',
+	icon: 'BriefcaseOutline',
+	requiresApp: 'dossiq',
+})
+
+// chart-presets REQ-CHARTP-001..003: "Cirkeldiagram" and "Grafiek" of board
+// LpManagement as presets of the chart stack, not a second one.
+registerDashboardWidget('pie-chart', {
+	renderer: ChartHost,
+	form: ChartSourceForm,
+	defaultContent: {
+		chartKind: 'donut',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			groupBy: { field: '', metric: 'count', metricField: '', sort: 'desc', limit: 8 },
+		},
+		showTotal: true,
+		legendValues: true,
+		legendPosition: 'right',
+	},
+	displayName: 'Pie chart',
+	icon: 'ChartDonut',
+})
+
+registerDashboardWidget('graph', {
+	renderer: ChartHost,
+	form: ChartSourceForm,
+	defaultContent: {
+		chartKind: 'bar',
+		source: 'register',
+		dataSource: {
+			register: '',
+			schema: '',
+			filter: {},
+			bucket: { field: '', interval: 'month', metric: 'count', metricField: '' },
+		},
+		legendPosition: 'bottom',
+	},
+	displayName: 'Graph',
+	icon: 'ChartBar',
+})
+
 // engagement-announcements REQ-ANN-001..003: targeted news with likes,
 // comments and follow per category; notices show as banners instead.
 registerDashboardWidget('announcements', {
@@ -478,4 +597,19 @@ export function getWidgetTypeEntry(type) {
  */
 export function getDefaultContent(type) {
 	return cnGetDefaultContent(type)
+}
+
+/**
+ * Whether the picker offers a widget type to this viewer: always, unless the
+ * type reads through an app (`requiresApp`) that is not enabled for them.
+ *
+ * @param {WidgetRegistryEntry|null} entry The type's entry.
+ * @param {Record<string, boolean|string>} integrationApps Which apps are enabled for the viewer; a renamed fleet app answers with its installed id.
+ * @return {boolean} Whether to offer it.
+ * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+ */
+export function offeredForViewer(entry, integrationApps) {
+	const app = entry?.requiresApp
+	const enabled = integrationApps?.[app]
+	return !app || enabled === true || (typeof enabled === 'string' && enabled !== '')
 }

@@ -109,9 +109,9 @@ async function openLaunchPad(page: Page): Promise<void> {
  */
 async function moreMenu(page: Page, id: string): Promise<void> {
 	await page
-		.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+		.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 		.click()
-	await page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`).click()
+	await page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`).click()
 }
 
 /**
@@ -387,10 +387,10 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 	}) => {
 		await openLaunchPad(page)
 		await page
-			.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+			.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 			.click()
-		await expect(page.locator('[data-testid="cn-grouped-menu-item-add-widget"]')).toBeVisible()
-		await expect(page.locator('[data-testid="cn-grouped-menu-item-add-custom-widget"]')).toHaveCount(0)
+		await expect(page.locator('[data-testid="launchpad-more-menu-item-add-widget"]')).toBeVisible()
+		await expect(page.locator('[data-testid="launchpad-more-menu-item-add-custom-widget"]')).toHaveCount(0)
 		await page.keyboard.press('Escape')
 
 		await openPicker(page)
@@ -743,7 +743,7 @@ test.describe('REQ-WDG-013 modal close discipline', () => {
 		await page.keyboard.press('Escape')
 		await expect(dialog).toHaveCount(0, { timeout: 5_000 })
 		await expect(
-			page.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`),
+			page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`),
 		).toBeFocused()
 		expect(writes).toEqual([])
 		expect(await placementsOf(admin, dashboard!.id)).toHaveLength(0)

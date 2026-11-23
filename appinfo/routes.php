@@ -510,6 +510,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Recent colleague activity (dashboards-and-who-may-see-them REQ-DWMS-007): the caller's
 		// own activity stream, minus their own actions and what they may no longer see.
 		['name' => 'colleagueActivity#index', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
+		// The signed-in person's open OpenProject work packages, through the
+		// official OpenProject integration (work-packages-widget REQ-WP-001).
+		['name' => 'workPackages#index', 'url' => '/api/work-packages', 'verb' => 'GET'],
 		// Storage use per workspace and service (dashboards-and-who-may-see-them REQ-DWMS-010):
 		// administrators only, with a twelve-month series and the removable total.
 		['name' => 'storageReport#report', 'url' => '/api/admin/storage-report', 'verb' => 'GET'],

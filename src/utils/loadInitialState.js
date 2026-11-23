@@ -85,6 +85,10 @@ const PAGE_KEYS = {
 		// viewer. Optional key; `false` makes the Communities widget explain
 		// that Talk is needed instead of calling it.
 		talkEnabled: false,
+		// wiki-widget REQ-WIKI-004: which apps behind the integration widgets
+		// are enabled for the viewer, by app id. Optional key; `{}` keeps every
+		// integration widget out of the picker.
+		integrationApps: {},
 		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
 		// organisation pinned, in the order pinned. Optional key.
 		pinnedCommunities: [],

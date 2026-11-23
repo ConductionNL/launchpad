@@ -256,7 +256,7 @@ export default {
 
 		/**
 		 * Widget types that own their entire visual surface — labels, dividers,
-		 * header banners, and the registry-driven `tile`. They keep a borderless
+		 * header banners, the registry-driven `tile` and the `app-tile`. They keep a borderless
 		 * / flush wrapper (no frame, no wrapper header) so the renderer paints
 		 * edge to edge; the edit cog still overlays on top. (nc-widget is NOT
 		 * here: CnNcWidgetWidget renders just a header + content, so it needs the
@@ -265,7 +265,7 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile'].includes(
+			return ['label', 'section-heading', 'divider', 'header', 'tile', 'app-tile'].includes(
 				this.placement?.widgetId,
 			)
 		},

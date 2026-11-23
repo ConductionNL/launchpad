@@ -309,12 +309,7 @@
 						"showDate": true,
 						"showWeek": true,
 						"greetingLine": true,
-						"ground": true,
-						"cta": {
-							"label": "Startpagina aanpassen",
-							"url": "/index.php/apps/launchpad/?edit=1",
-							"style": "secondary"
-						}
+						"ground": true
 					}
 				},
 				{
@@ -334,50 +329,34 @@
 					}
 				},
 				{
-					"widgetId": "label",
-					"gridX": 0,
-					"gridY": 7,
-					"gridWidth": 4,
-					"gridHeight": 1,
-					"showTitle": 0,
-					"content": {
-						"text": "MIJN APPS",
-						"fontSize": "12px",
-						"fontWeight": "bold",
-						"textAlign": "left",
-						"color": "",
-						"backgroundColor": "transparent"
-					}
-				},
-				{
 					"tile": "zaaksysteem",
 					"gridX": 0,
-					"gridY": 8
+					"gridY": 7
 				},
 				{
 					"tile": "outlook",
 					"gridX": 2,
-					"gridY": 8
+					"gridY": 7
 				},
 				{
 					"tile": "topdesk",
 					"gridX": 0,
-					"gridY": 10
+					"gridY": 9
 				},
 				{
 					"tile": "raadsinformatie",
 					"gridX": 2,
-					"gridY": 10
+					"gridY": 9
 				},
 				{
 					"tile": "kadaster",
 					"gridX": 0,
-					"gridY": 12
+					"gridY": 11
 				},
 				{
 					"tile": "talk",
 					"gridX": 2,
-					"gridY": 12
+					"gridY": 11
 				},
 				{
 					"widgetId": "calendar",
@@ -534,7 +513,7 @@
 					}
 				},
 				{
-					"widgetId": "my-cases",
+					"widgetId": "assigned-cases",
 					"gridX": 0,
 					"gridY": 14,
 					"gridWidth": 12,
@@ -544,51 +523,7 @@
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"assignee": "@me",
-						"showStatusCounts": true,
 						"limit": 4
-					},
-					"fallback": {
-						"widgetId": "object-list",
-						"gridX": 0,
-						"gridY": 14,
-						"gridWidth": 12,
-						"gridHeight": 5,
-						"showTitle": 1,
-						"customTitle": "dossiq · Mijn open werk",
-						"content": {
-							"title": "dossiq · Mijn open werk",
-							"register": "dossiq",
-							"schema": "case",
-							"filter": {
-								"isFinalStatus": false,
-								"assignee": "@me"
-							},
-							"sort": {
-								"field": "plannedEndDate",
-								"dir": "asc"
-							},
-							"limit": 4,
-							"columns": [
-								{
-									"key": "identifier",
-									"label": "Zaak"
-								},
-								{
-									"key": "title",
-									"label": "Omschrijving"
-								},
-								{
-									"key": "status",
-									"label": "Status"
-								},
-								{
-									"key": "plannedEndDate",
-									"label": "Termijn"
-								}
-							],
-							"emptyText": "Er zijn geen zaken aan u toegewezen."
-						}
 					}
 				}
 			]
@@ -605,19 +540,15 @@
 			"permissionLevel": "full",
 			"widgets": [
 				{
-					"widgetId": "label",
+					"widgetId": "section-heading",
 					"gridX": 0,
 					"gridY": 0,
-					"gridWidth": 6,
+					"gridWidth": 12,
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "MIJN APPS",
-						"fontSize": "12px",
-						"fontWeight": "bold",
-						"textAlign": "left",
-						"color": "",
-						"backgroundColor": "transparent"
+						"title": "Mijn apps",
+						"description": "Eén tegel per app, elk een eigen widget"
 					}
 				},
 				{
@@ -651,19 +582,15 @@
 					"gridY": 1
 				},
 				{
-					"widgetId": "label",
+					"widgetId": "section-heading",
 					"gridX": 0,
 					"gridY": 3,
-					"gridWidth": 6,
+					"gridWidth": 12,
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "SAMENWERKEN",
-						"fontSize": "12px",
-						"fontWeight": "bold",
-						"textAlign": "left",
-						"color": "",
-						"backgroundColor": "transparent"
+						"title": "Samenwerken",
+						"description": "De tegels van het team"
 					}
 				},
 				{
@@ -891,7 +818,7 @@
 					}
 				},
 				{
-					"widgetId": "wiki",
+					"widgetId": "wiki-pages",
 					"gridX": 4,
 					"gridY": 19,
 					"gridWidth": 4,
@@ -900,13 +827,11 @@
 					"customTitle": "Wiki",
 					"content": {
 						"space": "Kennisbank Zuiddrecht",
-						"showSearch": true,
-						"favourites": 3,
-						"recent": 3
+						"limit": 3
 					}
 				},
 				{
-					"widgetId": "my-cases",
+					"widgetId": "assigned-cases",
 					"gridX": 8,
 					"gridY": 6,
 					"gridWidth": 4,
@@ -916,51 +841,7 @@
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"assignee": "@me",
-						"showStatusCounts": true,
 						"limit": 4
-					},
-					"fallback": {
-						"widgetId": "object-list",
-						"gridX": 8,
-						"gridY": 6,
-						"gridWidth": 4,
-						"gridHeight": 5,
-						"showTitle": 1,
-						"customTitle": "Mijn zaken",
-						"content": {
-							"title": "Mijn zaken",
-							"register": "dossiq",
-							"schema": "case",
-							"filter": {
-								"isFinalStatus": false,
-								"assignee": "@me"
-							},
-							"sort": {
-								"field": "plannedEndDate",
-								"dir": "asc"
-							},
-							"limit": 4,
-							"columns": [
-								{
-									"key": "identifier",
-									"label": "Zaak"
-								},
-								{
-									"key": "title",
-									"label": "Omschrijving"
-								},
-								{
-									"key": "status",
-									"label": "Status"
-								},
-								{
-									"key": "plannedEndDate",
-									"label": "Termijn"
-								}
-							],
-							"emptyText": "Er zijn geen zaken aan u toegewezen."
-						}
 					}
 				},
 				{
@@ -972,9 +853,8 @@
 					"showTitle": 1,
 					"customTitle": "Mijn werkpakketten",
 					"content": {
+						"scope": "mine",
 						"project": "",
-						"assignee": "@me",
-						"sortBy": "dueDate",
 						"limit": 4
 					}
 				},
@@ -1141,19 +1021,15 @@
 					}
 				},
 				{
-					"widgetId": "label",
+					"widgetId": "section-heading",
 					"gridX": 0,
 					"gridY": 3,
-					"gridWidth": 8,
+					"gridWidth": 12,
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "SAMENWERKEN",
-						"fontSize": "12px",
-						"fontWeight": "bold",
-						"textAlign": "left",
-						"color": "",
-						"backgroundColor": "transparent"
+						"title": "Samenwerken",
+						"description": "Apptegels van Communicatie, één tegel per app, elk een eigen widget"
 					}
 				},
 				{
@@ -1215,9 +1091,9 @@
 				{
 					"widgetId": "text",
 					"gridX": 8,
-					"gridY": 3,
+					"gridY": 4,
 					"gridWidth": 4,
-					"gridHeight": 7,
+					"gridHeight": 8,
 					"showTitle": 1,
 					"customTitle": "Van de gemeentesecretaris",
 					"content": {
@@ -1228,10 +1104,22 @@
 					}
 				},
 				{
-					"widgetId": "news",
+					"widgetId": "section-heading",
 					"gridX": 0,
 					"gridY": 12,
-					"gridWidth": 6,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Nieuws en media",
+						"description": "Van zuiddrecht.nl en van Communicatie"
+					}
+				},
+				{
+					"widgetId": "news",
+					"gridX": 0,
+					"gridY": 13,
+					"gridWidth": 4,
 					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Nieuws",
@@ -1249,9 +1137,9 @@
 				},
 				{
 					"widgetId": "video",
-					"gridX": 6,
-					"gridY": 12,
-					"gridWidth": 6,
+					"gridX": 4,
+					"gridY": 13,
+					"gridWidth": 4,
 					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Video",
@@ -1266,10 +1154,10 @@
 				},
 				{
 					"widgetId": "image",
-					"gridX": 0,
-					"gridY": 17,
+					"gridX": 8,
+					"gridY": 13,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Afbeelding",
 					"content": {
@@ -1280,9 +1168,21 @@
 					}
 				},
 				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 18,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Collega's",
+						"description": "Wie nieuw is, wie jarig is en wie wat weet"
+					}
+				},
+				{
 					"widgetId": "people",
-					"gridX": 4,
-					"gridY": 17,
+					"gridX": 0,
+					"gridY": 19,
 					"gridWidth": 4,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -1297,8 +1197,8 @@
 				},
 				{
 					"widgetId": "people",
-					"gridX": 8,
-					"gridY": 17,
+					"gridX": 4,
+					"gridY": 19,
 					"gridWidth": 4,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -1313,10 +1213,10 @@
 				},
 				{
 					"widgetId": "people",
-					"gridX": 0,
-					"gridY": 21,
+					"gridX": 8,
+					"gridY": 19,
 					"gridWidth": 4,
-					"gridHeight": 3,
+					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Vind een collega op expertise",
 					"content": {
@@ -1328,10 +1228,22 @@
 					}
 				},
 				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 23,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Wegwijs",
+						"description": "Snel naar de vaste plekken van het intranet"
+					}
+				},
+				{
 					"widgetId": "menu",
-					"gridX": 4,
-					"gridY": 21,
-					"gridWidth": 8,
+					"gridX": 0,
+					"gridY": 24,
+					"gridWidth": 12,
 					"gridHeight": 3,
 					"showTitle": 1,
 					"customTitle": "Menu",
@@ -1405,7 +1317,7 @@
 				{
 					"widgetId": "iframe",
 					"gridX": 0,
-					"gridY": 24,
+					"gridY": 27,
 					"gridWidth": 8,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -1425,7 +1337,7 @@
 				{
 					"widgetId": "text",
 					"gridX": 8,
-					"gridY": 24,
+					"gridY": 27,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -1440,7 +1352,7 @@
 				{
 					"widgetId": "news",
 					"gridX": 0,
-					"gridY": 30,
+					"gridY": 33,
 					"gridWidth": 6,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -1459,7 +1371,7 @@
 				{
 					"widgetId": "communities",
 					"gridX": 6,
-					"gridY": 30,
+					"gridY": 33,
 					"gridWidth": 6,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -1491,19 +1403,15 @@
 			],
 			"widgets": [
 				{
-					"widgetId": "label",
+					"widgetId": "section-heading",
 					"gridX": 0,
 					"gridY": 0,
-					"gridWidth": 6,
+					"gridWidth": 12,
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"text": "APPS VAN HET TEAM",
-						"fontSize": "12px",
-						"fontWeight": "bold",
-						"textAlign": "left",
-						"color": "",
-						"backgroundColor": "transparent"
+						"title": "Apps van het team",
+						"description": "Eén tegel per app, door Marieke voor het team geplaatst, elk een eigen widget"
 					}
 				},
 				{
@@ -1544,7 +1452,7 @@
 				{
 					"widgetId": "menu",
 					"gridX": 6,
-					"gridY": 0,
+					"gridY": 1,
 					"gridWidth": 6,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -1632,7 +1540,7 @@
 					}
 				},
 				{
-					"widgetId": "my-cases",
+					"widgetId": "assigned-cases",
 					"gridX": 4,
 					"gridY": 7,
 					"gridWidth": 4,
@@ -1642,51 +1550,7 @@
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"assignee": "@me",
-						"showStatusCounts": true,
 						"limit": 4
-					},
-					"fallback": {
-						"widgetId": "object-list",
-						"gridX": 4,
-						"gridY": 7,
-						"gridWidth": 4,
-						"gridHeight": 5,
-						"showTitle": 1,
-						"customTitle": "Mijn zaken",
-						"content": {
-							"title": "Mijn zaken",
-							"register": "dossiq",
-							"schema": "case",
-							"filter": {
-								"isFinalStatus": false,
-								"assignee": "@me"
-							},
-							"sort": {
-								"field": "plannedEndDate",
-								"dir": "asc"
-							},
-							"limit": 4,
-							"columns": [
-								{
-									"key": "identifier",
-									"label": "Zaak"
-								},
-								{
-									"key": "title",
-									"label": "Omschrijving"
-								},
-								{
-									"key": "status",
-									"label": "Status"
-								},
-								{
-									"key": "plannedEndDate",
-									"label": "Termijn"
-								}
-							],
-							"emptyText": "Er zijn geen zaken aan u toegewezen."
-						}
 					}
 				},
 				{
@@ -1698,14 +1562,13 @@
 					"showTitle": 1,
 					"customTitle": "Werkpakketten van het team",
 					"content": {
-						"project": "Havenpark",
-						"assignee": "",
-						"sortBy": "dueDate",
+						"scope": "project",
+						"project": "havenpark",
 						"limit": 4
 					}
 				},
 				{
-					"widgetId": "wiki",
+					"widgetId": "wiki-pages",
 					"gridX": 0,
 					"gridY": 11,
 					"gridWidth": 4,
@@ -1714,9 +1577,7 @@
 					"customTitle": "Wiki van het team",
 					"content": {
 						"space": "Vergunningen",
-						"showSearch": true,
-						"favourites": 3,
-						"recent": 3
+						"limit": 3
 					}
 				},
 				{
@@ -1919,64 +1780,27 @@
 					"content": {
 						"chartKind": "donut",
 						"source": "manual",
-						"props": {
-							"series": [
-								138,
-								74,
-								46,
-								54
-							],
-							"labels": [
-								"In behandeling",
-								"Wacht op aanvrager",
-								"Wacht op advies",
-								"Afgerond deze maand"
-							],
-							"legend": {
-								"position": "bottom"
-							},
-							"colors": [
-								"var(--sc-primary, #3669a5)",
-								"var(--sc-accent, #cc0000)",
-								"var(--sc-work-field, #828a95)",
-								"var(--sc-primary-deep, #234a78)"
-							]
-						}
-					},
-					"fallback": {
-						"widgetId": "chart",
-						"gridX": 0,
-						"gridY": 3,
-						"gridWidth": 4,
-						"gridHeight": 6,
-						"showTitle": 1,
-						"customTitle": "Zaken per status",
-						"content": {
-							"chartKind": "donut",
-							"props": {
-								"series": [
-									138,
-									74,
-									46,
-									54
-								],
-								"labels": [
-									"In behandeling",
-									"Wacht op aanvrager",
-									"Wacht op advies",
-									"Afgerond deze maand"
-								],
-								"legend": {
-									"position": "bottom"
-								},
-								"colors": [
-									"var(--sc-primary, #3669a5)",
-									"var(--sc-accent, #cc0000)",
-									"var(--sc-work-field, #828a95)",
-									"var(--sc-primary-deep, #234a78)"
-								]
-							}
-						}
+						"labels": [
+							"In behandeling",
+							"Wacht op aanvrager",
+							"Wacht op advies",
+							"Afgerond deze maand"
+						],
+						"series": [
+							138,
+							74,
+							46,
+							54
+						],
+						"showTotal": true,
+						"legendValues": true,
+						"legendPosition": "bottom",
+						"colors": [
+							"var(--sc-primary, #3669a5)",
+							"var(--sc-accent, #cc0000)",
+							"var(--sc-work-field, #828a95)",
+							"var(--sc-primary-deep, #234a78)"
+						]
 					}
 				},
 				{
@@ -1990,100 +1814,45 @@
 					"content": {
 						"chartKind": "bar",
 						"source": "manual",
-						"props": {
-							"series": [
-								{
-									"name": "Aanvragen",
-									"type": "column",
-									"data": [
-										112,
-										98,
-										130,
-										121,
-										142,
-										136
-									]
-								},
-								{
-									"name": "Besluiten",
-									"type": "line",
-									"data": [
-										95,
-										104,
-										118,
-										110,
-										125,
-										140
-									]
-								}
-							],
-							"categories": [
-								"apr",
-								"mei",
-								"jun",
-								"jul",
-								"aug",
-								"sep"
-							],
-							"options": {
-								"yaxis": {
-									"min": 0,
-									"max": 150
-								}
+						"categories": [
+							"apr",
+							"mei",
+							"jun",
+							"jul",
+							"aug",
+							"sep"
+						],
+						"series": [
+							{
+								"name": "Aanvragen",
+								"type": "column",
+								"data": [
+									112,
+									98,
+									130,
+									121,
+									142,
+									136
+								]
+							},
+							{
+								"name": "Besluiten",
+								"type": "line",
+								"data": [
+									95,
+									104,
+									118,
+									110,
+									125,
+									140
+								]
 							}
-						}
-					},
-					"fallback": {
-						"widgetId": "chart",
-						"gridX": 4,
-						"gridY": 3,
-						"gridWidth": 8,
-						"gridHeight": 6,
-						"showTitle": 1,
-						"customTitle": "Aanvragen en besluiten per maand",
-						"content": {
-							"chartKind": "bar",
-							"props": {
-								"series": [
-									{
-										"name": "Aanvragen",
-										"type": "column",
-										"data": [
-											112,
-											98,
-											130,
-											121,
-											142,
-											136
-										]
-									},
-									{
-										"name": "Besluiten",
-										"type": "line",
-										"data": [
-											95,
-											104,
-											118,
-											110,
-											125,
-											140
-										]
-									}
-								],
-								"categories": [
-									"apr",
-									"mei",
-									"jun",
-									"jul",
-									"aug",
-									"sep"
-								],
-								"options": {
-									"yaxis": {
-										"min": 0,
-										"max": 150
-									}
-								}
+						],
+						"legendPosition": "bottom",
+						"options": {
+							"yaxis": {
+								"min": 0,
+								"max": 150
 							}
 						}
 					}

@@ -176,3 +176,25 @@ describe('widgetRegistry — news is LaunchPad-owned', () => {
 		expect(listWidgetTypes()).toContain('news')
 	})
 })
+
+describe('offeredForViewer (wiki-widget REQ-WIKI-004)', () => {
+	it('offers a type without an app always, and a type with one only when it is enabled for the viewer', async () => {
+		const { offeredForViewer, getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(offeredForViewer({ displayName: 'Clock' }, {})).toBe(true)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), {})).toBe(false)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: false })).toBe(false)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: true })).toBe(true)
+	})
+})
+
+describe('section-heading (REQ-WDG-031)', () => {
+	it('is offered to everyone as "Section heading" with the format-header-1 icon', async () => {
+		const { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('section-heading')
+		const entry = getWidgetTypeEntry('section-heading')
+		expect(entry.icon).toBe('FormatHeader1')
+		expect(entry.renderer.name).toBe('SectionHeadingWidget')
+		expect(entry.form.name).toBe('SectionHeadingWidgetForm')
+		expect(offeredForViewer(entry, {})).toBe(true)
+	})
+})

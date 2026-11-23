@@ -4,7 +4,8 @@
  *
  * Playwright end-to-end test for discovering the server's apps
  * (launcher-discover-server-services, task 5): Deck is listed under
- * "Discovered on this server", one click places it as a tile that opens
+ * "App tiles", one click places it as its own app tile
+ * (a square, coloured link named "Deck" with no visible text) that opens
  * /apps/deck/, and the next time the add flow opens it is marked
  * "On this dashboard". LaunchPad itself is never listed.
  *
@@ -17,8 +18,10 @@
  *
  * Gate-19 @e2e traceability:
  *   @e2e discover-server-services::deck-discovered-and-placed
+ *   @e2e app-tile-widget::files-in-the-picker
  *
  * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
@@ -64,8 +67,8 @@ async function openAddFlow(page: Page): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	const picker = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(picker).toBeVisible({ timeout: 10_000 })
 	return picker
@@ -105,6 +108,7 @@ test.afterAll(async () => {
 })
 
 // @e2e discover-server-services::deck-discovered-and-placed
+// @e2e app-tile-widget::files-in-the-picker
 test('Deck is discovered, placed in one click and then marked as on this dashboard', async ({
 	browser,
 }) => {
@@ -127,28 +131,32 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 	try {
 		const picker = await openAddFlow(page)
 		const section = picker.locator('[data-testid="widget-picker-discovered"]')
-		await expect(section).toContainText('Discovered on this server')
+		await expect(section).toContainText('App tiles')
 		const entry = section.getByRole('button', { name: new RegExp(`^\\s*${deck!.name}`) })
 		await expect(entry).toBeVisible()
-		await expect(entry.locator('img')).toHaveAttribute('src', /.+/)
+		await expect(entry.locator('.widget-picker__tile-glyph')).toHaveAttribute('style', /url\(/)
 		await expect(entry).not.toContainText('On this dashboard')
 
 		const placed = page.waitForResponse((res) =>
-			/\/api\/dashboard\/\d+\/tile$/.test(res.url()) && res.request().method() === 'POST',
+			/\/api\/dashboard\/\d+\/widgets$/.test(res.url()) && res.request().method() === 'POST',
 		)
 		await entry.click()
 		const response = await placed
 		expect(response.status(), await response.text()).toBeLessThan(300)
 		expect(response.request().postDataJSON()).toMatchObject({
-			title: deck!.name,
-			linkType: 'app',
-			linkValue: 'deck',
+			widgetId: 'app-tile',
+			content: { appId: 'deck' },
 		})
 		await page.keyboard.press('Escape')
 
-		const tile = page.locator('.launchpad-grid-item').filter({ hasText: deck!.name })
+		const tile = page.getByRole('link', { name: new RegExp(`^${deck!.name}`) }).and(page.locator('[data-testid="cn-app-tile"]'))
 		await expect(tile).toBeVisible({ timeout: 10_000 })
-		await expect(tile.locator('a').first()).toHaveAttribute('href', /\/apps\/deck\/?/)
+		await expect(tile).toHaveAttribute('href', /\/apps\/deck\/?/)
+		await expect(tile).toHaveAttribute('title', deck!.name)
+		expect((await tile.innerText()).replace(/\d+\+?/, '').trim()).toBe('')
+		const box = await tile.boundingBox()
+		expect(box, 'the tile is drawn').not.toBeNull()
+		expect(Math.abs(box!.width - box!.height)).toBeLessThanOrEqual(1)
 
 		// The next time the add flow opens, Deck is marked.
 		const again = await openAddFlow(page)

@@ -22,7 +22,7 @@ import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
 import { NL_ADMINISTRATIVE, putHierarchies, readHierarchies, storeHierarchies } from './support/hierarchies.ts'
 import { adminContext, assertActingAs, createPrincipal, publishForRecipients, removePrincipal, seedDashboardWithWidget, shareWith } from './support/principals.ts'
 import { adminApi, LP_API as API, openWorkspace, Seeds } from './support/widgetPlacements.ts'
@@ -51,9 +51,8 @@ test.describe('A dashboard stores its hierarchies', () => {
 		try {
 			const dash = await seeds.dashboard(`E2E hierarchies picked ${Date.now()}`)
 			await openWorkspace(page)
-			const more = page.locator(MORE_MENU)
-			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+			await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+			await openDashboardSettings(page)
 
 			const select = page.getByTestId('dashboard-hierarchies-select').or(page.getByLabel('Drill-down levels')).first()
 			await expect(select).toBeVisible({ timeout: 10_000 })

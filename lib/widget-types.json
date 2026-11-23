@@ -11,7 +11,9 @@
 		"activity-report",
 		"ai-assistant",
 		"announcements",
+		"app-tile",
 		"app-tiles",
+		"assigned-cases",
 		"attention",
 		"calendar",
 		"chart",
@@ -23,6 +25,7 @@
 		"divider",
 		"files",
 		"gauge",
+		"graph",
 		"header",
 		"iframe",
 		"image",
@@ -35,8 +38,10 @@
 		"news",
 		"object-list",
 		"people",
+		"pie-chart",
 		"quicklinks",
 		"search",
+		"section-heading",
 		"spend-analytics",
 		"stat",
 		"stats-block",
@@ -45,6 +50,8 @@
 		"text",
 		"tile",
 		"video",
-		"weather"
+		"weather",
+		"wiki-pages",
+		"work-packages"
 	]
 }

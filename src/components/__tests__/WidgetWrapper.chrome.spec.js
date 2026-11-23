@@ -9,7 +9,7 @@
  */
 
 import { shallowMount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import WidgetWrapper from '../WidgetWrapper.vue'
 
 beforeEach(() => {
@@ -73,6 +73,20 @@ describe('WidgetWrapper — chrome and frame', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data' }).vm.showActionsMenu).toBe(true)
 		expect(mountWrapper({ id: 1, widgetId: 'data', content: { showActions: false } }).vm.showActionsMenu).toBe(false)
 		expect(mountWrapper({ id: 1, widgetId: 'data' }, { editMode: true }).vm.showActionsMenu).toBe(false)
+	})
+
+	it('puts Upload in the title row of a compact Files card that allows uploads, and asks the widget', () => {
+		const files = { id: 9, widgetId: 'files', content: { layout: 'compact', allowUpload: true } }
+		const actions = mountWrapper(files).vm.headerActions
+		expect(actions.map((a) => a.label)).toEqual(['Upload'])
+		const heard = vi.fn()
+		window.addEventListener('cn-files-widget:upload', heard)
+		actions[0].run()
+		window.removeEventListener('cn-files-widget:upload', heard)
+		expect(heard.mock.calls[0][0].detail).toEqual({ placementId: 9 })
+
+		expect(mountWrapper({ ...files, content: { layout: 'compact' } }).vm.headerActions).toEqual([])
+		expect(mountWrapper(files, { editMode: true }).vm.headerActions).toEqual([])
 	})
 
 	it('shows a drag grip in edit mode only (LpBewerken)', () => {

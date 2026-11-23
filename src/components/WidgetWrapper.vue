@@ -32,6 +32,7 @@
 			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
 			:headerLink="headerLink"
+			:headerActions="headerActions"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
@@ -308,6 +309,29 @@ export default {
 		 */
 		showActionsMenu() {
 			return !this.editMode && this.placement?.content?.showActions !== false
+		},
+
+		/**
+		 * Buttons in the card's title row. The compact Files list draws its
+		 * Upload there (LpWerkplek "Bestanden") and asks the widget to open
+		 * its file picker.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		headerActions() {
+			const content = this.placement?.content || {}
+			if (this.editMode || this.placement?.widgetId !== 'files' || content.layout !== 'compact' || content.allowUpload !== true) {
+				return []
+			}
+			const placementId = this.placement.id
+			return [{
+				key: 'upload',
+				label: this.t('launchpad', 'Upload'),
+				icon: 'Upload',
+				variant: 'secondary',
+				run: () => window.dispatchEvent(new CustomEvent('cn-files-widget:upload', { detail: { placementId } })),
+			}]
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

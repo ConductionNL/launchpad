@@ -289,7 +289,8 @@ class McpInstanceToolsTest extends TestCase {
 		$textDryRun      = $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'merge', 'dryRun' => 'no']);
 		$this->assertSame(expected: 'invalid_arguments', actual: $unknownStrategy['error']);
 		$this->assertSame(expected: 'invalid_arguments', actual: $textDryRun['error']);
-		$this->assertSame(expected: ['changed' => 2], actual: $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'overwrite', 'dryRun' => false]));
+		$written = $this->tools->resyncTemplate(args: ['templateId' => 3, 'strategy' => 'overwrite', 'dryRun' => false]);
+		$this->assertSame(expected: ['changed' => 2], actual: $written);
 	}//end testResyncTemplateChecksItsArguments()
 
 	/**

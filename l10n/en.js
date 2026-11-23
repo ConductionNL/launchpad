@@ -1927,7 +1927,19 @@ OC.L10N.register(
     "Changes are saved straight away" : "Changes are saved straight away",
     "Dashboard settings" : "Dashboard settings",
     "The number of columns could not be saved." : "The number of columns could not be saved.",
-    "Versions" : "Versions"
+    "Versions" : "Versions",
+    "Copy link to this dashboard" : "Copy link to this dashboard",
+    "Duplicate as new dashboard" : "Duplicate as new dashboard",
+    "The link could not be copied." : "The link could not be copied.",
+    "More" : "More",
+    "All dashboards" : "All dashboards",
+    "This dashboard" : "This dashboard",
+    "Default dashboard" : "Default dashboard",
+    "Save dashboard" : "Save dashboard",
+    "Read receipts" : "Read receipts",
+    "default" : "default",
+    "shared" : "shared",
+    "group" : "group"
 },
 "nplurals=2; plural=(n != 1);"
 );

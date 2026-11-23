@@ -163,8 +163,8 @@ async function openAs(browser: Browser, dash: DashboardRow) {
 async function moreItem(page: Page, id: string) {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	return page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`)
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	return page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`)
 }
 
 /**
@@ -614,7 +614,7 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 			// The Meer menu offers none of it any more.
 			await expect(await moreItem(page, 'config')).toBeVisible()
 			for (const id of ['publish', 'unpublish', 'schedule']) {
-				await expect(page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`)).toHaveCount(0)
+				await expect(page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`)).toHaveCount(0)
 			}
 			await page.keyboard.press('Escape')
 

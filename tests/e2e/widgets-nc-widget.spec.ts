@@ -235,10 +235,10 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 		)
 		await openWorkspace(page)
 		await page
-			.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+			.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 			.click()
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
+			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
 		await page.locator('[data-testid="widget-picker-type-nc-widget"]').click()
 

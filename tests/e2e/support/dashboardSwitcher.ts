@@ -25,8 +25,8 @@ export const MORE_MENU = '[data-testid="launchpad-more-menu"]'
 export async function openDashboardSwitcher(page: Page): Promise<void> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-all-dashboards"]').click()
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]').click()
 	await expect(page.locator('.dashboard-switcher-sidebar.open')).toBeVisible({ timeout: 10_000 })
 }
 
@@ -39,7 +39,37 @@ export async function openDashboardSwitcher(page: Page): Promise<void> {
 export async function enterEditMode(page: Page): Promise<void> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-edit"]').click()
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-edit"]').click()
 	await expect(page.locator('.launchpad-edit-mode')).toBeVisible({ timeout: 10_000 })
+}
+
+/**
+ * Open the dashboard settings the way a person does: edit mode, then
+ * Dashboard settings in the edit bar (board LpBewerken).
+ *
+ * @param page The page, on the start page, as someone who may configure it.
+ * @return Resolves once the settings window is open.
+ */
+export async function openDashboardSettings(page: Page): Promise<void> {
+	if (await page.locator('.launchpad-edit-mode').count() === 0) {
+		await enterEditMode(page)
+	}
+	await page.locator('[data-testid="launchpad-edit-bar-settings"]').click()
+	await expect(page.locator('.dashboard-config')).toBeVisible({ timeout: 10_000 })
+}
+
+/**
+ * Unfold Settings in an open More menu (board LpMeer), so its destinations
+ * can be clicked.
+ *
+ * @param page The page, with More open.
+ * @return Resolves once Settings is unfolded.
+ */
+export async function openSettingsGroup(page: Page): Promise<void> {
+	const toggle = page.locator('[data-testid="launchpad-more-menu-settings"]:visible')
+	if (await toggle.getAttribute('aria-expanded') !== 'true') {
+		await toggle.click()
+	}
+	await expect(toggle).toHaveAttribute('aria-expanded', 'true')
 }

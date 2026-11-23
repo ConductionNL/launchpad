@@ -17,6 +17,7 @@ import {
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
+import { openSettingsGroup } from './support/dashboardSwitcher.ts'
 
 let member: { username: string; password: string } | null = null
 
@@ -58,16 +59,16 @@ test('the dashboard view has no panel and every destination in More', async ({ b
 		const more = page.locator('[data-testid="launchpad-more-menu"]')
 		await expect(more).toBeVisible({ timeout: 30_000 })
 		await expectNoPanel(page)
-		await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-		await expect(page.locator('[data-testid="cn-grouped-menu-panel"]')).toBeVisible()
+		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
 		const ids = await page
-			.locator('[data-testid^="cn-grouped-menu-item-"]')
+			.locator('[data-testid^="launchpad-more-menu-item-"]')
 			.evaluateAll((els) => els.map((el) => el.getAttribute('data-testid') ?? ''))
 		for (const id of DESTINATIONS) {
-			expect(ids, `${id} is not in More`).toContain(`cn-grouped-menu-item-${id}`)
+			expect(ids, `${id} is not in More`).toContain(`launchpad-more-menu-item-${id}`)
 		}
-		expect(ids).toContain('cn-grouped-menu-item-all-dashboards')
-		expect(ids).toContain('cn-grouped-menu-item-personal-settings')
+		expect(ids).toContain('launchpad-more-menu-item-all-dashboards')
+		expect(ids).toContain('launchpad-more-menu-item-personal-settings')
 	} finally {
 		await context.close()
 	}
@@ -82,14 +83,15 @@ test('the Marketplace has no panel, More at its top, and Dashboards leads back',
 		const holder = page.locator('[data-testid="launchpad-page-menu"]')
 		await expect(holder).toBeVisible({ timeout: 30_000 })
 		await expectNoPanel(page)
-		await holder.locator('button').first().click()
+		await holder.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+		await openSettingsGroup(page)
 		for (const id of DESTINATIONS) {
 			await expect(
-				page.locator(`[data-testid="launchpad-start-page-menu-${id}"]`),
+				page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`),
 				`${id} is not in More`,
 			).toBeVisible()
 		}
-		await page.locator('[data-testid="launchpad-start-page-menu-dashboards"]').click()
+		await page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]').click()
 		// The dashboard view writes the open dashboard's own address
 		// (`/apps/launchpad/<slug>`, dashboard-deeplinking), so the URL only
 		// has to have left the Marketplace; the view itself is the proof.

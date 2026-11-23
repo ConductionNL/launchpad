@@ -172,8 +172,8 @@ test('Nextcloud\'s dashboard asks launchpad_news for items and gets a list with 
 // @e2e news-widget::widget-picker-includes-news-widget
 test('the widget picker lists the news widget among the discovered widgets, and it can be placed', async ({ page }) => {
 	await gotoDashboard(page)
-	await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	const picker = page.locator('.widget-picker')
 	await expect(picker).toBeVisible({ timeout: 10_000 })
 

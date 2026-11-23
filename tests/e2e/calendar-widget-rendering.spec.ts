@@ -298,8 +298,8 @@ test.describe('REQ-CAL-009 failure tolerance', () => {
 		expect(prominent, 'the notice is in the warning colour, centred, or dismissable').toBe(true)
 
 		// The dashboard is not blocked: its own controls still respond.
-		await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-		await expect(page.locator('[data-testid="cn-grouped-menu-item-all-dashboards"]')).toBeVisible()
+		await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
+		await expect(page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')).toBeVisible()
 	})
 })
 

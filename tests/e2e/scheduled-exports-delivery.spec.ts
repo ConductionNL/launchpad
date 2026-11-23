@@ -68,7 +68,7 @@ import { isIP } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
 import { setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 import { adminContext } from './support/principals.ts'
 import {
@@ -295,10 +295,8 @@ test.describe('scheduled exports: failed webhook and retry (task 29)', () => {
 		const { context, page } = await loginAs(browser, owner.username, owner.password)
 		try {
 			await page.goto('/index.php/apps/launchpad')
-			const more = page.locator(MORE_MENU)
-			await expect(more).toBeVisible({ timeout: 30_000 })
-			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+			await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+			await openDashboardSettings(page)
 			await page.locator('[data-test="config-tab-exports"]').click()
 			await page.getByRole('button', { name: `Actions for ${name}` }).click()
 			await page.getByRole('menuitem', { name: 'View runs' }).click()

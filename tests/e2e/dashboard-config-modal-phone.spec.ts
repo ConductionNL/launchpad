@@ -16,7 +16,7 @@ import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { installBundleOverride } from './support/bundleOverride.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings } from './support/dashboardSwitcher.ts'
 import { adminApi, openWorkspace, Seeds } from './support/widgetPlacements.ts'
 
 const PHONE = { width: 390, height: 844 }
@@ -76,8 +76,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 			try {
 				await seeds.dashboard(`E2E config modal phone ${colorScheme} ${Date.now()}`)
 				await openWorkspace(page)
-				await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-				await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+				await openDashboardSettings(page)
 				await expect(page.locator('.dashboard-config')).toBeVisible({ timeout: 10_000 })
 
 				const picker = page.getByTestId('dashboard-hierarchies-select')

@@ -2,10 +2,9 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The start page's one "Meer" menu (LpVandaag): the dashboard switcher, the
- * open dashboard's actions with the cog menu's gates, and, while the
- * navigation panel is left out, the settings and the app's destinations,
- * each offered once.
+ * The dashboard view's More menu (board LpMeer): the dashboards, Settings
+ * and This dashboard with each action's permission rule, handed to the one
+ * LaunchpadMoreMenu.
  */
 
 import { mount } from '@vue/test-utils'
@@ -19,62 +18,30 @@ vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
 	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
 }))
-vi.mock('@conduction/nextcloud-vue', () => ({
-	CnGroupedMenu: {
-		name: 'CnGroupedMenu',
-		props: ['columns', 'label'],
-		emits: ['open'],
-		template: '<div class="menu-stub" @click="$emit(\'open\')" />',
+vi.mock('../LaunchpadMoreMenu.vue', () => ({
+	default: {
+		name: 'LaunchpadMoreMenu',
+		props: ['dashboards', 'settings', 'actions'],
+		template: '<div class="menu-stub" />',
 	},
 }))
 
 import DashboardMoreMenu from '../DashboardMoreMenu.vue'
-import { orderDestinations } from '../StartPageMenu.vue'
+import { orderDestinations } from '../moreMenuItems.js'
 
 const ENTRIES = [
 	{ id: 'dashboards', label: 'Dashboards', route: 'Workspace' },
-	{
-		id: 'admin-templates',
-		label: 'Templates',
-		route: 'admin-templates-index',
-		section: 'settings',
-	},
-	{
-		id: 'admin-settings',
-		label: 'Admin settings',
-		route: 'admin-settings',
-		section: 'settings',
-	},
+	{ id: 'admin-templates', label: 'Templates', route: 'admin-templates-index', section: 'settings' },
+	{ id: 'admin-settings', label: 'Admin settings', route: 'admin-settings', section: 'settings' },
 	{ id: 'FlowsMenu', label: 'Flows', route: 'Flows', section: 'settings' },
-	{
-		id: 'Documentation',
-		label: 'Documentation',
-		href: 'https://launchpad.conduction.nl',
-		section: 'footer',
-	},
-	{ id: 'StoreMenu', label: 'Store', route: 'Store', section: 'footer' },
+	{ id: 'Documentation', label: 'Documentation', href: 'https://launchpad.conduction.nl', section: 'footer' },
+	{ id: 'StoreMenu', label: 'Marketplace', route: 'Store', section: 'footer' },
 	{ id: 'ReportsMenu', label: 'Reports', route: 'Reports', section: 'settings' },
-	{
-		id: 'FeaturesRoadmapMenu',
-		label: 'Features & roadmap',
-		route: 'FeaturesRoadmap',
-		section: 'footer',
-	},
-	{
-		id: 'IntegrationsMenu',
-		label: 'Integrations',
-		route: 'Integrations',
-		section: 'settings',
-	},
+	{ id: 'FeaturesRoadmapMenu', label: 'Features & roadmap', route: 'FeaturesRoadmap', section: 'footer' },
+	{ id: 'IntegrationsMenu', label: 'Integrations', route: 'Integrations', section: 'settings' },
 ]
 
-const TODAY = {
-	id: 1,
-	uuid: 'u-1',
-	name: 'Vandaag',
-	publicationStatus: 'published',
-	isOwner: true,
-}
+const TODAY = { id: 1, uuid: 'u-1', name: 'Vandaag', isOwner: true }
 const TEAM = { id: 2, uuid: 'u-2', name: 'Team Vergunningen' }
 const INTRANET = { id: 3, uuid: 'u-3', name: 'Intranet Zuiddrecht' }
 
@@ -83,12 +50,9 @@ const INTRANET = { id: 3, uuid: 'u-3', name: 'Intranet Zuiddrecht' }
  *
  * @param {object} props Props.
  * @param {object} chrome The chrome decision.
- * @return {object} The wrapper.
+ * @return {object} The wrapper and what the menu was handed.
  */
-function mountMenu(
-	props = {},
-	chrome = { railSuppressed: true, entries: ENTRIES, isAdmin: true },
-) {
+function mountMenu(props = {}, chrome = { railSuppressed: true, entries: ENTRIES, isAdmin: true }) {
 	const openUserSettings = vi.fn()
 	const wrapper = mount(DashboardMoreMenu, {
 		props: {
@@ -100,258 +64,119 @@ function mountMenu(
 			defaultUuid: 'u-1',
 			canEdit: true,
 			canShare: true,
-			canManagePublication: true,
-			canViewHistory: true,
+			canDuplicate: true,
 			...props,
 		},
-		global: {
-			provide: {
-				launchpadChrome: chrome,
-				cnOpenUserSettings: openUserSettings,
-			},
-		},
+		global: { provide: { launchpadChrome: chrome, cnOpenUserSettings: openUserSettings } },
 	})
-	return { wrapper, openUserSettings }
-}
-
-/**
- * The menu's columns as `{ groupId: [itemId] }` per column.
- *
- * @param {object} wrapper The wrapper.
- * @return {Array<object>}
- */
-function shape(wrapper) {
-	return wrapper
-		.findComponent({ name: 'CnGroupedMenu' })
-		.props('columns')
-		.map((column) =>
-			Object.fromEntries(
-				column
-					.filter((group) => group.items.length > 0)
-					.map((group) => [group.id, group.items.map((item) => item.id)]),
-			),
-		)
-}
-
-/**
- * One item of the menu.
- *
- * @param {object} wrapper The wrapper.
- * @param {string} id The item id.
- * @return {object}
- */
-function item(wrapper, id) {
-	return wrapper
-		.findComponent({ name: 'CnGroupedMenu' })
-		.props('columns')
-		.flat()
-		.flatMap((group) => group.items)
-		.find((entry) => entry.id === id)
+	const menu = wrapper.findComponent({ name: 'LaunchpadMoreMenu' })
+	const ids = (key) => menu.props(key).map((item) => item.id)
+	return { wrapper, menu, ids, openUserSettings }
 }
 
 describe('DashboardMoreMenu', () => {
-	it('groups everything as the board draws it, each action once', () => {
-		const { wrapper } = mountMenu()
-		expect(wrapper.findComponent({ name: 'CnGroupedMenu' }).props('label')).toBe(
-			'More',
-		)
-		expect(shape(wrapper)).toEqual([
-			{
-				dashboards: [
-					'dashboard-1',
-					'dashboard-2',
-					'dashboard-3',
-					'all-dashboards',
-				],
-				settings: ['personal-settings', 'admin-settings-link'],
-			},
-			{
-				'this-dashboard': [
-					'edit',
-					'config',
-					'add-widget',
-					'share',
-					'set-default',
-					'versions',
-				],
-				delete: ['delete'],
-				launchpad: [
-					'StoreMenu',
-					'admin-templates',
-					'ReportsMenu',
-					'FlowsMenu',
-					'IntegrationsMenu',
-					'Documentation',
-					'FeaturesRoadmapMenu',
-				],
-			},
+	it('hands the one menu the board\'s three groups', () => {
+		const { ids } = mountMenu()
+		expect(ids('dashboards')).toEqual(['dashboard-1', 'dashboard-2', 'dashboard-3', 'all-dashboards'])
+		expect(ids('settings')).toEqual([
+			'personal-settings',
+			'admin-settings-link',
+			'StoreMenu',
+			'admin-templates',
+			'ReportsMenu',
+			'FlowsMenu',
+			'IntegrationsMenu',
+			'Documentation',
+			'FeaturesRoadmapMenu',
 		])
+		expect(ids('actions')).toEqual(['edit', 'add-widget', 'share', 'copy-link', 'duplicate', 'set-default', 'delete'])
 	})
 
 	it('marks the open, the default, the shared and the group dashboards', () => {
-		const { wrapper } = mountMenu()
-		expect(item(wrapper, 'dashboard-1')).toMatchObject({
-			checked: true,
-			meta: 'default',
-		})
-		expect(item(wrapper, 'dashboard-2')).toMatchObject({
-			checked: false,
-			meta: 'shared',
-		})
-		expect(item(wrapper, 'dashboard-3')).toMatchObject({
-			checked: false,
-			meta: 'group',
-		})
+		const { menu } = mountMenu()
+		const [today, team, intranet] = menu.props('dashboards')
+		expect(today).toMatchObject({ checked: true, meta: 'default' })
+		expect(team).toMatchObject({ checked: false, meta: 'shared' })
+		expect(intranet).toMatchObject({ checked: false, meta: 'group' })
 	})
 
 	it('switches dashboards and opens the full switcher', () => {
-		const { wrapper } = mountMenu()
-		item(wrapper, 'dashboard-3').onClick()
-		item(wrapper, 'all-dashboards').onClick()
-		expect(wrapper.emitted('switch')[0]).toEqual([3, 'group'])
+		const { wrapper, menu } = mountMenu()
+		menu.props('dashboards')[1].onClick()
+		menu.props('dashboards').at(-1).onClick()
+		expect(wrapper.emitted('switch')).toEqual([[2, 'shared']])
 		expect(wrapper.emitted('openAll')).toHaveLength(1)
 	})
 
-	it('emits each dashboard action the cog menu emitted', () => {
-		const { wrapper } = mountMenu()
-		const events = {
-			edit: 'toggleEdit',
-			config: 'openConfig',
-			'add-widget': 'addWidget',
-			share: 'share',
-			'set-default': 'setDefault',
-			versions: 'versionHistory',
-			delete: 'delete',
+	it('emits each action by its event', () => {
+		const { wrapper, menu } = mountMenu()
+		for (const item of menu.props('actions')) {
+			item.onClick()
 		}
-		for (const [id, event] of Object.entries(events)) {
-			item(wrapper, id).onClick()
-			expect(wrapper.emitted(event)).toHaveLength(1)
+		for (const event of ['toggleEdit', 'addWidget', 'share', 'copyLink', 'duplicate', 'setDefault', 'delete']) {
+			expect(wrapper.emitted(event), event).toHaveLength(1)
 		}
-		expect(item(wrapper, 'delete').destructive).toBe(true)
 	})
 
-	it("keeps the owner-only and permission-gated actions from someone else's dashboard", () => {
-		const { wrapper } = mountMenu({
-			dashboard: { ...TEAM, publicationStatus: 'draft' },
-			source: 'shared',
+	it('keeps each action\'s permission rule on someone else\'s dashboard', () => {
+		const { ids } = mountMenu({
+			dashboard: { ...TEAM, isOwner: false },
+			source: 'group',
 			canEdit: false,
 			canShare: false,
-			canManagePublication: false,
-			canViewHistory: false,
+			canDuplicate: false,
 		})
-		expect(shape(wrapper)[1]['this-dashboard']).toEqual(['set-default'])
-		expect(shape(wrapper)[1].delete).toBeUndefined()
+		expect(ids('actions')).toEqual(['copy-link', 'set-default'])
 	})
 
-	it('REQ-SCHEDUI-001: leaves Publish, Unpublish, Schedule and Scheduled exports to the settings', () => {
-		for (const publicationStatus of ['draft', 'published']) {
-			const { wrapper } = mountMenu({ dashboard: { ...TODAY, publicationStatus } })
-			for (const id of ['publish', 'unpublish', 'schedule', 'scheduled-exports']) {
-				expect(item(wrapper, id), id).toBeUndefined()
-			}
+	it('never offers Versions, Settings, Schedule, Unpublish or Create embed token', () => {
+		const { ids } = mountMenu()
+		for (const gone of ['versions', 'config', 'schedule', 'unpublish', 'publish', 'embed']) {
+			expect(ids('actions')).not.toContain(gone)
 		}
 	})
 
-	it("REQ-SCHEDUI-001: offers Settings to an administrator on someone else's dashboard, for its Publication tab", () => {
-		const { wrapper } = mountMenu({
-			dashboard: TEAM,
-			source: 'shared',
-			canManagePublication: true,
-		})
-		item(wrapper, 'config').onClick()
-		expect(wrapper.emitted('openConfig')).toHaveLength(1)
-	})
-
-	it('offers Save while editing and the read receipts when there are any', () => {
-		const { wrapper } = mountMenu({
-			isEditMode: true,
-			canViewReadReceipts: true,
-		})
-		expect(item(wrapper, 'edit').label).toBe('Save dashboard')
-		item(wrapper, 'read-receipts').onClick()
+	it('offers the read receipts before Delete when the dashboard asks for them', () => {
+		const { wrapper, menu, ids } = mountMenu({ canViewReadReceipts: true })
+		expect(ids('actions').slice(-2)).toEqual(['read-receipts', 'delete'])
+		menu.props('actions').find((item) => item.id === 'read-receipts').onClick()
 		expect(wrapper.emitted('readReceipts')).toHaveLength(1)
+		expect(mountMenu({ canViewReadReceipts: true, source: 'group', dashboard: TEAM }).ids('actions').at(-1)).toBe('read-receipts')
 	})
 
-	it('offers "Create embed token" to an administrator, linking to Beheer ▸ Embeds with the dashboard', () => {
-		const { wrapper: without } = mountMenu({})
-		expect(item(without, 'embed')).toBeUndefined()
-
-		const { wrapper } = mountMenu({ canEmbed: true })
-		const embed = item(wrapper, 'embed')
-		expect(embed.label).toBe('Create embed token')
-		expect(embed.href).toContain('tab=embeds')
-		expect(embed.href).toContain('embedType=dashboard')
+	it('names Save dashboard while editing', () => {
+		const { menu } = mountMenu({ isEditMode: true })
+		expect(menu.props('actions')[0].label).toBe('Save dashboard')
 	})
 
-	it('leaves the admin settings out for a member', () => {
-		const { wrapper } = mountMenu(
-			{},
-			{
-				railSuppressed: true,
-				entries: ENTRIES.filter((e) => !e.id.startsWith('admin')),
-				isAdmin: false,
-			},
-		)
-		expect(shape(wrapper)[0].settings).toEqual(['personal-settings'])
-		expect(shape(wrapper)[1].launchpad).not.toContain('admin-templates')
+	it('leaves the admin settings out for a member, and opens the personal settings dialog', () => {
+		const { menu, ids, openUserSettings } = mountMenu({}, { railSuppressed: true, entries: ENTRIES, isAdmin: false })
+		expect(ids('settings')).not.toContain('admin-settings-link')
+		menu.props('settings').find((item) => item.id === 'personal-settings').onClick()
+		expect(openUserSettings).toHaveBeenCalled()
 	})
 
-	it('opens the personal settings dialog and links the admin settings', () => {
-		const { wrapper, openUserSettings } = mountMenu()
-		item(wrapper, 'personal-settings').onClick()
-		expect(openUserSettings).toHaveBeenCalledTimes(1)
-		expect(item(wrapper, 'admin-settings-link').href).toBe(
-			'/settings/admin/launchpad',
-		)
-		expect(item(wrapper, 'Documentation')).toMatchObject({
-			href: 'https://launchpad.conduction.nl',
-			target: '_blank',
-		})
-		expect(item(wrapper, 'StoreMenu').to).toEqual({ name: 'Store' })
+	it('leaves Settings to the navigation panel while it shows', () => {
+		const { ids } = mountMenu({}, { railSuppressed: false, entries: ENTRIES, isAdmin: true })
+		expect(ids('settings')).toEqual([])
 	})
 
-	it('leaves the settings and the destinations to the navigation panel while it shows', () => {
-		const { wrapper } = mountMenu(
-			{},
-			{ railSuppressed: false, entries: ENTRIES, isAdmin: true },
-		)
-		expect(Object.keys(shape(wrapper)[0])).toEqual(['dashboards'])
-		expect(Object.keys(shape(wrapper)[1])).toEqual(['this-dashboard', 'delete'])
-	})
-
-	it('reports that it opened, so the page can check the version history', async () => {
-		const { wrapper } = mountMenu()
-		await wrapper.find('.menu-stub').trigger('click')
-		expect(wrapper.emitted('menuOpen')).toHaveLength(1)
-	})
-
-	it('offers only the switcher without an open dashboard', () => {
-		const { wrapper } = mountMenu(
-			{ dashboard: null },
-			{ railSuppressed: false, entries: [], isAdmin: false },
-		)
-		expect(shape(wrapper)).toEqual([
-			{
-				dashboards: [
-					'dashboard-1',
-					'dashboard-2',
-					'dashboard-3',
-					'all-dashboards',
-				],
-			},
-			{},
-		])
+	it('offers only the dashboards without an open dashboard', () => {
+		const { ids } = mountMenu({ dashboard: null })
+		expect(ids('actions')).toEqual([])
+		expect(ids('dashboards')).toContain('all-dashboards')
 	})
 })
 
 describe('orderDestinations', () => {
-	it("puts the app's destinations in the board's order, unknown ones after in their own order", () => {
-		const ids = orderDestinations([
-			{ id: 'x' },
-			{ id: 'Documentation' },
-			{ id: 'y' },
-			{ id: 'StoreMenu' },
-		]).map((i) => i.id)
-		expect(ids).toEqual(['StoreMenu', 'Documentation', 'x', 'y'])
+	it('puts the app\'s destinations in the board\'s order, unknown ones after in their own order', () => {
+		const items = ['zeta', 'Documentation', 'alpha', 'StoreMenu', 'FlowsMenu'].map((id) => ({ id }))
+		expect(orderDestinations(items).map((item) => item.id)).toEqual([
+			'StoreMenu',
+			'FlowsMenu',
+			'Documentation',
+			'zeta',
+			'alpha',
+		])
 	})
 })

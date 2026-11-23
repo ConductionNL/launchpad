@@ -2,15 +2,14 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Where the workspace's top-right controls (dashboard actions, dashboard
- * switcher, start page menu, share) render.
+ * Where the workspace's top-right controls (the More menu, board LpMeer)
+ * render.
  *
- * Without a greeting row they float at the top right, as before. When the
- * dashboard opens with a greeting on the page ground (a header widget with
- * `ground`), LpStart draws the page's actions in that row, right of
- * "Startpagina aanpassen". Floating, they sat on top of that button and
- * covered it. So the controls dock into the greeting row instead: this
- * module finds the row and gives it one actions element to teleport into.
+ * Without a greeting row they float at the top right. When the dashboard
+ * opens with a greeting on the page ground (a header widget with `ground`),
+ * LpStart draws the page's actions in that row; floating, they covered the
+ * greeting. So the controls dock into the greeting row instead: this module
+ * finds the row and gives it one actions element to teleport into.
  */
 
 /** Class of the element the controls are teleported into. */

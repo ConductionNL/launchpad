@@ -2,10 +2,10 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The version-history dialog (REQ-VERSUI-001..003), driven through the
- * product's own controls: the start page's More menu, its "Versions" entry,
- * the dialog's "Save this version now" and a row's "Restore" with its
- * confirmation. Written for e2e-coverage-programme task 2.3.
+ * The version history (REQ-VERSUI-001..003), driven through the product's
+ * own controls: edit mode, the edit bar's Dashboard settings, its Versions
+ * tab (board LpVersies), "Save this version now" and a row's "Restore" with
+ * its confirmation. Written for e2e-coverage-programme task 2.3.
  *
  * The version history is SEEDED over the API (`POST /api/dashboards/{uuid}/
  * versions`), which is exactly what the earlier blanket exclusion said could
@@ -39,7 +39,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -52,7 +52,7 @@ import {
 
 const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 const STAMP = `E2E Version UI ${Date.now()}`
-const VERSIONS_ITEM = '[data-testid="cn-grouped-menu-item-versions"]'
+const VERSIONS_TAB = '[data-test="config-tab-versions"]'
 const DIALOG = '[data-testid="version-history"]'
 const ROW = '[data-testid="version-row"]'
 
@@ -142,25 +142,23 @@ async function createActiveDashboard(
 async function openMoreMenu(page: Page): Promise<void> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await expect(
-		page.locator('[data-testid="cn-grouped-menu-item-set-default"]'),
+		page.locator('[data-testid="launchpad-more-menu-item-set-default"]'),
 	).toBeVisible({
 		timeout: 10_000,
 	})
 }
 
 /**
- * Open the version-history dialog from the More menu.
+ * Open the Versions tab of the dashboard settings from the edit bar.
  *
  * @param page the start page.
- * @return the dialog locator, once its rows have loaded.
+ * @return the tab's content, once its rows have loaded.
  */
 async function openVersionHistory(page: Page) {
-	await openMoreMenu(page)
-	// The entry appears once the menu has asked the server whether this
-	// dashboard keeps versions.
-	await page.locator(VERSIONS_ITEM).click({ timeout: 15_000 })
+	await openDashboardSettings(page)
+	await page.locator(VERSIONS_TAB).click({ timeout: 15_000 })
 	const dialog = page.locator(DIALOG)
 	await expect(dialog).toBeVisible({ timeout: 15_000 })
 	return dialog
@@ -269,11 +267,11 @@ test.describe('REQ-VERSUI-001 who sees "Version history"', () => {
 			expect(activeBody.dashboard.uuid).toBe(dash.uuid)
 			expect(activeBody.isOwner).toBe(false)
 
-			// Control: the owner's page does offer the entry on this dashboard,
+			// Control: the owner reaches the Versions tab on this dashboard,
 			// so its absence below is about pieter, not a wrong locator.
 			await page.goto('/index.php/apps/launchpad/')
-			await openMoreMenu(page)
-			await expect(page.locator(VERSIONS_ITEM)).toBeVisible({
+			await openDashboardSettings(page)
+			await expect(page.locator(VERSIONS_TAB)).toBeVisible({
 				timeout: 15_000,
 			})
 
@@ -285,14 +283,15 @@ test.describe('REQ-VERSUI-001 who sees "Version history"', () => {
 			try {
 				await pieterPage.goto('/index.php/apps/launchpad/')
 				await openMoreMenu(pieterPage)
-				// He is on a dashboard he does not own: no Settings entry ...
+				// He is on a dashboard he may only view: no Edit, so no edit
+				// bar and no way to the settings ...
 				await expect(
-					pieterPage.locator(
-						'[data-testid="cn-grouped-menu-item-config"]',
-					),
+					pieterPage.locator('[data-testid="launchpad-more-menu-item-edit"]'),
 				).toHaveCount(0)
-				// ... and no version history entry.
-				await expect(pieterPage.locator(VERSIONS_ITEM)).toHaveCount(0)
+				// ... and More itself never offers Versions.
+				await expect(
+					pieterPage.locator('[data-testid="launchpad-more-menu-item-versions"]'),
+				).toHaveCount(0)
 			} finally {
 				await context.close()
 			}

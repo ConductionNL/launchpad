@@ -105,10 +105,10 @@ async function addLabel(
 ): Promise<{ id: number; rect: Rect }> {
 	await page
 		.locator(MORE_MENU)
-		.locator('[data-testid="cn-grouped-menu-trigger"]')
+		.locator('[data-testid="launchpad-more-menu-trigger"]')
 		.click()
 	await page
-		.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
+		.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 		.click()
 	await page.locator('[data-testid="widget-picker-type-label"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
@@ -375,9 +375,9 @@ test('a widget removed from the widget menu leaves the grid and the rest stays p
 	try {
 		await page
 			.locator(MORE_MENU)
-			.locator('[data-testid="cn-grouped-menu-trigger"]')
+			.locator('[data-testid="launchpad-more-menu-trigger"]')
 			.click()
-		await page.locator('[data-testid="cn-grouped-menu-item-edit"]').click()
+		await page.locator('[data-testid="launchpad-more-menu-item-edit"]').click()
 		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
 
 		await page

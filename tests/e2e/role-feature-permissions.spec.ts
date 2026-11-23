@@ -293,8 +293,8 @@ async function pickerWidgetTitles(page: Page, mustList: string): Promise<string[
 	await page.goto('/index.php/apps/launchpad/')
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	const picker = page.locator('.widget-picker')
 	await expect(picker).toBeVisible({ timeout: 15_000 })
 	// Wait until the list has rendered, so an absence below is a real one.

@@ -74,17 +74,14 @@
 		     Both halves have to move for the ordering between them to mean
 		     anything. -->
 		<!-- On a dashboard with a greeting on the page ground, the controls
-		     dock into that row (headerActionsDock.js), right of "Startpagina
-		     aanpassen" as LpStart draws the page's actions. Floating there,
-		     they covered that button. -->
+		     dock into that row (headerActionsDock.js); in edit mode they dock
+		     at the end of the edit bar. -->
 		<Teleport v-if="!kiosk" :to="controlsDock || 'body'">
 			<div
 				class="launchpad-floating-controls"
 				:class="{ 'launchpad-floating-controls--docked': controlsDock !== null }"
 				data-testid="launchpad-top-controls">
-				<!-- LpVandaag: one "Meer" menu holds the dashboard switcher, the
-				     active dashboard's actions, the start page's destinations
-				     and Share, beside "Startpagina aanpassen". -->
+				<!-- Board LpMeer: More is the page header's only control. -->
 				<DashboardMoreMenu
 					:dashboard="activeDashboard"
 					:source="activeDashboardSource"
@@ -94,9 +91,7 @@
 					:defaultUuid="defaultDashboardUuid"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
-					:canEmbed="isAdmin === true"
-					:canManagePublication="canManagePublication"
-					:canViewHistory="canViewVersionHistory"
+					:canDuplicate="canDuplicateActiveDashboard"
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
@@ -106,22 +101,16 @@
 					@toggleEdit="
 						onRowToggleEdit(activeDashboard, activeDashboardSource)
 					"
-					@openConfig="
-						onRowOpenConfig(activeDashboard, activeDashboardSource)
-					"
 					@addWidget="openWidgetModal"
-					@importBookmarks="
-						onRowImportBookmarks(activeDashboard, activeDashboardSource)
-					"
 					@setDefault="
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
-					@versionHistory="openVersionsTab"
+					@copyLink="copyDashboardLink"
+					@duplicate="onSidebarCreateDashboard"
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
-					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
@@ -488,7 +477,7 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
-import { showError } from '@nextcloud/dialogs'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
 import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
@@ -906,11 +895,6 @@ export default {
 			presence: useDashboardPresence({
 				onRefused: () => this.onPresenceRefused(),
 			}),
-
-			// dashboard-version-history-ui: per dashboard uuid whether
-			// versioning is supported (read when the dashboard menu opens;
-			// absent means not known yet).
-			versionSupport: {},
 		}
 	},
 
@@ -1207,6 +1191,20 @@ export default {
 		},
 
 		/**
+		 * Whether More offers "Duplicate as new dashboard": the gates of the
+		 * switcher's create, personal dashboards allowed and the quota not
+		 * reached (REQ-ASET-003, REQ-QUOTA-006).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		canDuplicateActiveDashboard() {
+			return Boolean(this.activeDashboard?.uuid)
+				&& (this.allowUserDashboards === true || this.isAdmin === true)
+				&& !this.dashboardQuotaReached
+		},
+
+		/**
 		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
 		 *
 		 * @return {string} The note, or empty.
@@ -1230,23 +1228,6 @@ export default {
 				)
 			}
 			return parts.join(' ')
-		},
-
-		/**
-		 * Whether the dashboard menu offers "Version history…": the owner or
-		 * an administrator, and the server said this dashboard keeps
-		 * versions (REQ-VERSUI-001). The server checks ownership again.
-		 *
-		 * @return {boolean}
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		canViewVersionHistory() {
-			const dash = this.activeDashboard
-			if (!dash?.uuid) {
-				return false
-			}
-			const mayManage = dash.isOwner === true || this.isAdmin === true
-			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -2045,33 +2026,6 @@ export default {
 		},
 
 		/**
-		 * The dashboard menu opened: find out once per dashboard whether it
-		 * keeps versions, so "Version history…" is offered only where it
-		 * works. A refusal (not owner, not admin) reads as not offered.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		async checkVersionSupport() {
-			const dash = this.activeDashboard
-			if (!dash?.uuid || dash.uuid in this.versionSupport) {
-				return
-			}
-			if (dash.isOwner !== true && this.isAdmin !== true) {
-				return
-			}
-			try {
-				const { data } = await api.listVersions(dash.uuid)
-				this.versionSupport = {
-					...this.versionSupport,
-					[dash.uuid]: data?.modeSupported !== false,
-				}
-			} catch {
-				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
-			}
-		},
-
-		/**
 		 * A version was restored: read the dashboard again from the server
 		 * rather than patching local state from the snapshot.
 		 *
@@ -2721,15 +2675,32 @@ export default {
 		},
 
 		/**
-		 * Open the dashboard settings on the Versions tab (board LpVersies).
+		 * More's "Copy link to this dashboard": the open dashboard's own
+		 * address (its slug path, else `/dashboards/:id`) on the clipboard.
 		 *
-		 * @return {void}
-		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-039-versions-are-a-tab-of-the-dashboard-settings
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
-		openVersionsTab() {
-			this.configModalMode = 'edit'
-			this.configModalInitialTab = 'versions'
-			this.isConfigModalOpen = true
+		async copyDashboardLink() {
+			const dash = this.activeDashboard
+			if (!dash) {
+				return
+			}
+			let path = ''
+			try {
+				const res = dash.uuid ? await api.getDashboardPath(dash.uuid) : null
+				path = res?.data?.path ?? ''
+			} catch (error) {
+				logger.warn('[Views] no path for the dashboard link:', error)
+			}
+			const url = window.location.origin + this.buildDeepLinkUrl(path || `/dashboards/${dash.id}`)
+			try {
+				await navigator.clipboard.writeText(url)
+				showSuccess(t('launchpad', 'Link copied'))
+			} catch (error) {
+				logger.warn('[Views] could not copy the dashboard link:', error)
+				showError(t('launchpad', 'The link could not be copied.'))
+			}
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */

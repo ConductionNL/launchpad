@@ -1,6 +1,6 @@
 {
 	"templateId": "mijn-werkdag",
-	"templateVersion": 5,
+	"templateVersion": 6,
 	"language": "nl",
 	"dashboard": {
 		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
@@ -38,12 +38,7 @@
 					"emblem": true,
 					"ground": true,
 					"fillHeight": true,
-					"fitRows": true,
-					"cta": {
-						"label": "Startpagina aanpassen",
-						"url": "/index.php/apps/launchpad/?edit=1",
-						"style": "secondary"
-					}
+					"fitRows": true
 				},
 				"showTitle": 0,
 				"sortOrder": 0

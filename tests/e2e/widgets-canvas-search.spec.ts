@@ -126,9 +126,9 @@ async function stagePickerLists(page: Page): Promise<void> {
  */
 async function openPicker(page: Page): Promise<Locator> {
 	await page
-		.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`)
+		.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
 		.click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	const picker = page.locator('.widget-picker')
 	await expect(picker).toBeVisible({ timeout: 15_000 })
 	return picker

@@ -551,9 +551,9 @@ test('the author opens Read receipts on the dashboard: 3 confirmed, the 4 pendin
 		await page.goto('/index.php/apps/launchpad/')
 		const more = page.locator(MORE_MENU)
 		await expect(more).toBeVisible({ timeout: 30_000 })
-		await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
+		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-read-receipts"]')
+			.locator('[data-testid="launchpad-more-menu-item-read-receipts"]')
 			.click()
 
 		const report = page.locator('[data-testid="acknowledgement-report"]')

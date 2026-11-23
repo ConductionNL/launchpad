@@ -2370,7 +2370,10 @@ OC.L10N.register(
     "You are editing {name}" : "Je bewerkt {name}",
     "Changes are saved straight away" : "Wijzigingen worden direct bewaard",
     "Dashboard settings" : "Dashboardinstellingen",
-    "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard."
+    "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard.",
+    "Copy link to this dashboard" : "Link naar dit dashboard kopiëren",
+    "Duplicate as new dashboard" : "Kopie maken als nieuw dashboard",
+    "The link could not be copied." : "De link kon niet worden gekopieerd."
 },
 "nplurals=2; plural=(n != 1);"
 );

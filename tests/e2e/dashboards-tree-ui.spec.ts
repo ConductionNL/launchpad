@@ -43,7 +43,7 @@ import {
 	readDashboard,
 	removeTree,
 } from './support/dashboardHierarchy.ts'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -271,10 +271,8 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 	}) => {
 		const { context, page } = await openAs(browser, sanne!, onboarding)
 		try {
-			const more = page.locator(MORE_MENU)
-			await expect(more).toBeVisible({ timeout: 30_000 })
-			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+			await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+			await openDashboardSettings(page)
 
 			await expect(page.getByTestId('dashboard-parent-hint')).toHaveText(
 				'This builds a tree of dashboards under Dashboards in the More menu',
@@ -294,10 +292,8 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 	}) => {
 		const { context, page } = await openAs(browser, sanne!, hr)
 		try {
-			const more = page.locator(MORE_MENU)
-			await expect(more).toBeVisible({ timeout: 30_000 })
-			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+			await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+			await openDashboardSettings(page)
 
 			const select = page
 				.getByTestId('dashboard-parent-select')

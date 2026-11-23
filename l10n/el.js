@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Ενεργά φίλτρα",
     "Pinned filter" : "Καρφιτσωμένο φίλτρο",
     "Remove filter: {label}" : "Αφαίρεση φίλτρου: {label}",
-    "Reset filters" : "Επαναφορά φίλτρων",
+    "Reset filters" : "Επαναφορά φίλτρων",,
+    "Personal dashboard" : "Προσωπικός πίνακας ελέγχου",
+    "Personal dashboard · opens first" : "Προσωπικός πίνακας ελέγχου · ανοίγει πρώτος",
+    "Shared with you" : "Κοινοποιήθηκε σε εσάς",
+    "Last changed {when}" : "Τελευταία αλλαγή {when}",
+    "Last changed today {time}" : "Τελευταία αλλαγή σήμερα {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

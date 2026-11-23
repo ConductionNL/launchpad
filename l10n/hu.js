@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktív szűrők",
     "Pinned filter" : "Rögzített szűrő",
     "Remove filter: {label}" : "Szűrő eltávolítása: {label}",
-    "Reset filters" : "Szűrők visszaállítása",
+    "Reset filters" : "Szűrők visszaállítása",,
+    "Personal dashboard" : "Személyes irányítópult",
+    "Personal dashboard · opens first" : "Személyes irányítópult · elsőként nyílik meg",
+    "Shared with you" : "Megosztva Önnel",
+    "Last changed {when}" : "Utoljára módosítva: {when}",
+    "Last changed today {time}" : "Utoljára módosítva: ma {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

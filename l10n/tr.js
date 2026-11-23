@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Etkin filtreler",
     "Pinned filter" : "Sabitlenmiş filtre",
     "Remove filter: {label}" : "Filtreyi kaldır: {label}",
-    "Reset filters" : "Filtreleri sıfırla",
+    "Reset filters" : "Filtreleri sıfırla",,
+    "Personal dashboard" : "Kişisel pano",
+    "Personal dashboard · opens first" : "Kişisel pano · ilk açılır",
+    "Shared with you" : "Sizinle paylaşıldı",
+    "Last changed {when}" : "Son değişiklik {when}",
+    "Last changed today {time}" : "Son değişiklik bugün {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

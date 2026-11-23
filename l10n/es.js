@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Filtros activos",
     "Pinned filter" : "Filtro fijado",
     "Remove filter: {label}" : "Quitar filtro: {label}",
-    "Reset filters" : "Restablecer filtros",
+    "Reset filters" : "Restablecer filtros",,
+    "Personal dashboard" : "Panel personal",
+    "Personal dashboard · opens first" : "Panel personal · se abre primero",
+    "Shared with you" : "Compartido con usted",
+    "Last changed {when}" : "Última modificación {when}",
+    "Last changed today {time}" : "Última modificación hoy {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

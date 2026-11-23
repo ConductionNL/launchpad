@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktive filtre",
     "Pinned filter" : "Festet filter",
     "Remove filter: {label}" : "Fjern filter: {label}",
-    "Reset filters" : "Tilbakestill filtre",
+    "Reset filters" : "Tilbakestill filtre",,
+    "Personal dashboard" : "Personlig dashbord",
+    "Personal dashboard · opens first" : "Personlig dashbord · åpnes først",
+    "Shared with you" : "Delt med deg",
+    "Last changed {when}" : "Sist endret {when}",
+    "Last changed today {time}" : "Sist endret i dag {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

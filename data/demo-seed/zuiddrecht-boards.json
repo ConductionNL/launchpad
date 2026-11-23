@@ -769,7 +769,8 @@
 						"allowDelete": false,
 						"sortBy": "modified",
 						"sortDescending": true,
-						"showActions": false
+						"showActions": false,
+						"layout": "compact"
 					}
 				},
 				{

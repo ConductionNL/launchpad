@@ -2,9 +2,10 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The workspace page offers "Version history" to the owner or an
- * administrator when versioning is supported, and reloads the dashboard
- * after a restore (dashboard-versioning REQ-VERSUI-001, REQ-VERSUI-003).
+ * The workspace page offers the Versions tab of the dashboard settings to
+ * the owner or an administrator (board LpVersies; the tab itself says when a
+ * dashboard keeps no versions), and reloads the dashboard after a restore
+ * (dashboard-versioning REQ-VERSUI-001, REQ-VERSUI-003).
  * The real Views.vue computed and methods run against a small host.
  */
 
@@ -23,13 +24,13 @@ let Views
  * @return {object} host with Views methods and the gate computed.
  */
 function makeHost(dashboard, isAdmin = false) {
-	const host = { activeDashboard: dashboard, isAdmin, versionSupport: {} }
+	const host = { activeDashboard: dashboard, isAdmin }
 	for (const [name, fn] of Object.entries(Views.methods)) {
 		host[name] = fn.bind(host)
 	}
 	host.switchDashboard = vi.fn()
-	Object.defineProperty(host, 'canViewVersionHistory', {
-		get: () => Views.computed.canViewVersionHistory.call(host),
+	Object.defineProperty(host, 'canManagePublication', {
+		get: () => Views.computed.canManagePublication.call(host),
 	})
 	return host
 }
@@ -39,43 +40,16 @@ beforeEach(async () => {
 	Views = (await import('../Views.vue')).default
 })
 
-describe('Views version history gate', () => {
-	it('REQ-VERSUI-001: the owner gets the entry once versioning is confirmed', async () => {
-		api.listVersions.mockResolvedValue({
-			data: { versions: [], modeSupported: true },
-		})
-		const host = makeHost({ id: 1, uuid: 'u-1', isOwner: true })
-		expect(host.canViewVersionHistory).toBe(false)
-		await host.checkVersionSupport()
-		expect(api.listVersions).toHaveBeenCalledWith('u-1')
-		expect(host.canViewVersionHistory).toBe(true)
-		await host.checkVersionSupport()
-		expect(api.listVersions).toHaveBeenCalledTimes(1)
-	})
-
-	it('REQ-VERSUI-001: a colleague who does not own it gets no entry and no request', async () => {
-		const host = makeHost({ id: 1, uuid: 'u-1', isOwner: false })
-		await host.checkVersionSupport()
+describe('Views Versions tab gate', () => {
+	it('REQ-VERSUI-001: the owner and an administrator get the Versions tab, without asking the server first', () => {
+		expect(makeHost({ id: 1, uuid: 'u-1', isOwner: true }).canManagePublication).toBe(true)
+		expect(makeHost({ id: 1, uuid: 'u-1', isOwner: false }, true).canManagePublication).toBe(true)
 		expect(api.listVersions).not.toHaveBeenCalled()
-		expect(host.canViewVersionHistory).toBe(false)
 	})
 
-	it('REQ-VERSUI-001: an administrator gets the entry on a dashboard they do not own', async () => {
-		api.listVersions.mockResolvedValue({
-			data: { versions: [], modeSupported: true },
-		})
-		const host = makeHost({ id: 1, uuid: 'u-1', isOwner: false }, true)
-		await host.checkVersionSupport()
-		expect(host.canViewVersionHistory).toBe(true)
-	})
-
-	it('REQ-VERSUI-001: an unsupported dashboard hides the entry', async () => {
-		api.listVersions.mockResolvedValue({
-			data: { versions: [], modeSupported: false },
-		})
-		const host = makeHost({ id: 1, uuid: 'u-1', isOwner: true })
-		await host.checkVersionSupport()
-		expect(host.canViewVersionHistory).toBe(false)
+	it('REQ-VERSUI-001: a colleague who does not own it, or a dashboard without a uuid, gets no tab', () => {
+		expect(makeHost({ id: 1, uuid: 'u-1', isOwner: false }).canManagePublication).toBe(false)
+		expect(makeHost({ id: 1, isOwner: true }).canManagePublication).toBe(false)
 	})
 
 	it('REQ-VERSUI-003: a restore reloads the dashboard from the server', async () => {

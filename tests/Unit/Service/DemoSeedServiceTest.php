@@ -221,7 +221,7 @@ class DemoSeedServiceTest extends TestCase {
 
 		$this->assertSame(expected: 'en', actual: $report['language']);
 		$this->assertSame(
-			expected: ['Today', 'My workplace', 'Zuiddrecht intranet', 'Permits team', 'Management information'],
+			expected: ['Today', 'My workspace', 'Zuiddrecht intranet', 'Permits team', 'Management information'],
 			actual: array_column(array: $report['dashboards'], column_key: 'name')
 		);
 		$this->assertSame(expected: [false, false, false, false, false], actual: array_column(array: $report['dashboards'], column_key: 'created'));

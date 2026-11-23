@@ -1874,6 +1874,30 @@
 								"gridWidth": 1,
 								"gridHeight": 2,
 								"content": {
+									"label": "Ontvangen",
+									"caption": "zaken",
+									"icon": "Inbox",
+									"format": {
+										"style": "decimal",
+										"decimals": 0
+									},
+									"source": {
+										"register": "dossiq",
+										"schema": "case",
+										"metric": "count",
+										"filter": {
+											"statusRole": "intake"
+										}
+									}
+								}
+							},
+							{
+								"type": "stat",
+								"gridX": 1,
+								"gridY": 0,
+								"gridWidth": 1,
+								"gridHeight": 2,
+								"content": {
 									"label": "In behandeling",
 									"caption": "zaken",
 									"icon": "Briefcase",
@@ -1886,14 +1910,14 @@
 										"schema": "case",
 										"metric": "count",
 										"filter": {
-											"status": "In behandeling"
+											"statusRole": "in-progress"
 										}
 									}
 								}
 							},
 							{
 								"type": "stat",
-								"gridX": 1,
+								"gridX": 2,
 								"gridY": 0,
 								"gridWidth": 1,
 								"gridHeight": 2,
@@ -1910,31 +1934,7 @@
 										"schema": "case",
 										"metric": "count",
 										"filter": {
-											"status": "Wacht op aanvrager"
-										}
-									}
-								}
-							},
-							{
-								"type": "stat",
-								"gridX": 2,
-								"gridY": 0,
-								"gridWidth": 1,
-								"gridHeight": 2,
-								"content": {
-									"label": "Wacht op advies",
-									"caption": "zaken",
-									"icon": "HandshakeOutline",
-									"format": {
-										"style": "decimal",
-										"decimals": 0
-									},
-									"source": {
-										"register": "dossiq",
-										"schema": "case",
-										"metric": "count",
-										"filter": {
-											"status": "Wacht op advies"
+											"statusRole": "pending-info"
 										}
 									}
 								}
@@ -1946,7 +1946,7 @@
 								"gridWidth": 1,
 								"gridHeight": 2,
 								"content": {
-									"label": "Afgerond deze maand",
+									"label": "Afgerond",
 									"caption": "zaken",
 									"icon": "CheckCircleOutline",
 									"format": {
@@ -1958,7 +1958,7 @@
 										"schema": "case",
 										"metric": "count",
 										"filter": {
-											"status": "Afgerond"
+											"statusRole": "closed"
 										}
 									}
 								}

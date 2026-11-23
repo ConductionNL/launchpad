@@ -43,6 +43,7 @@
 <script>
 import { NcButton, NcNoteCard } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { FLAG_PROP } from '../../constants/propDefinitions.js'
 import {
 	clearPrompt,
 	installPrompt,
@@ -82,15 +83,9 @@ export default {
 
 	props: {
 		/** Whether this is the kiosk view: no banner there. */
-		kiosk: {
-			type: Boolean,
-			default: false,
-		},
+		kiosk: FLAG_PROP,
 		/** Whether this is a public page: no banner there. */
-		isPublic: {
-			type: Boolean,
-			default: false,
-		},
+		isPublic: FLAG_PROP,
 	},
 
 	data() {
@@ -121,11 +116,23 @@ export default {
 		},
 	},
 
+	/**
+	 * Follow the width and a finished install.
+	 *
+	 * @return {void}
+	 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+	 */
 	mounted() {
 		window.addEventListener('resize', this.onResize)
 		window.addEventListener('appinstalled', this.onInstalled)
 	},
 
+	/**
+	 * Stop following them.
+	 *
+	 * @return {void}
+	 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+	 */
 	beforeUnmount() {
 		window.removeEventListener('resize', this.onResize)
 		window.removeEventListener('appinstalled', this.onInstalled)

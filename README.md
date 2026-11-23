@@ -24,7 +24,7 @@ LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized wor
 ## Test coverage
 
 <!-- coverage:start -->
-Measured test coverage: 89.0% of statements (PHP 89.0% of 21,987 statements), at commit `d2a99e94` on 2026-11-13. The JavaScript frontend is not in this figure, because it has no coverage measurement yet. The figures come from [`coverage-summary.json`](coverage-summary.json); refresh them with `composer coverage:publish`.
+Measured test coverage: 95.6% of statements (PHP 96.2% of 32,721 statements, JavaScript 94.1% of 13,116 statements), at commit `6fae5e0d0` on 2026-11-23. The figures come from [`coverage-summary.json`](coverage-summary.json); refresh them with `composer coverage:publish`.
 <!-- coverage:end -->
 
 ## Screenshots

@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Зараз показується: {name}",
         "Own look": "Власний вигляд",
         "view only": "лише перегляд",
-        "you may add widgets": "можна додавати віджети"
+        "you may add widgets": "можна додавати віджети",
+        "{app}, outage": "{app}, збій",
+        "{app}, {count} open": "{app}, відкрито: {count}",
+        "{app}, pinned": "{app}, закріплено"
     }
 }

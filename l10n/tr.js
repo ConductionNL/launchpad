@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, kesinti",
+    "{app}, {count} open" : "{app}, {count} açık",
+    "{app}, pinned" : "{app}, sabitlendi",
     "view only" : "yalnızca görüntüleme",
     "you may add widgets" : "widget ekleyebilirsiniz",
     "Own look" : "Kendi görünümü",

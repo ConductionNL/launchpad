@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, διακοπή",
+    "{app}, {count} open" : "{app}, {count} ανοιχτά",
+    "{app}, pinned" : "{app}, καρφιτσωμένο",
     "view only" : "μόνο προβολή",
     "you may add widgets" : "μπορείτε να προσθέσετε widget",
     "Own look" : "Δική του εμφάνιση",

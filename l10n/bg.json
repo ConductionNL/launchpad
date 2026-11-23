@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Сега се показва: {name}",
         "Own look": "Собствен облик",
         "view only": "само преглед",
-        "you may add widgets": "можете да добавяте уиджети"
+        "you may add widgets": "можете да добавяте уиджети",
+        "{app}, outage": "{app}, прекъсване",
+        "{app}, {count} open": "{app}, {count} отворени",
+        "{app}, pinned": "{app}, закачено"
     }
 }

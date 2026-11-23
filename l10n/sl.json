@@ -1414,6 +1414,9 @@
         "Now showing {name}": "Zdaj prikazano: {name}",
         "Own look": "Lasten videz",
         "view only": "samo ogled",
-        "you may add widgets": "lahko dodajate gradnike"
+        "you may add widgets": "lahko dodajate gradnike",
+        "{app}, outage": "{app}, izpad",
+        "{app}, {count} open": "{app}, {count} odprtih",
+        "{app}, pinned": "{app}, pripeto"
     }
 }

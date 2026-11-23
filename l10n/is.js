@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, truflun",
+    "{app}, {count} open" : "{app}, {count} opin",
+    "{app}, pinned" : "{app}, fest",
     "view only" : "aðeins skoða",
     "you may add widgets" : "þú mátt bæta við græjum",
     "Own look" : "Eigið útlit",

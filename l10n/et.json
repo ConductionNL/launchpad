@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Praegu kuvatakse: {name}",
         "Own look": "Oma välimus",
         "view only": "ainult vaatamine",
-        "you may add widgets": "võite lisada vidinaid"
+        "you may add widgets": "võite lisada vidinaid",
+        "{app}, outage": "{app}, rike",
+        "{app}, {count} open": "{app}, {count} avatud",
+        "{app}, pinned": "{app}, kinnitatud"
     }
 }

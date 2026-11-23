@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Tani shfaqet: {name}",
         "Own look": "Pamje e vetë",
         "view only": "vetëm shikim",
-        "you may add widgets": "mund të shtoni widget-e"
+        "you may add widgets": "mund të shtoni widget-e",
+        "{app}, outage": "{app}, ndërprerje",
+        "{app}, {count} open": "{app}, {count} të hapura",
+        "{app}, pinned": "{app}, i fiksuar"
     }
 }

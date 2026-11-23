@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, üzemzavar",
+    "{app}, {count} open" : "{app}, {count} nyitott",
+    "{app}, pinned" : "{app}, rögzítve",
     "view only" : "csak megtekintés",
     "you may add widgets" : "hozzáadhat widgeteket",
     "Own look" : "Saját megjelenés",

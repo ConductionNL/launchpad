@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Teraz zobrazené: {name}",
         "Own look": "Vlastný vzhľad",
         "view only": "iba zobrazenie",
-        "you may add widgets": "môžete pridávať miniaplikácie"
+        "you may add widgets": "môžete pridávať miniaplikácie",
+        "{app}, outage": "{app}, výpadok",
+        "{app}, {count} open": "{app}, {count} otvorených",
+        "{app}, pinned": "{app}, pripnuté"
     }
 }

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, briseadh seirbhíse",
+    "{app}, {count} open" : "{app}, {count} oscailte",
+    "{app}, pinned" : "{app}, pionnáilte",
     "view only" : "féachaint amháin",
     "you may add widgets" : "is féidir leat giuirléidí a chur leis",
     "Own look" : "Cuma féin",

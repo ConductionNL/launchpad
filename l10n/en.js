@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, outage",
+    "{app}, {count} open" : "{app}, {count} open",
+    "{app}, pinned" : "{app}, pinned",
     "Administration settings" : "Administration settings",
     "Controls" : "Controls",
     "Versions and analytics" : "Versions and analytics",

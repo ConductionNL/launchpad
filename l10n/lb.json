@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Elo ze gesinn: {name}",
         "Own look": "Eegene Look",
         "view only": "nëmmen ukucken",
-        "you may add widgets": "Dir dierft Widgeten derbäisetzen"
+        "you may add widgets": "Dir dierft Widgeten derbäisetzen",
+        "{app}, outage": "{app}, Stéierung",
+        "{app}, {count} open": "{app}, {count} op",
+        "{app}, pinned": "{app}, fixéiert"
     }
 }

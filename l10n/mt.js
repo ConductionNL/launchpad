@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, waqfa",
+    "{app}, {count} open" : "{app}, {count} miftuħa",
+    "{app}, pinned" : "{app}, imwaħħal",
     "view only" : "tara biss",
     "you may add widgets" : "tista' żżid widgets",
     "Own look" : "Dehra proprja",

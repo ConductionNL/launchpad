@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Ussa vesaivel: {name}",
         "Own look": "Agen aspect",
         "view only": "mo guardar",
-        "you may add widgets": "Vus dastgais agiuntar widgets"
+        "you may add widgets": "Vus dastgais agiuntar widgets",
+        "{app}, outage": "{app}, disturbi",
+        "{app}, {count} open": "{app}, {count} averts",
+        "{app}, pinned": "{app}, fixà"
     }
 }

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later." : "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.",
+    "Welcome to Launchpad, {name} · {date}" : "Welcome to Launchpad, {name} · {date}",
+    "Welcome to Launchpad · {date}" : "Welcome to Launchpad · {date}",
     "Dashboard renamed to %s" : "Dashboard renamed to %s",
     "Columns from %1$s to %2$s" : "Columns from %1$s to %2$s",
     "Widget %s added" : "Widget %s added",
@@ -245,7 +248,6 @@ OC.L10N.register(
     "Apps" : "Apps",
     "Weather" : "Weather",
     "News from the organisation" : "News from the organisation",
-    "These {count} starter widgets go on it. You can move or remove them later." : "These {count} starter widgets go on it. You can move or remove them later.",
     "Create my first dashboard (with starter widgets)" : "Create my first dashboard (with starter widgets)",
     "Start empty" : "Start empty",
     "Create your first dashboard" : "Create your first dashboard",

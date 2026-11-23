@@ -48,9 +48,17 @@
 				<!-- runtime-shell REQ-SHELL-009: without an active dashboard the
 				     grid's top-right controls are not mounted, so the start-page
 				     menu that stands in for the navigation panel is here. -->
-				<div class="workspace-shell__empty-menu">
-					<StartPageMenu />
-				</div>
+				<header class="workspace-shell__empty-header" data-testid="workspace-empty-header">
+					<div class="workspace-shell__empty-header-row">
+						<h1 class="workspace-shell__empty-heading">
+							{{ t('launchpad', 'My workspace') }}
+						</h1>
+						<StartPageMenu />
+					</div>
+					<p class="workspace-shell__empty-welcome">
+						{{ welcomeLine }}
+					</p>
+				</header>
 				<!-- REQ-SHELL-005, board LpEersteKeer: on the page ground, the
 				     starter widgets the first dashboard gets, then the choice to
 				     start with them or empty. -->
@@ -75,7 +83,7 @@
 							</li>
 						</ul>
 						<p class="workspace-shell__empty-note">
-							{{ t('launchpad', 'These {count} starter widgets go on it. You can move or remove them later.', { count: starterWidgets.length }) }}
+							{{ t('launchpad', 'These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.', { count: starterWidgets.length }) }}
 						</p>
 						<div class="workspace-shell__empty-actions">
 							<NcButton
@@ -112,7 +120,8 @@
 </template>
 
 <script>
-import { t } from '@nextcloud/l10n'
+import { getCurrentUser } from '@nextcloud/auth'
+import { getLanguage, t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
 import { markRaw } from 'vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
@@ -243,6 +252,26 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The line under the first-visit title (board LpEersteKeer): a welcome
+		 * with the reader's first name and today's date.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+		 */
+		welcomeLine() {
+			const name = (getCurrentUser()?.displayName ?? '').trim().split(/\s+/)[0] ?? ''
+			const date = new Date().toLocaleDateString(getLanguage().replace('_', '-'), {
+				weekday: 'long',
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric',
+			})
+			return name === ''
+				? t('launchpad', 'Welcome to Launchpad · {date}', { date })
+				: t('launchpad', 'Welcome to Launchpad, {name} · {date}', { name, date })
+		},
+
 		/**
 		 * The starter widgets the empty state lists, labelled.
 		 *
@@ -528,19 +557,46 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	height: 100%;
 	min-height: 60vh;
 	text-align: center;
 	gap: 12px;
 }
 
-/* runtime-shell REQ-SHELL-009: the start-page menu sits where the grid's
-   top-right controls would be, so a member finds it in the same place with
-   or without a dashboard. Empty when the panel is there. */
-.workspace-shell__empty-menu {
-	align-self: flex-end;
-	margin-inline-end: 36px;
+/* The page title row of board LpEersteKeer: 28px title, the More menu at
+   its right, the welcome line 6px under it, on the 28px page inset. */
+.workspace-shell__empty-header {
+	align-self: stretch;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 28px 28px 8px;
+	text-align: start;
+}
+
+.workspace-shell__empty-header-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 12px 24px;
+}
+
+.workspace-shell__empty-heading {
+	flex: 1 1 320px;
+	min-width: 0;
+	margin: 0;
+	font-size: 28px !important;
+	font-weight: 700 !important;
+	line-height: 1.2;
+	color: var(--color-main-text);
+}
+
+.workspace-shell__empty-welcome {
+	margin: 0;
+	font-size: 15px;
+	color: var(--color-text-maxcontrast);
 }
 
 .workspace-shell__empty-body {

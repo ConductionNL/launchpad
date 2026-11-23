@@ -250,7 +250,7 @@ class DemoSeedServiceTest extends TestCase {
 		$joined   = implode(separator: "\n", array: $contents);
 		$this->assertStringContainsString(needle: '"title":"Today"', haystack: $joined);
 		$this->assertStringContainsString(needle: '"assignee":"@me"', haystack: $joined);
-		$this->assertStringContainsString(needle: '"status":"In behandeling"', haystack: $joined);
+		$this->assertStringContainsString(needle: '"statusRole":"in-progress"', haystack: $joined);
 	}//end testEnglishRunTranslatesInPlace()
 
 	/**

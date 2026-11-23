@@ -412,5 +412,11 @@ export function dashboardActionItems({
 	]
 	return rows
 		.filter((row) => row.offered)
-		.map(({ offered, event, icon, ...item }) => ({ ...item, icon: markRaw(icon), onClick: () => emit(event) }))
+		.map(({ id, label, icon, event, destructive }) => ({
+			id,
+			label,
+			icon: markRaw(icon),
+			onClick: () => emit(event),
+			...(destructive ? { destructive } : {}),
+		}))
 }

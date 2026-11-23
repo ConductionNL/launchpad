@@ -1583,7 +1583,9 @@ export default {
 	margin: 0;
 	padding: 0 14px;
 	border: 0;
-	border-bottom: 3px solid transparent;
+	/* Core's hover and focus rules for buttons colour the border with a
+	   stronger selector; the underline is the tab's state, not the pointer's. */
+	border-bottom: 3px solid transparent !important;
 	border-radius: 0;
 	background: transparent;
 	cursor: pointer;
@@ -1596,13 +1598,13 @@ export default {
 
 .dashboard-config__tabs .dashboard-config__tab:hover {
 	background: transparent;
-	border-bottom-color: var(--color-border);
+	border-bottom-color: var(--color-border) !important;
 }
 
 .dashboard-config__tabs .dashboard-config__tab--active,
 .dashboard-config__tabs .dashboard-config__tab--active:hover {
 	color: var(--color-main-text);
-	border-bottom-color: var(--color-primary-element);
+	border-bottom-color: var(--color-primary-element) !important;
 	font-weight: 700;
 }
 

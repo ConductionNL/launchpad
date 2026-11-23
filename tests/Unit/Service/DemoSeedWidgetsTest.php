@@ -36,6 +36,13 @@ class DemoSeedWidgetsTest extends TestCase {
 			'countSource' => ['dashboardWidget' => 'spreed'],
 		],
 		'topdesk' => ['name' => 'TOPdesk', 'icon' => 'Phone', 'colour' => 'accent', 'url' => 'https://topdesk.example/'],
+		'word'    => [
+			'name'   => 'Word',
+			'icon'   => 'FileWord',
+			'colour' => 'primary',
+			'appId'  => 'richdocuments',
+			'url'    => '/index.php/apps/files/?dir=/Permits',
+		],
 	];
 
 	/**
@@ -104,6 +111,18 @@ class DemoSeedWidgetsTest extends TestCase {
 		$this->assertSame(expected: 'spreed', actual: $result['placed'][0]['content']['appId']);
 		$this->assertArrayNotHasKey(key: 'tileLinkValue', array: $result['placed'][0]);
 	}//end testTileOfADisabledAppIsAnAppTile()
+
+	/**
+	 * Tile of a disabled app whose address opens another app stays a launcher tile.
+	 *
+	 * @return void
+	 */
+	public function testTileOfADisabledAppLinkingElsewhereIsALauncherTile(): void {
+		$result = $this->expander(types: ['app-tile', 'tile'])->expand(entries: [['tile' => 'word']]);
+
+		$this->assertSame(expected: 'tile', actual: $result['placed'][0]['widgetId']);
+		$this->assertSame(expected: '/index.php/apps/files/?dir=/Permits', actual: $result['placed'][0]['tileLinkValue']);
+	}//end testTileOfADisabledAppLinkingElsewhereIsALauncherTile()
 
 	/**
 	 * Tile of a disabled app is not placed when the app tile type is missing.

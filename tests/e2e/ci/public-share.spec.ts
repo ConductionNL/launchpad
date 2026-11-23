@@ -50,6 +50,7 @@
 import type { APIRequestContext } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
+import { MORE_MENU } from '../support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -321,7 +322,7 @@ test.describe('anonymous public share', () => {
 		 */
 		await page.goto('/index.php/apps/launchpad')
 		await expect(
-			page.locator('.launchpad-sidebar-toggle').first(),
+			page.locator(MORE_MENU).first(),
 			'CONTROL: the shared admin session must be live, otherwise the read-only assertions below prove nothing',
 		).toBeVisible({ timeout: 30_000 })
 
@@ -343,7 +344,7 @@ test.describe('anonymous public share', () => {
 		).toBeVisible({ timeout: 15_000 })
 
 		/*
-		 * THE assertions. `.launchpad-sidebar-toggle` is the workspace shell's
+		 * THE assertions. The More menu is the workspace shell's
 		 * entry point (the same landmark the CONTROL above waited for, and the
 		 * one `manifest-boot.spec.ts` uses to mean "the app rendered"), and
 		 * `.launchpad-grid-item` is an editable grid cell. Neither belongs on
@@ -351,7 +352,7 @@ test.describe('anonymous public share', () => {
 		 * rendering the first of them.
 		 */
 		await expect(
-			page.locator('.launchpad-sidebar-toggle'),
+			page.locator(MORE_MENU),
 			'the editable workspace shell must not render on a public-share page, even for the dashboard owner',
 		).toHaveCount(0)
 		await expect(

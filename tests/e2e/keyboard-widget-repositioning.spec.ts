@@ -32,6 +32,7 @@
 import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 /**
  * Navigate to launchpad, wait for the grid to hydrate, and switch into edit
@@ -42,16 +43,13 @@ import { expect, test } from '@playwright/test'
 async function openInEditMode(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	} catch {
 		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
 
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
+	await openDashboardSwitcher(page)
 	const activeRow = page
 		.locator(
 			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',

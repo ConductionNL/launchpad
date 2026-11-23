@@ -1292,12 +1292,6 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardRowActions.vue | canViewHistory": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
 	"../../components/Workspace/DashboardRowActions.vue | buttonType": {
 		"type": "String",
 		"required": false,

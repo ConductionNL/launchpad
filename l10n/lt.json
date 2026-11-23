@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Dabar rodoma: {name}",
         "Own look": "Sava išvaizda",
         "view only": "tik peržiūra",
-        "you may add widgets": "galite pridėti valdiklių"
+        "you may add widgets": "galite pridėti valdiklių",
+        "{app}, outage": "{app}, sutrikimas",
+        "{app}, {count} open": "{app}, {count} atviri",
+        "{app}, pinned": "{app}, prisegta"
     }
 }

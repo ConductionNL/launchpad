@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Ora in mostra: {name}",
         "Own look": "Aspetto proprio",
         "view only": "solo visualizzazione",
-        "you may add widgets": "puoi aggiungere widget"
+        "you may add widgets": "puoi aggiungere widget",
+        "{app}, outage": "{app}, disservizio",
+        "{app}, {count} open": "{app}, {count} aperti",
+        "{app}, pinned": "{app}, fissato"
     }
 }

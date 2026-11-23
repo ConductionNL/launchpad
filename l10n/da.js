@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, driftsforstyrrelse",
+    "{app}, {count} open" : "{app}, {count} åbne",
+    "{app}, pinned" : "{app}, fastgjort",
     "view only" : "kun visning",
     "you may add widgets" : "du må tilføje widgets",
     "Own look" : "Eget udseende",

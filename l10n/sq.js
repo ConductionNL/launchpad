@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, ndërprerje",
+    "{app}, {count} open" : "{app}, {count} të hapura",
+    "{app}, pinned" : "{app}, i fiksuar",
     "view only" : "vetëm shikim",
     "you may add widgets" : "mund të shtoni widget-e",
     "Own look" : "Pamje e vetë",

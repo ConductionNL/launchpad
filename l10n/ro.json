@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Acum se afișează: {name}",
         "Own look": "Aspect propriu",
         "view only": "doar vizualizare",
-        "you may add widgets": "puteți adăuga widgeturi"
+        "you may add widgets": "puteți adăuga widgeturi",
+        "{app}, outage": "{app}, întrerupere",
+        "{app}, {count} open": "{app}, {count} deschise",
+        "{app}, pinned": "{app}, fixat"
     }
 }

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, прекин",
+    "{app}, {count} open" : "{app}, {count} отворени",
+    "{app}, pinned" : "{app}, закачено",
     "view only" : "само преглед",
     "you may add widgets" : "може да додавате виџети",
     "Own look" : "Сопствен изглед",

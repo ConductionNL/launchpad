@@ -1733,6 +1733,9 @@
         "Controls": "Controls",
         "Versions and analytics": "Versions and analytics",
         "Organisation menu": "Organisation menu",
+        "{app}, outage": "{app}, outage",
+        "{app}, {count} open": "{app}, {count} open",
+        "{app}, pinned": "{app}, pinned",
         "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.": "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.",
         "Welcome to Launchpad, {name} · {date}": "Welcome to Launchpad, {name} · {date}",
         "Welcome to Launchpad · {date}": "Welcome to Launchpad · {date}"

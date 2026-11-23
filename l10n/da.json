@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Vises nu: {name}",
         "Own look": "Eget udseende",
         "view only": "kun visning",
-        "you may add widgets": "du må tilføje widgets"
+        "you may add widgets": "du må tilføje widgets",
+        "{app}, outage": "{app}, driftsforstyrrelse",
+        "{app}, {count} open": "{app}, {count} åbne",
+        "{app}, pinned": "{app}, fastgjort"
     }
 }

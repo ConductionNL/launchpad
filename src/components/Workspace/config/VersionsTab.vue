@@ -197,6 +197,7 @@ export default {
 		 *
 		 * @return {string[]}
 		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-the-owner-sees-the-version-history-req-versui-001
 		 */
 		headings() {
 			return [
@@ -209,6 +210,7 @@ export default {
 		/**
 		 * @return {number|null} The newest version's number: the current one.
 		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-the-owner-sees-the-version-history-req-versui-001
 		 */
 		currentNumber() {
 			return this.sortedVersions.length > 0 ? this.sortedVersions[0].versionNumber : null

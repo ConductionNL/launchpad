@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, traucējums",
+    "{app}, {count} open" : "{app}, {count} atvērti",
+    "{app}, pinned" : "{app}, piesprausts",
     "view only" : "tikai skatīt",
     "you may add widgets" : "jūs varat pievienot logrīkus",
     "Own look" : "Savs izskats",

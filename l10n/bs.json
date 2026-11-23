@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Sada se prikazuje: {name}",
         "Own look": "Vlastiti izgled",
         "view only": "samo pregled",
-        "you may add widgets": "smijete dodavati widgete"
+        "you may add widgets": "smijete dodavati widgete",
+        "{app}, outage": "{app}, kvar",
+        "{app}, {count} open": "{app}, {count} otvorenih",
+        "{app}, pinned": "{app}, zakačeno"
     }
 }

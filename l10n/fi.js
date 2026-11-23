@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, häiriö",
+    "{app}, {count} open" : "{app}, {count} avoinna",
+    "{app}, pinned" : "{app}, kiinnitetty",
     "view only" : "vain katselu",
     "you may add widgets" : "voit lisätä pienoisohjelmia",
     "Own look" : "Oma ulkoasu",

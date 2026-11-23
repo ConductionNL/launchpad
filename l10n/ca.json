@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Ara es mostra: {name}",
         "Own look": "Aspecte propi",
         "view only": "només visualització",
-        "you may add widgets": "podeu afegir ginys"
+        "you may add widgets": "podeu afegir ginys",
+        "{app}, outage": "{app}, incidència",
+        "{app}, {count} open": "{app}, {count} oberts",
+        "{app}, pinned": "{app}, fixat"
     }
 }

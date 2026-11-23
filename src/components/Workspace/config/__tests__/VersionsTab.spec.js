@@ -94,6 +94,30 @@ describe('VersionsTab', () => {
 		expect(rows[3].text()).toContain('1')
 	})
 
+	// @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-the-owner-sees-the-version-history-req-versui-001
+	it('REQ-VERSUI-001: draws the columns When, By and What changed, the newest marked current', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(1), v(2)], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+		const headings = wrapper.findAll('thead th').map((th) => th.text()).filter((text) => text !== '')
+		expect(headings.slice(0, 3)).toEqual(['When', 'By', 'What changed'])
+		const rows = wrapper.findAll('[data-testid="version-row"]')
+		expect(rows[0].find('[data-testid="version-current"]').exists()).toBe(true)
+		expect(rows[1].find('[data-testid="version-current"]').exists()).toBe(false)
+	})
+
+	// @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	it('REQ-VERSUI-005: names a template author by the template', async () => {
+		api.listVersions.mockResolvedValue({
+			data: { versions: [{ ...v(3, 'Updated from the template', 'admin'), createdByName: 'Template Intranet' }], modeSupported: true },
+		})
+		const wrapper = mountModal()
+		await flushPromises()
+		const row = wrapper.find('[data-testid="version-row"]')
+		expect(row.text()).toContain('Template Intranet')
+		expect(row.text()).not.toContain('admin')
+	})
+
 	it('REQ-VERSUI-002: saves a named version and puts it on top', async () => {
 		api.listVersions.mockResolvedValue({
 			data: { versions: [v(1)], modeSupported: true },

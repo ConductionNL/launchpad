@@ -195,6 +195,17 @@
 				:dashboard="activeDashboard"
 				:sharedWithMe="sharedWithMeDashboards"
 				:currentUserId="currentUserId" />
+			<!-- Every dashboard without a greeting row opens with its name, its
+			     actions and the "Meer" menu (LpWerkplek, LpIntranet). -->
+			<DashboardPageHeader
+				v-if="activeDashboard && !kiosk && !hasGroundHeader"
+				:dashboard="activeDashboard"
+				:source="activeDashboardSource"
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
+				:permissionLevel="permissionLevel"
+				:isEditMode="isEditMode"
+				@edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
+				@addWidget="openWidgetModal" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -494,6 +505,7 @@ import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue
 import DashboardEditBar from '../components/Workspace/DashboardEditBar.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
+import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
@@ -650,6 +662,7 @@ export default {
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
+		DashboardPageHeader,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
 		FilterBreadcrumb,
@@ -1005,6 +1018,19 @@ export default {
 					(!hidesWhenUnavailable(p)
 					|| this.unavailableSources[sourceKey(p.content)] !== true)
 					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
+			)
+		},
+
+		/**
+		 * Whether the dashboard opens with a greeting on the page ground (a
+		 * header widget with `ground`), which then carries the page title.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+		 */
+		hasGroundHeader() {
+			return this.shownPlacements.some(
+				(p) => p?.widgetId === 'header' && p?.content?.ground === true,
 			)
 		},
 

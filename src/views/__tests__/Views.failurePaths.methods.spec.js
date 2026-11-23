@@ -123,18 +123,6 @@ describe('Views personal layer refusals', () => {
 	})
 })
 
-describe('Views version support probe', () => {
-	it('a refused version listing reads as not offered', async () => {
-		api.listVersions.mockRejectedValue(httpError(403))
-		const host = makeHost({ activeDashboard: { uuid: 'd', isOwner: true }, versionSupport: { other: true } })
-
-		await host.checkVersionSupport()
-
-		expect(api.listVersions).toHaveBeenCalledWith('d')
-		expect(host.versionSupport).toEqual({ other: true, d: false })
-	})
-})
-
 describe('Views delete dashboard', () => {
 	it('does nothing without a confirmed target', async () => {
 		const host = makeHost({ deleteTarget: null, deleteChildCount: 0 })

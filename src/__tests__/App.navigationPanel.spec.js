@@ -16,6 +16,7 @@
 import { mount } from '@vue/test-utils'
 import fs from 'node:fs'
 import path from 'node:path'
+import { createPinia } from 'pinia'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@conduction/nextcloud-vue', () => ({
@@ -36,7 +37,9 @@ import App, { DASHBOARD_ROUTES, panelEntriesFor } from '../App.vue'
 import {
 	isExternal,
 	resolveMenuItem,
-} from '../components/Workspace/StartPageMenu.vue'
+	settingsMenuItems,
+	startPageSections,
+} from '../components/Workspace/moreMenuItems.js'
 import bundledStub from '../manifest.json'
 import { routesFromManifest } from '../utils/manifestRoutes.js'
 import { applyManifestFragments } from '../utils/mergeManifestFragments.js'
@@ -66,6 +69,7 @@ function mountApp({ routeName, permissions = ['user'] }) {
 			permissions,
 		},
 		global: {
+			plugins: [createPinia()],
 			mocks: { $route: { name: routeName } },
 		},
 	})
@@ -172,6 +176,23 @@ describe('Route no loss: every panel destination stays reachable', () => {
 				expect(Boolean(item.href || item.onClick)).toBe(true)
 			}
 		}
+	})
+
+	it.each([
+		['a member', ['user'], false],
+		['an administrator', ['user', 'admin'], true],
+	])('puts every entry under More\'s Settings for %s, but the two offered elsewhere', (_who, permissions, isAdmin) => {
+		const entries = panelEntriesFor(manifest, permissions)
+		const chrome = { railSuppressed: true, entries, isAdmin, includePersonalSettings: true }
+		const ids = settingsMenuItems(startPageSections(chrome, () => {})).map((item) => item.id)
+		// The Dashboards group stands in for the dashboards entry, and the
+		// admin settings link for the admin settings route.
+		const elsewhere = ['dashboards', 'admin-settings']
+		for (const entry of entries.filter((e) => !elsewhere.includes(e.id))) {
+			expect(ids, `${entry.id} is not under Settings`).toContain(entry.id)
+		}
+		expect(ids.includes('admin-settings-link')).toBe(isAdmin)
+		expect(ids[0]).toBe('personal-settings')
 	})
 
 	it('hides the admin entries from a member, as the panel does', () => {

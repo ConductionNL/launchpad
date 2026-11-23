@@ -18,7 +18,7 @@ afterEach(() => {
  * @return {HTMLElement} the button.
  */
 function moreMenuButton() {
-	document.body.innerHTML = '<div data-testid="launchpad-more-menu"><button data-testid="cn-grouped-menu-trigger">More</button></div>'
+	document.body.innerHTML = '<div data-testid="launchpad-more-menu"><button data-testid="launchpad-more-menu-trigger">More</button></div>'
 	return document.querySelector('button')
 }
 

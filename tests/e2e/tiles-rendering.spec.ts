@@ -542,10 +542,10 @@ test('a tile added through "Add widget" → "Custom widget" stores its data in c
 		const title = `Nieuw ${STAMP}`
 		await page
 			.locator(MORE_MENU)
-			.locator('[data-testid="cn-grouped-menu-trigger"]')
+			.locator('[data-testid="launchpad-more-menu-trigger"]')
 			.click()
 		await page
-			.locator('[data-testid="cn-grouped-menu-item-add-widget"]')
+			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
 		await page.locator('[data-testid="widget-picker-type-tile"]').click()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()

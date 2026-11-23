@@ -78,8 +78,8 @@ test('the "Can\'t find your app?" request form has no serious axe findings', asy
 			}
 			const more = page.locator(MORE_MENU)
 			await expect(more).toBeVisible({ timeout: 30_000 })
-			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+			await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+			await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 			const request = page.locator('[data-testid="widget-picker-request"]')
 			await request.getByRole('button', { name: /can't find your app/i }).click()
 			await expect(request.locator('form')).toBeVisible({ timeout: 10_000 })

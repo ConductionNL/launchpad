@@ -100,8 +100,8 @@ const stubs = {
 	CnConfirmDialog: passthrough('CnConfirmDialog', {
 		template: '<div class="stub-confirm" />',
 	}),
-	VersionHistoryModal: passthrough('VersionHistoryModal', {
-		props: { open: Boolean },
+	DashboardEditBar: passthrough('DashboardEditBar', {
+		props: { dashboardName: String, columns: Number, canConfigure: Boolean },
 	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
@@ -296,7 +296,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(config.props('initialTab')).toBe('sharing')
 	}, 90000)
 
-	it('the Meer menu\'s "Edit" announces the editor and enters edit mode; "Configure" opens the config modal', async () => {
+	it('the Meer menu\'s "Edit" announces the editor and enters edit mode; the edit bar opens the settings', async () => {
 		const { wrapper } = await mountViews()
 		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 
@@ -305,8 +305,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
 		expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 
-		// Entering edit mode re-renders the top bar: address the cog afresh.
-		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('openConfig')
+		wrapper.findComponent({ name: 'DashboardEditBar' }).vm.$emit('openSettings')
 		await flushPromises()
 		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
 		expect(config.props('open')).toBe(true)
@@ -388,26 +387,67 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		])
 	}, 90000)
 
-	it('the Meer menu\'s "Version history" opens the modal, and its close event shuts it', async () => {
+	it('the Meer menu offers no Versions: the settings carry them as a tab', async () => {
 		const { wrapper } = await mountViews()
-		const modal = () => wrapper.findComponent({ name: 'VersionHistoryModal' })
-		expect(modal().props('open')).toBe(false)
-
-		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('versionHistory')
-		expect(modal().props('open')).toBe(true)
-
-		await modal().vm.$emit('close')
-		expect(modal().props('open')).toBe(false)
+		const menu = wrapper.findComponent({ name: 'DashboardMoreMenu' })
+		expect(menu.vm.$attrs.canViewHistory).toBeUndefined()
+		expect(wrapper.findComponent({ name: 'DashboardConfigModal' }).vm.$attrs.canViewVersions).toBe(true)
 	}, 90000)
 
-	it('opening the Meer menu asks once whether the owner\'s dashboard keeps versions', async () => {
+	it('the Meer menu\'s "Copy link" puts the dashboard\'s own address on the clipboard', async () => {
+		const writeText = vi.fn().mockResolvedValue()
+		Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
 		const { wrapper } = await mountViews()
-		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
-
-		cog.vm.$emit('menuOpen')
+		axios.get.mockImplementation((url) => Promise.resolve({ data: url.endsWith('/path') ? { path: '/home' } : {} }))
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('copyLink')
 		await flushPromises()
-		expect(axios.get).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/versions`)
-		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canViewHistory).toBe(true)
+		expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^https?:\/\/[^/]+.*\/home$/))
+	}, 90000)
+
+	it('the Meer menu\'s "Copy link" falls back to the id address, and says so when copying fails', async () => {
+		const writeText = vi.fn().mockRejectedValue(new Error('denied'))
+		Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+		const { wrapper } = await mountViews()
+		axios.get.mockImplementation(() => Promise.resolve({ data: {} }))
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('copyLink')
+		await flushPromises()
+		expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\/dashboards\/\d+$/))
+	}, 90000)
+
+	it('the Meer menu\'s "Duplicate" forks the open dashboard', async () => {
+		const { wrapper } = await mountViews()
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('duplicate')
+		await flushPromises()
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/fork`, expect.anything())
+	}, 90000)
+
+	it('edit mode shows the edit bar: its settings, columns and Done', async () => {
+		const { wrapper } = await mountViews()
+		const bar = () => wrapper.findComponent({ name: 'DashboardEditBar' })
+		expect(bar().exists()).toBe(false)
+
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
+		await flushPromises()
+		expect(bar().exists()).toBe(true)
+		expect(bar().props('canConfigure')).toBe(true)
+		expect(bar().props('columns')).toBe(12)
+
+		await bar().vm.$emit('openSettings')
+		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
+		expect(config.props('open')).toBe(true)
+		expect(config.props('initialTab')).toBe('general')
+
+		await bar().vm.$emit('setColumns', 8)
+		await flushPromises()
+		expect(axios.put).toHaveBeenCalledWith(
+			expect.stringMatching(/\/api\/dashboard\/\d+$/),
+			{ gridColumns: 8 },
+		)
+		expect(bar().props('columns')).toBe(8)
+
+		await bar().vm.$emit('done')
+		await flushPromises()
+		expect(bar().exists()).toBe(false)
 	}, 90000)
 
 	it('the Meer menu\'s "Delete" opens the delete dialog for the active dashboard', async () => {
@@ -752,16 +792,11 @@ describe('Views — states without a full dashboard', () => {
 		)
 	}, 90000)
 
-	it('offers no version history for a dashboard without a uuid', async () => {
+	it('offers no versions and no duplicate for a dashboard without a uuid', async () => {
 		await mountViews({ activeDashboard: { id: 5, name: 'Legacy', isOwner: true } })
 
-		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('menuOpen')
-		await flushPromises()
-
-		expect(axios.get).not.toHaveBeenCalledWith(expect.stringContaining('/versions'))
-		const cog = wrapper.findComponent({ name: 'DashboardMoreMenu' })
-		expect(cog.vm.$attrs.canManagePublication).toBe(false)
-		expect(cog.vm.$attrs.canViewHistory).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardConfigModal' }).vm.$attrs.canViewVersions).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canDuplicate).toBe(false)
 	}, 90000)
 
 	it('hands the Nextcloud widget catalog from the widget store to the add-widget form', async () => {

@@ -214,13 +214,18 @@
 	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
 .launchpad-container
 	.launchpad-widget:has(.cn-label-widget)
-	[class*='widget']:not(#lp-ground-a):not(#lp-ground-b) {
+	[class*='widget']:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.lp-section-heading):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.lp-section-heading)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b) {
 	background: transparent;
 	border: none;
 	box-shadow: none;
 }
 
-/* "Startpagina aanpassen" at the right of the greeting row, as a plain
+/* A greeting's call to action at the right of the greeting row, as a plain
    outlined button. */
 .launchpad-container .cn-header-widget--ground {
 	position: relative;
@@ -251,9 +256,9 @@
 
 /* With the workspace controls docked in the greeting row
    (headerActionsDock.js), the row is the greeting, then the actions at its
-   right, as LpStart draws it. "Startpagina aanpassen" stays at the right of
-   the greeting text, which now ends where the controls begin, so the two
-   never overlap. */
+   right, as LpStart draws it. A call to action stays at the right of the
+   greeting text, which now ends where the controls begin, so the two never
+   overlap. */
 .launchpad-container .cn-header-widget--ground:has(> .launchpad-header-actions) {
 	display: flex;
 	align-items: center;
@@ -287,7 +292,7 @@
 	align-items: center;
 }
 
-/* On a phone the greeting takes the row, and "Startpagina aanpassen" wraps
+/* On a phone the greeting takes the row, and a call to action wraps
    under it with the controls at its right, instead of covering the heading
    (LpVandaag at 390px). */
 @media (max-width: 640px) {

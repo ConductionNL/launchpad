@@ -86,8 +86,8 @@ async function gotoLaunchPad(page: any) {
  * @return nothing.
  */
 async function openAddWidgetModal(page: any, type = 'label') {
-	await page.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`).click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 
 	await expect(

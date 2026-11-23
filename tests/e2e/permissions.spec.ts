@@ -513,13 +513,13 @@ test.describe('permission levels on a template copy the user owns', () => {
 	async function moreMenuItems(page: Page): Promise<string[]> {
 		await page
 			.locator(MORE_MENU)
-			.locator('[data-testid="cn-grouped-menu-trigger"]')
+			.locator('[data-testid="launchpad-more-menu-trigger"]')
 			.click()
 		await expect(
-			page.locator('[data-testid="cn-grouped-menu-panel"]'),
+			page.locator('[data-testid="launchpad-more-menu-panel"]'),
 		).toBeVisible()
 		const ids = await page
-			.locator('[data-testid^="cn-grouped-menu-item-"]')
+			.locator('[data-testid^="launchpad-more-menu-item-"]')
 			.evaluateAll((els) =>
 				els.map((el) => el.getAttribute('data-testid') ?? ''),
 			)
@@ -685,9 +685,9 @@ test.describe('permission levels on a template copy the user owns', () => {
 
 			const items = await moreMenuItems(page)
 			// The menu itself rendered: an item every viewer gets is there.
-			expect(items).toContain('cn-grouped-menu-item-set-default')
+			expect(items).toContain('launchpad-more-menu-item-set-default')
 			expect(items, 'no Edit button for a view-only dashboard').not.toContain(
-				'cn-grouped-menu-item-edit',
+				'launchpad-more-menu-item-edit',
 			)
 		} finally {
 			await context.close()
@@ -704,10 +704,10 @@ test.describe('permission levels on a template copy the user owns', () => {
 		const { context, page } = await openAs(browser, dave!.principal)
 		try {
 			const items = await moreMenuItems(page)
-			expect(items).toContain('cn-grouped-menu-item-set-default')
+			expect(items).toContain('launchpad-more-menu-item-set-default')
 			for (const hidden of ['edit', 'add-widget']) {
 				expect(items, `${hidden} must not be offered`).not.toContain(
-					`cn-grouped-menu-item-${hidden}`,
+					`launchpad-more-menu-item-${hidden}`,
 				)
 			}
 
@@ -877,8 +877,8 @@ test.describe('permission levels on a template copy the user owns', () => {
 		const { context, page } = await openAs(browser, bea!.principal)
 		try {
 			const items = await moreMenuItems(page)
-			expect(items).toContain('cn-grouped-menu-item-edit')
-			expect(items).toContain('cn-grouped-menu-item-add-widget')
+			expect(items).toContain('launchpad-more-menu-item-edit')
+			expect(items).toContain('launchpad-more-menu-item-add-widget')
 
 			await enterEditMode(page)
 			// Every widget has its edit cog in edit mode.

@@ -90,6 +90,10 @@ const NewsWidget = lazyComponent(() => import('../components/Widgets/Renderers/N
 const NewsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidgetForm.vue'), 'NewsWidgetForm')
 const SearchWidget = lazyComponent(() => import('../components/Widgets/Renderers/SearchWidget.vue'), 'SearchWidget')
 const SearchWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/SearchWidgetForm.vue'), 'SearchWidgetForm')
+// `section-heading` — "Tussenkop": a full-width heading with one line of
+// explanation over the widgets or tiles that follow it (REQ-WDG-031).
+const SectionHeadingWidget = lazyComponent(() => import('../components/Widgets/Renderers/SectionHeadingWidget.vue'), 'SectionHeadingWidget')
+const SectionHeadingWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/SectionHeadingWidgetForm.vue'), 'SectionHeadingWidgetForm')
 const StatsBlockHost = lazyComponent(() => import('../components/Widgets/Renderers/StatsBlockHost.vue'), 'StatsBlockHost')
 const StatusReportWidget = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidget.vue'), 'StatusReportWidget')
 const StatusReportWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidgetForm.vue'), 'StatusReportWidgetForm')
@@ -365,6 +369,20 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// REQ-WDG-031: "Tussenkop" of boards LpIntranet and LpWerkplek, a heading on
+// the page ground; the label widget's group heading has no line of
+// explanation, so this is a type of its own.
+registerDashboardWidget('section-heading', {
+	renderer: SectionHeadingWidget,
+	form: SectionHeadingWidgetForm,
+	defaultContent: {
+		title: '',
+		description: '',
+	},
+	displayName: 'Section heading',
+	icon: 'FormatHeader1',
 })
 
 // wiki-widget REQ-WIKI-001..004: the wiki through OpenRegister's XWiki

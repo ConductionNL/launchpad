@@ -505,10 +505,12 @@ async function waitForDashboard(page: Page, uuid: string): Promise<void> {
  * @return nothing.
  */
 async function openPersonalSettings(page: Page): Promise<void> {
-	const more = page.locator('[data-testid="launchpad-more-menu"] [data-testid="cn-grouped-menu-trigger"]')
+	const more = page.locator('[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]')
 	if (await more.isVisible().catch(() => false)) {
 		await more.click()
-		const item = page.locator('[data-testid="cn-grouped-menu-item-personal-settings"]')
+		// Personal settings sits under Settings, which unfolds in place (LpMeer).
+		await page.locator('[data-testid="launchpad-more-menu-settings"]').click()
+		const item = page.locator('[data-testid="launchpad-more-menu-item-personal-settings"]')
 		if (await item.isVisible({ timeout: 3_000 }).catch(() => false)) {
 			await item.click()
 			return

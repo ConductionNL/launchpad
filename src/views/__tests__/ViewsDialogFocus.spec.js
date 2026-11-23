@@ -34,7 +34,7 @@ function makeHost() {
 function moreMenuButton() {
 	const menu = document.createElement('div')
 	menu.setAttribute('data-testid', 'launchpad-more-menu')
-	menu.innerHTML = '<button data-testid="cn-grouped-menu-trigger">More</button>'
+	menu.innerHTML = '<button data-testid="launchpad-more-menu-trigger">More</button>'
 	document.body.appendChild(menu)
 	return menu.querySelector('button')
 }

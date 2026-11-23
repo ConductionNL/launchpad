@@ -77,8 +77,8 @@ const UNSET = [null, '']
  * @return the dialog.
  */
 async function openModal(page: Page): Promise<Locator> {
-	await page.locator(`${MORE_MENU} [data-testid="cn-grouped-menu-trigger"]`).click()
-	await page.locator('[data-testid="cn-grouped-menu-item-add-widget"]').click()
+	await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	await page.locator('[data-testid="widget-picker-type-header"]').click()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

@@ -1231,6 +1231,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardPageHeader.vue | permissionLevel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "full"
+	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,

@@ -1409,6 +1409,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "Pārlūkā izvēlieties Kopīgot un pēc tam Pievienot sākuma ekrānam.",
         "Not now": "Ne tagad",
         "{index} of {total} · next in {seconds} s": "{index} no {total} · nākamais pēc {seconds} s",
-        "Now showing {name}": "Tagad redzams: {name}"
+        "Now showing {name}": "Tagad redzams: {name}",
+        "Own look": "Savs izskats",
+        "view only": "tikai skatīt",
+        "you may add widgets": "jūs varat pievienot logrīkus"
     }
 }

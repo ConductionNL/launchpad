@@ -1409,6 +1409,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "V prohlížeči zvolte Sdílet a potom Přidat na plochu.",
         "Not now": "Teď ne",
         "{index} of {total} · next in {seconds} s": "{index} z {total} · další za {seconds} s",
-        "Now showing {name}": "Nyní zobrazeno: {name}"
+        "Now showing {name}": "Nyní zobrazeno: {name}",
+        "Own look": "Vlastní vzhled",
+        "view only": "jen zobrazení",
+        "you may add widgets": "můžete přidávat widgety"
     }
 }

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "само преглед",
+    "you may add widgets" : "можете да добавяте уиджети",
+    "Own look" : "Собствен облик",
     "{index} of {total} · next in {seconds} s" : "{index} от {total} · следващо след {seconds} s",
     "Now showing {name}" : "Сега се показва: {name}",
     "Put LaunchPad on your home screen" : "Добавете LaunchPad към началния екран",

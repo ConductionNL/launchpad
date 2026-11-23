@@ -1407,6 +1407,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "Vali brauseris Jaga ja seejärel Lisa avakuvale.",
         "Not now": "Mitte praegu",
         "{index} of {total} · next in {seconds} s": "{index}/{total} · järgmine {seconds} s pärast",
-        "Now showing {name}": "Praegu kuvatakse: {name}"
+        "Now showing {name}": "Praegu kuvatakse: {name}",
+        "Own look": "Oma välimus",
+        "view only": "ainult vaatamine",
+        "you may add widgets": "võite lisada vidinaid"
     }
 }

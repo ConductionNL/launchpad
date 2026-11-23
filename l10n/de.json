@@ -1407,6 +1407,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "Wählen Sie in Ihrem Browser Teilen und dann Zum Home-Bildschirm.",
         "Not now": "Nicht jetzt",
         "{index} of {total} · next in {seconds} s": "{index} von {total} · nächstes in {seconds} s",
-        "Now showing {name}": "Jetzt zu sehen: {name}"
+        "Now showing {name}": "Jetzt zu sehen: {name}",
+        "Own look": "Eigenes Aussehen",
+        "view only": "nur ansehen",
+        "you may add widgets": "Sie dürfen Widgets hinzufügen"
     }
 }

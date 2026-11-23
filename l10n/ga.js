@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "féachaint amháin",
+    "you may add widgets" : "is féidir leat giuirléidí a chur leis",
+    "Own look" : "Cuma féin",
     "{index} of {total} · next in {seconds} s" : "{index} as {total} · an chéad cheann eile i gceann {seconds} s",
     "Now showing {name}" : "Á thaispeáint anois: {name}",
     "Put LaunchPad on your home screen" : "Cuir LaunchPad ar do scáileán baile",

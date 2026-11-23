@@ -1407,6 +1407,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "В браузъра изберете Споделяне и след това Добавяне към началния екран.",
         "Not now": "Не сега",
         "{index} of {total} · next in {seconds} s": "{index} от {total} · следващо след {seconds} s",
-        "Now showing {name}": "Сега се показва: {name}"
+        "Now showing {name}": "Сега се показва: {name}",
+        "Own look": "Собствен облик",
+        "view only": "само преглед",
+        "you may add widgets": "можете да добавяте уиджети"
     }
 }

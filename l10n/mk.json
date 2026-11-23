@@ -1407,6 +1407,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "Во прелистувачот изберете Сподели, а потоа Додај на почетен екран.",
         "Not now": "Не сега",
         "{index} of {total} · next in {seconds} s": "{index} од {total} · следно за {seconds} s",
-        "Now showing {name}": "Сега се прикажува: {name}"
+        "Now showing {name}": "Сега се прикажува: {name}",
+        "Own look": "Сопствен изглед",
+        "view only": "само преглед",
+        "you may add widgets": "може да додавате виџети"
     }
 }

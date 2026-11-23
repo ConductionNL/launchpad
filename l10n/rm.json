@@ -1407,6 +1407,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "Tschernai en Voss navigatur Cundivider e lura Agiuntar al visur da partenza.",
         "Not now": "Betg ussa",
         "{index} of {total} · next in {seconds} s": "{index} da {total} · proxim en {seconds} s",
-        "Now showing {name}": "Ussa vesaivel: {name}"
+        "Now showing {name}": "Ussa vesaivel: {name}",
+        "Own look": "Agen aspect",
+        "view only": "mo guardar",
+        "you may add widgets": "Vus dastgais agiuntar widgets"
     }
 }

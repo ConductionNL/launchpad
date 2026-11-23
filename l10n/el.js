@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "μόνο προβολή",
+    "you may add widgets" : "μπορείτε να προσθέσετε widget",
+    "Own look" : "Δική του εμφάνιση",
     "{index} of {total} · next in {seconds} s" : "{index} από {total} · επόμενο σε {seconds} s",
     "Now showing {name}" : "Τώρα εμφανίζεται: {name}",
     "Put LaunchPad on your home screen" : "Προσθέστε το LaunchPad στην αρχική οθόνη",

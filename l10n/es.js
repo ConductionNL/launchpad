@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "solo ver",
+    "you may add widgets" : "puede añadir widgets",
+    "Own look" : "Aspecto propio",
     "{index} of {total} · next in {seconds} s" : "{index} de {total} · siguiente en {seconds} s",
     "Now showing {name}" : "Ahora se muestra {name}",
     "Put LaunchPad on your home screen" : "Añade LaunchPad a tu pantalla de inicio",

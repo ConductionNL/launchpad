@@ -1409,6 +1409,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "У прегледачу изаберите Дели, а затим Додај на почетни екран.",
         "Not now": "Не сада",
         "{index} of {total} · next in {seconds} s": "{index} од {total} · следеће за {seconds} s",
-        "Now showing {name}": "Сада се приказује: {name}"
+        "Now showing {name}": "Сада се приказује: {name}",
+        "Own look": "Сопствени изглед",
+        "view only": "само преглед",
+        "you may add widgets": "можете да додајете виџете"
     }
 }

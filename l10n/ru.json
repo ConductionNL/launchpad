@@ -1409,6 +1409,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "В браузере выберите «Поделиться», а затем «На экран «Домой»».",
         "Not now": "Не сейчас",
         "{index} of {total} · next in {seconds} s": "{index} из {total} · следующий через {seconds} с",
-        "Now showing {name}": "Сейчас показывается: {name}"
+        "Now showing {name}": "Сейчас показывается: {name}",
+        "Own look": "Собственный вид",
+        "view only": "только просмотр",
+        "you may add widgets": "можно добавлять виджеты"
     }
 }

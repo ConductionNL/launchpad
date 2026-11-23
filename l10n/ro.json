@@ -1409,6 +1409,9 @@
         "In your browser, choose Share and then Add to Home Screen.": "În browser, alegeți Partajare și apoi Adaugă pe ecranul principal.",
         "Not now": "Nu acum",
         "{index} of {total} · next in {seconds} s": "{index} din {total} · următorul în {seconds} s",
-        "Now showing {name}": "Acum se afișează: {name}"
+        "Now showing {name}": "Acum se afișează: {name}",
+        "Own look": "Aspect propriu",
+        "view only": "doar vizualizare",
+        "you may add widgets": "puteți adăuga widgeturi"
     }
 }

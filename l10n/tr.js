@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "yalnızca görüntüleme",
+    "you may add widgets" : "widget ekleyebilirsiniz",
+    "Own look" : "Kendi görünümü",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · sonraki {seconds} sn sonra",
     "Now showing {name}" : "Şimdi gösteriliyor: {name}",
     "Put LaunchPad on your home screen" : "LaunchPad'i ana ekranınıza ekleyin",

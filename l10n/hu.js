@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "csak megtekintés",
+    "you may add widgets" : "hozzáadhat widgeteket",
+    "Own look" : "Saját megjelenés",
+    "{index} of {total} · next in {seconds} s" : "{index}/{total} · a következő {seconds} s múlva",
+    "Now showing {name}" : "Most látható: {name}",
+    "Put LaunchPad on your home screen" : "Tegye a LaunchPadet a kezdőképernyőre",
+    "Then your workplace opens with one tap, like an app" : "Így a munkahelye egy koppintással megnyílik, akár egy alkalmazás",
+    "In your browser, choose Share and then Add to Home Screen." : "A böngészőben válassza a Megosztás, majd a Főképernyőhöz adás lehetőséget.",
+    "Not now" : "Most nem",
     "Dashboard renamed to %s" : "Irányítópult átnevezve: %s",
     "Columns from %1$s to %2$s" : "Oszlopok: %1$s → %2$s",
     "Widget %s added" : "%s modul hozzáadva",

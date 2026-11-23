@@ -71,6 +71,8 @@ class StorageSnapshotJob extends TimedJob {
 	 * @return void
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/tasks.md#task-8.2
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is required by the TimedJob signature.
 	 */
 	protected function run($argument): void {
 		try {

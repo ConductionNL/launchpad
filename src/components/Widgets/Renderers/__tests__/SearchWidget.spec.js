@@ -206,6 +206,21 @@ describe('SearchWidget — internet search form (LpWerkplek)', () => {
 		open.mockRestore()
 	})
 
+	// @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
+	it('encodes the space between words (Pieter searches the internet)', async () => {
+		const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+		const wrapper = mountWidget({ content: { layout: 'web' } })
+		await wrapper.find('input[type="search"]').setValue('omgevingswet termijnen')
+		await wrapper.find('form').trigger('submit')
+		expect(open).toHaveBeenCalledWith('https://duckduckgo.com/?q=omgevingswet%20termijnen', '_blank', 'noopener,noreferrer')
+		open.mockRestore()
+	})
+
+	it('names DuckDuckGo on screen for an engine url without a {q} slot', () => {
+		const wrapper = mountWidget({ content: { layout: 'web', engine: { name: 'Intranet', url: 'https://intranet.example.nl/search' } } })
+		expect(wrapper.find('[data-testid="search-widget-engine"]').text()).toBe('DuckDuckGo')
+	})
+
 	it('keeps the tile search without the web layout', () => {
 		expect(mountWidget().find('[data-testid="search-widget-web"]').exists()).toBe(false)
 	})

@@ -72,7 +72,7 @@ class TenantThemeApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		return $this->asAdmin(action: fn (string $admin): JSONResponse => new JSONResponse(data: ['results' => $this->themes->listThemes()]));
+		return $this->asAdmin(action: fn (): JSONResponse => new JSONResponse(data: ['results' => $this->themes->listThemes()]));
 	}//end index()
 
 	/**
@@ -104,7 +104,7 @@ class TenantThemeApiController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(string $id): JSONResponse {
 		return $this->asAdmin(
-			action: function (string $admin) use ($id): JSONResponse {
+			action: function () use ($id): JSONResponse {
 				$result = $this->themes->updateTheme(id: $id, input: $this->input());
 				if ($result === null) {
 					return self::notFound();
@@ -128,7 +128,7 @@ class TenantThemeApiController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function destroy(string $id, bool $force=false): JSONResponse {
 		return $this->asAdmin(
-			action: function (string $admin) use ($id, $force): JSONResponse {
+			action: function () use ($id, $force): JSONResponse {
 				$result = $this->themes->deleteTheme(id: $id, force: $force);
 				if ($result === null) {
 					return self::notFound();

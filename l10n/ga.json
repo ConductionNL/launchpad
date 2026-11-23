@@ -1407,6 +1407,15 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Is féidir {count} eile a chur ar an deais seo. Roghnaigh níos lú fillteán nó leabharmharcanna.",
         "The bookmarks could not be imported.": "Níorbh fhéidir na leabharmharcanna a iompórtáil.",
         "This file holds no bookmarks.": "Níl aon leabharmharc sa chomhad seo.",
-        "Folders": "Fillteáin"
+        "Folders": "Fillteáin",
+        "Put LaunchPad on your home screen": "Cuir LaunchPad ar do scáileán baile",
+        "Then your workplace opens with one tap, like an app": "Ansin osclaíonn d'ionad oibre le tapáil amháin, díreach cosúil le haip",
+        "In your browser, choose Share and then Add to Home Screen.": "I do bhrabhsálaí, roghnaigh Comhroinn agus ansin Cuir le Scáileán Baile.",
+        "Not now": "Ní anois",
+        "{index} of {total} · next in {seconds} s": "{index} as {total} · an chéad cheann eile i gceann {seconds} s",
+        "Now showing {name}": "Á thaispeáint anois: {name}",
+        "Own look": "Cuma féin",
+        "view only": "féachaint amháin",
+        "you may add widgets": "is féidir leat giuirléidí a chur leis"
     }
 }

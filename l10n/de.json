@@ -1401,6 +1401,15 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Dieses Dashboard kann noch {count} aufnehmen. Wählen Sie weniger Ordner oder Lesezeichen.",
         "The bookmarks could not be imported.": "Die Lesezeichen konnten nicht importiert werden.",
         "This file holds no bookmarks.": "Diese Datei enthält keine Lesezeichen.",
-        "Folders": "Ordner"
+        "Folders": "Ordner",
+        "Put LaunchPad on your home screen": "LaunchPad zum Startbildschirm hinzufügen",
+        "Then your workplace opens with one tap, like an app": "Dann öffnet sich Ihr Arbeitsplatz mit einem Tippen, wie eine App",
+        "In your browser, choose Share and then Add to Home Screen.": "Wählen Sie in Ihrem Browser Teilen und dann Zum Home-Bildschirm.",
+        "Not now": "Nicht jetzt",
+        "{index} of {total} · next in {seconds} s": "{index} von {total} · nächstes in {seconds} s",
+        "Now showing {name}": "Jetzt zu sehen: {name}",
+        "Own look": "Eigenes Aussehen",
+        "view only": "nur ansehen",
+        "you may add widgets": "Sie dürfen Widgets hinzufügen"
     }
 }

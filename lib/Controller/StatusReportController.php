@@ -91,7 +91,7 @@ class StatusReportController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function draft(): JSONResponse {
-		return $this->answer(work: fn (string $userId): JSONResponse => new JSONResponse($this->reports->draft(subject: $this->subject())));
+		return $this->answer(work: fn (): JSONResponse => new JSONResponse($this->reports->draft(subject: $this->subject())));
 	}//end draft()
 
 	/**

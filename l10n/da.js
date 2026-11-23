@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "kun visning",
+    "you may add widgets" : "du må tilføje widgets",
+    "Own look" : "Eget udseende",
+    "{index} of {total} · next in {seconds} s" : "{index} af {total} · næste om {seconds} s",
+    "Now showing {name}" : "Vises nu: {name}",
+    "Put LaunchPad on your home screen" : "Føj LaunchPad til din hjemmeskærm",
+    "Then your workplace opens with one tap, like an app" : "Så åbner din arbejdsplads med ét tryk, ligesom en app",
+    "In your browser, choose Share and then Add to Home Screen." : "Vælg Del i din browser og derefter Føj til hjemmeskærm.",
+    "Not now" : "Ikke nu",
     "Dashboard renamed to %s" : "Dashboard omdøbt til %s",
     "Columns from %1$s to %2$s" : "Kolonner fra %1$s til %2$s",
     "Widget %s added" : "Widget %s tilføjet",

@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "view only" : "vain katselu",
+    "you may add widgets" : "voit lisätä pienoisohjelmia",
+    "Own look" : "Oma ulkoasu",
+    "{index} of {total} · next in {seconds} s" : "{index}/{total} · seuraava {seconds} s kuluttua",
+    "Now showing {name}" : "Nyt näytössä: {name}",
+    "Put LaunchPad on your home screen" : "Lisää LaunchPad kotinäytölle",
+    "Then your workplace opens with one tap, like an app" : "Silloin työpisteesi avautuu yhdellä napautuksella, kuin sovellus",
+    "In your browser, choose Share and then Add to Home Screen." : "Valitse selaimessa Jaa ja sitten Lisää Koti-valikkoon.",
+    "Not now" : "Ei nyt",
     "Dashboard renamed to %s" : "Kojelauta nimettiin uudelleen: %s",
     "Columns from %1$s to %2$s" : "Sarakkeet %1$s → %2$s",
     "Widget %s added" : "Pienoissovellus %s lisätty",

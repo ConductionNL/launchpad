@@ -383,4 +383,102 @@ class PublicShareServiceTest extends TestCase {
 
 		$this->assertFalse($result);
 	}
+	/**
+	 * The owner gets the active shares of the dashboard.
+	 *
+	 * @return void
+	 */
+	public function testListActiveSharesReturnsTheDashboardsActiveShares(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+		$active = new PublicShare();
+
+		$this->dashMapper->method('findByUuid')->with('dash-1')->willReturn($dashboard);
+		$this->shareMapper->expects($this->once())->method('findActiveByDashboardUuid')
+			->with('dash-1')->willReturn([$active]);
+
+		$this->assertSame(expected: [$active], actual: $this->service->listActiveShares(dashboardUuid: 'dash-1', callerId: 'alice'));
+	}
+
+	/**
+	 * Someone who is neither owner nor admin sees no shares.
+	 *
+	 * @return void
+	 */
+	public function testListActiveSharesRefusesSomeoneElse(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->shareMapper->expects($this->never())->method('findActiveByDashboardUuid');
+
+		$this->expectException(exception: OCSForbiddenException::class);
+		$this->service->listActiveShares(dashboardUuid: 'dash-1', callerId: 'bob');
+	}
+
+	/**
+	 * The owner revokes a share of the dashboard by its id.
+	 *
+	 * @return void
+	 */
+	public function testRevokeShareRevokesAShareOfTheDashboard(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->shareMapper->method('findByDashboardUuid')->with('dash-1')
+			->willReturn([$this->shareWithId(id: 3), $this->shareWithId(id: 7)]);
+		$this->shareMapper->expects($this->once())->method('softRevoke')->with(7);
+
+		$this->service->revokeShare(dashboardUuid: 'dash-1', shareId: 7, callerId: 'alice');
+	}
+
+	/**
+	 * A share id of another dashboard is not found, so an owner cannot revoke someone else's link.
+	 *
+	 * @return void
+	 */
+	public function testRevokeShareRefusesAShareOfAnotherDashboard(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->shareMapper->method('findByDashboardUuid')->willReturn([$this->shareWithId(id: 3)]);
+		$this->shareMapper->expects($this->never())->method('softRevoke');
+
+		$this->expectException(exception: ShareNotFoundException::class);
+		$this->service->revokeShare(dashboardUuid: 'dash-1', shareId: 99, callerId: 'alice');
+	}
+
+	/**
+	 * Someone who is neither owner nor admin is refused before any share is looked up.
+	 *
+	 * @return void
+	 */
+	public function testRevokeShareRefusesSomeoneElseBeforeLookingUpShares(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->shareMapper->expects($this->never())->method('findByDashboardUuid');
+		$this->shareMapper->expects($this->never())->method('softRevoke');
+
+		$this->expectException(exception: OCSForbiddenException::class);
+		$this->service->revokeShare(dashboardUuid: 'dash-1', shareId: 3, callerId: 'bob');
+	}
+
+	/**
+	 * A stored share with the given id.
+	 *
+	 * @param int $id The share id.
+	 *
+	 * @return PublicShare
+	 */
+	private function shareWithId(int $id): PublicShare {
+		$share = new PublicShare();
+		$share->setId($id);
+		return $share;
+	}
 }//end class

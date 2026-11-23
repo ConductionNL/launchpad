@@ -1403,6 +1403,15 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ova kontrolna tabla može primiti još {count}. Odaberite manje foldera ili oznaka.",
         "The bookmarks could not be imported.": "Oznake nije bilo moguće uvesti.",
         "This file holds no bookmarks.": "Datoteka ne sadrži oznake.",
-        "Folders": "Folderi"
+        "Folders": "Folderi",
+        "Put LaunchPad on your home screen": "Dodajte LaunchPad na početni ekran",
+        "Then your workplace opens with one tap, like an app": "Tada se vaše radno mjesto otvara jednim dodirom, kao aplikacija",
+        "In your browser, choose Share and then Add to Home Screen.": "U pregledniku odaberite Dijeli, a zatim Dodaj na početni ekran.",
+        "Not now": "Ne sada",
+        "{index} of {total} · next in {seconds} s": "{index} od {total} · sljedeće za {seconds} s",
+        "Now showing {name}": "Sada se prikazuje: {name}",
+        "Own look": "Vlastiti izgled",
+        "view only": "samo pregled",
+        "you may add widgets": "smijete dodavati widgete"
     }
 }

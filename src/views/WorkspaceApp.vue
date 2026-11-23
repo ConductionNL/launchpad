@@ -121,7 +121,7 @@
 
 <script>
 import { getCurrentUser } from '@nextcloud/auth'
-import { getLanguage, t } from '@nextcloud/l10n'
+import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
 import { markRaw } from 'vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
@@ -261,7 +261,7 @@ export default {
 		 */
 		welcomeLine() {
 			const name = (getCurrentUser()?.displayName ?? '').trim().split(/\s+/)[0] ?? ''
-			const date = new Date().toLocaleDateString(getLanguage().replace('_', '-'), {
+			const date = new Date().toLocaleDateString(getCanonicalLocale(), {
 				weekday: 'long',
 				day: 'numeric',
 				month: 'long',

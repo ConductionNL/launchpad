@@ -375,9 +375,10 @@ test.describe('REQ-VERSUI-002 / REQ-VERSUI-003 saving and restoring from the dia
 
 		const dialog = await openVersionHistory(page)
 		const fridayRow = dialog.locator(ROW).filter({ hasText: 'Friday' })
-		const fridayDate = (await fridayRow.locator('td').nth(1).innerText()).trim()
+		const fridayDate = (await fridayRow.locator('td').nth(0).innerText()).trim()
 		expect(fridayDate).not.toBe('')
-		await fridayRow.locator('[data-testid="version-restore"]').click()
+		await fridayRow.click()
+		await dialog.locator('[data-testid="version-restore"]').click()
 
 		// The confirmation names the version's date.
 		const confirm = page.locator('[data-testid-modal="cn-confirm-dialog"]')

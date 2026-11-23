@@ -74,9 +74,11 @@ class DemoSeedService {
 	}//end __construct()
 
 	/**
-	 * Read and decode a seed definition.
+	 * Read and decode a seed definition, in the requested language when the
+	 * seed has a translation for it (`<seed>.<lang>.json`), as written otherwise.
 	 *
-	 * @param string $seedId The seed id.
+	 * @param string $seedId   The seed id.
+	 * @param string $language The language, such as `en` or `en_GB`; '' for the seed as written.
 	 *
 	 * @return array<string, mixed> The definition.
 	 *
@@ -84,44 +86,98 @@ class DemoSeedService {
 	 *
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
-	public function definition(string $seedId): array {
+	public function definition(string $seedId, string $language = ''): array {
 		if (in_array(needle: $seedId, haystack: self::SEED_IDS, strict: true) === false) {
 			throw new InvalidArgumentException(
 				message: 'Unknown demo seed ' . $seedId . '. Known: ' . implode(separator: ', ', array: self::SEED_IDS)
 			);
 		}
 
-		$path    = dirname(path: __DIR__, levels: 2) . '/data/demo-seed/' . $seedId . '.json';
-		$decoded = null;
-		if (is_readable(filename: $path) === true) {
-			$decoded = json_decode(json: (string)file_get_contents(filename: $path), associative: true);
-		}
-
-		if (is_array($decoded) === false) {
+		$decoded = self::readJson(path: self::seedDirectory() . $seedId . '.json');
+		if ($decoded === null) {
 			throw new InvalidArgumentException(message: 'Demo seed ' . $seedId . ' is missing or not valid JSON');
 		}
 
-		return $decoded;
+		$translation = $this->translation(seedId: $seedId, language: $language);
+		return DemoSeedTranslation::apply(seed: $decoded, strings: $translation['strings']);
 	}//end definition()
+
+	/**
+	 * The translation of a seed for a language: the most specific translation
+	 * file that exists, or none.
+	 *
+	 * @param string $seedId   The seed id.
+	 * @param string $language The requested language, '' for none.
+	 *
+	 * @return array{language: string, strings: array<string, string>} The language applied ('' for none) and its texts.
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	public function translation(string $seedId, string $language): array {
+		foreach (DemoSeedTranslation::candidates(language: $language) as $candidate) {
+			$decoded = self::readJson(path: self::seedDirectory() . $seedId . '.' . $candidate . '.json');
+			if ($decoded !== null && is_array($decoded['strings'] ?? null) === true) {
+				return [
+					'language' => $candidate,
+					'strings'  => array_map(callback: 'strval', array: $decoded['strings']),
+				];
+			}
+		}
+
+		return ['language' => '', 'strings' => []];
+	}//end translation()
+
+	/**
+	 * The directory that holds the seed files, with a trailing slash.
+	 *
+	 * @return string The directory.
+	 */
+	private static function seedDirectory(): string {
+		return dirname(path: __DIR__, levels: 2) . '/data/demo-seed/';
+	}//end seedDirectory()
+
+	/**
+	 * Decode a JSON file into an array.
+	 *
+	 * @param string $path The file.
+	 *
+	 * @return array<string, mixed>|null The decoded array, null when missing or not a JSON object.
+	 */
+	private static function readJson(string $path): array|null {
+		if (is_readable(filename: $path) === false) {
+			return null;
+		}
+
+		$decoded = json_decode(json: (string)file_get_contents(filename: $path), associative: true);
+		if (is_array($decoded) === false) {
+			return null;
+		}
+
+		return $decoded;
+	}//end readJson()
 
 	/**
 	 * Load a seed.
 	 *
 	 * @param string $seedId   The seed id.
 	 * @param string $password The password for users this run creates.
+	 * @param string $language The language of the texts, '' for the seed as written.
 	 *
-	 * @return array<string, mixed> What the run did: created users and groups,
-	 *                              and per dashboard its UUID, placed widgets,
-	 *                              skipped widget types and fallbacks used.
+	 * @return array<string, mixed> What the run did: the language applied,
+	 *                              created users and groups, and per dashboard
+	 *                              its UUID, placed widgets, skipped widget
+	 *                              types and fallbacks used.
 	 *
 	 * @throws InvalidArgumentException When the seed is unknown.
 	 * @throws RuntimeException         When a user or dashboard cannot be written.
 	 *
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
-	public function load(string $seedId, string $password = self::DEFAULT_PASSWORD): array {
-		$seed   = $this->definition(seedId: $seedId);
+	public function load(string $seedId, string $password = self::DEFAULT_PASSWORD, string $language = ''): array {
+		$seed   = $this->definition(seedId: $seedId, language: $language);
 		$report = $this->seedAccounts(seed: $seed, password: $password);
+
+		$report['language'] = $this->translation(seedId: $seedId, language: $language)['language'];
 
 		$this->content->mergeAppConfig(values: (array)($seed['appConfig'] ?? []));
 		$report['catalogue']     = $this->content->seedCatalogue(tiles: (array)($seed['tiles'] ?? []));

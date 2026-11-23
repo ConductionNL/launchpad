@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
+use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementMapper;
 use OCA\LaunchPad\Db\CatalogueApp;
 use OCA\LaunchPad\Db\Dashboard;
@@ -78,6 +79,8 @@ class DemoSeedServiceTest extends TestCase {
 
 	/** @var array<string, CatalogueApp> Catalogue entries by name. */
 	private array $catalogue = [];
+
+	private array $announcementRows = [];
 
 	/** @var integer The next fake database id. */
 	private int $nextId = 1;
@@ -204,6 +207,51 @@ class DemoSeedServiceTest extends TestCase {
 		$this->assertContains(needle: 'app-tile', haystack: $types);
 		$this->assertContains(needle: 'tile', haystack: $types);
 	}//end testUnregisteredWidgetsAreSkippedOrFallBack()
+
+	/**
+	 * Loading in English after Dutch renames the dashboards, the catalogue
+	 * and the announcements in place, and keeps identifiers and data.
+	 *
+	 * @return void
+	 */
+	public function testEnglishRunTranslatesInPlace(): void {
+		$this->service->load(seedId: 'zuiddrecht-boards');
+		$report = $this->service->load(seedId: 'zuiddrecht-boards', language: 'en_GB');
+
+		$this->assertSame(expected: 'en', actual: $report['language']);
+		$this->assertSame(
+			expected: ['Today', 'My workplace', 'Zuiddrecht intranet', 'Permits team', 'Management information'],
+			actual: array_column(array: $report['dashboards'], column_key: 'name')
+		);
+		$this->assertSame(expected: [false, false, false, false, false], actual: array_column(array: $report['dashboards'], column_key: 'created'));
+		$this->assertCount(expectedCount: 5, haystack: $this->dashboards);
+
+		$names = array_map(callback: fn (CatalogueApp $app): string => (string)$app->getName(), array: array_values(array: $this->catalogue));
+		$this->assertCount(expectedCount: 13, haystack: $names);
+		$this->assertContains(needle: 'Case system', haystack: $names);
+		$this->assertNotContains(needle: 'Zaaksysteem', haystack: $names);
+
+		$titles = array_map(callback: fn (Announcement $row): string => (string)$row->getTitle(), array: array_values(array: $this->announcementRows));
+		$this->assertContains(needle: 'Case system maintenance on Saturday 10 October, 08:00 to 12:00', haystack: $titles);
+
+		$contents = array_map(callback: fn (WidgetPlacement $p): string => (string)$p->getContent(), array: $this->placements);
+		$joined   = implode(separator: "\n", array: $contents);
+		$this->assertStringContainsString(needle: '"title":"Today"', haystack: $joined);
+		$this->assertStringContainsString(needle: '"assignee":"@me"', haystack: $joined);
+		$this->assertStringContainsString(needle: '"status":"In behandeling"', haystack: $joined);
+	}//end testEnglishRunTranslatesInPlace()
+
+	/**
+	 * A language without a translation loads the seed as written.
+	 *
+	 * @return void
+	 */
+	public function testUntranslatedLanguageLoadsTheSeedAsWritten(): void {
+		$report = $this->service->load(seedId: 'zuiddrecht-boards', language: 'fr');
+
+		$this->assertSame(expected: '', actual: $report['language']);
+		$this->assertSame(expected: 'Vandaag', actual: $report['dashboards'][0]['name']);
+	}//end testUntranslatedLanguageLoadsTheSeedAsWritten()
 
 	/**
 	 * Unknown seed is refused.
@@ -380,11 +428,16 @@ class DemoSeedServiceTest extends TestCase {
 		$catalogue->method('create')->willReturnCallback(function (array $input): CatalogueApp {
 			$app = new CatalogueApp();
 			$app->setName($input['name']);
-			$app->setUuid('uuid-' . $input['name']);
-			$this->catalogue[$input['name']] = $app;
+			$app->setLinkType($input['linkType']);
+			$app->setLinkValue($input['linkValue']);
+			$app->setUuid('uuid-' . count($this->catalogue));
+			$this->catalogue[$app->getUuid()] = $app;
 			return $app;
 		});
-		$catalogue->method('update')->willReturnCallback(fn (string $uuid, array $input): CatalogueApp => $this->catalogue[$input['name']]);
+		$catalogue->method('update')->willReturnCallback(function (string $uuid, array $input): CatalogueApp {
+			$this->catalogue[$uuid]->setName($input['name']);
+			return $this->catalogue[$uuid];
+		});
 		return $catalogue;
 	}//end catalogue()
 
@@ -395,7 +448,18 @@ class DemoSeedServiceTest extends TestCase {
 	 */
 	private function announcements(): AnnouncementMapper {
 		$mapper = $this->createMock(originalClassName: AnnouncementMapper::class);
-		$mapper->method('findByUuid')->willThrowException(new DoesNotExistException('none'));
+		$mapper->method('findByUuid')->willReturnCallback(function (string $uuid): Announcement {
+			if (isset($this->announcementRows[$uuid]) === false) {
+				throw new DoesNotExistException('none');
+			}
+
+			return $this->announcementRows[$uuid];
+		});
+		$mapper->method('insert')->willReturnCallback(function (Announcement $row): Announcement {
+			$this->announcementRows[(string)$row->getUuid()] = $row;
+			return $row;
+		});
+		$mapper->method('update')->willReturnCallback(fn (Announcement $row): Announcement => $row);
 		return $mapper;
 	}//end announcements()
 

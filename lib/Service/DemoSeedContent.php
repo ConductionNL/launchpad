@@ -79,7 +79,9 @@ class DemoSeedContent {
 	}//end mergeAppConfig()
 
 	/**
-	 * Add or update one catalogue entry per seeded tile, matched by name.
+	 * Add or update one catalogue entry per seeded tile, matched by name, or
+	 * by the app or address it opens (so a seed loaded in another language
+	 * renames its entries instead of adding a second set).
 	 *
 	 * @param array<string, array<string, mixed>> $tiles The seed's tile catalogue.
 	 *
@@ -88,17 +90,20 @@ class DemoSeedContent {
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function seedCatalogue(array $tiles): array {
-		$existing = [];
+		$byName = [];
+		$byLink = [];
 		foreach ($this->catalogue->listAll() as $app) {
-			$existing[(string)$app->getName()] = (string)$app->getUuid();
+			$byName[(string)$app->getName()] = (string)$app->getUuid();
+			$byLink[(string)$app->getLinkType() . ':' . (string)$app->getLinkValue()] ??= (string)$app->getUuid();
 		}
 
 		$counts   = ['created' => 0, 'updated' => 0];
 		$position = 0;
 		foreach ($tiles as $tile) {
 			$input = $this->catalogueInput(tile: $tile, position: $position++);
-			if (isset($existing[$input['name']]) === true) {
-				$this->catalogue->update(uuid: $existing[$input['name']], input: $input);
+			$uuid  = ($byName[$input['name']] ?? $byLink[$input['linkType'] . ':' . $input['linkValue']] ?? null);
+			if ($uuid !== null) {
+				$this->catalogue->update(uuid: $uuid, input: $input);
 				$counts['updated']++;
 				continue;
 			}

@@ -224,6 +224,7 @@ export default {
 		 * and accessible name (the app tiles of LpVandaag and LpWerkplek).
 		 *
 		 * @return {boolean}
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		iconOnly() {
 			return this.content?.iconOnly === true

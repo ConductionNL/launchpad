@@ -214,6 +214,12 @@
 				:widgetNames="filterWidgetNames"
 				@remove="onFilterRemove"
 				@reset="onFilterReset" />
+			<FilterBreadcrumb
+				v-if="activeDashboard && filterSession"
+				:hierarchies="filterSession.bus.hierarchies"
+				:clauses="filterClauses"
+				:labels="filterSession.labels"
+				@pop="onFilterPop" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -496,6 +502,7 @@ import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
+import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
@@ -513,7 +520,7 @@ import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
-import { getWidgetTypeEntry, listWidgetTypes } from '../constants/widgetRegistry.js'
+import { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import {
@@ -649,6 +656,7 @@ export default {
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
 		ActiveFiltersPanel,
+		FilterBreadcrumb,
 		DeleteDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
@@ -662,6 +670,13 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
+		},
+
+		// Which apps behind the integration widgets are enabled for the
+		// viewer (wiki-widget REQ-WIKI-004); the picker leaves out the rest.
+		integrationApps: {
+			from: 'integrationApps',
+			default: () => ({}),
 		},
 
 		primaryGroupName: {
@@ -978,12 +993,14 @@ export default {
 		 * role does not permit, REQ-RFP-001). Of the rest: every placement in
 		 * edit mode, and outside it every placement but an object-list that
 		 * asked to be hidden when its register is not on this instance
-		 * (REQ-TMPL-022). In edit mode the list stays, so whoever edits sees
-		 * it is there.
+		 * (REQ-TMPL-022), and every widget that reads through an app that is
+		 * not enabled for the viewer (REQ-CASES-004). In edit mode they stay,
+		 * so whoever edits sees they are there.
 		 *
 		 * @return {object[]} the placements to lay out.
 		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
 		 */
 		shownPlacements() {
 			const all = (this.widgetPlacements || []).filter(
@@ -994,8 +1011,9 @@ export default {
 			}
 			return all.filter(
 				(p) =>
-					!hidesWhenUnavailable(p)
-					|| this.unavailableSources[sourceKey(p.content)] !== true,
+					(!hidesWhenUnavailable(p)
+					|| this.unavailableSources[sourceKey(p.content)] !== true)
+					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
 			)
 		},
 
@@ -1258,6 +1276,7 @@ export default {
 		 */
 		customWidgetTypes() {
 			return listWidgetTypes()
+				.filter((type) => offeredForViewer(getWidgetTypeEntry(type), this.integrationApps))
 				.map((type) => ({ type, title: getWidgetTypeEntry(type)?.displayName || type }))
 				.sort((left, right) => left.title.localeCompare(right.title))
 		},
@@ -3242,6 +3261,17 @@ export default {
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
+		},
+
+		/**
+		 * A drill-down breadcrumb step was chosen: go back up to that level.
+		 *
+		 * @param {string} dimension The level's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 */
+		onFilterPop(dimension) {
+			this.filterSession?.popTo(dimension)
 		},
 
 		/**

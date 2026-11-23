@@ -382,6 +382,43 @@ class CalendarWidgetServiceTest extends TestCase {
 	}//end testInternalInstancesAreEventsWithTheirCalendar()
 
 	/**
+	 * NC's search names a calendar only by key; a widget that lists the
+	 * calendar by its URI (`personal`, as the seeds and starter widgets do)
+	 * or by its name still gets that calendar's events, and only those.
+	 *
+	 * @return void
+	 */
+	public function testInternalCalendarsMatchByUriAndName(): void {
+		$personal = $this->createMock(\OCP\Calendar\ICalendar::class);
+		$personal->method('getKey')->willReturn('7311');
+		$personal->method('getUri')->willReturn('personal');
+		$personal->method('getDisplayName')->willReturn('Personal');
+		$team = $this->createMock(\OCP\Calendar\ICalendar::class);
+		$team->method('getKey')->willReturn('7325');
+		$team->method('getUri')->willReturn('team');
+		$team->method('getDisplayName')->willReturn('Team');
+		$event = static fn (string $title): array => ['SUMMARY' => [$title, []], 'UID' => [$title, []], 'DTSTART' => [new \DateTimeImmutable('2026-11-24T09:30:00+01:00'), []]];
+		$calendars = $this->createMock(\OCP\Calendar\IManager::class);
+		$calendars->method('getCalendars')->willReturn([$personal, $team]);
+		$calendars->method('search')->willReturn([
+			['calendar-key' => '7311', 'objects' => [$event('Week planning')]],
+			['calendar-key' => '7325', 'objects' => [$event('Stand-up')]],
+		]);
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $this->urlValidator),
+			logger: $this->logger,
+			calendarMgr: $calendars
+		);
+		$titles = static fn (array $result): array => array_column($result['events'], 'title');
+
+		$this->assertSame(['Week planning'], $titles($service->fetchInternalEvents(['personal'], '2026-11-24', '2026-11-25')));
+		$this->assertSame(['Stand-up'], $titles($service->fetchInternalEvents(['Team'], '2026-11-24', '2026-11-25')));
+		$this->assertSame(['Week planning', 'Stand-up'], $titles($service->fetchInternalEvents(['7311', 'team'], '2026-11-24', '2026-11-25')));
+		$this->assertSame([], $titles($service->fetchInternalEvents(['contact_birthdays'], '2026-11-24', '2026-11-25')));
+	}//end testInternalCalendarsMatchByUriAndName()
+
+	/**
 	 * A cache miss re-validates the URL before any request; a refused URL is never fetched.
 	 *
 	 * @return void

@@ -41,6 +41,7 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses \OCA\LaunchPad\Db\Dashboard
  * @uses \OCA\LaunchPad\Db\DashboardTranslation
  * @uses \OCA\LaunchPad\Db\DashboardTranslationMapper
+ * @uses \OCA\LaunchPad\Controller\UserResponses
  */
 class DashboardTranslationApiControllerResolvedTest extends TestCase {
 

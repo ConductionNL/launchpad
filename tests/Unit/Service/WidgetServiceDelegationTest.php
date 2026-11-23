@@ -39,6 +39,9 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Service\WidgetRendering
  * @uses   \OCA\LaunchPad\Service\MenuService
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Service\LinksContentValidator
+ * @uses   \OCA\LaunchPad\Service\TextTableValidator
+ * @uses   \OCA\LaunchPad\Service\MapContentValidator
  */
 class WidgetServiceDelegationTest extends TestCase {
 	private IManager&MockObject $manager;

@@ -33,6 +33,8 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Dashboard\NewsWidget
  * @covers \OCA\LaunchPad\Dashboard\LaunchPadApiWidget
+ * @uses \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses \OCA\LaunchPad\Service\NewsWidgetService
  */
 class NewsWidgetTest extends TestCase {
 

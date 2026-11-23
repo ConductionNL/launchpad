@@ -39,6 +39,13 @@ use Psr\Log\NullLogger;
  * The status of a read that finds nothing for the caller.
  *
  * @covers \OCA\LaunchPad\Controller\DashboardApiController
+ * @uses \OCA\LaunchPad\Controller\ActorResponses
+ * @uses \OCA\LaunchPad\Controller\DashboardApiAccess
+ * @uses \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses \OCA\LaunchPad\Controller\RequestActor
+ * @uses \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses \OCA\LaunchPad\Controller\UserResponses
  */
 class DashboardApiControllerShowAccessTest extends TestCase {
 

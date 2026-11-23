@@ -36,6 +36,13 @@ use Psr\Log\NullLogger;
  *
  * @covers \OCA\LaunchPad\Mcp\McpDashboardWriteTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Exception\DashboardHasChildrenException
+ * @uses   \OCA\LaunchPad\Exception\PersonalDashboardsDisabledException
+ * @uses   \OCA\LaunchPad\Exception\ResourceException
  */
 class McpDashboardWriteToolsTest extends TestCase {
 

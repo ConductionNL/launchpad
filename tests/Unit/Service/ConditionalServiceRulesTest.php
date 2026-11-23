@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Service\ConditionalService
  *
  * @uses \OCA\LaunchPad\Db\ConditionalRule
+ * @uses \OCA\LaunchPad\Db\WidgetPlacement
  */
 class ConditionalServiceRulesTest extends TestCase {
 

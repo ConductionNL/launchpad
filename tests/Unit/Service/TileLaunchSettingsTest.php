@@ -22,6 +22,7 @@ use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\TileLaunchSettings;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -29,6 +30,8 @@ use PHPUnit\Framework\TestCase;
  * The allowed program schemes and the SSO launch templates, checked on write and on read.
  */
 #[CoversClass(TileLaunchSettings::class)]
+#[UsesClass(\OCA\LaunchPad\Db\AdminSetting::class)]
+#[UsesClass(\OCA\LaunchPad\Service\AdminSettingsService::class)]
 class TileLaunchSettingsTest extends TestCase {
 
 	/**

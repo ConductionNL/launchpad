@@ -40,6 +40,10 @@ use RuntimeException;
  *
  * @covers \OCA\LaunchPad\Service\OfficeTilesService
  * @uses   \OCA\LaunchPad\Service\OfficeFileRequest
+ * @uses   \OCA\LaunchPad\Exception\InvalidDirectoryException
+ * @uses   \OCA\LaunchPad\Exception\InvalidFilenameException
+ * @uses   \OCA\LaunchPad\Exception\ResourceException
+ * @uses   \OCA\LaunchPad\Exception\StorageFailureException
  */
 class OfficeTilesServiceTest extends TestCase {
 

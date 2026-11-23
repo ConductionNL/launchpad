@@ -36,6 +36,9 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Mcp\McpCatalogueTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
  * @uses   \OCA\LaunchPad\Db\Tile
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses   \OCA\LaunchPad\Mcp\McpCatalogueSources
  */
 class McpCatalogueToolsTilesTest extends TestCase {
 

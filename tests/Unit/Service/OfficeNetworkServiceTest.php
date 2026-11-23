@@ -38,6 +38,8 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\LaunchPad\Service\OfficeNetworkService
  * @covers \OCA\LaunchPad\Service\AdminSettingsService
+ * @uses \OCA\LaunchPad\Db\AdminSetting
+ * @uses \OCA\LaunchPad\Service\TileLaunchSettings
  *
  * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
  */

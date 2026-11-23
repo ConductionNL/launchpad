@@ -47,6 +47,9 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Service\PlacementUpdaters
  * @uses   \OCA\LaunchPad\Service\TileUpdater
  * @uses   \OCA\LaunchPad\Exception\QuotaExceededException
+ * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Service\TileLinkTarget
+ * @uses   \OCA\LaunchPad\Service\TileLinkValidator
  */
 class PlacementServiceBookmarkImportTest extends TestCase {
 	/** @var WidgetPlacementMapper&MockObject */

@@ -55,6 +55,7 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\DashboardVersion
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Service\Versions\SnapshotChangeDescriber
  */
 class DashboardVersionServiceCoverageTest extends TestCase {
 

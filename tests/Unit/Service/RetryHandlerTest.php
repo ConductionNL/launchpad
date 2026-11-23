@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \OCA\LaunchPad\Service\RetryHandler
+ * @uses \OCA\LaunchPad\Service\RetryAttempt
  *
  * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-006-retry-with-exponential-backoff-and-dead-letter
  */

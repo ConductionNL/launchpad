@@ -36,7 +36,11 @@ let catalogueLoad = null
  */
 export function loadIconCatalogue() {
 	if (!catalogueLoad) {
-		catalogueLoad = import(/* webpackChunkName: "mdi-icons" */ '@mdi/js')
+		// The CommonJS build, not '@mdi/js' itself: components import single
+		// icons from '@mdi/js' statically, and a namespace import of that
+		// same module made webpack keep all 7000 paths in the first-load
+		// bundle. A module of its own stays in this lazy chunk.
+		catalogueLoad = import(/* webpackChunkName: "mdi-icons" */ '@mdi/js/commonjs/mdi.js')
 			.then((mdi) => {
 				const icons = markRaw({ ...mdi })
 				ICON_CATALOGUE.splice(0, ICON_CATALOGUE.length, ...mdiCatalogue(icons))

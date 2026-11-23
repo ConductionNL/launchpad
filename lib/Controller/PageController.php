@@ -119,8 +119,7 @@ class PageController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(string $deepLink = ''): TemplateResponse {
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		$this->addWorkspaceAssets();
 
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
@@ -770,6 +769,16 @@ class PageController extends Controller {
 
 		return $default;
 	}//end kioskRenderAs()
+
+	/**
+	 * Add the `launchpad-main` script and the app stylesheet to the page.
+	 *
+	 * @return void
+	 */
+	protected function addWorkspaceAssets(): void {
+		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
+		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+	}//end addWorkspaceAssets()
 
 	/**
 	 * Add the `launchpad-public` script and the app stylesheet to the page.

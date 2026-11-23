@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Vises nå: {name}",
         "Own look": "Eget utseende",
         "view only": "bare vise",
-        "you may add widgets": "du kan legge til widgeter"
+        "you may add widgets": "du kan legge til widgeter",
+        "{app}, outage": "{app}, driftsforstyrrelse",
+        "{app}, {count} open": "{app}, {count} åpne",
+        "{app}, pinned": "{app}, festet"
     }
 }

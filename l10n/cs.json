@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Nyní zobrazeno: {name}",
         "Own look": "Vlastní vzhled",
         "view only": "jen zobrazení",
-        "you may add widgets": "můžete přidávat widgety"
+        "you may add widgets": "můžete přidávat widgety",
+        "{app}, outage": "{app}, výpadek",
+        "{app}, {count} open": "{app}, {count} otevřených",
+        "{app}, pinned": "{app}, připnuto"
     }
 }

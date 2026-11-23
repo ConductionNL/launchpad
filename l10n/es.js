@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, incidencia",
+    "{app}, {count} open" : "{app}, {count} abiertos",
+    "{app}, pinned" : "{app}, fijado",
     "view only" : "solo ver",
     "you may add widgets" : "puede añadir widgets",
     "Own look" : "Aspecto propio",

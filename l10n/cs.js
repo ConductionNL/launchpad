@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, výpadek",
+    "{app}, {count} open" : "{app}, {count} otevřených",
+    "{app}, pinned" : "{app}, připnuto",
     "view only" : "jen zobrazení",
     "you may add widgets" : "můžete přidávat widgety",
     "Own look" : "Vlastní vzhled",

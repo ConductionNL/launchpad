@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Τώρα εμφανίζεται: {name}",
         "Own look": "Δική του εμφάνιση",
         "view only": "μόνο προβολή",
-        "you may add widgets": "μπορείτε να προσθέσετε widget"
+        "you may add widgets": "μπορείτε να προσθέσετε widget",
+        "{app}, outage": "{app}, διακοπή",
+        "{app}, {count} open": "{app}, {count} ανοιχτά",
+        "{app}, pinned": "{app}, καρφιτσωμένο"
     }
 }

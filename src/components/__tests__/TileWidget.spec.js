@@ -64,7 +64,7 @@ describe('TileWidget', () => {
 		const marked = mount(TileWidget, { props: { tile: tile({ title: 'Outlook web' }), content: { iconOnly: true, pinned: true, badge: 3 } } })
 		expect(marked.find('[data-testid="tile-pin"]').exists()).toBe(true)
 		expect(marked.find('[data-testid="tile-badge"]').text()).toBe('3')
-		expect(marked.find('a').attributes('aria-label')).toBe('Outlook web, 3 new, pinned')
+		expect(marked.find('a').attributes('aria-label')).toBe('Outlook web, 3 open, pinned')
 
 		const down = mount(TileWidget, { props: { tile: tile({ title: 'Council' }), content: { iconOnly: true, status: 'down', badge: 4 } } })
 		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(true)
@@ -73,6 +73,31 @@ describe('TileWidget', () => {
 
 		const many = mount(TileWidget, { props: { tile: tile(), content: { iconOnly: true, badge: 140 } } })
 		expect(many.find('[data-testid="tile-badge"]').text()).toBe('99+')
+	})
+
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
+	it('reads "Zaaksysteem, 14 open" and keeps every mark decorative', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'Zaaksysteem' }), content: { iconOnly: true, pinned: true, badge: 14 } } })
+		const link = wrapper.find('a')
+		expect(link.attributes('aria-label')).toBe('Zaaksysteem, 14 open, pinned')
+		expect(link.attributes('title')).toBe('Zaaksysteem')
+		expect(wrapper.find('[data-testid="tile-badge"]').attributes('aria-hidden')).toBe('true')
+		expect(wrapper.find('[data-testid="tile-pin"]').attributes('aria-hidden')).toBe('true')
+		expect(wrapper.text()).not.toContain('Zaaksysteem')
+	})
+
+	it('names no count for 0, a negative or an unreadable badge', () => {
+		for (const badge of [0, -2, 'many', undefined]) {
+			const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'Mail' }), content: { iconOnly: true, badge } } })
+			expect(wrapper.find('[data-testid="tile-badge"]').exists()).toBe(false)
+			expect(wrapper.find('a').attributes('aria-label')).toBe('Mail')
+		}
+	})
+
+	it('keeps its own drag grip and menu in edit mode as an app tile', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'Mail' }), content: { iconOnly: true }, editMode: true } })
+		expect(wrapper.find('[data-testid="tile-drag-grip"]').exists()).toBe(true)
+		expect(wrapper.find('.tile-widget__edit').exists()).toBe(true)
 	})
 
 	it('keeps the name under the glyph without iconOnly', () => {

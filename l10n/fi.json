@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Nyt näytössä: {name}",
         "Own look": "Oma ulkoasu",
         "view only": "vain katselu",
-        "you may add widgets": "voit lisätä pienoisohjelmia"
+        "you may add widgets": "voit lisätä pienoisohjelmia",
+        "{app}, outage": "{app}, häiriö",
+        "{app}, {count} open": "{app}, {count} avoinna",
+        "{app}, pinned": "{app}, kiinnitetty"
     }
 }

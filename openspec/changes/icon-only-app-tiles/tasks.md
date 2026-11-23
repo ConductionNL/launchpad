@@ -1,6 +1,6 @@
 # Tasks: icon-only-app-tiles
 
-- [ ] `TileWidget.vue`: icon-only render (square, white icon at about 45%, no label), the title as accessible name and tooltip, the marks `aria-hidden` and their meaning in the accessible name
+- [x] `TileWidget.vue`: icon-only render (square, white icon at about 45%, no label), the title as accessible name and tooltip, the marks `aria-hidden` and their meaning in the accessible name
 - [ ] Count resolver (`src/services/tileCount.js`): `register` sources through OpenRegister's count with `@me` replaced by the viewer, `nc-widget` sources through the dashboard API v2 items; at most once a minute; no pill on 0, error or missing app
 - [ ] Outage dot from the tile's health ping result (REQ-HPING-003 cache) in place of the count; drop the static `content.status` and `content.badge` reads
 - [ ] Tile form (`src/modals/TileEditor.vue`): colour as a radio group of the eight theme tokens with a white icon preview; store `colourToken`; hex colours keep rendering

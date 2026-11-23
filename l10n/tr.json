@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Şimdi gösteriliyor: {name}",
         "Own look": "Kendi görünümü",
         "view only": "yalnızca görüntüleme",
-        "you may add widgets": "widget ekleyebilirsiniz"
+        "you may add widgets": "widget ekleyebilirsiniz",
+        "{app}, outage": "{app}, kesinti",
+        "{app}, {count} open": "{app}, {count} açık",
+        "{app}, pinned": "{app}, sabitlendi"
     }
 }

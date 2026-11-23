@@ -1414,6 +1414,9 @@
         "Now showing {name}": "Qed jintwera issa: {name}",
         "Own look": "Dehra proprja",
         "view only": "tara biss",
-        "you may add widgets": "tista' żżid widgets"
+        "you may add widgets": "tista' żżid widgets",
+        "{app}, outage": "{app}, waqfa",
+        "{app}, {count} open": "{app}, {count} miftuħa",
+        "{app}, pinned": "{app}, imwaħħal"
     }
 }

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, întrerupere",
+    "{app}, {count} open" : "{app}, {count} deschise",
+    "{app}, pinned" : "{app}, fixat",
     "view only" : "doar vizualizare",
     "you may add widgets" : "puteți adăuga widgeturi",
     "Own look" : "Aspect propriu",

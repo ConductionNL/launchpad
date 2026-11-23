@@ -1416,6 +1416,9 @@
         "Now showing {name}": "Á thaispeáint anois: {name}",
         "Own look": "Cuma féin",
         "view only": "féachaint amháin",
-        "you may add widgets": "is féidir leat giuirléidí a chur leis"
+        "you may add widgets": "is féidir leat giuirléidí a chur leis",
+        "{app}, outage": "{app}, briseadh seirbhíse",
+        "{app}, {count} open": "{app}, {count} oscailte",
+        "{app}, pinned": "{app}, pionnáilte"
     }
 }

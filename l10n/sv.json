@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Visas nu: {name}",
         "Own look": "Eget utseende",
         "view only": "endast visa",
-        "you may add widgets": "du får lägga till widgetar"
+        "you may add widgets": "du får lägga till widgetar",
+        "{app}, outage": "{app}, driftstörning",
+        "{app}, {count} open": "{app}, {count} öppna",
+        "{app}, pinned": "{app}, fäst"
     }
 }

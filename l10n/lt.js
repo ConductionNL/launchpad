@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{app}, outage" : "{app}, sutrikimas",
+    "{app}, {count} open" : "{app}, {count} atviri",
+    "{app}, pinned" : "{app}, prisegta",
     "view only" : "tik peržiūra",
     "you may add widgets" : "galite pridėti valdiklių",
     "Own look" : "Sava išvaizda",

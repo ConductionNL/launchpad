@@ -2169,6 +2169,9 @@
         "Administration settings": "Beheerinstellingen",
         "Controls": "Bediening",
         "Versions and analytics": "Versies en analyse",
-        "Organisation menu": "Organisatiemenu"
+        "Organisation menu": "Organisatiemenu",
+        "{app}, outage": "{app}, storing",
+        "{app}, {count} open": "{app}, {count} open",
+        "{app}, pinned": "{app}, vastgezet"
     }
 }

@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Affiché maintenant : {name}",
         "Own look": "Apparence propre",
         "view only": "consultation seule",
-        "you may add widgets": "vous pouvez ajouter des widgets"
+        "you may add widgets": "vous pouvez ajouter des widgets",
+        "{app}, outage": "{app}, panne",
+        "{app}, {count} open": "{app}, {count} ouverts",
+        "{app}, pinned": "{app}, épinglé"
     }
 }

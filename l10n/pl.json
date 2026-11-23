@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Teraz wyświetlane: {name}",
         "Own look": "Własny wygląd",
         "view only": "tylko podgląd",
-        "you may add widgets": "możesz dodawać widżety"
+        "you may add widgets": "możesz dodawać widżety",
+        "{app}, outage": "{app}, awaria",
+        "{app}, {count} open": "{app}, {count} otwartych",
+        "{app}, pinned": "{app}, przypięty"
     }
 }

@@ -1410,6 +1410,9 @@
         "Now showing {name}": "Most látható: {name}",
         "Own look": "Saját megjelenés",
         "view only": "csak megtekintés",
-        "you may add widgets": "hozzáadhat widgeteket"
+        "you may add widgets": "hozzáadhat widgeteket",
+        "{app}, outage": "{app}, üzemzavar",
+        "{app}, {count} open": "{app}, {count} nyitott",
+        "{app}, pinned": "{app}, rögzítve"
     }
 }

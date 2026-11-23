@@ -1412,6 +1412,9 @@
         "Now showing {name}": "Tagad redzams: {name}",
         "Own look": "Savs izskats",
         "view only": "tikai skatīt",
-        "you may add widgets": "jūs varat pievienot logrīkus"
+        "you may add widgets": "jūs varat pievienot logrīkus",
+        "{app}, outage": "{app}, traucējums",
+        "{app}, {count} open": "{app}, {count} atvērti",
+        "{app}, pinned": "{app}, piesprausts"
     }
 }

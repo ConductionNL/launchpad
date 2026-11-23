@@ -99,11 +99,15 @@ export function recentWorkRows(activities, limit, now, locale, apps = []) {
 		if (apps.length > 0 && !apps.includes(activity.app)) {
 			continue
 		}
+		// One row per thing: the same file saved again gets a new id, so the
+		// name within its app counts as the same thing too.
 		const key = `${activity.object_type ?? ''}:${activity.object_id ?? name}`
-		if (seen.has(key)) {
+		const nameKey = `${activity.app ?? ''}:${name}`
+		if (seen.has(key) || seen.has(nameKey)) {
 			continue
 		}
 		seen.add(key)
+		seen.add(nameKey)
 		const app = APP_LABELS[activity.app] ?? activity.app ?? ''
 		rows.push({
 			key,

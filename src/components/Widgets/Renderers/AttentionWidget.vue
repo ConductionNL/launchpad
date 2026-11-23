@@ -123,7 +123,7 @@
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import WidgetRowFilter from '../WidgetRowFilter.vue'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
-import { loadAttentionFeed } from '../../../services/attentionFeed.js'
+import { expandToRecords, loadAttentionFeed } from '../../../services/attentionFeed.js'
 import { logger } from '../../../utils/logger.js'
 import { filterRows } from '../../../utils/rowFilter.js'
 
@@ -148,7 +148,7 @@ export default {
 	},
 
 	props: {
-		/** Persisted widget content: `{ limit }`. */
+		/** Persisted widget content: `{ limit, layout, columns, itemCards }`; `itemCards` draws one card per record. */
 		content: OBJECT_PROP,
 	},
 
@@ -281,8 +281,11 @@ export default {
 			this.loading = true
 			this.loadFailed = false
 			try {
-				const feed = await loadAttentionFeed()
-				this.items = feed.items
+				const perRecord = this.content?.itemCards === true
+				const feed = await loadAttentionFeed({ perSource: perRecord ? this.limit : 1 })
+				this.items = perRecord
+					? expandToRecords(feed.items, (schema) => t('launchpad', 'Open {item}', { item: schema || t('launchpad', 'item') }))
+					: feed.items
 				this.failedApps = feed.failedApps
 				this.sourceCount = feed.sourceCount
 			} catch (error) {

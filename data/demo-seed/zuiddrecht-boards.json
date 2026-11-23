@@ -380,7 +380,8 @@
 						"columns": 3,
 						"limit": 3,
 						"showActions": false,
-						"fitRows": true
+						"fitRows": true,
+						"itemCards": true
 					}
 				},
 				{
@@ -788,9 +789,14 @@
 					"showTitle": 1,
 					"customTitle": "Zoeken op internet",
 					"content": {
-						"placeholder": "Zoeken op internet (DuckDuckGo)",
+						"placeholder": "Zoek op internet",
 						"fallbackTarget": "",
-						"showActions": false
+						"showActions": false,
+						"layout": "web",
+						"engine": {
+							"name": "DuckDuckGo",
+							"url": "https://duckduckgo.com/?q={q}"
+						}
 					}
 				},
 				{

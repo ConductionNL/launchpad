@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { t } from '@nextcloud/l10n'
+import { translate as t } from '@nextcloud/l10n'
 import { NcTextField } from '@nextcloud/vue'
 import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/propDefinitions.js'
 

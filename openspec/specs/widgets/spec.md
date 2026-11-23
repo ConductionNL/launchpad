@@ -1049,7 +1049,7 @@ When a person places a widget that another Nextcloud app registers, such as the 
 
 The `section-heading` widget ("Tussenkop", boards `launchpad/LpIntranet` and `launchpad/LpWerkplek`) MUST head the widgets or app tiles that follow it on the grid. It MUST draw a 20px bold title, one 14px muted line of explanation when it has one, and a 1px rule below, on the page ground without a card. A new one MUST span the grid's full width and be one row tall. Its content is `{title, description}`, and its form requires a title.
 
-The picker MUST offer it as "Section heading" (nl "Tussenkop") among the widgets from Launchpad, with the icon `format-header-1`, to everyone. The label widget's group heading stays for existing placements; it has no line of explanation, so it is not the Tussenkop.
+The picker MUST offer it as "Section heading" (nl "Tussenkop") among the widgets from Launchpad, with the icon `format-header-1`, to everyone. The Zuiddrecht demo seed heads its groups with it as the boards draw them (Mijn werkplek, Intranet Zuiddrecht, Team Vergunningen), and the start page Vandaag keeps its six app tiles straight on the grid with no heading. The label widget's group heading stays for existing placements; it has no line of explanation, so it is not the Tussenkop.
 
 #### Scenario: A section heading heads a group
 - GIVEN an editor in edit mode
@@ -1057,13 +1057,6 @@ The picker MUST offer it as "Section heading" (nl "Tussenkop") among the widgets
 - THEN the grid MUST show a full-width heading "Samenwerken" with that line below it and a rule under both, without a card
 
 @e2e openspec/specs/widgets/spec.md#req-wdg-031
-
-#### Scenario: The demo boards are headed by section headings
-- GIVEN the Zuiddrecht demo seed
-- WHEN it is loaded
-- THEN Mijn werkplek MUST carry the headings Mijn apps and Samenwerken, Intranet Zuiddrecht the headings Samenwerken, Nieuws en media, Collega's and Wegwijs, and Team Vergunningen Apps van het team, and the start page Vandaag MUST have its six app tiles straight on the grid with no heading
-
-@e2e exclude covered by tests/Unit/Service/DemoSeedBoardWidgetsTest.php, which reads the seed file itself; loading the seed needs the demo users and apps a Playwright run does not provision.
 
 ## Non-Functional Requirements
 

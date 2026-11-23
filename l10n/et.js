@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktiivsed filtrid",
     "Pinned filter" : "Kinnitatud filter",
     "Remove filter: {label}" : "Eemalda filter: {label}",
-    "Reset filters" : "Lähtesta filtrid",
+    "Reset filters" : "Lähtesta filtrid",,
+    "Personal dashboard" : "Isiklik töölaud",
+    "Personal dashboard · opens first" : "Isiklik töölaud · avaneb esimesena",
+    "Shared with you" : "Teiega jagatud",
+    "Last changed {when}" : "Viimati muudetud {when}",
+    "Last changed today {time}" : "Viimati muudetud täna {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

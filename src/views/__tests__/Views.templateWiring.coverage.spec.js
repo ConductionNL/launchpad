@@ -733,18 +733,19 @@ describe('Views — lifecycle', () => {
 			attach: true,
 		})
 		const controls = () => document.querySelector('[data-testid="launchpad-top-controls"]')
-		expect(controls().classList.contains('launchpad-floating-controls--docked')).toBe(false)
+		// Without a greeting row the page title row holds the controls.
+		expect(controls().closest('.launchpad-page-header')).not.toBeNull()
 
 		dashStore.widgetPlacements = [
 			{ id: 41, widgetId: 'nc-calendar', content: {} },
-			{ id: 42, widgetId: 'header', ground: true, content: {} },
+			{ id: 42, widgetId: 'header', ground: true, content: { ground: true } },
 		]
 		await flushPromises()
 		// The MutationObserver callback runs as a microtask after the DOM change.
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await flushPromises()
 
-		expect(controls().classList.contains('launchpad-floating-controls--docked')).toBe(true)
+		expect(controls().closest('.cn-header-widget--ground')).not.toBeNull()
 	}, 90000)
 
 	it('unmounting withdraws the presence and stops following the back button', async () => {

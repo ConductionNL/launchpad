@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktiiviset suodattimet",
     "Pinned filter" : "Kiinnitetty suodatin",
     "Remove filter: {label}" : "Poista suodatin: {label}",
-    "Reset filters" : "Tyhjennä suodattimet",
+    "Reset filters" : "Tyhjennä suodattimet",,
+    "Personal dashboard" : "Henkilökohtainen kojelauta",
+    "Personal dashboard · opens first" : "Henkilökohtainen kojelauta · avautuu ensimmäisenä",
+    "Shared with you" : "Jaettu kanssasi",
+    "Last changed {when}" : "Muutettu viimeksi {when}",
+    "Last changed today {time}" : "Muutettu viimeksi tänään {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

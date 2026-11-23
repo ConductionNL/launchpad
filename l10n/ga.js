@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Scagairí gníomhacha",
     "Pinned filter" : "Scagaire greamaithe",
     "Remove filter: {label}" : "Bain an scagaire: {label}",
-    "Reset filters" : "Athshocraigh na scagairí",
+    "Reset filters" : "Athshocraigh na scagairí",,
+    "Personal dashboard" : "Painéal pearsanta",
+    "Personal dashboard · opens first" : "Painéal pearsanta · osclaítear ar dtús é",
+    "Shared with you" : "Roinnte leat",
+    "Last changed {when}" : "Athraithe go deireanach {when}",
+    "Last changed today {time}" : "Athraithe go deireanach inniu {time}"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

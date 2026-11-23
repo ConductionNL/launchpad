@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktīvie filtri",
     "Pinned filter" : "Piesprausts filtrs",
     "Remove filter: {label}" : "Noņemt filtru: {label}",
-    "Reset filters" : "Atiestatīt filtrus",
+    "Reset filters" : "Atiestatīt filtrus",,
+    "Personal dashboard" : "Personīgais informācijas panelis",
+    "Personal dashboard · opens first" : "Personīgais informācijas panelis · atveras pirmais",
+    "Shared with you" : "Kopīgots ar jums",
+    "Last changed {when}" : "Pēdējās izmaiņas {when}",
+    "Last changed today {time}" : "Pēdējās izmaiņas šodien {time}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

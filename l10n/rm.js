@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Filters activs",
     "Pinned filter" : "Filter fixà",
     "Remove filter: {label}" : "Allontanar il filter: {label}",
-    "Reset filters" : "Reinizialisar ils filters",
+    "Reset filters" : "Reinizialisar ils filters",,
+    "Personal dashboard" : "Dashboard persunal",
+    "Personal dashboard · opens first" : "Dashboard persunal · vegn avert sco emprim",
+    "Shared with you" : "Partì cun Vus",
+    "Last changed {when}" : "Midà la davosa giada {when}",
+    "Last changed today {time}" : "Midà la davosa giada oz {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

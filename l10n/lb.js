@@ -1479,7 +1479,12 @@ OC.L10N.register(
     "Active filters" : "Aktiv Filteren",
     "Pinned filter" : "Fixéierte Filter",
     "Remove filter: {label}" : "Filter ewechhuelen: {label}",
-    "Reset filters" : "Filteren zrécksetzen",
+    "Reset filters" : "Filteren zrécksetzen",,
+    "Personal dashboard" : "Perséinlecht Dashboard",
+    "Personal dashboard · opens first" : "Perséinlecht Dashboard · gëtt als éischt opgemaach",
+    "Shared with you" : "Mat Iech gedeelt",
+    "Last changed {when}" : "Lescht geännert {when}",
+    "Last changed today {time}" : "Lescht geännert haut {time}"
 },
 "nplurals=2; plural=(n != 1);"
 );

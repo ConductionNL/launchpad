@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Filtri attivi",
     "Pinned filter" : "Filtru mwaħħal",
     "Remove filter: {label}" : "Neħħi l-filtru: {label}",
-    "Reset filters" : "Erġa' ssettja l-filtri",
+    "Reset filters" : "Erġa' ssettja l-filtri",,
+    "Personal dashboard" : "Dashboard personali",
+    "Personal dashboard · opens first" : "Dashboard personali · jinfetaħ l-ewwel",
+    "Shared with you" : "Maqsum miegħek",
+    "Last changed {when}" : "L-aħħar bidla {when}",
+    "Last changed today {time}" : "L-aħħar bidla llum {time}"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Aktyvūs filtrai",
     "Pinned filter" : "Prisegtas filtras",
     "Remove filter: {label}" : "Pašalinti filtrą: {label}",
-    "Reset filters" : "Atstatyti filtrus",
+    "Reset filters" : "Atstatyti filtrus",,
+    "Personal dashboard" : "Asmeninis skydelis",
+    "Personal dashboard · opens first" : "Asmeninis skydelis · atidaromas pirmas",
+    "Shared with you" : "Bendrinama su jumis",
+    "Last changed {when}" : "Paskutinį kartą keista {when}",
+    "Last changed today {time}" : "Paskutinį kartą keista šiandien {time}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1479,6 +1479,11 @@ OC.L10N.register(
     "Active filters" : "Активни филтери",
     "Pinned filter" : "Закачени филтер",
     "Remove filter: {label}" : "Уклони филтер: {label}",
-    "Reset filters" : "Поништи филтере",
+    "Reset filters" : "Поништи филтере",,
+    "Personal dashboard" : "Лична контролна табла",
+    "Personal dashboard · opens first" : "Лична контролна табла · отвара се прва",
+    "Shared with you" : "Подељено са вама",
+    "Last changed {when}" : "Последња измена {when}",
+    "Last changed today {time}" : "Последња измена данас {time}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

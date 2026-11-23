@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Активні фільтри",
     "Pinned filter" : "Закріплений фільтр",
     "Remove filter: {label}" : "Видалити фільтр: {label}",
-    "Reset filters" : "Скинути фільтри",
+    "Reset filters" : "Скинути фільтри",,
+    "Personal dashboard" : "Особиста панель",
+    "Personal dashboard · opens first" : "Особиста панель · відкривається першою",
+    "Shared with you" : "Надано вам",
+    "Last changed {when}" : "Остання зміна {when}",
+    "Last changed today {time}" : "Остання зміна сьогодні {time}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

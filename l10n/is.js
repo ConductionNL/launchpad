@@ -1488,7 +1488,12 @@ OC.L10N.register(
     "Active filters" : "Virkar síur",
     "Pinned filter" : "Fest sía",
     "Remove filter: {label}" : "Fjarlægja síu: {label}",
-    "Reset filters" : "Hreinsa síur",
+    "Reset filters" : "Hreinsa síur",,
+    "Personal dashboard" : "Persónulegt mælaborð",
+    "Personal dashboard · opens first" : "Persónulegt mælaborð · opnast fyrst",
+    "Shared with you" : "Deilt með þér",
+    "Last changed {when}" : "Síðast breytt {when}",
+    "Last changed today {time}" : "Síðast breytt í dag {time}"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

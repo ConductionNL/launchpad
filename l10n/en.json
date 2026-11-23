@@ -1729,6 +1729,10 @@
         "Now showing {name}": "Now showing {name}",
         "Own look": "Own look",
         "view only": "view only",
-        "you may add widgets": "you may add widgets"
+        "you may add widgets": "you may add widgets",
+        "Administration settings": "Administration settings",
+        "Controls": "Controls",
+        "Versions and analytics": "Versions and analytics",
+        "Organisation menu": "Organisation menu"
     }
 }

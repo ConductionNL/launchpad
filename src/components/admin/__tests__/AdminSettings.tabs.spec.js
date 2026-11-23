@@ -142,7 +142,7 @@ describe('AdminSettings page header', () => {
 	it('ends the path on the open tab, the first step a link', () => {
 		const crumbs = AdminSettings.computed.breadcrumbs.call(context('general'))
 		expect(crumbs).toEqual([
-			{ label: 'Admin settings', href: '/index.php/settings/admin' },
+			{ label: 'Administration settings', href: '/index.php/settings/admin' },
 			{ label: 'Launchpad' },
 			{ label: 'General' },
 		])

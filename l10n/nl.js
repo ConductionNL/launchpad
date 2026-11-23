@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Administration settings" : "Beheerinstellingen",
+    "Controls" : "Bediening",
+    "Versions and analytics" : "Versies en analyse",
+    "Organisation menu" : "Organisatiemenu",
     "view only" : "alleen bekijken",
     "you may add widgets" : "u mag widgets toevoegen",
     "Own look" : "Eigen uitstraling",

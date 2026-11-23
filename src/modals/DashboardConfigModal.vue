@@ -30,9 +30,11 @@
 			     follow the fleet tablist pattern (nc-vue CnTabbedFormDialog /
 			     NC sidebar tabs): justified tabs, icon + label, active
 			     primary underline. -->
+			<!-- cn-look-board keeps the theme's button rules off the tabs,
+			     which are drawn as words on an underline, not as buttons. -->
 			<ul
 				v-if="!isCreate"
-				class="dashboard-config__tabs"
+				class="dashboard-config__tabs cn-look-board"
 				role="tablist"
 				data-test="config-tabs">
 				<li
@@ -1552,14 +1554,16 @@ export default {
 	font-weight: 600;
 }
 
-/* Fleet tablist design (nc-vue CnTabbedFormDialog / NC sidebar tabs):
-   justified full-width tabs, icon + label, primary underline on the
-   active tab, border underline on hover. */
+/* Tabs as boards LpDashboardInstellingen and LpDelen draw them: words on
+   the strip's rule, 44px high, the active one bold over a 3px primary line. */
 .dashboard-config__tabs {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: flex-start;
+	gap: 4px;
 	list-style: none;
-	margin: 8px 0 16px;
+	/* Against the dialog's 20px gap: 12px under the title, 16px over the panel. */
+	margin: -8px 0 -4px;
 	padding: 0;
 	border-bottom: 1px solid var(--color-border);
 }
@@ -1569,35 +1573,39 @@ export default {
 	flex: none;
 }
 
-.dashboard-config__tab-item:hover {
-	background-color: var(--color-background-hover);
-}
-
-.dashboard-config__tab {
-	flex: 1;
-	display: flex;
+.dashboard-config__tabs .dashboard-config__tab {
+	display: inline-flex;
 	align-items: center;
-	justify-content: center;
 	gap: 8px;
-	background: transparent;
+	width: auto;
+	height: 44px;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 14px;
 	border: 0;
-	border-bottom: 2px solid transparent;
-	padding: 10px;
+	/* Core's hover and focus rules for buttons colour the border with a
+	   stronger selector; the underline is the tab's state, not the pointer's. */
+	border-bottom: 3px solid transparent !important;
+	border-radius: 0;
+	background: transparent;
 	cursor: pointer;
-	font: inherit;
-	text-align: center;
-	color: var(--color-text-maxcontrast);
+	font-family: var(--font-face);
+	font-size: 15px;
+	font-weight: 500;
+	white-space: nowrap;
+	color: color-mix(in srgb, var(--color-main-text) 85%, var(--color-main-background));
 }
 
-.dashboard-config__tab:hover {
-	border-bottom-color: var(--color-border);
+.dashboard-config__tabs .dashboard-config__tab:hover {
+	background: transparent;
+	border-bottom-color: var(--color-border) !important;
 }
 
-.dashboard-config__tab--active,
-.dashboard-config__tab--active:hover {
+.dashboard-config__tabs .dashboard-config__tab--active,
+.dashboard-config__tabs .dashboard-config__tab--active:hover {
 	color: var(--color-main-text);
-	border-bottom-color: var(--color-primary-element);
-	font-weight: 600;
+	border-bottom-color: var(--color-primary-element) !important;
+	font-weight: 700;
 }
 
 /*
@@ -1805,13 +1813,14 @@ export default {
 
 /* The count on the Delen tab (board LpDashboardInstellingen). */
 .dashboard-config__tab-count {
-	min-width: 20px;
+	min-width: 22px;
+	box-sizing: border-box;
 	padding: 0 6px;
-	border-radius: var(--border-radius-pill);
-	background: var(--color-background-dark);
+	border-radius: 11px;
+	background: var(--color-border);
 	font-size: 12px;
-	font-weight: 600;
-	line-height: 20px;
+	font-weight: 700;
+	line-height: 22px;
 	text-align: center;
 }
 

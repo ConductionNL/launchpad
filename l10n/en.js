@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Administration settings" : "Administration settings",
+    "Controls" : "Controls",
+    "Versions and analytics" : "Versions and analytics",
+    "Organisation menu" : "Organisation menu",
     "view only" : "view only",
     "you may add widgets" : "you may add widgets",
     "Own look" : "Own look",

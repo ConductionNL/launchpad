@@ -233,4 +233,43 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		$this->assertArrayNotHasKey(key: 'fallback', array: $pie);
 		$this->assertArrayNotHasKey(key: 'fallback', array: $graph);
 	}//end testChartsCarryTheirEnteredValues()
+
+	/**
+	 * The shared boards draw their widget cards without an Actions menu, as
+	 * the personal ones do.
+	 *
+	 * @return void
+	 */
+	public function testSharedBoardWidgetsHaveNoActionsMenu(): void {
+		foreach (self::seed()['dashboards'] as $dashboard) {
+			if (in_array(needle: $dashboard['board'], haystack: ['LpAfdeling', 'LpManagement'], strict: true) === false) {
+				continue;
+			}
+
+			foreach ($dashboard['widgets'] as $widget) {
+				if (isset($widget['widgetId']) === false || $widget['widgetId'] === 'section-heading') {
+					continue;
+				}
+
+				$this->assertFalse(condition: $widget['content']['showActions'] ?? true, message: $dashboard['board'] . ' ' . $widget['widgetId']);
+			}
+		}
+	}//end testSharedBoardWidgetsHaveNoActionsMenu()
+
+	/**
+	 * A container's children name their widget type under `type`, the key the
+	 * container renders them by.
+	 *
+	 * @return void
+	 */
+	public function testContainerChildrenNameTheirType(): void {
+		$containers = self::placementsOf(type: 'container');
+		$this->assertNotSame(expected: [], actual: $containers);
+		foreach ($containers as $container) {
+			foreach ($container['content']['placements'] as $child) {
+				$this->assertSame(expected: 'stat', actual: $child['type'] ?? null);
+				$this->assertArrayNotHasKey(key: 'widgetId', array: $child);
+			}
+		}
+	}//end testContainerChildrenNameTheirType()
 }//end class

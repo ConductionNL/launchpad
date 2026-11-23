@@ -276,6 +276,7 @@ export default {
 		 * own failure; a failure of one count is that source's.
 		 *
 		 * @spec openspec/specs/attention-feed/spec.md#req-att-005
+		 * @spec openspec/changes/start-page-board-sync/specs/attention-feed/spec.md#requirement-vandaag-eerst-can-draw-one-card-per-record-req-att-007
 		 */
 		async load() {
 			this.loading = true

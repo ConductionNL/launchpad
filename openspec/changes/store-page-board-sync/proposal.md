@@ -20,11 +20,11 @@ kinds, and the spec (REQ-STORE-001 to 009) describes the routes and the install,
 
 ## Not in this change
 
-- **Bijwerken** (update an installed template) and **Dashboard publiceren** (publish a dashboard to the register) need
-  a product decision. Bijwerken: REQ-STORE-006 says an install never replaces a dashboard, so does an update install the
-  new version beside the old one, or update the installed dashboard in place as shipped templates do (REQ-TMPL-020)?
-  Dashboard publiceren: who may publish, and to which register, now that the register side is an open OpenRegister
-  change (store-over-federated-config)?
+- **Bijwerken** and **Dashboard publiceren** were open product questions. Decided on 23 November 2026 (product
+  decisions delegated by Ruben): Bijwerken updates the installed dashboard in place and keeps personal additions, as
+  shipped templates are updated (REQ-TMPL-020); Dashboard publiceren is for administrators only, to the connected
+  register, and is built after OpenRegister's store side (`store-over-federated-config`) lands. Both are specced in
+  the change store-update-and-publish.
 
 ## Impact
 

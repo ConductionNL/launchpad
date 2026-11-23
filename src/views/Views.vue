@@ -195,17 +195,13 @@
 				:dashboard="activeDashboard"
 				:sharedWithMe="sharedWithMeDashboards"
 				:currentUserId="currentUserId" />
-			<!-- Every dashboard without a greeting row opens with its name, its
-			     actions and the "Meer" menu (LpWerkplek, LpIntranet). -->
+			<!-- Every dashboard without a greeting row opens with its name and
+			     the "Meer" menu, its only action (LpWerkplek, LpIntranet). -->
 			<DashboardPageHeader
 				v-if="activeDashboard && !kiosk && !hasGroundHeader"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
-				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
-				:permissionLevel="permissionLevel"
-				:isEditMode="isEditMode"
-				@edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
-				@addWidget="openWidgetModal" />
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"

@@ -7,6 +7,7 @@
 	<div
 		v-if="tile"
 		class="tile-widget"
+		:class="{ 'tile-widget--icon-only': iconOnly }"
 		:data-tile-id="tile.id"
 		:style="{
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
@@ -40,6 +41,8 @@
 			:href="tileUrl"
 			class="tile-widget__link"
 			:target="anchorTarget"
+			:title="iconOnly ? tile.title : null"
+			:aria-label="iconOnly ? tile.title : null"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -74,6 +77,7 @@
 					:style="{ color: tile.textColor || '#ffffff' }" />
 			</div>
 			<div
+				v-if="!iconOnly"
 				class="tile-widget__title"
 				:style="{
 					color: tile.textColor || '#ffffff',
@@ -215,6 +219,17 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the tile shows only its glyph, with the name as its tooltip
+		 * and accessible name (the app tiles of LpVandaag and LpWerkplek).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		iconOnly() {
+			return this.content?.iconOnly === true
+		},
+
 		/**
 		 * How this tile opens: its own target, the dashboard default, or the
 		 * link-type rule (launcher-tile-open-behaviour D2).
@@ -512,6 +527,37 @@ export default {
 /* Very specific selector to override nldesign CSS */
 .tile-widget .tile-widget__link .tile-widget__title {
 	color: var(--tile-text-color) !important;
+}
+
+/* An icon-only tile is a square of colour with a 48px white glyph and no
+   label, as the boards draw the app tiles. The theme underlines and colours
+   every link with !important, hence the weight here. */
+.tile-widget.tile-widget--icon-only {
+	border-radius: 8px;
+}
+
+.tile-widget--icon-only .tile-widget__link {
+	padding: 0;
+	gap: 0;
+	text-decoration: none !important;
+}
+
+.tile-widget--icon-only .tile-widget__icon {
+	min-width: 0;
+	width: 48px;
+	height: 48px;
+	font-size: 48px;
+}
+
+.tile-widget--icon-only .tile-widget__icon :deep(svg) {
+	width: 48px;
+	height: 48px;
+}
+
+.tile-widget--icon-only .tile-widget__icon span.icon {
+	width: 48px;
+	height: 48px;
+	background-size: 48px;
 }
 
 /* Position the shared white cog over the tile's top-right corner. The

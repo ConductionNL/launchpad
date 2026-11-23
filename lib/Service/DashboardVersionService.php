@@ -43,6 +43,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardVersion;
 use OCA\LaunchPad\Db\DashboardVersionMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Service\Versions\SnapshotChangeDescriber;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
 use OCP\ICacheFactory;
@@ -129,12 +130,14 @@ class DashboardVersionService {
 	 *                                      guard (no group-membership lookups).
 	 * @param ICacheFactory   $cacheFactory NC cache factory supplying the debounce backing store.
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param SnapshotChangeDescriber $changeDescriber Writes the "What changed" note of automatic snapshots.
 	 */
 	public function __construct(
 		private readonly VersionStores $stores,
 		private readonly IGroupManager $groupManager,
 		private readonly ICacheFactory $cacheFactory,
 		private readonly LoggerInterface $logger,
+		private readonly SnapshotChangeDescriber $changeDescriber=new SnapshotChangeDescriber(),
 	) {
 	}//end __construct()
 
@@ -165,7 +168,9 @@ class DashboardVersionService {
 	 * @param array     $options   Optional `snapshotJson` (pre-built
 	 *                             snapshot JSON; null or empty to
 	 *                             auto-build from the live state), `note`
-	 *                             (kept on explicit snapshots only) and
+	 *                             (kept on explicit snapshots only; an
+	 *                             automatic snapshot notes what changed
+	 *                             since the previous version) and
 	 *                             `explicit` (bypass the debounce; false).
 	 *
 	 * @return DashboardVersion|null The persisted version row, or null
@@ -242,6 +247,10 @@ class DashboardVersionService {
 			$coercedNote = $note;
 		}
 
+		if ($options['explicit'] === false) {
+			$coercedNote = $this->describeChange(dashboardUuid: $uuid, snapshotJson: $snapshotJson);
+		}
+
 		$next = ($this->stores->versionMapper->findMaxVersionNumber(
 			dashboardUuid: $uuid
 		) + 1);
@@ -261,6 +270,36 @@ class DashboardVersionService {
 
 		return $entity;
 	}//end newVersion()
+
+	/**
+	 * What changed between a dashboard's newest stored version and a new
+	 * snapshot, for the note of an automatic snapshot.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $snapshotJson  The new snapshot.
+	 *
+	 * @return string|null The description, or null when there is no previous
+	 *                     version, nothing differs or the lookup fails.
+	 */
+	private function describeChange(string $dashboardUuid, string $snapshotJson): ?string {
+		try {
+			$latest = $this->stores->versionMapper->findLatestByDashboard(dashboardUuid: $dashboardUuid, limit: 1);
+			if ($latest === []) {
+				return null;
+			}
+
+			return $this->changeDescriber->describe(
+				previousJson: (string)$latest[0]->getSnapshotJson(),
+				currentJson: $snapshotJson
+			);
+		} catch (Throwable $t) {
+			$this->logger->debug(
+				message: 'launchpad: failed to describe the snapshot change',
+				context: ['exception' => $t]
+			);
+			return null;
+		}
+	}//end describeChange()
 
 	/**
 	 * Persist a version row, prune past the retention limit and refresh

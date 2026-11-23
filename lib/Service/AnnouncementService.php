@@ -200,7 +200,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 		$announcement->setTargetGroupList([]);
 		$announcement->setCreatedAt($this->now());
 		$this->input->apply(announcement: $announcement, input: $input);
-		$this->assertEndTime(announcement: $announcement);
+		$this->input->assertEndTime(announcement: $announcement);
 		$announcement->setUpdatedAt($this->now());
 
 		return $this->announcements->insert(entity: $announcement);
@@ -227,7 +227,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 		$this->input->apply(announcement: $announcement, input: $input);
 		// A row stored before the end time was required keeps working until an author sets one.
 		if ($announcement->getExpiresAt() !== null || array_key_exists('expiresAt', $input) === true) {
-			$this->assertEndTime(announcement: $announcement);
+			$this->input->assertEndTime(announcement: $announcement);
 		}
 
 		if ($announcement->getStatus() === Announcement::STATUS_PUBLISHED) {
@@ -402,29 +402,6 @@ class AnnouncementService implements AnnouncementServiceInterface {
 
 		return ($publishAt === null || $publishAt <= $now) && ($expiresAt === null || $expiresAt > $now);
 	}//end isLive()
-
-	/**
-	 * Refuse an announcement without an end time ("Show until"), or one that ends before it is published.
-	 *
-	 * @param Announcement $announcement The announcement.
-	 *
-	 * @return void
-	 *
-	 * @throws InvalidArgumentException When the end time is missing or not after the publish time.
-	 *
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 */
-	private function assertEndTime(Announcement $announcement): void {
-		$expiresAt = $announcement->getExpiresAt();
-		if ($expiresAt === null) {
-			throw new InvalidArgumentException('expiresAt is required: an announcement needs a "Show until" end time');
-		}
-
-		$publishAt = $announcement->getPublishAt();
-		if ($publishAt !== null && $expiresAt <= $publishAt) {
-			throw new InvalidArgumentException('The end time must be after the publish time');
-		}
-	}//end assertEndTime()
 
 	/**
 	 * Refuse to publish what may not be published.

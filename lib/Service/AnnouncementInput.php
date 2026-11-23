@@ -218,6 +218,29 @@ class AnnouncementInput {
 	}//end date()
 
 	/**
+	 * Refuse an announcement without an end time ("Show until"), or one that ends before it is published.
+	 *
+	 * @param Announcement $announcement The announcement.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the end time is missing or not after the publish time.
+	 *
+	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 */
+	public function assertEndTime(Announcement $announcement): void {
+		$expiresAt = $announcement->getExpiresAt();
+		if ($expiresAt === null) {
+			throw new InvalidArgumentException('expiresAt is required: an announcement needs a "Show until" end time');
+		}
+
+		$publishAt = $announcement->getPublishAt();
+		if ($publishAt !== null && $expiresAt <= $publishAt) {
+			throw new InvalidArgumentException('The end time must be after the publish time');
+		}
+	}//end assertEndTime()
+
+	/**
 	 * A category name, trimmed.
 	 *
 	 * @param string $value The name.

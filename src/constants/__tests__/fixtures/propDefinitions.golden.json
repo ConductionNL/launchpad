@@ -1209,18 +1209,6 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardPageHeader.vue | permissionLevel": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": "view_only"
-	},
-	"../../components/Workspace/DashboardPageHeader.vue | isEditMode": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,

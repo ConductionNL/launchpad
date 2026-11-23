@@ -2,8 +2,8 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * A dashboard without a greeting row opens with its name, its action and the
- * slot the "Meer" menu docks into (LpWerkplek, LpIntranet, LpAfdeling).
+ * A dashboard without a greeting row opens with its name and the slot the
+ * "Meer" menu docks into (LpWerkplek, LpIntranet, LpAfdeling).
  *
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  */
@@ -34,18 +34,10 @@ describe('DashboardPageHeader', () => {
 		expect(wrapper.find('.' + PAGE_HEADER_DOCK_CLASS).exists()).toBe(true)
 	})
 
-	it('offers Edit with full rights, Add widget with add-only rights, nothing read-only or while editing', async () => {
-		const full = mountHeader({ permissionLevel: 'full' })
-		expect(full.find('[data-testid="dashboard-page-header-action"]').text()).toBe('Edit')
-		await full.find('[data-testid="dashboard-page-header-action"]').trigger('click')
-		expect(full.emitted('edit')).toHaveLength(1)
-
-		const add = mountHeader({ permissionLevel: 'add_only' })
-		await add.find('[data-testid="dashboard-page-header-action"]').trigger('click')
-		expect(add.emitted('addWidget')).toHaveLength(1)
-
-		expect(mountHeader({ permissionLevel: 'view_only' }).find('[data-testid="dashboard-page-header-action"]').exists()).toBe(false)
-		expect(mountHeader({ permissionLevel: 'full', isEditMode: true }).find('[data-testid="dashboard-page-header-action"]').exists()).toBe(false)
+	it('offers no action of its own: Edit and Add widget are in the More menu (LpWerkplek)', () => {
+		for (const props of [{}, { source: 'group' }, { isDefault: true }]) {
+			expect(mountHeader(props).find('button').exists()).toBe(false)
+		}
 	})
 
 	it('names a personal dashboard, the one that opens first, and a shared one; a group dashboard has no chip', () => {

@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Tonen tot",
+    "After this time the announcement disappears from every dashboard." : "Na dit tijdstip verdwijnt de aankondiging van elk dashboard.",
+    "Visible until {when}" : "zichtbaar tot {when}",
+    "Choose until when the announcement shows" : "Kies tot wanneer de aankondiging te zien is",
+    "The end time must be after the publish time" : "Het eindtijdstip moet na het publicatietijdstip liggen",
     "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later." : "Deze {count} startwidgets komen erop. Apps zet één tegel per app neer. U kunt alles later verplaatsen of weghalen.",
     "Welcome to Launchpad, {name} · {date}" : "Welkom bij Launchpad, {name} · {date}",
     "Welcome to Launchpad · {date}" : "Welkom bij Launchpad · {date}",

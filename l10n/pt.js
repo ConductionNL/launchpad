@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Mostrar até",
+    "After this time the announcement disappears from every dashboard." : "Depois desta hora, o anúncio desaparece de todos os painéis.",
+    "Visible until {when}" : "Visível até {when}",
+    "Choose until when the announcement shows" : "Escolha até quando o anúncio é mostrado",
+    "The end time must be after the publish time" : "A hora de fim tem de ser posterior à de publicação",
     "{app}, outage" : "{app}, falha",
     "{app}, {count} open" : "{app}, {count} em aberto",
     "{app}, pinned" : "{app}, fixado",

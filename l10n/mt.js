@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Uri sa",
+    "After this time the announcement disappears from every dashboard." : "Wara dan il-ħin, it-tħabbira tisparixxi minn kull dashboard.",
+    "Visible until {when}" : "Viżibbli sa {when}",
+    "Choose until when the announcement shows" : "Agħżel sa meta tidher it-tħabbira",
+    "The end time must be after the publish time" : "Il-ħin tat-tmiem għandu jkun wara l-ħin tal-pubblikazzjoni",
     "{app}, outage" : "{app}, waqfa",
     "{app}, {count} open" : "{app}, {count} miftuħa",
     "{app}, pinned" : "{app}, imwaħħal",

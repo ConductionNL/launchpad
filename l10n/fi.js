@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Näytä asti",
+    "After this time the announcement disappears from every dashboard." : "Tämän jälkeen tiedote katoaa kaikilta koontinäytöiltä.",
+    "Visible until {when}" : "Näkyvissä {when} asti",
+    "Choose until when the announcement shows" : "Valitse, mihin asti tiedote näkyy",
+    "The end time must be after the publish time" : "Päättymisajan on oltava julkaisuajan jälkeen",
     "{app}, outage" : "{app}, häiriö",
     "{app}, {count} open" : "{app}, {count} avoinna",
     "{app}, pinned" : "{app}, kiinnitetty",

@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Mussar fin",
+    "After this time the announcement disappears from every dashboard." : "Suenter quest temp sparescha l'annunzia da mintga dashboard.",
+    "Visible until {when}" : "Visibel fin {when}",
+    "Choose until when the announcement shows" : "Tscherni fin cura che l'annunzia vegn mussada",
+    "The end time must be after the publish time" : "La fin sto esser suenter la publicaziun",
     "{app}, outage" : "{app}, disturbi",
     "{app}, {count} open" : "{app}, {count} averts",
     "{app}, pinned" : "{app}, fixà",

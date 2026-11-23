@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Sýna til",
+    "After this time the announcement disappears from every dashboard." : "Eftir þennan tíma hverfur tilkynningin af öllum mælaborðum.",
+    "Visible until {when}" : "Sýnilegt til {when}",
+    "Choose until when the announcement shows" : "Veldu hve lengi tilkynningin sést",
+    "The end time must be after the publish time" : "Lokatími verður að vera eftir birtingartíma",
     "{app}, outage" : "{app}, truflun",
     "{app}, {count} open" : "{app}, {count} opin",
     "{app}, pinned" : "{app}, fest",

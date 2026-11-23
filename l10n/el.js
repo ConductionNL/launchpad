@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Εμφάνιση έως",
+    "After this time the announcement disappears from every dashboard." : "Μετά από αυτή την ώρα η ανακοίνωση εξαφανίζεται από κάθε πίνακα.",
+    "Visible until {when}" : "Ορατό έως {when}",
+    "Choose until when the announcement shows" : "Επιλέξτε έως πότε εμφανίζεται η ανακοίνωση",
+    "The end time must be after the publish time" : "Η λήξη πρέπει να είναι μετά τη δημοσίευση",
     "{app}, outage" : "{app}, διακοπή",
     "{app}, {count} open" : "{app}, {count} ανοιχτά",
     "{app}, pinned" : "{app}, καρφιτσωμένο",

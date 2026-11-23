@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Show until" : "Şu zamana kadar göster",
+    "After this time the announcement disappears from every dashboard." : "Bu zamandan sonra duyuru tüm panolardan kaybolur.",
+    "Visible until {when}" : "{when} tarihine kadar görünür",
+    "Choose until when the announcement shows" : "Duyurunun ne zamana kadar gösterileceğini seçin",
+    "The end time must be after the publish time" : "Bitiş zamanı yayın zamanından sonra olmalıdır",
     "{app}, outage" : "{app}, kesinti",
     "{app}, {count} open" : "{app}, {count} açık",
     "{app}, pinned" : "{app}, sabitlendi",

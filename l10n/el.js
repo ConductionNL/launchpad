@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Ο πίνακας μετονομάστηκε σε %s",
+    "Columns from %1$s to %2$s" : "Στήλες από %1$s σε %2$s",
+    "Widget %s added" : "Προστέθηκε το γραφικό στοιχείο %s",
+    "Widget %s removed" : "Αφαιρέθηκε το γραφικό στοιχείο %s",
+    "Widget %1$s renamed to %2$s" : "Το γραφικό στοιχείο %1$s μετονομάστηκε σε %2$s",
+    "Widget %s moved" : "Μετακινήθηκε το γραφικό στοιχείο %s",
+    "Widget %s resized" : "Άλλαξε μέγεθος το γραφικό στοιχείο %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s και %n ακόμη αλλαγή", "%s και %n ακόμη αλλαγές"],
     "Admin settings" : "Ρυθμίσεις διαχείρισης",
     "Features & roadmap" : "Λειτουργίες και οδικός χάρτης",
     "Maximum dashboards per user" : "Μέγιστος αριθμός πινάκων ανά χρήστη",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Ενεργά φίλτρα",
     "Pinned filter" : "Καρφιτσωμένο φίλτρο",
     "Remove filter: {label}" : "Αφαίρεση φίλτρου: {label}",
-    "Reset filters" : "Επαναφορά φίλτρων",,
+    "Reset filters" : "Επαναφορά φίλτρων",
     "Personal dashboard" : "Προσωπικός πίνακας ελέγχου",
     "Personal dashboard · opens first" : "Προσωπικός πίνακας ελέγχου · ανοίγει πρώτος",
     "Shared with you" : "Κοινοποιήθηκε σε εσάς",

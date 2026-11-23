@@ -1,5 +1,16 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Контролната табла е преименувана во %s",
+        "Columns from %1$s to %2$s": "Колони од %1$s во %2$s",
+        "Widget %s added": "Додаден виџет %s",
+        "Widget %s removed": "Отстранет виџет %s",
+        "Widget %1$s renamed to %2$s": "Виџетот %1$s е преименуван во %2$s",
+        "Widget %s moved": "Виџетот %s е преместен",
+        "Widget %s resized": "Променета големина на виџетот %s",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s и уште %n промена",
+            "%s и уште %n промени"
+        ],
         "Admin settings": "Административни параметри",
         "Maximum dashboards per user": "Максимален број контролни табли по корисник",
         "Maximum widgets per dashboard": "Максимален број виџети по контролна табла",

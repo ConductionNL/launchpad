@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Id-dashboard ingħata l-isem %s",
+    "Columns from %1$s to %2$s" : "Kolonni minn %1$s għal %2$s",
+    "Widget %s added" : "Widget %s miżjud",
+    "Widget %s removed" : "Widget %s imneħħi",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s ingħata l-isem %2$s",
+    "Widget %s moved" : "Widget %s imċaqlaq",
+    "Widget %s resized" : "Daqs tal-widget %s inbidel",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s u %n bidla oħra", "%s u %n bidliet oħra", "%s u %n bidliet oħra", "%s u %n bidla oħra"],
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funzjonijiet u pjan direzzjonali",
     "Maximum dashboards per user" : "Numru massimu ta' dashboards għal kull utent",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Filtri attivi",
     "Pinned filter" : "Filtru mwaħħal",
     "Remove filter: {label}" : "Neħħi l-filtru: {label}",
-    "Reset filters" : "Erġa' ssettja l-filtri",,
+    "Reset filters" : "Erġa' ssettja l-filtri",
     "Personal dashboard" : "Dashboard personali",
     "Personal dashboard · opens first" : "Dashboard personali · jinfetaħ l-ewwel",
     "Shared with you" : "Maqsum miegħek",

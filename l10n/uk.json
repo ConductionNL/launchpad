@@ -1,5 +1,17 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Панель перейменовано на %s",
+        "Columns from %1$s to %2$s": "Стовпці: з %1$s на %2$s",
+        "Widget %s added": "Додано віджет %s",
+        "Widget %s removed": "Вилучено віджет %s",
+        "Widget %1$s renamed to %2$s": "Віджет %1$s перейменовано на %2$s",
+        "Widget %s moved": "Віджет %s переміщено",
+        "Widget %s resized": "Змінено розмір віджета %s",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s і ще %n зміна",
+            "%s і ще %n зміни",
+            "%s і ще %n змін"
+        ],
         "Admin settings": "Адміністрування",
         "Maximum dashboards per user": "Максимальна кількість дашбордів на користувача",
         "Maximum widgets per dashboard": "Максимальна кількість віджетів на дашборд",

@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Контролна табла преименована у %s",
+    "Columns from %1$s to %2$s" : "Колоне из %1$s у %2$s",
+    "Widget %s added" : "Додат виџет %s",
+    "Widget %s removed" : "Уклоњен виџет %s",
+    "Widget %1$s renamed to %2$s" : "Виџет %1$s преименован у %2$s",
+    "Widget %s moved" : "Виџет %s померен",
+    "Widget %s resized" : "Промењена величина виџета %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s и још %n измена", "%s и још %n измене", "%s и још %n измена"],
     "Admin settings" : "Административна подешавања",
     "Features & roadmap" : "Функције и план развоја",
     "Maximum dashboards per user" : "Максималан број контролних табли по кориснику",
@@ -1479,7 +1487,7 @@ OC.L10N.register(
     "Active filters" : "Активни филтери",
     "Pinned filter" : "Закачени филтер",
     "Remove filter: {label}" : "Уклони филтер: {label}",
-    "Reset filters" : "Поништи филтере",,
+    "Reset filters" : "Поништи филтере",
     "Personal dashboard" : "Лична контролна табла",
     "Personal dashboard · opens first" : "Лична контролна табла · отвара се прва",
     "Shared with you" : "Подељено са вама",

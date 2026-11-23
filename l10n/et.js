@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Töölaud nimetati ümber: %s",
+    "Columns from %1$s to %2$s" : "Veerud %1$s → %2$s",
+    "Widget %s added" : "Vidin %s lisatud",
+    "Widget %s removed" : "Vidin %s eemaldatud",
+    "Widget %1$s renamed to %2$s" : "Vidin %1$s nimetati ümber: %2$s",
+    "Widget %s moved" : "Vidin %s teisaldatud",
+    "Widget %s resized" : "Vidina %s suurust muudeti",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s ja veel %n muudatus", "%s ja veel %n muudatust"],
     "Admin settings" : "Administreerimise seaded",
     "Features & roadmap" : "Funktsioonid ja teekaart",
     "Maximum dashboards per user" : "Töölaudade maksimumarv kasutaja kohta",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktiivsed filtrid",
     "Pinned filter" : "Kinnitatud filter",
     "Remove filter: {label}" : "Eemalda filter: {label}",
-    "Reset filters" : "Lähtesta filtrid",,
+    "Reset filters" : "Lähtesta filtrid",
     "Personal dashboard" : "Isiklik töölaud",
     "Personal dashboard · opens first" : "Isiklik töölaud · avaneb esimesena",
     "Shared with you" : "Teiega jagatud",

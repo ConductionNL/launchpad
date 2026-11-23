@@ -1,5 +1,16 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Instrumentpanel bytte namn till %s",
+        "Columns from %1$s to %2$s": "Kolumner från %1$s till %2$s",
+        "Widget %s added": "Widget %s tillagd",
+        "Widget %s removed": "Widget %s borttagen",
+        "Widget %1$s renamed to %2$s": "Widget %1$s bytte namn till %2$s",
+        "Widget %s moved": "Widget %s flyttad",
+        "Widget %s resized": "Storlek på widget %s ändrad",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s och %n ändring till",
+            "%s och %n ändringar till"
+        ],
         "Admin settings": "Administration",
         "Maximum dashboards per user": "Maximalt antal dashboards per användare",
         "Maximum widgets per dashboard": "Maximalt antal widgets per dashboard",

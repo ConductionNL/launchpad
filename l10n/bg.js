@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Таблото е преименувано на %s",
+    "Columns from %1$s to %2$s" : "Колони от %1$s на %2$s",
+    "Widget %s added" : "Добавена джаджа %s",
+    "Widget %s removed" : "Премахната джаджа %s",
+    "Widget %1$s renamed to %2$s" : "Джаджата %1$s е преименувана на %2$s",
+    "Widget %s moved" : "Джаджата %s е преместена",
+    "Widget %s resized" : "Променен размер на джаджата %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s и още %n промяна", "%s и още %n промени"],
     "Admin settings" : "Административни настройки",
     "Features & roadmap" : "Функции и пътна карта",
     "Maximum dashboards per user" : "Максимален брой табла на потребител",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Активни филтри",
     "Pinned filter" : "Закачен филтър",
     "Remove filter: {label}" : "Премахване на филтър: {label}",
-    "Reset filters" : "Нулиране на филтрите",,
+    "Reset filters" : "Нулиране на филтрите",
     "Personal dashboard" : "Лично табло",
     "Personal dashboard · opens first" : "Лично табло · отваря се първо",
     "Shared with you" : "Споделено с вас",

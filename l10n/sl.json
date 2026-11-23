@@ -1,5 +1,18 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Nadzorna plošča preimenovana v %s",
+        "Columns from %1$s to %2$s": "Stolpci iz %1$s v %2$s",
+        "Widget %s added": "Pripomoček %s dodan",
+        "Widget %s removed": "Pripomoček %s odstranjen",
+        "Widget %1$s renamed to %2$s": "Pripomoček %1$s preimenovan v %2$s",
+        "Widget %s moved": "Pripomoček %s premaknjen",
+        "Widget %s resized": "Velikost pripomočka %s spremenjena",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s in še %n sprememba",
+            "%s in še %n spremembi",
+            "%s in še %n spremembe",
+            "%s in še %n sprememb"
+        ],
         "Admin settings": "Skrbniške nastavitve",
         "Maximum dashboards per user": "Največje število nadzornih plošč na uporabnika",
         "Maximum widgets per dashboard": "Največje število gradnikov na nadzorno ploščo",

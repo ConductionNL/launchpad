@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Zmieniono nazwę pulpitu na %s",
+    "Columns from %1$s to %2$s" : "Kolumny z %1$s na %2$s",
+    "Widget %s added" : "Dodano widżet %s",
+    "Widget %s removed" : "Usunięto widżet %s",
+    "Widget %1$s renamed to %2$s" : "Zmieniono nazwę widżetu %1$s na %2$s",
+    "Widget %s moved" : "Przeniesiono widżet %s",
+    "Widget %s resized" : "Zmieniono rozmiar widżetu %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s i %n inna zmiana", "%s i %n inne zmiany", "%s i %n innych zmian"],
     "Admin settings" : "Ustawienia administracyjne",
     "Features & roadmap" : "Funkcje i plan rozwoju",
     "Maximum dashboards per user" : "Maksymalna liczba pulpitów na użytkownika",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktywne filtry",
     "Pinned filter" : "Przypięty filtr",
     "Remove filter: {label}" : "Usuń filtr: {label}",
-    "Reset filters" : "Wyczyść filtry",,
+    "Reset filters" : "Wyczyść filtry",
     "Personal dashboard" : "Pulpit osobisty",
     "Personal dashboard · opens first" : "Pulpit osobisty · otwiera się jako pierwszy",
     "Shared with you" : "Udostępnione Tobie",

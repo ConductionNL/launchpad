@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Kojelauta nimettiin uudelleen: %s",
+    "Columns from %1$s to %2$s" : "Sarakkeet %1$s → %2$s",
+    "Widget %s added" : "Pienoissovellus %s lisätty",
+    "Widget %s removed" : "Pienoissovellus %s poistettu",
+    "Widget %1$s renamed to %2$s" : "Pienoissovellus %1$s nimettiin: %2$s",
+    "Widget %s moved" : "Pienoissovellus %s siirretty",
+    "Widget %s resized" : "Pienoissovelluksen %s kokoa muutettu",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s ja %n muu muutos", "%s ja %n muuta muutosta"],
     "Admin settings" : "Ylläpitäjän asetukset",
     "Features & roadmap" : "Ominaisuudet ja tiekartta",
     "Maximum dashboards per user" : "Koontinäyttöjen enimmäismäärä käyttäjää kohden",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktiiviset suodattimet",
     "Pinned filter" : "Kiinnitetty suodatin",
     "Remove filter: {label}" : "Poista suodatin: {label}",
-    "Reset filters" : "Tyhjennä suodattimet",,
+    "Reset filters" : "Tyhjennä suodattimet",
     "Personal dashboard" : "Henkilökohtainen kojelauta",
     "Personal dashboard · opens first" : "Henkilökohtainen kojelauta · avautuu ensimmäisenä",
     "Shared with you" : "Jaettu kanssasi",

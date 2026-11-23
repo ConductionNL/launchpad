@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Tauler canviat de nom a %s",
+    "Columns from %1$s to %2$s" : "Columnes de %1$s a %2$s",
+    "Widget %s added" : "Giny %s afegit",
+    "Widget %s removed" : "Giny %s suprimit",
+    "Widget %1$s renamed to %2$s" : "Giny %1$s canviat de nom a %2$s",
+    "Widget %s moved" : "Giny %s mogut",
+    "Widget %s resized" : "Giny %s redimensionat",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s i %n canvi més", "%s i %n canvis més"],
     "Admin settings" : "Paràmetres d'administració",
     "Features & roadmap" : "Funcions i full de ruta",
     "Maximum dashboards per user" : "Màxim de taulers per usuari",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Filtres actius",
     "Pinned filter" : "Filtre fixat",
     "Remove filter: {label}" : "Elimina el filtre: {label}",
-    "Reset filters" : "Restableix els filtres",,
+    "Reset filters" : "Restableix els filtres",
     "Personal dashboard" : "Tauler personal",
     "Personal dashboard · opens first" : "Tauler personal · s'obre primer",
     "Shared with you" : "Compartit amb vós",

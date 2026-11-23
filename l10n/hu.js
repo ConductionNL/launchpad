@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Irányítópult átnevezve: %s",
+    "Columns from %1$s to %2$s" : "Oszlopok: %1$s → %2$s",
+    "Widget %s added" : "%s modul hozzáadva",
+    "Widget %s removed" : "%s modul eltávolítva",
+    "Widget %1$s renamed to %2$s" : "%1$s modul átnevezve: %2$s",
+    "Widget %s moved" : "%s modul áthelyezve",
+    "Widget %s resized" : "%s modul átméretezve",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s és még %n módosítás", "%s és még %n módosítás"],
     "Admin settings" : "Rendszergazdai beállítások",
     "Features & roadmap" : "Funkciók és ütemterv",
     "Maximum dashboards per user" : "Felhasználónkénti maximális irányítópultok száma",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktív szűrők",
     "Pinned filter" : "Rögzített szűrő",
     "Remove filter: {label}" : "Szűrő eltávolítása: {label}",
-    "Reset filters" : "Szűrők visszaállítása",,
+    "Reset filters" : "Szűrők visszaállítása",
     "Personal dashboard" : "Személyes irányítópult",
     "Personal dashboard · opens first" : "Személyes irányítópult · elsőként nyílik meg",
     "Shared with you" : "Megosztva Önnel",

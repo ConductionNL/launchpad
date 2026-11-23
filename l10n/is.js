@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Stjórnborð endurnefnt í %s",
+    "Columns from %1$s to %2$s" : "Dálkar úr %1$s í %2$s",
+    "Widget %s added" : "Viðmótshluta %s bætt við",
+    "Widget %s removed" : "Viðmótshluti %s fjarlægður",
+    "Widget %1$s renamed to %2$s" : "Viðmótshluti %1$s endurnefndur í %2$s",
+    "Widget %s moved" : "Viðmótshluti %s færður",
+    "Widget %s resized" : "Stærð viðmótshluta %s breytt",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s og %n breyting í viðbót", "%s og %n breytingar í viðbót"],
     "Admin settings" : "Stillingar stjórnunar",
     "Features & roadmap" : "Eiginleikar og vegvísir",
     "Maximum dashboards per user" : "Hámarksfjöldi mælaborða á notanda",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Virkar síur",
     "Pinned filter" : "Fest sía",
     "Remove filter: {label}" : "Fjarlægja síu: {label}",
-    "Reset filters" : "Hreinsa síur",,
+    "Reset filters" : "Hreinsa síur",
     "Personal dashboard" : "Persónulegt mælaborð",
     "Personal dashboard · opens first" : "Persónulegt mælaborð · opnast fyrst",
     "Shared with you" : "Deilt með þér",

@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Paneli u riemërtua në %s",
+    "Columns from %1$s to %2$s" : "Kolonat nga %1$s në %2$s",
+    "Widget %s added" : "Widgeti %s u shtua",
+    "Widget %s removed" : "Widgeti %s u hoq",
+    "Widget %1$s renamed to %2$s" : "Widgeti %1$s u riemërtua në %2$s",
+    "Widget %s moved" : "Widgeti %s u zhvendos",
+    "Widget %s resized" : "Widgetit %s iu ndryshua madhësia",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s dhe %n ndryshim tjetër", "%s dhe %n ndryshime të tjera"],
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Veçoritë dhe plani i zhvillimit",
     "Maximum dashboards per user" : "Numri maksimal i paneleve për përdorues",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Filtrat aktivë",
     "Pinned filter" : "Filtër i fiksuar",
     "Remove filter: {label}" : "Hiq filtrin: {label}",
-    "Reset filters" : "Rivendos filtrat",,
+    "Reset filters" : "Rivendos filtrat",
     "Personal dashboard" : "Panel personal",
     "Personal dashboard · opens first" : "Panel personal · hapet i pari",
     "Shared with you" : "Ndarë me ju",

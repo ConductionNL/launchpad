@@ -1,5 +1,19 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Athainmníodh an deais go %s",
+        "Columns from %1$s to %2$s": "Colúin ó %1$s go %2$s",
+        "Widget %s added": "Cuireadh giuirléid %s leis",
+        "Widget %s removed": "Baineadh giuirléid %s",
+        "Widget %1$s renamed to %2$s": "Athainmníodh giuirléid %1$s go %2$s",
+        "Widget %s moved": "Bogadh giuirléid %s",
+        "Widget %s resized": "Athraíodh méid ghiuirléid %s",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s agus %n athrú eile",
+            "%s agus %n athrú eile",
+            "%s agus %n athrú eile",
+            "%s agus %n n-athrú eile",
+            "%s agus %n athrú eile"
+        ],
         "Admin settings": "Socruithe riaracháin",
         "Maximum dashboards per user": "Uaslíon deais-chláir in aghaidh an úsáideora",
         "Maximum widgets per dashboard": "Uaslíon giuirléidí in aghaidh an deais-chláir",

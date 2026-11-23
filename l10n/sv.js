@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Instrumentpanel bytte namn till %s",
+    "Columns from %1$s to %2$s" : "Kolumner från %1$s till %2$s",
+    "Widget %s added" : "Widget %s tillagd",
+    "Widget %s removed" : "Widget %s borttagen",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s bytte namn till %2$s",
+    "Widget %s moved" : "Widget %s flyttad",
+    "Widget %s resized" : "Storlek på widget %s ändrad",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s och %n ändring till", "%s och %n ändringar till"],
     "Admin settings" : "Administration",
     "Features & roadmap" : "Funktioner och färdplan",
     "Maximum dashboards per user" : "Maximalt antal dashboards per användare",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktiva filter",
     "Pinned filter" : "Fäst filter",
     "Remove filter: {label}" : "Ta bort filter: {label}",
-    "Reset filters" : "Återställ filter",,
+    "Reset filters" : "Återställ filter",
     "Personal dashboard" : "Personlig instrumentpanel",
     "Personal dashboard · opens first" : "Personlig instrumentpanel · öppnas först",
     "Shared with you" : "Delad med dig",

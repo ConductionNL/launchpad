@@ -1,5 +1,18 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Id-dashboard ingħata l-isem %s",
+        "Columns from %1$s to %2$s": "Kolonni minn %1$s għal %2$s",
+        "Widget %s added": "Widget %s miżjud",
+        "Widget %s removed": "Widget %s imneħħi",
+        "Widget %1$s renamed to %2$s": "Widget %1$s ingħata l-isem %2$s",
+        "Widget %s moved": "Widget %s imċaqlaq",
+        "Widget %s resized": "Daqs tal-widget %s inbidel",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s u %n bidla oħra",
+            "%s u %n bidliet oħra",
+            "%s u %n bidliet oħra",
+            "%s u %n bidla oħra"
+        ],
         "Admin settings": "Admin settings",
         "Maximum dashboards per user": "Numru massimu ta' dashboards għal kull utent",
         "Maximum widgets per dashboard": "Numru massimu ta' widgets għal kull dashboard",

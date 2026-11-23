@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Dashboard hernoemd tot %s",
+    "Columns from %1$s to %2$s" : "Kolommen van %1$s naar %2$s",
+    "Widget %s added" : "Widget %s toegevoegd",
+    "Widget %s removed" : "Widget %s verwijderd",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s hernoemd tot %2$s",
+    "Widget %s moved" : "Widget %s verplaatst",
+    "Widget %s resized" : "Widget %s van formaat veranderd",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s en %n andere wijziging", "%s en %n andere wijzigingen"],
     "Admin settings" : "Beheerinstellingen",
     "Look" : "Uiterlijk",
     "Accent color" : "Accentkleur",

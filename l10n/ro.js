@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Panou redenumit în %s",
+    "Columns from %1$s to %2$s" : "Coloane de la %1$s la %2$s",
+    "Widget %s added" : "Widget %s adăugat",
+    "Widget %s removed" : "Widget %s eliminat",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s redenumit în %2$s",
+    "Widget %s moved" : "Widget %s mutat",
+    "Widget %s resized" : "Widget %s redimensionat",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s și încă %n modificare", "%s și încă %n modificări", "%s și încă %n de modificări"],
     "Admin settings" : "Setări de administrare",
     "Features & roadmap" : "Funcții și foaie de parcurs",
     "Maximum dashboards per user" : "Numărul maxim de tablouri de bord per utilizator",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Filtre active",
     "Pinned filter" : "Filtru fixat",
     "Remove filter: {label}" : "Elimină filtrul: {label}",
-    "Reset filters" : "Resetează filtrele",,
+    "Reset filters" : "Resetează filtrele",
     "Personal dashboard" : "Tablou de bord personal",
     "Personal dashboard · opens first" : "Tablou de bord personal · se deschide primul",
     "Shared with you" : "Partajat cu dvs.",

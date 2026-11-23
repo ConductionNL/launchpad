@@ -110,7 +110,7 @@ class DemoSeedFilesTest extends TestCase {
 		$folder = $this->teamFolder();
 		$this->home->method('nodeExists')->with('Team')->willReturn(false);
 		$this->home->expects($this->once())->method('newFolder')->with('Team')->willReturn($folder);
-		$folder->expects($this->exactly(2))->method('newFile')->willReturn($this->createMock(originalClassName: File::class));
+		$folder->expects($this->exactly(count: 2))->method('newFile')->willReturn($this->createMock(originalClassName: File::class));
 
 		$share = $this->createMock(originalClassName: IShare::class);
 		$this->shares->method('getSharesBy')->with('pieter', IShare::TYPE_GROUP, $folder)->willReturn([]);

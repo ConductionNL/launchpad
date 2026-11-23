@@ -3,7 +3,9 @@
 /**
  * AnnouncementMapperTest
  *
- * Unit tests for AnnouncementMapper: the live announcements (published, inside their period, newest first), the drafts of one author or of everyone, and the lookup by uuid.
+ * Unit tests for AnnouncementMapper: the live announcements (published,
+ * inside their period, newest first), the drafts of one author or of
+ * everyone, and the lookup by uuid.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Db

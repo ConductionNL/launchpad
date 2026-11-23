@@ -2410,6 +2410,7 @@
 	"publishing": {
 		"publisher": "beheer",
 		"startPage": "8a3e5c10-1f2b-4c3d-9e4f-000000000008",
+		"enableStartPage": false,
 		"kioskPlaylists": [
 			{
 				"name": "Kantine stadskantoor",

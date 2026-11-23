@@ -1413,6 +1413,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "I do bhrabhsálaí, roghnaigh Comhroinn agus ansin Cuir le Scáileán Baile.",
         "Not now": "Ní anois",
         "{index} of {total} · next in {seconds} s": "{index} as {total} · an chéad cheann eile i gceann {seconds} s",
-        "Now showing {name}": "Á thaispeáint anois: {name}"
+        "Now showing {name}": "Á thaispeáint anois: {name}",
+        "Own look": "Cuma féin"
     }
 }

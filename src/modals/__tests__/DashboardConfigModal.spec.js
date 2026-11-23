@@ -149,16 +149,15 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.vm.currentTab).toBe('general')
 	})
 
-	it('has the board\'s tabs: Details, Languages, Look, Sharing', () => {
+	it('has the board\'s tabs: Details, Languages, Sharing', () => {
 		const wrapper = mountModal()
 		const ids = wrapper
 			.findAll('[role="tab"]')
 			.map((tab) => tab.attributes('data-test'))
-		// platform-dashboard-theme-and-css REQ-THM-001 adds Look.
+		// dashboard-theme-readonly REQ-THM-001: the look is a block on Details.
 		expect(ids).toEqual([
 			'config-tab-general',
 			'config-tab-languages',
-			'config-tab-look',
 			'config-tab-sharing',
 		])
 		expect(wrapper.find('[data-test="config-tab-general"]').text()).toContain(
@@ -173,6 +172,25 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.find('[data-test="config-panel-default"]').exists()).toBe(
 			false,
 		)
+	})
+
+	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('draws Own look on the Details tab, with no layout preset field', () => {
+		const wrapper = mountModal()
+		const general = wrapper.find('[data-test="config-panel-general"]')
+		const look = general.find('[data-test="config-look"]')
+		expect(look.exists()).toBe(true)
+		expect(look.text()).toContain('Own look')
+		expect(look.find('[data-testid="look-accent"]').exists()).toBe(true)
+		expect(look.find('[data-testid="look-background"]').exists()).toBe(true)
+		expect(look.find('[data-testid="look-image-input"]').exists()).toBe(true)
+		expect(general.text()).not.toMatch(/layout of this dashboard|Indeling van dit dashboard/i)
+		expect(wrapper.find('[data-test="config-panel-look"]').exists()).toBe(false)
+	})
+
+	it('offers no Own look while creating a dashboard', () => {
+		const wrapper = mountModal({ dashboard: null })
+		expect(wrapper.find('[data-test="config-look"]').exists()).toBe(false)
 	})
 
 	it('lands on Details when an old caller asks for the default tab', () => {

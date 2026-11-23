@@ -133,7 +133,6 @@ describe('DashboardConfigModal publication and exports tabs', () => {
 		expect(tabIds(wrapper)).toEqual([
 			'config-tab-general',
 			'config-tab-languages',
-			'config-tab-look',
 			'config-tab-sharing',
 			'config-tab-publication',
 			'config-tab-exports',

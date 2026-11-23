@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Aspect propriu",
     "{index} of {total} · next in {seconds} s" : "{index} din {total} · următorul în {seconds} s",
     "Now showing {name}" : "Acum se afișează: {name}",
     "Put LaunchPad on your home screen" : "Adăugați LaunchPad pe ecranul de pornire",

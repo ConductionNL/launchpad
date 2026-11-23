@@ -1407,6 +1407,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "Valitse selaimessa Jaa ja sitten Lisää Koti-valikkoon.",
         "Not now": "Ei nyt",
         "{index} of {total} · next in {seconds} s": "{index}/{total} · seuraava {seconds} s kuluttua",
-        "Now showing {name}": "Nyt näytössä: {name}"
+        "Now showing {name}": "Nyt näytössä: {name}",
+        "Own look": "Oma ulkoasu"
     }
 }

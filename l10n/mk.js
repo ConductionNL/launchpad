@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Сопствен изглед",
     "{index} of {total} · next in {seconds} s" : "{index} од {total} · следно за {seconds} s",
     "Now showing {name}" : "Сега се прикажува: {name}",
     "Put LaunchPad on your home screen" : "Додајте го LaunchPad на почетниот екран",

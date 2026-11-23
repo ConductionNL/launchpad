@@ -1407,6 +1407,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "Veldu Deila í vafranum og síðan Bæta á heimaskjá.",
         "Not now": "Ekki núna",
         "{index} of {total} · next in {seconds} s": "{index} af {total} · næst eftir {seconds} s",
-        "Now showing {name}": "Sýnt núna: {name}"
+        "Now showing {name}": "Sýnt núna: {name}",
+        "Own look": "Eigið útlit"
     }
 }

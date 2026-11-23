@@ -1407,6 +1407,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "Wielt an Ärem Browser Deelen an duerno Zum Home-Bildschierm.",
         "Not now": "Net elo",
         "{index} of {total} · next in {seconds} s": "{index} vun {total} · nächst an {seconds} s",
-        "Now showing {name}": "Elo ze gesinn: {name}"
+        "Now showing {name}": "Elo ze gesinn: {name}",
+        "Own look": "Eegene Look"
     }
 }

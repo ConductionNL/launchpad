@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Savs izskats",
     "{index} of {total} · next in {seconds} s" : "{index} no {total} · nākamais pēc {seconds} s",
     "Now showing {name}" : "Tagad redzams: {name}",
     "Put LaunchPad on your home screen" : "Pievienojiet LaunchPad sākuma ekrānam",

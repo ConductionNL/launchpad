@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Vlastný vzhľad",
+    "{index} of {total} · next in {seconds} s" : "{index} z {total} · ďalší o {seconds} s",
+    "Now showing {name}" : "Teraz zobrazené: {name}",
+    "Put LaunchPad on your home screen" : "Pridajte si LaunchPad na plochu",
+    "Then your workplace opens with one tap, like an app" : "Vaše pracovisko sa potom otvorí jedným ťuknutím, ako aplikácia",
+    "In your browser, choose Share and then Add to Home Screen." : "V prehliadači zvoľte Zdieľať a potom Pridať na plochu.",
+    "Not now" : "Teraz nie",
     "Dashboard renamed to %s" : "Nástenka premenovaná na %s",
     "Columns from %1$s to %2$s" : "Stĺpce z %1$s na %2$s",
     "Widget %s added" : "Pridaný widget %s",

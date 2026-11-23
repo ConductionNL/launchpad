@@ -16,6 +16,7 @@ import AnnouncementsWidgetForm from '../../Widgets/Renderers/AnnouncementsWidget
 import NoticeBanner from '../NoticeBanner.vue'
 import NoticeBannerRegion, { TICK_MS } from '../NoticeBannerRegion.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
+import { logger } from '../../../utils/logger.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
@@ -232,6 +233,60 @@ describe('NoticeBannerRegion', () => {
 		expect(announcementsApi.dismissedNotices).toHaveBeenCalled()
 		release({ announcements: [] })
 		await flushPromises()
+		wrapper.unmount()
+	})
+
+	it('still shows the notices when the dismissed list cannot be read', async () => {
+		announcementsApi.list.mockResolvedValue({
+			announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info', dismissible: true }],
+		})
+		announcementsApi.dismissedNotices.mockRejectedValue(new Error('preferences down'))
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		expect(wrapper.vm.dismissed).toEqual([])
+		expect(wrapper.findAll('[data-test="notice-banner"]')).toHaveLength(1)
+		expect(logger.error).toHaveBeenCalledWith('Failed to load dismissed notices:', expect.any(Error))
+		wrapper.unmount()
+	})
+
+	it('shows no region when the notices cannot be loaded, and keeps the old dismissed list', async () => {
+		announcementsApi.list.mockRejectedValue(new Error('server down'))
+		announcementsApi.dismissedNotices.mockResolvedValue(['d'])
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
+		expect(wrapper.vm.notices).toEqual([])
+		expect(wrapper.vm.dismissed).toEqual([])
+		expect(logger.error).toHaveBeenCalledWith('Failed to load notices:', expect.any(Error))
+		wrapper.unmount()
+	})
+
+	it('hides a dismissed notice even when saving the preference fails', async () => {
+		announcementsApi.list.mockResolvedValue({
+			announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info', dismissible: true }],
+		})
+		announcementsApi.dismissedNotices.mockResolvedValue([])
+		announcementsApi.saveDismissedNotices.mockRejectedValue(new Error('save failed'))
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		await wrapper.vm.dismiss('d')
+		await flushPromises()
+		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
+		expect(logger.error).toHaveBeenCalledWith('Failed to save the dismissed notice:', expect.any(Error))
+		wrapper.unmount()
+	})
+
+	it('ignores a dismiss for an unknown notice', async () => {
+		announcementsApi.list.mockResolvedValue({ announcements: [] })
+		announcementsApi.dismissedNotices.mockResolvedValue([])
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		await wrapper.vm.dismiss('nope')
+		expect(announcementsApi.saveDismissedNotices).not.toHaveBeenCalled()
 		wrapper.unmount()
 	})
 })

@@ -1403,6 +1403,13 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ова контролна табла може да прими још {count}. Изаберите мање фасцикли или обележивача.",
         "The bookmarks could not be imported.": "Обележиваче није било могуће увести.",
         "This file holds no bookmarks.": "Датотека не садржи обележиваче.",
-        "Folders": "Фасцикле"
+        "Folders": "Фасцикле",
+        "Put LaunchPad on your home screen": "Додајте LaunchPad на почетни екран",
+        "Then your workplace opens with one tap, like an app": "Тада се ваше радно место отвара једним додиром, као апликација",
+        "In your browser, choose Share and then Add to Home Screen.": "У прегледачу изаберите Дели, а затим Додај на почетни екран.",
+        "Not now": "Не сада",
+        "{index} of {total} · next in {seconds} s": "{index} од {total} · следеће за {seconds} s",
+        "Now showing {name}": "Сада се приказује: {name}",
+        "Own look": "Сопствени изглед"
     }
 }

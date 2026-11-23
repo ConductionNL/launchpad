@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Δική του εμφάνιση",
+    "{index} of {total} · next in {seconds} s" : "{index} από {total} · επόμενο σε {seconds} s",
+    "Now showing {name}" : "Τώρα εμφανίζεται: {name}",
+    "Put LaunchPad on your home screen" : "Προσθέστε το LaunchPad στην αρχική οθόνη",
+    "Then your workplace opens with one tap, like an app" : "Τότε ο χώρος εργασίας σας ανοίγει με ένα πάτημα, σαν εφαρμογή",
+    "In your browser, choose Share and then Add to Home Screen." : "Στο πρόγραμμα περιήγησης επιλέξτε Κοινοποίηση και μετά Προσθήκη στην οθόνη Αφετηρίας.",
+    "Not now" : "Όχι τώρα",
     "Dashboard renamed to %s" : "Ο πίνακας μετονομάστηκε σε %s",
     "Columns from %1$s to %2$s" : "Στήλες από %1$s σε %2$s",
     "Widget %s added" : "Προστέθηκε το γραφικό στοιχείο %s",

@@ -32,6 +32,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Service\AdminSettingsService
  * @uses   \OCA\LaunchPad\Db\AdminSetting
+ * @uses   \OCA\LaunchPad\Service\QueryUrlTemplate
  */
 class AdminSettingsUpdateGoldenTest extends TestCase {
 

@@ -101,6 +101,23 @@ class OpenApiDriftTest extends TestCase {
 	}//end testTheCommittedDocumentIsCurrent()
 
 	/**
+	 * The document carries the app version of info.xml, the value the release workflow writes into it.
+	 *
+	 * @return void
+	 */
+	public function testTheDocumentVersionIsTheAppVersion(): void {
+		$root = dirname(__DIR__, 3);
+
+		self::assertSame(
+			expected: OpenApiDocument::appVersion(infoXml: (string) file_get_contents($root.'/appinfo/info.xml')),
+			actual: OpenApiDocument::build(root: $root)['info']['version']
+		);
+		$spaced = "<info>\n\t<version> 1.2.3-unstable.4 </version>\n</info>";
+		self::assertSame(expected: '1.2.3-unstable.4', actual: OpenApiDocument::appVersion(infoXml: $spaced));
+		self::assertNull(actual: OpenApiDocument::appVersion(infoXml: '<info><name>x</name></info>'));
+	}//end testTheDocumentVersionIsTheAppVersion()
+
+	/**
 	 * Empty JSON objects survive decoding, so the overlay writes `{}` back, not `[]`.
 	 *
 	 * @return void

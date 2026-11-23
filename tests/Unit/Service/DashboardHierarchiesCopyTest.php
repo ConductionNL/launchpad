@@ -38,6 +38,11 @@ use ZipArchive;
  *
  * @covers \OCA\LaunchPad\Service\TemplateService
  * @covers \OCA\LaunchPad\Service\ImportService
+ * @uses \OCA\LaunchPad\Db\Dashboard
+ * @uses \OCA\LaunchPad\Service\DashboardHierarchies
+ * @uses \OCA\LaunchPad\Service\DashboardImportRun
+ * @uses \OCA\LaunchPad\Service\UuidV4
+ * @uses \OCA\LaunchPad\Service\ExportService
  */
 class DashboardHierarchiesCopyTest extends TestCase {
 

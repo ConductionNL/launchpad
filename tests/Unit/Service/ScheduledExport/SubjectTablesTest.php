@@ -39,6 +39,12 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \OCA\LaunchPad\Service\ScheduledExport\SubjectTables
+ * @uses \OCA\LaunchPad\Db\Dashboard
+ * @uses \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses \OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldCycleDetector
+ * @uses \OCA\LaunchPad\Service\ScheduledExport\ExportCalculatedValues
+ * @uses \OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldEvaluator
+ * @uses \OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldValues
  *
  * @spec openspec/changes/scheduled-exports/tasks.md#task-22
  */

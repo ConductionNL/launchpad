@@ -43,6 +43,15 @@ use Psr\Log\NullLogger;
  * Which permission level counts as an editor for the visibility rules.
  *
  * @covers \OCA\LaunchPad\Controller\DashboardApiController
+ * @uses \OCA\LaunchPad\Controller\ActorResponses
+ * @uses \OCA\LaunchPad\Controller\DashboardApiAccess
+ * @uses \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses \OCA\LaunchPad\Controller\RequestActor
+ * @uses \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses \OCA\LaunchPad\Controller\UserResponses
+ * @uses \OCA\LaunchPad\Db\Dashboard
+ * @uses \OCA\LaunchPad\Db\WidgetPlacement
  */
 class DashboardApiControllerVisibilityTest extends TestCase {
 

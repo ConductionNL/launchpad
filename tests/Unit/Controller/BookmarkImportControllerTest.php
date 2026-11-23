@@ -49,6 +49,9 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Service\BookmarkImportPlan
  * @uses   \OCA\LaunchPad\Exception\QuotaExceededException
+ * @uses   \OCA\LaunchPad\Controller\ActorResponses
+ * @uses   \OCA\LaunchPad\Controller\UserResponses
+ * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  */
 class BookmarkImportControllerTest extends TestCase {
 	/** @var IRequest&MockObject */

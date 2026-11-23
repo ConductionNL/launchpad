@@ -32,6 +32,8 @@ use RuntimeException;
  * An untouched shipped group widget rule is widened, an edited one is kept.
  *
  * @covers \OCA\LaunchPad\Repair\BroadenShippedGroupWidgetRules
+ * @uses \OCA\LaunchPad\Db\RoleFeaturePermission
+ * @uses \OCA\LaunchPad\Support\WidgetTypeList
  */
 class BroadenShippedGroupWidgetRulesTest extends TestCase {
 	/**

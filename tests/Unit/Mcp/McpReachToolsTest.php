@@ -55,6 +55,18 @@ use OCA\LaunchPad\Mcp\McpExternalTools;
  * @covers \OCA\LaunchPad\Mcp\McpInstanceTools
  * @covers \OCA\LaunchPad\Mcp\McpDashboardWriteTools
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @uses   \OCA\LaunchPad\Db\KioskPlaylist
+ * @uses   \OCA\LaunchPad\Mcp\McpExternalSources
+ * @uses   \OCA\LaunchPad\Service\KioskPlaylistDraft
+ * @uses   \OCA\LaunchPad\Controller\AdminTemplateTools
+ * @uses   \OCA\LaunchPad\Db\PublicShare
+ * @uses   \OCA\LaunchPad\Db\DashboardShare
+ * @uses   \OCA\LaunchPad\Exception\ForbiddenException
+ * @uses   \OCA\LaunchPad\Exception\ResourceException
+ * @uses   \OCA\LaunchPad\Service\ShareGrant
  */
 class McpReachToolsTest extends TestCase {
 

@@ -33,6 +33,8 @@ use RuntimeException;
  * The shipped `default` widget rule is widened once, an edited one is kept.
  *
  * @covers \OCA\LaunchPad\Repair\BroadenDefaultWidgetRule
+ * @uses \OCA\LaunchPad\Db\RoleFeaturePermission
+ * @uses \OCA\LaunchPad\Support\WidgetTypeList
  */
 class BroadenDefaultWidgetRuleTest extends TestCase {
 

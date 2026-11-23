@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Собственный вид",
+    "{index} of {total} · next in {seconds} s" : "{index} из {total} · следующий через {seconds} с",
+    "Now showing {name}" : "Сейчас показывается: {name}",
+    "Put LaunchPad on your home screen" : "Добавьте LaunchPad на главный экран",
+    "Then your workplace opens with one tap, like an app" : "Тогда ваше рабочее место открывается одним касанием, как приложение",
+    "In your browser, choose Share and then Add to Home Screen." : "В браузере выберите «Поделиться», а затем «На экран «Домой»».",
+    "Not now" : "Не сейчас",
     "Dashboard renamed to %s" : "Панель переименована в %s",
     "Columns from %1$s to %2$s" : "Столбцы: с %1$s на %2$s",
     "Widget %s added" : "Добавлен виджет %s",

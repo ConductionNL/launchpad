@@ -1401,6 +1401,13 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Tähän koontinäkymään mahtuu vielä {count}. Valitse vähemmän kansioita tai kirjanmerkkejä.",
         "The bookmarks could not be imported.": "Kirjanmerkkejä ei voitu tuoda.",
         "This file holds no bookmarks.": "Tiedostossa ei ole kirjanmerkkejä.",
-        "Folders": "Kansiot"
+        "Folders": "Kansiot",
+        "Put LaunchPad on your home screen": "Lisää LaunchPad kotinäytölle",
+        "Then your workplace opens with one tap, like an app": "Silloin työpisteesi avautuu yhdellä napautuksella, kuin sovellus",
+        "In your browser, choose Share and then Add to Home Screen.": "Valitse selaimessa Jaa ja sitten Lisää Koti-valikkoon.",
+        "Not now": "Ei nyt",
+        "{index} of {total} · next in {seconds} s": "{index}/{total} · seuraava {seconds} s kuluttua",
+        "Now showing {name}": "Nyt näytössä: {name}",
+        "Own look": "Oma ulkoasu"
     }
 }

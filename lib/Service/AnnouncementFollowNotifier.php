@@ -136,7 +136,10 @@ class AnnouncementFollowNotifier implements AnnouncementFollowNotifierInterface 
 		$targets = $announcement->getTargetGroupList();
 		$recipients = [];
 		foreach ($this->follows->findByCategory(category: $category) as $follow) {
-			$userId = ($follow instanceof AnnouncementFollow) ? (string) $follow->getUserId() : '';
+			$userId = '';
+			if ($follow instanceof AnnouncementFollow) {
+				$userId = (string) $follow->getUserId();
+			}
 			if ($userId === '' || $userId === $announcement->getAuthorId()) {
 				continue;
 			}

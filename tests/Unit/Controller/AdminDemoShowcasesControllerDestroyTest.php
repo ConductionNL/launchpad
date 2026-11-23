@@ -42,6 +42,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\LaunchPad\Controller\AdminDemoShowcasesController
  * @uses   \OCA\LaunchPad\Controller\ShowcaseTools
  * @uses   \OCA\LaunchPad\Service\RequestGuard
+ * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  */
 class AdminDemoShowcasesControllerDestroyTest extends TestCase {
 	private DemoShowcasesService&MockObject $service;

@@ -156,7 +156,8 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	}//end testTheStartPageTilesHaveNoHeading()
 
 	/**
-	 * The wiki widgets carry the wiki-pages content: a space and a list length.
+	 * The wiki widgets carry the wiki-pages content: a space ('' reads every
+	 * space, so the start dashboard lists the wiki's recent pages) and a list length.
 	 *
 	 * @return void
 	 */
@@ -165,8 +166,11 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		$this->assertCount(expectedCount: 2, haystack: $wikis);
 		foreach ($wikis as $wiki) {
 			$this->assertSame(expected: ['space', 'limit'], actual: array_keys($wiki['content']));
-			$this->assertNotSame(expected: '', actual: $wiki['content']['space']);
+			$this->assertIsString(actual: $wiki['content']['space']);
 		}
+
+		$spaces = array_map(callback: static fn (array $wiki): string => $wiki['content']['space'], array: $wikis);
+		$this->assertContains(needle: '', haystack: $spaces);
 
 		$this->assertSame(expected: [], actual: self::placementsOf(type: 'wiki'));
 	}//end testWikiWidgetsReadASpace()

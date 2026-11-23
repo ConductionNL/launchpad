@@ -9,7 +9,14 @@ repository.
 occ launchpad:demo:load
 occ launchpad:demo:load --retire-showcases            # also uninstall the bundled showcases
 occ launchpad:demo:load --password='another-password' # password for users this run creates
+occ launchpad:demo:load --lang=en                     # the texts in English
 ```
+
+The seed is written in Dutch. `data/demo-seed/zuiddrecht-boards.en.json` holds its English texts: dashboard names,
+widget titles, text widget content, the app catalogue and the announcements. Without `--lang`, the seed loads in the
+language of its first user (`pieter`), then in the server's default language; a language without a translation file
+loads the Dutch seed. Loading in another language renames the same dashboards, catalogue entries and announcements.
+Person names, addresses, the municipality name, filters on app data and folder names stay as written.
 
 You can run it as often as you like. Every dashboard has a fixed UUID, so a second run updates the same rows and
 leaves the same state. Users that already exist keep their password. The first-run user `nieuw` loses its own

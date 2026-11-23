@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Service\DemoSeedService;
+use OCP\IConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -41,10 +42,12 @@ class DemoLoadCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param DemoSeedService $seeds The demo seed loader.
+	 * @param DemoSeedService $seeds  The demo seed loader.
+	 * @param IConfig         $config The user and system settings that pick the language.
 	 */
 	public function __construct(
 		private readonly DemoSeedService $seeds,
+		private readonly IConfig $config,
 	) {
 		parent::__construct();
 	}//end __construct()
@@ -74,6 +77,14 @@ class DemoLoadCommand extends Command {
 				default: DemoSeedService::DEFAULT_PASSWORD
 			)
 			->addOption(
+				name: 'lang',
+				shortcut: null,
+				mode: InputOption::VALUE_REQUIRED,
+				description: 'Language of the dashboard, widget and announcement texts, such as en. Without it, the'
+					. ' language of the seed\'s first user, then the server\'s default language. A language the seed'
+					. ' has no translation for loads the seed as written (Dutch).'
+			)
+			->addOption(
 				name: 'retire-showcases',
 				shortcut: null,
 				mode: InputOption::VALUE_NONE,
@@ -101,7 +112,11 @@ class DemoLoadCommand extends Command {
 				$output->writeln(messages: 'Showcases uninstalled: ' . self::listOrNone(items: $retired) . '.');
 			}
 
-			$report = $this->seeds->load(seedId: $seedId, password: (string)$input->getOption(name: 'password'));
+			$report = $this->seeds->load(
+				seedId: $seedId,
+				password: (string)$input->getOption(name: 'password'),
+				language: $this->language(seedId: $seedId, requested: (string)($input->getOption(name: 'lang') ?? ''))
+			);
 		} catch (Throwable $e) {
 			$output->writeln(messages: '<error>Demo seed failed: ' . $e->getMessage() . '</error>');
 			return self::FAILURE;
@@ -115,6 +130,31 @@ class DemoLoadCommand extends Command {
 	}//end execute()
 
 	/**
+	 * The language to load the seed in: the one asked for, else the language
+	 * of the seed's first user, else the server's default language.
+	 *
+	 * @param string $seedId    The seed id.
+	 * @param string $requested The --lang option, '' when not given.
+	 *
+	 * @return string The language, '' for the seed as written.
+	 */
+	private function language(string $seedId, string $requested): string {
+		if ($requested !== '') {
+			return $requested;
+		}
+
+		$firstUser = (string)($this->seeds->definition(seedId: $seedId)['users'][0]['id'] ?? '');
+		if ($firstUser !== '') {
+			$userLanguage = $this->config->getUserValue(userId: $firstUser, appName: 'core', key: 'lang', default: '');
+			if ($userLanguage !== '') {
+				return $userLanguage;
+			}
+		}
+
+		return (string)$this->config->getSystemValueString(key: 'default_language', default: '');
+	}//end language()
+
+	/**
 	 * The lines that summarise a run.
 	 *
 	 * @param string               $seedId The seed id.
@@ -124,7 +164,7 @@ class DemoLoadCommand extends Command {
 	 */
 	private static function reportLines(string $seedId, array $report): array {
 		$lines = [
-			'Loaded demo seed ' . $seedId . '.',
+			'Loaded demo seed ' . $seedId . ' (' . self::languageName(language: (string)($report['language'] ?? '')) . ').',
 			'Users created: ' . self::listOrNone(items: $report['createdUsers']) . '.',
 			'Groups created: ' . self::listOrNone(items: $report['createdGroups']) . '.',
 			'Catalogue: ' . $report['catalogue']['created'] . ' added, ' . $report['catalogue']['updated'] . ' updated.',
@@ -170,6 +210,21 @@ class DemoLoadCommand extends Command {
 
 		return $lines;
 	}//end dashboardLines()
+
+	/**
+	 * How the report names the language applied.
+	 *
+	 * @param string $language The language applied, '' for none.
+	 *
+	 * @return string The name.
+	 */
+	private static function languageName(string $language): string {
+		if ($language === '') {
+			return 'as written';
+		}
+
+		return 'language ' . $language;
+	}//end languageName()
 
 	/**
 	 * A comma-separated list, or "none".

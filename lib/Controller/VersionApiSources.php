@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Service\DashboardVersionService;
+use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -39,11 +40,13 @@ class VersionApiSources {
 	 * @param DashboardMapper         $dashboardMapper Dashboard row lookup.
 	 * @param DashboardVersionService $versionService Version service.
 	 * @param LoggerInterface         $logger PSR logger.
+	 * @param IUserManager|null       $userManager Names the person behind a version.
 	 */
 	public function __construct(
 		public readonly DashboardMapper $dashboardMapper,
 		public readonly DashboardVersionService $versionService,
 		public readonly LoggerInterface $logger,
+		public readonly ?IUserManager $userManager=null,
 	) {
 	}//end __construct()
 }//end class

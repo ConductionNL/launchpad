@@ -528,10 +528,13 @@
 				class="dashboard-config__panel">
 				<VersionsTab
 					:dashboardUuid="dashboard.uuid"
-					@restored="$emit('versionRestored', $event)" />
+					@restored="$emit('versionRestored', $event)"
+					@close="$emit('close')" />
 			</div>
 
-			<div class="dashboard-config__actions">
+			<!-- The Versions tab ends in its own Close and Restore this version
+			     (LpVersies); the dialog's Save does not apply there. -->
+			<div v-if="currentTab !== 'versions' || isCreate" class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
 					variant="error"

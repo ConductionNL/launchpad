@@ -24,6 +24,12 @@
 	width: min(720px, 100%);
 }
 
+/* The boards draw every LaunchPad dialog with a 12px corner and a soft drop shadow. */
+.modal-mask.launchpad-modal .modal-container {
+	border-radius: 12px;
+	box-shadow: 0 16px 48px rgba(27, 28, 29, 0.28);
+}
+
 /*
  * The house style (thematiq) sets heading and paragraph type with
  * !important on bare `h2` and `p`, which beats any class here. The frame's

@@ -4,8 +4,12 @@
 -->
 
 <template>
-	<div class="files-widget">
-		<div class="files-widget__toolbar">
+	<div class="files-widget" :class="{ 'files-widget--compact': compact }">
+		<p v-if="compact" class="files-widget__folder" data-testid="files-widget-folder">
+			<FolderOutline :size="16" aria-hidden="true" />
+			{{ t('launchpad', 'Folder {name}', { name: folderName }) }}
+		</p>
+		<div v-else class="files-widget__toolbar">
 			<nav
 				class="files-widget__breadcrumb"
 				:aria-label="t('launchpad', 'Folder breadcrumb')">
@@ -118,12 +122,16 @@
 					class="files-widget__row-name"
 					@click="onItemClick(item)">
 					<span aria-hidden="true" class="files-widget__row-icon">
-						{{ item.isFolder ? '📁' : '📄' }}
+						<template v-if="compact">
+							<FolderOutline v-if="item.isFolder" :size="18" />
+							<FileDocumentOutline v-else :size="18" />
+						</template>
+						<template v-else>{{ item.isFolder ? '📁' : '📄' }}</template>
 					</span>
 					<span class="files-widget__row-label">{{ item.name }}</span>
 				</button>
-				<span class="files-widget__row-modified">{{ item.modifiedAt }}</span>
-				<span class="files-widget__row-size">{{
+				<span class="files-widget__row-modified">{{ compact ? whenText(item.modifiedAt) : item.modifiedAt }}</span>
+				<span v-if="!compact" class="files-widget__row-size">{{
 					formatSize(item.size, item.isFolder)
 				}}</span>
 				<button
@@ -205,7 +213,38 @@
  * a stale path.
  */
 
+import { getLanguage } from '@nextcloud/l10n'
+import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
+import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
 import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
+
+/** Milliseconds in a day. */
+const DAY_MS = 86400000
+
+/**
+ * When a file changed, as the boards word it in a file list: the time for
+ * today, the weekday within the last week, the day and month before that.
+ *
+ * @param {string} value ISO date of the change.
+ * @param {Date} now The current moment.
+ * @param {string} locale BCP 47 locale.
+ * @return {string} The moment, or the value as given when it is no date.
+ * @spec openspec/specs/files-widget/spec.md
+ */
+export function fileWhenText(value, now, locale) {
+	const changed = new Date(value ?? '')
+	if (Number.isNaN(changed.getTime())) {
+		return value ?? ''
+	}
+	const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+	if (changed >= startOfToday) {
+		return changed.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+	}
+	if (startOfToday - changed < 6 * DAY_MS) {
+		return changed.toLocaleDateString(locale, { weekday: 'long' })
+	}
+	return changed.toLocaleDateString(locale, { day: 'numeric', month: 'short' })
+}
 
 /**
  * Load the HTTP client and build one files-widget endpoint URL.
@@ -258,6 +297,8 @@ function contentsErrorCode(err) {
 export default {
 	name: 'FilesWidget',
 
+	components: { FileDocumentOutline, FolderOutline },
+
 	props: {
 		/** Persisted content blob: see FilesForm for shape. */
 		content: OBJECT_PROP,
@@ -288,6 +329,27 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The compact list the boards draw (LpWerkplek "Bestanden"): the folder
+		 * named on one line, then each file with its glyph, its name and when
+		 * it changed; no breadcrumb, search or size.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
+		compact() {
+			return this.content?.layout === 'compact'
+		},
+
+		/**
+		 * @return {string} The last segment of the configured folder.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
+		folderName() {
+			const parts = String(this.content?.folderPath || '').split('/').filter(Boolean)
+			return parts.length > 0 ? parts[parts.length - 1] : t('launchpad', 'Files')
+		},
+
 		/** @spec openspec/specs/files-widget/spec.md */
 		placementId() {
 			return Number(this.placement?.id || 0)
@@ -665,6 +727,15 @@ export default {
 		 * @return {string} The formatted size, or `''` for folders.
 		 * @spec openspec/specs/files-widget/spec.md
 		 */
+		/**
+		 * @param {string} value ISO date of the change.
+		 * @return {string} When the file changed, in the reader's language.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
+		whenText(value) {
+			return fileWhenText(value, new Date(), getLanguage())
+		},
+
 		formatSize(bytes, isFolder) {
 			if (isFolder) {
 				return ''
@@ -687,6 +758,33 @@ export default {
 </script>
 
 <style scoped>
+.files-widget__folder {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 4px;
+	color: var(--color-text-maxcontrast);
+	font-size: 12px;
+}
+
+.files-widget--compact .files-widget__row {
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 12px;
+	padding: 7px 0;
+	border-bottom: none;
+	border-top: 1px solid var(--color-border);
+}
+
+.files-widget--compact .files-widget__row-name {
+	min-width: 0;
+	font-size: 14px;
+}
+
+.files-widget--compact .files-widget__row-icon {
+	display: flex;
+	color: var(--color-text-maxcontrast);
+}
+
 .files-widget {
 	display: flex;
 	flex-direction: column;

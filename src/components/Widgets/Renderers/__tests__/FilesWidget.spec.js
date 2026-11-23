@@ -13,7 +13,7 @@
 import axios from '@nextcloud/axios'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import FilesWidget from '../FilesWidget.vue'
+import FilesWidget, { fileWhenText } from '../FilesWidget.vue'
 
 // Vue 2's @vue/test-utils does not export `flushPromises`. The
 // `setImmediate` shim below drains the microtask queue (which covers
@@ -102,6 +102,33 @@ describe('FilesWidget', () => {
 		expect(rows.length).toBe(2)
 		expect(wrapper.text()).toContain('budget.pdf')
 		expect(wrapper.text()).toContain('images')
+	})
+
+	it('compact layout names the folder and lists name and change time, without toolbar or size', async () => {
+		axios.get.mockResolvedValue({
+			data: { items: SAMPLE_ITEMS, nextCursor: null },
+		})
+
+		const wrapper = mount(FilesWidget, {
+			propsData: {
+				placement: { id: 7 },
+				content: { folderPath: '/Vergunningen', layout: 'compact' },
+			},
+		})
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="files-widget-folder"]').exists()).toBe(true)
+		expect(wrapper.find('.files-widget__toolbar').exists()).toBe(false)
+		expect(wrapper.find('.files-widget__row-size').exists()).toBe(false)
+		expect(wrapper.find('.files-widget__row-modified').text()).not.toContain('T12:00:00Z')
+	})
+
+	it('words a change time as the boards do: time today, weekday this week, day and month before', () => {
+		const now = new Date(2026, 9, 5, 14, 0)
+		expect(fileWhenText(new Date(2026, 9, 5, 10, 12).toISOString(), now, 'en-GB')).toBe('10:12')
+		expect(fileWhenText(new Date(2026, 9, 2, 9, 0).toISOString(), now, 'en-GB')).toBe('Friday')
+		expect(fileWhenText(new Date(2026, 8, 28, 9, 0).toISOString(), now, 'en-GB')).toBe('28 Sept')
+		expect(fileWhenText('not a date', now, 'en-GB')).toBe('not a date')
 	})
 
 	it('REQ-FLS-009: shows folder_not_found state on HTTP 404', async () => {

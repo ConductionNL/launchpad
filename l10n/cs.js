@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Čtvrtletí",
+    "Year" : "Rok",
     "Show until" : "Zobrazit do",
     "After this time the announcement disappears from every dashboard." : "Po této době oznámení zmizí ze všech nástěnek.",
     "Visible until {when}" : "Viditelné do {when}",

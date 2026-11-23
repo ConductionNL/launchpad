@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Kwart",
+    "Year" : "Sena",
     "Show until" : "Uri sa",
     "After this time the announcement disappears from every dashboard." : "Wara dan il-ħin, it-tħabbira tisparixxi minn kull dashboard.",
     "Visible until {when}" : "Viżibbli sa {when}",

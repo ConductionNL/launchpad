@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Tremujor",
+    "Year" : "Vit",
     "Show until" : "Shfaq deri më",
     "After this time the announcement disappears from every dashboard." : "Pas kësaj kohe njoftimi zhduket nga çdo panel.",
     "Visible until {when}" : "I dukshëm deri më {when}",

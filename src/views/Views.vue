@@ -202,7 +202,10 @@
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
 				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
-				:permissionLevel="permissionLevel" />
+				:permissionLevel="permissionLevel"
+				:showsPeriod="showsPeriod"
+				:period="dashboardPeriod"
+				@update:period="onPeriodChange" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -491,7 +494,7 @@ import {
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
-import { computed, nextTick, provide, reactive, shallowRef } from 'vue'
+import { computed, nextTick, provide, reactive, ref, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TileWidget from '../components/TileWidget.vue'
@@ -546,6 +549,7 @@ import { useWidgetStore } from '../stores/widgets.js'
 import { appBase, bootHash, bootPath, dashboardUuidFromHash } from '../utils/bootPath.js'
 import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
+import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
@@ -826,7 +830,12 @@ export default {
 		const filterSession = shallowRef(null)
 		provide('dashboardFilterBus', computed(() => filterSession.value?.bus ?? null))
 
-		return { canEditRef, grid, personalLayer, filterSession }
+		// dashboard-period-and-download REQ-DPD-002: the period the dated
+		// widgets follow, from the address; read-only, never stored.
+		const dashboardPeriod = ref(readPeriod(typeof window === 'undefined' ? '' : window.location.search))
+		provide('dashboardPeriod', dashboardPeriod)
+
+		return { canEditRef, grid, personalLayer, filterSession, dashboardPeriod }
 	},
 
 	data() {
@@ -1040,6 +1049,17 @@ export default {
 					|| this.unavailableSources[sourceKey(p.content)] !== true)
 					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
 			)
+		},
+
+		/**
+		 * Whether a shown widget names a period field, so the header offers
+		 * the period choice (REQ-DPD-002).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		showsPeriod() {
+			return namesPeriod(this.shownPlacements)
 		},
 
 		/**
@@ -3218,6 +3238,23 @@ export default {
 		 */
 		async onDashboardHashChange() {
 			await this.openHashLinkedDashboard(window.location.hash)
+		},
+
+		/**
+		 * Take the chosen period and keep it in the address, so a copied
+		 * link opens with the same period; the stored dashboard is untouched.
+		 *
+		 * @param {string} period `month`, `quarter` or `year`.
+		 * @return {void}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		onPeriodChange(period) {
+			this.dashboardPeriod = readPeriod('?period=' + encodeURIComponent(period))
+			try {
+				window.history.replaceState(window.history.state, '', addressWithPeriod(window.location.href, this.dashboardPeriod))
+			} catch (e) {
+				logger.warn('[Views] history.replaceState failed:', e)
+			}
 		},
 
 		/**

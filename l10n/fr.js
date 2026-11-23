@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Trimestre",
+    "Year" : "Année",
     "Show until" : "Afficher jusqu'au",
     "After this time the announcement disappears from every dashboard." : "Après cette date, l'annonce disparaît de tous les tableaux de bord.",
     "Visible until {when}" : "Visible jusqu'au {when}",

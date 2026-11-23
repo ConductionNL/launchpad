@@ -1420,6 +1420,8 @@
         "After this time the announcement disappears from every dashboard.": "Пасля гэтага часу аб'ява знікне з усіх панэляў.",
         "Visible until {when}": "Бачна да {when}",
         "Choose until when the announcement shows": "Выберыце, да якога часу паказваць аб'яву",
-        "The end time must be after the publish time": "Час заканчэння павінен быць пасля часу публікацыі"
+        "The end time must be after the publish time": "Час заканчэння павінен быць пасля часу публікацыі",
+        "Quarter": "Квартал",
+        "Year": "Год"
     }
 }

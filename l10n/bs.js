@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Kvartal",
+    "Year" : "Godina",
     "Show until" : "Prikaži do",
     "After this time the announcement disappears from every dashboard." : "Nakon tog vremena obavještenje nestaje sa svih kontrolnih ploča.",
     "Visible until {when}" : "Vidljivo do {when}",

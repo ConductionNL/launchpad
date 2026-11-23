@@ -1151,25 +1151,13 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardMoreMenu.vue | canManagePublication": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/Workspace/DashboardMoreMenu.vue | canViewHistory": {
+	"../../components/Workspace/DashboardMoreMenu.vue | canDuplicate": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
 		"default": false
 	},
 	"../../components/Workspace/DashboardMoreMenu.vue | canViewReadReceipts": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../components/Workspace/DashboardMoreMenu.vue | canEmbed": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
@@ -1391,6 +1379,32 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../components/Workspace/LaunchpadMoreMenu.vue | dashboards": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/LaunchpadMoreMenu.vue | settings": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/LaunchpadMoreMenu.vue | actions": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/LaunchpadMoreMenuItem.vue | item": {
+		"type": "Object",
+		"required": true,
+		"validator": false
 	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",

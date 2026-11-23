@@ -281,8 +281,8 @@ test('while items load the widget shows a loading state and the page stays usabl
 	await expect(widget.locator('.news-widget__state--loading')).toBeVisible({ timeout: 20_000 })
 
 	// Not blocking: the More menu opens while the fetch is still in flight.
-	await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await expect(page.locator('[data-testid="cn-grouped-menu-item-all-dashboards"]')).toBeVisible()
+	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await expect(page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')).toBeVisible()
 	await expect(widget.locator('.news-widget__state--loading')).toBeVisible()
 	await page.keyboard.press('Escape')
 

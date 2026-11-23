@@ -53,7 +53,7 @@ import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
 import { setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 import { API } from './support/principals.ts'
 import {
@@ -122,10 +122,8 @@ function slotAhead(aheadMs: number): Slot {
  */
 async function openExports(page: Page): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
-	const more = page.locator(MORE_MENU)
-	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+	await openDashboardSettings(page)
 	await page.locator('[data-test="config-tab-exports"]').click()
 	const list = page.getByTestId('scheduled-exports')
 	await expect(list).toBeVisible({ timeout: 15_000 })
@@ -544,12 +542,14 @@ test.describe('scheduled exports: the Exports tab of the dashboard settings (REQ
 			await page.goto('/index.php/apps/launchpad')
 			const more = page.locator(MORE_MENU)
 			await expect(more).toBeVisible({ timeout: 30_000 })
-			await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			await expect(page.locator('[data-testid="cn-grouped-menu-item-config"]')).toBeVisible()
-			for (const id of ['scheduled-exports', 'schedule', 'publish', 'unpublish']) {
-				await expect(page.locator(`[data-testid="cn-grouped-menu-item-${id}"]`)).toHaveCount(0)
+			await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+			// Control: the menu is open on this dashboard's actions.
+			await expect(page.locator('[data-testid="launchpad-more-menu-item-edit"]')).toBeVisible()
+			for (const id of ['config', 'scheduled-exports', 'schedule', 'publish', 'unpublish']) {
+				await expect(page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`)).toHaveCount(0)
 			}
-			await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+			await page.keyboard.press('Escape')
+			await openDashboardSettings(page)
 			await page.locator('[data-test="config-tab-exports"]').click()
 			const list = page.getByTestId('scheduled-exports')
 			await expect(list.getByTestId('scheduled-export-name').filter({ hasText: `This dashboard ${STAMP}` })).toBeVisible({ timeout: 15_000 })

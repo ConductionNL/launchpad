@@ -370,9 +370,9 @@ test('setting "Opens in" to Same tab in the editor makes the web tile open in th
 		// Back on the Workspace page in view mode, the click stays in this tab.
 		await page
 			.locator(MORE_MENU)
-			.locator('[data-testid="cn-grouped-menu-trigger"]')
+			.locator('[data-testid="launchpad-more-menu-trigger"]')
 			.click()
-		await page.locator('[data-testid="cn-grouped-menu-item-edit"]').click()
+		await page.locator('[data-testid="launchpad-more-menu-item-edit"]').click()
 		await expect(page.locator('.launchpad-edit-mode')).toHaveCount(0)
 		await expect(link(page, INTRANET)).toHaveAttribute('target', '_self')
 		const pages = context.pages().length

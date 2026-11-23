@@ -30,7 +30,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 
 - The per-widget right-click context menu (REQ-WDG-015)
 - GridStack's `staticGrid` mode (false when `canEdit`, true otherwise)
-- The action menu's edit entries: "Add widget", "Save dashboard", "Dashboard configuration…"
+- More's edit entries: "Edit" and "Add widget" (REQ-SHELL-013), and with them the edit bar and its "Dashboard settings" (dashboards REQ-DASH-038)
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
 
@@ -38,14 +38,14 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 
 - **GIVEN** a non-admin user viewing a `group_shared` dashboard (`dashboardSource === 'group'`)
 - **WHEN** they open the action menu
-- **THEN** no "Add widget", "Save dashboard", or "Dashboard configuration" entries MUST be visible
+- **THEN** no "Edit" or "Add widget" entries MUST be visible
 - **AND** right-clicking any widget MUST fall through to the browser's native context menu
 
 #### Scenario: canEdit user sees full edit menu
 
 - **GIVEN** an admin user viewing any dashboard
 - **WHEN** they open the action menu
-- **THEN** "Add widget", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
+- **THEN** "Edit", "Add widget" and, under Settings, "Documentation" MUST all be present
 - **AND** in edit mode, right-clicking a widget MUST open the widget context menu (REQ-WDG-015, which keeps view mode on the browser's native menu)
 
 ### Requirement: REQ-SHELL-003 Toolbar contents
@@ -230,9 +230,9 @@ LaunchPad MUST NOT render a left navigation panel on any page. `App.vue` passes 
 
 Everything the panel offered MUST stay reachable through the More menu: the panel's entries (`manifest.menu` in the sections main, footer and settings, after the same permission filter the panel applied), the personal settings dialog, and for an administrator the link to Nextcloud's admin settings. That covers Documentation, Marketplace and Features & roadmap (the panel's footer) and Reports, Flows, Templates and the settings (its Advanced foldout).
 
-- On the dashboard view (`/` and `/dashboards/:id`) the workspace's own More menu (`DashboardMoreMenu`) carries them in its Launchpad and Settings groups, beside the dashboards and the open dashboard's actions. A member without an active dashboard gets the compact More menu (`StartPageMenu`) in the empty state.
-- Both menus MUST use the groups and order of boards LpVandaag and LpWerkplek: Dashboards; Settings ("Instellingen": Personal settings, then Admin settings for an administrator); This dashboard ("Dit dashboard", dashboard view only); Launchpad (Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features & roadmap, in that order; nl Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap). An entry the boards do not name follows at the end of the Launchpad group. The in-app admin settings route (`admin-settings`) only redirects to Nextcloud's admin settings, so the menus offer that destination once, as the Settings group's admin settings link.
-- On every other page (Marketplace, Reports, Flows, Features & roadmap, the admin pages) `App.vue` renders the compact More menu at the top end of the content, through `CnAppRoot`'s `#header-actions` slot, and keeps that column free so a page's own header actions are never covered. Its first entry is Dashboards, which is how a member gets back.
+- On the dashboard view (`/` and `/dashboards/:id`) the workspace's own More menu (`DashboardMoreMenu`) carries them under its expandable Settings item, beside the dashboards and the open dashboard's actions. A member without an active dashboard gets the same menu (`StartPageMenu`) in the empty state.
+- Both are the one menu of REQ-SHELL-013 (board LpMeer), with the items under Settings in this order: Personal settings, Admin settings for an administrator, then Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features & roadmap (nl Persoonlijke instellingen, Beheerinstellingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap). An entry the board does not name follows at the end. The in-app admin settings route (`admin-settings`) only redirects to Nextcloud's admin settings, so the menu offers that destination once, as the admin settings link. The manifest's `dashboards` entry is the Dashboards group.
+- On every other page (Marketplace, Reports, Flows, Features & roadmap, the admin pages) `App.vue` renders the same More menu at the top end of the content, through `CnAppRoot`'s `#header-actions` slot, and keeps that column free so a page's own header actions are never covered. Its Dashboards group is how a member gets back.
 - A kiosk view (`?kiosk=1`, REQ-KIOSK-001) renders neither.
 
 The menus are keyboard reachable with visible focus and use no colour of their own. An external destination opens in a new tab, as the panel's did.
@@ -251,14 +251,14 @@ The admin option "Start page without navigation panel" is no longer offered: wit
 #### Scenario: The dashboard view carries its destinations in More
 - GIVEN a member with an active dashboard
 - WHEN they open More
-- THEN the menu MUST offer Documentation, Marketplace, Reports, Flows, Features & roadmap and the personal settings, beside the dashboards
+- THEN the menu MUST offer, under Settings, Documentation, Marketplace, Reports, Flows, Features & roadmap and the personal settings, beside the dashboards
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
 
 #### Scenario: Another page carries More at its top
 - GIVEN a member on the Marketplace page
 - WHEN the page renders
-- THEN the More menu MUST be at the top end of the content, and its Dashboards entry MUST lead back to the dashboard view
+- THEN the More menu MUST be at the top end of the content, and its Dashboards group MUST lead back to the dashboard view
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
 
@@ -268,6 +268,50 @@ The admin option "Start page without navigation panel" is no longer offered: wit
 - THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+### Requirement: REQ-SHELL-013 One More menu, the same on every page
+
+The page header MUST carry one control: More. There MUST be no "Startpagina aanpassen" button, no Menu button, no Edit button and no "Add widget" button in the header; editing starts from More, and the edit bar (dashboards REQ-DASH-038) carries the edit actions.
+
+More MUST be the same menu on every page (board `launchpad/LpMeer`): on the start page, on any dashboard, in the empty state and on every other page. It is a popover of 600 px with two columns, one column below 960 px:
+
+- **Dashboards** (left): the person's own dashboards, then the shared and group ones, at most eight, as radio items (`role="menuitemradio"`) with the open one checked and highlighted, and the markers default, shared and group. Then "All dashboards". Off the dashboard view no dashboard is checked, and choosing one opens it on the dashboard view.
+- **Settings** (left, below Dashboards): ONE menu item with a cog and a chevron, `aria-haspopup="true"` and `aria-expanded`. It starts folded each time the menu opens and unfolds in place as an indented group with a 2 px rule at its start: Personal settings, Admin settings (administrators only), Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features and roadmap (nl Persoonlijke instellingen, Beheerinstellingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap). An entry the board does not name follows at the end.
+- **This dashboard** (right, only where a dashboard is open): Edit, Add widget, Share, Copy link to this dashboard, Duplicate as new dashboard, Set as default, and Delete last, in the error colour behind a rule. Each item keeps its rule: Edit and Add widget need edit rights, Share and Delete need ownership, Duplicate needs personal dashboards to be allowed and the quota not reached. Read receipts, for an editor of a dashboard that asks readers to confirm, sits before Delete.
+
+More MUST NOT offer Versions (a tab of the dashboard settings, REQ-DASH-039), Schedule or Unpublish (the Publication tab), or a second Settings item under This dashboard; the dashboard settings open from the edit bar.
+
+The menu is a WAI-ARIA menu: the arrow keys move through every visible item over both columns, Home and End jump to the first and last, Right unfolds Settings and Left folds it, and Escape closes the menu and returns focus to More.
+
+**Why.** Ruben's decision of 22 Nov 2026, drawn on boards LpMeer and LpBewerken (design-system #1193, #1194): one menu, identical everywhere, for the English demo film.
+
+#### Scenario: The header carries only More
+- GIVEN a member on the start page
+- WHEN the page renders
+- THEN the only control at the top MUST be More, with no "Startpagina aanpassen", Menu, Edit or Add widget button
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-013
+
+#### Scenario: Settings unfolds in place
+- GIVEN a member with More open
+- WHEN they choose Settings
+- THEN Settings MUST report `aria-expanded="true"` and its destinations MUST show indented below it, while the menu stays open
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-013
+
+#### Scenario: This dashboard ends in Delete
+- GIVEN the owner of the open dashboard with More open
+- WHEN they read This dashboard
+- THEN it MUST list Edit, Add widget, Share, Copy link to this dashboard, Duplicate as new dashboard, Set as default and Delete, in that order, and no Versions or Settings item
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-013
+
+#### Scenario: Escape returns focus to More
+- GIVEN a member moving through More with the arrow keys
+- WHEN they press Escape
+- THEN the menu MUST close and focus MUST be on More
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-013
 
 ### Requirement: REQ-SHELL-010 First-visit tour
 

@@ -46,7 +46,7 @@ import {
 	readDashboard,
 	removeTree,
 } from './support/dashboardHierarchy.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -127,10 +127,8 @@ async function drawn(
  * @return nothing.
  */
 async function openLookTab(page: Page): Promise<void> {
-	const more = page.locator(MORE_MENU)
-	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="cn-grouped-menu-trigger"]').click()
-	await page.locator('[data-testid="cn-grouped-menu-item-config"]').click()
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+	await openDashboardSettings(page)
 	await page.locator('[data-test="config-tab-look"]').click()
 	await expect(page.locator('[data-test="config-panel-look"]')).toBeVisible()
 }

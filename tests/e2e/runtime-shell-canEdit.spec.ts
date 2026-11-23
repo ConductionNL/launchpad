@@ -112,8 +112,8 @@ test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
 		try {
 			await waitForShell(page)
 			await expect(page.locator('select[name="activeDashboard"]')).toHaveCount(0)
-			await page.locator(MORE_MENU).locator('[data-testid="cn-grouped-menu-trigger"]').click()
-			const rows = page.locator('[data-testid^="cn-grouped-menu-item-dashboard-"]')
+			await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
+			const rows = page.locator('[data-testid^="launchpad-more-menu-item-dashboard-"]')
 			await expect(rows.first()).toBeVisible()
 			await expect(rows.and(page.locator('[aria-checked="true"]'))).toHaveCount(1)
 		} finally {

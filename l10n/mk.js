@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Квартал",
+    "Year" : "Година",
     "Show until" : "Прикажувај до",
     "After this time the announcement disappears from every dashboard." : "По ова време известувањето исчезнува од сите контролни табли.",
     "Visible until {when}" : "Видливо до {when}",

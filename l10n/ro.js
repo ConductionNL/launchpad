@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Trimestru",
+    "Year" : "An",
     "Show until" : "Afișează până la",
     "After this time the announcement disappears from every dashboard." : "După această oră, anunțul dispare de pe toate tablourile de bord.",
     "Visible until {when}" : "Vizibil până la {when}",

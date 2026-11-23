@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Ceturksnis",
+    "Year" : "Gads",
     "Show until" : "Rādīt līdz",
     "After this time the announcement disappears from every dashboard." : "Pēc šī laika paziņojums pazūd no visiem informācijas paneļiem.",
     "Visible until {when}" : "Redzams līdz {when}",

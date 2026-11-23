@@ -1418,6 +1418,8 @@
         "After this time the announcement disappears from every dashboard.": "Tämän jälkeen tiedote katoaa kaikilta koontinäytöiltä.",
         "Visible until {when}": "Näkyvissä {when} asti",
         "Choose until when the announcement shows": "Valitse, mihin asti tiedote näkyy",
-        "The end time must be after the publish time": "Päättymisajan on oltava julkaisuajan jälkeen"
+        "The end time must be after the publish time": "Päättymisajan on oltava julkaisuajan jälkeen",
+        "Quarter": "Vuosineljännes",
+        "Year": "Vuosi"
     }
 }

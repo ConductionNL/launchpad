@@ -1418,6 +1418,8 @@
         "After this time the announcement disappears from every dashboard.": "Ezután a közlemény minden irányítópultról eltűnik.",
         "Visible until {when}": "Látható eddig: {when}",
         "Choose until when the announcement shows": "Válassza ki, meddig látható a közlemény",
-        "The end time must be after the publish time": "A befejezésnek a közzététel után kell lennie"
+        "The end time must be after the publish time": "A befejezésnek a közzététel után kell lennie",
+        "Quarter": "Negyedév",
+        "Year": "Év"
     }
 }

@@ -1564,50 +1564,67 @@
 					"tile": "zaaksysteem",
 					"gridX": 0,
 					"gridY": 1,
-					"iconOnly": true
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"pinned": true
 				},
 				{
 					"tile": "kadaster",
-					"gridX": 2,
+					"gridX": 1,
 					"gridY": 1,
+					"gridWidth": 1,
+					"gridHeight": 2,
 					"iconOnly": true
 				},
 				{
 					"tile": "topdesk",
-					"gridX": 4,
+					"gridX": 2,
 					"gridY": 1,
+					"gridWidth": 1,
+					"gridHeight": 2,
 					"iconOnly": true
 				},
 				{
 					"tile": "raadsinformatie",
-					"gridX": 0,
-					"gridY": 3,
-					"iconOnly": true
+					"gridX": 3,
+					"gridY": 1,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"status": "down"
 				},
 				{
 					"tile": "word",
-					"gridX": 2,
-					"gridY": 3,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 1,
+					"gridHeight": 2,
 					"iconOnly": true
 				},
 				{
 					"tile": "bestanden",
-					"gridX": 4,
-					"gridY": 3,
+					"gridX": 5,
+					"gridY": 1,
+					"gridWidth": 1,
+					"gridHeight": 2,
 					"iconOnly": true
 				},
 				{
 					"tile": "talk",
-					"gridX": 0,
-					"gridY": 5,
-					"iconOnly": true
+					"gridX": 6,
+					"gridY": 1,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"badge": 2
 				},
 				{
 					"widgetId": "menu",
-					"gridX": 6,
-					"gridY": 1,
-					"gridWidth": 6,
-					"gridHeight": 4,
+					"gridX": 0,
+					"gridY": 3,
+					"gridWidth": 4,
+					"gridHeight": 8,
 					"showTitle": 1,
 					"customTitle": "Wegwijs Vergunningen",
 					"content": {
@@ -1670,18 +1687,19 @@
 								]
 							}
 						],
-						"style": "mega",
-						"orientation": "horizontal",
+						"style": "tree",
+						"orientation": "vertical",
 						"showIcons": false,
 						"expandedByDefault": true,
-						"activeItemHighlight": "none"
+						"activeItemHighlight": "none",
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "text",
-					"gridX": 0,
-					"gridY": 7,
-					"gridWidth": 4,
+					"gridX": 4,
+					"gridY": 3,
+					"gridWidth": 8,
 					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Van de teamleider",
@@ -1689,56 +1707,60 @@
 						"text": "Deze week vieren we de **1.000e omgevingsvergunning** onder de Omgevingswet. Vrijdag om 15:30 staat er taart. Dank voor jullie inzet.\n\n*Marieke Jansen, teamleider Vergunningen*",
 						"fontSize": "14px",
 						"textAlign": "left",
-						"contentMode": "markdown"
+						"contentMode": "markdown",
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "assigned-cases",
-					"gridX": 4,
-					"gridY": 7,
+					"gridX": 0,
+					"gridY": 11,
 					"gridWidth": 4,
-					"gridHeight": 5,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Mijn zaken",
 					"content": {
 						"register": "dossiq",
 						"schema": "case",
-						"limit": 4
+						"limit": 4,
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "work-packages",
-					"gridX": 8,
-					"gridY": 7,
+					"gridX": 4,
+					"gridY": 11,
 					"gridWidth": 4,
-					"gridHeight": 5,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Werkpakketten van het team",
 					"content": {
 						"scope": "project",
 						"project": "havenpark",
-						"limit": 4
+						"limit": 4,
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "wiki-pages",
-					"gridX": 0,
+					"gridX": 8,
 					"gridY": 11,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Wiki van het team",
 					"content": {
 						"space": "Vergunningen",
-						"limit": 3
+						"limit": 3,
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "calendar",
-					"gridX": 4,
-					"gridY": 12,
+					"gridX": 0,
+					"gridY": 18,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Teamagenda",
 					"content": {
@@ -1749,15 +1771,16 @@
 						"internalCalendars": [
 							"vergunningen"
 						],
-						"externalIcsUrls": []
+						"externalIcsUrls": [],
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "people",
-					"gridX": 8,
-					"gridY": 12,
+					"gridX": 4,
+					"gridY": 18,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Collega's",
 					"content": {
@@ -1773,15 +1796,16 @@
 						],
 						"excludeDisabled": true,
 						"sortBy": "displayName",
-						"columns": 2
+						"columns": 2,
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "files",
-					"gridX": 0,
-					"gridY": 15,
+					"gridX": 8,
+					"gridY": 18,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Teambestanden",
 					"content": {
@@ -1793,7 +1817,8 @@
 						"allowUpload": false,
 						"allowDelete": false,
 						"sortBy": "modified",
-						"sortDescending": true
+						"sortDescending": true,
+						"showActions": false
 					}
 				}
 			]
@@ -1824,7 +1849,7 @@
 						"backgroundColor": "transparent",
 						"placements": [
 							{
-								"widgetId": "stat",
+								"type": "stat",
 								"gridX": 0,
 								"gridY": 0,
 								"gridWidth": 3,
@@ -1848,7 +1873,7 @@
 								}
 							},
 							{
-								"widgetId": "stat",
+								"type": "stat",
 								"gridX": 3,
 								"gridY": 0,
 								"gridWidth": 3,
@@ -1872,7 +1897,7 @@
 								}
 							},
 							{
-								"widgetId": "stat",
+								"type": "stat",
 								"gridX": 6,
 								"gridY": 0,
 								"gridWidth": 3,
@@ -1896,7 +1921,7 @@
 								}
 							},
 							{
-								"widgetId": "stat",
+								"type": "stat",
 								"gridX": 9,
 								"gridY": 0,
 								"gridWidth": 3,
@@ -1919,7 +1944,8 @@
 									}
 								}
 							}
-						]
+						],
+						"showActions": false
 					}
 				},
 				{
@@ -1953,7 +1979,8 @@
 							"var(--sc-accent, #cc0000)",
 							"var(--sc-work-field, #828a95)",
 							"var(--sc-primary-deep, #234a78)"
-						]
+						],
+						"showActions": false
 					}
 				},
 				{
@@ -2007,7 +2034,8 @@
 								"min": 0,
 								"max": 150
 							}
-						}
+						},
+						"showActions": false
 					}
 				},
 				{
@@ -2043,7 +2071,8 @@
 								"Subsidie",
 								"Parkeervergunning"
 							]
-						}
+						},
+						"showActions": false
 					}
 				},
 				{
@@ -2064,7 +2093,8 @@
 							"prefix": "",
 							"suffix": " min",
 							"thousands": false
-						}
+						},
+						"showActions": false
 					}
 				},
 				{
@@ -2075,7 +2105,9 @@
 					"gridHeight": 5,
 					"showTitle": 1,
 					"customTitle": "Uitgaven per afdeling",
-					"content": {}
+					"content": {
+						"showActions": false
+					}
 				},
 				{
 					"widgetId": "status-report",
@@ -2085,7 +2117,9 @@
 					"gridHeight": 3,
 					"showTitle": 1,
 					"customTitle": "Compliance",
-					"content": {}
+					"content": {
+						"showActions": false
+					}
 				},
 				{
 					"widgetId": "iframe",
@@ -2104,7 +2138,8 @@
 							"allow-scripts",
 							"allow-same-origin"
 						],
-						"allowListChecked": true
+						"allowListChecked": true,
+						"showActions": false
 					}
 				},
 				{
@@ -2115,7 +2150,9 @@
 					"gridHeight": 3,
 					"showTitle": 1,
 					"customTitle": "Beveiliging en toegang",
-					"content": {}
+					"content": {
+						"showActions": false
+					}
 				},
 				{
 					"widgetId": "map",
@@ -2128,7 +2165,8 @@
 					"content": {
 						"tileSource": "pdok",
 						"register": "dossiq",
-						"schema": "case"
+						"schema": "case",
+						"showActions": false
 					}
 				},
 				{
@@ -2143,7 +2181,8 @@
 						"text": "Dit dashboard leest uit **dossiq** (register Zaken), **pipelinq** (Klantcontact), Power BI en de KCC-wachtrij.",
 						"fontSize": "14px",
 						"textAlign": "left",
-						"contentMode": "markdown"
+						"contentMode": "markdown",
+						"showActions": false
 					}
 				}
 			]

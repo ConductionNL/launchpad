@@ -212,10 +212,20 @@ class DemoSeedWidgets {
 		$colour = (string)($tile['colour'] ?? 'primary');
 		$appId  = (string)($tile['appId'] ?? '');
 		if ($appId !== '' && isset($this->enabledApps[$appId], $this->knownTypes[self::APP_TILE_TYPE]) === true) {
+			$content = ['appId' => $appId, 'colour' => $colour, 'showCount' => true];
+			// The board's glyph and the app's own counter (LpVandaag).
+			if (is_string($tile['icon'] ?? null) === true) {
+				$content['icon'] = $tile['icon'];
+			}
+
+			if (is_array($tile['countSource'] ?? null) === true) {
+				$content['countSource'] = $tile['countSource'];
+			}
+
 			return [
 				'widgetId'    => self::APP_TILE_TYPE,
 				'customTitle' => (string)$tile['name'],
-				'content'     => ['appId' => $appId, 'colour' => $colour, 'showCount' => true],
+				'content'     => $content,
 			];
 		}
 

@@ -27,7 +27,14 @@ use PHPUnit\Framework\TestCase;
  */
 class DemoSeedWidgetsTest extends TestCase {
 	private const TILES = [
-		'talk'    => ['name' => 'Talk', 'icon' => 'MessageTextOutline', 'colour' => 'work-ink', 'appId' => 'spreed', 'url' => '/index.php/apps/spreed/'],
+		'talk'    => [
+			'name'        => 'Talk',
+			'icon'        => 'MessageTextOutline',
+			'colour'      => 'work-ink',
+			'appId'       => 'spreed',
+			'url'         => '/index.php/apps/spreed/',
+			'countSource' => ['dashboardWidget' => 'spreed'],
+		],
 		'topdesk' => ['name' => 'TOPdesk', 'icon' => 'Phone', 'colour' => 'accent', 'url' => 'https://topdesk.example/'],
 	];
 
@@ -56,7 +63,16 @@ class DemoSeedWidgetsTest extends TestCase {
 		$result = $this->expander(types: ['app-tile', 'tile'], apps: ['spreed'])->expand(entries: [['tile' => 'talk', 'gridX' => 3, 'gridY' => 1]]);
 
 		$this->assertSame(expected: 'app-tile', actual: $result['placed'][0]['widgetId']);
-		$this->assertSame(expected: ['appId' => 'spreed', 'colour' => 'work-ink', 'showCount' => true], actual: $result['placed'][0]['content']);
+		$this->assertSame(
+			expected: [
+				'appId'       => 'spreed',
+				'colour'      => 'work-ink',
+				'showCount'   => true,
+				'icon'        => 'MessageTextOutline',
+				'countSource' => ['dashboardWidget' => 'spreed'],
+			],
+			actual: $result['placed'][0]['content']
+		);
 		$tile = $result['placed'][0];
 		$this->assertSame(expected: [3, 1, 2, 2], actual: [$tile['gridX'], $tile['gridY'], $tile['gridWidth'], $tile['gridHeight']]);
 	}//end testTileOfAnEnabledAppIsAnAppTileWhenThatTypeExists()

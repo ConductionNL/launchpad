@@ -354,3 +354,10 @@
 .launchpad-container--fill .grid-stack-item:is([data-cn-widget-id='tile'], [data-cn-widget-id='app-tile']) {
 	aspect-ratio: 1 / 1;
 }
+
+/* An app tile fills its cell like a launcher tile: the renderer's 16px
+   padding made it a 68px square in a 100px cell. */
+.launchpad-container .launchpad-widget:has(.cn-app-tile-widget) .cn-widget-wrapper__content,
+.launchpad-container .launchpad-widget:has(.cn-app-tile-widget) .widget-renderer {
+	padding: 0;
+}

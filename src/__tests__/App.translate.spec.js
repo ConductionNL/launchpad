@@ -20,7 +20,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	CnAppRoot: { name: 'CnAppRoot', template: '<div />' },
 }))
 vi.mock('../customComponents.js', () => ({ default: {} }))
-vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [] }))
+vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [], loadIconCatalogue: () => Promise.resolve([]) }))
 
 import App from '../App.vue'
 

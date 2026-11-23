@@ -52,15 +52,56 @@ import {
 	// registration guard below.
 	CnNcWidgetWidget,
 	dashboardWidgetRegistry,
+	lazyComponent,
 	CnNcDashboardWidgetForm as NcDashboardForm,
 	CnPeopleWidgetForm as PeopleForm,
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
-import ActivityReportWidget from '../components/Widgets/Renderers/ActivityReportWidget.vue'
-import ActivityReportWidgetForm from '../components/Widgets/Renderers/ActivityReportWidgetForm.vue'
-import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
-import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+
+// Renderers and forms load with the first widget of their type, not with the
+// dashboard bundle.
+const ActivityReportWidget = lazyComponent(() => import('../components/Widgets/Renderers/ActivityReportWidget.vue'), 'ActivityReportWidget')
+const ActivityReportWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ActivityReportWidgetForm.vue'), 'ActivityReportWidgetForm')
+const AiAssistantWidget = lazyComponent(() => import('../components/Widgets/Renderers/AiAssistantWidget.vue'), 'AiAssistantWidget')
+const AiAssistantWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AiAssistantWidgetForm.vue'), 'AiAssistantWidgetForm')
+const AnnouncementsWidget = lazyComponent(() => import('../components/Widgets/Renderers/AnnouncementsWidget.vue'), 'AnnouncementsWidget')
+const AnnouncementsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'), 'AnnouncementsWidgetForm')
+const AssignedCasesWidget = lazyComponent(() => import('../components/Widgets/Renderers/AssignedCasesWidget.vue'), 'AssignedCasesWidget')
+const AssignedCasesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'), 'AssignedCasesWidgetForm')
+const AttentionWidget = lazyComponent(() => import('../components/Widgets/Renderers/AttentionWidget.vue'), 'AttentionWidget')
+const AttentionWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AttentionWidgetForm.vue'), 'AttentionWidgetForm')
+const ChartHost = lazyComponent(() => import('../components/Widgets/Renderers/ChartHost.vue'), 'ChartHost')
+const ChartSourceForm = lazyComponent(() => import('../components/Widgets/Renderers/ChartSourceForm.vue'), 'ChartSourceForm')
+const ClockWidget = lazyComponent(() => import('../components/Widgets/Renderers/ClockWidget.vue'), 'ClockWidget')
+const ClockWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ClockWidgetForm.vue'), 'ClockWidgetForm')
+const ColleagueActivityWidget = lazyComponent(() => import('../components/Widgets/Renderers/ColleagueActivityWidget.vue'), 'ColleagueActivityWidget')
+const ColleagueActivityWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'), 'ColleagueActivityWidgetForm')
+const CommunitiesWidget = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidget.vue'), 'CommunitiesWidget')
+const CommunitiesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidgetForm.vue'), 'CommunitiesWidgetForm')
+const ContainerWidget = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidget.vue'), 'ContainerWidget')
+const ContainerWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidgetForm.vue'), 'ContainerWidgetForm')
+const IframeWidget = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidget.vue'), 'IframeWidget')
+const IframeWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidgetForm.vue'), 'IframeWidgetForm')
+const LinkButtonWidget = lazyComponent(() => import('../components/Widgets/Renderers/LinkButtonHost.vue'), 'LinkButtonWidget')
+const LiveTileWidget = lazyComponent(() => import('../components/Widgets/Renderers/LiveTileWidget.vue'), 'LiveTileWidget')
+const LiveTileWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/LiveTileWidgetForm.vue'), 'LiveTileWidgetForm')
+const NewsWidget = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidget.vue'), 'NewsWidget')
+const NewsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidgetForm.vue'), 'NewsWidgetForm')
+const SearchWidget = lazyComponent(() => import('../components/Widgets/Renderers/SearchWidget.vue'), 'SearchWidget')
+const SearchWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/SearchWidgetForm.vue'), 'SearchWidgetForm')
+const StatsBlockHost = lazyComponent(() => import('../components/Widgets/Renderers/StatsBlockHost.vue'), 'StatsBlockHost')
+const StatusReportWidget = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidget.vue'), 'StatusReportWidget')
+const StatusReportWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidgetForm.vue'), 'StatusReportWidgetForm')
+const TileHost = lazyComponent(() => import('../components/Widgets/Renderers/TileHost.vue'), 'TileHost')
+const VideoHost = lazyComponent(() => import('../components/Widgets/Renderers/VideoHost.vue'), 'VideoHost')
+const VideoWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/VideoWidgetForm.vue'), 'VideoWidgetForm')
+const WeatherWidget = lazyComponent(() => import('../components/Widgets/Renderers/WeatherWidget.vue'), 'WeatherWidget')
+const WeatherWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/WeatherWidgetForm.vue'), 'WeatherWidgetForm')
+const WikiPagesWidget = lazyComponent(() => import('../components/Widgets/Renderers/WikiPagesWidget.vue'), 'WikiPagesWidget')
+const WikiPagesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/WikiPagesWidgetForm.vue'), 'WikiPagesWidgetForm')
+const WorkPackagesWidget = lazyComponent(() => import('../components/Widgets/Renderers/WorkPackagesWidget.vue'), 'WorkPackagesWidget')
+const WorkPackagesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'), 'WorkPackagesWidgetForm')
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
 // communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
@@ -70,69 +111,32 @@ import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWi
 // `ai-assistant` — ask Hermiq about the dashboard (search-ai-dashboard-assistant,
 // openspec/specs/launchpad-ai-dashboard-assistant). Same LaunchPad-only
 // registration pattern as `clock`/`weather`.
-import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
-import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
 // `assigned-cases` — the viewer's open cases from an OpenRegister register,
 // dossiq's by default (openspec/changes/assigned-cases-widget).
-import AssignedCasesWidget from '../components/Widgets/Renderers/AssignedCasesWidget.vue'
-import AssignedCasesWidgetForm from '../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'
-import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
-import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
-import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 // `pie-chart` and `graph` — presets of the shared chart stack (ChartHost over
 // CnChartWidget) with a source form for a register query or entered values
 // (openspec/changes/chart-presets).
-import ChartSourceForm from '../components/Widgets/Renderers/ChartSourceForm.vue'
-import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
-import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
-import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
-import ColleagueActivityWidgetForm from '../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'
 // `communities` — the open Talk conversations the viewer may join
 // (openspec/changes/engagement-communities). Same LaunchPad-only registration
 // pattern as `clock`/`weather`.
-import CommunitiesWidget from '../components/Widgets/Renderers/CommunitiesWidget.vue'
-import CommunitiesWidgetForm from '../components/Widgets/Renderers/CommunitiesWidgetForm.vue'
-import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
-import ContainerWidgetForm from '../components/Widgets/Renderers/ContainerWidgetForm.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
 // refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
 // Same LaunchPad-only registration pattern as `clock`/`weather`/`livetile`.
-import IframeWidget from '../components/Widgets/Renderers/IframeWidget.vue'
-import IframeWidgetForm from '../components/Widgets/Renderers/IframeWidgetForm.vue'
 // LaunchPad-specific host wrappers (app-side orchestration, NOT generic
 // dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
-import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
 // `livetile` — server-fetched, ICache-cached data-bound tile
 // (REQ-LIVETILE-001..005, openspec/specs/live-data-tile-widget/spec.md). Same
 // LaunchPad-only registration pattern as `clock`/`weather`.
-import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
-import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
 // `news` — moved out of nc-vue, whose renderer had no way to fetch a feed.
 // LaunchPad owns the feed path, so it owns the widget.
-import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
-import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 // `search` — the quick-search / launcher bar, formerly runtime-shell chrome
 // (openspec/specs/tile-quick-search). Registered below like the other
 // LaunchPad-only types.
-import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
-import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
-import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
-import StatusReportWidget from '../components/Widgets/Renderers/StatusReportWidget.vue'
-import StatusReportWidgetForm from '../components/Widgets/Renderers/StatusReportWidgetForm.vue'
-import TileHost from '../components/Widgets/Renderers/TileHost.vue'
-import VideoHost from '../components/Widgets/Renderers/VideoHost.vue'
-import VideoWidgetForm from '../components/Widgets/Renderers/VideoWidgetForm.vue'
-import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
-import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 // `wiki-pages` — search, favourites and recent pages of the wiki, read through
 // OpenRegister's XWiki integration (openspec/changes/wiki-widget).
-import WikiPagesWidget from '../components/Widgets/Renderers/WikiPagesWidget.vue'
-import WikiPagesWidgetForm from '../components/Widgets/Renderers/WikiPagesWidgetForm.vue'
 // `work-packages` — open OpenProject work packages through the official
 // integration (openspec/changes/work-packages-widget).
-import WorkPackagesWidget from '../components/Widgets/Renderers/WorkPackagesWidget.vue'
-import WorkPackagesWidgetForm from '../components/Widgets/Renderers/WorkPackagesWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

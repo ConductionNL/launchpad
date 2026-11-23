@@ -12,6 +12,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({ ...(await importOriginal()), translate: (_app, text) => text }))
 
+import { loadLazyComponent } from '@conduction/nextcloud-vue'
 import ChartHost, { isMixedSeries, withDonutTotal } from '../ChartHost.vue'
 import ChartSourceForm, { kindOf } from '../ChartSourceForm.vue'
 import { getDefaultContent, getWidgetTypeEntry } from '../../../../constants/widgetRegistry.js'
@@ -37,11 +38,11 @@ function chartOf(content) {
 }
 
 describe('chart presets', () => {
-	it('registers a pie chart and a graph on the chart host with the one source form', () => {
-		expect(getWidgetTypeEntry('pie-chart').renderer).toBe(ChartHost)
-		expect(getWidgetTypeEntry('graph').renderer).toBe(ChartHost)
-		expect(getWidgetTypeEntry('pie-chart').form).toBe(ChartSourceForm)
-		expect(getWidgetTypeEntry('graph').form).toBe(ChartSourceForm)
+	it('registers a pie chart and a graph on the chart host with the one source form', async () => {
+		expect(await loadLazyComponent(getWidgetTypeEntry('pie-chart').renderer)).toBe(ChartHost)
+		expect(await loadLazyComponent(getWidgetTypeEntry('graph').renderer)).toBe(ChartHost)
+		expect(await loadLazyComponent(getWidgetTypeEntry('pie-chart').form)).toBe(ChartSourceForm)
+		expect(await loadLazyComponent(getWidgetTypeEntry('graph').form)).toBe(ChartSourceForm)
 		expect(kindOf({ chartKind: 'donut' })).toBe('pie')
 		expect(kindOf({ chartKind: 'bar' })).toBe('graph')
 		expect(getDefaultContent('pie-chart')).toMatchObject({ chartKind: 'donut', showTotal: true, legendValues: true })

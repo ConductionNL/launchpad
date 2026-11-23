@@ -5,14 +5,23 @@
 
 import { DASHBOARD_ICONS } from '@conduction/nextcloud-vue'
 import * as mdi from '@mdi/js'
-import { describe, expect, it } from 'vitest'
-import { DASHBOARD_ICON_CATALOGUE, ICON_CATALOGUE, normaliseIconValue } from '../iconCatalogue.js'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { DASHBOARD_ICON_CATALOGUE, ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../iconCatalogue.js'
+
+describe('before @mdi/js has loaded', () => {
+	it('has an empty catalogue and leaves names unchanged', () => {
+		expect(ICON_CATALOGUE).toHaveLength(0)
+		expect(normaliseIconValue('star')).toBe('star')
+	})
+})
 
 describe('ICON_CATALOGUE', () => {
-	it('is a frozen, non-empty array', () => {
+	beforeAll(() => loadIconCatalogue())
+
+	it('is a non-empty array once loaded', async () => {
 		expect(Array.isArray(ICON_CATALOGUE)).toBe(true)
 		expect(ICON_CATALOGUE.length).toBeGreaterThan(0)
-		expect(Object.isFrozen(ICON_CATALOGUE)).toBe(true)
+		expect(await loadIconCatalogue()).toBe(ICON_CATALOGUE)
 	})
 
 	it('produces entries shaped { key, label, value, search, path }', () => {
@@ -51,6 +60,8 @@ describe('DASHBOARD_ICON_CATALOGUE', () => {
 })
 
 describe('normaliseIconValue', () => {
+	beforeAll(() => loadIconCatalogue())
+
 	it('maps a lowercase legacy name to its MDI path', () => {
 		expect(normaliseIconValue('star')).toBe(mdi.mdiStar)
 		expect(normaliseIconValue('folder')).toBe(mdi.mdiFolder)

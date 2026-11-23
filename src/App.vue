@@ -64,7 +64,7 @@ import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vu
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
-import { ICON_CATALOGUE } from './services/iconCatalogue.js'
+import { ICON_CATALOGUE, loadIconCatalogue } from './services/iconCatalogue.js'
 import { isKioskMode } from './utils/kioskMode.js'
 import { permits } from './utils/permissions.js'
 
@@ -390,6 +390,9 @@ export default {
 	mounted() {
 		window.addEventListener('hashchange', this.openUserSettingsFromHash)
 		this.openUserSettingsFromHash()
+		// The icon pickers' catalogue loads once the page has painted.
+		const idle = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 1000))
+		idle(() => loadIconCatalogue().catch(() => {}))
 	},
 
 	/** @spec openspec/specs/people-widget/spec.md */

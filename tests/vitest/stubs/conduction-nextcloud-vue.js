@@ -42,6 +42,9 @@
 
 import { h } from 'vue'
 
+// The real loader: a registry entry built with it behaves as in the app.
+export { lazyComponent, loadLazyComponent, resolveLazyComponent } from '@conduction/nextcloud-vue/src/utils/lazyComponent.js'
+
 const stub = (name) => ({ name, render: () => h('div') })
 
 export const NcModal = stub('NcModal')

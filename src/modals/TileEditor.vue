@@ -332,7 +332,7 @@ import { mdiLink } from '@mdi/js'
 import { translate as t } from '@nextcloud/l10n'
 import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
-import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
+import { ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateIframeUrl } from '../services/iframeClient.js'
 import { isOnOfficeNetwork, loadInitialState } from '../utils/loadInitialState.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
@@ -573,6 +573,10 @@ export default {
 				}
 			},
 		},
+	},
+
+	created() {
+		loadIconCatalogue().catch(() => {})
 	},
 
 	methods: {

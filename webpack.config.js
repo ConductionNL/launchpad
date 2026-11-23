@@ -83,4 +83,14 @@ webpackConfig.resolve = {
 	modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
 }
 
+// @nextcloud/vue 9 declares no `sideEffects`, so webpack keeps every module
+// its barrel re-exports (the emoji picker and its data, the rich-text and
+// date-picker stacks) even where nothing imports them. Its modules have no
+// import-time side effects other than their stylesheets, which stay included
+// through the CSS rule's own default.
+webpackConfig.module.rules.push({
+	test: /[\\/]node_modules[\\/]@nextcloud[\\/]vue[\\/]dist[\\/].*\.m?js$/,
+	sideEffects: false,
+})
+
 module.exports = webpackConfig

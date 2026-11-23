@@ -11,6 +11,7 @@
  * responsibility and are tested there, not re-frozen here.
  */
 
+import { loadLazyComponent } from '@conduction/nextcloud-vue'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 beforeEach(() => {
@@ -153,8 +154,8 @@ describe('widgetRegistry — news is LaunchPad-owned', () => {
 		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
 		const entry = getWidgetTypeEntry('news')
 		expect(entry).toBeTruthy()
-		expect(entry.renderer?.name).toBe('NewsWidget')
-		expect(entry.form?.name).toBe('NewsWidgetForm')
+		expect((await loadLazyComponent(entry.renderer))?.name).toBe('NewsWidget')
+		expect((await loadLazyComponent(entry.form))?.name).toBe('NewsWidgetForm')
 	})
 
 	it('keeps the content shape a pre-move placement was authored with', async () => {

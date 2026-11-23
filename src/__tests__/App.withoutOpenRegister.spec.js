@@ -21,7 +21,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	CnNotificationPreferences: { name: 'CnNotificationPreferences', template: '<div />' },
 }))
 vi.mock('../customComponents.js', () => ({ default: {} }))
-vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [] }))
+vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [], loadIconCatalogue: () => Promise.resolve([]) }))
 
 import App from '../App.vue'
 import bundledStub from '../manifest.json'

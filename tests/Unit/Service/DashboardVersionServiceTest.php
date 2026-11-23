@@ -196,6 +196,60 @@ class DashboardVersionServiceTest extends TestCase {
 	}//end testAutomaticSnapshotInsertsRow()
 
 	/**
+	 * REQ-VERS-001: an automatic snapshot notes what changed since the
+	 * dashboard's newest stored version.
+	 *
+	 * @return void
+	 */
+	public function testAutomaticSnapshotNotesWhatChanged(): void {
+		$dashboard = $this->makeDashboard();
+		$previous  = new DashboardVersion();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$previous->setSnapshotJson('{"dashboard":{"name":"Test"},"placements":[]}');
+
+		$this->cache->method('hasKey')->willReturn(false);
+		$this->versionMapper->method('findMaxVersionNumber')->willReturn(1);
+		$this->versionMapper->expects($this->once())
+			->method('findLatestByDashboard')
+			->with(dashboardUuid: 'd-uuid-1', limit: 1)
+			->willReturn([$previous]);
+		$this->versionMapper->method('insert')->willReturnArgument(0);
+
+		$result = $this->service->captureSnapshot(
+			dashboard: $dashboard,
+			createdBy: 'alice',
+			options: [
+				'snapshotJson' => '{"dashboard":{"name":"Test"},"placements":[{"id":5,"widgetId":"notes","customTitle":"Notes"}]}',
+				'note'         => 'ignored',
+			]
+		);
+
+		$this->assertNotNull(actual: $result);
+		$this->assertSame(expected: 'Widget Notes added', actual: $result->getNote());
+	}//end testAutomaticSnapshotNotesWhatChanged()
+
+	/**
+	 * REQ-VERS-001: a failing lookup of the previous version leaves the
+	 * note empty and still stores the snapshot.
+	 *
+	 * @return void
+	 */
+	public function testAutomaticSnapshotSurvivesAFailingChangeLookup(): void {
+		$this->cache->method('hasKey')->willReturn(false);
+		$this->versionMapper->method('findLatestByDashboard')->willThrowException(new RuntimeException('db down'));
+		$this->versionMapper->expects($this->once())->method('insert')->willReturnArgument(0);
+
+		$result = $this->service->captureSnapshot(
+			dashboard: $this->makeDashboard(),
+			createdBy: 'alice',
+			options: ['snapshotJson' => '{"placements":[]}']
+		);
+
+		$this->assertNotNull(actual: $result);
+		$this->assertNull(actual: $result->getNote());
+	}//end testAutomaticSnapshotSurvivesAFailingChangeLookup()
+
+	/**
 	 * REQ-VERS-001: debounce key present → automatic snapshot is
 	 * suppressed. The mapper MUST NOT be touched.
 	 *

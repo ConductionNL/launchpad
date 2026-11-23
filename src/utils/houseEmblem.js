@@ -10,6 +10,7 @@ import { getCapabilities } from '@nextcloud/capabilities'
  * else '' (a page without capabilities, such as a test).
  *
  * @return {string} The image address.
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 export function houseEmblem() {
 	try {

@@ -479,7 +479,6 @@ import {
 	CnAddWidgetModal,
 	CnDashboardGrid,
 	CnWidgetStyleEditorModal,
-	getDashboardColumnOpts,
 	NcButton,
 	NcEmptyContent,
 	NcLoadingIcon,
@@ -546,6 +545,7 @@ import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
+import { dashboardGridColumnOpts } from '../utils/narrowGridLayout.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
@@ -1131,14 +1131,14 @@ export default {
 		},
 
 		/**
-		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007).
-		 * Built once from the shared nc-vue helper so the grid reflows its
-		 * column count across viewport sizes exactly as the old local grid did.
+		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007):
+		 * the shared nc-vue helper's reflow, with a reading-order flow on a
+		 * phone so app tiles sit four to a row (board LpMobiel).
 		 *
 		 * @return {object} the GridStack `columnOpts` bag.
 		 */
 		dashboardColumnOpts() {
-			return getDashboardColumnOpts()
+			return dashboardGridColumnOpts()
 		},
 
 		...mapState(useDashboardStore, [

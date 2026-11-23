@@ -168,24 +168,48 @@
 }
 
 /* =========================================================
-   The start page, which has no navigation panel (REQ-SHELL-009), reads
-   as one centred column, as LpStart draws it: 1214px of content between
-   even margins on a 1440px screen, instead of a grid that runs from edge
-   to edge.
-   The container is also the page's scroller, so the column comes from
-   padding, not from a max-width: the scroller spans the whole window and
-   its scrollbar sits at the window edge instead of beside the column.
+   A dashboard without a navigation panel (REQ-SHELL-009) runs from edge to
+   edge, 28px in from the window: 20px here and the grid's own 8px item
+   margin (LpVandaag, LpWerkplek, LpIntranet).
+   The container is also the page's scroller, so the inset is padding, not a
+   max-width: the scrollbar sits at the window edge.
    ========================================================= */
-.app-launchpad .launchpad-container:not(.launchpad-container--fill) {
+.app-launchpad .launchpad-container {
 	box-sizing: border-box;
 	width: 100%;
-	padding-inline: max(0px, calc((100% - 1214px) / 2));
+	padding-inline: 20px;
 }
 
-/* A start page that fills the height (LpVandaag) runs from edge to edge, 28px
-   in from the window with the grid's own 8px item margin. */
-.app-launchpad .launchpad-container.launchpad-container--fill {
-	padding-inline: 20px;
+/* =========================================================
+   A widget card in the board look, as the Launchpad boards draw it: a white
+   card with a hairline and a 12px radius, a 16px bold title 16px from the
+   top and 18px in, its content on that same inset, and no title icon. The
+   Nextcloud look keeps the native dashboard panel (chrome="nc-dashboard").
+   ========================================================= */
+.cn-look-board .launchpad-container .cn-widget-wrapper.cn-widget-wrapper--nc-dashboard {
+	border: 1px solid var(--cn-board-hairline, var(--color-border));
+	border-radius: var(--cn-board-card-radius, 12px);
+	background: var(--color-main-background);
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding: 16px 18px 8px;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__icon {
+	display: none;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__title {
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__content {
+	padding: 0 18px 12px;
 }
 
 /* =========================================================

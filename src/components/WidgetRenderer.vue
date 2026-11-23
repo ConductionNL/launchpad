@@ -239,7 +239,7 @@ export default {
 		 * @return {boolean} true when the widget should render edge-to-edge.
 		 */
 		isFullBleed() {
-			return ['header', 'image', 'divider'].includes(this.placement?.widgetId)
+			return ['header', 'image', 'divider', 'section-heading'].includes(this.placement?.widgetId)
 		},
 
 		/**
@@ -661,7 +661,8 @@ export default {
 	padding: 16px;
 }
 
-/* Full-bleed widgets (header banner, image, divider) paint edge-to-edge. */
+/* Full-bleed widgets (header banner, image, divider) paint edge-to-edge; a
+   section heading starts on the grid's line, as the boards draw it. */
 .widget-renderer--flush {
 	padding: 0;
 }

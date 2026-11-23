@@ -30,6 +30,7 @@ import {
 	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
 let restoreWidgetRestriction: (() => Promise<void>) | null = null
 
@@ -110,7 +111,7 @@ test.describe('label widget', () => {
 
 		// Persistence: the placement survives a full page reload.
 		await page.reload()
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		await expect(
 			page.locator('.cn-label-widget').filter({ hasText: text }).first(),
 		).toBeVisible({ timeout: 10_000 })

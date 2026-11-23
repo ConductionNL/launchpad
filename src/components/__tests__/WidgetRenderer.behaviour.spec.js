@@ -65,8 +65,8 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.registryEntry.call({ placement: null })).toBeNull()
 	})
 
-	it('renders only header, image and divider edge-to-edge', () => {
-		for (const widgetId of ['header', 'image', 'divider']) {
+	it('renders only header, image, divider and section heading edge-to-edge', () => {
+		for (const widgetId of ['header', 'image', 'divider', 'section-heading']) {
 			expect(computed.isFullBleed.call({ placement: { widgetId } })).toBe(true)
 		}
 		expect(computed.isFullBleed.call({ placement: { widgetId: 'label' } })).toBe(false)

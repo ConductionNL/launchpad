@@ -16,10 +16,23 @@
 			v-else-if="current"
 			class="kiosk-player__dashboard"
 			data-testid="kiosk-dashboard">
-			<h1 class="kiosk-player__title">
-				{{ current.dashboard?.name || current.dashboard?.title || '' }}
-			</h1>
-			<PublicDashboardGrid :placements="current.placements || []" />
+			<!-- Board LpKiosk: a band in the house colour with the emblem, the
+			     dashboard's name and the time, over the cards. -->
+			<header class="kiosk-player__band">
+				<img
+					v-if="emblem"
+					class="kiosk-player__emblem"
+					:src="emblem"
+					alt="" />
+				<h1 class="kiosk-player__title">
+					{{ current.dashboard?.name || current.dashboard?.title || '' }}
+				</h1>
+				<p class="kiosk-player__clock" data-testid="kiosk-clock">
+					<span class="kiosk-player__time">{{ clockTime }}</span>
+					<span class="kiosk-player__date">{{ clockDate }}</span>
+				</p>
+			</header>
+			<PublicDashboardGrid class="kiosk-player__grid" :placements="current.placements || []" />
 			<!-- REQ-KIOSKUI-003: where the playlist is, as text, not a control;
 			     hidden from screen readers, which hear the change below. -->
 			<p
@@ -27,6 +40,13 @@
 				class="kiosk-player__position"
 				aria-hidden="true"
 				data-testid="kiosk-position">
+				<span class="kiosk-player__dots">
+					<span
+						v-for="(entry, i) in entries"
+						:key="i"
+						class="kiosk-player__dot"
+						:class="{ 'kiosk-player__dot--current': i === index }" />
+				</span>
 				{{ positionText }}
 			</p>
 			<p
@@ -56,7 +76,19 @@ import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import { REQUIRED_TEXT_PROP } from '../constants/propDefinitions.js'
+import { houseEmblem } from '../utils/houseEmblem.js'
 import { hideCursorWhenIdle } from '../utils/kioskMode.js'
+
+/**
+ * The locale Nextcloud renders the page in (`<html data-locale>`), for the
+ * band's clock; undefined lets the browser choose.
+ *
+ * @return {string|undefined}
+ */
+function pageLocale() {
+	const locale = document.documentElement?.dataset?.locale || ''
+	return locale === '' ? undefined : locale.replace('_', '-')
+}
 
 /** A network failure is retried this soon, whatever the refresh interval. */
 const RETRY_MS = 30 * 1000
@@ -117,10 +149,38 @@ export default {
 			nowMs: Date.now(),
 			tickTimer: null,
 			announcement: '',
+			clockMs: Date.now(),
+			clockTimer: null,
 		}
 	},
 
 	computed: {
+		/**
+		 * The emblem of the house style, else Nextcloud's logo.
+		 *
+		 * @return {string} The image address, or ''.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		emblem() {
+			return houseEmblem()
+		},
+
+		/**
+		 * @return {string} The time in the band, hours and minutes.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		clockTime() {
+			return new Date(this.clockMs).toLocaleTimeString(pageLocale(), { hour: '2-digit', minute: '2-digit' })
+		},
+
+		/**
+		 * @return {string} The date in the band, weekday, day and month.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		clockDate() {
+			return new Date(this.clockMs).toLocaleDateString(pageLocale(), { weekday: 'long', day: 'numeric', month: 'long' })
+		},
+
 		/**
 		 * @return {object|null} The entry on screen now.
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
@@ -149,6 +209,24 @@ export default {
 		},
 	},
 
+	watch: {
+		/**
+		 * The band's clock runs while a dashboard shows.
+		 *
+		 * @param {object|null} entry The entry on screen.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		current(entry) {
+			if (entry && this.clockTimer === null) {
+				this.clockMs = Date.now()
+				this.clockTimer = setInterval(() => {
+					this.clockMs = Date.now()
+				}, 15000)
+			}
+		},
+	},
+
 	/**
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
@@ -165,6 +243,7 @@ export default {
 	beforeUnmount() {
 		this.stopCursor?.()
 		clearInterval(this.tickTimer)
+		clearInterval(this.clockTimer)
 		clearTimeout(this.dwellTimer)
 		clearTimeout(this.prefetchTimer)
 		clearTimeout(this.refreshTimer)
@@ -393,16 +472,94 @@ export default {
 </script>
 
 <style scoped>
+/* Board LpKiosk: a canteen screen at 1920 x 1080 seen from across the room. */
 .kiosk-player {
+	/* The whole screen, whatever frame the page puts around the app. */
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	overflow: auto;
 	min-height: 100vh;
-	padding: 24px;
-	background: var(--color-main-background);
+	background: var(--color-background-hover, var(--color-main-background));
 	color: var(--color-main-text);
 }
 
+.kiosk-player__band {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	height: 128px;
+	padding: 0 56px;
+	background: var(--color-primary-element);
+	color: var(--color-primary-element-text);
+}
+
+.kiosk-player__emblem {
+	box-sizing: border-box;
+	width: 72px;
+	height: 72px;
+	padding: 8px;
+	border-radius: 14px;
+	background: #ffffff;
+	object-fit: contain;
+}
+
 .kiosk-player__title {
-	margin: 0 0 16px;
-	font-size: 2em;
+	flex: 1 1 auto;
+	margin: 0;
+	font-size: 48px !important;
+	font-weight: 700 !important;
+	line-height: 1.1;
+	color: inherit !important;
+}
+
+.kiosk-player__clock {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	margin: 0;
+	line-height: 1.1;
+}
+
+/* The house style colours every paragraph with !important; the band and the
+   pill keep their own light text. */
+.kiosk-player__clock,
+.kiosk-player__clock span {
+	color: inherit !important;
+}
+
+.kiosk-player__time {
+	font-size: 48px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.kiosk-player__date {
+	font-size: 22px;
+}
+
+.kiosk-player__grid {
+	padding: 36px 56px;
+}
+
+.kiosk-player__grid :deep(.public-share-view__grid) {
+	max-width: none;
+	gap: 28px;
+}
+
+.kiosk-player__grid :deep(.public-share-view__widget) {
+	padding: 32px 36px;
+	border: 0;
+	border-radius: 18px;
+	font-size: 22px;
+}
+
+.kiosk-player__grid :deep(.public-share-view__widget-title) {
+	margin: 0 0 24px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid var(--color-border);
+	font-size: 34px !important;
+	line-height: 1.2;
 }
 
 .kiosk-player__reconnect {
@@ -427,23 +584,42 @@ export default {
 }
 
 .kiosk-player__reconnect--above {
-	inset-block-end: 52px;
+	inset-block-end: 72px;
 }
 
-/* REQ-KIOSKUI-003: small, quiet text; the main text colour on the main
-   background keeps AA contrast whatever the dashboard draws behind it. */
+/* REQ-KIOSKUI-003: a quiet pill in the corner, text and not a control; white
+   text on the dark pill keeps AA contrast whatever the dashboard draws. */
 .kiosk-player__position {
 	position: fixed;
-	inset-inline-end: 16px;
-	inset-block-end: 16px;
+	inset-inline-end: 40px;
+	inset-block-end: 32px;
+	display: flex;
+	align-items: center;
+	gap: 14px;
 	margin: 0;
-	padding: 4px 12px;
-	border-radius: var(--border-radius-pill);
-	background: var(--color-main-background);
-	color: var(--color-main-text);
-	font-size: 0.875em;
+	padding: 10px 22px;
+	border-radius: 999px;
+	background: rgba(27, 28, 29, 0.82);
+	color: #ffffff !important;
+	font-size: 20px;
 	font-variant-numeric: tabular-nums;
 	pointer-events: none;
+}
+
+.kiosk-player__dots {
+	display: inline-flex;
+	gap: 8px;
+}
+
+.kiosk-player__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.45);
+}
+
+.kiosk-player__dot--current {
+	background: #ffffff;
 }
 
 .kiosk-player__message {

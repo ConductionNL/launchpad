@@ -12,6 +12,7 @@
  *   @e2e runtime-shell::settings-unfolds-in-place
  *   @e2e runtime-shell::this-dashboard-ends-in-delete
  *   @e2e runtime-shell::escape-returns-focus-to-more
+ *   @e2e lpvandaag-start-page::a-person-switches-dashboards-from-meer
  *
  * @spec openspec/specs/runtime-shell/spec.md
  */
@@ -129,4 +130,29 @@ test('Escape returns focus to More', async ({ page }) => {
 	await page.keyboard.press('Escape')
 	await expect(panel).toBeHidden()
 	await expect(page.locator(TRIGGER)).toBeFocused()
+})
+
+test('a dashboard picked under Dashboards opens, and stays open after a reload', async ({ page }) => {
+	const other = await seedActiveDashboard(api, `E2E More menu other ${Date.now()}`)
+	try {
+		// The second seed is now the active one; go back to the first through the API.
+		const back = await api.post('/index.php/apps/launchpad/api/dashboards/active', { data: { uuid: seeded?.uuid } })
+		expect(back.status(), await back.text()).toBeLessThan(300)
+
+		const panel = await openMore(page)
+		const item = panel.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)
+		await expect(item).toHaveText(new RegExp(other.name))
+		await item.click()
+		await expect(panel).toBeHidden()
+
+		const reopened = await openMore(page)
+		await expect(reopened.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
+		await page.keyboard.press('Escape')
+
+		await page.reload()
+		const afterReload = await openMore(page)
+		await expect(afterReload.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
+	} finally {
+		await removeSeededDashboard(api, other)
+	}
 })

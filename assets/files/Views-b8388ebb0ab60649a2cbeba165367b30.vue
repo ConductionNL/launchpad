@@ -195,17 +195,13 @@
 				:dashboard="activeDashboard"
 				:sharedWithMe="sharedWithMeDashboards"
 				:currentUserId="currentUserId" />
-			<!-- Every dashboard without a greeting row opens with its name, its
-			     actions and the "Meer" menu (LpWerkplek, LpIntranet). -->
+			<!-- Every dashboard without a greeting row opens with its name and
+			     the "Meer" menu, its only action (LpWerkplek, LpIntranet). -->
 			<DashboardPageHeader
-				v-if="activeDashboard && !kiosk && !hasGroundHeader"
+				v-if="activeDashboard && !kiosk && !hasGroundHeader && !isEditMode"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
-				:isDefault="activeDashboard.uuid === defaultDashboardUuid"
-				:permissionLevel="permissionLevel"
-				:isEditMode="isEditMode"
-				@edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
-				@addWidget="openWidgetModal" />
+				:isDefault="activeDashboard.uuid === defaultDashboardUuid" />
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
@@ -574,19 +570,38 @@ function barePath(path) {
 }
 
 /**
- * A placement with the minimum height its widget type registers, so the grid
- * lets a divider be one row while other widgets keep the grid's minimum.
+ * Whether a placement is a tile: a launcher tile (`tile`, `tile-{id}`, or an
+ * inline tile with a `tileType`) or an app tile.
  *
  * @param {object} placement The placement.
- * @return {object} The placement, or a copy carrying `minHeight`.
+ * @return {boolean}
+ * @spec openspec/specs/widgets/spec.md
+ */
+export function isTilePlacement(placement) {
+	const id = String(placement?.widgetId ?? '')
+	return id === 'tile' || id === 'app-tile' || id.startsWith('tile-') || Boolean(placement?.tileType)
+}
+
+/**
+ * A placement with the minimum size its widget type registers, so the grid
+ * lets a divider be one row and a tile one column while other widgets keep
+ * the grid's minimum.
+ *
+ * @param {object} placement The placement.
+ * @return {object} The placement, or a copy carrying `minHeight` / `minWidth`.
  * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
  */
-function withTypeMinHeight(placement) {
-	const minHeight = getWidgetTypeEntry(placement?.widgetId)?.minHeight
-	if (!Number.isFinite(minHeight) || placement.minHeight !== undefined) {
-		return placement
+export function withTypeMinHeight(placement) {
+	const entry = getWidgetTypeEntry(placement?.widgetId)
+	const extra = {}
+	if (Number.isFinite(entry?.minHeight) && placement.minHeight === undefined) {
+		extra.minHeight = entry.minHeight
 	}
-	return { ...placement, minHeight }
+	const minWidth = isTilePlacement(placement) ? 1 : entry?.minWidth
+	if (Number.isFinite(minWidth) && placement.minWidth === undefined) {
+		extra.minWidth = minWidth
+	}
+	return Object.keys(extra).length === 0 ? placement : { ...placement, ...extra }
 }
 
 
@@ -3710,12 +3725,13 @@ export default {
    in the single .launchpad-container rule further below. */
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
-   frosted-glass tile look (was DashboardGrid's local style) by overriding
-   the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
+   translucent tile look (was DashboardGrid's local style) by overriding
+   the grid-item-content surface. :deep penetrates into CnDashboardGrid.
+   No backdrop blur: the content area behind is already blurred, and each
+   blurred item was blurred again on every repaint, which made a pointer
+   move over the grid cost 100 ms or more. */
 .launchpad-container :deep(.grid-stack-item-content) {
 	background: var(--color-main-background-blur);
-	backdrop-filter: var(--filter-background-blur);
-	-webkit-backdrop-filter: var(--filter-background-blur);
 	border-radius: var(--border-radius-large);
 	overflow: hidden;
 }

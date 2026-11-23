@@ -209,7 +209,7 @@ class DemoSeedServiceTest extends TestCase {
 		foreach ([true => 1, false => 0] as $asks => $calls) {
 			$publishing = $this->createMock(originalClassName: DemoSeedPublishing::class);
 			$publishing->expects($this->once())->method('publishStartPage')->willReturn('token');
-			$publishing->expects($this->exactly($calls))->method('enableStartPage');
+			$publishing->expects($this->exactly(count: $calls))->method('enableStartPage');
 
 			$service = new DemoSeedService(
 				parts: $this->createMock(originalClassName: DemoSeedParts::class),

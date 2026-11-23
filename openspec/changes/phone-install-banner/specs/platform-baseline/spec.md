@@ -2,7 +2,7 @@
 
 ## ADDED Requirements
 
-### Requirement: A phone offers to put LaunchPad on the home screen (REQ-PLB-008)
+### Requirement: A phone offers to put LaunchPad on the home screen (REQ-PLB-009)
 
 On a screen narrower than 768 px, in a browser tab (not already opened as an installed app), the workspace SHALL show a
 banner above the first widget: "Put LaunchPad on your home screen" with "Then your workplace opens with one tap, like

@@ -58,6 +58,10 @@ final class OpenApiDocument {
 		$overlayJson = (string) file_get_contents(__DIR__.'/openapi-overlay.json');
 		$overlay     = (array) self::decoded(value: json_decode($overlayJson, false, 512, JSON_THROW_ON_ERROR));
 		$routes      = require $root.'/appinfo/routes.php';
+		$appVersion  = self::appVersion(infoXml: (string) file_get_contents($root.'/appinfo/info.xml'));
+		if ($appVersion !== null) {
+			$overlay['info']['version'] = $appVersion;
+		}
 
 		return $generator->generate(
 			routes: $routes,
@@ -91,6 +95,23 @@ final class OpenApiDocument {
 
 		return $value;
 	}//end decoded()
+
+	/**
+	 * The `<version>` of an appinfo/info.xml, which the release workflow also writes into openapi.json.
+	 *
+	 * @param string $infoXml The contents of appinfo/info.xml.
+	 *
+	 * @return string|null Null when the file names no version.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-governance-rest-api-reference/design.md
+	 */
+	public static function appVersion(string $infoXml): ?string {
+		if (preg_match('#<version>\s*([^<\s]+)\s*</version>#', $infoXml, $match) !== 1) {
+			return null;
+		}
+
+		return $match[1];
+	}//end appVersion()
 
 	/**
 	 * The document of the checkout at `$root`, encoded the way it is committed.

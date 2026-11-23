@@ -2181,6 +2181,7 @@
         "Welcome to Launchpad, {name} · {date}": "Welkom bij Launchpad, {name} · {date}",
         "Welcome to Launchpad · {date}": "Welkom bij Launchpad · {date}",
         "Quarter": "Kwartaal",
-        "Year": "Jaar"
+        "Year": "Jaar",
+        "Sign in for employees": "Inloggen voor medewerkers"
     }
 }

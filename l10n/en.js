@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Sign in for employees" : "Sign in for employees",
     "Quarter" : "Quarter",
     "Year" : "Year",
     "Show until" : "Show until",

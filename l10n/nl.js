@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Sign in for employees" : "Inloggen voor medewerkers",
     "Quarter" : "Kwartaal",
     "Year" : "Jaar",
     "Show until" : "Tonen tot",

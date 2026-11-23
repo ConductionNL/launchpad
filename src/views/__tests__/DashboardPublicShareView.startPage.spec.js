@@ -74,7 +74,7 @@ describe('DashboardPublicShareView as the public start page', () => {
 		expect(bar.attributes('aria-label')).toBe('Sign in')
 		expect(bar.find('.public-share-view__organisation').text()).toBe('Bibliotheek Noord')
 		const link = bar.find('a.public-share-view__sign-in')
-		expect(link.text()).toBe('Sign in')
+		expect(link.text()).toBe('Sign in for employees')
 		expect(link.attributes('href')).toBe('/index.php/login?direct=1')
 	})
 

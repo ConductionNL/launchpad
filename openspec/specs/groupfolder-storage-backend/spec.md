@@ -79,7 +79,25 @@ instances that have already run it. The new migration drops what it added.
 
 ## Requirements
 
-None. This capability has no requirements; it is withdrawn. Its original
+### Requirement: Dashboards are stored in the database only (REQ-GFSB-011)
+
+LaunchPad SHALL keep a dashboard's layout in its `WidgetPlacement` rows only. It SHALL NOT offer a storage backend
+choice, a GroupFolder backend, or the `launchpad:storage:*` commands, and the dashboard response SHALL NOT carry a
+`content` key.
+
+#### Scenario: No storage commands
+
+- **GIVEN** LaunchPad is installed
+- **WHEN** an administrator lists the `occ` commands
+- **THEN** no `launchpad:storage:migrate-to-groupfolder` or storage toggle command is listed
+
+#### Scenario: A dashboard has no content blob
+
+- **GIVEN** a dashboard with widgets
+- **WHEN** it is read through `GET /api/dashboards`
+- **THEN** its widgets come from its placements and the dashboard has no `content` key
+
+This is the only requirement; the capability is otherwise withdrawn. Its original
 requirements REQ-GFSB-001 through REQ-GFSB-010 and their 35 scenarios are
 preserved in the archived change at
 `openspec/changes/archive/2026-06-14-groupfolder-storage-backend/`, and the

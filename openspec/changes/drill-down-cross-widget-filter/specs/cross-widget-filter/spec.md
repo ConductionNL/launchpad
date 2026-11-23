@@ -9,7 +9,7 @@ status: draft
 
 This capability adds a shared filter bus to launchpad dashboards, allowing widgets to publish filter events (on click) and other widgets to consume them (on render). Filter state is persisted in the URL and optionally logged for aggregate telemetry. A dashboard with its filters is the unit a user keeps and shares; there are no saved views (REQ-CWF-009 was removed by decision on 22 Nov 2026).
 
-## NEW Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-CWF-001 Widget click publishes to the filter bus
 

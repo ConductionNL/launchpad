@@ -764,7 +764,7 @@
 					"gridX": 4,
 					"gridY": 11,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Bestanden",
 					"content": {
@@ -786,7 +786,7 @@
 					"gridX": 8,
 					"gridY": 11,
 					"gridWidth": 4,
-					"gridHeight": 4,
+					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Bladwijzers",
 					"content": {
@@ -909,7 +909,7 @@
 				{
 					"widgetId": "quicklinks",
 					"gridX": 8,
-					"gridY": 23,
+					"gridY": 3,
 					"gridWidth": 4,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -956,7 +956,7 @@
 				{
 					"widgetId": "link",
 					"gridX": 8,
-					"gridY": 27,
+					"gridY": 23,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,

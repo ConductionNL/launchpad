@@ -40,7 +40,6 @@ import {
 	useAppManifest,
 } from '@conduction/nextcloud-vue'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
-import { runtimeManifestRequest } from './utils/runtimeManifestRequest.js'
 import { createPinia } from 'pinia'
 import { createApp, h, reactive } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -56,6 +55,7 @@ import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
+import { runtimeManifestRequest } from './utils/runtimeManifestRequest.js'
 
 import './publicPath.js'
 import './services/widgetBridge.js'

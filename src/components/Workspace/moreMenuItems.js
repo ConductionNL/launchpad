@@ -388,35 +388,38 @@ export function settingsMenuItems(sections) {
  * @return {object[]} The items.
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
  */
-export function dashboardActionItems({
-	dashboard,
-	isOwner = false,
-	isDefault = false,
-	isEditMode = false,
-	canEdit = false,
-	canShare = false,
-	canDuplicate = false,
-	emit,
-}) {
-	if (!dashboard) {
+export function dashboardActionItems(options) {
+	if (!options.dashboard) {
 		return []
 	}
-	const rows = [
-		{ offered: canEdit, id: 'edit', label: isEditMode ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit'), icon: isEditMode ? ContentSave : Pencil, event: 'toggleEdit' },
-		{ offered: canEdit, id: 'add-widget', label: t('launchpad', 'Add widget'), icon: Plus, event: 'addWidget' },
-		{ offered: canShare, id: 'share', label: t('launchpad', 'Share'), icon: ShareVariant, event: 'share' },
-		{ offered: true, id: 'copy-link', label: t('launchpad', 'Copy link to this dashboard'), icon: LinkVariant, event: 'copyLink' },
-		{ offered: canDuplicate, id: 'duplicate', label: t('launchpad', 'Duplicate as new dashboard'), icon: ContentCopy, event: 'duplicate' },
-		{ offered: true, id: 'set-default', label: isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
-		{ offered: isOwner, id: 'delete', label: t('launchpad', 'Delete'), icon: TrashCanOutline, event: 'delete', destructive: true },
-	]
-	return rows
-		.filter((row) => row.offered)
+	return actionRows(options)
+		.filter((row) => row.offered === true)
 		.map(({ id, label, icon, event, destructive }) => ({
 			id,
 			label,
 			icon: markRaw(icon),
-			onClick: () => emit(event),
+			onClick: () => options.emit(event),
 			...(destructive ? { destructive } : {}),
 		}))
+}
+
+/**
+ * Every This dashboard action with whether this person is offered it.
+ *
+ * @param {object} options The options of {@link dashboardActionItems}.
+ * @return {object[]} The rows, in the board's order.
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+ */
+function actionRows(options) {
+	const editing = options.isEditMode === true
+	const isDefault = options.isDefault === true
+	return [
+		{ offered: options.canEdit, id: 'edit', label: editing ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit'), icon: editing ? ContentSave : Pencil, event: 'toggleEdit' },
+		{ offered: options.canEdit, id: 'add-widget', label: t('launchpad', 'Add widget'), icon: Plus, event: 'addWidget' },
+		{ offered: options.canShare, id: 'share', label: t('launchpad', 'Share'), icon: ShareVariant, event: 'share' },
+		{ offered: true, id: 'copy-link', label: t('launchpad', 'Copy link to this dashboard'), icon: LinkVariant, event: 'copyLink' },
+		{ offered: options.canDuplicate, id: 'duplicate', label: t('launchpad', 'Duplicate as new dashboard'), icon: ContentCopy, event: 'duplicate' },
+		{ offered: true, id: 'set-default', label: isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
+		{ offered: options.isOwner, id: 'delete', label: t('launchpad', 'Delete'), icon: TrashCanOutline, event: 'delete', destructive: true },
+	]
 }

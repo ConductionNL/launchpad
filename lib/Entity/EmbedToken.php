@@ -252,30 +252,30 @@ final class EmbedToken {
 	/**
 	 * A copy revoked now, for a reason.
 	 *
-	 * @param string      $at     ISO 8601.
-	 * @param string      $reason One of REASONS.
-	 * @param string|null $notes  Free text.
-	 * @param string      $by     The admin.
+	 * @param string      $revokedAt ISO 8601.
+	 * @param string      $reason    One of REASONS.
+	 * @param string|null $notes     Free text.
+	 * @param string      $revokedBy The admin.
 	 *
 	 * @return self
 	 *
 	 * @spec openspec/changes/embedded-analytics/tasks.md#task-2
 	 */
-	public function revoked(string $at, string $reason, ?string $notes, string $by): self {
-		return $this->with(revokedAt: $at, revocationReason: $reason, revocationNotes: $notes, revokedBy: $by, updatedAt: $at);
+	public function revoked(string $revokedAt, string $reason, ?string $notes, string $revokedBy): self {
+		return $this->with(revokedAt: $revokedAt, revocationReason: $reason, revocationNotes: $notes, revokedBy: $revokedBy, updatedAt: $revokedAt);
 	}//end revoked()
 
 	/**
 	 * A copy with the revocation cleared.
 	 *
-	 * @param string $at ISO 8601.
+	 * @param string $restoredAt ISO 8601.
 	 *
 	 * @return self
 	 *
 	 * @spec openspec/changes/embedded-analytics/tasks.md#task-2
 	 */
-	public function unrevoked(string $at): self {
-		return $this->with(revokedAt: null, revocationReason: null, revocationNotes: null, revokedBy: null, updatedAt: $at);
+	public function unrevoked(string $restoredAt): self {
+		return $this->with(revokedAt: null, revocationReason: null, revocationNotes: null, revokedBy: null, updatedAt: $restoredAt);
 	}//end unrevoked()
 
 	/**

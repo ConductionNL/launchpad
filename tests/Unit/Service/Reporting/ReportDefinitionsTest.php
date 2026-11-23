@@ -85,4 +85,30 @@ class ReportDefinitionsTest extends TestCase {
 		$this->expectExceptionMessage('The report definitions file is missing or not valid JSON.');
 		(new ReportDefinitions(file: $file))->all();
 	}//end testAMissingFileAndADuplicateIdAreRefused()
+
+	/**
+	 * A path that is no readable file is refused with the same message, without a PHP warning.
+	 *
+	 * @return void
+	 */
+	public function testAnUnreadablePathIsRefusedWithoutAWarning(): void {
+		$warnings = [];
+		set_error_handler(
+			callback: static function (int $errno, string $message) use (&$warnings): bool {
+				$warnings[] = $message;
+				return true;
+			}
+		);
+
+		try {
+			(new ReportDefinitions(file: sys_get_temp_dir()))->all();
+			$this->fail(message: 'a directory must be refused');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame(expected: 'The report definitions file is missing or not valid JSON.', actual: $e->getMessage());
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertSame(expected: [], actual: $warnings);
+	}//end testAnUnreadablePathIsRefusedWithoutAWarning()
 }//end class

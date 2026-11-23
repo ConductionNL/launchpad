@@ -272,7 +272,7 @@ class EmbedTokenService {
 			return null;
 		}
 
-		$revoked = $token->revoked(at: $this->nowIso(), reason: $reason, notes: $notes, by: $userId);
+		$revoked = $token->revoked(revokedAt: $this->nowIso(), reason: $reason, notes: $notes, revokedBy: $userId);
 		$this->store->save(schema: EmbedObjectStore::TOKENS, object: $revoked->toObject());
 		$this->revocations->markRevoked(tokenId: $token->id);
 		$this->notifyCreator(token: $revoked);
@@ -297,7 +297,7 @@ class EmbedTokenService {
 			return null;
 		}
 
-		$restored = $token->unrevoked(at: $this->nowIso());
+		$restored = $token->unrevoked(restoredAt: $this->nowIso());
 		$this->store->save(schema: EmbedObjectStore::TOKENS, object: $restored->toObject());
 		$this->revocations->purge(tokenId: $token->id);
 		$this->audit(message: 'LaunchPad embed token "%s" (%s) restored by %s', params: [$restored->name, $restored->id, (string)$userId]);
@@ -323,7 +323,7 @@ class EmbedTokenService {
 
 		$now = $this->nowIso();
 		if ($token->isRevoked() === false) {
-			$this->store->save(schema: EmbedObjectStore::TOKENS, object: $token->revoked(at: $now, reason: 're-issued', notes: null, by: $userId)->toObject());
+			$this->store->save(schema: EmbedObjectStore::TOKENS, object: $token->revoked(revokedAt: $now, reason: 're-issued', notes: null, revokedBy: $userId)->toObject());
 			$this->revocations->markRevoked(tokenId: $token->id);
 		}
 

@@ -151,7 +151,11 @@ class ReportDefinitions {
 			return $this->definitions;
 		}
 
-		$raw = @file_get_contents($this->file);
+		$raw = false;
+		if (is_file($this->file) === true && is_readable($this->file) === true) {
+			$raw = file_get_contents($this->file);
+		}
+
 		$decoded = json_decode((string)$raw, true);
 		if (is_array($decoded) === false || is_array(($decoded['reports'] ?? null)) === false) {
 			throw new InvalidArgumentException('The report definitions file is missing or not valid JSON.');

@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -33,7 +33,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Adds the per-widget version column.
  *
- * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+ * @spec openspec/specs/dashboard-co-editing/spec.md
  */
 class Version002013Date20261114090000 extends SimpleMigrationStep {
 
@@ -46,7 +46,7 @@ class Version002013Date20261114090000 extends SimpleMigrationStep {
 	 *
 	 * @return ISchemaWrapper|null
 	 *
-	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 * @spec openspec/specs/dashboard-co-editing/spec.md
 	 */
 	public function changeSchema(
 		IOutput $output,

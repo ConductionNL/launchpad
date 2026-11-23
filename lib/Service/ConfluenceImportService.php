@@ -31,6 +31,7 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Kernel\Contracts\ConfluenceImportServiceInterface;
 use OCA\LaunchPad\Service\Confluence\ArchiveParser;
 use OCA\LaunchPad\Service\Confluence\ParsedPage;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -45,7 +46,7 @@ use Throwable;
  *      Top-level orchestrator must collaborate with parser, sanitiser,
  *      macro renderer, link rewriter, factory, and two mappers.
  */
-class ConfluenceImportService {
+class ConfluenceImportService implements ConfluenceImportServiceInterface {
 
 	/**
 	 * Default text-display widget identifier (matches the built-in
@@ -592,9 +593,11 @@ class ConfluenceImportService {
 	/**
 	 * Build the timestamp segment for the asset folder.
 	 *
-	 * @return string The ISO 8601 segment (e.g. `2026-05-02T10-30-00`).
+	 * Microseconds keep two runs started in the same second apart.
+	 *
+	 * @return string The ISO 8601 segment (e.g. `2026-05-02T10-30-00.123456`).
 	 */
 	private function buildTimestamp(): string {
-		return (new DateTime())->format(format: 'Y-m-d\TH-i-s');
+		return (new DateTime())->format(format: 'Y-m-d\TH-i-s.u');
 	}//end buildTimestamp()
 }//end class

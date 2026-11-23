@@ -25,6 +25,7 @@
 		<div
 			v-else-if="items.length === 0"
 			class="news-widget__state news-widget__state--empty">
+			<RssIcon class="news-widget__state-icon" :size="32" />
 			{{
 				t(
 					'launchpad',
@@ -35,11 +36,33 @@
 
 		<template v-else>
 			<WidgetRowFilter v-model="rowFilter" />
-			<ul class="news-widget__list">
+			<div
+				v-if="layout === 'carousel' && shownItems.length > 1"
+				class="news-widget__carousel-nav">
+				<NcButton
+					variant="tertiary"
+					:aria-label="t('launchpad', 'Previous item')"
+					:disabled="carouselIndex === 0"
+					@click="showSlide(carouselIndex - 1)">
+					<template #icon>
+						<ChevronLeft :size="20" />
+					</template>
+				</NcButton>
+				<NcButton
+					variant="tertiary"
+					:aria-label="t('launchpad', 'Next item')"
+					:disabled="carouselIndex >= shownItems.length - 1"
+					@click="showSlide(carouselIndex + 1)">
+					<template #icon>
+						<ChevronRight :size="20" />
+					</template>
+				</NcButton>
+			</div>
+			<ul ref="list" class="news-widget__list">
 				<li v-for="item in shownItems" :key="item.guid" class="news-widget__item">
 					<a
-						v-if="item.link"
-						:href="item.link"
+						v-if="safeLink(item)"
+						:href="safeLink(item)"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="news-widget__item-link"
@@ -122,6 +145,10 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import DOMPurify from 'dompurify'
+import NcButton from '@nextcloud/vue/components/NcButton'
+import ChevronLeft from 'vue-material-design-icons/ChevronLeft.vue'
+import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
+import RssIcon from 'vue-material-design-icons/Rss.vue'
 import WidgetRowFilter from '../WidgetRowFilter.vue'
 import {
 	NULLABLE_OBJECT_PROP,
@@ -205,6 +232,8 @@ function truncateSummaryHtml(html, maxChars) {
 	return DOMPurify.sanitize(body.innerHTML, {
 		ALLOWED_TAGS: ALLOWED_SUMMARY_TAGS,
 		ALLOWED_ATTR: ALLOWED_SUMMARY_ATTR,
+		ALLOW_DATA_ATTR: false,
+		ALLOW_ARIA_ATTR: false,
 	})
 }
 
@@ -233,6 +262,10 @@ export default {
 	name: 'NewsWidget',
 
 	components: {
+		ChevronLeft,
+		ChevronRight,
+		NcButton,
+		RssIcon,
 		WidgetRowFilter,
 	},
 
@@ -254,6 +287,8 @@ export default {
 			// REQ-DWMS-008: the row filter is view state only. Never saved,
 			// never shared, gone after a reload.
 			rowFilter: '',
+			// The item the carousel layout shows.
+			carouselIndex: 0,
 		}
 	},
 
@@ -263,7 +298,7 @@ export default {
 		 * and the widget's settings are never touched.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+		 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
 		 */
 		shownItems() {
 			return filterRows(this.items, this.rowFilter, ['title', 'summary', 'sourceTitle'])
@@ -335,6 +370,15 @@ export default {
 
 		/** @spec openspec/specs/news-widget/spec.md */
 		failedBadgeLabel() {
+			const allFailed = this.items.length === 0
+				&& this.feedUrls.length > 0
+				&& this.failedCount >= this.feedUrls.length
+			if (allFailed && this.failedCount > 1) {
+				return t('launchpad', 'All {count} feeds failed').replace(
+					'{count}',
+					String(this.failedCount),
+				)
+			}
 			if (this.failedCount === 1) {
 				return t('launchpad', '1 feed failed')
 			}
@@ -375,6 +419,36 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The item's link when it is an http(s) URL; null otherwise, so a
+		 * `javascript:`, `data:` or other scheme renders as an inert card.
+		 *
+		 * @param {object} item News item.
+		 * @return {string|null} The link to bind, or null.
+		 * @spec openspec/specs/news-widget/spec.md
+		 */
+		safeLink(item) {
+			const link = item && typeof item.link === 'string' ? item.link.trim() : ''
+			return /^https?:\/\//i.test(link) ? link : null
+		},
+
+		/**
+		 * Scroll the carousel to one item.
+		 *
+		 * @param {number} index The item to show.
+		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
+		 */
+		showSlide(index) {
+			const last = this.shownItems.length - 1
+			this.carouselIndex = Math.max(0, Math.min(last, index))
+			const list = this.$refs.list
+			const slide = list && list.children[this.carouselIndex]
+			if (slide) {
+				list.scrollTo({ left: slide.offsetLeft - list.offsetLeft, behavior: 'smooth' })
+			}
+		},
+
 		/** @spec openspec/specs/news-widget/spec.md */
 		async loadItems() {
 			if (this.placementId === null) {
@@ -396,6 +470,7 @@ export default {
 				})
 				const data = response && response.data ? response.data : {}
 				this.items = Array.isArray(data.items) ? data.items : []
+				this.carouselIndex = 0
 				this.failedCount =
 					typeof data.feedsFailed === 'number' ? data.feedsFailed : 0
 				this.failedUrls = Array.isArray(data.failedUrls)
@@ -420,13 +495,14 @@ export default {
 		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		onItemClick(event, item) {
-			if (!item || !item.link) {
+			const link = this.safeLink(item)
+			if (link === null) {
 				return
 			}
 			// Keep the native anchor behaviour; the `window.open` below is
 			// only needed when consumers preventDefault() the anchor.
 			if (event && event.defaultPrevented) {
-				window.open(item.link, '_blank', 'noopener,noreferrer')
+				window.open(link, '_blank', 'noopener,noreferrer')
 			}
 		},
 
@@ -476,20 +552,20 @@ export default {
 			}
 			const diffMinutes = Math.floor(diffSeconds / 60)
 			if (diffMinutes < 60) {
-				return t('launchpad', '{n} minutes ago').replace(
-					'{n}',
-					String(diffMinutes),
-				)
+				return diffMinutes === 1
+					? t('launchpad', '1 minute ago')
+					: t('launchpad', '{n} minutes ago').replace('{n}', String(diffMinutes))
 			}
 			const diffHours = Math.floor(diffMinutes / 60)
 			if (diffHours < 24) {
-				return t('launchpad', '{n} hours ago').replace(
-					'{n}',
-					String(diffHours),
-				)
+				return diffHours === 1
+					? t('launchpad', '1 hour ago')
+					: t('launchpad', '{n} hours ago').replace('{n}', String(diffHours))
 			}
 			const diffDays = Math.floor(diffHours / 24)
-			return t('launchpad', '{n} days ago').replace('{n}', String(diffDays))
+			return diffDays === 1
+				? t('launchpad', '1 day ago')
+				: t('launchpad', '{n} days ago').replace('{n}', String(diffDays))
 		},
 	},
 }
@@ -520,6 +596,8 @@ export default {
 .news-widget__state {
 	flex: 1;
 	display: flex;
+	flex-direction: column;
+	gap: 8px;
 	align-items: center;
 	justify-content: center;
 	padding: 16px;
@@ -552,12 +630,25 @@ export default {
 	display: flex;
 	flex-direction: row;
 	gap: 12px;
-	overflow-x: auto;
-	overflow-y: hidden;
+	overflow: hidden;
+	scroll-snap-type: x mandatory;
 }
 
 .news-widget--carousel .news-widget__item {
-	flex: 0 0 220px;
+	flex: 0 0 100%;
+	scroll-snap-align: start;
+}
+
+.news-widget__carousel-nav {
+	display: flex;
+	justify-content: flex-end;
+	gap: 4px;
+}
+
+.news-widget--grid .news-widget__item-link {
+	border: 1px solid var(--color-border);
+	box-shadow: 0 1px 3px var(--color-box-shadow);
+	background-color: var(--color-main-background);
 }
 
 .news-widget__item-link {

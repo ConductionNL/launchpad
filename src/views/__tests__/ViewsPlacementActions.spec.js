@@ -103,6 +103,7 @@ describe('Views placements', () => {
 			textColor: '#ffffff',
 			linkType: 'url',
 			linkValue: 'https://intranet.example.nl',
+			internalUrl: '',
 		})
 		expect(host.isTilePlacement({ id: 1, widgetId: 'notes' })).toBe(false)
 		expect(host.getTileData({ id: 1, tileType: 'preset' })).toBeNull()
@@ -177,6 +178,17 @@ describe('Views widget context menu', () => {
 		await expect(host.handleContextMenuRemove({ id: 5 })).resolves.toBeUndefined()
 
 		expect(logged).toEqual([['[Views] Failed to remove widget via context menu:', failure]])
+	})
+
+	it('offers Remove for a compulsory widget only with full permission', () => {
+		const compulsory = { id: 5, isCompulsory: 1 }
+		const addOnly = makeHost({ permissionLevel: 'add_only', grid: { state: { selectedWidget: compulsory } } })
+		const full = makeHost({ permissionLevel: 'full', grid: { state: { selectedWidget: compulsory } } })
+
+		expect(Views.computed.contextMenuCanRemove.call(addOnly)).toBe(false)
+		expect(Views.computed.contextMenuCanRemove.call(full)).toBe(true)
+		expect(addOnly.isRemovablePlacement({ id: 6, isCompulsory: 0 })).toBe(true)
+		expect(addOnly.isRemovablePlacement(null)).toBe(true)
 	})
 
 	it('opens and closes the visibility rules for a placement', () => {

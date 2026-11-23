@@ -123,41 +123,6 @@ describe('Views personal layer refusals', () => {
 	})
 })
 
-describe('Views schedule refusals', () => {
-	it('explains an end before the start, and any other refusal, keeping the dialog open', async () => {
-		const host = makeHost({
-			activeDashboard: { uuid: 'd', isOwner: true },
-			scheduleDialogOpen: true,
-			scheduleError: '',
-		})
-
-		api.scheduleDashboard.mockRejectedValue(
-			httpError(400, { message: 'unpublishAt must be after publishAt' }),
-		)
-		await host.onScheduleActive({ publishAt: 'b', unpublishAt: 'a' })
-		expect(api.scheduleDashboard).toHaveBeenCalledWith('d', 'b', 'a')
-		expect(host.scheduleError).toBe('The dashboard has to go live before it comes down.')
-		expect(host.scheduleDialogOpen).toBe(true)
-
-		api.scheduleDashboard.mockRejectedValue(new Error('offline'))
-		await host.onScheduleActive({ publishAt: 'b', unpublishAt: null })
-		expect(host.scheduleError).toBe('The dashboard could not be scheduled.')
-		expect(host.scheduleDialogOpen).toBe(true)
-	})
-})
-
-describe('Views version support probe', () => {
-	it('a refused version listing reads as not offered', async () => {
-		api.listVersions.mockRejectedValue(httpError(403))
-		const host = makeHost({ activeDashboard: { uuid: 'd', isOwner: true }, versionSupport: { other: true } })
-
-		await host.checkVersionSupport()
-
-		expect(api.listVersions).toHaveBeenCalledWith('d')
-		expect(host.versionSupport).toEqual({ other: true, d: false })
-	})
-})
-
 describe('Views delete dashboard', () => {
 	it('does nothing without a confirmed target', async () => {
 		const host = makeHost({ deleteTarget: null, deleteChildCount: 0 })

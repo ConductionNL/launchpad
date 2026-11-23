@@ -82,6 +82,35 @@ describe('Views deep-link history', () => {
 		expect(host.buildDeepLinkUrl(null)).toBe('')
 	})
 
+	it('pushes a history entry for a dashboard change only once the boot is over', () => {
+		const handler = Views.watch['activeDashboard.uuid'].handler
+		const host = makeHost({ openFilterSession: vi.fn(), recordViewEventDebounced: vi.fn(), pushUrlForActiveDashboard: vi.fn() })
+
+		// The boot: no dashboard yet, the stored active one, then the deep-linked one.
+		handler.call(host, 'u-b', null)
+		handler.call(host, 'u-a', 'u-b')
+		expect(host.pushUrlForActiveDashboard).not.toHaveBeenCalled()
+		expect(host.recordViewEventDebounced.mock.calls).toEqual([['u-b'], ['u-a']])
+
+		host.historyBooted = true
+		handler.call(host, 'u-b', 'u-a')
+		expect(host.pushUrlForActiveDashboard).toHaveBeenCalledTimes(1)
+	})
+
+	it('lets every filter session of the boot read the address, and no session after it', () => {
+		const handler = Views.watch['activeDashboard.uuid'].handler
+		const host = makeHost({ historyBooted: false, openFilterSession: vi.fn(), recordViewEventDebounced: vi.fn(), pushUrlForActiveDashboard: vi.fn() })
+
+		// The boot: the stored active one, then the deep-linked one.
+		handler.call(host, 'u-b', undefined)
+		handler.call(host, 'u-a', 'u-b')
+		expect(host.openFilterSession.mock.calls).toEqual([[true], [true]])
+
+		host.historyBooted = true
+		handler.call(host, 'u-b', 'u-a')
+		expect(host.openFilterSession.mock.calls[2]).toEqual([false])
+	})
+
 	it('replaces the boot address with the injected deep link, unless it is already there', () => {
 		const replace = vi.spyOn(window.history, 'replaceState')
 		const host = makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } })
@@ -99,6 +128,66 @@ describe('Views deep-link history', () => {
 		expect(replace).not.toHaveBeenCalled()
 	})
 
+	it('keeps the query and hash when it replaces the boot address', () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		at('/index.php/apps/launchpad/?kiosk=1#top')
+
+		makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } }).replaceUrlFromInitialState()
+
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-hr', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/team/hr?kiosk=1#top',
+		)
+	})
+
+	it('treats an address without the front controller as the deep link itself', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		const push = vi.spyOn(window.history, 'pushState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: 'team/hr' } })
+		at('/apps/launchpad/team/hr')
+		replace.mockClear()
+		const host = makeHost({ injectedDeepLinkPath: 'team/hr', activeDashboard: { uuid: 'u-hr' } })
+
+		host.replaceUrlFromInitialState()
+		await host.pushUrlForActiveDashboard()
+
+		expect(replace).not.toHaveBeenCalled()
+		expect(push).not.toHaveBeenCalled()
+	})
+
+	it('opens the dashboard a slug address names, not the stored active one', async () => {
+		const switchDashboard = vi.fn()
+		const dashboards = [{ id: 1, uuid: 'u-a' }, { id: 2, uuid: 'u-b' }]
+		const host = makeHost({
+			injectedActiveDashboardId: 'u-a',
+			injectedDeepLinkPath: '/team/a',
+			activeDashboard: { id: 2, uuid: 'u-b' },
+			dashboards,
+			switchDashboard,
+		})
+
+		await host.openDeepLinkedDashboard('/apps/launchpad/team/a/')
+		expect(switchDashboard).toHaveBeenCalledWith(1)
+	})
+
+	it('keeps the stored dashboard for an address the server did not resolve', async () => {
+		const switchDashboard = vi.fn()
+		const state = {
+			injectedActiveDashboardId: 'u-a',
+			injectedDeepLinkPath: '/team/a',
+			activeDashboard: { id: 2, uuid: 'u-b' },
+			dashboards: [{ id: 1, uuid: 'u-a' }, { id: 2, uuid: 'u-b' }],
+			switchDashboard,
+		}
+
+		await makeHost(state).openDeepLinkedDashboard('/index.php/apps/launchpad/dashboards/2')
+		await makeHost(state).openDeepLinkedDashboard('/index.php/apps/launchpad')
+		await makeHost({ ...state, activeDashboard: { id: 1, uuid: 'u-a' } })
+			.openDeepLinkedDashboard('/index.php/apps/launchpad/team/a')
+		expect(switchDashboard).not.toHaveBeenCalled()
+	})
+
 	it('logs instead of failing when the history refuses the replacement', () => {
 		const error = new Error('refused')
 		vi.spyOn(window.history, 'replaceState').mockImplementation(() => {
@@ -108,6 +197,60 @@ describe('Views deep-link history', () => {
 		makeHost({ injectedDeepLinkPath: 'x', activeDashboard: null }).replaceUrlFromInitialState()
 
 		expect(logger.warn).toHaveBeenCalledWith('[Views] history.replaceState failed:', error)
+	})
+
+	it('writes the address of a dashboard the route opened over the one the server rendered', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		const push = vi.spyOn(window.history, 'pushState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: '/linked' } })
+		at('/index.php/apps/launchpad/other?f=x')
+		replace.mockClear()
+		const host = makeHost({
+			injectedActiveDashboardId: 'u-other',
+			activeDashboard: { id: 7, uuid: 'u-linked' },
+		})
+
+		await host.replaceUrlAfterBoot()
+
+		expect(api.getDashboardPath).toHaveBeenCalledWith('u-linked')
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-linked', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/linked?f=x',
+		)
+		expect(push).not.toHaveBeenCalled()
+	})
+
+	it('falls back to the id address after the boot when the dashboard has no path', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		api.getDashboardPath.mockResolvedValue({ data: { path: '' } })
+		at('/index.php/apps/launchpad/other')
+		replace.mockClear()
+
+		await makeHost({
+			injectedActiveDashboardId: 'u-other',
+			activeDashboard: { id: 7, uuid: 'u-linked' },
+		}).replaceUrlAfterBoot()
+
+		expect(replace).toHaveBeenCalledWith(
+			{ uuid: 'u-linked', source: 'launchpad-deeplink' },
+			'',
+			'/index.php/apps/launchpad/dashboards/7',
+		)
+	})
+
+	it('leaves the address alone after the boot when the server rendered the open dashboard', async () => {
+		const replace = vi.spyOn(window.history, 'replaceState')
+		replace.mockClear()
+
+		await makeHost({
+			injectedActiveDashboardId: 'u-a',
+			activeDashboard: { id: 1, uuid: 'u-a' },
+		}).replaceUrlAfterBoot()
+		await makeHost({ injectedActiveDashboardId: 'u-a', activeDashboard: null }).replaceUrlAfterBoot()
+
+		expect(api.getDashboardPath).not.toHaveBeenCalled()
+		expect(replace).not.toHaveBeenCalled()
 	})
 
 	it('pushes the active dashboard\'s path, once, and nothing without a uuid or path', async () => {
@@ -289,6 +432,53 @@ describe('Views view events', () => {
 		host.recordViewEventDebounced('')
 		expect(host.recordViewEvent).toHaveBeenCalledTimes(3)
 	})
+
+	it('sends one view-event across two tabs of the same dashboard, holding the lock a second', async () => {
+		vi.useFakeTimers()
+		const held = new Set()
+		const locks = {
+			request: vi.fn(async (name, options, callback) => {
+				if (held.has(name)) {
+					return callback(null)
+				}
+				held.add(name)
+				try {
+					return await callback({ name })
+				} finally {
+					held.delete(name)
+				}
+			}),
+		}
+		vi.stubGlobal('navigator', { locks })
+		const recordViewEvent = vi.fn()
+		const first = makeHost({ recordViewEvent })
+		const second = makeHost({ recordViewEvent })
+
+		first.recordViewEventDebounced('a')
+		second.recordViewEventDebounced('a')
+		second.recordViewEventDebounced('b')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(recordViewEvent.mock.calls).toEqual([['a'], ['b']])
+		expect(locks.request).toHaveBeenCalledWith('launchpad-view-event:a', { ifAvailable: true }, expect.any(Function))
+
+		await vi.advanceTimersByTimeAsync(1000)
+		makeHost({ recordViewEvent }).recordViewEventDebounced('a')
+		await vi.advanceTimersByTimeAsync(0)
+		expect(recordViewEvent.mock.calls).toEqual([['a'], ['b'], ['a']])
+		vi.unstubAllGlobals()
+	})
+
+	it('sends anyway when the lock request fails', async () => {
+		vi.stubGlobal('navigator', { locks: { request: vi.fn().mockRejectedValue(new Error('SecurityError')) } })
+		const host = makeHost({ recordViewEvent: vi.fn() })
+
+		host.recordViewEventDebounced('a')
+		await Promise.resolve()
+		await Promise.resolve()
+
+		expect(host.recordViewEvent).toHaveBeenCalledWith('a')
+		vi.unstubAllGlobals()
+	})
 })
 
 describe('Views saving tiles and custom widgets', () => {
@@ -315,7 +505,7 @@ describe('Views saving tiles and custom widgets', () => {
 			tileTextColor: '#fff',
 			tileLinkType: 'url',
 			tileLinkValue: 'https://example.org',
-			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60 },
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: '' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(1)
 	})
@@ -334,9 +524,23 @@ describe('Views saving tiles and custom widgets', () => {
 
 		await host.saveTile({ ...tile, healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 })
 		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 },
+			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, internalUrl: '' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(2)
+	})
+
+	it('adds a new tile with an office-network address, patching it in (launcher-tile-internal-address)', async () => {
+		const host = makeHost({
+			editingTile: null,
+			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			updateWidgetPlacement: vi.fn(),
+			closeTileEditor: vi.fn(),
+		})
+
+		await host.saveTile({ ...tile, internalUrl: 'http://zaken.intern' })
+		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: 'http://zaken.intern' },
+		})
 	})
 
 	it('keeps the tile editor open and logs when saving fails', async () => {
@@ -368,10 +572,25 @@ describe('Views saving tiles and custom widgets', () => {
 			closeCustomWidgetModal: vi.fn(),
 		})
 		await creating.saveCustomWidget({ type: 'text', content: { text: 'Hi' } })
-		expect(creating.addWidgetToDashboard).toHaveBeenCalledWith({ type: 'text', content: { text: 'Hi' } })
+		expect(creating.addWidgetToDashboard).toHaveBeenCalledWith({ type: 'text', content: { text: 'Hi' } }, null)
 		expect(creating.updateWidgetPlacement).toHaveBeenCalledWith(11, expect.any(Object))
 		expect(creating.updateWidgetPlacement.mock.calls[0][1]).not.toHaveProperty('content')
 		expect(creating.closeCustomWidgetModal).toHaveBeenCalledTimes(1)
+	})
+
+	it('starts a new header at the full grid width and as tall as its preset', async () => {
+		const host = makeHost({
+			activeDashboard: { id: 1, gridColumns: 12 },
+			customWidgetEditing: null,
+			updateWidgetPlacement: vi.fn(),
+			addWidgetToDashboard: vi.fn(async () => ({ id: 12, styleConfig: {} })),
+			closeCustomWidgetModal: vi.fn(),
+		})
+		await host.saveCustomWidget({ type: 'header', content: { title: 'Hi', height: 'large' } })
+		expect(host.addWidgetToDashboard).toHaveBeenCalledWith(
+			{ type: 'header', content: { title: 'Hi', height: 'large' } },
+			{ w: 12, h: 6 },
+		)
 	})
 
 	it('skips the chrome patch when nothing was created, and logs a failed save', async () => {

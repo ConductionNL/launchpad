@@ -541,6 +541,156 @@
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         }
     },
+    "AppRequestMapper": {
+        "findOpen all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findOpen rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\AppRequest {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"requestedBy\\\":\\\"\\\",\\\"appName\\\":\\\"\\\",\\\"purpose\\\":\\\"\\\",\\\"status\\\":\\\"open\\\",\\\"decidedBy\\\":null,\\\"decisionNote\\\":null,\\\"catalogueAppId\\\":null,\\\"createdAt\\\":null,\\\"decidedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\AppRequest {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"requestedBy\\\":\\\"\\\",\\\"appName\\\":\\\"\\\",\\\"purpose\\\":\\\"\\\",\\\"status\\\":\\\"open\\\",\\\"decidedBy\\\":null,\\\"decisionNote\\\":null,\\\"catalogueAppId\\\":null,\\\"createdAt\\\":null,\\\"decidedAt\\\":null}\"]"
+        },
+        "countOpenBy all": {
+            "calls": [
+                "qb1 new",
+                "qb1.func()",
+                "qb1.func.count(\"*\", \"open_count\")",
+                "qb1.select(count(\"*\", \"open_count\"))",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"requested_by\", \":p1\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"requested_by\\\", \\\":p1\\\", null)\", \"eq(\\\"status\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned 0"
+        },
+        "countOpenBy rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.func()",
+                "qb1.func.count(\"*\", \"open_count\")",
+                "qb1.select(count(\"*\", \"open_count\"))",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"requested_by\", \":p1\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"requested_by\\\", \\\":p1\\\", null)\", \"eq(\\\"status\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned 5"
+        },
+        "findByUuid all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\DoesNotExistException: Did expect one result but found none when executing: query \"sql\"; "
+        },
+        "findByUuid rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
+        }
+    },
+    "CatalogueAppMapper": {
+        "findAllOrdered all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.orderBy(\"sort_order\", null)",
+                "qb1.addOrderBy(\"name\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findAllOrdered rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.orderBy(\"sort_order\", null)",
+                "qb1.addOrderBy(\"name\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\",\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\"]"
+        },
+        "findByUuid all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\DoesNotExistException: Did expect one result but found none when executing: query \"sql\"; "
+        },
+        "findByUuid rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
+        }
+    },
     "ConditionalRuleMapper": {
         "find all": {
             "calls": [
@@ -593,6 +743,34 @@
                 "qb1.createNamedParameter(7, 1, null)",
                 "qb1.expr.eq(\"widget_placement_id\", \":p1\", null)",
                 "qb1.where(\"eq(\\\"widget_placement_id\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\ConditionalRule {\\\"id\\\":5,\\\"widgetPlacementId\\\":0,\\\"ruleType\\\":\\\"\\\",\\\"ruleConfig\\\":[],\\\"isInclude\\\":true,\\\"createdAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\ConditionalRule {\\\"id\\\":6,\\\"widgetPlacementId\\\":0,\\\"ruleType\\\":\\\"\\\",\\\"ruleConfig\\\":[],\\\"isInclude\\\":true,\\\"createdAt\\\":null}\"]"
+        },
+        "findByPlacementIds all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_conditional_rules\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 101, null)",
+                "qb1.expr.in(\"widget_placement_id\", \":p1\", null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByPlacementIds rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_conditional_rules\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 101, null)",
+                "qb1.expr.in(\"widget_placement_id\", \":p1\", null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", \\\":p1\\\", null)\")",
                 "qb1.orderBy(\"created_at\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
@@ -1038,7 +1216,7 @@
                 "qb1.orderBy(\"created_at\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findActiveByUserId all": {
             "calls": [
@@ -1110,7 +1288,7 @@
                 "qb1.orderBy(\"name\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findByBasedOnTemplate all": {
             "calls": [
@@ -1138,7 +1316,7 @@
                 "qb1.orderBy(\"id\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findDefaultTemplate all": {
             "calls": [
@@ -1304,7 +1482,7 @@
                 "qb1.orderBy(\"created_at\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findVisibleToUser all": {
             "calls": [
@@ -1392,7 +1570,7 @@
                 "qb3.orderBy(\"created_at\", \"ASC\")",
                 "qb3.executeQuery(null)"
             ],
-            "outcome": "returned array [\"array {\\\"dashboard\\\":\\\"OCA\\\\\\\\LaunchPad\\\\\\\\Db\\\\\\\\Dashboard {\\\\\\\"id\\\\\\\":5,\\\\\\\"uuid\\\\\\\":null,\\\\\\\"name\\\\\\\":null,\\\\\\\"description\\\\\\\":null,\\\\\\\"icon\\\\\\\":null,\\\\\\\"type\\\\\\\":\\\\\\\"user\\\\\\\",\\\\\\\"userId\\\\\\\":null,\\\\\\\"groupId\\\\\\\":null,\\\\\\\"basedOnTemplate\\\\\\\":null,\\\\\\\"gridColumns\\\\\\\":12,\\\\\\\"permissionLevel\\\\\\\":\\\\\\\"full\\\\\\\",\\\\\\\"targetGroups\\\\\\\":[],\\\\\\\"isDefault\\\\\\\":0,\\\\\\\"isActive\\\\\\\":0,\\\\\\\"commentsEnabled\\\\\\\":null,\\\\\\\"reactionsEnabled\\\\\\\":null,\\\\\\\"createdAt\\\\\\\":null,\\\\\\\"updatedAt\\\\\\\":null,\\\\\\\"parentUuid\\\\\\\":null,\\\\\\\"slug\\\\\\\":null,\\\\\\\"sortOrder\\\\\\\":0,\\\\\\\"publicationStatus\\\\\\\":\\\\\\\"published\\\\\\\",\\\\\\\"publishAt\\\\\\\":null,\\\\\\\"publishedAt\\\\\\\":null,\\\\\\\"unpublishAt\\\\\\\":null,\\\\\\\"dashboardFooterMode\\\\\\\":\\\\\\\"inherit\\\\\\\",\\\\\\\"dashboardFooterHtml\\\\\\\":null,\\\\\\\"templateCategory\\\\\\\":null,\\\\\\\"templateDescription\\\\\\\":null,\\\\\\\"templatePreviewImage\\\\\\\":null}\\\",\\\"source\\\":\\\"\\\\\\\"user\\\\\\\"\\\"}\"]"
+            "outcome": "returned array [\"array {\\\"dashboard\\\":\\\"OCA\\\\\\\\LaunchPad\\\\\\\\Db\\\\\\\\Dashboard {\\\\\\\"id\\\\\\\":5,\\\\\\\"uuid\\\\\\\":null,\\\\\\\"name\\\\\\\":null,\\\\\\\"description\\\\\\\":null,\\\\\\\"icon\\\\\\\":null,\\\\\\\"type\\\\\\\":\\\\\\\"user\\\\\\\",\\\\\\\"userId\\\\\\\":null,\\\\\\\"groupId\\\\\\\":null,\\\\\\\"basedOnTemplate\\\\\\\":null,\\\\\\\"gridColumns\\\\\\\":12,\\\\\\\"permissionLevel\\\\\\\":\\\\\\\"full\\\\\\\",\\\\\\\"targetGroups\\\\\\\":[],\\\\\\\"isDefault\\\\\\\":0,\\\\\\\"isActive\\\\\\\":0,\\\\\\\"commentsEnabled\\\\\\\":null,\\\\\\\"reactionsEnabled\\\\\\\":null,\\\\\\\"createdAt\\\\\\\":null,\\\\\\\"updatedAt\\\\\\\":null,\\\\\\\"parentUuid\\\\\\\":null,\\\\\\\"slug\\\\\\\":null,\\\\\\\"sortOrder\\\\\\\":0,\\\\\\\"publicationStatus\\\\\\\":\\\\\\\"published\\\\\\\",\\\\\\\"publishAt\\\\\\\":null,\\\\\\\"publishedAt\\\\\\\":null,\\\\\\\"unpublishAt\\\\\\\":null,\\\\\\\"dashboardFooterMode\\\\\\\":\\\\\\\"inherit\\\\\\\",\\\\\\\"dashboardFooterHtml\\\\\\\":null,\\\\\\\"defaultLinkTarget\\\\\\\":null,\\\\\\\"hierarchies\\\\\\\":[],\\\\\\\"templateCategory\\\\\\\":null,\\\\\\\"templateDescription\\\\\\\":null,\\\\\\\"templatePreviewImage\\\\\\\":null,\\\\\\\"themeAccent\\\\\\\":null,\\\\\\\"themeBackgroundColor\\\\\\\":null,\\\\\\\"themeBackgroundResource\\\\\\\":null,\\\\\\\"themeTextColor\\\\\\\":null,\\\\\\\"customCss\\\\\\\":null}\\\",\\\"source\\\":\\\"\\\\\\\"user\\\\\\\"\\\"}\"]"
         },
         "countByGroup all": {
             "calls": [
@@ -1614,7 +1792,7 @@
                 "qb1.addOrderBy(\"name\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findChildBySlug all": {
             "calls": [
@@ -1654,7 +1832,7 @@
                 "qb1.setMaxResults(1)",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned OCA\\LaunchPad\\Db\\Dashboard {\"id\":5,\"uuid\":null,\"name\":null,\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null}"
+            "outcome": "returned OCA\\LaunchPad\\Db\\Dashboard {\"id\":5,\"uuid\":null,\"name\":null,\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"defaultLinkTarget\":null,\"hierarchies\":[],\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null,\"themeAccent\":null,\"themeBackgroundColor\":null,\"themeBackgroundResource\":null,\"themeTextColor\":null,\"customCss\":null}"
         },
         "countChildrenByParent all": {
             "calls": [
@@ -1742,7 +1920,7 @@
                 "qb1.addOrderBy(\"name\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findDueScheduled all": {
             "calls": [
@@ -1776,7 +1954,7 @@
                 "qb1.andWhere(\"lte(\\\"publish_at\\\", \\\":p2\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findAllTemplatesForGallery all": {
             "calls": [
@@ -1818,7 +1996,7 @@
                 "qb1.addOrderBy(\"name\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":5,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Dashboard {\\\"id\\\":6,\\\"uuid\\\":null,\\\"name\\\":null,\\\"description\\\":null,\\\"icon\\\":null,\\\"type\\\":\\\"user\\\",\\\"userId\\\":null,\\\"groupId\\\":null,\\\"basedOnTemplate\\\":null,\\\"gridColumns\\\":12,\\\"permissionLevel\\\":\\\"full\\\",\\\"targetGroups\\\":[],\\\"isDefault\\\":0,\\\"isActive\\\":0,\\\"commentsEnabled\\\":null,\\\"reactionsEnabled\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null,\\\"parentUuid\\\":null,\\\"slug\\\":null,\\\"sortOrder\\\":0,\\\"publicationStatus\\\":\\\"published\\\",\\\"publishAt\\\":null,\\\"publishedAt\\\":null,\\\"unpublishAt\\\":null,\\\"dashboardFooterMode\\\":\\\"inherit\\\",\\\"dashboardFooterHtml\\\":null,\\\"defaultLinkTarget\\\":null,\\\"hierarchies\\\":[],\\\"templateCategory\\\":null,\\\"templateDescription\\\":null,\\\"templatePreviewImage\\\":null,\\\"themeAccent\\\":null,\\\"themeBackgroundColor\\\":null,\\\"themeBackgroundResource\\\":null,\\\"themeTextColor\\\":null,\\\"customCss\\\":null}\"]"
         },
         "findAllTemplatesForGallery required": {
             "calls": [
@@ -1879,7 +2057,7 @@
                 "qb1.setMaxResults(1)",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned OCA\\LaunchPad\\Db\\Dashboard {\"id\":5,\"uuid\":null,\"name\":null,\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null}"
+            "outcome": "returned OCA\\LaunchPad\\Db\\Dashboard {\"id\":5,\"uuid\":null,\"name\":null,\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"defaultLinkTarget\":null,\"hierarchies\":[],\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null,\"themeAccent\":null,\"themeBackgroundColor\":null,\"themeBackgroundResource\":null,\"themeTextColor\":null,\"customCss\":null}"
         },
         "clearDefaultTemplates all": {
             "calls": [
@@ -2266,6 +2444,24 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\DashboardShare {\\\"id\\\":5,\\\"dashboardId\\\":null,\\\"shareType\\\":null,\\\"shareWith\\\":null,\\\"permissionLevel\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\DashboardShare {\\\"id\\\":6,\\\"dashboardId\\\":null,\\\"shareType\\\":null,\\\"shareWith\\\":null,\\\"permissionLevel\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
+        "findSharedDashboardIds all": {
+            "calls": [
+                "qb1 new",
+                "qb1.selectDistinct(\"dashboard_id\")",
+                "qb1.from(\"launchpad_dashboard_shares\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findSharedDashboardIds rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.selectDistinct(\"dashboard_id\")",
+                "qb1.from(\"launchpad_dashboard_shares\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
         "findByDashboardAndLevel all": {
             "calls": [
                 "qb1 new",
@@ -2603,58 +2799,42 @@
         "deleteByOwnerAndRecipient all": {
             "calls": [
                 "qb1 new",
-                "qb1.select(\"id\")",
-                "qb1.from(\"launchpad_dashboards\", null)",
+                "qb1.delete(\"launchpad_dashboard_shares\", null)",
                 "qb1.expr()",
                 "qb1.createNamedParameter(\"s-ownerId\", 2, null)",
-                "qb1.expr.eq(\"user_id\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
-                "qb2 new",
-                "qb2.delete(\"launchpad_dashboard_shares\", null)",
-                "qb2.expr()",
-                "qb1.getSQL()",
-                "qb2.createFunction(\"(sql)\")",
-                "qb2.expr.in(\"dashboard_id\", (sql), null)",
-                "qb2.where(\"in(\\\"dashboard_id\\\", (sql), null)\")",
-                "qb2.expr()",
-                "qb2.createNamedParameter(\"s-shareType\", 2, null)",
-                "qb2.expr.eq(\"share_type\", \":p2\", null)",
-                "qb2.andWhere(\"eq(\\\"share_type\\\", \\\":p2\\\", null)\")",
-                "qb2.expr()",
-                "qb2.createNamedParameter(\"s-shareWith\", 2, null)",
-                "qb2.expr.eq(\"share_with\", \":p3\", null)",
-                "qb2.andWhere(\"eq(\\\"share_with\\\", \\\":p3\\\", null)\")",
-                "qb1.getParameters()",
-                "qb2.executeStatement(null)"
+                "qb1.createFunction(\"(SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1)\")",
+                "qb1.expr.in(\"dashboard_id\", (SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1), null)",
+                "qb1.where(\"in(\\\"dashboard_id\\\", (SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1), null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-shareType\", 2, null)",
+                "qb1.expr.eq(\"share_type\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"share_type\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-shareWith\", 2, null)",
+                "qb1.expr.eq(\"share_with\", \":p3\", null)",
+                "qb1.andWhere(\"eq(\\\"share_with\\\", \\\":p3\\\", null)\")",
+                "qb1.executeStatement(null)"
             ],
             "outcome": "returned 1"
         },
         "deleteByOwnerAndRecipient rows": {
             "calls": [
                 "qb1 new",
-                "qb1.select(\"id\")",
-                "qb1.from(\"launchpad_dashboards\", null)",
+                "qb1.delete(\"launchpad_dashboard_shares\", null)",
                 "qb1.expr()",
                 "qb1.createNamedParameter(\"s-ownerId\", 2, null)",
-                "qb1.expr.eq(\"user_id\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
-                "qb2 new",
-                "qb2.delete(\"launchpad_dashboard_shares\", null)",
-                "qb2.expr()",
-                "qb1.getSQL()",
-                "qb2.createFunction(\"(sql)\")",
-                "qb2.expr.in(\"dashboard_id\", (sql), null)",
-                "qb2.where(\"in(\\\"dashboard_id\\\", (sql), null)\")",
-                "qb2.expr()",
-                "qb2.createNamedParameter(\"s-shareType\", 2, null)",
-                "qb2.expr.eq(\"share_type\", \":p2\", null)",
-                "qb2.andWhere(\"eq(\\\"share_type\\\", \\\":p2\\\", null)\")",
-                "qb2.expr()",
-                "qb2.createNamedParameter(\"s-shareWith\", 2, null)",
-                "qb2.expr.eq(\"share_with\", \":p3\", null)",
-                "qb2.andWhere(\"eq(\\\"share_with\\\", \\\":p3\\\", null)\")",
-                "qb1.getParameters()",
-                "qb2.executeStatement(null)"
+                "qb1.createFunction(\"(SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1)\")",
+                "qb1.expr.in(\"dashboard_id\", (SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1), null)",
+                "qb1.where(\"in(\\\"dashboard_id\\\", (SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `user_id` = :p1), null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-shareType\", 2, null)",
+                "qb1.expr.eq(\"share_type\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"share_type\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-shareWith\", 2, null)",
+                "qb1.expr.eq(\"share_with\", \":p3\", null)",
+                "qb1.andWhere(\"eq(\\\"share_with\\\", \\\":p3\\\", null)\")",
+                "qb1.executeStatement(null)"
             ],
             "outcome": "returned 1"
         },
@@ -3828,7 +4008,7 @@
                 "qb1.addOrderBy(\"id\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findById all": {
             "calls": [
@@ -3910,7 +4090,7 @@
                 "qb1.where(\"in(\\\"id\\\", \\\":p1\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array {\"5\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"6\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"text\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"}"
+            "outcome": "returned array {\"5\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":5,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"6\":\"OCA\\\\LaunchPad\\\\Db\\\\MetadataField {\\\"id\\\":6,\\\"key\\\":\\\"\\\",\\\"label\\\":\\\"\\\",\\\"type\\\":\\\"\\\",\\\"options\\\":null,\\\"required\\\":0,\\\"sortOrder\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"}"
         },
         "countValuesForField all": {
             "calls": [
@@ -4215,6 +4395,32 @@
                 "qb1.executeStatement(null)"
             ],
             "outcome": "returned 1"
+        },
+        "findByDashboard all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_personal_layers\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByDashboard rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_personal_layers\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\PersonalLayer {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"overrides\\\":{},\\\"hidden\\\":[],\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\PersonalLayer {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"overrides\\\":{},\\\"hidden\\\":[],\\\"updatedAt\\\":null}\"]"
         }
     },
     "ProfileValueMapper": {
@@ -5607,7 +5813,7 @@
                 "qb1.addOrderBy(\"grid_x\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findByWidgetId all": {
             "calls": [
@@ -5633,7 +5839,57 @@
                 "qb1.where(\"eq(\\\"widget_id\\\", \\\":p1\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        },
+        "findOwnedByUserAndWidgetId all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"p.*\")",
+                "qb1.from(\"launchpad_widget_placements\", \"p\")",
+                "qb1.innerJoin(\"p\", \"launchpad_dashboards\", \"d\", \"d.id = p.dashboard_id\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"d.user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"d.user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"user\", 2, null)",
+                "qb1.expr.eq(\"d.type\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"d.type\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-widgetId\", 2, null)",
+                "qb1.expr.eq(\"p.widget_id\", \":p3\", null)",
+                "qb1.andWhere(\"eq(\\\"p.widget_id\\\", \\\":p3\\\", null)\")",
+                "qb1.orderBy(\"d.is_active\", \"DESC\")",
+                "qb1.addOrderBy(\"p.sort_order\", \"ASC\")",
+                "qb1.addOrderBy(\"p.id\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findOwnedByUserAndWidgetId rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"p.*\")",
+                "qb1.from(\"launchpad_widget_placements\", \"p\")",
+                "qb1.innerJoin(\"p\", \"launchpad_dashboards\", \"d\", \"d.id = p.dashboard_id\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"d.user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"d.user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"user\", 2, null)",
+                "qb1.expr.eq(\"d.type\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"d.type\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-widgetId\", 2, null)",
+                "qb1.expr.eq(\"p.widget_id\", \":p3\", null)",
+                "qb1.andWhere(\"eq(\\\"p.widget_id\\\", \\\":p3\\\", null)\")",
+                "qb1.orderBy(\"d.is_active\", \"DESC\")",
+                "qb1.addOrderBy(\"p.sort_order\", \"ASC\")",
+                "qb1.addOrderBy(\"p.id\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findAll all": {
             "calls": [
@@ -5653,7 +5909,7 @@
                 "qb1.orderBy(\"id\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findByAnnouncementKey all": {
             "calls": [
@@ -5679,29 +5935,45 @@
                 "qb1.where(\"eq(\\\"announcement_key\\\", \\\":p1\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "deleteByDashboardId all": {
             "calls": [
                 "qb1 new",
-                "qb1.delete(\"launchpad_widget_placements\", null)",
+                "qb1.delete(\"launchpad_conditional_rules\", null)",
                 "qb1.expr()",
                 "qb1.createNamedParameter(7, 1, null)",
-                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
-                "qb1.executeStatement(null)"
+                "qb1.createFunction(\"(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1)\")",
+                "qb1.expr.in(\"widget_placement_id\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)\")",
+                "qb1.executeStatement(null)",
+                "qb2 new",
+                "qb2.delete(\"launchpad_widget_placements\", null)",
+                "qb2.expr()",
+                "qb2.createNamedParameter(7, 1, null)",
+                "qb2.expr.eq(\"dashboard_id\", \":p2\", null)",
+                "qb2.where(\"eq(\\\"dashboard_id\\\", \\\":p2\\\", null)\")",
+                "qb2.executeStatement(null)"
             ],
             "outcome": "returned null"
         },
         "deleteByDashboardId rows": {
             "calls": [
                 "qb1 new",
-                "qb1.delete(\"launchpad_widget_placements\", null)",
+                "qb1.delete(\"launchpad_conditional_rules\", null)",
                 "qb1.expr()",
                 "qb1.createNamedParameter(7, 1, null)",
-                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
-                "qb1.executeStatement(null)"
+                "qb1.createFunction(\"(SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1)\")",
+                "qb1.expr.in(\"widget_placement_id\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)",
+                "qb1.where(\"in(\\\"widget_placement_id\\\", (SELECT `id` FROM `*PREFIX*launchpad_widget_placements` WHERE `dashboard_id` = :p1), null)\")",
+                "qb1.executeStatement(null)",
+                "qb2 new",
+                "qb2.delete(\"launchpad_widget_placements\", null)",
+                "qb2.expr()",
+                "qb2.createNamedParameter(7, 1, null)",
+                "qb2.expr.eq(\"dashboard_id\", \":p2\", null)",
+                "qb2.where(\"eq(\\\"dashboard_id\\\", \\\":p2\\\", null)\")",
+                "qb2.executeStatement(null)"
             ],
             "outcome": "returned null"
         },

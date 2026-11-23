@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -40,11 +40,15 @@ class AdminWidgetRulesController extends Controller {
 	 * Constructor
 	 *
 	 * @param IRequest $request The request.
-	 * @param ConditionalService $conditionalService The conditional service.
+	 * @param ConditionalServiceInterface $conditionalService The conditional service.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConditionalService $conditionalService,
+		private readonly ConditionalServiceInterface $conditionalService,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -59,15 +63,16 @@ class AdminWidgetRulesController extends Controller {
 	 * @return JSONResponse The overview rows (placement + dashboard + counts).
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
 		try {
-			return ResponseHelper::success(
+			return $this->responseHelper->success(
 				data: $this->conditionalService->listAllRules()
 			);
 		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->responseHelper->error(exception: $e);
 		}
 	}//end index()
 }//end class

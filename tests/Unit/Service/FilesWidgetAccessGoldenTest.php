@@ -50,6 +50,32 @@ namespace Unit\Service {
 	use PHPUnit\Framework\TestCase;
 	use RuntimeException;
 
+	/**
+	 * A destination stream that takes two bytes and then refuses more, the
+	 * way a full quota cuts a write short without an error.
+	 */
+	class ShortWriteStream {
+		/** @var resource|null */
+		public $context;
+
+		private int $written = 0;
+
+		public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool {
+			return true;
+		}
+
+		public function stream_write(string $data): int {
+			$take = max(0, min(strlen($data), 2 - $this->written));
+			$this->written += $take;
+
+			return $take;
+		}
+
+		public function stream_eof(): bool {
+			return true;
+		}
+	}
+
 	class FilesWidgetAccessGoldenTest extends TestCase {
 		private IRootFolder $rootFolder;
 		private Folder $userFolder;
@@ -401,6 +427,35 @@ namespace Unit\Service {
 			], $result['errors']);
 			$this->assertSame(['taken (2).txt', 'a_b_c.txt', 'upload', '.env (1)', 'noext (1)', 'boom.txt'], $written);
 			$this->assertSame(['taken (2).txt', 'a_b_c.txt', 'upload', '.env (1)', 'noext (1)'], array_column($result['uploaded'], 'name'));
+		}
+
+		public function testUploadLargerThanTheFreeSpaceIsRefusedBeforeWriting(): void {
+			$this->userFolder->method('getFreeSpace')->willReturn(3);
+			$this->userFolder->method('nodeExists')->willReturn(false);
+			$this->userFolder->expects($this->never())->method('newFile');
+
+			$result = $this->service->uploadFiles('alice', ['allowUpload' => true], null, [$this->upload('big.txt', 'hello')]);
+
+			$this->assertSame([['name' => 'big.txt', 'error' => 'insufficient_storage']], $result['errors']);
+			$this->assertSame([], $result['uploaded']);
+		}
+
+		public function testAShortWriteIsRemovedAndReported(): void {
+			if (in_array('lpshort', stream_get_wrappers(), true) === false) {
+				stream_wrapper_register('lpshort', ShortWriteStream::class);
+			}
+
+			$this->userFolder->method('getFreeSpace')->willReturn(-3);
+			$this->userFolder->method('nodeExists')->willReturn(false);
+			$file = $this->file(5, 'cut.txt');
+			$file->method('fopen')->willReturn(fopen('lpshort://cut', 'w'));
+			$file->expects($this->once())->method('delete');
+			$this->userFolder->method('newFile')->willReturn($file);
+
+			$result = $this->service->uploadFiles('alice', ['allowUpload' => true], null, [$this->upload('cut.txt', 'hello')]);
+
+			$this->assertSame([['name' => 'cut.txt', 'error' => 'storage_failed']], $result['errors']);
+			$this->assertSame([], $result['uploaded']);
 		}
 
 		public function testUploadWithoutFilterAcceptsAnyType(): void {

@@ -32,7 +32,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\PublicStartPage;
+use OCA\LaunchPad\Kernel\Contracts\PublicStartPageInterface;
 use OCP\AppFramework\Http\Events\BeforeLoginTemplateRenderedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -68,15 +68,15 @@ class PublicStartRedirectListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest        $request     The login page request.
-	 * @param IUserSession    $userSession Whether somebody is signed in.
-	 * @param PublicStartPage $startPage   Whether the start page is on and can be shown.
-	 * @param LoggerInterface $logger      PSR-3 logger; a failure never breaks the login page.
+	 * @param IRequest                 $request     The login page request.
+	 * @param IUserSession             $userSession Whether somebody is signed in.
+	 * @param PublicStartPageInterface $startPage   Whether the start page is on and can be shown.
+	 * @param LoggerInterface          $logger      PSR-3 logger; a failure never breaks the login page.
 	 */
 	public function __construct(
 		private readonly IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly PublicStartPage $startPage,
+		private readonly PublicStartPageInterface $startPage,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

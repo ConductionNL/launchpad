@@ -51,6 +51,43 @@ describe('TileWidget', () => {
 		document.head.querySelectorAll('style[id^="tile-"]').forEach((el) => el.remove())
 	})
 
+	it('shows only the glyph of an icon-only tile, with its name as tooltip and accessible name', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }), content: { iconOnly: true } } })
+
+		expect(wrapper.classes()).toContain('tile-widget--icon-only')
+		expect(wrapper.find('.tile-widget__title').exists()).toBe(false)
+		expect(wrapper.find('a').attributes('title')).toBe('TOPdesk')
+		expect(wrapper.find('a').attributes('aria-label')).toBe('TOPdesk')
+	})
+
+	it('marks an icon-only tile with its pin, count and outage, and names them', () => {
+		const marked = mount(TileWidget, { props: { tile: tile({ title: 'Outlook web' }), content: { iconOnly: true, pinned: true, badge: 3 } } })
+		expect(marked.find('[data-testid="tile-pin"]').exists()).toBe(true)
+		expect(marked.find('[data-testid="tile-badge"]').text()).toBe('3')
+		expect(marked.find('a').attributes('aria-label')).toBe('Outlook web, 3 new, pinned')
+
+		const down = mount(TileWidget, { props: { tile: tile({ title: 'Council' }), content: { iconOnly: true, status: 'down', badge: 4 } } })
+		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(true)
+		expect(down.find('[data-testid="tile-badge"]').exists()).toBe(false)
+		expect(down.find('a').attributes('aria-label')).toBe('Council, outage')
+
+		const many = mount(TileWidget, { props: { tile: tile(), content: { iconOnly: true, badge: 140 } } })
+		expect(many.find('[data-testid="tile-badge"]').text()).toBe('99+')
+	})
+
+	it('keeps the name under the glyph without iconOnly', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }) } })
+
+		expect(wrapper.classes()).not.toContain('tile-widget--icon-only')
+		expect(wrapper.find('.tile-widget__title').text()).toBe('TOPdesk')
+		expect(wrapper.find('a').attributes('title')).toBeUndefined()
+	})
+
+	it('shows a drag grip in edit mode only (LpBewerken)', () => {
+		expect(mount(TileWidget, { props: { tile: tile() } }).find('[data-testid="tile-drag-grip"]').exists()).toBe(false)
+		expect(mount(TileWidget, { props: { tile: tile(), editMode: true } }).find('[data-testid="tile-drag-grip"]').exists()).toBe(true)
+	})
+
 	it('links an app tile through generateUrl in the same tab', () => {
 		const link = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: 'deck' }) } }).find('a')
 

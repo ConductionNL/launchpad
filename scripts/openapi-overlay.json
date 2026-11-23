@@ -1,0 +1,2158 @@
+{
+    "info": {
+        "title": "LaunchPad",
+        "version": "1.0.0",
+        "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
+        "contact": {
+            "name": "Conduction B.V.",
+            "email": "info@conduction.nl",
+            "url": "https://conduction.nl"
+        },
+        "license": {
+            "name": "EUPL-1.2",
+            "url": "https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://{host}/index.php/apps/launchpad/api/v1",
+            "description": "The LaunchPad API, version 1, on a Nextcloud instance.",
+            "variables": {
+                "host": {
+                    "default": "localhost",
+                    "description": "The host name of the Nextcloud instance."
+                }
+            }
+        }
+    ],
+    "security": [
+        {
+            "basic_auth": []
+        },
+        {
+            "bearer_auth": []
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "basic_auth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "A Nextcloud user name with an app password."
+            },
+            "bearer_auth": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "A Nextcloud OAuth2 access token."
+            }
+        },
+        "headers": {
+            "API-Version": {
+                "description": "The version of the API that answered, which is the installed app version.",
+                "schema": {
+                    "type": "string",
+                    "example": "1.0.0"
+                }
+            }
+        },
+        "schemas": {
+            "Problem": {
+                "type": "object",
+                "description": "An RFC 9457 problem details document. The members the error already had are kept next to these.",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "A URI reference that identifies the problem type.",
+                        "example": "about:blank"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "A short summary of the problem type.",
+                        "example": "Not Found"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "description": "The HTTP status code.",
+                        "example": 404
+                    },
+                    "detail": {
+                        "type": "string",
+                        "description": "An explanation of this occurrence of the problem."
+                    },
+                    "instance": {
+                        "type": "string",
+                        "description": "A URI reference that identifies this occurrence."
+                    }
+                },
+                "required": [
+                    "type",
+                    "title",
+                    "status"
+                ],
+                "additionalProperties": true
+            },
+            "CalculatedField": {
+                "type": "object",
+                "description": "A calculated field of a widget placement: a formula over the widget's data, other calculated fields and other widgets on the dashboard, stored as its source text and its compiled AST.",
+                "required": [
+                    "name",
+                    "compiledExpression"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The field's id."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The identifier other fields reference it by; unique on the widget."
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "The column or series label."
+                    },
+                    "expression": {
+                        "type": "string",
+                        "description": "The formula as written, e.g. `(revenue - refunds) / revenue * 100`."
+                    },
+                    "compiledExpression": {
+                        "type": "object",
+                        "description": "The AST the editor's parser produced: nodes `literal`, `fieldRef` (`source` is `self` or `widget:<id>`), `calculatedRef`, `binary`, `unary`, `if` and `call`. The server checks it rather than re-parsing the text."
+                    },
+                    "returnType": {
+                        "type": "string",
+                        "enum": [
+                            "number",
+                            "string",
+                            "boolean",
+                            "date",
+                            "duration",
+                            "null"
+                        ],
+                        "description": "Set by the server's type check on save.",
+                        "readOnly": true
+                    },
+                    "evaluationMode": {
+                        "type": "string",
+                        "enum": [
+                            "client",
+                            "server",
+                            "both"
+                        ],
+                        "default": "client",
+                        "description": "`client` evaluates in the browser; `server` and `both` also materialise the value on the widget's OpenRegister source schema."
+                    },
+                    "serverComputedFieldId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "readOnly": true,
+                        "description": "The key of the calculated property on the source schema (`launchpad_<placement>__<name>`), null when the field is not materialised."
+                    },
+                    "formatOptions": {
+                        "type": "object",
+                        "description": "Display formatting (number, date or duration), applied when the value is rendered only."
+                    }
+                }
+            },
+            "CalculatedFieldError": {
+                "type": "object",
+                "description": "Why a placement's calculated fields were refused; nothing is saved.",
+                "required": [
+                    "error",
+                    "message"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "enum": [
+                            "invalidField",
+                            "invalidExpression",
+                            "duplicateField",
+                            "unknownFunction",
+                            "functionNotAllowed",
+                            "arityMismatch",
+                            "functionSignature",
+                            "typeError",
+                            "cycleDetected"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "field": {
+                        "type": "string",
+                        "description": "The field the error is about."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The function, for function errors."
+                    },
+                    "cycle": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "For `cycleDetected`: the cycle as `<widget>.<field>`, first node repeated at the end."
+                    },
+                    "widgets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "For `cycleDetected`: the widgets in the cycle."
+                    }
+                }
+            },
+            "CalculatedFieldWarning": {
+                "type": "object",
+                "description": "A save that went through with a change: a server-mode field stored as a client field (`downgraded_evaluation_mode`: it reads another register or schema, OpenRegister cannot evaluate it alike, or the source schema could not be updated), or calculated properties left on the schema of a removed widget (`server_fields_not_removed`).",
+                "properties": {
+                    "warning": {
+                        "type": "string",
+                        "enum": [
+                            "downgraded_evaluation_mode",
+                            "server_fields_not_removed"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "responses": {
+            "Problem400": {
+                "description": "Bad request",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            },
+            "Problem401": {
+                "description": "Unauthorized",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            },
+            "Problem403": {
+                "description": "Forbidden",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            },
+            "Problem404": {
+                "description": "Not found",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            },
+            "Problem409": {
+                "description": "Conflict",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            },
+            "Problem500": {
+                "description": "Internal server error",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            },
+            "Problem502": {
+                "description": "Bad gateway",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Problem"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "operations": {
+        "DELETE /admin/catalogue/{}": {
+            "description": "Remove a catalogue entry.",
+            "responses": {
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "DELETE /admin/demo-showcases/{}": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "DELETE /admin/roles/{}": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "DELETE /announcements/{}": {
+            "description": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator."
+        },
+        "DELETE /dashboards/{}/lock": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "DELETE /dashboards/{}/presence": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "DELETE /dashboards/{}/reactions/{}": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "DELETE /exports/{}": {
+            "description": "Soft-delete a scheduled export. An export is reachable by its owner or an administrator (scheduled-exports)."
+        },
+        "DELETE /kiosk/playlists/{}": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "DELETE /role-feature-permissions/{}": {
+            "description": "DELETE /api/role-feature-permissions/{id}.",
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "DELETE /role-layout-defaults/{}": {
+            "description": "DELETE /api/role-layout-defaults/{id}.",
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "DELETE /tenant-themes/{}": {
+            "description": "DELETE /api/tenant-themes/{id} — delete a tenant theme; one that tokens use only with force.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "DELETE /tiles/{}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "The id."
+                }
+            ]
+        },
+        "DELETE /widgets/files/{}/files/{}": {
+            "description": "`DELETE /api/widgets/files/{placementId}/files/{fileId}`. Moves the supplied file into the user's trash bin."
+        },
+        "DELETE /widgets/{}": {
+            "description": "Remove a widget placement. Needs a signed-in Nextcloud user. The calculated properties its server-mode fields own on the OpenRegister source schema are removed with it; when OpenRegister refuses, the placement is still removed and `warnings` says so.",
+            "responses": {
+                "200": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LaunchPadStatusOk"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string",
+                                                "example": "ok"
+                                            },
+                                            "warnings": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/CalculatedFieldWarning"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "GET /activity-report": {
+            "description": "GET a person's activity over a period as counts per activity type and per day (UTC), from the activity events; nothing reports hours. Anybody reads their own. Another person's activity is refused with 403 until an administrator turned activity reporting on with a purpose, is read only by an administrator, carries the purpose, and every such read is written to the audit log.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Problem403"
+                }
+            }
+        },
+        "GET /activity-report/export": {
+            "description": "The same report as CSV, with the same numbers: one row per activity type, one per active day, and the total. The same rules as the report decide who may have it.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Problem403"
+                }
+            }
+        },
+        "GET /admin/activity-reporting": {
+            "description": "Whether activity reporting on named people is on, and the purpose it serves. Administrators only."
+        },
+        "GET /admin/catalogue": {
+            "description": "Every catalogue entry, the open requests and the catalogue manager group."
+        },
+        "GET /admin/custom-css": {
+            "description": "Read the stored CSS for all of LaunchPad (REQ-THM-003)."
+        },
+        "GET /admin/public-start": {
+            "description": "Answers `{enabled, token, active, reason, candidates}`: whether the public start page is on, the chosen link, whether it is live, why not (`off`, `no-link`, `not-found`, `revoked`, `password`, `expired`), and the public links without a password that are not revoked or expired."
+        },
+        "GET /admin/search-shortcuts": {
+            "description": "List the search shortcuts every search box honours: `{prefix, name, urlTemplate}` per shortcut."
+        },
+        "GET /admin/storage-report": {
+            "description": "GET storage use per workspace (a Nextcloud group: the files of its members) and per service (files, trash, versions, each app's app data), now and as a twelve-month series of daily snapshots, the object count per register, and the removable total named apart: trash past its retention and launchpad uploads no row names. Read from the platform's own figures, never by walking files or objects. Administrators only; anybody else gets 403."
+        },
+        "GET /admin/storage-report/export": {
+            "description": "GET the storage report as CSV: the total, each workspace and service with its twelve months, and the removable total. Administrators only; anybody else gets 403."
+        },
+        "GET /analytics/me": {
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean",
+                                        "description": "Whether analytics is on for everyone."
+                                    },
+                                    "optedOut": {
+                                        "type": "boolean",
+                                        "description": "Whether the caller's visits are left out of the counts."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "GET /announcements": {
+            "description": "GET /api/announcements: the announcements the user sees now, their drafts when they author, and the categories they follow."
+        },
+        "GET /announcements/reach": {
+            "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only.",
+            "parameters": [
+                {
+                    "name": "groups",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "description": "Target group ids."
+                },
+                {
+                    "name": "user",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "GET /announcements/{}/comments": {
+            "description": "GET /api/announcements/{uuid}/comments: the comments on an announcement that reaches the user, oldest first."
+        },
+        "GET /colleague-activity": {
+            "description": "GET what other people did recently, as the caller may see it: the caller's own activity stream from the activity app, without the caller's own actions, and without events on a dashboard the caller cannot see now. A left-out entry is absent, not redacted, and is not in any count."
+        },
+        "GET /dashboards/visible": {
+            "parameters": [
+                {
+                    "name": "metadata",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "The metadata."
+                },
+                {
+                    "name": "path",
+                    "in": "query",
+                    "required": false,
+                    "description": "The path.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "cascade",
+                    "in": "query",
+                    "required": false,
+                    "description": "The cascade.",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                },
+                "409": {
+                    "$ref": "#/components/responses/Problem409"
+                },
+                "500": {
+                    "$ref": "#/components/responses/Problem500"
+                }
+            }
+        },
+        "GET /dashboards/{}/filter-events/report": {
+            "description": "GET /api/dashboards/{uuid}/filter-events/report — the most-used drill-down paths of a dashboard, counted from its filter telemetry. A path is the sequence of filtered dimensions one user drilled through until a reset; it names dimensions only, never filter values. The dashboard's owner and administrators get every user's paths (scope `all`); another user who may view the dashboard gets only their own (scope `own`); anyone else gets 404.",
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "dashboardId": {
+                                        "type": "string"
+                                    },
+                                    "scope": {
+                                        "type": "string",
+                                        "enum": [
+                                            "all",
+                                            "own"
+                                        ]
+                                    },
+                                    "events": {
+                                        "type": "integer"
+                                    },
+                                    "paths": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "count": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "GET /dashboards/{}/resolved": {
+            "description": "GET /api/dashboards/{uuid}/resolved — resolve the dashboard's content for the viewer's locale. Optional `?lang=<code>` query parameter overrides the user's Nextcloud locale; in strict mode an unknown explicit lang returns 404 instead of falling back. REQ-DASH-039. Response shape: - `dashboard`: the dashboard entity payload - `translation`: the matched translation row - `availableLanguages`: sorted list of codes - `currentLanguage`: the matched code - `isFallback`: true when the primary fallback was used."
+        },
+        "GET /embed-settings/telemetry": {
+            "description": "GET /api/embed-settings/telemetry — whether embed usage telemetry is collected.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "GET /embed-tokens": {
+            "description": "GET /api/embed-tokens — every embed token's metadata, without JWT or hash.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "GET /embed-tokens/{}": {
+            "description": "GET /api/embed-tokens/{id} — one embed token's metadata, without JWT or hash.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "GET /embed-tokens/{}/usage": {
+            "description": "GET /api/embed-tokens/{id}/usage — seven days of usage in aggregate, no row per visitor (REQ-EMB-008).",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "GET /exports": {
+            "parameters": [
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "description": "Page size, 1-200."
+                },
+                {
+                    "name": "offset",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "description": "Rows to skip."
+                },
+                {
+                    "name": "sort",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "name, nextRunAt or lastRunAt."
+                },
+                {
+                    "name": "order",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "asc or desc."
+                }
+            ]
+        },
+        "GET /exports/{}": {
+            "description": "Read one scheduled export. An export is reachable by its owner or an administrator (scheduled-exports)."
+        },
+        "GET /exports/{}/runs": {
+            "description": "List the runs of a scheduled export, newest first. An export is reachable by its owner or an administrator (scheduled-exports)."
+        },
+        "GET /exports/{}/runs/{}": {
+            "description": "Read one run of a scheduled export with every delivery. An export is reachable by its owner or an administrator (scheduled-exports)."
+        },
+        "GET /health-ping/{}": {
+            "description": "`GET /api/health-ping/{placementId}`. Returns the health badge for one placement. Returns 401 when anonymous, 403 when the caller may not view the underlying dashboard (REQ-HPING-003 \"Caller authorization\" — the ping is NEVER performed in that case), 404 when the placement does not exist or has no ping configured, else 200 with the badge (possibly `stale: true`)."
+        },
+        "GET /livetile/connector/status": {
+            "description": "`GET /api/livetile/connector/status`. Reports whether the OpenConnector `dashboard-http-datasource` capability is currently available, so the config form can hide or disable `connector` source mode (REQ-LIVETILE-005). Requires only an authenticated caller — carries no placement-specific data."
+        },
+        "GET /livetile/{}": {
+            "description": "`GET /api/livetile/{placementId}`. Returns the live-tile value for one placement. Returns 401 when anonymous, 403 when the caller may not view the underlying dashboard (REQ-LIVETILE-003 \"Caller authorization\" — the fetch is NEVER performed in that case), 404 when the placement does not exist, else 200 with the value (possibly `stale: true`)."
+        },
+        "GET /manifest": {
+            "description": "Build and return the v2 app manifest for the authenticated user. Reads the user's dashboard objects from OpenRegister. Each object with a `slug` and `title` property becomes one page entry and one menu entry. Objects the user owns, plus objects explicitly granted to them via OpenRegister's per-object sharing primitive, are included. Route: GET /apps/launchpad/api/manifest."
+        },
+        "GET /office-tiles": {
+            "description": "Handle `GET /api/office-tiles` (REQ-OFT-001): the office tile pack for the signed-in user, a \"New ...\" tile per file creator the server's office apps register and a tile per enabled office app. Needs a signed-in Nextcloud user with the `office-tiles.list` action."
+        },
+        "GET /openapi.json": {
+            "responses": {
+                "200": {
+                    "description": "The OpenAPI document.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        },
+                        "access-control-allow-origin": {
+                            "description": "Always `*`.",
+                            "schema": {
+                                "type": "string",
+                                "enum": [
+                                    "*"
+                                ]
+                            }
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "GET /people": {
+            "description": "GET /api/people. REQ-PPL-003: returns `{users, total, hasMore}`, offset-based pagination, capped at {@see PeopleWidgetService::MAX_LIMIT}. Request parameters: - `filters` JSON-encoded array of FilterObject entries (see REQ-PPL-002 / REQ-PPL-006). - `excludeDisabled` 1/0 boolean (default 1). - `showBirthdays` 1/0 boolean (default 1). - `sortBy` One of `displayName` (default), `group`, `recent-activity` (rejected with 400). - `limit` 1..100 (default 50). - `offset` >= 0 (default 0)."
+        },
+        "GET /reports": {
+            "description": "GET the shipped reports, each with whether it can run on this instance and the registers or schemas it misses."
+        },
+        "GET /reports/{}": {
+            "description": "GET one report run with the declared parameters as query values. An unavailable report answers with the missing names."
+        },
+        "GET /role-feature-permissions": {
+            "description": "GET /api/role-feature-permissions."
+        },
+        "GET /role-layout-defaults": {
+            "description": "GET /api/role-layout-defaults."
+        },
+        "GET /tenant-themes": {
+            "description": "GET /api/tenant-themes — every tenant theme, with how many embed tokens use it.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "GET /tiles/{}/rdp": {
+            "description": "Returns the `.rdp` connection file of a remote-desktop tile in RDP mode, written from the tile's checked host, port, published program and gateway. The file never contains a user name or password. Returns 403 when the caller may not view the tile's dashboard and 404 when the placement is not a remote-desktop tile in RDP mode.",
+            "responses": {
+                "200": {
+                    "description": "The RDP connection file, as an attachment named after the tile."
+                },
+                "403": {
+                    "$ref": "#/components/responses/Problem403"
+                }
+            }
+        },
+        "GET /weather/{}": {
+            "description": "`GET /api/weather/{placementId}`. Returns the weather reading for one placement. Returns 401 when anonymous, 403 when the caller may not view the underlying dashboard (REQ-WEATHER-001 \"Caller authorization\" — the fetch is NEVER performed in that case), 502 when resolution failed with no cached reading available, else 200 with the reading (possibly `stale: true`)."
+        },
+        "GET /widgets/files/{}/contents": {
+            "description": "`GET /api/widgets/files/{placementId}/contents`. Returns the configured folder's contents as `{items: [...], nextCursor: ?string}`. Empty folder is HTTP 200 with `items: []`. Missing folder is HTTP 404. Read-denied folder is HTTP 403."
+        },
+        "GET /widgets/items": {
+            "parameters": [
+                {
+                    "name": "widgets",
+                    "in": "query",
+                    "required": false,
+                    "description": "Array of widget IDs.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "description": "Maximum items per widget.",
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "content",
+                    "in": "query",
+                    "required": false,
+                    "description": "The content.",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "201": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "PATCH /exports/{}": {
+            "description": "Update a scheduled export; a changed recurrence is rescheduled. An export is reachable by its owner or an administrator (scheduled-exports).",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "POST /acknowledgements": {
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "announcementKey": {
+                                    "description": "The announcement key."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /admin/catalogue": {
+            "description": "Add a catalogue entry.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The app's name."
+                                },
+                                "description": {
+                                    "description": "A short description."
+                                },
+                                "icon": {
+                                    "description": "An icon class or image address."
+                                },
+                                "iconType": {
+                                    "description": "class or url."
+                                },
+                                "linkType": {
+                                    "description": "app (a Nextcloud app id) or url."
+                                },
+                                "linkValue": {
+                                    "description": "The app id or the web address."
+                                },
+                                "targetGroups": {
+                                    "description": "Group ids that see the entry; empty means everyone."
+                                },
+                                "sortOrder": {
+                                    "description": "Position in the catalogue."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "201": {
+                    "description": "Created."
+                }
+            }
+        },
+        "POST /admin/catalogue/requests/{}/approve": {
+            "description": "Approve a request with the catalogue entry the administrator completed.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The app's name."
+                                },
+                                "description": {
+                                    "description": "A short description."
+                                },
+                                "icon": {
+                                    "description": "An icon class or image address."
+                                },
+                                "iconType": {
+                                    "description": "class or url."
+                                },
+                                "linkType": {
+                                    "description": "app (a Nextcloud app id) or url."
+                                },
+                                "linkValue": {
+                                    "description": "The app id or the web address."
+                                },
+                                "targetGroups": {
+                                    "description": "Group ids that see the entry; empty means everyone."
+                                },
+                                "sortOrder": {
+                                    "description": "Position in the catalogue."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                },
+                "409": {
+                    "$ref": "#/components/responses/Problem409"
+                }
+            }
+        },
+        "POST /admin/catalogue/requests/{}/decline": {
+            "responses": {
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                },
+                "409": {
+                    "$ref": "#/components/responses/Problem409"
+                }
+            }
+        },
+        "POST /admin/cleanup/purge": {
+            "description": "`POST /api/admin/cleanup/purge` — REQ-CLN-005. Body shape: { \"categories\": [\"expired_locks\", ...], // optional, []=all \"dryRun\": true|false // optional, false default }. Returns the per-category breakdown plus total, duration, and dryRun flag. Unknown categories receive HTTP 400 with the list of valid names so the caller can correct the request."
+        },
+        "POST /admin/metadata-fields": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /admin/roles": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /admin/templates": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /admin/templates/shipped/{}/install": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /announcements": {
+            "description": "POST /api/announcements: write a draft. Administrators and announcement editors only.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "kind": {
+                                    "description": "news or notice."
+                                },
+                                "title": {
+                                    "description": "The title."
+                                },
+                                "body": {
+                                    "description": "The text, in Markdown."
+                                },
+                                "category": {
+                                    "description": "The category, or null."
+                                },
+                                "level": {
+                                    "description": "info or warning, for a notice."
+                                },
+                                "dismissible": {
+                                    "description": "Whether a reader may dismiss the notice."
+                                },
+                                "targetGroups": {
+                                    "description": "Group ids; empty means everyone."
+                                },
+                                "publishAt": {
+                                    "description": "When it becomes visible (ISO 8601)."
+                                },
+                                "expiresAt": {
+                                    "description": "When it stops being visible (ISO 8601); required for a notice."
+                                },
+                                "allowComments": {
+                                    "description": "Whether readers may comment."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "POST /announcements/follows": {
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "category": {
+                                    "description": "The category."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /announcements/{}/comments": {
+            "description": "POST /api/announcements/{uuid}/comments: comment on an announcement that reaches the user and allows comments.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "description": "The comment text."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "POST /announcements/{}/like": {
+            "description": "POST /api/announcements/{uuid}/like: like an announcement that reaches the user; liking twice changes nothing."
+        },
+        "POST /catalogue/requests": {
+            "responses": {
+                "201": {
+                    "description": "Created."
+                }
+            }
+        },
+        "POST /dashboard/{}/tile": {
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "content": {
+                                    "type": "object",
+                                    "description": "The tile: its title, icon, colours, link type and link value."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /dashboard/{}/tiles/import": {
+            "description": "Import chosen browser bookmarks onto a dashboard (launcher-bookmark-import REQ-BMI-001..003): each folder becomes a container of link tiles, each loose bookmark a tile, appended at the bottom. Addresses that are not http or https are skipped and listed back. The widget quota is checked for the whole import; nothing is created when it does not fit. Needs a signed-in Nextcloud user who may add to the dashboard.",
+            "requestBody": {
+                "required": true
+            },
+            "responses": {
+                "201": {
+                    "description": "The placements were created; `skipped` lists the bookmarks that were not, with the reason.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "placements": {
+                                        "type": "array",
+                                        "items": {}
+                                    },
+                                    "skipped": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "reason": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "409": {
+                    "$ref": "#/components/responses/Problem409"
+                }
+            }
+        },
+        "POST /dashboard/{}/widgets": {
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "content": {
+                                    "description": "The content."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /dashboards/group/{}": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /dashboards/{}/presence": {
+            "description": "Announce or renew the caller's editing of a dashboard and answer the colleagues editing it, each with display name and start time (building-edit-a-dashboard-together). Needs edit rights on the dashboard and a signed-in Nextcloud user."
+        },
+        "POST /dashboards/{}/translations": {
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "POST /dashboards/{}/versions": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /dashboards/{}/view-event": {
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /embed-tokens": {
+            "description": "POST /api/embed-tokens — issue an embed token; the JWT is in this response only (REQ-EMB-001).",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The token name."
+                                },
+                                "description": {
+                                    "description": "The description."
+                                },
+                                "subject": {
+                                    "description": "{type: widget|dashboard, id, filterContext?}."
+                                },
+                                "scope": {
+                                    "description": "{mode, allowedFilters, allowedActions}."
+                                },
+                                "hostOrigins": {
+                                    "description": "The origins that may frame the embed."
+                                },
+                                "tenantThemeId": {
+                                    "description": "The tenant theme."
+                                },
+                                "tokenExpiresAt": {
+                                    "description": "ISO 8601 expiry, empty for none."
+                                },
+                                "rateLimitPolicy": {
+                                    "description": "{requestsPerMinute, burstSize}."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "POST /embed-tokens/{}/purge-cache": {
+            "description": "POST /api/embed-tokens/{id}/purge-cache — make every render worker re-read the token now.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "POST /embed-tokens/{}/re-issue": {
+            "description": "POST /api/embed-tokens/{id}/re-issue — revoke the token and issue a like one; the new JWT is shown once.",
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "POST /embed-tokens/{}/revoke": {
+            "description": "POST /api/embed-tokens/{id}/revoke — revoke a token; render workers refuse it within 60 seconds (REQ-EMB-009).",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "POST /embed-tokens/{}/unrevoke": {
+            "description": "POST /api/embed-tokens/{id}/unrevoke — accept a revoked token again.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "POST /exports": {
+            "description": "Create a scheduled export. An export is reachable by its owner or an administrator (scheduled-exports).",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /exports/{}/preview": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "The export uuid.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "recipientId",
+                    "in": "query",
+                    "required": false,
+                    "description": "The recipient whose filter context applies.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "format",
+                    "in": "query",
+                    "required": false,
+                    "description": "pdf, png, csv or xlsx; the file itself is returned.",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "POST /exports/{}/run": {
+            "description": "Run a scheduled export now (triggeredBy=manual). An export is reachable by its owner or an administrator (scheduled-exports).",
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /exports/{}/runs/{}/retry": {
+            "description": "Retry every delivery of a run that failed for good. An export is reachable by its owner or an administrator (scheduled-exports)."
+        },
+        "POST /health-ping/validate": {
+            "description": "`POST /api/health-ping/validate`. Validates a candidate health-ping config before the author saves the placement (REQ-HPING-001 \"rejected at save time\" — host allow-list, fail-closed). Performs NO ping — only the allow-list check that `resolveForPlacement()` would apply.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "config": {
+                                    "description": "The config."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /iframe/framable": {
+            "description": "`POST /api/iframe/framable`. Server-side check of whether a URL may actually be framed (REQ-IFRAME-003 \"graceful degradation\"). The browser cannot tell an `X-Frame-Options: DENY` / `frame-ancestors 'none'` refusal apart from a normal cross-origin embed, so the widget calls this on mount and shows the fallback card up front when the target refuses framing, instead of a permanently blank frame. Allow-list fail-closed; never leaks the target's response body.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "url": {
+                                    "description": "The url."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /iframe/validate-url": {
+            "description": "`POST /api/iframe/validate-url`. Validates a candidate iframe config before the author saves the placement (REQ-IFRAME-002 \"rejected at save time\" — host allow-list, fail-closed). Requires only an authenticated caller — the allow-list itself is admin-controlled, not per-user.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "config": {
+                                    "description": "The config."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /kiosk/playlists": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /livetile/validate-source": {
+            "description": "`POST /api/livetile/validate-source`. Validates a candidate source config before the author saves the placement (REQ-LIVETILE-002 \"rejected at save time\" — host allow-list, fail-closed). Performs NO fetch — only the allow-list / capability-probe checks that `resolveForPlacement()` would apply.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "config": {
+                                    "description": "The config."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "POST /office-tiles/create": {
+            "description": "Handle `POST /api/office-tiles/create` (REQ-OFT-002): create a file in the signed-in user's own files from an office app's blank template, under a free name (never overwriting). Needs a signed-in Nextcloud user with the `office-tiles.create` action.",
+            "requestBody": {
+                "required": true
+            },
+            "responses": {
+                "201": {
+                    "description": "The file was created."
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "POST /reports/{}/dashboard": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /role-feature-permissions": {
+            "description": "POST /api/role-feature-permissions. Body: `{name, description?, groupId, allowedWidgets, deniedWidgets?, priorityWeights?}`. Upsert keyed by `groupId`.",
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "POST /role-layout-defaults": {
+            "description": "POST /api/role-layout-defaults.",
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                }
+            }
+        },
+        "POST /status-reports": {
+            "description": "POST a body of work with the rating and summary a person chose, and keep the report in the launchpad register: the figures are computed again and always marked computed, the rating and the summary are marked written when they differ from the computed ones. Needs a signed-in Nextcloud user and OpenRegister (503 without it).",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "register": {
+                                    "type": "string",
+                                    "description": "The register slug of the body of work."
+                                },
+                                "schema": {
+                                    "type": "string",
+                                    "description": "The schema slug of its items."
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "deadline": {
+                                    "type": "string",
+                                    "description": "YYYY-MM-DD."
+                                },
+                                "filters": {
+                                    "type": "object"
+                                },
+                                "statusProperty": {
+                                    "type": "string",
+                                    "description": "Default status."
+                                },
+                                "closedValues": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "dueProperty": {
+                                    "type": "string",
+                                    "description": "Default deadline."
+                                },
+                                "health": {
+                                    "type": "string",
+                                    "enum": [
+                                        "on-track",
+                                        "at-risk",
+                                        "off-track"
+                                    ]
+                                },
+                                "summary": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "409": {
+                    "$ref": "#/components/responses/Problem409"
+                }
+            }
+        },
+        "POST /status-reports/draft": {
+            "description": "POST a body of work (the objects of one schema in one register, optionally filtered) and get its status report prefilled, not kept: the figures (total, open, closed, overdue, share closed, days to the deadline), the health rating they give and a summary, each marked computed. The objects are read as the caller.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "register": {
+                                    "type": "string",
+                                    "description": "The register slug of the body of work."
+                                },
+                                "schema": {
+                                    "type": "string",
+                                    "description": "The schema slug of its items."
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "deadline": {
+                                    "type": "string",
+                                    "description": "YYYY-MM-DD."
+                                },
+                                "filters": {
+                                    "type": "object"
+                                },
+                                "statusProperty": {
+                                    "type": "string",
+                                    "description": "Default status."
+                                },
+                                "closedValues": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "dueProperty": {
+                                    "type": "string",
+                                    "description": "Default deadline."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "409": {
+                    "$ref": "#/components/responses/Problem409"
+                }
+            }
+        },
+        "POST /tenant-themes": {
+            "description": "POST /api/tenant-themes — create a tenant theme; names, values, :root-only CSS and contrast are checked (REQ-EMB-005).",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The theme name."
+                                },
+                                "cssVariables": {
+                                    "description": "Custom properties, {\"--c-primary\": \"#0b5394\", ...}."
+                                },
+                                "logoUrl": {
+                                    "description": "An https logo URL."
+                                },
+                                "customCss": {
+                                    "description": "Extra CSS, :root rules only."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                },
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "POST /tile-click/{}": {
+            "parameters": [
+                {
+                    "name": "placementId",
+                    "in": "path",
+                    "required": true,
+                    "description": "The widget-placement (tile) ID from the URL (numeric — enforced by the route `requirements`).",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "204": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "POST /widgets/files/{}/upload": {
+            "description": "`POST /api/widgets/files/{placementId}/upload`. Accepts `multipart/form-data` with one or more `files[]` entries and writes them into the placement-configured folder (or a sub-path of it, if `currentPath` is supplied)."
+        },
+        "POST /widgets/{}/rules": {
+            "responses": {
+                "201": {
+                    "description": "The request succeeded."
+                }
+            }
+        },
+        "PUT /admin/action-matrix": {
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "matrix": {
+                                    "description": "The matrix."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "PUT /admin/activity-reporting": {
+            "description": "Turn activity reporting on named people on or off. Turning it on needs a purpose, which every report on a named person shows. Administrators only.",
+            "requestBody": {
+                "required": true
+            }
+        },
+        "PUT /admin/catalogue/{}": {
+            "description": "Change a catalogue entry.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The app's name."
+                                },
+                                "description": {
+                                    "description": "A short description."
+                                },
+                                "icon": {
+                                    "description": "An icon class or image address."
+                                },
+                                "iconType": {
+                                    "description": "class or url."
+                                },
+                                "linkType": {
+                                    "description": "app (a Nextcloud app id) or url."
+                                },
+                                "linkValue": {
+                                    "description": "The app id or the web address."
+                                },
+                                "targetGroups": {
+                                    "description": "Group ids that see the entry; empty means everyone."
+                                },
+                                "sortOrder": {
+                                    "description": "Position in the catalogue."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "PUT /admin/custom-css": {
+            "description": "Clean, scope and store the CSS for all of LaunchPad (REQ-THM-003). Answers with the stored CSS and what the cleaning removed; 400 for a value that is no string or is over 20 KB.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "customCss": {
+                                    "type": "string",
+                                    "description": "The CSS; an empty string clears it."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "PUT /admin/custom-css/dashboards/{}": {
+            "description": "Clean, scope and store the CSS for one dashboard (REQ-THM-003), scoped to that dashboard's region. Answers with the stored CSS and what the cleaning removed; 400 for a value that is no string or is over 20 KB, 404 for an unknown dashboard.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "customCss": {
+                                    "type": "string",
+                                    "description": "The CSS; an empty string clears it."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "PUT /admin/public-start": {
+            "description": "Body `{enabled, token}`. A link with a password, a revoked or expired link, an unknown token, and switching on without a link answer 400."
+        },
+        "PUT /admin/search-shortcuts": {
+            "description": "Replace the search shortcuts with the `shortcuts` list from the request body and return the stored list. An invalid list is refused with 400."
+        },
+        "PUT /analytics/me": {
+            "description": "Store the caller's own opt-out. A request naming another user is refused.",
+            "responses": {
+                "200": {
+                    "description": "The request succeeded.",
+                    "headers": {
+                        "API-Version": {
+                            "$ref": "#/components/headers/API-Version"
+                        }
+                    },
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean",
+                                        "description": "Whether analytics is on for everyone."
+                                    },
+                                    "optedOut": {
+                                        "type": "boolean",
+                                        "description": "Whether the caller's visits are left out of the counts."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "PUT /announcements/{}": {
+            "description": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "kind": {
+                                    "description": "news or notice."
+                                },
+                                "title": {
+                                    "description": "The title."
+                                },
+                                "body": {
+                                    "description": "The text, in Markdown."
+                                },
+                                "category": {
+                                    "description": "The category, or null."
+                                },
+                                "level": {
+                                    "description": "info or warning, for a notice."
+                                },
+                                "dismissible": {
+                                    "description": "Whether a reader may dismiss the notice."
+                                },
+                                "targetGroups": {
+                                    "description": "Group ids; empty means everyone."
+                                },
+                                "publishAt": {
+                                    "description": "When it becomes visible (ISO 8601)."
+                                },
+                                "expiresAt": {
+                                    "description": "When it stops being visible (ISO 8601); required for a notice."
+                                },
+                                "allowComments": {
+                                    "description": "Whether readers may comment."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            }
+        },
+        "PUT /dashboard/{}": {
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "defaultLinkTarget": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "description": "The default way the dashboard's tiles open; anything not a string is ignored."
+                                },
+                                "hierarchies": {
+                                    "type": "array",
+                                    "description": "The hierarchy descriptors the filter bus joins widgets on (REQ-CWF-011), broadest level first; an empty list clears them. A malformed descriptor is refused with 400.",
+                                    "maxItems": 8,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "id",
+                                            "levels"
+                                        ],
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+                                            },
+                                            "levels": {
+                                                "type": "array",
+                                                "minItems": 1,
+                                                "maxItems": 8,
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "dimension"
+                                                    ],
+                                                    "properties": {
+                                                        "dimension": {
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z][A-Za-z0-9_.]{0,63}$"
+                                                        },
+                                                        "label": {
+                                                            "type": "string",
+                                                            "maxLength": 128
+                                                        },
+                                                        "parentDimension": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ],
+                                                            "description": "The dimension of the level above; derived when left out."
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "PUT /embed-settings/telemetry": {
+            "description": "PUT /api/embed-settings/telemetry — turn embed usage telemetry on or off; the change is audited.",
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                }
+            }
+        },
+        "PUT /embed-tokens/{}": {
+            "description": "PUT /api/embed-tokens/{id} — update name, description or rate limit; subject, scope and origins never change.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The token name."
+                                },
+                                "description": {
+                                    "description": "The description."
+                                },
+                                "rateLimitPolicy": {
+                                    "description": "{requestsPerMinute, burstSize}."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "PUT /tenant-themes/{}": {
+            "description": "PUT /api/tenant-themes/{id} — replace a tenant theme; tokens using it follow at once.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "The theme name."
+                                },
+                                "cssVariables": {
+                                    "description": "Custom properties, {\"--c-primary\": \"#0b5394\", ...}."
+                                },
+                                "logoUrl": {
+                                    "description": "An https logo URL."
+                                },
+                                "customCss": {
+                                    "description": "Extra CSS, :root rules only."
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": false
+            },
+            "responses": {
+                "400": {
+                    "$ref": "#/components/responses/Problem400"
+                },
+                "404": {
+                    "$ref": "#/components/responses/Problem404"
+                }
+            }
+        },
+        "PUT /tiles/{}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "The id."
+                }
+            ]
+        },
+        "PUT /widgets/{}": {
+            "description": "Update a widget placement. Needs a signed-in Nextcloud user. A body with `calculatedFields` is checked first (structure, allowed functions, argument counts, types, cycles across the dashboard) and refused with 400 and a `CalculatedFieldError` when a field fails; the stored fields come back with `returnType` set. Server-mode fields are then written to the widget's OpenRegister source schema as read-only calculated properties.",
+            "requestBody": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "calculatedFields": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CalculatedField"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "400": {
+                    "description": "A calculated field was refused.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CalculatedFieldError"
+                            }
+                        }
+                    }
+                },
+                "200": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LaunchPadPlacement"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "calculatedFields": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/CalculatedField"
+                                                }
+                                            },
+                                            "warnings": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/CalculatedFieldWarning"
+                                                },
+                                                "description": "Present when a calculated field was saved differently from how it was sent."
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

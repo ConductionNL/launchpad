@@ -8,7 +8,6 @@
  * covered by the dedicated per-widget test files:
  *
  *   @e2e dashboard-switcher::all-three-sections-present
- *   @e2e dashboard-switcher::only-personal-dashboards-section-visible
  *   @e2e dashboard-switcher::personal-section-visible-when-allowed-even-with-empty-list
  *   @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
  *   @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
@@ -56,8 +55,14 @@ const TS = `md-${Date.now()}`
 // Install a restrictive `default` role-feature-permission and rely on the
 // admin break-glass bypass so the admin can still add any widget during this
 // suite (see fixtures helper for the bypass it proves).
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 // Navigate to launchpad and wait for the app to hydrate.
@@ -126,10 +131,11 @@ async function openAddWidgetModal(page: any) {
 	await expect(personalRow).toBeVisible({ timeout: 5_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 
-	// Click "Add custom widget…" in the dropdown.
-	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
+	// Click "Add widget" in the dropdown, then the type in the picker.
+	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 
 	// Wait for the Add Widget dialog to be visible.
 	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
@@ -149,7 +155,6 @@ test.describe('dashboard-switcher sidebar', () => {
 	})
 
 	// @e2e dashboard-switcher::all-three-sections-present
-	// @e2e dashboard-switcher::only-personal-dashboards-section-visible
 	test('sidebar opens and shows at least one dashboard section', async ({
 		page,
 	}) => {
@@ -491,7 +496,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 	// @e2e grid-layout::enter-edit-mode
 	// @e2e grid-layout::exit-edit-mode
 	// @e2e grid-layout::edit-mode-watcher-responds-to-prop-changes
-	test('edit mode can be entered via the row-cog "Add custom widget" action', async ({
+	test('edit mode can be entered via the row-cog "Add widget" action', async ({
 		page,
 	}) => {
 		await openSidebar(page)
@@ -503,12 +508,13 @@ test.describe('grid layout initialisation and edit mode', () => {
 		}
 		await personalRow.locator('.dashboard-row-actions button').first().click()
 		const addWidgetItem = page.getByRole('menuitem', {
-			name: /add custom widget/i,
+			name: /^add widget$/i,
 		})
 		if (!(await addWidgetItem.isVisible().catch(() => false))) {
 			return
 		}
 		await addWidgetItem.click()
+		await page.locator('[data-testid="widget-picker-type-label"]').click()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
 	})

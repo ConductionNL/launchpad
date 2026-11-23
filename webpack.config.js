@@ -5,6 +5,7 @@
 
 const webpackConfig = require('@nextcloud/webpack-vue-config')
 const path = require('path')
+const webpack = require('webpack')
 
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
@@ -15,6 +16,8 @@ webpackConfig.entry = {
 	'start-redirect': path.join(__dirname, 'src', 'startRedirect.js'),
 	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
 	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
+	// Public embed page shown in a host site's iframe (/apps/launchpad/embed/{subjectType}/{subjectId}).
+	embed: path.join(__dirname, 'src', 'embed-entry.js'),
 	// Personal settings: the person's own profile fields (REQ-PEX-002).
 }
 
@@ -80,5 +83,26 @@ webpackConfig.resolve = {
 	// preventing Vue 3 packages from nextcloud-vue/node_modules leaking in.
 	modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
 }
+
+// @nextcloud/vue 9 declares no `sideEffects`, so webpack keeps every module
+// its barrel re-exports (the emoji picker and its data, the rich-text and
+// date-picker stacks) even where nothing imports them. Its modules have no
+// import-time side effects other than their stylesheets, which stay included
+// through the CSS rule's own default.
+webpackConfig.module.rules.push({
+	test: /[\\/]node_modules[\\/]@nextcloud[\\/]vue[\\/]dist[\\/].*\.m?js$/,
+	sideEffects: false,
+})
+
+// A dynamic `import('@mdi/js')` (the icon pickers, the icon catalogue) uses
+// every export, and webpack keeps one copy of a module, so that copy lands
+// wherever a static `import { mdiX } from '@mdi/js'` puts it: the entry bundle,
+// with all 7,000 icons. Dynamic imports get a module of their own instead, so
+// the static imports stay tree-shaken and the full set stays in its own chunk.
+webpackConfig.plugins.push(new webpack.NormalModuleReplacementPlugin(/^@mdi\/js$/, (resource) => {
+	if ((resource.dependencies || []).some((dependency) => dependency.type === 'import()')) {
+		resource.request = '@mdi/js/mdi.js?on-demand'
+	}
+}))
 
 module.exports = webpackConfig

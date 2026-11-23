@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -79,6 +80,34 @@ class ConditionalRuleMapper extends QBMapper {
 
 		return $this->findEntities(query: $qb);
 	}//end findByPlacementId()
+
+	/**
+	 * Find the rules of several placements in one query.
+	 *
+	 * @param int[] $placementIds The placement IDs.
+	 *
+	 * @return ConditionalRule[] The rules, oldest first.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	public function findByPlacementIds(array $placementIds): array {
+		if ($placementIds === []) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from(from: $this->getTableName())
+			->where(
+				$qb->expr()->in(
+					x: 'widget_placement_id',
+					y: $qb->createNamedParameter(value: array_values($placementIds), type: IQueryBuilder::PARAM_INT_ARRAY)
+				)
+			)
+			->orderBy(sort: 'created_at', order: 'ASC');
+
+		return $this->findEntities(query: $qb);
+	}//end findByPlacementIds()
 
 	/**
 	 * Find every conditional rule in the system, ordered by placement then

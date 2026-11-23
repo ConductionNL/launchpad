@@ -8,7 +8,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resolveHierarchy, useFilterBus } from '../useFilterBus.js'
+import { breadcrumbPath, resolveHierarchy, useFilterBus } from '../useFilterBus.js'
 
 const NL_ADMINISTRATIVE = {
 	id: 'nl-administrative',
@@ -194,9 +194,9 @@ describe('useFilterBus hierarchy resolution', () => {
 			wijkCode: ['WK0355001', 'widgetClick'],
 		})
 		expect(bus.breadcrumb('nl-administrative')).toEqual([
-			{ dimension: 'provincieCode', label: 'hierarchy.level.province', value: 'PV26' },
-			{ dimension: 'gemeenteCode', label: 'hierarchy.level.municipality', value: 'GM0355' },
-			{ dimension: 'wijkCode', label: 'hierarchy.level.district', value: 'WK0355001' },
+			{ dimension: 'provincieCode', label: 'hierarchy.level.province', value: 'PV26', pinned: false },
+			{ dimension: 'gemeenteCode', label: 'hierarchy.level.municipality', value: 'GM0355', pinned: false },
+			{ dimension: 'wijkCode', label: 'hierarchy.level.district', value: 'WK0355001', pinned: false },
 		])
 	})
 
@@ -253,5 +253,69 @@ describe('useFilterBus hierarchy resolution', () => {
 	it('resolveHierarchy leaves a dimension outside every hierarchy alone', () => {
 		expect(resolveHierarchy({ dimension: 'status' }, [NL_ADMINISTRATIVE], row)).toEqual({ descendants: [], ancestors: [] })
 		expect(resolveHierarchy({ dimension: 'gemeenteCode' }, [NL_ADMINISTRATIVE], row).descendants).toEqual(['wijkCode', 'buurtCode'])
+	})
+})
+
+describe('useFilterBus going back up the breadcrumb (REQ-CWF-004)', () => {
+	const wijkRow = { wijkCode: 'WK0355001', gemeenteCode: 'GM0355', provincieCode: 'PV26' }
+
+	it('going back to the provincie clears the gemeente and wijk and keeps the provincie as the reader\'s own', () => {
+		const bus = useFilterBus({ hierarchies: [NL_ADMINISTRATIVE] })
+		bus.publish(click('wijkCode', 'WK0355001'), { row: wijkRow })
+
+		expect(bus.popTo('provincieCode')).toBe(true)
+
+		expect(state(bus)).toEqual({ provincieCode: ['PV26', 'userExplicit'] })
+		expect(bus.breadcrumb('nl-administrative').map((step) => step.value)).toEqual(['PV26'])
+	})
+
+	it('going back to the gemeente keeps the provincie above it as parent scope', () => {
+		const bus = useFilterBus({ hierarchies: [NL_ADMINISTRATIVE] })
+		bus.publish(click('wijkCode', 'WK0355001'), { row: wijkRow })
+
+		bus.popTo('gemeenteCode')
+
+		expect(state(bus)).toEqual({ provincieCode: ['PV26', 'parentScope'], gemeenteCode: ['GM0355', 'userExplicit'] })
+	})
+
+	it('a wijk in another gemeente after going back replaces the provincie with the new ancestors', () => {
+		const bus = useFilterBus({ hierarchies: [NL_ADMINISTRATIVE] })
+		bus.publish(click('wijkCode', 'WK0355001'), { row: wijkRow })
+		bus.popTo('provincieCode')
+
+		bus.publish(click('wijkCode', 'WK0344002'), { row: { wijkCode: 'WK0344002', gemeenteCode: 'GM0344', provincieCode: 'PV27' } })
+
+		expect(state(bus)).toEqual({
+			provincieCode: ['PV27', 'parentScope'],
+			gemeenteCode: ['GM0344', 'parentScope'],
+			wijkCode: ['WK0344002', 'widgetClick'],
+		})
+	})
+
+	it('keeps a pinned level below, and changes nothing for the deepest level or an unknown one', () => {
+		const bus = useFilterBus({ hierarchies: [NL_ADMINISTRATIVE] })
+		bus.hydrate([{ dimension: 'wijkCode', operator: 'eq', value: 'WK0355001', source: 'userExplicit', pinned: true }])
+		bus.publish(click('provincieCode', 'PV26', 'P'))
+		const heard = vi.fn()
+		bus.subscribe(heard)
+
+		expect(bus.popTo('wijkCode')).toBe(false)
+		expect(bus.popTo('status')).toBe(false)
+		expect(bus.popTo('buurtCode')).toBe(false)
+		expect(heard).not.toHaveBeenCalled()
+		expect(bus.popTo('provincieCode')).toBe(false)
+		expect(state(bus)).toEqual({ wijkCode: ['WK0355001', 'userExplicit'], provincieCode: ['PV26', 'widgetClick'] })
+	})
+
+	it('breadcrumbPath reads the path from any clause list, with the pinned flag', () => {
+		const clauses = [
+			{ dimension: 'gemeenteCode', value: 'GM0355', pinned: true },
+			{ dimension: 'status', value: 'open' },
+		]
+		expect(breadcrumbPath([NL_ADMINISTRATIVE], clauses, 'nl-administrative')).toEqual([
+			{ dimension: 'gemeenteCode', label: 'hierarchy.level.municipality', value: 'GM0355', pinned: true },
+		])
+		expect(breadcrumbPath([NL_ADMINISTRATIVE], clauses, 'other')).toEqual([])
+		expect(breadcrumbPath(null, null, 'nl-administrative')).toEqual([])
 	})
 })

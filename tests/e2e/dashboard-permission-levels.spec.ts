@@ -22,10 +22,9 @@
  * is a share: the admin owns a dashboard and shares it at `view_only`,
  * `add_only` or `full`, and `PermissionService::resolveAccessLevel()` reads
  * the share's level for the recipient. The other path the spec describes, a
- * user's own copy of an admin template, cannot be arranged: the only code that
- * creates one (`tryCreateFromTemplate`) is pre-empted on every install by the
- * seeded default dashboard, so those scenarios are pinned in
- * `PermissionServiceLevelsTest` instead.
+ * user's own copy of an admin template (compulsory widgets, template-based
+ * resolution, a view-only dashboard the user owns), is driven in
+ * `permissions.spec.ts`.
  */
 
 import type { APIRequestContext } from '@playwright/test'
@@ -38,6 +37,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 	seedDashboardWithWidget,
 	shareWith,
@@ -78,6 +78,7 @@ test.describe('permission levels, probed as the user who has them', () => {
 			['full', full],
 		] as const) {
 			const seeded = await seedDashboardWithWidget(admin, `${STAMP} ${level}`)
+			await publishForRecipients(admin, seeded.id)
 			await shareWith(admin, seeded.id, alice.username, level)
 			into.push(seeded)
 		}
@@ -126,10 +127,17 @@ test.describe('permission levels, probed as the user who has them', () => {
 				},
 			},
 		)
+		const widgetText = await widget.text()
 		expect(
 			widget.status(),
-			`a view-only user added a widget: ${await widget.text()}`,
+			`a view-only user added a widget: ${widgetText}`,
 		).toBe(403)
+		expect
+			.soft(
+				String(JSON.parse(widgetText).error ?? ''),
+				'the 403 must say the dashboard is view-only',
+			)
+			.toMatch(/view.?only/i)
 
 		const tile = await alice!.api.post(`${API}/dashboard/${target.id}/tile`, {
 			data: {
@@ -214,6 +222,24 @@ test.describe('permission levels, probed as the user who has them', () => {
 			after.some((p) => Number(p.id) === target.placementId),
 			'a refused delete must leave the widget in place',
 		).toBe(true)
+
+		// Control: the same user may delete a widget at full permission.
+		const added = await alice!.api.post(
+			`${API}/dashboard/${full[0].id}/widgets`,
+			{
+				data: {
+					widgetId: 'text',
+					gridX: 6,
+					gridY: 8,
+					gridWidth: 2,
+					gridHeight: 2,
+				},
+			},
+		)
+		expect(added.status(), await added.text()).toBe(201)
+		const removable = Number((await added.json()).id)
+		const allowed = await alice!.api.delete(`${API}/widgets/${removable}`)
+		expect(allowed.status(), await allowed.text()).toBe(200)
 	})
 
 	// @e2e permissions::add-only-user-can-add-widgets
@@ -236,8 +262,14 @@ test.describe('permission levels, probed as the user who has them', () => {
 				},
 			},
 		)
-		expect(added.status(), await added.text()).toBeLessThan(300)
+		expect(added.status(), await added.text()).toBe(201)
 		const placementId = Number((await added.json()).id)
+		expect(
+			(await placementsAsAdmin(target.id)).some(
+				(p) => Number(p.id) === placementId,
+			),
+			'the placement alice added must exist',
+		).toBe(true)
 
 		// REQ-PERM-004: a widget a user adds is never compulsory, which is what
 		// lets them remove it again on an add-only dashboard.
@@ -249,10 +281,28 @@ test.describe('permission levels, probed as the user who has them', () => {
 		const styled = await alice!.api.put(`${API}/widgets/${placementId}`, {
 			data: { customTitle: 'mine', showTitle: 0 },
 		})
-		expect(styled.status(), await styled.text()).toBeLessThan(300)
+		expect(styled.status(), await styled.text()).toBe(200)
+		const restyled = (await placementsAsAdmin(target.id)).find(
+			(p) => Number(p.id) === placementId,
+		)
+		expect(restyled?.customTitle, 'the new title must be stored').toBe('mine')
+		expect(Number(restyled?.showTitle), 'showTitle must be stored').toBe(0)
+
+		// Editing the settings of a widget that was already there (the
+		// seeded one), not only her own.
+		const settings = await alice!.api.put(
+			`${API}/widgets/${target.placementId}`,
+			{ data: { customTitle: 'My Weather' } },
+		)
+		expect(settings.status(), await settings.text()).toBe(200)
+		expect(
+			(await placementsAsAdmin(target.id)).find(
+				(p) => Number(p.id) === target.placementId,
+			)?.customTitle,
+		).toBe('My Weather')
 
 		const removed = await alice!.api.delete(`${API}/widgets/${placementId}`)
-		expect(removed.status(), await removed.text()).toBeLessThan(300)
+		expect(removed.status(), await removed.text()).toBe(200)
 		expect(
 			(await placementsAsAdmin(target.id)).some(
 				(p) => Number(p.id) === placementId,
@@ -262,8 +312,6 @@ test.describe('permission levels, probed as the user who has them', () => {
 	})
 
 	// @e2e permissions::non-owner-cannot-modify-widgets-regardless-of-permission
-	// @e2e permissions::dashboard-ownership-check
-	// @e2e permissions::placement-ownership-check-via-dashboard
 	test('a user with no share is refused on a full dashboard, which its owner can edit', async () => {
 		const target = full[0]
 		const before = await placementsAsAdmin(target.id)
@@ -318,6 +366,142 @@ test.describe('permission levels, probed as the user who has them', () => {
 		expect(allowed.status(), await allowed.text()).toBeLessThan(300)
 	})
 
+	// @e2e permissions::api-allows-all-operations-on-full-permission-dashboard
+	test('at full permission every widget and tile operation is allowed', async () => {
+		const target = full[0]
+
+		const widget = await alice!.api.post(
+			`${API}/dashboard/${target.id}/widgets`,
+			{
+				data: {
+					widgetId: 'text',
+					gridX: 0,
+					gridY: 10,
+					gridWidth: 2,
+					gridHeight: 2,
+				},
+			},
+		)
+		expect(widget.status(), await widget.text()).toBe(201)
+		const widgetId = Number((await widget.json()).id)
+
+		const tile = await alice!.api.post(`${API}/dashboard/${target.id}/tile`, {
+			// The keys RequestDataExtractor::TILE_PARAMS reads.
+			data: {
+				title: `${STAMP} tile`,
+				linkType: 'url',
+				linkValue: 'https://example.invalid/full',
+				gridX: 2,
+				gridY: 10,
+				gridWidth: 2,
+				gridHeight: 2,
+			},
+		})
+		expect(tile.status(), await tile.text()).toBe(201)
+		const tileId = Number((await tile.json()).id)
+
+		const styled = await alice!.api.put(`${API}/widgets/${widgetId}`, {
+			data: { customTitle: 'full may' },
+		})
+		expect(styled.status(), await styled.text()).toBe(200)
+
+		let placements = await placementsAsAdmin(target.id)
+		expect(placements.find((p) => Number(p.id) === widgetId)?.customTitle).toBe(
+			'full may',
+		)
+		expect(placements.some((p) => Number(p.id) === tileId)).toBe(true)
+
+		for (const id of [widgetId, tileId]) {
+			const removed = await alice!.api.delete(`${API}/widgets/${id}`)
+			expect(removed.status(), await removed.text()).toBe(200)
+		}
+		placements = await placementsAsAdmin(target.id)
+		expect(
+			placements.some((p) => [widgetId, tileId].includes(Number(p.id))),
+			'both removals must have landed',
+		).toBe(false)
+	})
+
+	// @e2e permissions::full-user-can-style-widgets
+	test('at full permission a user can restyle a widget', async () => {
+		const target = full[0]
+		const res = await alice!.api.put(`${API}/widgets/${target.placementId}`, {
+			data: { customTitle: 'styled at full', showTitle: 0 },
+		})
+		expect(res.status(), await res.text()).toBe(200)
+
+		const placement = (await placementsAsAdmin(target.id)).find(
+			(p) => Number(p.id) === target.placementId,
+		)
+		expect(placement?.customTitle).toBe('styled at full')
+		expect(Number(placement?.showTitle)).toBe(0)
+	})
+
+	// @e2e permissions::permission-checks-happen-before-service-calls
+	test('a refused write changes nothing at all, whichever route it takes', async () => {
+		const target = viewOnly[0]
+		const snapshot = async () =>
+			JSON.stringify(
+				(await placementsAsAdmin(target.id))
+					.map((p) => ({
+						id: Number(p.id),
+						gridX: p.gridX,
+						gridY: p.gridY,
+						gridWidth: p.gridWidth,
+						gridHeight: p.gridHeight,
+						customTitle: p.customTitle ?? null,
+						showTitle: p.showTitle,
+						updatedAt: p.updatedAt ?? null,
+					}))
+					.sort((a, b) => a.id - b.id),
+			)
+		const before = await snapshot()
+
+		const refused = [
+			await alice!.api.post(`${API}/dashboard/${target.id}/widgets`, {
+				data: {
+					widgetId: 'text',
+					gridX: 0,
+					gridY: 6,
+					gridWidth: 2,
+					gridHeight: 2,
+				},
+			}),
+			await alice!.api.post(`${API}/dashboard/${target.id}/tile`, {
+				data: {
+					title: 'nope',
+					linkType: 'url',
+					linkValue: 'https://example.invalid/nope',
+				},
+			}),
+			await alice!.api.put(`${API}/widgets/${target.placementId}`, {
+				data: { customTitle: 'nope', gridX: 5, gridY: 5 },
+			}),
+			await alice!.api.delete(`${API}/widgets/${target.placementId}`),
+		]
+		for (const res of refused) {
+			expect(res.status(), `${res.url()}: ${await res.text()}`).toBe(403)
+		}
+
+		expect(await snapshot(), 'a refused request must not change any state').toBe(
+			before,
+		)
+
+		// Control: the same restyle at add_only does write.
+		const allowed = await alice!.api.put(
+			`${API}/widgets/${addOnly[0].placementId}`,
+			{
+				data: { customTitle: 'written at add_only' },
+			},
+		)
+		expect(allowed.status(), await allowed.text()).toBe(200)
+		expect(
+			(await placementsAsAdmin(addOnly[0].id)).find(
+				(p) => Number(p.id) === addOnly[0].placementId,
+			)?.customTitle,
+		).toBe('written at add_only')
+	})
+
 	// @e2e permissions::full-permission-is-the-default-for-user-created-dashboards
 	// @e2e permissions::user-tries-to-downgrade-permission-level
 	test('a dashboard a user creates is full, and they cannot write a level onto it', async () => {
@@ -333,17 +517,41 @@ test.describe('permission levels, probed as the user who has them', () => {
 				'a dashboard a user creates must be full',
 			).toBe('full')
 
+			// Unrestricted editing: she can add a widget and remove it again.
+			const added = await alice!.api.post(
+				`${API}/dashboard/${own.id}/widgets`,
+				{
+					data: {
+						widgetId: 'text',
+						gridX: 0,
+						gridY: 0,
+						gridWidth: 2,
+						gridHeight: 2,
+					},
+				},
+			)
+			expect(added.status(), await added.text()).toBe(201)
+			const removed = await alice!.api.delete(
+				`${API}/widgets/${Number((await added.json()).id)}`,
+			)
+			expect(removed.status(), await removed.text()).toBe(200)
+
 			// REQ-PERM-005: the level is not hers to set.
 			const escalate = await alice!.api.put(`${API}/dashboard/${own.id}`, {
 				data: { name: `${STAMP} alice own`, permissionLevel: 'view_only' },
 			})
 			expect(escalate.status(), await escalate.text()).toBeLessThan(300)
 
-			const reread = await alice!.api.get(`${API}/dashboard/${own.id}`)
+			const reread = await (
+				await alice!.api.get(`${API}/dashboard/${own.id}`)
+			).json()
 			expect(
-				(await reread.json()).dashboard?.permissionLevel,
+				reread.dashboard?.permissionLevel,
 				'the permission level must ignore what the user sent',
 			).toBe('full')
+			expect(reread.permissionLevel, 'the effective level stays full').toBe(
+				'full',
+			)
 		} finally {
 			await admin.delete(`${API}/dashboard/${own.id}`)
 		}
@@ -373,8 +581,28 @@ test.describe('permission levels, probed as the user who has them', () => {
 				`an ordinary user edited an admin template: ${await res.text()}`,
 			).toBe(403)
 
-			const after = await admin.get(`${API}/dashboard/${templateId}`)
-			expect((await after.json()).dashboard?.name).toBe(`${STAMP} template`)
+			// Any operation, not only a rename.
+			const add = await alice!.api.post(
+				`${API}/dashboard/${templateId}/widgets`,
+				{
+					data: {
+						widgetId: 'text',
+						gridX: 0,
+						gridY: 0,
+						gridWidth: 2,
+						gridHeight: 2,
+					},
+				},
+			)
+			expect(
+				add.status(),
+				`an ordinary user added to an admin template: ${await add.text()}`,
+			).toBe(403)
+
+			const after = await admin.get(`${API}/admin/templates/${templateId}`)
+			const stored = await after.json()
+			expect(stored.template?.name).toBe(`${STAMP} template`)
+			expect(stored.placements ?? []).toHaveLength(0)
 
 			// Control: the admin may rename it.
 			const allowed = await admin.put(`${API}/dashboard/${templateId}`, {

@@ -23,6 +23,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Who may download an acknowledgement report as CSV, and what the file holds.
@@ -78,7 +81,7 @@ class AcknowledgementControllerCsvTest extends TestCase {
 			request: $this->createMock(IRequest::class),
 			tools: new AcknowledgementTools(acknowledgements: $this->service, roleService: $this->roles, logger: $this->createMock(LoggerInterface::class)),
 			groupManager: $this->groups,
-			userId: $userId,
+			context: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end controller()
 

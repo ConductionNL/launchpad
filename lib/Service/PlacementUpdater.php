@@ -24,6 +24,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
  * Service for applying grid and display updates to widget placements.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) VideoContent is a pure helper of static functions.
  */
 class PlacementUpdater {
 	/**
@@ -101,8 +102,13 @@ class PlacementUpdater {
 
 		if (isset($data['content']) === true && is_array($data['content']) === true) {
 			$placement->setContentArray(
-				$data['content']
+				VideoContent::forWidget(widgetId: (string)$placement->getWidgetId(), content: $data['content'])
 			);
+		}
+
+		// The calculated fields replace the stored list as a whole (widget-calculated-fields, task 21).
+		if (isset($data['calculatedFields']) === true && is_array($data['calculatedFields']) === true) {
+			$placement->setCalculatedFieldsArray(fields: $data['calculatedFields']);
 		}
 	}//end applyDisplayUpdates()
 

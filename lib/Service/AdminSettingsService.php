@@ -37,12 +37,16 @@ class AdminSettingsService {
 	/**
 	 * Constructor
 	 *
-	 * @param AdminSettingMapper      $settingMapper The admin setting mapper.
-	 * @param TileLaunchSettings|null $tileLaunch    Checks the program schemes and SSO launch templates; built when not injected.
+	 * @param AdminSettingMapper        $settingMapper  The admin setting mapper.
+	 * @param TileLaunchSettings|null   $tileLaunch     Checks the program schemes and SSO launch templates; built when not injected.
+	 * @param DefaultAppSetting|null    $defaultApp     Sets or gives back the instance default app (REQ-PSP-003); without it the toggle is only stored.
+	 * @param OfficeNetworkService|null $officeNetworks Checks the office network ranges (REQ-TIA-001).
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
 		?TileLaunchSettings $tileLaunch = null,
+		private readonly ?DefaultAppSetting $defaultApp = null,
+		private readonly ?OfficeNetworkService $officeNetworks = null,
 	) {
 		$this->tileLaunch = ($tileLaunch ?? new TileLaunchSettings());
 	}//end __construct()
@@ -116,7 +120,6 @@ class AdminSettingsService {
 		// a value the frontend can't safely act on.
 		$fallbackKey = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
 		$storedFallbackTarget = $settings[$fallbackKey] ?? null;
-		$noRailKey = AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION;
 
 		$quicksearchFallbackTarget = self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
 		if (is_string($storedFallbackTarget) === true
@@ -158,10 +161,9 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
-			// Runtime-shell REQ-SHELL-009: the dashboard view without the left
-			// navigation panel. Off by default so an existing instance keeps its
-			// rail; a stored value that is not a boolean reads as off.
-			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry is
+			// opt-in per organisation; only a stored `true` turns it on.
+			'filterTelemetryEnabled' => ($settings[AdminSettingKey::FILTER_TELEMETRY_ENABLED->value] ?? false) === true,
 			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
 			// them; a stored value that no longer validates reads as empty.
 			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
@@ -169,8 +171,127 @@ class AdminSettingsService {
 			// Engagement-announcements D6: the groups whose members may write
 			// announcements besides administrators; none until one is chosen.
 			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
+			...$this->officeNetworkSettings(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
+			// REQ-COMM-003: the pinned Talk conversations; an entry that is not a token is dropped.
+			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
+			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];
 	}//end getSettings()
+
+	/**
+	 * The office networks as CIDR ranges, none by default so no tile changes
+	 * address, plus the administrator's own address and whether it falls inside
+	 * them, so a wrong proxy setup shows at once (REQ-TIA-001).
+	 *
+	 * @param mixed $stored The stored ranges.
+	 *
+	 * @return array{officeNetworks: list<string>, currentAddress: string, currentAddressInOfficeNetworks: bool}
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md
+	 */
+	private function officeNetworkSettings(mixed $stored): array {
+		return [
+			'officeNetworks' => $this->storedOfficeNetworks(stored: $stored),
+			'currentAddress' => ($this->officeNetworks?->currentAddress() ?? ''),
+			'currentAddressInOfficeNetworks' => ($this->officeNetworks?->isOfficeRequest() ?? false),
+		];
+	}//end officeNetworkSettings()
+
+	/**
+	 * Most Talk conversations an administrator may pin (engagement-communities D3).
+	 *
+	 * @var int
+	 */
+	public const PINNED_COMMUNITIES_MAX = 20;
+
+	/**
+	 * The shape of a Talk conversation token (engagement-communities D3).
+	 *
+	 * @var string
+	 */
+	public const COMMUNITY_TOKEN_PATTERN = '/^[a-z0-9]{4,30}$/';
+
+	/**
+	 * The pinned communities as stored, keeping only the entries that are
+	 * tokens, without duplicates, at most {@see self::PINNED_COMMUNITIES_MAX}.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int, string> The pinned tokens, in the order pinned.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	private function readPinnedCommunities(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		$tokens = array_filter(
+			array: array_values($stored),
+			callback: fn (mixed $token): bool => $this->isCommunityToken(token: $token)
+		);
+
+		return array_slice(array: array_values(array_unique($tokens)), offset: 0, length: self::PINNED_COMMUNITIES_MAX);
+	}//end readPinnedCommunities()
+
+	/**
+	 * Validate the pinned communities an administrator saves: a list of at most
+	 * {@see self::PINNED_COMMUNITIES_MAX} Talk conversation tokens. Surrounding
+	 * blanks are trimmed, empty entries and duplicates are dropped.
+	 *
+	 * @param array $tokens The tokens as submitted.
+	 *
+	 * @return array<int, string> The tokens to store, in the order given.
+	 *
+	 * @throws InvalidArgumentException When an entry is not a token, or there are too many.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	public function normalisePinnedCommunities(array $tokens): array {
+		$clean = [];
+		foreach ($tokens as $token) {
+			if (is_string($token) === true) {
+				$token = trim($token);
+			}
+
+			if ($token === '') {
+				continue;
+			}
+
+			if ($this->isCommunityToken(token: $token) === false) {
+				$shown = '(not text)';
+				if (is_scalar($token) === true) {
+					$shown = (string) $token;
+				}
+
+				throw new InvalidArgumentException(
+					message: "Invalid value for pinnedCommunities: '" . $shown . "' is not a Talk conversation token "
+						. '(4 to 30 lowercase letters and digits).'
+				);
+			}
+
+			$clean[$token] = $token;
+		}//end foreach
+
+		if (count($clean) > self::PINNED_COMMUNITIES_MAX) {
+			throw new InvalidArgumentException(
+				message: 'Invalid value for pinnedCommunities: at most ' . self::PINNED_COMMUNITIES_MAX . ' conversations can be pinned.'
+			);
+		}
+
+		return array_values($clean);
+	}//end normalisePinnedCommunities()
+
+	/**
+	 * Whether a value is a Talk conversation token.
+	 *
+	 * @param mixed $token The value.
+	 *
+	 * @return bool True for 4 to 30 lowercase letters and digits.
+	 */
+	private function isCommunityToken(mixed $token): bool {
+		return is_string($token) === true && preg_match(pattern: self::COMMUNITY_TOKEN_PATTERN, subject: $token) === 1;
+	}//end isCommunityToken()
 
 	/**
 	 * A stored group-id list as it is read back: a list, empty when unset or not a list.
@@ -299,17 +420,7 @@ class AdminSettingsService {
 	 *              containing `{query}`.
 	 */
 	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+		return QueryUrlTemplate::isValid(value: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
@@ -343,7 +454,8 @@ class AdminSettingsService {
 	 *                                       `quicksearchFallbackTarget` (`'none'`,
 	 *                                       `'unified-search'` or an `https` URL template containing
 	 *                                       `{query}`, REQ-QSEARCH-004) and
-	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009).
+	 *                                       `pinnedCommunities` (Talk conversation tokens,
+	 *                                       at most 20, REQ-COMM-003).
 	 *
 	 * @return void
 	 *
@@ -378,10 +490,54 @@ class AdminSettingsService {
 			legacyWidgetBridgeEnabled: $settings['legacyWidgetBridgeEnabled'] ?? null
 		);
 
-		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
+
+		$this->persistOfficeNetworks(ranges: $settings['officeNetworks'] ?? null);
+		$this->persistDefaultApp(enabled: $settings['defaultAppEnabled'] ?? null);
+
+		// Engagement-communities REQ-COMM-003: validated before it is stored.
+		$pinned = $settings['pinnedCommunities'] ?? null;
+		if (is_array($pinned) === true) {
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_PINNED_COMMUNITIES,
+				value: $this->normalisePinnedCommunities(tokens: $pinned)
+			);
+		}
 	}//end updateSettings()
+
+	/**
+	 * Switch LaunchPad being the default app (REQ-PSP-003) when a value is given.
+	 *
+	 * Through {@see DefaultAppSetting} switching off gives the default app back
+	 * and switching on sets it when none is chosen; without that service only
+	 * the toggle is stored.
+	 *
+	 * @param mixed $enabled The new toggle value, or null to leave it as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a boolean.
+	 *
+	 * @spec openspec/specs/dashboard-public-share/spec.md#requirement-the-start-page-offers-a-way-in-for-staff-req-psp-003
+	 */
+	private function persistDefaultApp(mixed $enabled): void {
+		if ($enabled === null) {
+			return;
+		}
+
+		if (is_bool($enabled) === false) {
+			throw new InvalidArgumentException(message: 'defaultAppEnabled must be a boolean.');
+		}
+
+		if ($this->defaultApp !== null) {
+			$this->defaultApp->setEnabled(enabled: $enabled);
+			return;
+		}
+
+		$this->settingMapper->setSetting(key: AdminSettingKey::DEFAULT_APP_ENABLED->value, value: $enabled);
+	}//end persistDefaultApp()
 
 	/**
 	 * Persist the announcement editor groups when given, normalised like the forced-share groups.
@@ -421,7 +577,7 @@ class AdminSettingsService {
 	 *
 	 * @throws \InvalidArgumentException Naming the scheme or template refused.
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
 	 */
 	private function persistTileLaunchSettings(array $settings): void {
 		$writes = [];
@@ -437,6 +593,47 @@ class AdminSettingsService {
 			$this->settingMapper->setSetting(key: $key, value: $value);
 		}
 	}//end persistTileLaunchSettings()
+
+	/**
+	 * Store the office networks when given, refusing the whole list when one range is malformed.
+	 *
+	 * @param array<mixed>|null $ranges The entered ranges, or null to leave them as they are.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a range is not a valid CIDR range; nothing is stored then.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 */
+	private function persistOfficeNetworks(?array $ranges): void {
+		if ($ranges === null) {
+			return;
+		}
+
+		if ($this->officeNetworks === null) {
+			throw new InvalidArgumentException(message: 'Office networks cannot be checked here');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_OFFICE_NETWORKS,
+			value: $this->officeNetworks->normaliseRanges(ranges: $ranges)
+		);
+	}//end persistOfficeNetworks()
+
+	/**
+	 * The stored office networks as a list of strings.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int,string>
+	 */
+	private function storedOfficeNetworks(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($stored, 'is_string'));
+	}//end storedOfficeNetworks()
 
 	/**
 	 * Write one setting when a value is given.

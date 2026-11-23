@@ -91,6 +91,21 @@ describe('ContainerWidget most used — REQ-TSO-002', () => {
 		expect(shown(reloaded)[0]).toEqual([1, 0])
 	})
 
+	it('counts children a bookmark import wrote without an id, keyed by the container', async () => {
+		const imported = () => applicaties().map((child) => ({ ...child, id: undefined }))
+		const props = { content: { placements: imported(), sortBy: 'most-used' }, placement: { id: 42 } }
+		const first = mount(ContainerWidget, { props })
+
+		const zaaksysteem = first.findAll('.container-widget__child')[2]
+		await zaaksysteem.trigger('click')
+		await zaaksysteem.trigger('click')
+		await zaaksysteem.trigger('click')
+		expect(readTileUse()['42-0'].count).toBe(3)
+
+		const reloaded = mount(ContainerWidget, { props })
+		expect(reloaded.vm.displayedChildren.map((c) => c.content.title)[0]).toBe('Zaaksysteem')
+	})
+
 	it('counts nothing in edit mode', async () => {
 		const wrapper = mountContainer({ placements: applicaties(), sortBy: 'most-used' }, true)
 		await wrapper.findAll('.container-widget__child')[0].trigger('click')
@@ -119,6 +134,22 @@ describe('ContainerWidget forget my usage — REQ-TSO-003', () => {
 
 		expect(mountContainer({ placements: applicaties(), sortBy: 'alphabetical' }).find('[data-testid="container-forget-usage"]').exists()).toBe(false)
 		expect(mountContainer({ placements: applicaties(), sortBy: 'last-used' }, true).find('[data-testid="container-forget-usage"]').exists()).toBe(false)
+	})
+})
+
+describe('ContainerWidget forget my usage on a live grid — REQ-TSO-003', () => {
+	it('moves the grid items to the alphabetical places at once', async () => {
+		localStorage.setItem(TILE_USE_KEY, JSON.stringify({ 1: { count: 5, lastUsedAt: 9 } }))
+		const wrapper = mountContainer({ placements: applicaties(), sortBy: 'most-used' })
+		const update = vi.fn()
+		wrapper.vm.gridInstance = { update, batchUpdate: vi.fn() }
+
+		await wrapper.find('[data-testid="container-forget-usage"]').trigger('click')
+		await wrapper.vm.$nextTick()
+
+		const items = wrapper.findAll('.container-widget__child').map((item) => item.element)
+		expect(shown(wrapper)).toEqual([[2, 0], [3, 1], [1, 2]])
+		expect(update.mock.calls.map(([el, opts]) => [items.indexOf(el), opts.x, opts.y])).toEqual([[0, 0, 0], [1, 1, 0], [2, 2, 0]])
 	})
 })
 

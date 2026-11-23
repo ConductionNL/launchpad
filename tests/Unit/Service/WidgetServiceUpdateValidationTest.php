@@ -27,8 +27,10 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Service\WidgetPlatform;
 use OCA\LaunchPad\Service\WidgetRendering;
-use InvalidArgumentException;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\InvalidWidgetContentException;
+use OCA\LaunchPad\Service\HealthPingService;
+use OCA\LaunchPad\Service\IframeService;
 use OCA\LaunchPad\Service\MenuService;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\WidgetFormatter;
@@ -107,7 +109,7 @@ class WidgetServiceUpdateValidationTest extends TestCase {
 			],
 		];
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(InvalidWidgetContentException::class);
 		$this->expectExceptionMessage('Menu items can nest at most 3 levels deep');
 
 		$this->service->updatePlacement(
@@ -203,4 +205,129 @@ class WidgetServiceUpdateValidationTest extends TestCase {
 
 		$this->assertSame($updated, $result);
 	}//end testUpdateWithoutContentSkipsContentValidation()
+
+	/**
+	 * A text placement in table mode with ragged rows is refused on update
+	 * (REQ-TBLE-008) and never reaches the persistence layer.
+	 *
+	 * @return void
+	 */
+	public function testUpdateRejectsARaggedTextTable(): void {
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('text');
+		$this->placementService->method('getPlacement')->willReturn($placement);
+		$this->placementService->expects($this->never())->method('updatePlacement');
+
+		$cell = ['text' => 'a', 'rowSpan' => 1, 'colSpan' => 1];
+		$this->expectException(InvalidWidgetContentException::class);
+		$this->expectExceptionMessage('Grid is not rectangular');
+
+		$this->service->updatePlacement(
+			placementId: 7,
+			data: [
+				'content' => [
+					'tableMode' => true,
+					'tableData' => ['columnAlignments' => ['left', 'left'], 'rows' => [[$cell, $cell], [$cell]]],
+				],
+			]
+		);
+	}//end testUpdateRejectsARaggedTextTable()
+
+	/**
+	 * A health-ping config the allow-list refuses is refused on update
+	 * (REQ-HPING-001), whatever the widget type.
+	 *
+	 * @return void
+	 */
+	public function testUpdateRejectsARefusedHealthPing(): void {
+		$healthPing = $this->createMock(HealthPingService::class);
+		$healthPing->method('validateConfig')->willReturn(['host_not_allowed']);
+		$service = new WidgetService(
+			platform: new WidgetPlatform(
+				dashboardManager: $this->createMock(IManager::class),
+				userSession: $this->createMock(IUserSession::class)
+			),
+			placementService: $this->placementService,
+			rendering: new WidgetRendering(
+				widgetFormatter: $this->createMock(WidgetFormatter::class),
+				widgetItemLoader: $this->createMock(WidgetItemLoader::class)
+			),
+			healthPing: $healthPing
+		);
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('tile');
+		$this->placementService->method('getPlacement')->willReturn($placement);
+		$this->placementService->expects($this->never())->method('updatePlacement');
+
+		$this->expectException(InvalidWidgetContentException::class);
+		$this->expectExceptionMessage('host_not_allowed');
+
+		$service->updatePlacement(
+			placementId: 7,
+			data: ['content' => ['healthPingEnabled' => true, 'healthUrl' => 'https://elsewhere.invalid/health']]
+		);
+	}//end testUpdateRejectsARefusedHealthPing()
+
+	/**
+	 * A service whose iframe allow-list answers with the given errors.
+	 *
+	 * @param string[] $errors What IframeService::validateConfig() returns.
+	 *
+	 * @return WidgetService
+	 */
+	private function serviceWithIframeErrors(array $errors): WidgetService {
+		$iframe = $this->createMock(IframeService::class);
+		$iframe->method('validateConfig')->willReturn($errors);
+
+		return new WidgetService(
+			platform: new WidgetPlatform(
+				dashboardManager: $this->createMock(IManager::class),
+				userSession: $this->createMock(IUserSession::class)
+			),
+			placementService: $this->placementService,
+			rendering: new WidgetRendering(
+				widgetFormatter: $this->createMock(WidgetFormatter::class),
+				widgetItemLoader: $this->createMock(WidgetItemLoader::class)
+			),
+			menuService: new MenuService(),
+			iframeService: $iframe
+		);
+	}//end serviceWithIframeErrors()
+
+	/**
+	 * REQ-IFRAME-002: an iframe placement on a host off the allow-list is
+	 * refused at save, naming the host, and nothing is stored.
+	 *
+	 * @return void
+	 */
+	public function testAddRefusesAnIframeHostOffTheAllowListNamingIt(): void {
+		$this->placementService->expects($this->never())->method('addWidget');
+
+		$this->expectException(InvalidWidgetContentException::class);
+		$this->expectExceptionMessage('The host evil.example is not on the allow-list.');
+		$this->serviceWithIframeErrors(['host_not_allowed'])->addWidget(
+			dashboardId: 1,
+			widgetId: 'iframe',
+			layout: ['content' => ['url' => 'https://evil.example/board', 'title' => 'Evil']]
+		);
+	}//end testAddRefusesAnIframeHostOffTheAllowListNamingIt()
+
+	/**
+	 * An allow-listed iframe host is stored; other config errors (such as a
+	 * missing title) are the editor's to report, not a host refusal.
+	 *
+	 * @return void
+	 */
+	public function testAddStoresAnIframeOnAnAllowListedHost(): void {
+		$created = new WidgetPlacement();
+		$this->placementService->expects($this->once())->method('addWidget')->willReturn($created);
+
+		$result = $this->serviceWithIframeErrors(['title_required'])->addWidget(
+			dashboardId: 1,
+			widgetId: 'iframe',
+			layout: ['content' => ['url' => 'https://status.example/board']]
+		);
+
+		$this->assertSame($created, $result);
+	}//end testAddStoresAnIframeOnAnAllowListedHost()
 }//end class

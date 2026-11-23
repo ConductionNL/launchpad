@@ -40,6 +40,11 @@ use OCP\IUserManager;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\RequestActor;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Directory pages, viewer by viewer.
@@ -241,10 +246,12 @@ class PeopleDirectoryGoldenTest extends TestCase {
 		$controller = new PeopleWidgetController(
 			request: $this->getMockBuilder(className: IRequest::class)->getMock(),
 			service: $service,
-			actionAuth: $auth,
-			userSession: $session,
-			logger: $this->getMockBuilder(className: LoggerInterface::class)->getMock(),
-			userId: $viewer
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $auth
+			), responses: new UserResponses(userId: $viewer, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 
 		[$filters, $excludeDisabled, $showBirthdays, $sortBy, $limit, $offset, $q] = $params;

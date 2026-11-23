@@ -42,6 +42,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Exception\LockConflictException;
 use OCA\LaunchPad\Exception\LockForbiddenException;
 use OCA\LaunchPad\Exception\LockNotFoundException;
+use OCA\LaunchPad\Kernel\Contracts\DashboardLockServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
@@ -50,7 +51,7 @@ use OCP\IUserManager;
  * Service for acquiring, refreshing, releasing and querying dashboard
  * editing locks.
  */
-class DashboardLockService {
+class DashboardLockService implements DashboardLockServiceInterface {
 	/**
 	 * Constructor
 	 *

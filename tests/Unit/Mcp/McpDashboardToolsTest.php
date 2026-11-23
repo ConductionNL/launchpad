@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Unit\Mcp;
 
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Mcp\McpArgumentValidator;
 use OCA\LaunchPad\Mcp\McpDashboardGate;
 use OCA\LaunchPad\Mcp\McpDashboardTools;
@@ -31,6 +32,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
  * @uses   \OCA\LaunchPad\Controller\AllowedWidgetFilter
  * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  */
 class McpDashboardToolsTest extends TestCase {
 
@@ -264,4 +266,85 @@ class McpDashboardToolsTest extends TestCase {
 
 		$this->assertSame([['id' => 'calendar'], ['id' => 'weather']], $this->tools()->listWidgetTypes([])['items']);
 	}//end testListWidgetTypesFollowsTheRoleAllowList()
+
+	/**
+	 * The envelope carries every placement in the service's order, serialised for the wire.
+	 *
+	 * @return void
+	 */
+	public function testGetDashboardSerialisesEveryPlacement(): void {
+		$this->gate->method('requireAction')->willReturn(null);
+		$dashboard = self::dashboard(5, 'alice');
+		$placements = [];
+		foreach ([11 => 'calendar', 12 => 'news'] as $id => $widgetId) {
+			$placement = new WidgetPlacement();
+			$placement->setId($id);
+			$placement->setDashboardId(5);
+			$placement->setWidgetId($widgetId);
+			$placements[] = $placement;
+		}
+
+		$this->dashboards->method('findByUuid')->willReturn($dashboard);
+		$this->dashboards->method('getDashboardForUser')->with(5, 'alice')
+			->willReturn(['dashboard' => $dashboard, 'placements' => $placements, 'permissionLevel' => 'full']);
+
+		$result = $this->tools()->getDashboard(['dashboardUuid' => '123e4567-e89b-42d3-a456-426614174005']);
+
+		$this->assertSame([11, 12], array_column($result['placements'], 'id'));
+		$this->assertSame(['calendar', 'news'], array_column($result['placements'], 'widgetId'));
+		$this->assertSame([5, 5], array_column($result['placements'], 'dashboardId'));
+		$this->assertTrue($result['isOwner']);
+	}//end testGetDashboardSerialisesEveryPlacement()
+
+	/**
+	 * An empty group id is refused before authorisation or any group lookup.
+	 *
+	 * @return void
+	 */
+	public function testListGroupDashboardsRefusesAnEmptyGroupIdFirst(): void {
+		$this->gate->expects($this->never())->method('requireAction');
+		$this->dashboards->expects($this->never())->method('userCanAccessGroup');
+		$this->dashboards->expects($this->never())->method('listGroupDashboards');
+
+		$result = $this->tools()->listGroupDashboards(['groupId' => '']);
+
+		$this->assertTrue($result['isError']);
+		$this->assertSame('invalid_arguments', $result['error']);
+	}//end testListGroupDashboardsRefusesAnEmptyGroupIdFirst()
+
+	/**
+	 * A refused action answers the refusal without a membership check.
+	 *
+	 * @return void
+	 */
+	public function testListGroupDashboardsRefusedActionChecksNoMembership(): void {
+		$refusal = McpArgumentValidator::error(code: 'forbidden', message: 'no');
+		$this->gate->expects($this->once())->method('requireAction')->with('dashboard.list-group')->willReturn($refusal);
+		$this->dashboards->expects($this->never())->method('userCanAccessGroup');
+
+		$this->assertSame($refusal, $this->tools()->listGroupDashboards(['groupId' => 'sales']));
+	}//end testListGroupDashboardsRefusedActionChecksNoMembership()
+
+	/**
+	 * A member sees the group's dashboards as a viewer: owner and group fields stripped.
+	 *
+	 * @return void
+	 */
+	public function testListGroupDashboardsAsAViewer(): void {
+		$this->gate->expects($this->once())->method('requireAction')->with('dashboard.list-group')->willReturn(null);
+		$this->dashboards->expects($this->once())->method('userCanAccessGroup')->with('alice', 'sales')->willReturn(true);
+		$first = self::dashboard(8, 'bob');
+		$first->setGroupId('sales');
+		$second = self::dashboard(9, 'carol');
+		$second->setGroupId('sales');
+		$this->dashboards->expects($this->once())->method('listGroupDashboards')->with('sales')->willReturn([$first, $second]);
+
+		$items = $this->tools()->listGroupDashboards(['groupId' => 'sales'])['items'];
+
+		$this->assertSame([8, 9], array_column($items, 'id'));
+		foreach ($items as $item) {
+			$this->assertArrayNotHasKey('userId', $item);
+			$this->assertArrayNotHasKey('groupId', $item);
+		}
+	}//end testListGroupDashboardsAsAViewer()
 }//end class

@@ -23,6 +23,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -34,19 +35,15 @@ let seeded: SeededDashboard | null = null
 
 // Install a restrictive `default` role-feature-permission; the admin
 // break-glass bypass lets the admin still add widgets (see fixtures helper).
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
 
 	/*
-	 * SEED A DASHBOARD. `gotoLaunchPad()` below waits for
-	 * `.launchpad-sidebar-toggle`, which only renders once a dashboard is
-	 * ACTIVE. `tests/e2e/seed.sh` creates only the `e2e-grantee` user, never a
-	 * dashboard, so on a fresh instance LaunchPad renders its empty state and
-	 * that wait times out — all 4 tests here failed that way in CI run
-	 * 32308042394, each at ~48s.
-	 *
-	 * The spec was depending on a dashboard some earlier spec happened to leave
-	 * behind, which is why it passed on a warm rig and failed on a cold one.
+	 * SEED A DASHBOARD. The More menu's "Add widget" acts on the active
+	 * dashboard, and `tests/e2e/seed.sh` creates none, so on a fresh instance
+	 * the start page would show its empty state instead.
 	 */
 	api = await request.newContext({
 		baseURL: BASE_URL,
@@ -54,6 +51,10 @@ test.beforeAll(async () => {
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 	})
 	seeded = await seedActiveDashboard(api, `E2E AddWidget ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 test.afterAll(async () => {
@@ -65,54 +66,29 @@ test.afterAll(async () => {
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Open the start page and wait for its More menu.
+ *
+ * @param page the page.
+ * @return nothing.
+ */
 async function gotoLaunchPad(page: any) {
-	await page.goto('/index.php/apps/launchpad')
-	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	} catch {
-		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	}
-	const isSidebarOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.count()
-	if (isSidebarOpen > 0) {
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) {
-			await closeBtn.click()
-		} else {
-			await page.locator('.launchpad-sidebar-toggle').first().click()
-		}
-		await page.waitForFunction(
-			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-			{ timeout: 5_000 },
-		)
-	}
+	await page.goto('/index.php/apps/launchpad/')
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 }
 
-async function openSidebar(page: any) {
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
-}
-
-async function openAddWidgetModal(page: any) {
-	const sidebarOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.count()
-	if (sidebarOpen === 0) {
-		await openSidebar(page)
-	}
-	const personalRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.first()
-	await expect(personalRow).toBeVisible({ timeout: 5_000 })
-	await personalRow.locator('.dashboard-row-actions button').first().click()
-
-	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
-	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
-	await addWidgetItem.click()
+/**
+ * Open the add-widget modal the way a person does: More, "Add widget", then a
+ * Launchpad widget type in the picker.
+ *
+ * @param page the page, on the start page.
+ * @param type the registry key picked in the picker.
+ * @return nothing.
+ */
+async function openAddWidgetModal(page: any, type = 'label') {
+	await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
@@ -191,35 +167,9 @@ test.describe('add-widget-modal close discipline', () => {
 			}
 		})
 
-		// Click outside the modal panel (the backdrop overlay).
-		// NcModal renders a `.modal-wrapper` or `.nc-modal__wrapper` overlay;
-		// clicking it at the top-left corner (which is outside the dialog box)
-		// triggers the backdrop-click close handler.
-		const backdrop = page
-			.locator(
-				'.modal-wrapper, .nc-modal__wrapper, [class*="modal-container"]',
-			)
-			.first()
-		if (await backdrop.isVisible().catch(() => false)) {
-			const box = await backdrop.boundingBox()
-			if (box) {
-				// Click the top-left corner of the backdrop, which is outside
-				// the centred modal dialog panel.
-				await page.mouse.click(box.x + 2, box.y + 2)
-				await expect(dialog).not.toBeVisible({ timeout: 5_000 })
-			}
-		} else {
-			// Fallback: if the backdrop element is not findable, assert the
-			// @click.self handler attribute is present in the component (static).
-			const hasSelfGuard = await page.evaluate(() => {
-				const modalEl = document.querySelector('[role="dialog"]')
-				if (!modalEl) return false
-				const parent = modalEl.parentElement
-				return parent !== null
-			})
-			expect(hasSelfGuard).toBe(true)
-		}
-
+		// The top-left corner of the viewport is backdrop: the dialog panel is centred.
+		await page.mouse.click(5, 5)
+		await expect(dialog).not.toBeVisible({ timeout: 5_000 })
 		expect(submissions).toHaveLength(0)
 	})
 })
@@ -249,9 +199,8 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		const text = `Modal Edit ${Date.now()}`
 
 		// Add a label widget via the real add flow.
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'label')
 		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 		await addDialog
 			.getByLabel(/label text/i)
 			.first()
@@ -261,51 +210,15 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		await addBtn.click()
 		await expect(addDialog).not.toBeVisible({ timeout: 8_000 })
 
-		// Close the sidebar so the placement is interactable.
-		const sidebar = page.locator('.dashboard-switcher-sidebar.open')
-		if ((await sidebar.count()) > 0) {
-			await page.locator('.launchpad-sidebar-toggle').first().click()
-			await page.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-		}
-
 		const placement = page
 			.locator('.cn-label-widget')
 			.filter({ hasText: text })
 			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
-		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
-		// data-testid="cog-edit-dashboard") so the right-click popover is
-		// available, then close the sidebar.
-		if ((await page.locator('.launchpad-edit-mode').count()) === 0) {
-			await openSidebar(page)
-			const activeRow = page
-				.locator(
-					'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-				)
-				.first()
-			await activeRow.locator('.dashboard-row-actions button').first().click()
-			await page.locator('[data-testid="cog-edit-dashboard"]').click()
-			await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-			const closeBtn = page
-				.locator('.dashboard-switcher-sidebar__close')
-				.first()
-			if (await closeBtn.isVisible().catch(() => false)) {
-				await closeBtn.click()
-				await page
-					.waitForFunction(
-						() =>
-							!document.querySelector(
-								'.dashboard-switcher-sidebar.open',
-							),
-						{ timeout: 5_000 },
-					)
-					.catch(() => null)
-			}
-		}
+		// Adding a widget puts the dashboard in edit mode, where the
+		// right-click popover is available.
+		await expect(page.locator('.launchpad-edit-mode')).toBeVisible({ timeout: 8_000 })
 
 		// Right-click the rendered widget content to open the popover, then Edit.
 		const cell = page

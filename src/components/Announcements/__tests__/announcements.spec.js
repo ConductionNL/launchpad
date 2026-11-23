@@ -11,11 +11,11 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AnnouncementEditorModal, { toIso } from '../../../modals/AnnouncementEditorModal.vue'
-import { announcementsApi } from '../../../services/announcementsApi.js'
 import AnnouncementsWidget from '../../Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../../Widgets/Renderers/AnnouncementsWidgetForm.vue'
 import NoticeBanner from '../NoticeBanner.vue'
 import NoticeBannerRegion, { TICK_MS } from '../NoticeBannerRegion.vue'
+import { announcementsApi } from '../../../services/announcementsApi.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
@@ -43,12 +43,14 @@ vi.mock('../../../services/announcementsApi.js', () => ({
 }))
 vi.mock('../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
-const field = (name) => ({
+function field (name) {
+  return {
 	name,
 	props: ['modelValue', 'label', 'inputLabel', 'options'],
 	emits: ['update:modelValue'],
 	template: `<input class="${name}" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)">`,
-})
+}
+}
 const stubs = {
 	NcButton: {
 		props: ['disabled', 'type'],
@@ -217,6 +219,19 @@ describe('NoticeBannerRegion', () => {
 		vi.advanceTimersByTime(TICK_MS)
 		await flushPromises()
 		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
+		wrapper.unmount()
+	})
+
+	it('asks for the notices and the dismissed ones at the same time', async () => {
+		let release
+		announcementsApi.list.mockReturnValue(new Promise((resolve) => { release = resolve }))
+		announcementsApi.dismissedNotices.mockResolvedValue([])
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		expect(announcementsApi.dismissedNotices).toHaveBeenCalled()
+		release({ announcements: [] })
+		await flushPromises()
 		wrapper.unmount()
 	})
 })

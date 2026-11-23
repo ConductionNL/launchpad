@@ -46,3 +46,10 @@ path = [
 ]
 SPDX-FileCopyrightText = "2024 Conduction B.V. <info@conduction.nl>"
 SPDX-License-Identifier = "CC0-1.0"
+
+# Material Design Icons (newspaper-variant-outline, link-variant).
+[[annotations]]
+path = ["img/news-dark.svg", "img/links-dark.svg"]
+precedence = "override"
+SPDX-FileCopyrightText = "2020 Pictogrammers <https://pictogrammers.com>"
+SPDX-License-Identifier = "Apache-2.0"

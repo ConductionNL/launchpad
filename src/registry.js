@@ -12,8 +12,12 @@
  * and the manifest names it, so it has to be resolvable by name.
  */
 
+import { defineAsyncComponent } from 'vue'
 import AdminSettingsRedirect from './views/AdminSettingsRedirect.vue'
-import WorkspaceApp from './views/WorkspaceApp.vue'
+
+// The dashboard view and everything under it load as a chunk of their own,
+// fetched when the dashboard route first renders.
+const WorkspaceApp = defineAsyncComponent(() => import(/* webpackChunkName: "workspace" */ './views/WorkspaceApp.vue').then((m) => m.default))
 
 export default {
 	WorkspaceApp: { kind: 'page', component: WorkspaceApp },

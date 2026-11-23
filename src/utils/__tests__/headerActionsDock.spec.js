@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The top-right controls dock into a greeting row on the page ground and
- * float otherwise (LpStart; they covered "Startpagina aanpassen" floating).
+ * float otherwise (LpStart; floating, they covered the greeting).
  *
- * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
  */
 
 import { beforeEach, describe, expect, it } from 'vitest'
-import { HEADER_ACTIONS_CLASS, resolveHeaderActionsTarget } from '../headerActionsDock.js'
+import { HEADER_ACTIONS_CLASS, PAGE_HEADER_DOCK_CLASS, resolveHeaderActionsTarget } from '../headerActionsDock.js'
 
 /**
  * @param {string} html Inner HTML of the container.
@@ -65,5 +65,13 @@ describe('resolveHeaderActionsTarget', () => {
 		const second = resolveHeaderActionsTarget(el, false)
 		expect(second).not.toBe(first)
 		expect(second.parentElement).toBe(el.querySelector('.cn-header-widget--ground'))
+	})
+
+	it('docks into the page title row on a dashboard without a greeting row', () => {
+		const el = container('<header class="launchpad-page-header"><div class="' + PAGE_HEADER_DOCK_CLASS + '"></div></header>')
+		const slot = el.querySelector('.' + PAGE_HEADER_DOCK_CLASS)
+		expect(resolveHeaderActionsTarget(el, false)).toBe(slot)
+		expect(resolveHeaderActionsTarget(el, true)).toBe(slot)
+		expect(el.querySelector('.' + HEADER_ACTIONS_CLASS)).toBeNull()
 	})
 })

@@ -7,23 +7,24 @@
  * The current UI does NOT expose a top-level "Add widget" button. Widgets
  * are added per-dashboard via the dashboard-switcher sidebar: open the
  * sidebar → open the cog ("Dashboard menu") on a personal dashboard row →
- * "Add custom widget…" → the Add Widget modal. These helpers encapsulate
+ * "Add widget" → "Custom widget" in the picker → the Add Widget modal. These helpers encapsulate
  * that flow so individual specs stay readable.
  */
 
 import type { Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
+import { MORE_MENU, openDashboardSwitcher } from '../support/dashboardSwitcher.ts'
 
 /** Navigate to the app and wait for the runtime shell to hydrate (503-resilient). */
 export async function gotoLaunchPad(page: Page): Promise<void> {
 	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	} catch {
 		// Transient dev-instance 503 (needsDbUpgrade blip) — retry once.
 		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
 	const open = await page.locator('.dashboard-switcher-sidebar.open').count()
 	if (open > 0) {
@@ -31,7 +32,7 @@ export async function gotoLaunchPad(page: Page): Promise<void> {
 		if (await closeBtn.isVisible().catch(() => false)) {
 			await closeBtn.click()
 		} else {
-			await page.locator('.launchpad-sidebar-toggle').first().click()
+			await page.keyboard.press('Escape')
 		}
 		await page
 			.waitForFunction(
@@ -48,15 +49,14 @@ export async function openSidebar(page: Page): Promise<void> {
 	if (open > 0) {
 		return
 	}
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
+	await openDashboardSwitcher(page)
 }
 
 /** Close the sidebar so the grid is not occluded. */
 export async function closeSidebar(page: Page): Promise<void> {
-	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
+	// A closed sidebar stays in the DOM, slid out of the viewport, so its
+	// close button still counts as visible; only an open one needs closing.
+	const closeBtn = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
 	if (await closeBtn.isVisible().catch(() => false)) {
 		await closeBtn.click()
 		await page
@@ -69,19 +69,21 @@ export async function closeSidebar(page: Page): Promise<void> {
 }
 
 /**
- * Open the Add Widget modal via the first personal dashboard row's cog menu.
- * Leaves the modal visible.
+ * Open the Add Widget modal via the cog menu of the active personal dashboard's
+ * row (the first personal row when none is active), picking `type` in the
+ * widget picker. Leaves the modal visible, opened on that type.
  */
-export async function openAddWidgetModal(page: Page): Promise<void> {
+export async function openAddWidgetModal(page: Page, type = 'label'): Promise<void> {
 	await openSidebar(page)
-	const personalRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.first()
+	const personalRows = page.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+	const activeRow = personalRows.and(page.locator('.active'))
+	const personalRow = (await activeRow.count()) > 0 ? activeRow.first() : personalRows.first()
 	await expect(personalRow).toBeVisible({ timeout: 8_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
-	const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
+	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
 	).toBeVisible({ timeout: 10_000 })

@@ -1,0 +1,41 @@
+# LaunchPad
+
+> Nextcloud app for multiple drag-and-drop dashboards with widgets, shortcut tiles, conditional visibility rules and admin templates for groups.
+
+## Docs
+
+- [README](README.md): features, screenshots and installation overview
+- [AGENTS.md](AGENTS.md): build, test and lint commands and repo conventions for coding agents
+- [Development](DEVELOPMENT.md): local development environment and adding a widget type
+- [Development workflow](docs/development.md): branches, quality checks and setup
+- [Contributing](CONTRIBUTING.md): pull requests and commit message format
+- [Architecture](docs/architecture.md): manifest, OpenRegister consumption policy and permission model
+- [Introduction](docs/intro.md): user-facing documentation entry point
+- [Features](docs/features/README.md): per-feature documentation
+- [OpenRegister-backed widgets](docs/widgets/or-data.md): pattern for widgets that read OpenRegister data
+- [Embedding](docs/embed/overview.md): embedding dashboards and widgets in other sites
+- [Architecture decisions](docs/adr/README.md): pointer to the company-wide ADRs
+- [App decision records](openspec/architecture/adr-001-information-architecture.md): app-level information architecture decision
+
+## API
+
+- [OpenAPI document](openapi.json): the JSON API under /api/v1/
+- [REST API guide](docs/features/rest-api.md): how to use the REST API
+- [Routes](appinfo/routes.php): every route the app registers
+- [App manifest](src/manifest.json): menu entries and pages
+
+## Specs
+
+- [OpenSpec config](openspec/config.yaml): project context and rules for changes
+- [Dashboards](openspec/specs/dashboards/spec.md): dashboard lifecycle
+- [Widgets](openspec/specs/widgets/spec.md): widget placement and types
+- [Tiles](openspec/specs/tiles/spec.md): custom shortcut tiles
+- [Grid layout](openspec/specs/grid-layout/spec.md): grid behaviour
+- [Permissions](openspec/specs/permissions/spec.md): permission levels
+- [Dashboard sharing](openspec/specs/dashboard-sharing/spec.md): sharing with users and groups
+- [Admin templates](openspec/specs/admin-templates/spec.md): templates distributed to groups
+- [Conditional visibility](openspec/specs/conditional-visibility/spec.md): visibility rules
+- [Admin settings](openspec/specs/admin-settings/spec.md): global settings
+- [API contract](openspec/specs/api-contract/spec.md): API conventions
+- [Runtime OpenRegister consumption](openspec/specs/runtime-or-consumption/spec.md): optional OpenRegister use
+- [All capability specs](openspec/specs/): one folder per capability

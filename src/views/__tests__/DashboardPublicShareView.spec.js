@@ -69,7 +69,11 @@ async function mountView() {
 					emits: ['unlock'],
 					render: () => h('div', { class: 'password-dialog' }),
 				},
-				PublicDashboardGrid: { name: 'PublicDashboardGrid', render: () => h('div', { class: 'grid' }) },
+				PublicDashboardGrid: {
+					name: 'PublicDashboardGrid',
+					props: ['placements'],
+					render: () => h('div', { class: 'grid' }),
+				},
 				NcLoadingIcon: { name: 'NcLoadingIcon', render: () => h('span', { class: 'loading-icon' }) },
 				NcEmptyContent: {
 					name: 'NcEmptyContent',
@@ -112,6 +116,18 @@ describe('DashboardPublicShareView loading', () => {
 		expect(wrapper.find('.public-share-view__description').text()).toBe('Weekly numbers')
 		expect(wrapper.findComponent({ name: 'PublicDashboardGrid' }).exists()).toBe(true)
 		expect(wrapper.vm.share).toEqual({ token: TOKEN })
+	})
+
+	it('hands the shared placements to the grid', async () => {
+		const placements = [{ id: 1, widgetId: 'text', content: { text: 'Hello' } }]
+		axios.get.mockResolvedValue({
+			data: { dashboard: { name: 'Board' }, share: {}, placements },
+		})
+		const wrapper = await mountView()
+
+		expect(
+			wrapper.findComponent({ name: 'PublicDashboardGrid' }).props('placements'),
+		).toEqual(placements)
 	})
 
 	it('falls back to the title and leaves out an empty description', async () => {

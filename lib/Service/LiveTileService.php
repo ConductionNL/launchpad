@@ -86,6 +86,16 @@ class LiveTileService {
 	public const DEFAULT_REFRESH_SECONDS = 300;
 
 	/**
+	 * How long a reading stays in the cache, in seconds. Freshness is judged
+	 * by the reading's own `fetchedAtTs` against the refresh interval; the
+	 * entry outlives that interval so a failed refetch can still serve the
+	 * last-known value as stale (REQ-LIVETILE-003).
+	 *
+	 * @var integer
+	 */
+	public const LAST_KNOWN_TTL_SECONDS = 86400;
+
+	/**
 	 * Minimum permitted refresh interval in seconds — any configured value
 	 * below this is clamped up (REQ-LIVETILE-002).
 	 *
@@ -240,7 +250,7 @@ class LiveTileService {
 		}
 
 		$fresh['fetchedAtTs'] = time();
-		$cache?->set(key: $cacheKey, value: json_encode($fresh), ttl: $this->refreshOf(config: $config));
+		$cache?->set(key: $cacheKey, value: json_encode($fresh), ttl: max(self::LAST_KNOWN_TTL_SECONDS, $this->refreshOf(config: $config)));
 
 		return $this->publicShape(reading: $fresh, config: $config, stale: false);
 	}//end valueFor()
@@ -255,7 +265,7 @@ class LiveTileService {
 	 *
 	 * @return array<string,mixed>|null The reading to cache, or null when it does not fit the display.
 	 *
-	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	private function mapped(?array $reading, array $config): ?array {
 		if ($reading === null || $this->lists->displayOf(config: $config) === 'value') {
@@ -973,7 +983,7 @@ class LiveTileService {
 	 *
 	 * @return array<string,mixed>
 	 *
-	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	private function displayPart(array $reading, array $config): array {
 		$display = $this->lists->displayOf(config: $config);

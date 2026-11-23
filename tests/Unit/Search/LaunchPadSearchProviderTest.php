@@ -256,6 +256,40 @@ class LaunchPadSearchProviderTest extends TestCase {
 		self::assertStringContainsString('widget=42', $entry['resourceUrl']);
 	}
 
+	public function testTextWidgetContentColumnIsSearched(): void {
+		$dashboard = $this->makeDashboard(8, 'uuid-8', 'Analytics');
+		// The add-widget flow stores a text widget's body in the content column.
+		$placement = new WidgetPlacement();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$placement->setId(43);
+		$placement->setDashboardId(8);
+		$placement->setWidgetId('text');
+		$placement->setContentArray(['text' => '## Budget Proposal for Q2', 'contentMode' => 'markdown']);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$weather = new WidgetPlacement();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$weather->setId(44);
+		$weather->setDashboardId(8);
+		$weather->setWidgetId('weather');
+		$weather->setContentArray(['text' => 'budget']);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->dashboardService->method('getVisibleToUser')->willReturn([
+			['dashboard' => $dashboard, 'source' => Dashboard::SOURCE_USER],
+		]);
+		$this->placementMapper->method('findByDashboardId')->with(8)->willReturn([$placement, $weather]);
+		$this->metadataService->method('getMetadataForDashboard')->willReturn([]);
+
+		$entries = $this->provider->search(
+			$this->makeUser('alice'),
+			$this->makeQuery('budget')
+		)->jsonSerialize()['entries'];
+
+		self::assertCount(1, $entries);
+		$entry = $entries[0]->jsonSerialize();
+		self::assertSame('Widget content on Analytics', $entry['subline']);
+		self::assertStringContainsString('widget=43', $entry['resourceUrl']);
+	}
+
 	public function testWidgetMatchStripsHtmlTags(): void {
 		$dashboard = $this->makeDashboard(6, 'uuid-6', 'Reports');
 		$placement = $this->makePlacement(

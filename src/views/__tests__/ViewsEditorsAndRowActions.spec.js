@@ -39,7 +39,6 @@ vi.mock('../../utils/logger.js', () => ({
 vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn(), showSuccess: vi.fn() }))
 
 let Views
-let useDashboardStore
 
 /**
  * A host carrying the given state, with every Views method bound to it
@@ -82,8 +81,7 @@ function makeHost(state = {}) {
 beforeEach(async () => {
 	setActivePinia(createPinia())
 	vi.clearAllMocks()
-	Views = (await import('../Views.vue')).default;
-	({ useDashboardStore } = await import('../../stores/dashboard.js'))
+	Views = (await import('../Views.vue')).default
 })
 
 describe('Views config modal openers', () => {
@@ -199,10 +197,12 @@ describe('Views tile editor', () => {
 			textColor: '#fff',
 			linkType: 'url',
 			linkValue: 'https://status.example.nl',
+			internalUrl: '',
 			healthPingEnabled: true,
 			healthUrl: 'https://status.example.nl/health',
 			expectedStatus: 204,
 			pingInterval: 30,
+			linkTarget: '',
 		})
 	})
 
@@ -307,21 +307,18 @@ describe('Views server-app discovery', () => {
 		expect(logger.warn).toHaveBeenCalledWith('[Views] Could not discover the server apps:', error)
 	})
 
-	it('places a discovered app as a tile, logging a failure instead of throwing', async () => {
-		const addTileToDashboard = vi.fn().mockResolvedValue({ id: 1 })
-		const host = makeHost({ addTileToDashboard })
+	it('places a discovered app as its own app tile, logging a failure instead of throwing', async () => {
+		const addWidgetToDashboard = vi.fn().mockResolvedValue({ id: 1 })
+		const host = makeHost({ addWidgetToDashboard })
 
 		await host.addDiscoveredApp({ appId: 'deck', name: 'Deck', href: 'https://elders.example.nl/', icon: '/deck.svg' })
-		expect(addTileToDashboard).toHaveBeenCalledWith({
-			title: 'Deck',
-			icon: '/deck.svg',
-			iconType: 'url',
-			linkType: 'url',
-			linkValue: 'https://elders.example.nl/',
+		expect(addWidgetToDashboard).toHaveBeenCalledWith({
+			type: 'app-tile',
+			content: { appId: 'deck', colour: '', showCount: true },
 		})
 
 		const error = new Error('quota')
-		addTileToDashboard.mockRejectedValueOnce(error)
+		addWidgetToDashboard.mockRejectedValueOnce(error)
 		await expect(host.addDiscoveredApp({ appId: 'deck', name: 'Deck', href: '/x', icon: '' })).resolves.toBeUndefined()
 		expect(logger.error).toHaveBeenCalledWith('[Views] Failed to place a discovered app:', error)
 	})
@@ -433,15 +430,35 @@ describe('Views row-cog actions', () => {
 		expect(host).toMatchObject({ isConfigModalOpen: true, configModalInitialTab: 'general' })
 	})
 
-	it('switches without an active dashboard, then opens the custom widget picker', async () => {
+	it('switches without an active dashboard, then opens the widget picker', async () => {
 		const onSidebarSwitch = vi.fn().mockResolvedValue(undefined)
-		const openCustomWidgetModal = vi.fn()
-		const host = makeHost({ onSidebarSwitch, openCustomWidgetModal })
+		const openWidgetModal = vi.fn()
+		const host = makeHost({ onSidebarSwitch, openWidgetModal })
 
-		await host.onRowAddCustomWidget({ id: 7 }, 'default')
+		await host.onRowAddWidget({ id: 7 }, 'default')
 
 		expect(onSidebarSwitch).toHaveBeenCalledWith(7, 'default')
-		expect(openCustomWidgetModal).toHaveBeenCalledWith()
+		expect(openWidgetModal).toHaveBeenCalledWith()
+	})
+
+	it('closes the picker and opens the custom widget form on the Launchpad type picked in it', async () => {
+		const openCustomWidgetModal = vi.fn()
+		const host = makeHost({ openCustomWidgetModal, isWidgetModalOpen: true })
+
+		await host.onPickCustomWidget('image')
+
+		expect(host.isWidgetModalOpen).toBe(false)
+		expect(openCustomWidgetModal).toHaveBeenCalledWith(null, 'image')
+	})
+
+	it('opens the form on an initial type without preselecting it, and forgets it on close', async () => {
+		const host = makeHost({ enterEditMode: vi.fn().mockResolvedValue(true) })
+
+		await host.openCustomWidgetModal(null, 'news')
+		expect(host).toMatchObject({ isCustomWidgetModalOpen: true, customWidgetPreselectedType: null, customWidgetInitialType: 'news' })
+
+		host.closeCustomWidgetModal()
+		expect(host.customWidgetInitialType).toBeNull()
 	})
 })
 
@@ -481,20 +498,5 @@ describe('Views sidebar create and delete dialog', () => {
 		host.onDeleteDialog(false)
 		expect(host.deleteTarget).toBeNull()
 		expect(host.deleteChildCount).toBe(0)
-	})
-})
-
-describe('Views publishing the active dashboard', () => {
-	it('publishes and unpublishes the active dashboard by its uuid', async () => {
-		const store = useDashboardStore()
-		const publish = vi.spyOn(store, 'publishDashboard').mockResolvedValue(undefined)
-		const unpublish = vi.spyOn(store, 'unpublishDashboard').mockResolvedValue(undefined)
-		const host = makeHost({ activeDashboard: { id: 1, uuid: 'u-team' } })
-
-		await host.onPublishActive()
-		await host.onUnpublishActive()
-
-		expect(publish).toHaveBeenCalledWith('u-team')
-		expect(unpublish).toHaveBeenCalledWith('u-team')
 	})
 })

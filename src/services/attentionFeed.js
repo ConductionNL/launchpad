@@ -137,7 +137,7 @@ export function toQuery(pairs) {
 export function countPath(source, ctx) {
 	const { register, schema, filter } = source.source
 	const pairs = filterPairs(filter, (value) => resolveToken(value, ctx))
-	pairs.push(['_limit', '1'])
+	pairs.push(['_limit', String(Math.max(1, Number(ctx?.perSource) || 1))])
 	return `/apps/openregister/api/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}?${toQuery(pairs)}`
 }
 
@@ -231,10 +231,49 @@ export async function checkSource(source, ctx) {
 			count: total,
 			attention: needsAttention(total, source.op, source.value),
 			reason: source.reason.replace(/\{value\}/g, String(total)),
+			objects: Array.isArray(data?.results) ? data.results : [],
+			itemPath: source.action.path,
+			schema: source.source.schema,
 		}
 	} catch (error) {
 		return { ...entry, failed: true, error: error?.message || String(error) }
 	}
+}
+
+/**
+ * One card per record instead of one per source (LpVandaag "Vandaag eerst":
+ * "Parkeervergunningen binnenstad … Zaak openen"): each record a source
+ * counted becomes its own item, named by the record, with the source's title
+ * as its reason and a link to the record. A source whose answer listed no
+ * records stays one item.
+ *
+ * @param {Array<object>} entries Ranked entries that need attention.
+ * @param {function(string, object): string} label Names the action, given the schema.
+ * @return {Array<object>} The items.
+ * @spec openspec/specs/attention-feed/spec.md#req-att-004
+ */
+export function expandToRecords(entries, label) {
+	const items = []
+	for (const entry of entries) {
+		const records = (entry.objects || []).filter((record) => record && (record.id || record.uuid))
+		if (records.length === 0) {
+			items.push(entry)
+			continue
+		}
+		for (const record of records) {
+			const id = String(record.id || record.uuid)
+			items.push({
+				...entry,
+				key: `${entry.key}/${id}`,
+				id: `${entry.id}/${id}`,
+				title: String(record.title || record.name || id),
+				reason: entry.title,
+				actionLabel: label(entry.schema, record),
+				href: generateUrl(`${entry.itemPath}/${encodeURIComponent(id)}`),
+			})
+		}
+	}
+	return items
 }
 
 /**
@@ -243,7 +282,7 @@ export async function checkSource(source, ctx) {
  * Rejects only when the sources endpoint itself fails; the widget then says
  * the list could not be loaded.
  *
- * @param {{now?: Date}} [ctx] When (default now). Who asks comes from the endpoint.
+ * @param {{now?: Date, perSource?: number}} [ctx] When (default now), and how many records to list per source (default 1, only counted). Who asks comes from the endpoint.
  * @return {Promise<{items: Array<object>, failedApps: Array<string>, sourceCount: number}>} The ranked items that need attention, the names of apps whose count failed or whose declaration is invalid, and how many sources were declared.
  * @spec openspec/specs/attention-feed/spec.md#req-att-005
  */
@@ -251,7 +290,7 @@ export async function loadAttentionFeed(ctx = {}) {
 	const { data } = await axios.get(
 		generateUrl('/apps/launchpad/api/attention/sources'),
 	)
-	const context = { userId: data?.userId || '', now: ctx.now || new Date() }
+	const context = { userId: data?.userId || '', now: ctx.now || new Date(), perSource: ctx.perSource || 1 }
 	const sources = Array.isArray(data?.sources) ? data.sources : []
 	const invalid = Array.isArray(data?.invalid) ? data.invalid : []
 

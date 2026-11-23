@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\WidgetService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
@@ -56,6 +57,7 @@ class PageControllerHelpersTest extends TestCase {
 	private IUserSession&MockObject $session;
 	private DashboardTreeService&MockObject $tree;
 	private LoggerInterface&MockObject $logger;
+	private RoleFeaturePermissionService&MockObject $roles;
 	private PageController $controller;
 
 	protected function setUp(): void {
@@ -65,6 +67,7 @@ class PageControllerHelpersTest extends TestCase {
 		$this->session = $this->createMock(IUserSession::class);
 		$this->tree = $this->createMock(DashboardTreeService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->roles = $this->createMock(RoleFeaturePermissionService::class);
 		$this->controller = new PageController(
 			request: $this->createMock(IRequest::class),
 			sources: new PageSources(
@@ -75,12 +78,13 @@ class PageControllerHelpersTest extends TestCase {
 			),
 			userSession: $this->session,
 			settings: new PageSettingsSources(
-				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				roleFeaturePerm: $this->roles,
 				treeService: $this->tree,
 				logger: $this->logger,
 				adminSettingsService: $this->createMock(AdminSettingsService::class),
 				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
-				urlGenerator: $this->createMock(\OCP\IURLGenerator::class)
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class),
+				searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class)
 			)
 		);
 	}
@@ -95,6 +99,121 @@ class PageControllerHelpersTest extends TestCase {
 		$dashboard->setUuid($uuid);
 		$dashboard->setName($name);
 		return $dashboard;
+	}
+
+	/**
+	 * A controller whose settings carry the given app manager.
+	 *
+	 * @param IAppManager|null $appManager The app manager, or null for none.
+	 *
+	 * @return PageController
+	 */
+	private function controllerWithApps(?IAppManager $appManager): PageController {
+		return new PageController(
+			request: $this->createMock(IRequest::class),
+			sources: new PageSources(
+				initialState: $this->createMock(IInitialState::class),
+				widgetService: $this->widgets,
+				dashboardService: $this->dashboards,
+				adminTemplateService: $this->templates
+			),
+			userSession: $this->session,
+			settings: new PageSettingsSources(
+				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				treeService: $this->tree,
+				logger: $this->logger,
+				adminSettingsService: $this->createMock(AdminSettingsService::class),
+				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class),
+				searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class),
+				appManager: $appManager
+			)
+		);
+	}
+
+	/**
+	 * Engagement-communities REQ-COMM-004: Talk counts as enabled only when
+	 * the app manager says so for the signed-in user.
+	 *
+	 * @return void
+	 */
+	public function testTalkIsEnabledOnlyWhenTheAppManagerSaysSoForTheViewer(): void {
+		$user = $this->createMock(IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$apps = $this->createMock(IAppManager::class);
+		$apps->expects($this->exactly(2))
+			->method('isEnabledForUser')
+			->with('spreed', $user)
+			->willReturnOnConsecutiveCalls(true, false);
+		$controller = $this->controllerWithApps(appManager: $apps);
+		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
+
+		$this->assertTrue(condition: $check->invoke($controller, 'spreed'));
+		$this->assertFalse(condition: $check->invoke($controller, 'spreed'));
+	}
+
+	/**
+	 * Wiki-widget REQ-WIKI-004: the integration apps are asked about by id,
+	 * for the signed-in user.
+	 *
+	 * @return void
+	 */
+	public function testAnIntegrationAppIsAskedAboutForTheViewer(): void {
+		$user = $this->createMock(originalClassName: IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$apps = $this->createMock(originalClassName: IAppManager::class);
+		$apps->method('isEnabledForUser')->willReturnCallback(
+			static fn (string $appId, $viewer): bool => $appId === 'openregister' && $viewer === $user
+		);
+		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
+		$controller = $this->controllerWithApps(appManager: $apps);
+
+		$this->assertTrue(condition: $check->invoke($controller, 'openregister'));
+		$this->assertFalse(condition: $check->invoke($controller, 'integration_openproject'));
+	}
+
+	/**
+	 * Assigned-cases-widget REQ-CASES-004: dossiq answers with the id it is
+	 * installed under, or false when it is absent or not enabled for the viewer.
+	 *
+	 * @return void
+	 */
+	public function testARenamedFleetAppAnswersWithItsInstalledId(): void {
+		$user = $this->createMock(originalClassName: IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$check = new ReflectionMethod(PageController::class, 'enabledFleetAppId');
+
+		$legacy = $this->createMock(originalClassName: IAppManager::class);
+		$legacy->method('isInstalled')->willReturnCallback(static fn (string $appId): bool => $appId === 'procest');
+		$legacy->method('isEnabledForUser')->willReturn(true);
+		$this->assertSame(expected: 'procest', actual: $check->invoke($this->controllerWithApps(appManager: $legacy), 'dossiq'));
+
+		$disabled = $this->createMock(originalClassName: IAppManager::class);
+		$disabled->method('isInstalled')->willReturn(true);
+		$disabled->method('isEnabledForUser')->willReturn(false);
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $disabled), 'dossiq'));
+
+		$absent = $this->createMock(originalClassName: IAppManager::class);
+		$absent->method('isInstalled')->willReturn(false);
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $absent), 'dossiq'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'dossiq'));
+	}
+
+	/**
+	 * Without a session, an app manager, or with a failing check, Talk is off.
+	 *
+	 * @return void
+	 */
+	public function testTalkIsOffWithoutASessionAnAppManagerOrWhenTheCheckFails(): void {
+		$check = new ReflectionMethod(PageController::class, 'isAppEnabledForViewer');
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
+
+		$this->session->method('getUser')->willReturn($this->createMock(IUser::class));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: null), 'spreed'));
+
+		$failing = $this->createMock(IAppManager::class);
+		$failing->method('isEnabledForUser')->willThrowException(new RuntimeException('app store down'));
+		$this->assertFalse(condition: $check->invoke($this->controllerWithApps(appManager: $failing), 'spreed'));
 	}
 
 	public function testUserIdIsEmptyWithoutASession(): void {
@@ -155,7 +274,7 @@ class PageControllerHelpersTest extends TestCase {
 			'dashboardSource' => Dashboard::SOURCE_GROUP,
 			'layout' => [],
 			'deepLinkPath' => '',
-		], $this->call('describeActive', null));
+		], $this->call('describeActive', null, 'alice'));
 	}
 
 	public function testActiveDashboardCarriesItsLayoutAndPath(): void {
@@ -165,13 +284,31 @@ class PageControllerHelpersTest extends TestCase {
 		$this->widgets->expects($this->once())->method('getDashboardPlacements')->with(5)->willReturn([$placement]);
 		$this->tree->expects($this->once())->method('computePath')->with('uuid-5')->willReturn('team/ops');
 
-		$state = $this->call('describeActive', ['dashboard' => $this->dashboard(5, 'uuid-5'), 'source' => Dashboard::SOURCE_USER]);
+		$this->roles->expects($this->never())->method('hideUnpermittedPlacements');
+
+		$state = $this->call('describeActive', ['dashboard' => $this->dashboard(5, 'uuid-5'), 'source' => Dashboard::SOURCE_USER], '');
 
 		$this->assertSame('uuid-5', $state['activeDashboardId']);
 		$this->assertSame(Dashboard::SOURCE_USER, $state['dashboardSource']);
 		$this->assertEquals([$placement->jsonSerialize()], $state['layout']);
 		$this->assertSame('notes', $state['layout'][0]['widgetId']);
 		$this->assertSame('team/ops', $state['deepLinkPath']);
+	}
+
+	public function testTheLayoutMarksAWidgetTheRoleDoesNotPermit(): void {
+		$placement = new WidgetPlacement();
+		$placement->setId(70);
+		$placement->setWidgetId('notes');
+		$this->widgets->method('getDashboardPlacements')->willReturn([$placement]);
+		$hidden = [['id' => 70, 'widgetId' => 'notes', 'isVisible' => 0]];
+		$this->roles->expects($this->once())
+			->method('hideUnpermittedPlacements')
+			->with([$placement->jsonSerialize()], 'alice')
+			->willReturn($hidden);
+
+		$state = $this->call('describeActive', ['dashboard' => $this->dashboard(5, 'uuid-5'), 'source' => Dashboard::SOURCE_GROUP], 'alice');
+
+		$this->assertSame($hidden, $state['layout']);
 	}
 
 	public function testPathFailureIsLoggedAndGivesAnEmptyPath(): void {

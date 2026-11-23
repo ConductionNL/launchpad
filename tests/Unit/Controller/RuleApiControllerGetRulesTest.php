@@ -36,6 +36,7 @@ use Exception;
 use OCA\LaunchPad\Controller\RuleApiController;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\ConditionalService;
 use OCA\LaunchPad\Service\PermissionService;
@@ -46,6 +47,11 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use OCA\LaunchPad\Controller\ActionCaller;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\CallerResponses;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Contract tests for RuleApiController::getRules.
@@ -123,9 +129,12 @@ class RuleApiControllerGetRulesTest extends TestCase {
 			request: $this->request,
 			conditionalService: $this->conditionalService,
 			permissionService: $this->permissionService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			userId: $userId,
+			context: new CallerResponses(caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
+				logger: new NullLogger()
+			)))
 		);
 
 	}//end makeController()
@@ -219,6 +228,20 @@ class RuleApiControllerGetRulesTest extends TestCase {
 		$this->assertSame(expected: 'Operation failed', actual: $response->getData()['error']);
 
 	}//end testGetRulesRefusesANonOwnerWithoutReadingTheRules()
+
+	/**
+	 * A non-owner's refusal answers 403, not the generic 400.
+	 *
+	 * @return void
+	 */
+	public function testGetRulesAnswersANonOwnerWith403(): void {
+		$this->permissionService->method('verifyPlacementOwnership')
+			->willThrowException(new ForbiddenException(message: 'Access denied'));
+
+		$response = $this->makeController('mallory')->getRules(placementId: 7);
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testGetRulesAnswersANonOwnerWith403()
 
 	/**
 	 * The owner gets 200 with the serialised rule list and the evaluated

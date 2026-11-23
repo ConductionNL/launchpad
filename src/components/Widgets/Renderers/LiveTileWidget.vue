@@ -22,10 +22,10 @@
 		</div>
 
 		<div
-			v-else-if="errorMessage"
+			v-else-if="shownError"
 			class="live-tile-widget__state live-tile-widget__state--error">
 			<AlertCircleOutline :size="32" />
-			<span>{{ errorMessage }}</span>
+			<span>{{ shownError }}</span>
 			<button type="button" class="live-tile-widget__retry" @click.stop="load">
 				{{ t('launchpad', 'Retry') }}
 			</button>
@@ -205,9 +205,20 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		unavailable() {
+			return this.content?.sourceMode === 'connector' && this.noValue
+		},
+
+		/**
+		 * Whether the server answered without any value: the source failed
+		 * and there was no last-known value to serve (`value: null`,
+		 * `stale: true`, nothing mapped).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
+		noValue() {
 			return (
-				this.content?.sourceMode === 'connector'
-				&& this.reading !== null
+				this.reading !== null
 				&& this.reading.value === null
 				&& this.reading.stale === true
 				&& this.items.length === 0
@@ -216,10 +227,26 @@ export default {
 		},
 
 		/**
+		 * The error the tile shows: a failed request, or a reading without
+		 * any value, which is an error rather than a "last known value".
+		 *
+		 * @return {string} The message, or '' when there is no error.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
+		shownError() {
+			if (this.errorMessage) {
+				return this.errorMessage
+			}
+			return this.noValue
+				? t('launchpad', 'The value is currently unavailable.')
+				: ''
+		},
+
+		/**
 		 * How the tile shows its data: `value` (a single value), `list`, `table` or `keyvalue`.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		display() {
 			const display = this.reading?.display
@@ -230,7 +257,7 @@ export default {
 		 * The mapped rows of a list or table: each an array of `{label, role, value}`.
 		 *
 		 * @return {Array<Array<object>>}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		items() {
 			return Array.isArray(this.reading?.items) ? this.reading.items.filter(Array.isArray) : []
@@ -240,7 +267,7 @@ export default {
 		 * The mapped pairs of a key-value tile.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		pairs() {
 			return Array.isArray(this.reading?.pairs) ? this.reading.pairs : []
@@ -250,7 +277,7 @@ export default {
 		 * The table's column headers, from the mapping labels of the first row.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		columns() {
 			return (this.items[0] || []).map((field) => field.label)
@@ -340,7 +367,7 @@ export default {
 		 *
 		 * @param {string|number|boolean|null} value - a mapped value.
 		 * @return {boolean}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-only-safe-links-are-clickable-req-ltc-003
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-only-safe-links-are-clickable-req-ltc-003
 		 */
 		isHttps(value) {
 			if (typeof value !== 'string') {
@@ -358,7 +385,7 @@ export default {
 		 *
 		 * @param {Array<object>} item - the row's mapped fields.
 		 * @return {string}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-only-safe-links-are-clickable-req-ltc-003
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-only-safe-links-are-clickable-req-ltc-003
 		 */
 		linkOf(item) {
 			const link = item.find((field) => field.role === 'link')
@@ -370,7 +397,7 @@ export default {
 		 *
 		 * @param {Array<object>} item - the row's mapped fields.
 		 * @return {string}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		titleOf(item) {
 			const title = item.find((field) => field.role === 'title') || item.find((field) => field.role !== 'link')
@@ -382,7 +409,7 @@ export default {
 		 *
 		 * @param {Array<object>} item - the row's mapped fields.
 		 * @return {Array<object>}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		detailsOf(item) {
 			const title = item.find((field) => field.role === 'title') || item.find((field) => field.role !== 'link')
@@ -394,7 +421,7 @@ export default {
 		 *
 		 * @param {{role: string, value: (string|number|boolean|null)}} field - a mapped field.
 		 * @return {string}
-		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
 		 */
 		textOf(field) {
 			if (field.value === null || field.value === undefined) {

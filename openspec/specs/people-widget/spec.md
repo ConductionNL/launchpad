@@ -62,8 +62,6 @@ Widget configuration is stored in the placement's `widgetContent` JSON:
 
 ## Requirements
 
-@e2e exclude all scenarios test PHP /api/people endpoint / IAccountManager — user-directory data not present in test fixture
-
 ### Requirement: Widget registration via dashboard API (REQ-PPL-001)
 
 The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\IManager::registerWidget()` in `appinfo/dashboard.php`. The widget MUST have:
@@ -73,6 +71,7 @@ The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\
 - Widget MUST be discoverable via Nextcloud's Dashboard widget discovery mechanism
 
 #### Scenario: Widget is registered on app load
+@e2e exclude feature never built: nothing in lib/ or appinfo/ calls IManager::registerWidget for `launchpad_people` (`git log --all -S launchpad_people -- lib appinfo src` finds no code; there is no appinfo/dashboard.php). The People widget is LaunchPad's own grid type `people`, registered by nc-vue's dashboardWidgetRegistry. No unit test exists.
 - **GIVEN** LaunchPad is installed and enabled
 - **WHEN** Nextcloud boots and calls `IManager::getWidgets()`
 - **THEN** widget `launchpad_people` MUST appear in the list
@@ -82,9 +81,10 @@ The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\
 - **GIVEN** a user wants to add a widget
 - **WHEN** they open the widget picker
 - **THEN** "People" (or localized variant) MUST be available
-- **AND** clicking "Add" MUST create a placement with `widgetId: "launchpad_people"`
+- **AND** clicking "Add" MUST create a placement with `widgetId: "people"`
 
 #### Scenario: Widget icon is valid SVG
+@e2e exclude feature never built: there is no Nextcloud dashboard widget and so no `icon_url` (the LaunchPad type picker uses the MDI name `AccountMultiple`); the brand-guideline half is a matter of taste no test can judge. No unit test exists.
 - **GIVEN** the widget's icon_url
 - **WHEN** the dashboard renders
 - **THEN** the SVG MUST load without errors
@@ -107,6 +107,8 @@ Each widget placement MUST support configuration stored in the placement's `widg
 
 The frontend MUST validate `birthdayWindowDays` is between 0 and 30 (inclusive) before saving.
 
+**NOTE (2026-11-22, showFields semantics)**: When `showFields` is stored, the role, organisation, email and phone lines show only for keys set to `true`; a key that is left out counts as off. The avatar and each custom profile field show unless their key is explicitly `false`. With no `showFields` stored, every field shows. The form only offers `displayName` and `group` for `sortBy`; `recent-activity` is a planned follow-up and is treated as unknown until it is built.
+
 #### Scenario: Config saved to placement
 - **GIVEN** user configures widget layout to "card" with a group filter for "management"
 - **WHEN** they save
@@ -119,10 +121,10 @@ The frontend MUST validate `birthdayWindowDays` is between 0 and 30 (inclusive) 
 - **AND** the save MUST NOT proceed
 
 #### Scenario: Unknown sortBy value rejected
-- **GIVEN** user sets `sortBy: "unknown-field"`
-- **WHEN** they save
-- **THEN** the frontend MUST reject with error message
-- **AND** fall back to `displayName`
+- **GIVEN** a placement stores `sortBy: "unknown-field"`
+- **WHEN** the user opens it in the edit form and tries to save
+- **THEN** the form MUST show the sort control at `displayName` with a message naming the unknown key
+- **AND** Save MUST stay disabled until the user picks a sort key, which then saves as the fallback `displayName` or their choice
 
 #### Scenario: showFields subset validated
 - **GIVEN** user configures `showFields: {"displayName": true, "email": true}` (omitting others)
@@ -196,6 +198,7 @@ The system MUST NOT return empty or null field values — all returned fields MU
 **NOTE (caching)**: The service keeps no server-side cache; the widget's own 60-second cache lives in the viewer's browser, and search results are never cached (REQ-PEX-004).
 
 #### Scenario: Viewer cannot see hidden email (future)
+@e2e exclude the GIVEN cannot be produced: Nextcloud's AccountManager refuses the v2-private scope for display name and email, so no account can hold a private email. No unit test pins email omission (PeopleWidgetService takes the email from IUser::getEMailAddress without a scope check).
 - **GIVEN** user "alice" has set her email visibility to "private" (not visible to others)
 - **AND** user "bob" is viewing the people widget
 - **WHEN** bob fetches the user list
@@ -236,6 +239,7 @@ Days-to-birthday display logic MUST be computed client-side from the returned `b
 - **THEN** `birthdate` MUST be `"1990-06-10"` (ISO 8601 normalized)
 
 #### Scenario: Birthday filter within_next_days
+@e2e exclude feature never built: no `within_next_days` predicate exists in lib/ or src/ (`git log --all -S within_next_days -- lib src` finds none; PeopleWidgetService ignores every non-group filter). No unit test exists; tests/Unit/Service/PeopleWidgetBirthdateTest.php pins only the days-to-birthday count no filter uses.
 - **GIVEN** placement config requests birthday filter `within_next_days: 7`
 - **AND** today is 2026-05-15
 - **WHEN** system fetches user list
@@ -243,6 +247,7 @@ Days-to-birthday display logic MUST be computed client-side from the returned `b
 - **AND** each included user's `birthdate` MUST be the ISO date string of their birthday
 
 #### Scenario: Birthday today is included
+@e2e exclude feature never built: the `within_next_days` filter this applies does not exist in lib/ or src/ (see the scenario above). No unit test of the filter exists; PeopleWidgetBirthdateTest.php::testBirthdayTodayIsZeroDays pins only the count.
 - **GIVEN** today is 2026-06-10
 - **AND** user "charlie" has birthdate 1990-06-10
 - **WHEN** system applies `within_next_days: 7` filter
@@ -452,7 +457,7 @@ The widget MUST provide a search input that filters displayed users by substring
 
 ### Requirement: Client-side caching and refresh (REQ-PPL-012)
 
-The widget MUST cache results in memory for 60 seconds per placement. A force-refresh button MUST clear the cache and immediately re-fetch user list from the backend.
+The widget MUST cache results in memory for 60 seconds per placement configuration (two placements with the same filters, sort and switches share their pages), and the cache MUST survive the widget being unmounted and mounted again in the same page. A force-refresh button MUST clear the cache and immediately re-fetch user list from the backend.
 
 #### Scenario: Results cached for 60 seconds
 - **GIVEN** user fetches the people list (first load)
@@ -474,6 +479,7 @@ The widget MUST cache results in memory for 60 seconds per placement. A force-re
 - **AND** results MUST update to latest state
 
 #### Scenario: Tab/browser focus refreshes cache
+@e2e exclude optional behaviour (MAY / SHOULD) that was never built: CnPeopleWidget does not listen for focus or visibilitychange. No unit test exists.
 - **GIVEN** user switches away from browser tab and back
 - **WHEN** user returns to the tab
 - **THEN** cache MAY be invalidated (optional)
@@ -481,11 +487,10 @@ The widget MUST cache results in memory for 60 seconds per placement. A force-re
 
 ### Requirement: Administrators define custom profile fields (REQ-PEX-001)
 
-@e2e exclude Playwright is not wired for the people widget yet; covered by tests/Unit/Service/ProfileFieldServiceTest.php, tests/Unit/Service/PeopleWidgetServiceTest.php and src/components/Widgets/Renderers/__tests__/PeopleWidget.spec.js
-
 An administrator MUST be able to define up to 10 custom profile fields, each with a label, a type (text or tags), a source (filled by the person, or read from an LDAP attribute), whether it is searchable, whether it shows in the people widget, and who may see it (everyone, or members of the person's groups).
 
 #### Scenario: Office location from LDAP
+@e2e exclude needs an LDAP directory server and the user_ldap app, which the CI fixture does not provide; pinned by tests/Unit/Service/ProfileFieldServiceTest.php::testLdapFieldsSyncForLdapAccountsOnly and ::testPieterAddsHisSubjectsAndLdapFieldsStayReadOnly
 
 - **GIVEN** Noor is an administrator and accounts come from LDAP
 - **WHEN** she adds the field "Kantoorlocatie" of type text, source LDAP attribute `physicalDeliveryOfficeName`, shown in the widget
@@ -493,8 +498,6 @@ An administrator MUST be able to define up to 10 custom profile fields, each wit
 - **AND** Pieter sees the field read-only on his LaunchPad personal settings
 
 ### Requirement: People list their own expertise (REQ-PEX-002)
-
-@e2e exclude Playwright is not wired for the people widget yet; covered by tests/Unit/Service/ProfileFieldServiceTest.php, tests/Unit/Service/PeopleWidgetServiceTest.php and src/components/Widgets/Renderers/__tests__/PeopleWidget.spec.js
 
 A person MUST be able to fill the fields sourced from themselves on their LaunchPad personal settings, including tags for expertise.
 
@@ -505,8 +508,6 @@ A person MUST be able to fill the fields sourced from themselves on their Launch
 - **THEN** his people card shows the two tags
 
 ### Requirement: Search finds people across the directory by profile and expertise (REQ-PEX-003)
-
-@e2e exclude Playwright is not wired for the people widget yet; covered by tests/Unit/Service/ProfileFieldServiceTest.php, tests/Unit/Service/PeopleWidgetServiceTest.php and src/components/Widgets/Renderers/__tests__/PeopleWidget.spec.js
 
 With a query of 2 or more characters, the people widget MUST ask the server, which MUST match display name, email, role, headline, biography and every searchable custom field across the whole directory and return the matches a page at a time. Shorter queries MUST keep the current-page filter of REQ-PPL-011.
 
@@ -523,8 +524,6 @@ With a query of 2 or more characters, the people widget MUST ask the server, whi
 - **THEN** the widget shows everyone tagged "Omgevingswet"
 
 ### Requirement: Search and display respect profile visibility (REQ-PEX-004)
-
-@e2e exclude Playwright is not wired for the people widget yet; covered by tests/Unit/Service/ProfileFieldServiceTest.php, tests/Unit/Service/PeopleWidgetServiceTest.php and src/components/Widgets/Renderers/__tests__/PeopleWidget.spec.js
 
 A standard profile field MUST be matched and shown only when the person's Nextcloud visibility setting lets the viewer see it. A custom field MUST be matched and shown only to the audience its definition allows. Search results MUST NOT be served from a cache shared between viewers.
 
@@ -543,8 +542,6 @@ A standard profile field MUST be matched and shown only when the person's Nextcl
 
 ### Requirement: Candidate resolution is bounded by the requested page (REQ-PPL-013)
 
-@e2e exclude a server-side query bound, not visible in a browser; covered by tests/Unit/Service/PeopleWidgetServiceTest.php::testDisplayNameSortUsesBoundedSearchNotFullScan and the pagination tests in the same file
-
 `PeopleWidgetService::listUsers()` MUST NOT materialize the full Nextcloud
 user directory for a request that has no `group` filter and uses the default
 `displayName` sort. The number of `IUser` objects instantiated from
@@ -554,6 +551,7 @@ the instance. Only the admin-selected `group` sort without a group filter
 reads the whole directory, because ordering by group membership needs it.
 
 #### Scenario: Unfiltered People widget on a large instance fetches a bounded set
+@e2e exclude which IUserManager call runs, and with what bound, is not visible in a browser or an API response; pinned by tests/Unit/Service/PeopleWidgetServiceTest.php::testDisplayNameSortUsesBoundedSearchNotFullScan and tests/Unit/Service/PeopleWidgetVisibilityGoldenTest.php::testDirectoryPageStreamsChunksUntilFullOrExhausted
 
 - **GIVEN** a Nextcloud instance with 5,000 user accounts
 - **AND** a People widget configured with no `group` filter and

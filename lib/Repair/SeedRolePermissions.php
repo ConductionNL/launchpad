@@ -31,6 +31,7 @@ use OCA\LaunchPad\Db\RoleFeaturePermission;
 use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
 use OCA\LaunchPad\Db\RoleLayoutDefault;
 use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
+use OCA\LaunchPad\Support\WidgetTypeList;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -42,6 +43,33 @@ use Psr\Log\LoggerInterface;
  */
 class SeedRolePermissions implements IRepairStep {
 	/**
+	 * The Nextcloud dashboard widgets each shipped group rule allows and
+	 * denies. The seeded rule allows these plus every LaunchPad widget type;
+	 * older versions seeded only these, and BroadenShippedGroupWidgetRules
+	 * widens a rule that still holds exactly them.
+	 *
+	 * @var array<string, array{allowed: list<string>, denied: list<string>}>
+	 */
+	public const SHIPPED_GROUP_RULES = [
+		'medewerkers' => [
+			'allowed' => ['activity', 'recommendations', 'notes', 'calendar'],
+			'denied' => [],
+		],
+		'managers' => [
+			'allowed' => ['activity', 'recommendations', 'notes', 'calendar', 'analytics_dashboard', 'user_status'],
+			'denied' => [],
+		],
+		'ict-beheer' => [
+			'allowed' => ['activity', 'recommendations', 'notes', 'calendar', 'system_monitor', 'user_status'],
+			'denied' => [],
+		],
+		'hrm' => [
+			'allowed' => ['activity', 'recommendations', 'notes', 'calendar', 'user_status'],
+			'denied' => ['system_monitor'],
+		],
+	];
+
+	/**
 	 * Default role-feature permissions, one per group.
 	 */
 	private const PERMISSION_SEEDS = [
@@ -49,39 +77,39 @@ class SeedRolePermissions implements IRepairStep {
 			'groupId' => 'medewerkers',
 			'name' => 'Medewerker widget-rechten',
 			'description' => 'Standaard widget-toegang voor alle medewerkers van de gemeente',
-			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar'],
-			'deniedWidgets' => [],
+			'allowedWidgets' => self::SHIPPED_GROUP_RULES['medewerkers']['allowed'],
+			'deniedWidgets' => self::SHIPPED_GROUP_RULES['medewerkers']['denied'],
 			'priorityWeights' => ['activity' => 10, 'recommendations' => 8, 'calendar' => 6, 'notes' => 4],
 		],
 		[
 			'groupId' => 'managers',
 			'name' => 'Manager widget-rechten',
 			'description' => 'Uitgebreide widget-toegang voor teamleiders en afdelingshoofden',
-			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'analytics_dashboard', 'user_status'],
-			'deniedWidgets' => [],
+			'allowedWidgets' => self::SHIPPED_GROUP_RULES['managers']['allowed'],
+			'deniedWidgets' => self::SHIPPED_GROUP_RULES['managers']['denied'],
 			'priorityWeights' => ['analytics_dashboard' => 10, 'activity' => 8, 'user_status' => 6, 'calendar' => 5],
 		],
 		[
 			'groupId' => 'ict-beheer',
 			'name' => 'ICT-beheer widget-rechten',
 			'description' => 'Widget-toegang voor de ICT-beheerdersgroep met systeemoverzicht',
-			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'system_monitor', 'user_status'],
-			'deniedWidgets' => [],
+			'allowedWidgets' => self::SHIPPED_GROUP_RULES['ict-beheer']['allowed'],
+			'deniedWidgets' => self::SHIPPED_GROUP_RULES['ict-beheer']['denied'],
 			'priorityWeights' => ['system_monitor' => 10, 'activity' => 8, 'user_status' => 7],
 		],
 		[
 			'groupId' => 'hrm',
 			'name' => 'HRM widget-rechten',
 			'description' => 'Widget-toegang voor de afdeling Human Resource Management',
-			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'user_status'],
-			'deniedWidgets' => ['system_monitor'],
+			'allowedWidgets' => self::SHIPPED_GROUP_RULES['hrm']['allowed'],
+			'deniedWidgets' => self::SHIPPED_GROUP_RULES['hrm']['denied'],
 			'priorityWeights' => ['user_status' => 10, 'calendar' => 9, 'activity' => 7],
 		],
 		[
-			'groupId' => 'default',
+			'groupId' => RoleFeaturePermission::GROUP_DEFAULT,
 			'name' => 'Standaard widget-rechten',
 			'description' => 'Basistoegang voor gebruikers zonder specifieke groepsindeling',
-			'allowedWidgets' => ['activity', 'recommendations'],
+			'allowedWidgets' => WidgetTypeList::DEFAULT_RULE_DASHBOARD_WIDGETS,
 			'deniedWidgets' => [],
 			'priorityWeights' => ['recommendations' => 10, 'activity' => 8],
 		],
@@ -213,6 +241,7 @@ class SeedRolePermissions implements IRepairStep {
 	 * @return void
 	 *
 	 * @spec openspec/changes/role-based-content/tasks.md#task-2
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
 	 */
 	private function seedPermissions(IOutput $output): void {
 		$now = (new DateTime())->format(format: 'c');
@@ -222,7 +251,9 @@ class SeedRolePermissions implements IRepairStep {
 			$entity->setGroupId($seed['groupId']);
 			$entity->setName($seed['name']);
 			$entity->setDescription($seed['description']);
-			$entity->setAllowedWidgets(json_encode(value: $seed['allowedWidgets']));
+			$allowed = (new WidgetTypeList())->withOwnTypes(widgetIds: $seed['allowedWidgets']);
+
+			$entity->setAllowedWidgets(json_encode(value: $allowed));
 			$entity->setDeniedWidgets(json_encode(value: $seed['deniedWidgets']));
 			$entity->setPriorityWeights(json_encode(value: $seed['priorityWeights']));
 			$entity->setCreatedAt($now);

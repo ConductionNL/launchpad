@@ -15,6 +15,7 @@ use DateTimeImmutable;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\ConditionalService;
 use OCA\LaunchPad\Service\RuleEvaluatorService;
@@ -53,6 +54,13 @@ class ConditionalServiceRulesTest extends TestCase {
 	private VisibilityChecker $visibility;
 
 	/**
+	 * The placement mapper double.
+	 *
+	 * @var WidgetPlacementMapper&MockObject
+	 */
+	private WidgetPlacementMapper $placements;
+
+	/**
 	 * The service under test.
 	 *
 	 * @var ConditionalService
@@ -68,11 +76,12 @@ class ConditionalServiceRulesTest extends TestCase {
 		$this->rules = $this->createMock(ConditionalRuleMapper::class);
 		$this->evaluator = $this->createMock(RuleEvaluatorService::class);
 		$this->visibility = $this->createMock(VisibilityChecker::class);
+		$this->placements = $this->createMock(originalClassName: WidgetPlacementMapper::class);
 		$this->service = new ConditionalService(
 			ruleMapper: $this->rules,
 			ruleEvaluator: $this->evaluator,
 			visibilityChecker: $this->visibility,
-			placementMapper: $this->createMock(WidgetPlacementMapper::class),
+			placementMapper: $this->placements,
 			dashboardMapper: $this->createMock(DashboardMapper::class),
 		);
 	}//end setUp()
@@ -122,6 +131,21 @@ class ConditionalServiceRulesTest extends TestCase {
 		self::assertFalse($this->service->checkRulesForPlacement(2, 'alice'));
 		self::assertSame($stored, $this->service->getRules(2));
 	}//end testAPlacementIsVisibleWithoutRulesOtherwiseTheCheckerDecides()
+
+	/**
+	 * A placement with isVisible 0 is hidden without evaluating its rules.
+	 *
+	 * @return void
+	 */
+	public function testAPlacementSwitchedOffIsHiddenWithoutEvaluatingRules(): void {
+		$placement = new WidgetPlacement();
+		$placement->setIsVisible(0);
+		$this->placements->method('find')->with(5)->willReturn($placement);
+		$this->rules->expects(self::never())->method('findByPlacementId');
+		$this->visibility->expects(self::never())->method('checkRules');
+
+		self::assertFalse(condition: $this->service->checkRulesForPlacement(placementId: 5, userId: 'alice'));
+	}//end testAPlacementSwitchedOffIsHiddenWithoutEvaluatingRules()
 
 	/**
 	 * A preview passes the overrides through and answers the checker's verdict.

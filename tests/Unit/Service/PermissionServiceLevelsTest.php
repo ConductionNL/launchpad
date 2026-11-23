@@ -63,10 +63,12 @@ class PermissionServiceLevelsTest extends TestCase {
 	 *
 	 * @param string $level        The dashboard's own permission level.
 	 * @param int    $isCompulsory Whether its placement is compulsory.
+	 * @param bool   $viewer       Whether every user holds the Viewer role.
+	 * @param array  $admins       The Nextcloud admins.
 	 *
 	 * @return array{0: PermissionService, 1: Dashboard, 2: WidgetPlacement}
 	 */
-	private function serviceFor(string $level, int $isCompulsory = 0): array {
+	private function serviceFor(string $level, int $isCompulsory = 0, bool $viewer = false, array $admins = []): array {
 		$dashboard = new Dashboard();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$dashboard->setId(5);
@@ -103,12 +105,12 @@ class PermissionServiceLevelsTest extends TestCase {
 		);
 
 		$roles = $this->createMock(RoleService::class);
-		$roles->method('isViewer')->willReturn(false);
+		$roles->method('isViewer')->willReturn($viewer);
 		$roles->method('isAdmin')->willReturn(false);
 		$roles->method('isEditorOrHigher')->willReturn(false);
 
 		$groups = $this->createMock(IGroupManager::class);
-		$groups->method('isAdmin')->willReturn(false);
+		$groups->method('isAdmin')->willReturnCallback(static fn (string $userId): bool => in_array($userId, $admins, true));
 
 		$shares = $this->createMock(DashboardShareService::class);
 		$shares->method('resolveSharedDashboards')->willReturn([]);
@@ -223,4 +225,56 @@ class PermissionServiceLevelsTest extends TestCase {
 		$this->assertFalse($service->canStyleWidget(userId: 'bob', placementId: 10));
 		$this->assertFalse($service->canRemoveWidget(userId: 'bob', placementId: 10));
 	}//end testAStrangerIsRefusedEvenOnAFullDashboard()
+
+	/**
+	 * REQ-ROLE-008: a Viewer may neither rename nor delete even a dashboard
+	 * they own; the owner without the role may do both.
+	 *
+	 * @return void
+	 */
+	public function testAViewerMayNotRenameOrDeleteEvenTheirOwnDashboard(): void {
+		[$viewerService] = $this->serviceFor(level: Dashboard::PERMISSION_FULL, viewer: true);
+		[$ownerService]  = $this->serviceFor(level: Dashboard::PERMISSION_FULL);
+
+		$this->assertFalse($viewerService->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
+		$this->assertFalse($viewerService->canDeleteDashboards(userId: self::OWNER));
+		$this->assertTrue($ownerService->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
+		$this->assertTrue($ownerService->canDeleteDashboards(userId: self::OWNER));
+	}//end testAViewerMayNotRenameOrDeleteEvenTheirOwnDashboard()
+	/**
+	 * REQ-PERM-011: an admin template belongs to nobody; a Nextcloud admin
+	 * may rename it, an ordinary user may not.
+	 *
+	 * @return void
+	 */
+	public function testANextcloudAdminRenamesAnAdminTemplateThatBelongsToNobody(): void {
+		[$service, $dashboard] = $this->serviceFor(level: Dashboard::PERMISSION_FULL, admins: ['admin']);
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$dashboard->setUserId(null);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->assertTrue($service->canEditDashboardMetadata(userId: 'admin', dashboardId: 5));
+		$this->assertFalse($service->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
+	}//end testANextcloudAdminRenamesAnAdminTemplateThatBelongsToNobody()
+	/**
+	 * REQ-PERM-001 / REQ-PERM-004: a refusal says why: a view-only
+	 * dashboard, or a compulsory widget at add_only; else "Access denied".
+	 *
+	 * @return void
+	 */
+	public function testARefusedWidgetChangeSaysWhy(): void {
+		[$viewOnly] = $this->serviceFor(level: Dashboard::PERMISSION_VIEW_ONLY);
+		[$addOnly]  = $this->serviceFor(level: Dashboard::PERMISSION_ADD_ONLY, isCompulsory: 1);
+		[$loose]    = $this->serviceFor(level: Dashboard::PERMISSION_ADD_ONLY);
+
+		$this->assertSame('This dashboard is view-only', $viewOnly->widgetRefusal(userId: self::OWNER, dashboardId: 5));
+		$this->assertSame('This dashboard is view-only', $viewOnly->widgetRefusal(userId: self::OWNER, placementId: 10));
+		$this->assertSame(
+			'Compulsory widgets cannot be removed at this permission level',
+			$addOnly->widgetRefusal(userId: self::OWNER, placementId: 10)
+		);
+		$this->assertSame('Access denied', $loose->widgetRefusal(userId: self::OWNER, placementId: 10));
+		$this->assertSame('Access denied', $viewOnly->widgetRefusal(userId: 'bob', dashboardId: 5));
+	}//end testARefusedWidgetChangeSaysWhy()
 }//end class

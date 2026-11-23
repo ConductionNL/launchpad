@@ -55,7 +55,11 @@ class NotifierTest extends TestCase {
 		$factory = $this->createMock(IFactory::class);
 		$factory->method('get')->willReturn($l);
 		$urls = $this->createMock(IURLGenerator::class);
-		$urls->method('linkToRouteAbsolute')->willReturn('https://host/apps/launchpad/');
+		$urls->method('linkToRouteAbsolute')->willReturnCallback(
+			static fn (string $routeName, array $arguments = []): string => $routeName === 'settings.AdminSettings.index'
+				? 'https://host/settings/admin/' . ($arguments['section'] ?? '')
+				: 'https://host/apps/launchpad/'
+		);
 		$mapper = $this->createMock(DashboardMapper::class);
 		$mapper->method('find')->willReturnCallback(
 			static function (int $id): Dashboard {
@@ -107,6 +111,13 @@ class NotifierTest extends TestCase {
 	 */
 	public function testEverySubjectRendersItsTextAndLink(): void {
 		$cases = [
+			['embed_token_revoked', 't-1', ['Zeist WOO', 'admin', 'no_longer_needed', 'In-house now', '2026-05-22T14:35:00Z'], [
+				'setRichSubject ["[Token **Zeist WOO** has been revoked by admin]",[]]',
+				'setParsedSubject ["[Token Zeist WOO has been revoked by admin]"]',
+				'setRichMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]",[]]',
+				'setParsedMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]"]',
+				'setLink ["https:\\/\\/host\\/settings\\/admin\\/launchpad"]',
+			]],
 			['mentioned_in_comment', 'abc/1', ['alice'], [
 				'setRichSubject ["[alice mentioned you in a dashboard comment]",[]]',
 				'setParsedSubject ["[alice mentioned you in a dashboard comment]"]',
@@ -172,6 +183,68 @@ class NotifierTest extends TestCase {
 			$this->assertSame('setRichMessage ["['.$label.']",[]]', $this->calls[2]);
 		}
 	}//end testEverySubjectRendersItsTextAndLink()
+
+	/**
+	 * The app catalogue subjects render the request, the approval and the
+	 * decline with its note (launcher-app-catalogue, REQ-ACAT-003/004).
+	 *
+	 * @return void
+	 */
+	public function testAppCatalogueSubjectsRenderTheirText(): void {
+		$cases = [
+			['app_requested', ['Pieter', 'Kaartviewer'], [
+				'setRichSubject ["[Pieter asked for the app **Kaartviewer**]",[]]',
+				'setParsedSubject ["[Pieter asked for the app Kaartviewer]"]',
+				'setRichMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]",[]]',
+				'setParsedMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]"]',
+				'setLink ["https:\/\/host\/settings\/admin\/launchpad"]',
+			]],
+			['app_request_decided', ['Kaartviewer', 'approved', ''], [
+				'setRichSubject ["[**Kaartviewer** is now in the app catalogue]",[]]',
+				'setParsedSubject ["[Kaartviewer is now in the app catalogue]"]',
+				'setRichMessage ["[Add it as a tile from Add on your dashboard]",[]]',
+				'setParsedMessage ["[Add it as a tile from Add on your dashboard]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
+			['app_request_decided', ['Kaartviewer', 'declined', 'Gebruik de kaartlaag in het zaaksysteem'], [
+				'setRichSubject ["[Your request for **Kaartviewer** was declined: Gebruik de kaartlaag in het zaaksysteem]",[]]',
+				'setParsedSubject ["[Your request for Kaartviewer was declined: Gebruik de kaartlaag in het zaaksysteem]"]',
+				'setRichMessage ["[An administrator decided on your request in the app catalogue]",[]]',
+				'setParsedMessage ["[An administrator decided on your request in the app catalogue]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
+		];
+		foreach ($cases as [$subject, $params, $expected]) {
+			$this->notifier()->prepare(
+				notification: $this->notification(subject: $subject, objectId: 'req-1', params: $params),
+				languageCode: 'en'
+			);
+			$this->assertSame($expected, $this->calls, $subject);
+		}
+	}//end testAppCatalogueSubjectsRenderTheirText()
+
+	/**
+	 * A request links to the LaunchPad admin section, a decision to LaunchPad.
+	 *
+	 * @return void
+	 */
+	public function testAppCatalogueSubjectsLinkToWhereTheyAreHandled(): void {
+		$l = $this->createMock(IL10N::class);
+		$l->method('t')->willReturnArgument(0);
+		$factory = $this->createMock(IFactory::class);
+		$factory->method('get')->willReturn($l);
+		$urls = $this->createMock(IURLGenerator::class);
+		$urls->method('linkToRouteAbsolute')->willReturnCallback(
+			static fn (string $route, array $args = []): string => $route.'?'.http_build_query($args)
+		);
+		$notifier = new Notifier(l10nFactory: $factory, urlGenerator: $urls, dashboardMapper: $this->createMock(DashboardMapper::class));
+
+		$notifier->prepare(notification: $this->notification(subject: 'app_requested', objectId: 'r', params: ['a', 'b']), languageCode: 'en');
+		$this->assertSame('setLink ["settings.AdminSettings.index?section=launchpad"]', $this->calls[4]);
+
+		$notifier->prepare(notification: $this->notification(subject: 'app_request_decided', objectId: 'r', params: ['b', 'approved']), languageCode: 'en');
+		$this->assertSame('setLink ["launchpad.page.index?"]', $this->calls[4]);
+	}//end testAppCatalogueSubjectsLinkToWhereTheyAreHandled()
 
 	/**
 	 * Unknown apps and subjects are refused with their own message.

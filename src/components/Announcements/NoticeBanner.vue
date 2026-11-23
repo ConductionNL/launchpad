@@ -14,8 +14,8 @@
 			<InformationOutline v-else :size="20" />
 		</span>
 		<div class="notice-banner__text">
-			<strong class="notice-banner__level">{{ levelLabel }}</strong>
-			<span class="notice-banner__title">{{ notice.title }}</span>
+			<span class="notice-banner__level hidden-visually">{{ levelLabel }}</span>
+			<strong class="notice-banner__title">{{ notice.title }}</strong>
 			<span v-if="notice.body" class="notice-banner__body">{{ notice.body }}</span>
 		</div>
 		<NcButton
@@ -84,29 +84,50 @@ export default {
 </script>
 
 <style scoped>
+/* LpIntranet: a full-width bar under the page header, title in bold and the
+   body beside it. */
 .notice-banner {
 	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-	padding: 10px 16px;
-	border-radius: var(--border-radius-large);
+	align-items: center;
+	gap: 10px 16px;
+	padding: 12px 28px;
 	background: var(--color-primary-element-light);
-	color: var(--color-main-text);
+	color: var(--color-primary-element-light-text);
+	font-size: 15px;
 }
 
 .notice-banner--warning {
-	background: var(--color-warning);
-	color: var(--color-warning-text, var(--color-main-text));
+	background: var(--color-primary-element-hover);
+	color: var(--color-primary-element-text);
+}
+
+.notice-banner__icon {
+	display: flex;
+	flex: none;
 }
 
 .notice-banner__text {
 	display: flex;
 	flex: 1;
 	flex-wrap: wrap;
-	gap: 4px 8px;
+	align-items: baseline;
+	gap: 4px 16px;
+	min-width: 0;
+}
+
+.notice-banner__title {
+	font-weight: 600;
 }
 
 .notice-banner__body {
-	flex-basis: 100%;
+	flex: 1 1 260px;
+}
+
+.notice-banner--warning .notice-banner__body {
+	color: var(--color-primary-element-light);
+}
+
+.notice-banner--warning :deep(.button-vue) {
+	color: var(--color-primary-element-text);
 }
 </style>

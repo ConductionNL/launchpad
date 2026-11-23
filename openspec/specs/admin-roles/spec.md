@@ -26,12 +26,9 @@ Each role assignment is stored in the `oc_launchpad_role_assignments` table with
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-ROLE-001 Dashboard Admin Role Definition
 
-A Dashboard Admin MUST have full administrative access to LaunchPad, equivalent to Nextcloud admin status but scoped to LaunchPad only. A Dashboard Admin MUST be able to manage all dashboards, install demo data, edit organization-level navigation, and define new metadata fields.
+A Dashboard Admin MUST be able to manage all dashboards through the normal API: edit any dashboard and create a group dashboard for any group (REQ-DASH-014). The admin API (`/api/admin/*`: settings, demo data, organisation navigation, metadata field definitions, roles) MUST stay Nextcloud-administrator only; the LaunchPad Admin role does not open it (Ruben, 21 Nov 2026).
 
 NOTE: Admin-roles is a net-new LaunchPad capability with no source counterpart. The source app has no named-role concept and resolves all permissions from the GroupFolder ACL bitmask alone. The three role names echo the source app's seeded group names for customer recognition, but the underlying mechanism is entirely different — LaunchPad does not read from those groups at runtime.
 
@@ -47,7 +44,7 @@ NOTE: Admin-roles is a net-new LaunchPad capability with no source counterpart. 
 - WHEN an NC admin creates a role assignment with `userId = "alice"`, `role = "admin"`
 - THEN alice's effective role becomes "admin"
 - AND the role source MUST be "user-assigned"
-- AND alice gains access to LaunchPad admin section: `/admin/settings`, `/admin/demo`, `/admin/metadata`, `/admin/roles`
+- AND `/api/admin/settings`, `/api/admin/demo-showcases`, `/api/admin/metadata-fields` and `/api/admin/roles` MUST still answer her with HTTP 403, because she is not a Nextcloud administrator
 
 #### Scenario: Dashboard Admin can edit any dashboard
 - GIVEN a user with effective role "admin"
@@ -55,23 +52,28 @@ NOTE: Admin-roles is a net-new LaunchPad capability with no source counterpart. 
 - THEN the permission check MUST return true
 - AND no group membership check is required
 
-#### Scenario: Dashboard Admin can manage metadata field definitions
-- GIVEN a user with role "admin"
+#### Scenario: Dashboard Admin cannot manage metadata field definitions
+- GIVEN a user with role "admin" who is not a Nextcloud administrator
 - WHEN the user calls `POST /api/admin/metadata-fields` with a new field definition
-- THEN the system MUST allow the creation
-- AND the field is available for use on all dashboards (not scoped to a group)
+- THEN the system MUST refuse with HTTP 403
+- AND no field is created
 
-#### Scenario: Dashboard Admin can install demo data
-- GIVEN a user with role "admin"
-- WHEN the user calls `POST /api/admin/demo/install` with a demo package ID
-- THEN the system MUST allow the installation
-- AND demo dashboards appear in the appropriate scope
+#### Scenario: Dashboard Admin cannot install demo data
+- GIVEN a user with role "admin" who is not a Nextcloud administrator
+- WHEN the user calls `POST /api/admin/demo-showcases/{id}/install`
+- THEN the system MUST refuse with HTTP 403
+- AND the showcase stays as it was
 
-#### Scenario: Dashboard Admin can edit organization navigation
-- GIVEN a user with role "admin"
+#### Scenario: Dashboard Admin cannot edit organization navigation
+- GIVEN a user with role "admin" who is not a Nextcloud administrator
 - WHEN the user calls `PUT /api/admin/org-navigation` with new navigation structure
-- THEN the system MUST allow the update
-- AND the changes are persisted and visible to all users
+- THEN the system MUST refuse with HTTP 403
+- AND the navigation stays as it was
+
+#### Scenario: Dashboard Admin creates a group dashboard for a group they are not in
+- GIVEN a user with role "admin" who is not a Nextcloud administrator and not in group "sales"
+- WHEN the user calls `POST /api/dashboards/group/sales`
+- THEN the system MUST create the group dashboard (HTTP 201)
 
 ### Requirement: REQ-ROLE-002 Dashboard Editor Role Definition
 
@@ -79,9 +81,15 @@ A Dashboard Editor MUST be able to create and edit dashboards within their group
 
 #### Scenario: Dashboard Editor creates a new group_shared dashboard
 - GIVEN a user "bob" with role "editor" in group "engineering"
-- WHEN bob calls `POST /api/dashboards` with `scope = "group_shared"`, `groupId = "engineering"`
-- THEN the system MUST allow the creation
-- AND bob becomes the owner of the new dashboard
+- WHEN bob calls `POST /api/dashboards/group/engineering`
+- THEN the system MUST allow the creation (HTTP 201)
+- AND the new dashboard is a `group_shared` dashboard of "engineering" with no owner (`userId` null, REQ-DASH-014), which bob can edit as an Editor in that group
+
+#### Scenario: Dashboard Editor cannot create a group dashboard for another group
+- GIVEN a user "bob" with role "editor" who is not in group "sales"
+- WHEN bob calls `POST /api/dashboards/group/sales`
+- THEN the system MUST refuse with HTTP 403
+- AND no dashboard is created
 
 #### Scenario: Dashboard Editor can edit group_shared dashboard in their group
 - GIVEN a "group_shared" dashboard in group "engineering"

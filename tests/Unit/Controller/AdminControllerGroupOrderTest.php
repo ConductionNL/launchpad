@@ -22,6 +22,7 @@ namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\AdminSettingsController;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\CustomCssService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -30,7 +31,12 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminSettingsContext;
+use OCA\LaunchPad\Controller\AdminSettingsSources;
 
 class AdminControllerGroupOrderTest extends TestCase {
 	private AdminSettingsController $controller;
@@ -51,9 +57,15 @@ class AdminControllerGroupOrderTest extends TestCase {
 
 		$this->controller = new AdminSettingsController(
 			request: $this->request,
-			settingsService: $this->settingsService,
-			groupManager: $this->groupManager,
 			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
+			sources: new AdminSettingsSources(
+				settingsService: $this->settingsService,
+				shortcuts: $this->createMock(originalClassName: SearchShortcutService::class)
+			),
+			context: new AdminSettingsContext(
+				css: $this->createMock(originalClassName: CustomCssService::class),
+				responseHelper: new ResponseHelper(logger: new NullLogger())
+			)
 		);
 	}
 

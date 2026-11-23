@@ -15,24 +15,21 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-3
  */
 
 declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use OCA\LaunchPad\Kernel\Contracts\RdpFileWriterInterface;
+
 /**
  * Builds an RDP connection file and its download name (design D3).
  *
- * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-3
  */
-class RdpFileWriter {
-
-	/**
-	 * The media type of an RDP connection file.
-	 */
-	public const MEDIA_TYPE = 'application/x-rdp';
+class RdpFileWriter implements RdpFileWriterInterface {
 
 	/**
 	 * The file name when the tile has no usable title.
@@ -46,7 +43,7 @@ class RdpFileWriter {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function contents(array $connection): string {
 		$lines = [
@@ -74,7 +71,7 @@ class RdpFileWriter {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function fileName(?string $title): string {
 		$name = trim((string)preg_replace('/[\x00-\x1f\x7f\/\\\\:*?"<>|]+/', '', (string)$title), " .");
@@ -95,7 +92,7 @@ class RdpFileWriter {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
 	 */
 	public function disposition(string $fileName): string {
 		$ascii = (string)preg_replace('/[^\x20-\x7e]|["\\%]/', '_', $fileName);

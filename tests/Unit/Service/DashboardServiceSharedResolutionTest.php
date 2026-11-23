@@ -85,6 +85,20 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	private DashboardService $service;
 
 	/**
+	 * The user preferences the config double answers, by key.
+	 *
+	 * @var array<string, string>
+	 */
+	private array $prefs = [];
+
+	/**
+	 * Whether the group manager double reports the caller as an admin.
+	 *
+	 * @var boolean
+	 */
+	private bool $admin = false;
+
+	/**
 	 * Set up fresh mocks per test.
 	 *
 	 * @return void
@@ -100,8 +114,10 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 		$this->config = $this->createMock(IConfig::class);
 
 		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
-		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->config->method('getUserValue')->willReturn('');
+		$this->groupManager->method('isAdmin')->willReturnCallback(fn (): bool => $this->admin);
+		$this->config->method('getUserValue')->willReturnCallback(
+			fn (string $userId, string $appName, string $key, mixed $default = ''): string => ($this->prefs[$key] ?? '')
+		);
 
 		$this->service = new DashboardService(
 			stores: new DashboardStores(
@@ -160,34 +176,13 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	}//end makeDashboard()
 
 	/**
-	 * REGRESSION (found by e2e, missed by every unit test here): a
-	 * dashboard as the FACTORY actually produces it is `draft`, and
-	 * `filterByPublicationState()` hides drafts from non-owners — so an
-	 * earlier version of this fix appended the share and then filtered it
-	 * straight back out. Every fixture above sets `STATUS_PUBLISHED`
-	 * explicitly and therefore could not see it.
+	 * The recipient's share set holding one dashboard.
 	 *
-	 * This test deliberately builds the dashboard through
-	 * {@see DashboardFactory} so it inherits whatever the real default is.
-	 * If someone changes the factory default, this test — not a browser —
-	 * should be what notices.
+	 * @param Dashboard $shared The shared dashboard.
 	 *
 	 * @return void
 	 */
-	public function testSharedDraftDashboardIsStillVisibleToItsRecipient(): void {
-		$factory = new DashboardFactory();
-		$shared = $factory->create(userId: 'owner', name: 'Draft board');
-		$shared->setId(7);
-		$shared->setUuid('uuid-shared-draft');
-
-		// Guard the premise: if the factory ever stops producing drafts this
-		// test must be re-thought, not silently keep passing.
-		$this->assertSame(
-			Dashboard::STATUS_DRAFT,
-			$shared->getPublicationStatus(),
-			'Factory default changed — revisit the share/publication interaction.'
-		);
-
+	private function shareWithRecipient(Dashboard $shared): void {
 		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
 		$this->dashResolver->method('findSharedDashboards')->willReturn(
 			[
@@ -197,22 +192,156 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 				],
 			]
 		);
+	}//end shareWithRecipient()
+
+	/**
+	 * REQ-DASH-036: a draft is visible only to its owner and admins, so a
+	 * share recipient does not see it. Built through {@see DashboardFactory}
+	 * so the dashboard is in the state a fresh share really has.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	public function testSharedDraftStaysHiddenFromItsRecipient(): void {
+		$shared = (new DashboardFactory())->create(userId: 'owner', name: 'Draft board');
+		$shared->setId(7);
+		$shared->setUuid('uuid-shared-draft');
+		$this->assertSame(expected: Dashboard::STATUS_DRAFT, actual: $shared->getPublicationStatus());
+		$this->shareWithRecipient(shared: $shared);
+
+		$this->assertSame(expected: [], actual: $this->service->getVisibleToUser(userId: 'recipient'));
+		$this->assertNull(actual: $this->service->getDashboardForUser(dashboardId: 7, userId: 'recipient'));
+	}//end testSharedDraftStaysHiddenFromItsRecipient()
+
+	/**
+	 * REQ-SHARE-002: the same share shows up once the owner publishes.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	public function testSharedDashboardShowsOnceItIsPublished(): void {
+		$shared = (new DashboardFactory())->create(userId: 'owner', name: 'Draft board');
+		$shared->setId(7);
+		$shared->setUuid('uuid-shared-draft');
+		$shared->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		$this->shareWithRecipient(shared: $shared);
 
 		$visible = $this->service->getVisibleToUser(userId: 'recipient');
 
-		$this->assertCount(
-			1,
-			$visible,
-			'A draft shared with a user must remain visible to that user — '
-			. 'the share is the owner\'s explicit grant.'
-		);
+		$this->assertCount(expectedCount: 1, haystack: $visible);
 		$this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
-	}//end testSharedDraftDashboardIsStillVisibleToItsRecipient()
+	}//end testSharedDashboardShowsOnceItIsPublished()
 
 	/**
-	 * The exemption is scoped to the share: a draft the user was NOT given
-	 * still stays hidden. This is what stops the fix from becoming a
-	 * blanket draft leak.
+	 * A shared scheduled dashboard appears once `publishAt` has passed, and
+	 * reads as published.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	public function testSharedScheduledDashboardShowsOnceDue(): void {
+		$due = $this->makeDashboard(id: 7, uuid: 'uuid-due', owner: 'owner');
+		$due->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+		$due->setPublishAt('2000-01-01T00:00:00+00:00');
+		$this->shareWithRecipient(shared: $due);
+
+		$visible = $this->service->getVisibleToUser(userId: 'recipient');
+
+		$this->assertCount(expectedCount: 1, haystack: $visible);
+		$this->assertSame(expected: Dashboard::STATUS_PUBLISHED, actual: $visible[0]['dashboard']->getPublicationStatus());
+	}//end testSharedScheduledDashboardShowsOnceDue()
+
+	/**
+	 * A shared dashboard scheduled for later stays hidden from the recipient.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	public function testSharedFutureScheduledDashboardStaysHidden(): void {
+		$later = $this->makeDashboard(id: 7, uuid: 'uuid-later', owner: 'owner');
+		$later->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+		$later->setPublishAt('2999-01-01T00:00:00+00:00');
+		$this->shareWithRecipient(shared: $later);
+
+		$this->assertSame(expected: [], actual: $this->service->getVisibleToUser(userId: 'recipient'));
+	}//end testSharedFutureScheduledDashboardStaysHidden()
+
+	/**
+	 * REQ-DASH-036: an administrator keeps seeing a draft, shared or not.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	public function testAdminRecipientStillSeesASharedDraft(): void {
+		$this->admin = true;
+		$draft = $this->makeDashboard(id: 7, uuid: 'uuid-shared-draft', owner: 'owner');
+		$draft->setPublicationStatus(Dashboard::STATUS_DRAFT);
+		$this->shareWithRecipient(shared: $draft);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->service->getVisibleToUser(userId: 'root'));
+	}//end testAdminRecipientStillSeesASharedDraft()
+
+	/**
+	 * `GET /api/dashboard` agrees with the visible list: a shared draft is
+	 * not landed on, resolution goes on to the template step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	public function testEffectiveDashboardSkipsASharedDraft(): void {
+		$draft = $this->makeDashboard(id: 7, uuid: 'uuid-shared-draft', owner: 'owner');
+		$draft->setPublicationStatus(Dashboard::STATUS_DRAFT);
+		$this->dashResolver->method('tryGetActiveDashboard')->willReturn(null);
+		$this->dashResolver->method('tryActivateExistingDashboard')->willReturn(null);
+		$this->shareWithRecipient(shared: $draft);
+
+		$result = $this->service->getEffectiveDashboard(userId: 'recipient');
+
+		$this->assertTrue(condition: $result === null || $result['dashboard']->getUuid() !== 'uuid-shared-draft');
+	}//end testEffectiveDashboardSkipsASharedDraft()
+
+	/**
+	 * REQ-SHARE-005: a recipient activating a shared dashboard gets it back
+	 * and no active flag is written.
+	 *
+	 * @return void
+	 */
+	public function testRecipientActivatingASharedDashboardWritesNothing(): void {
+		$shared = $this->makeDashboard(id: 7, uuid: 'uuid-shared', owner: 'owner');
+		$this->dashboardMapper->method('find')->willReturn($shared);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[['dashboard' => $shared, 'source' => Dashboard::SOURCE_SHARED]]
+		);
+		$this->dashboardMapper->expects($this->never())->method('setActive');
+
+		$this->assertSame(expected: $shared, actual: $this->service->activateDashboard(dashboardId: 7, userId: 'recipient'));
+	}//end testRecipientActivatingASharedDashboardWritesNothing()
+
+	/**
+	 * Someone the dashboard is not shared with is still refused.
+	 *
+	 * @return void
+	 */
+	public function testStrangerActivatingAForeignDashboardIsRefused(): void {
+		$foreign = $this->makeDashboard(id: 7, uuid: 'uuid-foreign', owner: 'owner');
+		$this->dashboardMapper->method('find')->willReturn($foreign);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn([]);
+		$this->dashboardMapper->expects($this->never())->method('setActive');
+
+		$this->expectException(exception: \Exception::class);
+		$this->service->activateDashboard(dashboardId: 7, userId: 'stranger');
+	}//end testStrangerActivatingAForeignDashboardIsRefused()
+
+	/**
+	 * A draft reached through the default bucket stays hidden too.
 	 *
 	 * @return void
 	 */
@@ -259,7 +388,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 
 		$visible = $this->service->getVisibleToUser(userId: 'recipient');
 
-		$this->assertCount(1, $visible);
+		$this->assertCount(expectedCount: 1, haystack: $visible);
 		$this->assertSame('uuid-shared', $visible[0]['dashboard']->getUuid());
 		$this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
 	}//end testVisibleToUserIncludesSharedDashboards()
@@ -292,7 +421,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 
 		$visible = $this->service->getVisibleToUser(userId: 'recipient');
 
-		$this->assertCount(1, $visible);
+		$this->assertCount(expectedCount: 1, haystack: $visible);
 		$this->assertSame(Dashboard::SOURCE_USER, $visible[0]['source']);
 	}//end testSharedEntryIsDedupedAgainstAStrongerSource()
 
@@ -416,11 +545,15 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 
 		$this->dashResolver->method('tryGetActiveDashboard')->willReturn(null);
 		$this->dashResolver->method('tryActivateExistingDashboard')->willReturn(null);
-		$this->dashResolver->method('tryGetSharedDashboard')->willReturn(
-			[
-				'dashboard' => $shared,
-				'placements' => [],
-				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
+		$this->shareWithRecipient(shared: $shared);
+		$this->dashResolver->method('findSharedLevels')->willReturn(
+			[7 => Dashboard::PERMISSION_VIEW_ONLY]
+		);
+		$this->dashResolver->method('buildResult')->willReturnCallback(
+			static fn (Dashboard $dashboard, array $placements): array => [
+				'dashboard' => $dashboard,
+				'placements' => $placements,
+				'permissionLevel' => Dashboard::PERMISSION_FULL,
 			]
 		);
 
@@ -474,4 +607,42 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 			$result['permissionLevel']
 		);
 	}//end testGetDashboardForUserReportsTheSharePermissionLevel()
+	/**
+	 * REQ-SHARE-004: a shared dashboard the user made active reports the
+	 * SHARE's level on `GET /api/dashboard`, not the owner's row level, so a
+	 * view-only recipient is not offered editing.
+	 *
+	 * @return void
+	 */
+	public function testAnActiveSharedDashboardReportsTheSharePermissionLevel(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+		$this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY] = 'uuid-shared';
+
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedLevels')->willReturn(
+			[7 => Dashboard::PERMISSION_VIEW_ONLY]
+		);
+		$this->dashResolver->method('buildResult')->willReturnCallback(
+			static fn (Dashboard $dashboard, array $placements): array => [
+				'dashboard' => $dashboard,
+				'placements' => $placements,
+				'permissionLevel' => $dashboard->getPermissionLevel(),
+			]
+		);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+
+		$result = $this->service->getEffectiveDashboard(userId: 'recipient');
+
+		$this->assertNotNull($result);
+		$this->assertSame('uuid-shared', $result['dashboard']->getUuid());
+		$this->assertSame(Dashboard::PERMISSION_VIEW_ONLY, $result['permissionLevel']);
+	}//end testAnActiveSharedDashboardReportsTheSharePermissionLevel()
 }//end class

@@ -265,6 +265,30 @@ export async function seedDashboardWithWidget(
 }
 
 /**
+ * Publish a dashboard so the colleagues it is shared with see it: a draft
+ * stays visible only to its owner and admins (REQ-DASH-036).
+ *
+ * @param api a context acting as the owner (or an admin).
+ * @param dashboardId the dashboard.
+ * @return nothing; throws when the dashboard cannot be read or published.
+ */
+export async function publishForRecipients(
+	api: APIRequestContext,
+	dashboardId: number,
+): Promise<void> {
+	const read = await api.get(`${API}/dashboard/${dashboardId}`)
+	if (read.status() !== 200) {
+		throw new Error(`could not read ${dashboardId}: ${read.status()} ${await read.text()}`)
+	}
+	const body = await read.json()
+	const uuid = String((body.dashboard ?? body).uuid)
+	const res = await api.post(`${API}/dashboards/${uuid}/publish`)
+	if (res.status() !== 200) {
+		throw new Error(`could not publish ${uuid}: ${res.status()} ${await res.text()}`)
+	}
+}
+
+/**
  * Share a dashboard with a user at a permission level.
  *
  * @param api an admin context (the owner).

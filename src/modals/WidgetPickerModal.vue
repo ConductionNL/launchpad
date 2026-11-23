@@ -30,6 +30,42 @@
 			</div>
 
 			<div class="widget-picker__list">
+				<section
+					v-if="filteredCatalogueApps.length > 0"
+					class="widget-picker__section widget-picker__section--first"
+					data-testid="widget-picker-catalogue">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'From the app catalogue') }}
+					</h3>
+					<p class="widget-picker__section-description">
+						{{ t('launchpad', 'Apps your organisation approved. One click places one as a tile.') }}
+					</p>
+					<button
+						v-for="app in filteredCatalogueApps"
+						:key="app.uuid"
+						type="button"
+						class="widget-picker__widget"
+						@click="$emit('addCatalogueApp', app)">
+						<img
+							v-if="app.icon && app.iconType === 'url'"
+							:src="app.icon"
+							alt=""
+							class="widget-picker__widget-icon widget-picker__app-icon">
+						<span
+							v-else-if="app.icon"
+							:class="app.icon"
+							class="widget-picker__widget-icon"
+							aria-hidden="true" />
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ app.name }}</span>
+							<span v-if="app.description" class="widget-picker__widget-badge">
+								{{ app.description }}
+							</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+
 				<button
 					v-for="widget in filteredWidgets"
 					:key="widget.id"
@@ -66,6 +102,30 @@
 				</button>
 
 				<section
+					v-if="filteredCustomTypes.length > 0"
+					class="widget-picker__section"
+					data-testid="widget-picker-custom">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'Widgets from Launchpad') }}
+					</h3>
+					<p class="widget-picker__section-description">
+						{{ t('launchpad', 'Text, images, news and more. You set them up yourself.') }}
+					</p>
+					<button
+						v-for="entry in filteredCustomTypes"
+						:key="entry.type"
+						type="button"
+						class="widget-picker__widget"
+						:data-testid="`widget-picker-type-${entry.type}`"
+						@click="$emit('addCustom', entry.type)">
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ entry.title }}</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+
+				<section
 					v-if="showOfficePack"
 					class="widget-picker__section"
 					data-testid="widget-picker-office">
@@ -87,26 +147,31 @@
 					</button>
 				</section>
 				<section
-					v-if="filteredApps.length > 0"
+					v-if="filteredApps.length > 0 || showCustomTile"
 					class="widget-picker__section"
 					data-testid="widget-picker-discovered">
 					<h3 class="widget-picker__section-title">
-						{{ t('launchpad', 'Discovered on this server') }}
+						{{ t('launchpad', 'App tiles') }}
 					</h3>
 					<p class="widget-picker__section-description">
-						{{ t('launchpad', 'Apps this server runs for you. One click places one as a tile.') }}
+						{{ t('launchpad', 'One tile per app this server runs for you. One click places it.') }}
 					</p>
 					<button
 						v-for="app in filteredApps"
 						:key="app.appId"
 						type="button"
 						class="widget-picker__widget"
+						:data-testid="`widget-picker-app-tile-${app.appId}`"
 						@click="$emit('addApp', app)">
-						<img
-							v-if="app.icon"
-							:src="app.icon"
-							alt=""
-							class="widget-picker__widget-icon widget-picker__app-icon">
+						<span
+							class="widget-picker__widget-icon widget-picker__tile-swatch"
+							:style="{ '--widget-picker-tile-colour': tileColour(app.appId) }"
+							aria-hidden="true">
+							<span
+								v-if="app.icon"
+								class="widget-picker__tile-glyph"
+								:style="{ '--widget-picker-tile-icon': `url(&quot;${app.icon}&quot;)` }" />
+						</span>
 						<div class="widget-picker__widget-info">
 							<span class="widget-picker__widget-title">{{ app.name }}</span>
 							<span
@@ -117,23 +182,84 @@
 						</div>
 						<Plus :size="20" class="widget-picker__widget-action" />
 					</button>
+					<button
+						v-if="showCustomTile"
+						type="button"
+						class="widget-picker__widget"
+						data-testid="widget-picker-custom-tile"
+						@click="$emit('addCustom', 'tile')">
+						<span class="widget-picker__widget-icon widget-picker__tile-swatch widget-picker__tile-swatch--own" aria-hidden="true">
+							<Plus :size="18" />
+						</span>
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ customTileLabel }}</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
 				</section>
 
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0 && filteredApps.length === 0 && !showOfficePack"
+					v-if="filteredWidgets.length === 0 && filteredCustomTypes.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0 && !showOfficePack && !showCustomTile"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
 					</template>
 				</NcEmptyContent>
+
+				<section
+					v-if="requestAppFn"
+					class="widget-picker__section"
+					data-testid="widget-picker-request">
+					<NcButton
+						v-if="!requestFormOpen"
+						variant="tertiary"
+						@click="openRequestForm">
+						{{ t('launchpad', 'Can\'t find your app?') }}
+					</NcButton>
+					<form
+						v-else
+						class="widget-picker__request"
+						:aria-label="t('launchpad', 'Ask IT for an app')"
+						@submit.prevent="submitRequest">
+						<h3 class="widget-picker__section-title">
+							{{ t('launchpad', 'Ask IT for an app') }}
+						</h3>
+						<NcTextField
+							v-model="requestAppName"
+							:label="t('launchpad', 'App name')"
+							:required="true" />
+						<NcTextField
+							v-model="requestPurpose"
+							:label="t('launchpad', 'What do you need it for?')" />
+						<p
+							v-if="requestMessage"
+							class="widget-picker__request-message"
+							:class="{ 'widget-picker__request-message--error': requestFailed }"
+							role="status">
+							{{ requestMessage }}
+						</p>
+						<div class="widget-picker__request-actions">
+							<NcButton
+								variant="primary"
+								type="submit"
+								:disabled="requestBusy || requestAppName.trim() === ''">
+								{{ t('launchpad', 'Send request') }}
+							</NcButton>
+							<NcButton variant="tertiary" @click="closeRequestForm">
+								{{ t('launchpad', 'Cancel') }}
+							</NcButton>
+						</div>
+					</form>
+				</section>
 			</div>
 		</div>
 	</NcModal>
 </template>
 
 <script>
+import { appTileColourValue } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
@@ -143,6 +269,7 @@ export default {
 	name: 'WidgetPickerModal',
 
 	components: {
+		NcButton,
 		NcModal,
 		NcTextField,
 		NcEmptyContent,
@@ -169,13 +296,40 @@ export default {
 
 		/** The discovered app ids already on the dashboard. */
 		placedAppIds: LIST_PROP,
+
+		/**
+		 * The widget types Launchpad builds itself (text, image, news and
+		 * more): `[{ type, title }]`. Picking one opens its form on that type.
+		 */
+		customTypes: LIST_PROP,
+
+		/**
+		 * The app catalogue entries the user's groups may see
+		 * (`GET /api/catalogue`): `[{ uuid, name, description, icon, iconType, linkType, linkValue }]`.
+		 */
+		catalogueApps: LIST_PROP,
+
+		/**
+		 * Sends a request for a missing app: `({ appName, purpose }) => Promise`.
+		 * Without it the "Can't find your app?" form is not offered.
+		 */
+		requestAppFn: {
+			type: Function,
+			default: null,
+		},
 	},
 
-	emits: ['close', 'add', 'addApp', 'addOfficePack'],
+	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addCustom', 'addOfficePack'],
 
 	data() {
 		return {
 			searchQuery: '',
+			requestFormOpen: false,
+			requestAppName: '',
+			requestPurpose: '',
+			requestBusy: false,
+			requestMessage: '',
+			requestFailed: false,
 		}
 	},
 
@@ -212,10 +366,55 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */
+		/**
+		 * The Launchpad widget types matching the search box, by title.
+		 *
+		 * @return {Array<{type: string, title: string}>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
+		 */
+		filteredCustomTypes() {
+			const query = this.searchQuery.toLowerCase()
+			return this.customTypes.filter((entry) => !query || String(entry.title).toLowerCase().includes(query))
+		},
+
+		/**
+		 * The label of the entry that opens the tile form for a tile of one's own.
+		 *
+		 * @return {string} "Custom tile".
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
+		customTileLabel() {
+			return t('launchpad', 'Custom tile')
+		},
+
+		/**
+		 * The custom tile is offered unless a search leaves it out.
+		 *
+		 * @return {boolean} Whether to show "Custom tile".
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
+		showCustomTile() {
+			const query = this.searchQuery.toLowerCase()
+			return !query || this.customTileLabel.toLowerCase().includes(query)
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */
 		filteredApps() {
 			const query = this.searchQuery.toLowerCase()
 			return this.discoveredApps.filter((app) => !query || String(app.name).toLowerCase().includes(query))
+		},
+
+		/**
+		 * The catalogue entries matching the search box, by name or description.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 */
+		filteredCatalogueApps() {
+			const query = this.searchQuery.toLowerCase()
+			return this.catalogueApps.filter((app) => !query
+				|| String(app.name).toLowerCase().includes(query)
+				|| String(app.description || '').toLowerCase().includes(query))
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -242,6 +441,7 @@ export default {
 		open(isOpen) {
 			if (!isOpen) {
 				this.searchQuery = ''
+				this.closeRequestForm()
 			}
 		},
 	},
@@ -253,6 +453,17 @@ export default {
 		},
 
 		/**
+		 * The colour an app's tile gets when placed, for its entry.
+		 *
+		 * @param {string} appId The app id.
+		 * @return {string} A CSS colour value.
+		 * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 */
+		tileColour(appId) {
+			return appTileColourValue('', appId)
+		},
+
+		/**
 		 * Ask the host to place the chosen widget.
 		 *
 		 * @param {object} widget The picked widget definition; only `id` is
@@ -261,6 +472,62 @@ export default {
 		 */
 		addWidget(widget) {
 			this.$emit('add', widget.id)
+		},
+
+		/**
+		 * Open the request form, starting from what the user searched for.
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		openRequestForm() {
+			this.requestFormOpen = true
+			this.requestAppName = this.searchQuery.trim()
+			this.requestPurpose = ''
+			this.requestMessage = ''
+			this.requestFailed = false
+		},
+
+		/**
+		 * Close the request form and forget what was typed.
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		closeRequestForm() {
+			this.requestFormOpen = false
+			this.requestAppName = ''
+			this.requestPurpose = ''
+			this.requestMessage = ''
+			this.requestFailed = false
+		},
+
+		/**
+		 * Send the request and say how it went: sent, refused because the
+		 * user has too many open requests, or not sent.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		async submitRequest() {
+			const appName = this.requestAppName.trim()
+			if (appName === '' || this.requestBusy) {
+				return
+			}
+			this.requestBusy = true
+			this.requestMessage = ''
+			try {
+				await this.requestAppFn({ appName, purpose: this.requestPurpose.trim() })
+				this.requestFailed = false
+				this.requestMessage = t('launchpad', 'Your request was sent to IT')
+				this.requestAppName = ''
+				this.requestPurpose = ''
+			} catch (error) {
+				this.requestFailed = true
+				this.requestMessage = error?.response?.data?.code === 'request_limit'
+					? t('launchpad', 'You have 10 open requests. Wait for an answer first.')
+					: t('launchpad', 'Your request could not be sent. Try again later.')
+			} finally {
+				this.requestBusy = false
+			}
 		},
 	},
 }
@@ -322,6 +589,29 @@ export default {
 	flex-shrink: 0;
 }
 
+.widget-picker__tile-swatch {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--border-radius, 8px);
+	background-color: var(--widget-picker-tile-colour);
+	color: #fff;
+}
+
+.widget-picker__tile-swatch--own {
+	border: 2px dashed var(--color-border-dark);
+	background-color: transparent;
+	color: var(--color-main-text);
+}
+
+.widget-picker__tile-glyph {
+	width: 55%;
+	height: 55%;
+	background-color: currentColor;
+	mask: var(--widget-picker-tile-icon) center / contain no-repeat;
+	-webkit-mask: var(--widget-picker-tile-icon) center / contain no-repeat;
+}
+
 .widget-picker__widget-info {
 	flex: 1;
 	min-width: 0;
@@ -357,6 +647,32 @@ export default {
 .widget-picker__section-description {
 	margin: 0 0 4px;
 	color: var(--color-text-maxcontrast);
+}
+
+.widget-picker__section--first {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+.widget-picker__request {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.widget-picker__request-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.widget-picker__request-message {
+	margin: 0;
+	color: var(--color-success-text);
+}
+
+.widget-picker__request-message--error {
+	color: var(--color-error-text);
 }
 
 .widget-picker__widget-action {

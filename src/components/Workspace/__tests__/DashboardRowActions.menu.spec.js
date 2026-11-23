@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The dashboard row's cog menu: which entries show for an owner, an editor
- * and a viewer, the edit/save and default/set-default labels, publish versus
- * unpublish, and the event each entry asks the host for.
+ * and a viewer, the edit/save and default/set-default labels, and the event
+ * each entry asks the host for. Publication and scheduled exports are in the
+ * dashboard settings, not here (REQ-SCHEDUI-001, REQ-SCH-011).
  */
 
 import { mount } from '@vue/test-utils'
@@ -26,7 +27,7 @@ vi.mock('@nextcloud/vue', () => ({
 	},
 }))
 
-const icons = ['Cog', 'ContentSave', 'Pencil', 'Tune', 'ShapePolygonPlus', 'TrashCanOutline', 'Star', 'StarCheck', 'ShareVariant', 'CalendarClock', 'Publish', 'PublishOff', 'History']
+const icons = ['Cog', 'ContentSave', 'Pencil', 'Tune', 'ShapePolygonPlus', 'BookmarkPlusOutline', 'TrashCanOutline', 'Star', 'StarCheck', 'ShareVariant', 'CalendarClock', 'Publish', 'PublishOff', 'History']
 const stubs = Object.fromEntries(icons.map((name) => [name, { template: `<i class="icon-${name}" />` }]))
 
 /**
@@ -50,12 +51,23 @@ describe('DashboardRowActions menu', () => {
 	})
 
 	it('offers the owner of a personal dashboard every entry the host allows', () => {
-		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canManagePublication: true, canViewHistory: true })
+		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canViewHistory: true })
 
 		expect(entries(wrapper)).toEqual([
-			'cog-edit-dashboard', 'cog-dashboard-config', 'cog-add-widget', 'cog-set-default',
-			'cog-publish', 'cog-schedule', 'cog-version-history', 'cog-share', 'cog-delete',
+			'cog-edit-dashboard', 'cog-dashboard-config', 'cog-add-widget', 'cog-import-bookmarks', 'cog-set-default',
+			'cog-version-history', 'cog-share', 'cog-delete',
 		])
+	})
+
+	it('offers "Import bookmarks" only where the user may add, and asks the host for it', async () => {
+		expect(entries(menu())).not.toContain('cog-import-bookmarks')
+		expect(entries(menu({ canEdit: false, source: 'user' }))).not.toContain('cog-import-bookmarks')
+
+		const wrapper = menu({ canEdit: true })
+		const entry = wrapper.find('[data-testid="cog-import-bookmarks"]')
+		expect(entry.text()).toBe('Import bookmarks')
+		await entry.trigger('click')
+		expect(wrapper.emitted('importBookmarks')).toHaveLength(1)
 	})
 
 	it('treats a group dashboard as owned only when it says so', () => {
@@ -79,25 +91,21 @@ describe('DashboardRowActions menu', () => {
 		expect(menu({ dashboard: { id: 1 }, defaultUuid: '' }).find('[data-testid="cog-set-default"] .icon-Star').exists()).toBe(true)
 	})
 
-	it('offers unpublish for a published dashboard', () => {
-		const wrapper = menu({ canManagePublication: true, dashboard: { id: 7, publicationStatus: 'published' } })
-
-		expect(entries(wrapper)).toEqual(['cog-set-default', 'cog-unpublish', 'cog-schedule'])
+	it('REQ-SCHEDUI-001: offers no publication or scheduled export entries, whatever the host passes', () => {
+		for (const publicationStatus of ['draft', 'published']) {
+			const wrapper = menu({ canManagePublication: true, canScheduleExports: true, dashboard: { id: 7, publicationStatus } })
+			expect(entries(wrapper)).toEqual(['cog-set-default'])
+		}
 	})
 
 	it('asks the host for the action of each entry', async () => {
-		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canManagePublication: true, canViewHistory: true })
+		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canViewHistory: true })
 		for (const button of wrapper.findAll('button')) {
 			await button.trigger('click')
 		}
 
 		expect(Object.keys(wrapper.emitted())).toEqual(expect.arrayContaining([
-			'toggleEdit', 'openConfig', 'addCustomWidget', 'setDefault', 'publish', 'schedule', 'versionHistory', 'share', 'delete',
+			'toggleEdit', 'openConfig', 'addWidget', 'setDefault', 'versionHistory', 'share', 'delete',
 		]))
-		expect(wrapper.emitted('unpublish')).toBeUndefined()
-
-		const published = menu({ canManagePublication: true, dashboard: { id: 7, publicationStatus: 'published' } })
-		await published.find('[data-testid="cog-unpublish"]').trigger('click')
-		expect(published.emitted('unpublish')).toHaveLength(1)
 	})
 })

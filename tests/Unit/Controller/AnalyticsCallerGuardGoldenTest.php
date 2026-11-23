@@ -36,6 +36,19 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
 use Throwable;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\CallerResponses;
+use OCA\LaunchPad\Controller\RequestActor;
+use OCA\LaunchPad\Controller\AdminContext;
+use OCA\LaunchPad\Controller\AdminSettingsSources;
+use OCA\LaunchPad\Controller\AdminSettingsContext;
+use OCA\LaunchPad\Controller\AnalyticsContext;
+use OCA\LaunchPad\Controller\TileAnalyticsContext;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Refused and allowed outcomes of the caller guard, endpoint by endpoint.
@@ -185,24 +198,45 @@ class AnalyticsCallerGuardGoldenTest extends TestCase {
 			}
 		);
 
-		$args = [];
-		foreach ((new ReflectionClass($class))->getConstructor()->getParameters() as $param) {
-			$type = $param->getType();
-			$name = ($type instanceof ReflectionNamedType) ? $type->getName() : 'mixed';
-			$args[] = match (true) {
-				$param->getName() === 'userId' => ($scenario === 'anonymous') ? null : 'alice',
-				$name === ActionAuthService::class => $auth,
-				$name === IUserSession::class => $session,
-				$name === ActionCaller::class => new ActionCaller(actionAuth: $auth, userSession: $session),
-				$name === MetadataApiCaller::class => new MetadataApiCaller(
-					sources: $this->createMock(\OCA\LaunchPad\Controller\MetadataSources::class),
-					actionAuth: $auth,
-					userSession: $session
-				),
-				default => $this->createMock($name),
-			};
-		}
+		$build = function (string $target) use (&$build, $session, $auth, $scenario): object {
+			$args = [];
+			foreach ((new ReflectionClass($target))->getConstructor()->getParameters() as $param) {
+				$type = $param->getType();
+				$name = match (true) {$type instanceof ReflectionNamedType => $type->getName(), default => 'mixed'};
+				$args[] = match (true) {
+					$param->getName() === 'userId' => match ($scenario) {'anonymous' => null, default => 'alice'},
+					$name === ActionAuthService::class => $auth,
+					$name === IUserSession::class => $session,
+					$name === ActionCaller::class => new ActionCaller(actionAuth: $auth, userSession: $session),
+					$name === MetadataApiCaller::class => new MetadataApiCaller(
+						sources: $this->createMock(originalClassName: \OCA\LaunchPad\Controller\MetadataSources::class),
+						actionAuth: $auth,
+						userSession: $session
+					),
+					$name === ResponseHelper::class => new ResponseHelper(logger: new NullLogger()),
+					in_array(
+						$name,
+						[
+							UserResponses::class,
+							ActorResponses::class,
+							CallerResponses::class,
+							AdminContext::class,
+							AdminSettingsSources::class,
+							AdminSettingsContext::class,
+							AnalyticsContext::class,
+							TileAnalyticsContext::class,
+							DashboardApiAccess::class,
+							WidgetApiAccess::class,
+						],
+						true
+					) => $build($name),
+					default => $this->createMock(originalClassName: $name),
+				};
+			}
 
-		return new $class(...$args);
+			return new $target(...$args);
+		};
+
+		return $build($class);
 	}//end controller()
 }//end class

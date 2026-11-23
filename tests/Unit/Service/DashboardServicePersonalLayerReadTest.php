@@ -123,7 +123,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 
 		$this->dashboardMapper = $this->getMockBuilder(DashboardMapper::class)
 			->disableOriginalConstructor()
-			->onlyMethods(['findVisibleToUser'])
+			->onlyMethods(['findVisibleToUser', 'findDueScheduled'])
 			->getMock();
 		$this->placementMapper = $this->getMockBuilder(WidgetPlacementMapper::class)
 			->disableOriginalConstructor()
@@ -138,7 +138,6 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 					'buildResult',
 					'tryGetActiveDashboard',
 					'tryActivateExistingDashboard',
-					'tryGetSharedDashboard',
 				]
 			)
 			->getMock();
@@ -208,7 +207,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testASavedLayerChangesWhatTheReaderGetsBack(): void {
 		$this->shareWithReader();
@@ -260,7 +259,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheLayerIsAppliedOnTheNonShareReadPathToo(): void {
 		$dashboard = $this->dashboard();
@@ -303,7 +302,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testAnotherReadersLayerIsInvisible(): void {
 		$this->shareWithReader();
@@ -337,7 +336,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheOwnersOwnReadIsNeverLayered(): void {
 		$dashboard = $this->dashboard();
@@ -380,7 +379,7 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testResetPutsTheOwnersArrangementBackOnTheRead(): void {
 		$this->shareWithReader();
@@ -420,21 +419,14 @@ class DashboardServicePersonalLayerReadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function testTheLandingReadAppliesTheLayerToo(): void {
-		$dashboard = $this->dashboard();
 		$this->dashResolver->method('tryGetActiveDashboard')->willReturn(null);
 		$this->dashResolver->method('tryActivateExistingDashboard')->willReturn(null);
-		$this->dashResolver->method('tryGetSharedDashboard')->willReturnCallback(
-			fn (): array => [
-				'dashboard' => $dashboard,
-				'placements' => $this->dashboardOfThree(),
-				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
-			]
-		);
-		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
-		$this->dashResolver->method('findSharedDashboards')->willReturn([]);
+		$this->shareWithReader();
+		$this->placementMapper->method('findByDashboardId')
+			->willReturnCallback(fn (): array => $this->dashboardOfThree());
 
 		$this->layers->save(
 			userId: self::READER,

@@ -29,6 +29,7 @@
     ]
   },
   "version": "0.2.0",
+  "openbuildEditable": false,
   "look": "board",
   "dependencies": [
     {
@@ -237,7 +238,7 @@
     },
     {
       "id": "Reports",
-      "_note": "ADR-112 / ADR-114 Decision 3. ONE card, deliberately. LaunchPad's register holds a single schema — dashboard — so a second report would either repeat this one or invent a reading the data cannot support. The `widgets` array holds widget descriptors rather than references, so grouping by it would bucket objects and render noise; it is left out rather than shipped as a chart that looks like an answer.",
+      "_note": "ADR-112 / ADR-114 Decision 3. ONE declarative report over LaunchPad's own register, deliberately: it holds a single schema — dashboard — so a second one would either repeat this one or invent a reading the data cannot support. The second card is the gallery of shipped report definitions (dashboards-and-who-may-see-them REQ-DWMS-003, src/manifest.d), which read other apps' registers and say when those are missing. The `widgets` array holds widget descriptors rather than references, so grouping by it would bucket objects and render noise; it is left out rather than shipped as a chart that looks like an answer.",
       "route": "/reports",
       "type": "reports",
       "title": "Reports",
@@ -250,6 +251,13 @@
             "description": "How many dashboards there are, and who they belong to.",
             "icon": "ViewDashboardOutline",
             "route": "DashboardsReport"
+          },
+          {
+            "id": "ReportLibrary",
+            "label": "Ready-made reports",
+            "description": "Reports that ship with LaunchPad: run one without composing a dashboard, or save its result as a dashboard of your own.",
+            "icon": "ChartBoxOutline",
+            "route": "ReportLibrary"
           }
         ]
       }
@@ -480,7 +488,7 @@
   ],
   "walkthrough": {
     "enabled": true,
-    "version": 1,
+    "version": 2,
     "completionConfigKey": "walkthrough_completed_version",
     "tours": [
       {
@@ -489,40 +497,26 @@
         "trigger": "first-visit",
         "steps": [
           {
-            "id": "welcome",
-            "placement": "center",
-            "title": "Welcome to Launchpad",
-            "body": "A short tour of the main screens. It takes under a minute, and you can close it at any point and pick it up again from the help menu.",
+            "id": "dashboards",
+            "placement": "bottom",
+            "title": "Here you switch between dashboards",
+            "body": "Your own dashboards, what colleagues share with you and the organisation's group dashboards are under More, next to the marketplace and the settings. Pick one to open it.",
             "target": {
-              "kind": "page",
-              "ref": "Workspace"
+              "kind": "element",
+              "ref": "launchpad-more-menu"
             },
             "advanceOn": {
               "type": "manual"
             }
           },
           {
-            "id": "go-dashboard-detail",
-            "placement": "right",
-            "body": "Open Dashboards from the menu.",
-            "task": "Click Dashboards in the menu",
+            "id": "more-menu",
+            "placement": "bottom",
+            "body": "Reports and Flows are under More as well.",
+            "task": "Open Flows from More",
             "target": {
-              "kind": "nav-item",
-              "ref": "dashboards"
-            },
-            "advanceOn": {
-              "type": "route-match",
-              "route": "Workspace"
-            }
-          },
-          {
-            "id": "go-flows",
-            "placement": "right",
-            "body": "Flows automate the repetitive parts of this app. Have a look, though you do not have to build one now.",
-            "task": "Open Flows from the menu",
-            "target": {
-              "kind": "nav-item",
-              "ref": "FlowsMenu"
+              "kind": "element",
+              "ref": "launchpad-more-menu"
             },
             "advanceOn": {
               "type": "route-match",

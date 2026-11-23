@@ -29,6 +29,7 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\FeedRefreshServiceInterface;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -41,7 +42,7 @@ use Throwable;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @spec                                             openspec/specs/background-job-feed-refresh/spec.md
  */
-class FeedRefreshService {
+class FeedRefreshService implements FeedRefreshServiceInterface {
 	/**
 	 * Maximum response body size accepted from a feed server (10 MB).
 	 * Larger responses are rejected with `lastFailureReason = "response

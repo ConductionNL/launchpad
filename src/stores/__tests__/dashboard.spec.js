@@ -170,6 +170,20 @@ describe('useDashboardStore — source-aware getters', () => {
 	})
 })
 
+describe('useDashboardStore — createDashboard widgets choice (REQ-SHELL-005)', () => {
+	it('sends the widgets choice only when one is given', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		mockApi.createDashboard.mockResolvedValue({ data: { dashboard: { id: 1 }, placements: [] } })
+
+		await store.createDashboard({ name: 'Mine', widgets: 'starters' })
+		await store.createDashboard({ name: 'Plain' })
+
+		expect(mockApi.createDashboard.mock.calls[0][0]).toEqual({ name: 'Mine', description: undefined, icon: null, widgets: 'starters' })
+		expect(mockApi.createDashboard.mock.calls[1][0]).not.toHaveProperty('widgets')
+	})
+})
+
 describe('useDashboardStore — createDashboard gating (REQ-ASET-003 extended)', () => {
 	beforeEach(async () => {
 		const { showError } = await import('@nextcloud/dialogs')
@@ -281,6 +295,28 @@ describe('useDashboardStore — forkDashboard (REQ-DASH-020)', () => {
 
 		await expect(store.forkDashboard('missing-uuid')).rejects.toBe(err)
 		expect(showError).toHaveBeenCalledWith('Dashboard not found')
+	})
+
+	it('names the dashboard limit and rereads the quota on a quota 409 (REQ-QUOTA-006)', async () => {
+		const { showError } = await import('@nextcloud/dialogs')
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		const err = new Error('Conflict')
+		err.response = {
+			status: 409,
+			data: { error: 'quota_exceeded', quota: 'dashboards', limit: 5, current: 5 },
+		}
+		mockApi.forkDashboard.mockRejectedValue(err)
+		mockApi.getVisibleDashboards.mockResolvedValue({
+			data: { items: [], quota: { maxDashboards: 5, dashboardsUsed: 5, maxWidgetsPerDashboard: 0 } },
+		})
+
+		await expect(store.forkDashboard('src-uuid')).rejects.toBe(err)
+		expect(showError).toHaveBeenCalledWith(
+			'You have reached the limit of {limit} dashboards',
+		)
+		expect(mockApi.getVisibleDashboards).toHaveBeenCalled()
 	})
 
 	it('shows the generic fork-failure toast on unrelated errors', async () => {
@@ -483,6 +519,51 @@ describe('useDashboardStore — persistActivePreference (REQ-DASH-019)', () => {
 		expect(ret).toBeUndefined()
 		// Settle the rejected promise so the test doesn't leak an unhandled rejection.
 		await new Promise((resolve) => setTimeout(resolve, 0))
+	})
+})
+
+describe('useDashboardStore — a dashboard the address names', () => {
+	it('is opened after the first load, so the stored preference does not replace it', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		mockApi.getVisibleDashboards.mockResolvedValue({
+			data: [
+				{ id: 35, uuid: 'linked', source: 'user', name: 'Route check' },
+				{ id: 36, uuid: 'stored', source: 'user', name: 'Andere' },
+			],
+		})
+		mockApi.getActiveDashboard.mockResolvedValue({
+			data: { dashboard: { id: 36, uuid: 'stored' }, placements: [{ id: 9 }], permissionLevel: 'full' },
+		})
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 35, uuid: 'linked' }, placements: [], permissionLevel: 'full', isOwner: true },
+		})
+		mockApi.activateDashboard.mockResolvedValue({ data: {} })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+
+		await store.openDashboard('35')
+		expect(mockApi.getDashboardById).not.toHaveBeenCalled()
+		await store.loadDashboards()
+
+		expect(store.activeDashboard.uuid).toBe('linked')
+		expect(store.widgetPlacements).toEqual([])
+		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('linked')
+	})
+
+	it('is opened at once when the first load has finished', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.loadedOnce = true
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 35, uuid: 'linked' }, placements: [], permissionLevel: 'full', isOwner: true },
+		})
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+
+		await store.openDashboard(35)
+
+		expect(store.activeDashboard.uuid).toBe('linked')
+		expect(store.requestedDashboardId).toBeNull()
 	})
 })
 

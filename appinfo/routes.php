@@ -179,6 +179,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardLockApi#get', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// Who edits a dashboard right now (building-edit-a-dashboard-together 1.1).
+		['name' => 'dashboardPresenceApi#join', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboardPresenceApi#leave', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Public-share management endpoints (REQ-PSHR-001..003). Owner-or-admin.
 		// Registered BEFORE the wildcard `{id}` personal-scope routes above so the
@@ -223,6 +228,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Registered BEFORE the deep-link catch-all at the bottom.
 		['name' => 'kiosk#render', 'url' => '/kiosk/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// One entry, fetched by the player just before it shows it (REQ-KIOSK-004).
+		['name' => 'kiosk#renderEntry', 'url' => '/kiosk/{token}/dashboards/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+', 'uuid' => '[A-Za-z0-9\-]+']],
 
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
 		['name' => 'dashboardShareApi#index', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'GET'],
@@ -304,6 +312,13 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 
+		// The shipped reports (dashboards-and-who-may-see-them REQ-DWMS-003).
+		['name' => 'reportApi#index', 'url' => '/api/reports', 'verb' => 'GET'],
+		['name' => 'reportApi#run', 'url' => '/api/reports/{reportId}', 'verb' => 'GET',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+		['name' => 'reportApi#save', 'url' => '/api/reports/{reportId}/dashboard', 'verb' => 'POST',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
 		// plain report route so the `/csv` suffix is matched first, and both
@@ -349,6 +364,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widgetApi#addWidget', 'url' => '/api/dashboard/{dashboardId}/widgets', 'verb' => 'POST'],
 		['name' => 'widgetApi#addTile', 'url' => '/api/dashboard/{dashboardId}/tile', 'verb' => 'POST'],
+		// launcher-bookmark-import REQ-BMI-001: chosen browser bookmarks as containers and tiles.
+		['name' => 'bookmarkImport#import', 'url' => '/api/dashboard/{dashboardId}/tiles/import', 'verb' => 'POST'],
 		// REQ-CAL-003: calendar widget events endpoint. Registered BEFORE
 		// the wildcard `/api/widgets/{placementId}` PUT/DELETE so the
 		// literal `calendar` segment is matched first.
@@ -357,6 +374,12 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['placementId' => '\d+']],
 		// REQ-CAL-002: list the user's calendars for the config-form picker.
 		['name' => 'widgetApi#calendars', 'url' => '/api/widgets/calendar/calendars', 'verb' => 'GET'],
+		// REQ-VID-005: parse and validate a video URL typed into the widget form.
+		['name' => 'videoParse#parse', 'url' => '/api/widgets/video/parse', 'verb' => 'POST'],
+		// REQ-VID-006: the streaming address of a video placement's Nextcloud file, for its viewer.
+		['name' => 'videoWidget#file',
+		 'url' => '/api/widgets/video/{placementId}/file', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widgetApi#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],
 		['name' => 'widgetApi#removePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'DELETE'],
 
@@ -478,6 +501,26 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
+		// Activity reporting on named people (dashboards-and-who-may-see-them REQ-DWMS-005/006):
+		// off until an administrator turns it on with a purpose; anybody reads their own.
+		['name' => 'activityReport#report', 'url' => '/api/activity-report', 'verb' => 'GET'],
+		['name' => 'activityReport#export', 'url' => '/api/activity-report/export', 'verb' => 'GET'],
+		['name' => 'activityReport#policy', 'url' => '/api/admin/activity-reporting', 'verb' => 'GET'],
+		['name' => 'activityReport#updatePolicy', 'url' => '/api/admin/activity-reporting', 'verb' => 'PUT'],
+		// Recent colleague activity (dashboards-and-who-may-see-them REQ-DWMS-007): the caller's
+		// own activity stream, minus their own actions and what they may no longer see.
+		['name' => 'colleagueActivity#index', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
+		// The signed-in person's open OpenProject work packages, through the
+		// official OpenProject integration (work-packages-widget REQ-WP-001).
+		['name' => 'workPackages#index', 'url' => '/api/work-packages', 'verb' => 'GET'],
+		// Storage use per workspace and service (dashboards-and-who-may-see-them REQ-DWMS-010):
+		// administrators only, with a twelve-month series and the removable total.
+		['name' => 'storageReport#report', 'url' => '/api/admin/storage-report', 'verb' => 'GET'],
+		['name' => 'storageReport#export', 'url' => '/api/admin/storage-report/export', 'verb' => 'GET'],
+		// Status reports (dashboards-and-who-may-see-them REQ-DWMS-004): the product prefills,
+		// a person may rewrite the rating and the summary, the kept report records which is which.
+		['name' => 'statusReport#draft', 'url' => '/api/status-reports/draft', 'verb' => 'POST'],
+		['name' => 'statusReport#keep', 'url' => '/api/status-reports', 'verb' => 'POST'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 
@@ -498,6 +541,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'admin#getFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'GET'],
 		['name' => 'admin#updateFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'PUT'],
 
+		// Administrator CSS, cleaned and scoped on save (REQ-THM-003).
+		['name' => 'adminSettings#showCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'GET'],
+		['name' => 'adminSettings#updateCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'PUT'],
+		['name' => 'adminSettings#updateDashboardCustomCss', 'url' => '/api/admin/custom-css/dashboards/{uuid}', 'verb' => 'PUT'],
+
 		// Admin group-priority order endpoints (REQ-ASET-012,
 		// REQ-ASET-013, REQ-ASET-014). Both admin-only via runtime
 		// `IGroupManager::isAdmin` check inside the controller.
@@ -506,6 +554,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// sharing-public-start-page REQ-PSP-001: choose the public link signed-out visitors see.
 		['name' => 'publicStart#show', 'url' => '/api/admin/public-start', 'verb' => 'GET'],
 		['name' => 'publicStart#update', 'url' => '/api/admin/public-start', 'verb' => 'PUT'],
+		// REQ-IMG-006: the external hosts image widgets may load from.
+		['name' => 'imageHost#show', 'url' => '/api/admin/image-hosts', 'verb' => 'GET'],
+		['name' => 'imageHost#update', 'url' => '/api/admin/image-hosts', 'verb' => 'PUT'],
 
 		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
@@ -520,8 +571,23 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 
+		// Search shortcuts (search-ai-prefix-shortcuts REQ-QSP-001): admin list.
+		['name' => 'adminSettings#listSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],
+		['name' => 'adminSettings#saveSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'PUT'],
+
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.
+		// launcher-app-catalogue: the approved apps a user may see and a request
+		// for a missing one (REQ-ACAT-002/003), and the admin side (REQ-ACAT-001/004).
+		['name' => 'catalogue#index', 'url' => '/api/catalogue', 'verb' => 'GET'],
+		['name' => 'catalogue#request', 'url' => '/api/catalogue/requests', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#index', 'url' => '/api/admin/catalogue', 'verb' => 'GET'],
+		['name' => 'adminCatalogue#create', 'url' => '/api/admin/catalogue', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#setManagerGroup', 'url' => '/api/admin/catalogue/settings', 'verb' => 'PUT'],
+		['name' => 'adminCatalogue#approve', 'url' => '/api/admin/catalogue/requests/{uuid}/approve', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#decline', 'url' => '/api/admin/catalogue/requests/{uuid}/decline', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#update', 'url' => '/api/admin/catalogue/{uuid}', 'verb' => 'PUT'],
+		['name' => 'adminCatalogue#destroy', 'url' => '/api/admin/catalogue/{uuid}', 'verb' => 'DELETE'],
 		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],
 		['name' => 'profileFields#saveOwn', 'url' => '/api/profile-fields/me', 'verb' => 'PUT'],
 		['name' => 'profileFields#getDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'GET'],
@@ -610,6 +676,29 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// `/api/admin/...` admin surface.
 		['name' => 'adminCleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
 		['name' => 'adminCleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
+		// Public embed render route (embedded-analytics, REQ-EMB-002/003/007/008):
+		// the token is checked by EmbedTokenMiddleware, the subject by EmbedController.
+		['name' => 'embed#render', 'url' => '/embed/{subjectType}/{subjectId}', 'verb' => 'GET'],
+		['name' => 'embed#data', 'url' => '/embed/{subjectType}/{subjectId}/data', 'verb' => 'GET'],
+		// The embed SDK bundles, served with the app (embedded-analytics task 24): public and cacheable.
+		['name' => 'embedSdk#bundle', 'url' => '/embed-sdk/{file}', 'verb' => 'GET'],
+		// Embed tokens (embedded-analytics, REQ-EMB-001/008/009): admin-only.
+		['name' => 'embedTokenApi#index', 'url' => '/api/embed-tokens', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#create', 'url' => '/api/embed-tokens', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#telemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#setTelemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#show', 'url' => '/api/embed-tokens/{id}', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#update', 'url' => '/api/embed-tokens/{id}', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#revoke', 'url' => '/api/embed-tokens/{id}/revoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#unrevoke', 'url' => '/api/embed-tokens/{id}/unrevoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#reissue', 'url' => '/api/embed-tokens/{id}/re-issue', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#purgeCache', 'url' => '/api/embed-tokens/{id}/purge-cache', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#usage', 'url' => '/api/embed-tokens/{id}/usage', 'verb' => 'GET'],
+		// Tenant themes (embedded-analytics, REQ-EMB-005): admin-only.
+		['name' => 'tenantThemeApi#index', 'url' => '/api/tenant-themes', 'verb' => 'GET'],
+		['name' => 'tenantThemeApi#create', 'url' => '/api/tenant-themes', 'verb' => 'POST'],
+		['name' => 'tenantThemeApi#update', 'url' => '/api/tenant-themes/{id}', 'verb' => 'PUT'],
+		['name' => 'tenantThemeApi#destroy', 'url' => '/api/tenant-themes/{id}', 'verb' => 'DELETE'],
 
 		// Org-wide navigation editor (REQ-ONAV-001..012). The /position
 		// routes MUST precede the bare /org-navigation routes so the
@@ -681,6 +770,19 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// widget asks the server before rendering the iframe.
 		['name' => 'iframe#checkFramable', 'url' => '/api/iframe/framable', 'verb' => 'POST'],
 
+		// Scheduled exports (scheduled-exports tasks 10-11): CRUD, run now,
+		// preview, run history and retry. Owner-or-admin checked in the service.
+		['name' => 'scheduledExport#index', 'url' => '/api/exports', 'verb' => 'GET'],
+		['name' => 'scheduledExport#create', 'url' => '/api/exports', 'verb' => 'POST'],
+		['name' => 'scheduledExport#show', 'url' => '/api/exports/{id}', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#update', 'url' => '/api/exports/{id}', 'verb' => 'PATCH', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#destroy', 'url' => '/api/exports/{id}', 'verb' => 'DELETE', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#run', 'url' => '/api/exports/{id}/run', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#preview', 'url' => '/api/exports/{id}/preview', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#runs', 'url' => '/api/exports/{id}/runs', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#showRun', 'url' => '/api/exports/{id}/runs/{runId}', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+', 'runId' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#retry', 'url' => '/api/exports/{id}/runs/{runId}/retry', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+', 'runId' => '[A-Za-z0-9\\-]+']],
+
 		// Service health ping — cached online/offline/degraded badge for one
 		// placement (REQ-HPING-003). View-time ACL guarded in the controller;
 		// never returns the health URL, headers, or upstream response body.
@@ -694,6 +796,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal
 		// `/api/dashboards/{uuid}/path` segment is matched first.
+		// The drill-down path report over a dashboard's filter events (REQ-CWF-010).
+		['name' => 'filterEventReport#report', 'url' => '/api/dashboards/{uuid}/filter-events/report', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardApi#computePath', 'url' => '/api/dashboards/{uuid}/path', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 

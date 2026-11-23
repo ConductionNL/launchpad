@@ -30,7 +30,7 @@ class ConditionalRuleTest extends TestCase {
 
 		$this->assertSame('integer', $fieldTypes['id']);
 		$this->assertSame('integer', $fieldTypes['widgetPlacementId']);
-		$this->assertSame('boolean', $fieldTypes['isInclude']);
+		$this->assertSame('smallint', $fieldTypes['isInclude']);
 	}
 
 	public function testConstructorDefaultValues(): void {
@@ -73,6 +73,12 @@ class ConditionalRuleTest extends TestCase {
 
 		$this->rule->setIsInclude(true);
 		$this->assertTrue($this->rule->getIsInclude());
+	}
+
+	public function testAnExcludeRuleReadBackFromTheDatabaseIsFalse(): void {
+		$rule = ConditionalRule::fromRow(['id' => '4', 'is_include' => '0']);
+
+		$this->assertFalse($rule->getIsInclude());
 	}
 
 	public function testGetRuleConfigArrayEmpty(): void {

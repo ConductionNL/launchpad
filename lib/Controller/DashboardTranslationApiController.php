@@ -62,13 +62,15 @@ class DashboardTranslationApiController extends Controller {
 	 * @param IRequest           $request The request.
 	 * @param TranslationSources $translations The dashboard lookup and translation service.
 	 * @param ActionCaller       $caller The session and the action check.
-	 * @param string|null        $userId The user ID.
+	 * @param UserResponses $context Holds the userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly TranslationSources $translations,
 		private readonly ActionCaller $caller,
-		private readonly ?string $userId,
+		private readonly UserResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -83,6 +85,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return JSONResponse The list payload.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function list(string $uuid): JSONResponse {
@@ -95,9 +98,9 @@ class DashboardTranslationApiController extends Controller {
 			dashboardUuid: $uuid
 		);
 
-		$serialized = ResponseHelper::serializeList(entities: $variants);
+		$serialized = $this->context->responseHelper->serializeList(entities: $variants);
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: ['translations' => $serialized]
 		);
 	}//end list()
@@ -119,6 +122,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return JSONResponse The created variant.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function create(
@@ -135,7 +139,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		if ($this->isBlank(value: $languageCode) === true) {
-			return ResponseHelper::invalidArgument(
+			return $this->context->responseHelper->invalidArgument(
 				message: DashboardTranslationService::ERR_INVALID_LANGUAGE
 			);
 		}
@@ -161,6 +165,8 @@ class DashboardTranslationApiController extends Controller {
 	 * @param TranslationVariantDraft $draft The variant to create.
 	 *
 	 * @return JSONResponse The created variant or the error envelope.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function createVariantResponse(string $uuid, TranslationVariantDraft $draft): JSONResponse {
 		try {
@@ -175,7 +181,7 @@ class DashboardTranslationApiController extends Controller {
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::invalidArgument(message: $e->getMessage());
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
 		} catch (Exception $e) {
 			return $this->mapCreateFailure(exception: $e);
 		}//end try
@@ -205,6 +211,8 @@ class DashboardTranslationApiController extends Controller {
 	 * @param Exception $exception The failure thrown by the service.
 	 *
 	 * @return JSONResponse The mapped response.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function mapCreateFailure(Exception $exception): JSONResponse {
 		if ($exception->getMessage() === DashboardTranslationService::ERR_LANGUAGE_EXISTS) {
@@ -218,7 +226,7 @@ class DashboardTranslationApiController extends Controller {
 			);
 		}
 
-		return ResponseHelper::error(exception: $exception);
+		return $this->context->responseHelper->error(exception: $exception);
 	}//end mapCreateFailure()
 
 	/**
@@ -276,6 +284,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return JSONResponse The status payload.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid, string $lang): JSONResponse {
@@ -290,7 +299,7 @@ class DashboardTranslationApiController extends Controller {
 				languageCode: $lang
 			);
 
-			return ResponseHelper::success(data: ['status' => 'ok']);
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
 		} catch (DoesNotExistException) {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
@@ -348,18 +357,20 @@ class DashboardTranslationApiController extends Controller {
 	 * @param \Closure $operation Returns the changed variant.
 	 *
 	 * @return JSONResponse The variant or the error envelope.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function respondWithVariant(\Closure $operation): JSONResponse {
 		try {
 			$variant = $operation();
 
-			return ResponseHelper::success(
+			return $this->context->responseHelper->success(
 				data: ['translation' => $variant->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
-			return ResponseHelper::error(exception: $e);
+			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end respondWithVariant()
 
@@ -406,6 +417,8 @@ class DashboardTranslationApiController extends Controller {
 	 * @param Dashboard $dashboard The dashboard entity.
 	 *
 	 * @return JSONResponse The resolved payload or the error envelope.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function resolvedResponse(string $uuid, Dashboard $dashboard): JSONResponse {
 		$variant = $this->resolveVariant(
@@ -420,7 +433,7 @@ class DashboardTranslationApiController extends Controller {
 			return $this->errorCode(code: 'language_not_available', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
 				'dashboard' => $dashboard->jsonSerialize(),
 				'translation' => $variant['translation']->jsonSerialize(),
@@ -567,6 +580,8 @@ class DashboardTranslationApiController extends Controller {
 	 * @param string $uuid The dashboard UUID.
 	 *
 	 * @return JSONResponse|null The error envelope or null on success.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function assertOwner(string $uuid): ?JSONResponse {
 		try {
@@ -575,8 +590,8 @@ class DashboardTranslationApiController extends Controller {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
-		if ($dashboard->getUserId() !== $this->userId) {
-			return ResponseHelper::forbidden();
+		if ($dashboard->getUserId() !== $this->context->userId) {
+			return $this->context->responseHelper->forbidden();
 		}
 
 		return null;
@@ -588,10 +603,12 @@ class DashboardTranslationApiController extends Controller {
 	 * @param string $action The action identifier to require.
 	 *
 	 * @return JSONResponse|null The refusal, or null when the caller may proceed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
 		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
+		if ($this->context->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 

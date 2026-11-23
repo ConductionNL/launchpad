@@ -7,7 +7,7 @@
  * change.
  *
  * Drives the real runtime-shell add-widget flow (sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → Label) and asserts the
+ * → "Add widget" → "Custom widget" → Add Widget modal → Label) and asserts the
  * collision INVARIANTS that hold regardless of the dashboard's pre-existing
  * placements:
  *   1. Sequentially-added widgets never overlap (auto-position path).
@@ -37,8 +37,14 @@ import {
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
 
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
 })
 
 /**
@@ -84,9 +90,8 @@ function hasOverlap(items: Array<{ x: number; y: number; w: number; h: number }>
 
 /** Add a single Label widget via the cog-menu Add Widget flow. */
 async function addLabelWidget(page: Page, text: string) {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'label')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 	await dialog
 		.getByLabel(/label text/i)
 		.first()

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\ResponseDefinitions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -35,6 +36,9 @@ use OCP\IRequest;
 
 /**
  * Controller for tile API endpoints.
+ *
+ * @psalm-import-type LaunchPadTile from ResponseDefinitions
+ * @psalm-import-type LaunchPadGone from ResponseDefinitions
  */
 class TileApiController extends Controller {
 	/**
@@ -52,13 +56,15 @@ class TileApiController extends Controller {
 	 * @param IRequest     $request The request.
 	 * @param TileSources  $sources The tile service, translator and service discovery.
 	 * @param ActionCaller $caller The session and the action check.
-	 * @param string|null  $userId The user ID.
+	 * @param UserResponses $context Holds the userId and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly TileSources $sources,
 		private readonly ActionCaller $caller,
-		private readonly ?string $userId,
+		private readonly UserResponses $context,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -73,7 +79,12 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The list of tiles.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_OK, list<LaunchPadTile>, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -83,10 +94,10 @@ class TileApiController extends Controller {
 			return $refusal;
 		}
 
-		$tiles = $this->sources->tileService->getUserTiles(userId: $this->userId);
+		$tiles = $this->sources->tileService->getUserTiles(userId: $this->context->userId);
 
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $tiles)
+		return $this->context->responseHelper->success(
+			data: $this->context->responseHelper->serializeList(entities: $tiles)
 		);
 	}//end index()
 
@@ -99,7 +110,7 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse `{apps: [{appId, name, href, icon}]}`.
 	 *
-	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -122,6 +133,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The HTTP 410 Gone envelope.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_GONE, LaunchPadGone, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-28
 	 */
 	#[NoAdminRequired]
@@ -145,6 +160,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The HTTP 410 Gone envelope.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_GONE, LaunchPadGone, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-30
 	 */
 	#[NoAdminRequired]
@@ -166,6 +185,10 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse The HTTP 410 Gone envelope.
 	 *
+	 * @psalm-return JSONResponse<Http::STATUS_GONE, LaunchPadGone, array<string, mixed>>|
+	 *     JSONResponse<Http::STATUS_*, array<string, mixed>, array<string, mixed>>
+	 * @openapi-stability public
+	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-31
 	 */
 	#[NoAdminRequired]
@@ -206,8 +229,10 @@ class TileApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
 	 * @see ActionCaller::refusal()
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	private function actionRefusal(string $action): ?JSONResponse {
-		return $this->caller->refusal(userId: $this->userId, action: $action);
+		return $this->caller->refusal(userId: $this->context->userId, action: $action);
 	}//end actionRefusal()
 }//end class

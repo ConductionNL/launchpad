@@ -39,6 +39,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\Support\WidgetTypeList;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
 use OCP\Lock\ILockingProvider;
@@ -98,17 +99,6 @@ class DemoShowcasesService {
 	];
 
 	/**
-	 * Where the list of LaunchPad's own widget types lives.
-	 *
-	 * Shared with the frontend: `widgetRegistry.completeness.spec.js`
-	 * asserts the registry's keys equal this file, so the types the
-	 * installer keeps and the types the workspace can render cannot drift.
-	 *
-	 * @var string
-	 */
-	private const WIDGET_TYPES_PATH = __DIR__ . '/../widget-types.json';
-
-	/**
 	 * Optional data-directory override (test seam).
 	 *
 	 * @var string|null
@@ -138,11 +128,13 @@ class DemoShowcasesService {
 	 * @param ShowcaseStores   $stores The dashboard and placement mappers, the database and the lock provider.
 	 * @param ShowcasePlatform $platform App config, dashboard manager, URL generator and event dispatcher.
 	 * @param LoggerInterface  $logger PSR-3 logger.
+	 * @param CatalogueService|null $catalogue Seeds the demo app catalogue entries on an install (launcher-app-catalogue).
 	 */
 	public function __construct(
 		private readonly ShowcaseStores $stores,
 		private readonly ShowcasePlatform $platform,
 		private readonly LoggerInterface $logger,
+		private readonly ?CatalogueService $catalogue = null,
 	) {
 		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
@@ -484,6 +476,7 @@ class DemoShowcasesService {
 			showcaseId: $showcaseId,
 			dashboardUuid: $installedUuid
 		);
+		$this->seedCatalogue();
 
 		$this->logger->info(
 			message: 'Installed demo showcase',
@@ -501,6 +494,30 @@ class DemoShowcasesService {
 			'alreadyInstalled' => false,
 		];
 	}//end doInstallShowcase()
+
+	/**
+	 * Give an empty app catalogue the demo entries a municipality would
+	 * recognise (launcher-app-catalogue, design "Seed data"). A failure is
+	 * logged and does not undo the showcase.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/tasks.md#task-9
+	 */
+	private function seedCatalogue(): void {
+		if ($this->catalogue === null) {
+			return;
+		}
+
+		try {
+			$this->catalogue->seedDemoEntries();
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				message: 'Could not seed the demo app catalogue: ' . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+		}
+	}//end seedCatalogue()
 
 	/**
 	 * Uninstall a previously-installed showcase.
@@ -596,8 +613,7 @@ class DemoShowcasesService {
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
 	public function partitionWidgets(array $widgets): array {
-		$registered = $this->registeredWidgetIds();
-		$known = $this->getLaunchpadWidgetTypes() + $registered;
+		$known = $this->renderableWidgetTypes();
 
 		$valid = [];
 		$skipped = [];
@@ -611,6 +627,18 @@ class DemoShowcasesService {
 
 		return [$valid, $skipped];
 	}//end partitionWidgets()
+
+	/**
+	 * The widget types this instance can render: LaunchPad's own types and
+	 * the Nextcloud dashboard widgets registered here, keyed for `isset()`.
+	 *
+	 * @return array<string, true> The renderable widget types.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	public function renderableWidgetTypes(): array {
+		return $this->getLaunchpadWidgetTypes() + $this->registeredWidgetIds();
+	}//end renderableWidgetTypes()
 
 	/**
 	 * The ids of the Nextcloud dashboard widgets registered on this
@@ -666,52 +694,9 @@ class DemoShowcasesService {
 			return $this->launchpadWidgetTypes;
 		}
 
-		$decoded = $this->readWidgetTypesFile();
-		if (is_array($decoded) === false || is_array($decoded['types'] ?? null) === false) {
-			throw new RuntimeException(
-				message: 'LaunchPad widget type list missing or malformed: ' . self::WIDGET_TYPES_PATH
-			);
-		}
-
-		$this->launchpadWidgetTypes = $this->typeSet(types: $decoded['types']);
+		$this->launchpadWidgetTypes = array_fill_keys(keys: (new WidgetTypeList())->types(), value: true);
 		return $this->launchpadWidgetTypes;
 	}//end getLaunchpadWidgetTypes()
-
-	/**
-	 * Decode `lib/widget-types.json`, null when it cannot be read.
-	 *
-	 * @return mixed The decoded JSON, or null.
-	 */
-	private function readWidgetTypesFile(): mixed {
-		if (is_readable(filename: self::WIDGET_TYPES_PATH) === false) {
-			return null;
-		}
-
-		$raw = file_get_contents(filename: self::WIDGET_TYPES_PATH);
-		if (is_string($raw) === false) {
-			return null;
-		}
-
-		return json_decode(json: $raw, associative: true);
-	}//end readWidgetTypesFile()
-
-	/**
-	 * The non-empty string entries of the type list, keyed for `isset()`.
-	 *
-	 * @param array<int|string, mixed> $types The `types` list.
-	 *
-	 * @return array<string, true> The types.
-	 */
-	private function typeSet(array $types): array {
-		$set = [];
-		foreach ($types as $type) {
-			if (is_string($type) === true && $type !== '') {
-				$set[$type] = true;
-			}
-		}
-
-		return $set;
-	}//end typeSet()
 
 	/**
 	 * Resolve the on-disk ZIP path for a showcase ID.

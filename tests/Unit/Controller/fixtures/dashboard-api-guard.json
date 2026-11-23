@@ -7,7 +7,10 @@
         "asked": []
     },
     "list / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.list"
         ]
@@ -35,7 +38,10 @@
         "asked": []
     },
     "visible / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.visible"
         ]
@@ -63,7 +69,10 @@
         "asked": []
     },
     "getActive / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.get-active"
         ]
@@ -91,7 +100,10 @@
         "asked": []
     },
     "show / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.show"
         ]
@@ -119,7 +131,10 @@
         "asked": []
     },
     "create / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.create"
         ]
@@ -147,7 +162,10 @@
         "asked": []
     },
     "delete / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.delete"
         ]
@@ -162,7 +180,7 @@
         ]
     },
     "delete / allowed": {
-        "thrown": "Error",
+        "status": 403,
         "asked": [
             "dashboard.delete"
         ]
@@ -175,7 +193,10 @@
         "asked": []
     },
     "tree / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.tree"
         ]
@@ -203,7 +224,10 @@
         "asked": []
     },
     "byPath / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.by-path"
         ]
@@ -231,7 +255,10 @@
         "asked": []
     },
     "computePath / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.compute-path"
         ]
@@ -259,7 +286,10 @@
         "asked": []
     },
     "activate / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.activate"
         ]
@@ -287,7 +317,10 @@
         "asked": []
     },
     "listGroup / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.list-group"
         ]
@@ -315,7 +348,10 @@
         "asked": []
     },
     "getGroup / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.get-group"
         ]
@@ -343,7 +379,10 @@
         "asked": []
     },
     "setActiveDashboard / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.set-active-dashboard"
         ]
@@ -371,7 +410,10 @@
         "asked": []
     },
     "setDefaultDashboard / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.set-default-dashboard"
         ]
@@ -399,7 +441,10 @@
         "asked": []
     },
     "getDefaultDashboard / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.get-default-dashboard"
         ]
@@ -427,7 +472,10 @@
         "asked": []
     },
     "publish / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.publish"
         ]
@@ -455,7 +503,10 @@
         "asked": []
     },
     "unpublish / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.unpublish"
         ]
@@ -483,7 +534,10 @@
         "asked": []
     },
     "schedule / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.schedule"
         ]
@@ -511,7 +565,10 @@
         "asked": []
     },
     "viewEvent / action denied": {
-        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
         "asked": [
             "dashboard.view-event"
         ]

@@ -31,7 +31,6 @@ Resource lifecycle (orphan GC, quota accounting) is owned by the `resource-uploa
 ### Requirement: REQ-IMG-001 Render image with object-fit
 
 The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit` MUST equal the `fit` field of the persisted content. The `<img>` MUST fill the cell with `width: 100%; height: 100%`. The cell wrapper MUST set `overflow: hidden` so over-fit images do not bleed out of the grid cell. The persisted content shape is `{type: 'image', content: {url, alt, link, fit}}` where `fit` is one of `'cover' | 'contain' | 'fill' | 'none'` (default `'cover'`). The Vue prop validator on `fit` MUST restrict the value to that enum and fall back to `'cover'` when an unknown value is passed.
-@e2e exclude render image with object-fit tests CSS object-fit property — Vitest snapshot scope; requires a seeded image placement with a real URL
 
 #### Scenario: Cover fit fills the cell
 
@@ -49,6 +48,7 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 - AND letterboxing MUST be visible if the image's aspect ratio differs from the cell's
 
 #### Scenario: Invalid fit value falls back to cover
+@e2e exclude a developer mounting the component with a `fit` prop is a component-mount scenario, not an app one: WidgetRenderer passes CnImageWidget only `content`, never a `fit` prop, and Vue prop-validator warnings exist only in development builds, so neither THEN is observable in the shipped app. The validator lives in @conduction/nextcloud-vue (CnImageWidget.vue) and no unit test for it exists in this repo
 
 - GIVEN a developer mounts the widget with `fit: 'stretch'`
 - WHEN the Vue prop validator runs
@@ -64,7 +64,6 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 ### Requirement: REQ-IMG-002 Empty-URL placeholder
 
 When `url` is empty or null, the renderer MUST display a placeholder consisting of a 48 px camera icon plus the translated string `t('No image')`, centred, in `var(--color-text-maxcontrast)`. The placeholder MUST occupy the full cell. The DOM MUST NOT contain an `<img>` element while the placeholder is active.
-@e2e exclude empty-URL placeholder tests Vue placeholder component — covered partially by existing spec file (test.skip); seeding not available in CI fixture
 
 #### Scenario: Empty url shows placeholder
 
@@ -114,7 +113,6 @@ When the persisted `link` field is non-empty, a click on the cell MUST open `lin
 ### Requirement: REQ-IMG-004 Broken-image fallback
 
 The `<img>` MUST handle the DOM `error` event by replacing itself with the empty-URL placeholder (as defined in REQ-IMG-002) plus the translated annotation `t('Image failed to load')`. The fallback MUST NOT crash, unmount, or otherwise disturb the surrounding GridStack grid.
-@e2e exclude broken-image fallback tests Vue imgError handler — Vitest scope; requires injecting a broken URL into a placed widget
 
 #### Scenario: Broken external URL falls back
 
@@ -170,12 +168,39 @@ The image sub-form for `AddWidgetModal` MUST expose the following controls: a fi
 - THEN it MUST contain exactly the four options `cover`, `contain`, `fill`, `none`
 - AND the default selected value MUST be `cover` for a new placement
 
+### Requirement: REQ-IMG-006 External image hosts are allow-listed by an administrator
+
+An image widget MAY name an external `http(s)` URL, but the browser loads it only from a host an administrator has allow-listed. The allow-list is a JSON array of bare host names (optionally with a port) stored under the app config key `image_allowed_hosts`, the same shape as `iframe_allowed_hosts`. It is fail-closed: an empty or missing list admits no external image host, and `img-src` MUST NOT be opened to every host. Every LaunchPad page MUST add each listed host, as `https://<host>`, to its `img-src` directive. Administrators manage the list in the admin settings (Operations) and through `GET` / `PUT /api/admin/image-hosts`; an entry with a scheme, a path, a wildcard or a space MUST be refused with 400 and a message naming the entry, and nothing is stored. The image widget form does not check hosts itself.
+
+#### Scenario: Allow-listed external image loads
+
+- GIVEN `image_allowed_hosts` is `["example.com"]`
+- AND content `{url: 'https://example.com/wide.png'}`
+- WHEN the workspace renders the cell
+- THEN the page's `img-src` MUST include `https://example.com`
+- AND the image MUST load
+
+#### Scenario: External image from a host not on the list is blocked
+
+- GIVEN `image_allowed_hosts` does not list `example.net`
+- AND content `{url: 'https://example.net/photo.png'}`
+- WHEN the workspace renders the cell
+- THEN the browser MUST refuse the image under the page's `img-src`
+- AND the cell MUST show the broken-image fallback of REQ-IMG-004
+
+#### Scenario: An entry that is not a host name is refused
+
+- GIVEN an administrator saves `["https://example.com"]`
+- WHEN `PUT /api/admin/image-hosts` handles it
+- THEN the response MUST be 400 with a message naming `https://example.com`
+- AND the stored list MUST be unchanged
+
 ### Requirement: REQ-IMP-001 SourceType field for image-widget config
 
 The image widget placement MUST store a `sourceType` field (ENUM: `'url'`, `'upload'`, `'files'`) in the placement's widget config. This field MUST default to `'url'` for backward compatibility with existing image widgets. The field MUST persist across widget updates and MUST be serialized in the placement API response.
-@e2e exclude sourceType field tests JSON schema change — Vitest/Newman scope
 
 #### Scenario: New image widget defaults to URL source
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); CnImageWidgetForm emits only {url, alt, link, fit} and nothing in src/ or lib/ writes `sourceType`. No unit test exists
 
 - GIVEN a user creates a new image widget placement with no `sourceType` explicitly set
 - WHEN the placement is saved
@@ -190,10 +215,11 @@ The image widget placement MUST store a `sourceType` field (ENUM: `'url'`, `'upl
 #### Scenario: SourceType included in API response
 
 - GIVEN a placement with `sourceType: 'upload'`
-- WHEN the user fetches the placement via GET /api/widgets/{id}
+- WHEN the user fetches the placement via GET /api/dashboard/{dashboardId} (there is no GET /api/widgets/{id}; the placement is returned in that response's `placements` array)
 - THEN the JSON response MUST include `"sourceType": "upload"`
 
 #### Scenario: Invalid sourceType rejected on input
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); WidgetApiController::contentToPersist stores any content array unvalidated and there is no sourceType enum check anywhere in lib/. No unit test exists
 
 - GIVEN a user attempts to set `sourceType: 'clipboard'` (not a valid enum value)
 - WHEN the placement is saved
@@ -203,9 +229,9 @@ The image widget placement MUST store a `sourceType` field (ENUM: `'url'`, `'upl
 ### Requirement: REQ-IMP-002 File picker invocation
 
 When the image widget edit form has `sourceType = 'files'`, the form MUST display a "Pick from Files" button that opens Nextcloud's native file picker. The file picker MUST be restricted to image MIME types: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/svg+xml`. The picker MUST support only single-file selection, not multi-select.
-@e2e exclude file picker invocation tests file-chooser event — covered by existing image-widget spec test.skip; NC Files picker not available headlessly
 
 #### Scenario: File picker button visible for files source
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no "Pick from Files" control in src/ or in CnImageWidgetForm (the string exists only in the l10n catalogues). No unit test exists
 
 - GIVEN the user selects `sourceType: 'files'` in the image widget form
 - WHEN the form renders
@@ -213,6 +239,7 @@ When the image widget edit form has `sourceType = 'files'`, the form MUST displa
 - AND the URL input field MUST be hidden (only the file picker UI is shown for this source type)
 
 #### Scenario: File picker opens on button click
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no "Pick from Files" button to click and no file-picker call for the image widget anywhere in src/. No unit test exists
 
 - GIVEN the user clicks the "Pick from Files" button
 - WHEN the file picker opens
@@ -220,6 +247,7 @@ When the image widget edit form has `sourceType = 'files'`, the form MUST displa
 - AND MIME type filtering MUST be applied (only image files visible)
 
 #### Scenario: File picker filters to image MIME types
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); no image-widget file picker is ever opened, so there is no MIME filter to observe. No unit test exists
 
 - GIVEN the file picker is open
 - WHEN the user navigates to a folder containing 10 files (3 images, 7 documents)
@@ -227,6 +255,7 @@ When the image widget edit form has `sourceType = 'files'`, the form MUST displa
 - AND the 7 documents MUST appear disabled or hidden
 
 #### Scenario: Single-file selection only
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); no image-widget file picker is ever opened, so there is no selection mode to observe. No unit test exists
 
 - GIVEN the file picker is open
 - WHEN the user attempts to select multiple files (shift-click, Ctrl+click)
@@ -236,9 +265,9 @@ When the image widget edit form has `sourceType = 'files'`, the form MUST displa
 ### Requirement: REQ-IMP-003 File reference storage
 
 When a file is selected via the file picker, the placement MUST store two fields: `fileId` (BIGINT) and `filePath` (VARCHAR, max 2048 bytes). Both MUST be persisted on the placement record in the database. The `filePath` MUST be the display path shown to the user (e.g. `/Photos/vacation.jpg`), suitable for human reading in edit forms and error messages.
-@e2e exclude file reference storage tests REST endpoint and DB persistence — Newman scope
 
 #### Scenario: Selected file stores both ID and path
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); with no picker nothing ever sets `fileId`/`filePath` (they survive only as opaque content, which file-path-survives-widget-title-and-style-updates covers). No unit test exists
 
 - GIVEN the user selects `/Photos/sunset.png` from the file picker
 - WHEN the widget is saved
@@ -253,6 +282,7 @@ When a file is selected via the file picker, the placement MUST store two fields
 - THEN both `fileId` and `filePath` MUST remain unchanged
 
 #### Scenario: FilePath max length enforced
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); the fileId/filePath columns (task 1.1) were never added and placement content is stored without validation, so there is no length limit to enforce. No unit test exists
 
 - GIVEN a user attempts to save a file with an extremely long path (>2048 bytes)
 - WHEN validation occurs
@@ -262,9 +292,9 @@ When a file is selected via the file picker, the placement MUST store two fields
 ### Requirement: REQ-IMP-004 Preview URL generation for file-mode widgets
 
 At render time, the widget MUST generate a preview image URL for the referenced Nextcloud file using the appropriate Nextcloud preview service. The system MUST use `IURLGenerator::linkToRoute()` (server) or the equivalent `/index.php/core/preview?fileId=…` route (client) to generate a URL that respects the viewer's access permissions to the file. The preview URL MUST support both scenarios: files owned by the viewer and files shared with the viewer.
-@e2e exclude preview URL generation tests IURLGenerator::linkToRoute PHP call — Newman/PHP scope
 
 #### Scenario: Viewer can access file, generates preview URL
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); nothing generates a preview URL from a `fileId` (no ImageWidgetService or resolveFilePreviewUrl in lib/, and CnImageWidget renders `content.url` only). Rendering a stored preview URL is covered by the deleted-file and viewer-cannot-access tests. No unit test exists
 
 - GIVEN a placement with `sourceType: 'files'`, `fileId: 12345`, and the viewer owns the file
 - WHEN the widget renders
@@ -279,6 +309,7 @@ At render time, the widget MUST generate a preview image URL for the referenced 
 - AND the widget MUST fall back to the broken-image fallback (REQ-IMP-005)
 
 #### Scenario: Shared file preview URL uses public share route
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); nothing generates a preview URL at all, so there is no choice of share route to observe. No unit test exists
 
 - GIVEN a file is shared with the viewer via a share link
 - AND the placement references the file ID
@@ -296,7 +327,6 @@ At render time, the widget MUST generate a preview image URL for the referenced 
 ### Requirement: REQ-IMP-005 Broken-image fallback for file-mode widgets
 
 When a file-mode image widget's referenced file is inaccessible (deleted, permissions revoked, or network failure), the widget MUST display the same broken-image placeholder as REQ-IMG-004: a 48 px camera icon plus the translated message `t('Image failed to load')`, centered. The widget MUST NOT crash, unmount, or throw a 500 HTTP error. The broken-image fallback MUST be identical regardless of source type (`url`, `upload`, or `files`).
-@e2e exclude broken-image fallback for file-mode tests Vue imgError handler — Vitest scope
 
 #### Scenario: Deleted file shows broken-image fallback
 
@@ -323,7 +353,6 @@ When a file-mode image widget's referenced file is inaccessible (deleted, permis
 ### Requirement: REQ-IMP-006 File deletion handling
 
 When the referenced Nextcloud file is deleted, the widget MUST retain its `fileId` and `filePath` reference on the placement (the placement is NOT auto-deleted). This allows the widget to show a clear "image unavailable" state (the broken-image fallback) rather than silently clearing the placement or showing a generic empty state. The broken-image fallback (REQ-IMP-005) provides the appropriate user feedback.
-@e2e exclude file deletion handling tests REST endpoint — Newman scope
 
 #### Scenario: Deleted file retains placement metadata
 
@@ -333,6 +362,7 @@ When the referenced Nextcloud file is deleted, the widget MUST retain its `fileI
 - AND the widget MUST render the broken-image fallback on next page load
 
 #### Scenario: Admin can clear orphaned reference manually
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); the form has neither a "Pick from Files" button nor a sourceType switch, and nothing clears `fileId`/`filePath` on save. No unit test exists
 
 - GIVEN a placement with a deleted file's orphaned reference
 - WHEN the widget editor form opens
@@ -343,9 +373,9 @@ When the referenced Nextcloud file is deleted, the widget MUST retain its `fileI
 ### Requirement: REQ-IMP-007 Widget form source type UI
 
 The image widget edit form MUST display a "Source Type" radio group with three mutually exclusive options: "URL/Link", "Upload", and "Pick from Files". Only the input fields relevant to the selected source type MUST be visible. Switching between source types MUST NOT erase previously entered values for other source types (values MUST be retained in component state, allowing the user to switch back without re-entering).
-@e2e exclude widget form source type UI radio/select tests form field structure — Vitest snapshot scope; full form test requires open modal with widget selected
 
 #### Scenario: Radio group shows all three source options
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); CnImageWidgetForm has no source-type radio group, only an always-present file input next to the URL field. No unit test exists
 
 - GIVEN the image widget edit form opens
 - WHEN the form renders
@@ -353,6 +383,7 @@ The image widget edit form MUST display a "Source Type" radio group with three m
 - AND one option MUST be pre-selected based on the current placement's `sourceType`
 
 #### Scenario: URL form fields shown only for URL source
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no source-type control, so no field is ever shown or hidden by it. No unit test exists
 
 - GIVEN the user selects the "URL/Link" radio option
 - WHEN the form updates
@@ -360,6 +391,7 @@ The image widget edit form MUST display a "Source Type" radio group with three m
 - AND the file upload input and file picker button MUST be hidden
 
 #### Scenario: Upload form fields shown only for upload source
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no source-type control, so no field is ever shown or hidden by it. No unit test exists
 
 - GIVEN the user selects the "Upload" radio option
 - WHEN the form updates
@@ -367,6 +399,7 @@ The image widget edit form MUST display a "Source Type" radio group with three m
 - AND the URL/link inputs and file picker button MUST be hidden
 
 #### Scenario: File picker shown only for files source
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no source-type control and no file picker button. No unit test exists
 
 - GIVEN the user selects the "Pick from Files" radio option
 - WHEN the form updates
@@ -374,6 +407,7 @@ The image widget edit form MUST display a "Source Type" radio group with three m
 - AND the URL input and file upload input MUST be hidden
 
 #### Scenario: Switching sources retains previous values
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no source-type control to switch. No unit test exists
 
 - GIVEN the user enters a URL in the URL field, then switches to "Upload"
 - WHEN the user switches back to "URL/Link"
@@ -383,9 +417,9 @@ The image widget edit form MUST display a "Source Type" radio group with three m
 ### Requirement: REQ-IMP-008 SVG source handoff to sanitisation
 
 When a file-mode image widget references an SVG file (`image/svg+xml`), the widget MUST NOT render the SVG as a raw `<img>` element before sanitisation. Instead, the SVG file reference MUST be passed to the separate `svg-sanitisation` capability for XSS protection. This requirement specifies the handoff point; the actual SVG sanitisation is implemented in the `svg-sanitisation` change.
-@e2e exclude SVG source handoff to sanitisation pipeline tests PHP SvgSanitiser — Newman scope
 
 #### Scenario: SVG file triggers sanitisation handoff
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); no image-widget code hands a file reference to SvgSanitiser, which is called only on upload in ResourceService (pinned by tests/Unit/Service/ResourceServiceSvgIntegrationTest.php, the upload path, not this handoff). No unit test of the handoff exists
 
 - GIVEN a placement with `sourceType: 'files'` and the selected file has MIME type `image/svg+xml`
 - WHEN the widget edit form saves the placement
@@ -394,6 +428,7 @@ When a file-mode image widget references an SVG file (`image/svg+xml`), the widg
 - AND the raw file content MUST NOT be served directly as an `<img>` src before sanitisation
 
 #### Scenario: Non-SVG images bypass sanitisation requirement
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); there is no handoff to bypass, and the absence of a sanitiser call has no observable UI or API effect. No unit test exists
 
 - GIVEN a placement with a PNG file (`image/png`)
 - WHEN the widget renders
@@ -401,6 +436,7 @@ When a file-mode image widget references an SVG file (`image/svg+xml`), the widg
 - AND the `svg-sanitisation` capability is NOT invoked
 
 #### Scenario: SVG from URL source also requires sanitisation
+@e2e exclude feature never built: the image-widget-media-picker change was archived with every task unchecked (openspec/changes/archive/2026-05-03-image-widget-media-picker/tasks.md); CnImageWidget puts any `url` straight into `<img src>` with no routing through SvgSanitiser, which only runs on upload (tests/Unit/Service/ResourceServiceSvgIntegrationTest.php). No unit test of a URL-source handoff exists
 
 - GIVEN a placement with `sourceType: 'url'` pointing to an external SVG file
 - WHEN the widget renders

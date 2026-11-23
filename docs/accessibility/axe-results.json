@@ -1,0 +1,45 @@
+{
+	"axeVersion": "4.14.1",
+	"shapes": {
+		"dashboard, read only": {
+			"failures": [],
+			"warnings": []
+		},
+		"dashboard, with interactions": {
+			"failures": [],
+			"warnings": []
+		},
+		"widget: chart": {
+			"failures": [],
+			"warnings": []
+		},
+		"widget: table": {
+			"failures": [],
+			"warnings": []
+		},
+		"widget: text": {
+			"failures": [],
+			"warnings": []
+		},
+		"widget: image": {
+			"failures": [],
+			"warnings": []
+		},
+		"widget: untitled image": {
+			"failures": [],
+			"warnings": []
+		},
+		"widget: icon-only tile": {
+			"failures": [],
+			"warnings": []
+		},
+		"loading": {
+			"failures": [],
+			"warnings": []
+		},
+		"refused": {
+			"failures": [],
+			"warnings": []
+		}
+	}
+}

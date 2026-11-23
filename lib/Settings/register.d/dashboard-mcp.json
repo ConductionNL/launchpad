@@ -1,0 +1,26 @@
+{
+  "components": {
+    "schemas": {
+      "Dashboard": {
+        "configuration": {
+          "x-openregister-mcp": {
+            "enabled": true,
+            "tools": {
+              "search": {
+                "description": "Search LaunchPad dashboards by title, slug, type or group. Read only: every change to a dashboard goes through the launchpad.* tools, which keep the slug, permission and lock rules.",
+                "scope": "read",
+                "readOnlyHint": true,
+                "filters": ["title", "slug", "type", "groupId"]
+              },
+              "get": {
+                "description": "Get one LaunchPad dashboard by id, with its widgets and who it is shared with.",
+                "scope": "read",
+                "readOnlyHint": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

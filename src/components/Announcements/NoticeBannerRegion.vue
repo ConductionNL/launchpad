@@ -74,6 +74,12 @@ export default {
 	methods: {
 		/** @spec openspec/changes/engagement-announcements/tasks.md#task-9 */
 		async load() {
+			// Both at once: the banner is often the largest paint of the page,
+			// and asking one after the other put a round trip before it.
+			const dismissed = announcementsApi.dismissedNotices().catch((error) => {
+				logger.error('Failed to load dismissed notices:', error)
+				return null
+			})
 			try {
 				const data = await announcementsApi.list()
 				const all = Array.isArray(data.announcements) ? data.announcements : []
@@ -83,10 +89,9 @@ export default {
 				this.notices = []
 				return
 			}
-			try {
-				this.dismissed = await announcementsApi.dismissedNotices()
-			} catch (error) {
-				logger.error('Failed to load dismissed notices:', error)
+			const ids = await dismissed
+			if (ids !== null) {
+				this.dismissed = ids
 			}
 		},
 
@@ -116,7 +121,5 @@ export default {
 .notice-region {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	margin: 8px 16px 0;
 }
 </style>

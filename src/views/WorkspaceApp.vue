@@ -19,41 +19,8 @@
 		     render anything based on the empty-state + position rules. -->
 		<OrgNavigationPanel v-if="orgNavStore.shouldRender" />
 
-		<!-- Region 1: sidebar backdrop (REQ-SHELL-006).
-		     Fixed-position overlay behind the slide-in sidebar. Clicking
-		     the backdrop emits `close` → `sidebarOpen = false`. The
-		     sidebar panel itself uses @click.stop so clicks inside never
-		     propagate to the backdrop. Starts at top:50px to clear the
-		     Nextcloud header chrome. -->
-		<SidebarBackdrop v-if="sidebarOpen" @close="closeSidebar" />
-
-		<!-- Region 2: hamburger + active-dashboard label strip
-		     (REQ-SHELL-004). Always visible regardless of canEdit.
-		     The hamburger uses NcButton tertiary so its hover/focus
-		     ring matches the Nextcloud account-menu button. The
-		     active dashboard's name is rendered as a static label —
-		     dashboard switching is owned by the left sidebar
-		     (REQ-SWITCH-002). -->
-		<!-- Title strip is only visible when the sidebar is OPEN.
-		     When closed, the floating sidebar-toggle in launchpad-floating-controls
-		     (top-right) is the only entry point. -->
-		<div v-if="sidebarOpen" class="workspace-shell__strip">
-			<NcButton
-				variant="tertiary"
-				:aria-label="t('launchpad', 'Open menu')"
-				class="workspace-shell__hamburger"
-				@click="toggleSidebar">
-				<template #icon>
-					<MenuIcon :size="20" />
-				</template>
-			</NcButton>
-			<h1 class="workspace-shell__title">
-				{{ activeDashboardName }}
-			</h1>
-		</div>
-
 		<!-- Region 3 (edit toolbar) removed: editing actions (Edit/Save
-		     dashboard, Add custom widget) live in the per-dashboard cog
+		     dashboard, Add widget) live in the per-dashboard cog
 		     menu (DashboardRowActions) so the page chrome stays clean. -->
 
 		<!-- Region 3.5 (quick-search bar) removed: quick search is now the
@@ -73,6 +40,8 @@
 		     above the grid whichever dashboard is open. -->
 		<NoticeBannerRegion />
 
+		<!-- Launcher-tile-open-behaviour D3: a side-panel tile opens beside the grid. -->
+		<div class="workspace-shell__body">
 		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
 			<Views v-if="hasActiveDashboard" />
 			<div v-else class="workspace-shell__empty">
@@ -82,25 +51,56 @@
 				<div class="workspace-shell__empty-menu">
 					<StartPageMenu />
 				</div>
-				<p class="workspace-shell__empty-title">
-					{{ t('launchpad', 'No dashboards available') }}
-				</p>
-				<p
-					v-if="injectedAllowUserDashboards"
-					class="workspace-shell__empty-hint">
-					{{ t('launchpad', 'Create your first dashboard') }}
-				</p>
-				<p v-else class="workspace-shell__empty-hint">
-					{{ t('launchpad', 'Contact your administrator') }}
-				</p>
-				<button
-					v-if="injectedAllowUserDashboards"
-					type="button"
-					class="workspace-shell__empty-cta"
-					@click="onCreateFirstDashboard">
-					{{ t('launchpad', 'Create your first dashboard') }}
-				</button>
+				<!-- REQ-SHELL-005, board LpEersteKeer: on the page ground, the
+				     starter widgets the first dashboard gets, then the choice to
+				     start with them or empty. -->
+				<section class="workspace-shell__empty-body" aria-labelledby="workspace-shell-empty-title">
+					<span class="workspace-shell__empty-icon" aria-hidden="true">
+						<ViewDashboardOutline :size="36" />
+					</span>
+					<h2 id="workspace-shell-empty-title" class="workspace-shell__empty-title">
+						{{ t('launchpad', 'You have no dashboard yet') }}
+					</h2>
+					<template v-if="injectedAllowUserDashboards">
+						<p class="workspace-shell__empty-hint">
+							{{ t('launchpad', 'A dashboard puts your apps, messages and appointments in one place. Start with a few starter widgets and then adjust it as you like.') }}
+						</p>
+						<ul class="workspace-shell__starters" data-testid="workspace-starter-widgets">
+							<li
+								v-for="starter in starterWidgets"
+								:key="starter.id"
+								class="workspace-shell__starter">
+								<component :is="starter.icon" :size="18" />
+								{{ starter.label }}
+							</li>
+						</ul>
+						<p class="workspace-shell__empty-note">
+							{{ t('launchpad', 'These {count} starter widgets go on it. You can move or remove them later.', { count: starterWidgets.length }) }}
+						</p>
+						<div class="workspace-shell__empty-actions">
+							<NcButton
+								variant="primary"
+								class="workspace-shell__empty-cta"
+								data-testid="workspace-create-with-starters"
+								@click="onCreateFirstDashboard('starters')">
+								{{ t('launchpad', 'Create my first dashboard (with starter widgets)') }}
+							</NcButton>
+							<NcButton
+								variant="secondary"
+								class="workspace-shell__empty-blank"
+								data-testid="workspace-create-empty"
+								@click="onCreateFirstDashboard('none')">
+								{{ t('launchpad', 'Start empty') }}
+							</NcButton>
+						</div>
+					</template>
+					<p v-else class="workspace-shell__empty-hint">
+						{{ t('launchpad', 'Contact your administrator') }}
+					</p>
+				</section>
 			</div>
+		</div>
+		<TileSidePanel />
 		</div>
 
 		<!-- Region 5 (footer-customization): branded footer below the
@@ -114,25 +114,45 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
-import MenuIcon from 'vue-material-design-icons/Menu.vue'
+import { markRaw } from 'vue'
+import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
+import CalendarOutline from 'vue-material-design-icons/CalendarOutline.vue'
+import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
+import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
+import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
+import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
+import WeatherPartlyCloudy from 'vue-material-design-icons/WeatherPartlyCloudy.vue'
 import NoticeBannerRegion from '../components/Announcements/NoticeBannerRegion.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
-import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
+import TileSidePanel from '../components/Workspace/TileSidePanel.vue'
 import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 import { logger } from '../utils/logger.js'
 
 /**
+ * The starter widgets a first dashboard gets, in the order the server seeds
+ * them (`lib/Service/StarterWidgetSeeds.php`).
+ */
+const STARTER_WIDGETS = [
+	{ id: 'app-tile', label: 'Apps', icon: ViewGridOutline },
+	{ id: 'calendar', label: 'Calendar', icon: CalendarOutline },
+	{ id: 'mail', label: 'Mail', icon: EmailOutline },
+	{ id: 'files', label: 'Files', icon: FolderOutline },
+	{ id: 'weather', label: 'Weather', icon: WeatherPartlyCloudy },
+	{ id: 'announcements', label: 'News from the organisation', icon: BullhornOutline },
+]
+
+/**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
  *
- * Owns the five-region page chrome: org nav rail, slide-in sidebar backdrop,
- * hamburger + active-dashboard label strip, edit toolbar (Add Widget + Save
- * Layout, gated by canEdit), and the grid container that either shows the
- * dashboard (delegating to Views.vue for widget machinery) or the empty-state
- * branch (REQ-SHELL-005).
+ * Owns the page chrome: the org nav rail, the notice banners and the grid
+ * container that either shows the dashboard (delegating to Views.vue, which
+ * also owns the dashboard switcher sidebar) or the empty-state branch
+ * (REQ-SHELL-005). It renders no sidebar toggle and no title strip
+ * (REQ-SHELL-004).
  *
  * Permission rule (REQ-SHELL-002): `canEdit = isAdmin || dashboardSource === 'user'`.
  * Gates the edit toolbar (REQ-SHELL-003) and per-widget context menu entries.
@@ -142,9 +162,6 @@ import { logger } from '../utils/logger.js'
  * the JS reader so a missing key never produces `undefined`.
  *
  * Lifecycle (REQ-SHELL-007):
- *  - `mounted()` registers `document.click` after `nextTick()` so the
- *    grid-container ref is non-null before the listener fires.
- *  - `beforeUnmount()` removes the listener.
  *  - GridStack is owned by Views.vue; its destroy hook fires when Views
  *    unmounts (satisfying REQ-SHELL-007 grid-destroy scenario).
  *
@@ -156,12 +173,12 @@ export default {
 	components: {
 		NoticeBannerRegion,
 		NcButton,
-		MenuIcon,
+		ViewDashboardOutline,
 		Views,
 		DashboardFooter,
 		OrgNavigationPanel,
-		SidebarBackdrop,
 		StartPageMenu,
+		TileSidePanel,
 	},
 
 	inject: {
@@ -225,13 +242,21 @@ export default {
 		},
 	},
 
-	data() {
-		return {
-			sidebarOpen: false,
-		}
-	},
-
 	computed: {
+		/**
+		 * The starter widgets the empty state lists, labelled.
+		 *
+		 * @return {Array<{id: string, label: string, icon: object}>}
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
+		 */
+		starterWidgets() {
+			return STARTER_WIDGETS.map((starter) => ({
+				id: starter.id,
+				label: this.t('launchpad', starter.label),
+				icon: markRaw(starter.icon),
+			}))
+		},
+
 		/**
 		 * REQ-SHELL-002 — admins can edit any dashboard; regular users
 		 * can edit only their own personal dashboards.
@@ -254,28 +279,6 @@ export default {
 		 */
 		hasActiveDashboard() {
 			return Boolean(this.injectedActiveDashboardId)
-		},
-
-		/**
-		 * Active dashboard's display name (REQ-SHELL-004 active-name
-		 * scenario). Resolved from the union of group + user dashboards.
-		 * Empty string when no active dashboard is resolved.
-		 *
-		 * @return {string}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-6
-		 */
-		activeDashboardName() {
-			if (!this.injectedActiveDashboardId) {
-				return ''
-			}
-			const all = [
-				...(this.injectedUserDashboards || []),
-				...(this.injectedGroupDashboards || []),
-			]
-			const match = all.find(
-				(d) => d && d.id === this.injectedActiveDashboardId,
-			)
-			return match ? match.name || '' : ''
 		},
 
 		/**
@@ -374,69 +377,36 @@ export default {
 					return
 				}
 
-				store.switchDashboard(id)
+				store.openDashboard(id)
 			},
 		},
 	},
 
 	mounted() {
-		document.addEventListener('keydown', this.onDocumentKeydown)
-	},
-
-	beforeUnmount() {
-		document.removeEventListener('keydown', this.onDocumentKeydown)
+		// The rail mounts only once a position and a non-empty tree are in
+		// the store, so the shell loads both rather than the rail itself.
+		this.orgNavStore.fetchPosition()
+		this.orgNavStore.fetchTree()
 	},
 
 	methods: {
 		t,
 
 		/**
-		 * Escape closes the slide-in sidebar (WCAG 2.2 AA SC 2.1.1 Keyboard).
-		 *
-		 * The sidebar could be dismissed two ways, and both needed a mouse:
-		 * clicking the backdrop, or clicking the hamburger again. The
-		 * backdrop is a `role="presentation"` overlay that never takes focus,
-		 * so a `@keydown` bound to the backdrop element itself could never
-		 * fire — the listener has to be on the document to be reachable at
-		 * all, whatever happens to hold focus when the sidebar opens.
-		 *
-		 * Guarded on `sidebarOpen` so this does not swallow Escape from the
-		 * quick-search bar (REQ-QSEARCH-003), which owns its own Escape
-		 * contract and is only reachable while the sidebar is closed.
-		 *
-		 * @param {KeyboardEvent} event the document keydown.
-		 * @return {void}
-		 * @spec openspec/specs/runtime-shell/spec.md
-		 */
-		onDocumentKeydown(event) {
-			if (event.key === 'Escape' && this.sidebarOpen) {
-				this.closeSidebar()
-			}
-		},
-
-		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
-		toggleSidebar() {
-			this.sidebarOpen = !this.sidebarOpen
-		},
-
-		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
-		closeSidebar() {
-			this.sidebarOpen = false
-		},
-
-		/**
 		 * Create the user's first personal dashboard from the empty-state
 		 * CTA (REQ-SHELL-005 enabled scenario). Delegates to the dashboard
 		 * store so the existing `POST /api/dashboard` flow is reused.
 		 *
+		 * @param {string} widgets `starters` for the starter widgets, `none` to start empty.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-6
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-005
 		 */
-		async onCreateFirstDashboard() {
+		async onCreateFirstDashboard(widgets = 'starters') {
 			const store = useDashboardStore()
 			try {
 				await store.createDashboard({
-					name: this.t('launchpad', 'My dashboard'),
+					name: this.t('launchpad', 'My workspace'),
+					widgets,
 				})
 			} catch (error) {
 				logger.error(
@@ -485,26 +455,6 @@ export default {
 	flex-direction: column;
 }
 
-.workspace-shell__strip {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 8px 16px;
-	border-bottom: 1px solid var(--color-border, #ddd);
-	background: var(--color-main-background, #fff);
-}
-
-.workspace-shell__hamburger {
-	flex: 0 0 auto;
-}
-
-.workspace-shell__title {
-	font-weight: 600;
-	font-size: 1.05em;
-	color: var(--color-main-text, #222);
-	margin: 0;
-}
-
 /* REQ-SHELL-003: edit toolbar — only rendered when canEdit=true via v-if. */
 .workspace-shell__toolbar {
 	display: flex;
@@ -548,8 +498,15 @@ export default {
 	background: var(--color-background-hover, #f5f5f5);
 }
 
+.workspace-shell__body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+}
+
 .workspace-shell__grid {
 	flex: 1;
+	min-width: 0;
 	/* min-height:0 is required for the flex item to shrink below its content
 	   height; without it overflow:auto never engages and the grid grows
 	   unbounded, clipping silently out of the viewport. */
@@ -567,8 +524,6 @@ export default {
 	outline-offset: -2px;
 }
 
-/* tile-quick-search REQ-QSEARCH-001: the bar sits above the tile grid,
-   full width, matching the title-strip's horizontal padding. */
 .workspace-shell__empty {
 	display: flex;
 	flex-direction: column;
@@ -588,25 +543,72 @@ export default {
 	margin-inline-end: 36px;
 }
 
+.workspace-shell__empty-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 14px;
+	padding: 56px 32px 48px;
+	max-width: 640px;
+	text-align: center;
+}
+
+.workspace-shell__empty-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	background: var(--color-primary-element-light, #eaf0f7);
+	color: var(--color-primary-element-light-text, #234a78);
+}
+
 .workspace-shell__empty-title {
-	font-size: 1.3em;
-	font-weight: 600;
+	font-size: 1.4em;
+	font-weight: 700;
 	margin: 0;
 }
 
 .workspace-shell__empty-hint {
 	color: var(--color-text-maxcontrast, #555);
 	margin: 0;
+	max-width: 440px;
+	line-height: 1.55;
 }
 
-.workspace-shell__empty-cta {
-	background: var(--color-primary-element, #1976d2);
-	color: var(--color-primary-element-text, #fff);
-	border: none;
-	border-radius: var(--border-radius, 4px);
-	padding: 8px 16px;
-	cursor: pointer;
-	font: inherit;
+.workspace-shell__starters {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin: 6px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.workspace-shell__starter {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border: 1px solid var(--color-border, #e4e6ea);
+	border-radius: var(--border-radius-pill, 16px);
+	background: var(--color-main-background, #fff);
+	color: var(--color-main-text, #222);
+}
+
+.workspace-shell__empty-note {
+	color: var(--color-text-maxcontrast, #555);
+	font-size: 0.9em;
+	margin: 0;
+}
+
+.workspace-shell__empty-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
 	margin-top: 8px;
 }
 </style>

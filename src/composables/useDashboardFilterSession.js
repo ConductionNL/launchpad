@@ -16,6 +16,7 @@
  * the chips.
  */
 
+import { presetLevelLabels } from '../utils/hierarchyPresets.js'
 import { useFilterBus } from './useFilterBus.js'
 import { useFilterUrlSync } from './useFilterUrlSync.js'
 
@@ -33,15 +34,24 @@ export function hierarchiesOf(dashboard) {
 /**
  * A display label per hierarchy level dimension.
  *
+ * A preset's levels carry the preset's labels in the reader's language
+ * (REQ-CWF-011); any other hierarchy shows the labels it stores.
+ *
  * @param {Array<object>} hierarchies The hierarchy descriptors.
  * @return {{[key: string]: string}}
+ * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 export function levelLabels(hierarchies) {
 	const labels = {}
 	for (const hierarchy of hierarchies) {
+		const preset = presetLevelLabels(hierarchy.id) ?? {}
 		for (const level of hierarchy.levels) {
-			if (level && typeof level.dimension === 'string' && typeof level.label === 'string' && level.label !== '') {
-				labels[level.dimension] = level.label
+			if (!level || typeof level.dimension !== 'string') {
+				continue
+			}
+			const label = preset[level.dimension] ?? level.label
+			if (typeof label === 'string' && label !== '') {
+				labels[level.dimension] = label
 			}
 		}
 	}
@@ -56,12 +66,13 @@ export function levelLabels(hierarchies) {
  * @param {boolean} options.readUrl Whether the URL's `f` parameter seeds the bus (the first dashboard of a page load).
  * @param {{href: string}} [options.location] The location (window.location).
  * @param {{replaceState: (state: unknown, title: string, url: string) => void, state: unknown}} [options.history] The history (window.history).
- * @return {{bus: object, clauses: import('vue').ShallowRef<Array<object>>, labels: {[key: string]: string}, remove: (dimension: string) => boolean, reset: () => boolean, stop: () => void}}
+ * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes when the organisation opted in (REQ-CWF-010).
+ * @return {{bus: object, clauses: import('vue').ShallowRef<Array<object>>, labels: {[key: string]: string}, remove: (dimension: string) => boolean, reset: () => boolean, popTo: (dimension: string) => boolean, stop: () => void}}
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
-export function useDashboardFilterSession({ dashboard, readUrl, location = window.location, history = window.history }) {
+export function useDashboardFilterSession({ dashboard, readUrl, location = window.location, history = window.history, telemetry = null }) {
 	const hierarchies = hierarchiesOf(dashboard)
-	const bus = useFilterBus({ hierarchies })
+	const bus = useFilterBus({ hierarchies, telemetry })
 	const sync = useFilterUrlSync({ bus, location, history, hydrate: readUrl })
 
 	return {
@@ -70,6 +81,7 @@ export function useDashboardFilterSession({ dashboard, readUrl, location = windo
 		labels: levelLabels(hierarchies),
 		remove: (dimension) => bus.remove(dimension),
 		reset: () => bus.reset(),
+		popTo: (dimension) => bus.popTo(dimension),
 		stop: () => sync.stop(),
 	}
 }

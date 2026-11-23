@@ -2,209 +2,128 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The start-page menu stands in for the navigation panel when the panel is
- * left out (runtime-shell REQ-SHELL-009): nothing while the panel is there,
- * and otherwise every destination, grouped as the panel groups them.
+ * The More menu off the dashboard view (runtime-shell REQ-SHELL-009,
+ * REQ-SHELL-013): the same menu as on the dashboard view, with the
+ * dashboards and Settings and no This dashboard group.
  */
 
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
-vi.mock('@nextcloud/router', () => ({
-	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars.appId),
+vi.mock('@nextcloud/l10n', async (importOriginal) => ({
+	...(await importOriginal()),
+	t: (_app, text) => text,
+	translate: (_app, text) => text,
 }))
-vi.mock('@nextcloud/vue', () => ({
-	NcActions: {
-		name: 'NcActions',
-		props: ['ariaLabel'],
-		template: '<div role="menu" :aria-label="ariaLabel"><slot /></div>',
+vi.mock('@nextcloud/router', () => ({
+	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
+}))
+vi.mock('../LaunchpadMoreMenu.vue', () => ({
+	default: {
+		name: 'LaunchpadMoreMenu',
+		props: ['dashboards', 'settings', 'actions'],
+		emits: ['open'],
+		template: '<div class="menu-stub" />',
 	},
-	NcActionLink: {
-		name: 'NcActionLink',
-		props: ['href', 'target'],
-		template: '<a :href="href" :target="target"><slot /></a>',
-	},
-	NcActionRouter: {
-		name: 'NcActionRouter',
-		props: ['to'],
-		template: '<a class="router" :data-to="to.name"><slot /></a>',
-	},
-	NcActionButton: {
-		name: 'NcActionButton',
-		emits: ['click'],
-		template:
-			'<button type="button" @click="$emit(\'click\')"><slot /></button>',
-	},
-	NcActionSeparator: { name: 'NcActionSeparator', template: '<hr />' },
+}))
+vi.mock('../../../services/api.js', () => ({
+	api: { getDefaultDashboardPreference: vi.fn() },
 }))
 
 import StartPageMenu from '../StartPageMenu.vue'
+import { api } from '../../../services/api.js'
+import { useDashboardStore } from '../../../stores/dashboard.js'
 
 const ENTRIES = [
-	{ id: 'dashboards', label: 'Dashboards', route: 'Workspace', order: 1 },
-	{
-		id: 'Documentation',
-		label: 'Documentation',
-		href: 'https://launchpad.conduction.nl',
-		section: 'footer',
-		order: 90,
-	},
-	{
-		id: 'StoreMenu',
-		label: 'Store',
-		route: 'Store',
-		section: 'footer',
-		order: 91,
-	},
-	{
-		id: 'FlowsMenu',
-		label: 'Flows',
-		route: 'Flows',
-		section: 'settings',
-		order: 50,
-	},
-	{
-		id: 'admin-settings',
-		label: 'Admin settings',
-		route: 'admin-settings',
-		section: 'settings',
-		permission: 'admin',
-		order: 60,
-	},
+	{ id: 'dashboards', label: 'Dashboards', route: 'Workspace' },
+	{ id: 'Documentation', label: 'Documentation', href: 'https://launchpad.conduction.nl', section: 'footer' },
+	{ id: 'StoreMenu', label: 'Marketplace', route: 'Store', section: 'footer' },
+	{ id: 'FlowsMenu', label: 'Flows', route: 'Flows', section: 'settings' },
 ]
 
-function mountMenu(chrome, opener = vi.fn()) {
-	return mount(StartPageMenu, {
+/**
+ * Mount the menu.
+ *
+ * @param {object|null} chrome The chrome decision.
+ * @return {object} The wrapper, the menu stub and the router.
+ */
+function mountMenu(chrome = { railSuppressed: true, entries: ENTRIES, isAdmin: false }) {
+	const router = { push: vi.fn() }
+	const wrapper = mount(StartPageMenu, {
 		global: {
-			provide: {
-				launchpadChrome: { value: chrome },
-				cnOpenUserSettings: opener,
-			},
+			provide: { launchpadChrome: chrome, cnOpenUserSettings: vi.fn() },
+			mocks: { $router: router },
 		},
 	})
+	return { wrapper, menu: wrapper.findComponent({ name: 'LaunchpadMoreMenu' }), router }
 }
 
-describe('StartPageMenu (REQ-SHELL-009)', () => {
-	it('renders nothing while the panel is rendered', () => {
-		const wrapper = mountMenu({
-			railSuppressed: false,
-			entries: ENTRIES,
-			isAdmin: true,
-		})
-		expect(
-			wrapper.find('[data-testid="launchpad-start-page-menu"]').exists(),
-		).toBe(false)
-		expect(wrapper.html()).toBe('<!--v-if-->')
+describe('StartPageMenu', () => {
+	let store
+
+	beforeEach(() => {
+		setActivePinia(createPinia())
+		vi.clearAllMocks()
+		store = useDashboardStore()
+		store.loadedOnce = true
+		store.dashboards = [
+			{ id: 1, uuid: 'u-1', name: 'Vandaag', source: 'user' },
+			{ id: 2, uuid: 'u-2', name: 'Team Vergunningen', source: 'group' },
+		]
+		api.getDefaultDashboardPreference.mockResolvedValue({ data: { uuid: 'u-1' } })
 	})
 
-	it('renders nothing when nothing was provided', () => {
-		const wrapper = mount(StartPageMenu)
-		expect(
-			wrapper.find('[data-testid="launchpad-start-page-menu"]').exists(),
-		).toBe(false)
+	it('renders nothing while the panel is rendered, or when nothing was provided', () => {
+		expect(mountMenu({ railSuppressed: false, entries: ENTRIES }).menu.exists()).toBe(false)
+		expect(mountMenu(null).menu.exists()).toBe(false)
 	})
 
-	it('offers every entry with its own destination, in the panel order', () => {
-		const wrapper = mountMenu({
-			railSuppressed: true,
-			entries: ENTRIES,
-			isAdmin: true,
-		})
-		const menu = wrapper.find('[data-testid="launchpad-start-page-menu"]')
-		expect(menu.attributes('aria-label')).toBe('Menu')
-
-		const docs = wrapper.find(
-			'[data-testid="launchpad-start-page-menu-Documentation"]',
-		)
-		expect(docs.attributes('href')).toBe('https://launchpad.conduction.nl')
-		expect(docs.attributes('target')).toBe('_blank')
-
-		expect(
-			wrapper
-				.find('[data-testid="launchpad-start-page-menu-StoreMenu"]')
-				.attributes('data-to'),
-		).toBe('Store')
-		expect(
-			wrapper
-				.find('[data-testid="launchpad-start-page-menu-dashboards"]')
-				.attributes('data-to'),
-		).toBe('Workspace')
-		expect(
-			wrapper
-				.find('[data-testid="launchpad-start-page-menu-admin-settings"]')
-				.attributes('data-to'),
-		).toBe('admin-settings')
-
-		const ids = wrapper
-			.findAll('[data-testid^="launchpad-start-page-menu-"]')
-			.map((el) =>
-				el
-					.attributes('data-testid')
-					.replace('launchpad-start-page-menu-', ''),
-			)
-		expect(ids).toEqual([
-			'dashboards',
-			'Documentation',
-			'StoreMenu',
-			'personal-settings',
-			'admin-settings-link',
-			'FlowsMenu',
-			'admin-settings',
-		])
-		// Three sections, two separators between them.
-		expect(wrapper.findAll('hr')).toHaveLength(2)
+	it('offers the dashboards and Settings, and no This dashboard group', () => {
+		const { menu } = mountMenu()
+		expect(menu.props('dashboards').map((i) => i.id)).toEqual(['dashboard-1', 'dashboard-2', 'all-dashboards'])
+		expect(menu.props('dashboards').some((i) => i.checked === true)).toBe(false)
+		expect(menu.props('settings').map((i) => i.id)).toEqual(['personal-settings', 'StoreMenu', 'FlowsMenu', 'Documentation'])
+		expect(menu.props('actions')).toBeUndefined()
 	})
 
-	it('links an administrator to the Nextcloud admin settings in the same tab', () => {
-		const wrapper = mountMenu({
-			railSuppressed: true,
-			entries: [],
-			isAdmin: true,
-		})
-		const link = wrapper.find(
-			'[data-testid="launchpad-start-page-menu-admin-settings-link"]',
-		)
-		expect(link.attributes('href')).toBe('/settings/admin/launchpad')
-		expect(link.attributes('target')).toBe('_self')
+	it('carries the tour target of the More menu', () => {
+		const { wrapper } = mountMenu()
+		expect(wrapper.attributes('data-walkthrough-id')).toBe('launchpad-more-menu')
 	})
 
-	it('gives a member no admin link', () => {
-		const wrapper = mountMenu({
-			railSuppressed: true,
-			entries: [],
-			isAdmin: false,
-		})
-		expect(
-			wrapper
-				.find(
-					'[data-testid="launchpad-start-page-menu-admin-settings-link"]',
-				)
-				.exists(),
-		).toBe(false)
+	it('opens a chosen dashboard on the dashboard view, and All dashboards goes there', () => {
+		const { menu, router } = mountMenu()
+		menu.props('dashboards')[1].onClick()
+		expect(router.push).toHaveBeenCalledWith({ name: 'dashboard-detail', params: { id: '2' } })
+		menu.props('dashboards').at(-1).onClick()
+		expect(router.push).toHaveBeenLastCalledWith({ name: 'Workspace' })
 	})
 
-	it('opens the personal settings through the library opener', async () => {
-		const opener = vi.fn()
-		const wrapper = mountMenu(
-			{ railSuppressed: true, entries: [], isAdmin: false },
-			opener,
-		)
-		await wrapper
-			.find('[data-testid="launchpad-start-page-menu-personal-settings"]')
-			.trigger('click')
-		expect(opener).toHaveBeenCalledTimes(1)
+	it('reads the default dashboard once, on first open, and marks it', async () => {
+		const { menu } = mountMenu()
+		menu.vm.$emit('open')
+		await flushPromises()
+		menu.vm.$emit('open')
+		await flushPromises()
+		expect(api.getDefaultDashboardPreference).toHaveBeenCalledTimes(1)
+		expect(menu.props('dashboards')[0].meta).toBe('default')
 	})
 
-	it('renders no button when it has nothing to offer', () => {
-		const wrapper = mountMenu({
-			railSuppressed: true,
-			entries: [],
-			isAdmin: false,
-			includePersonalSettings: false,
-		})
-		expect(
-			wrapper.find('[data-testid="launchpad-start-page-menu"]').exists(),
-		).toBe(false)
+	it('reads the dashboards on open when the page has not', async () => {
+		store.loadedOnce = false
+		const load = vi.spyOn(store, 'loadDashboards').mockResolvedValue()
+		const { menu } = mountMenu()
+		menu.vm.$emit('open')
+		await flushPromises()
+		expect(load).toHaveBeenCalledTimes(1)
+	})
+
+	it('keeps the menu working when the default cannot be read', async () => {
+		api.getDefaultDashboardPreference.mockRejectedValue(new Error('500'))
+		const { menu } = mountMenu()
+		menu.vm.$emit('open')
+		await flushPromises()
+		expect(menu.props('dashboards')[0].meta).toBeUndefined()
 	})
 })

@@ -60,12 +60,11 @@ The unique tuple `(dashboardId, shareType, shareWith)` enforces that a recipient
 
 ## Requirements
 
-
 ### Requirement: Owner-only share management (REQ-SHARE-001)
 
 @e2e tests/e2e/dashboard-sharing.spec.ts
 
-Only the owner of a dashboard MUST be allowed to list, create, update, or delete shares on that dashboard. All share-management endpoints MUST return HTTP 403 for any caller that is not the dashboard owner, including users who themselves have a `full`-level share on the dashboard.
+Only the owner of a dashboard MUST be allowed to list, create, update, or delete shares on that dashboard. All share-management endpoints MUST return HTTP 403 for any caller that is not the dashboard owner, including users who themselves have a `full`-level share on the dashboard. The owner-driven sharing UI flow (open `DashboardConfigModal`'s Sharing tab, add a share, change its permission level, remove a share) MUST be covered by a real Playwright e2e test that drives the actual router → middleware → controller → Vue re-render path, not only by PHPUnit tests that call the controller/service directly.
 
 #### Scenario: Owner adds a share
 
@@ -88,11 +87,28 @@ Only the owner of a dashboard MUST be allowed to list, create, update, or delete
 - THEN the system MUST update the existing share row, not create a second one
 - AND only one share row MUST exist for `(dashboardId=5, shareType=user, shareWith=bob)`
 
+#### Scenario: A user drives the full sharing flow through the browser
+
+- GIVEN alice is logged in and opens the config modal for a dashboard she owns
+- WHEN she switches to the Sharing tab, searches for and adds "bob" at `view_only`, changes his permission level to `full`, then removes his share, and reloads the page
+- THEN `tests/e2e/dashboard-sharing.spec.ts` MUST assert each step persists correctly end to end (the added share appears, the level change is reflected, the removal survives a reload)
+- AND the spec's e2e-exclusion annotation MUST be scoped to only the scenarios (if any) that genuinely have no UI surface, not a blanket exclusion of the whole capability
+
 ### Requirement: Listing dashboards visible to a user (REQ-SHARE-002)
 
 @e2e tests/e2e/dashboard-sharing.spec.ts
 
 `GET /api/dashboards` MUST return both dashboards owned by the caller AND dashboards the caller has access to via a direct or group share. Each entry MUST be decorated with `isOwner: bool`, `sharedBy: string|null` (the owner's userId when not the caller's own dashboard), and `effectivePermissionLevel: 'view_only'|'add_only'|'full'`.
+
+A share does not override publication state (REQ-DASH-036): a dashboard in `draft`, or `scheduled` with `publishAt` still in the future, MUST NOT reach a recipient through any read (`GET /api/dashboards`, `GET /api/dashboards/visible`, `GET /api/dashboard`, `GET /api/dashboard/{id}`) until it is published, unless the recipient is a Nextcloud administrator. When the owner shares a dashboard that is not published yet, the sharing panel MUST say so: "Colleagues see this dashboard once you publish it" ("Collega's zien dit dashboard zodra u het publiceert").
+
+#### Scenario: A shared draft stays hidden until it is published
+
+- GIVEN alice owns draft dashboard `5` and shares it with "bob" at `view_only`
+- WHEN bob fetches `GET /api/dashboards/visible`
+- THEN dashboard `5` MUST NOT be present
+- WHEN alice publishes dashboard `5` and bob fetches the list again
+- THEN dashboard `5` MUST be present with `isOwner: false`
 
 #### Scenario: Recipient sees a shared dashboard in their list
 
@@ -116,8 +132,6 @@ Only the owner of a dashboard MUST be allowed to list, create, update, or delete
 - THEN the entry for dashboard `5` MUST report `effectivePermissionLevel: "full"`
 
 ### Requirement: Loading a shared dashboard with placements (REQ-SHARE-003)
-
-@e2e exclude recipient-side placement load is exercised by DashboardShareServiceFollowupsTest + the shared-dashboard read path; no owner-driven UI surface distinct from REQ-SHARE-002
 
 `GET /api/dashboard/{id}` MUST return the dashboard, its widget placements, and the caller's effective permission level for any dashboard the caller can view (owned or shared). Callers without ownership AND without any matching share MUST receive HTTP 403.
 
@@ -148,8 +162,6 @@ When a user accesses a dashboard via a share, the system MUST evaluate widget/ti
 - AND when alice attempts the same call, the system MUST return HTTP 403
 
 ### Requirement: Owner-only metadata and lifecycle operations (REQ-SHARE-005)
-
-@e2e exclude owner-only 403 enforcement is a server-side authorization contract with no distinct UI state beyond REQ-SHARE-001; covered by DashboardShareApiControllerFollowupsTest
 
 Even with a `full`-level share, recipients MUST NOT be able to:
 
@@ -192,8 +204,6 @@ Even with a `full`-level share, recipients MUST NOT be able to:
 
 ### Requirement: Cascade on dashboard delete (REQ-SHARE-007)
 
-@e2e exclude DB cascade side-effect with no observable UI state; covered by DashboardShareServiceFollowupsTest
-
 When a dashboard is deleted (by its owner), every share row referencing that dashboard MUST be deleted in the same transaction. No orphan share rows MAY remain.
 
 #### Scenario: Shares are removed when the dashboard is deleted
@@ -205,8 +215,6 @@ When a dashboard is deleted (by its owner), every share row referencing that das
 - AND a query for shares on dashboard `5` MUST return 0 rows
 
 ### Requirement: Notify recipient on share add and on level upgrade (REQ-SHARE-008)
-
-@e2e exclude notification dispatch is a server-side side-effect asserted by DashboardShareServiceFollowupsTest; no owner-facing UI surface
 
 When a share is created OR its `permission_level` is **upgraded** (`view_only → add_only|full`, or `add_only → full`), the system MUST publish a Nextcloud notification to each affected recipient via `OCP\Notification\IManager`. The notification MUST use:
 
@@ -293,8 +301,6 @@ After the transaction commits, the system MUST publish notifications per REQ-SHA
 
 ### Requirement: Revoke all shares granted to a recipient (REQ-SHARE-010)
 
-@e2e exclude admin bulk-revoke path with no owner-facing config-modal surface; covered by DashboardShareServiceFollowupsTest
-
 The system MUST support `DELETE /api/sharees/{shareType}/{shareWith}` for an authenticated user. The operation MUST delete every share row where:
 
 - `share_type = $shareType AND share_with = $shareWith`, AND
@@ -315,8 +321,6 @@ The response MUST include the count of removed share rows. No notifications MUST
 - AND the response MUST report the number of rows actually deleted (2 in this scenario)
 
 ### Requirement: Notifier renders share and ownership-transfer subjects (REQ-SHARE-011)
-
-@e2e exclude notifier subject-string rendering is a server-side Notifier unit concern with no dashboard-config UI surface
 
 The app MUST register an `OCP\Notification\INotifier` implementation with `id = 'launchpad'` that handles two subjects: `dashboard_shared` and `dashboard_ownership_transferred`. For any other subject the notifier MUST throw `\OCP\Notification\UnknownNotificationException` so that other notifiers may handle it.
 
@@ -341,14 +345,13 @@ Localisation MUST be performed via `IFactory::get('launchpad')` so the existing 
 - AND the link MUST resolve via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index') . '?dashboard=' . <uuid of dashboard 5>`
 
 #### Scenario: Unknown subject throws
+@e2e exclude no HTTP route lets a caller publish a LaunchPad notification with an arbitrary subject — every notification subject in lib/ is chosen by the code, never by the caller — so `Notifier::prepare()` can never be handed `something_else` from a browser or the API, and an exception the notifications app swallows has no reader anyway. Pinned by NotifierTest::testUnknownAppAndSubjectAreRefused
 
 - GIVEN an `INotification` with `app='launchpad'`, `subject='something_else'`
 - WHEN the notifier prepares it
 - THEN `\OCP\Notification\UnknownNotificationException` MUST be thrown
 
 ### Requirement: Cascade and admin retention on user deletion (REQ-SHARE-012)
-
-@e2e exclude UserDeletedEvent-driven cascade/retention with no interactive UI surface; covered by the service-layer followups suite
 
 The app MUST listen to `OCP\User\Events\UserDeletedEvent`. On every event for user `X`, in a single DB transaction per affected dashboard, the system MUST:
 
@@ -406,8 +409,6 @@ The app MUST listen to `OCP\User\Events\UserDeletedEvent`. On every event for us
 
 ### Requirement: Deterministic new-owner selection (REQ-SHARE-013)
 
-@e2e exclude pure ranking/tie-break logic for owner reassignment with no observable UI state; covered by the service-layer followups suite
-
 When REQ-SHARE-012 calls for picking a new owner from the admin pool, the system MUST apply this ordering rule:
 
 1. Among `share_type='user'` shares with `permission_level='full'`, pick the one with the smallest `created_at`.
@@ -434,3 +435,29 @@ The selected new owner MUST receive a notification with `subject='dashboard_owne
 - GIVEN dashboard `5` ("Q3 Plan") undergoes ownership transfer to bob
 - WHEN the listener completes
 - THEN exactly one `INotification` MUST be published with `user='bob'`, `subject='dashboard_ownership_transferred'`, `subjectParameters=['Q3 Plan']`, `objectType='dashboard'`, `objectId='5'`
+
+### Requirement: Administrators decide who may share and with whom (REQ-SHARE-014)
+
+An administrator MUST be able to name the groups whose members may share dashboards. An empty list MUST mean everyone may share, which keeps today's behaviour. An administrator MUST also be able to limit recipients to people who share a group with the sharer. The server MUST enforce both settings on every share it creates, and the sharee search MUST offer only allowed recipients.
+
+#### Scenario: A member outside the sharing groups cannot share
+
+- **GIVEN** Noor allowed sharing for the group "Communicatie" only
+- **AND** Pieter is not in "Communicatie"
+- **WHEN** Pieter opens the share settings of his dashboard
+- **THEN** he cannot add a share
+- **AND** a share request he sends to the API is refused with HTTP 403
+
+#### Scenario: Recipients limited to shared groups
+
+- **GIVEN** Noor limited recipients to people who share a group with the sharer
+- **AND** Ella shares no group with Pieter
+- **WHEN** Pieter searches for "Ella" in the share settings
+- **THEN** Ella is not offered
+- **AND** a share request naming Ella is refused with HTTP 403
+
+#### Scenario: No limits set
+
+- **GIVEN** both sharing settings are empty
+- **WHEN** Pieter shares his dashboard with Ella
+- **THEN** the share is created as before

@@ -545,6 +545,12 @@
             ],
             "title": "Last run status",
             "readOnly": true
+          },
+          "createdBy": {
+            "type": "string",
+            "title": "Created by",
+            "description": "The user the export renders and delivers as. Set by the app when the export is made.",
+            "readOnly": true
           }
         }
       },
@@ -730,7 +736,13 @@
                   "pattern": "^[a-f0-9]{64}$"
                 },
                 "storagePath": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Null once the retention period removed the file."
+                },
+                "filename": {
+                  "type": "string",
+                  "description": "The name recipients get; the archived copy may carry a (2) suffix."
                 },
                 "expiresAt": {
                   "type": "string",
@@ -771,17 +783,27 @@
                 },
                 "nextAttemptAt": {
                   "type": "string",
-                  "format": "date-time"
+                  "format": "date-time",
+                  "nullable": true,
+                  "description": "Null once nothing is left to attempt."
                 },
                 "deliveredAt": {
                   "type": "string",
                   "format": "date-time"
                 },
+                "artefactIndexes": {
+                  "title": "Artefact indexes",
+                  "type": "array",
+                  "items": {"type": "integer", "minimum": 0},
+                  "description": "Which renderArtefacts this recipient was sent, so a retry resends the same files."
+                },
                 "providerMessageId": {
                   "type": "string"
                 },
                 "error": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Null once the delivery succeeded."
                 }
               }
             }
@@ -789,6 +811,11 @@
           "correlationId": {
             "type": "string",
             "format": "uuid"
+          },
+          "skipReason": {
+            "type": "string",
+            "title": "Skip reason",
+            "description": "Why a fire was skipped without rendering, for example because the previous run was still running."
           }
         }
       }

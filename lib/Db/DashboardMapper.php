@@ -210,15 +210,21 @@ class DashboardMapper extends QBMapper {
 	 * group-scoped CRUD endpoints (REQ-DASH-014). The `default` group is
 	 * looked up the same way as any other group ID.
 	 *
-	 * @param string $groupId The group ID (real Nextcloud group ID, or
-	 *                        the literal {@see Dashboard::DEFAULT_GROUP_ID}
-	 *                        sentinel).
+	 * @param string|null $groupId The group ID (real Nextcloud group ID, or
+	 *                             the literal {@see Dashboard::DEFAULT_GROUP_ID}
+	 *                             sentinel); null for every group.
 	 *
 	 * @return Dashboard[] The group-shared dashboards in that group.
 	 * @spec   openspec/specs/dashboards/spec.md
+	 * @spec   openspec/changes/openregister-leaf-integrations/tasks.md#task-4
 	 */
-	public function findByGroup(string $groupId): array {
-		$qb = $this->selectWhere(match: ['type' => Dashboard::TYPE_GROUP_SHARED, 'group_id' => $groupId]);
+	public function findByGroup(?string $groupId): array {
+		$match = ['type' => Dashboard::TYPE_GROUP_SHARED];
+		if ($groupId !== null) {
+			$match['group_id'] = $groupId;
+		}
+
+		$qb = $this->selectWhere(match: $match);
 		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
@@ -663,6 +669,29 @@ class DashboardMapper extends QBMapper {
 
 		return $this->findEntities(query: $qb);
 	}//end findDueScheduled()
+
+	/**
+	 * Flip one due scheduled dashboard to published, only while it is
+	 * still scheduled, so two requests surfacing it at once cannot both
+	 * claim it. The entity carries the `publishedAt` and `updatedAt` to
+	 * store. REQ-DASH-034, REQ-DIGE-002.
+	 *
+	 * @param Dashboard $dashboard The due dashboard, with its new times set.
+	 *
+	 * @return bool True when this call flipped the row.
+	 * @spec   openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function setPublishedIfScheduled(Dashboard $dashboard): bool {
+		return $this->updateWhere(
+			set: [
+				'publication_status' => Dashboard::STATUS_PUBLISHED,
+				'published_at'       => $dashboard->getPublishedAt(),
+				'publish_at'         => null,
+				'updated_at'         => $dashboard->getUpdatedAt(),
+			],
+			match: ['id' => (int) $dashboard->getId(), 'publication_status' => Dashboard::STATUS_SCHEDULED]
+		)->executeStatement() === 1;
+	}//end setPublishedIfScheduled()
 
 	/**
 	 * Find all admin templates for the discovery gallery (REQ-TMPL-014).

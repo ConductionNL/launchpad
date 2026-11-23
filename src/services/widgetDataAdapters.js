@@ -24,7 +24,8 @@ import {
  * launchpad's `/apps/launchpad/api/people` and returns `{ users, total, hasMore }`.
  * Axios is lazy-imported (keeps it out of the vitest css-no-op transform path).
  *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays, q }`;
+ *   `q` searches the whole directory by name, email and profile fields (REQ-PEX-003).
  * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
  * @spec openspec/specs/people-widget/spec.md
  */
@@ -40,9 +41,10 @@ export async function fetchPeoplePage(args = {}) {
 
 /**
  * The people endpoint's query string: the filters, the disabled-account
- * switch and the sort key only when given, then the page size and offset.
+ * switch, the sort key and the search text only when given, then the page
+ * size and offset.
  *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays, q }`.
  * @return {string} The query string.
  */
 function peopleQuery(args) {
@@ -55,6 +57,12 @@ function peopleQuery(args) {
 	}
 	if (args.sortBy) {
 		params.append('sortBy', String(args.sortBy))
+	}
+	if (args.showBirthdays !== undefined) {
+		params.append('showBirthdays', args.showBirthdays ? '1' : '0')
+	}
+	if (args.q) {
+		params.append('q', String(args.q))
 	}
 	params.append('limit', String(args.limit ?? 50))
 	params.append('offset', String(args.offset ?? 0))
@@ -109,12 +117,20 @@ export async function fetchCalendarEvents(placementId, args = {}) {
  * current placement id.
  *
  * @param {() => (string|number|undefined)} getPlacementId returns the placement id.
+ * @param {() => (object|undefined)} [getContent] returns the placement content; the people adapter sends its `showBirthdays` switch.
  * @return {object} the injected `cn*Source` adapters.
- * @spec exclude wiring-only assembly — returns a literal map of the adapter functions defined in this file, each of which carries its own @spec; it encodes no behaviour of its own beyond naming the injection keys the nc-vue widgets expect.
+ * @spec openspec/specs/people-widget/spec.md
  */
-export function buildWidgetDataProvide(getPlacementId) {
+export function buildWidgetDataProvide(getPlacementId, getContent = () => ({})) {
+	const people = (args) => fetchPeoplePage({
+		...args,
+		showBirthdays: (getContent() || {}).showBirthdays !== false,
+	})
 	return {
-		cnPeopleSource: { fetchPeople: fetchPeoplePage },
+		cnPeopleSource: {
+			fetchPeople: people,
+			searchPeople: people,
+		},
 		cnCalendarSource: {
 			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),
 		},

@@ -53,7 +53,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 	/**
 	 * REQ-ASET-001 "Settings response format consistency": the response holds
-	 * exactly the fourteen documented keys, each at its documented default.
+	 * exactly the documented keys, each at its documented default.
 	 *
 	 * The spec said "exactly four keys" long after the response had grown to
 	 * twelve, because nothing compared the two. This pins the whole response,
@@ -80,12 +80,19 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
-				'startPageWithoutNavigation' => false,
+				// drill-down-cross-widget-filter REQ-CWF-010: telemetry is opt-in.
+				'filterTelemetryEnabled' => false,
 				// launcher-tile-launch-types: both empty until an administrator fills them.
 				'tileAllowedSchemes' => [],
 				'ssoLaunchTemplates' => [],
 				// engagement-announcements D6: no editor groups until one is chosen.
 				'announcementEditorGroups' => [],
+				'officeNetworks' => [],
+				'currentAddress' => '',
+				'currentAddressInOfficeNetworks' => false,
+				'pinnedCommunities' => [],
+				// REQ-PSP-003: LaunchPad is the default app until switched off.
+				'defaultAppEnabled' => true,
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -170,14 +177,24 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('maxWidgetsPerDashboard', $settings);
 		// tile-quick-search REQ-QSEARCH-004.
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
-		// runtime-shell REQ-SHELL-009.
-		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
+		// Runtime-shell REQ-SHELL-009: the start-page option is retired.
+		$this->assertArrayNotHasKey(key: 'startPageWithoutNavigation', array: $settings);
 		// launcher-tile-launch-types: the program schemes and SSO launch templates.
 		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
 		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
 		// engagement-announcements D6.
 		$this->assertArrayHasKey('announcementEditorGroups', $settings);
-		$this->assertCount(17, $settings);
+		// drill-down-cross-widget-filter REQ-CWF-010.
+		$this->assertArrayHasKey('filterTelemetryEnabled', $settings);
+		// launcher-tile-internal-address REQ-TIA-001: the ranges, and the caller's address against them.
+		$this->assertArrayHasKey('officeNetworks', $settings);
+		$this->assertArrayHasKey('currentAddress', $settings);
+		$this->assertArrayHasKey('currentAddressInOfficeNetworks', $settings);
+		// engagement-communities REQ-COMM-003.
+		$this->assertArrayHasKey('pinnedCommunities', $settings);
+		// REQ-PSP-003.
+		$this->assertArrayHasKey('defaultAppEnabled', $settings);
+		$this->assertCount(expectedCount: 22, haystack: $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**
@@ -353,45 +370,55 @@ class AdminSettingsServiceTest extends TestCase {
 	}//end testUpdateSettingsPersistsBridgeToggle()
 
 	/**
-	 * runtime-shell REQ-SHELL-009: off by default, so an instance that
-	 * upgrades keeps its navigation panel.
+	 * Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry reads as on
+	 * only for a stored `true`.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
 	 */
-	public function testGetSettingsStartPageWithoutNavigationDefaultsOff(): void {
-		$this->settingMapper->method('getAllAsArray')->willReturn([]);
-
-		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
-	}//end testGetSettingsStartPageWithoutNavigationDefaultsOff()
-
-	public function testGetSettingsReadsStoredStartPageWithoutNavigation(): void {
-		$this->settingMapper->method('getAllAsArray')->willReturn(
-			[AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION => true]
+	public function testFilterTelemetryIsOnOnlyForAStoredTrue(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
+			[],
+			['filter_telemetry_enabled' => true],
+			['filter_telemetry_enabled' => 'yes'],
 		);
 
-		$this->assertTrue($this->service->getSettings()['startPageWithoutNavigation']);
-	}//end testGetSettingsReadsStoredStartPageWithoutNavigation()
+		$this->assertFalse($this->service->getSettings()['filterTelemetryEnabled']);
+		$this->assertTrue($this->service->getSettings()['filterTelemetryEnabled']);
+		$this->assertFalse($this->service->getSettings()['filterTelemetryEnabled']);
+	}//end testFilterTelemetryIsOnOnlyForAStoredTrue()
 
 	/**
-	 * A hand-edited row that is not a boolean must not take the panel away:
-	 * only a stored `true` does.
+	 * The telemetry switch is stored when given and left alone when omitted.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
 	 */
-	public function testGetSettingsTreatsANonBooleanStartPageValueAsOff(): void {
-		$this->settingMapper->method('getAllAsArray')->willReturn(
-			[AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION => 'yes']
+	public function testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven(): void {
+		$stored = [];
+		$this->settingMapper->method('setSetting')->willReturnCallback(
+			static function (string $key, mixed $value) use (&$stored): AdminSetting {
+				$stored[$key] = $value;
+				return new AdminSetting();
+			}
 		);
 
-		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
-	}//end testGetSettingsTreatsANonBooleanStartPageValueAsOff()
+		$this->service->updateSettings(settings: []);
+		$this->assertArrayNotHasKey('filter_telemetry_enabled', $stored);
 
-	public function testUpdateSettingsPersistsStartPageWithoutNavigation(): void {
-		$this->settingMapper->expects($this->once())
-			->method('setSetting')
-			->with(
-				AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION,
-				true
-			);
+		$this->service->updateSettings(settings: ['filterTelemetryEnabled' => true]);
+		$this->assertSame(['filter_telemetry_enabled' => true], $stored);
+	}//end testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven()
+
+	/**
+	 * The retired start-page option (runtime-shell REQ-SHELL-009) is not
+	 * stored when an older client still sends it.
+	 *
+	 * @return void
+	 */
+	public function testUpdateSettingsIgnoresTheRetiredStartPageOption(): void {
+		$this->settingMapper->expects($this->never())->method('setSetting');
 
 		$this->service->updateSettings(settings: ['startPageWithoutNavigation' => true]);
-	}//end testUpdateSettingsPersistsStartPageWithoutNavigation()
+	}//end testUpdateSettingsIgnoresTheRetiredStartPageOption()
 
 	public function testUpdateSettingsRejectsInvalidSharePermissionLevel(): void {
 		$this->expectException(InvalidArgumentException::class);

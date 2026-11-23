@@ -38,8 +38,6 @@ use Throwable;
 /**
  * List, install and update shipped templates.
  *
- * @SuppressWarnings(PHPMD.StaticAccess)
- *      {@see ResponseHelper} is an all-static envelope builder with no state.
  * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  *      `$force` and `$dryRun` are request parameters bound by the framework.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -58,11 +56,15 @@ class AdminShippedTemplateController extends Controller {
 	 * @param IRequest             $request The request.
 	 * @param ShippedTemplateTools $tools The shipped template and update services and the logger.
 	 * @param RequestGuard $guard The administrator check.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ShippedTemplateTools $tools,
 		private readonly RequestGuard $guard,
+		private readonly ResponseHelper $responseHelper,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -73,6 +75,7 @@ class AdminShippedTemplateController extends Controller {
 	 * @return JSONResponse The templates.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
@@ -81,7 +84,7 @@ class AdminShippedTemplateController extends Controller {
 			return $admin;
 		}
 
-		return ResponseHelper::success(data: $this->tools->templates->listTemplates());
+		return $this->responseHelper->success(data: $this->tools->templates->listTemplates());
 	}//end index()
 
 	/**

@@ -19,7 +19,6 @@ import {
 	buildRendererExtraProps,
 	buildWidgetDataProvide,
 	fetchCalendarEvents,
-	fetchPeoplePage,
 } from '../widgetDataAdapters.js'
 
 vi.mock('@nextcloud/axios', () => ({
@@ -81,7 +80,7 @@ describe('buildWidgetDataProvide', () => {
 			'cnCalendarSource',
 			'cnSpendAnalyticsSource',
 		])
-		expect(provided.cnPeopleSource.fetchPeople).toBe(fetchPeoplePage)
+		expect(typeof provided.cnPeopleSource.fetchPeople).toBe('function')
 		expect(provided.cnSpendAnalyticsSource).toEqual({
 			fetchSummary: fetchFinanceSummary,
 			fetchVendorCommitments,
@@ -102,6 +101,48 @@ describe('buildWidgetDataProvide', () => {
 			'/index.php/apps/launchpad/api/widgets/calendar/second/events',
 			{ params: { from: 'a', to: 'b' } },
 		)
+	})
+})
+
+describe('buildWidgetDataProvide people source', () => {
+	it('asks for no birthdates when the placement switches them off', async () => {
+		const provided = buildWidgetDataProvide(() => 1, () => ({ showBirthdays: false }))
+		axios.get.mockResolvedValue({ data: { users: [], total: 0, hasMore: false } })
+
+		await provided.cnPeopleSource.fetchPeople({ offset: 0, limit: 50 })
+
+		expect(axios.get.mock.calls[0][0]).toContain('showBirthdays=0')
+	})
+
+	it('asks for birthdates when the placement leaves the switch unset', async () => {
+		const provided = buildWidgetDataProvide(() => 1)
+		axios.get.mockResolvedValue({ data: { users: [], total: 0, hasMore: false } })
+
+		await provided.cnPeopleSource.fetchPeople({ offset: 0, limit: 50 })
+
+		expect(axios.get.mock.calls[0][0]).toContain('showBirthdays=1')
+	})
+
+	it('searches the whole directory with q, keeping the widget filters', async () => {
+		const provided = buildWidgetDataProvide(() => 1)
+		axios.get.mockResolvedValue({ data: { users: [{ uid: 'pieter' }], total: 1, hasMore: false } })
+		const filters = [{ fieldName: 'group', operator: 'in', values: ['gw'] }]
+
+		const page = await provided.cnPeopleSource.searchPeople({ q: 'subsidie', filters, offset: 0, limit: 50 })
+
+		const query = new URLSearchParams(axios.get.mock.calls[0][0].split('?')[1])
+		expect(query.get('q')).toBe('subsidie')
+		expect(JSON.parse(query.get('filters'))).toEqual(filters)
+		expect(page.users).toEqual([{ uid: 'pieter' }])
+	})
+
+	it('sends no q on a plain page request', async () => {
+		const provided = buildWidgetDataProvide(() => 1)
+		axios.get.mockResolvedValue({ data: { users: [], total: 0, hasMore: false } })
+
+		await provided.cnPeopleSource.fetchPeople({ offset: 0, limit: 50 })
+
+		expect(axios.get.mock.calls[0][0]).not.toContain('q=')
 	})
 })
 

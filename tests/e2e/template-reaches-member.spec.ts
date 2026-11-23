@@ -134,7 +134,7 @@ test('a new member of the group sees the template on their first visit', async (
 		await expect(
 			page.getByText('Mijn werkdag', { exact: true }).first(),
 		).toBeVisible({ timeout: 30_000 })
-		await expect(page.getByText('No dashboards available')).toHaveCount(0)
+		await expect(page.getByText('You have no dashboard yet')).toHaveCount(0)
 
 		// What the server holds for this member: one personal copy made from
 		// THIS template, with the template's compulsory widgets.

@@ -259,12 +259,12 @@ class DashboardServiceStepsGoldenTest extends TestCase {
 	/**
 	 * @dataProvider schedules
 	 */
-	public function testMaterialiseDueSchedule(string $stored, ?string $publishAt, string $after): void {
+	public function testMaterialisedStatus(string $stored, ?string $publishAt, string $after): void {
 		$dashboard = new Dashboard();
 		$dashboard->setPublicationStatus($stored);
 		$dashboard->setPublishAt($this->timeOrRaw($publishAt));
 
-		$this->call('materialiseDueSchedule', [$dashboard]);
+		$this->call(method: 'materialisedStatus', args: [$dashboard, new DateTime()]);
 
 		$this->assertSame($after, $dashboard->getPublicationStatus());
 	}

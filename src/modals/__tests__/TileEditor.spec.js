@@ -11,9 +11,10 @@
 
 import { mdiAlertCircle, mdiLink } from '@mdi/js'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import TileEditor from '../TileEditor.vue'
 import { validateHealthPingConfig } from '../../services/healthPingClient.js'
+import { loadIconCatalogue } from '../../services/iconCatalogue.js'
 
 vi.mock('../../services/healthPingClient.js', () => ({
 	validateHealthPingConfig: vi.fn(),
@@ -22,6 +23,9 @@ vi.mock('../../services/healthPingClient.js', () => ({
 function mountEditor(tile) {
 	return mount(TileEditor, { propsData: { open: true, tile } })
 }
+
+// Legacy icon names resolve once the MDI catalogue has loaded.
+beforeAll(() => loadIconCatalogue())
 
 describe('TileEditor legacy-icon display', () => {
 	it('resolves a legacy lowercase MDI shortname to its path', () => {

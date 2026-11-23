@@ -189,6 +189,7 @@ class TemplateService {
 	 * @param Dashboard $template The admin template.
 	 *
 	 * @return Dashboard The built dashboard entity.
+	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function buildDashboardFromTemplate(
 		string $userId,
@@ -212,6 +213,8 @@ class TemplateService {
 		$dashboard->setPermissionLevel(
 			$template->getPermissionLevel()
 		);
+		// REQ-CWF-011: a dashboard made from a template drills down as the template does.
+		$dashboard->setHierarchiesArray($template->getHierarchiesArray());
 		$dashboard->setIsActive(1);
 		$dashboard->setCreatedAt($now);
 		$dashboard->setUpdatedAt($now);

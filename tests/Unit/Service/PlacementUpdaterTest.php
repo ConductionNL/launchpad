@@ -25,6 +25,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Service\PlacementUpdater
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Service\UuidV4
+ * @uses   \OCA\LaunchPad\Service\VideoContent
  */
 class PlacementUpdaterTest extends TestCase {
 	private function placement(): WidgetPlacement {
@@ -76,6 +77,21 @@ class PlacementUpdaterTest extends TestCase {
 		$this->assertSame('icon-star', $placement->getCustomIcon());
 		$this->assertSame(['background' => '#ffffff'], $placement->getStyleConfigArray());
 		$this->assertSame(['text' => 'hello'], $placement->getContentArray());
+	}
+
+	public function testVideoContentUpdateKeepsAutoplayMutedAndFillsDefaults(): void {
+		$placement = $this->placement();
+		$placement->setWidgetId('video');
+
+		(new PlacementUpdater())->applyDisplayUpdates(
+			placement: $placement,
+			data: ['content' => ['sourceType' => 'youtube', 'videoUrl' => 'https://www.youtube.com/embed/ABC123', 'autoplay' => true, 'muted' => false]]
+		);
+
+		$content = $placement->getContentArray();
+		$this->assertTrue($content['muted']);
+		$this->assertTrue($content['controls']);
+		$this->assertSame('16:9', $content['aspectRatio']);
 	}
 
 	public function testDisplayUpdatesIgnoreNonArrayContent(): void {

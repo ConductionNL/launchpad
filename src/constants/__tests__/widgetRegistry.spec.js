@@ -198,4 +198,9 @@ describe('section-heading (REQ-WDG-031)', () => {
 		expect((await loadLazyComponent(entry.form)).name).toBe('SectionHeadingWidgetForm')
 		expect(offeredForViewer(entry, {})).toBe(true)
 	})
+
+	it('may take one grid row', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(getWidgetTypeEntry('section-heading').minHeight).toBe(1)
+	})
 })

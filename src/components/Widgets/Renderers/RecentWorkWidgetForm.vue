@@ -24,6 +24,7 @@ import { objectProp } from '../../../constants/propDefinitions.js'
  * `recent-work` widget lists.
  *
  * @spec openspec/specs/widgets/spec.md
+ * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
  */
 export default {
 	name: 'RecentWorkWidgetForm',
@@ -65,6 +66,7 @@ export default {
 		 * @param {string|number} value The typed number.
 		 * @return {void}
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
 		 */
 		update(value) {
 			const number = Math.round(Number(value))

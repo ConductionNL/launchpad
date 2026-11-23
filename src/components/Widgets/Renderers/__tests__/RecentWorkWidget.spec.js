@@ -69,6 +69,47 @@ describe('recentWorkRows', () => {
 		expect(recentWhen(new Date(2026, 9, 5, 16, 0).toISOString(), NOW, 'en-GB')).toBe('this afternoon')
 		expect(recentWhen(new Date(2026, 8, 20, 16, 0).toISOString(), NOW, 'en-GB')).toMatch(/^20 Sep/)
 	})
+
+	it('leaves out activity without a link', () => {
+		const rows = recentWorkRows([
+			{ app: 'files', object_type: 'files', object_id: 1, object_name: '/a.pdf', link: '', datetime: NOW.toISOString() },
+			{ app: 'files', object_type: 'files', object_id: 2, object_name: '/b.pdf', datetime: NOW.toISOString() },
+			{ app: 'files', object_type: 'files', object_id: 3, object_name: '/c.pdf', link: '/f/3', datetime: NOW.toISOString() },
+		], 6, NOW, 'en-GB')
+		expect(rows.map((row) => row.title)).toEqual(['c.pdf'])
+		expect(rows[0].link).toBe('/f/3')
+	})
+
+	it('reads nothing from a missing list', () => {
+		expect(recentWorkRows(null, 6, NOW, 'en-GB')).toEqual([])
+	})
+})
+
+describe('recentWhen', () => {
+	it.each([
+		[new Date(2026, 9, 5, 0, 0), 'this morning'],
+		[new Date(2026, 9, 5, 11, 59), 'this morning'],
+		[new Date(2026, 9, 5, 12, 0), 'this afternoon'],
+		[new Date(2026, 9, 5, 17, 59), 'this afternoon'],
+		[new Date(2026, 9, 5, 18, 0), 'this evening'],
+	])('words %s today as %s', (when, words) => {
+		const late = new Date(2026, 9, 5, 23, 0)
+		expect(recentWhen(when.toISOString(), late, 'en-GB')).toBe(words)
+	})
+
+	it('names the weekday within the last week', () => {
+		expect(recentWhen(new Date(2026, 9, 4, 10, 0).toISOString(), NOW, 'en-GB')).toBe('Sunday')
+		expect(recentWhen(new Date(2026, 8, 30, 10, 0).toISOString(), NOW, 'en-GB')).toBe('Wednesday')
+	})
+
+	it('writes the day and month before that', () => {
+		expect(recentWhen(new Date(2026, 8, 28, 10, 0).toISOString(), NOW, 'en-GB')).toMatch(/^28 Sep/)
+	})
+
+	it('says nothing for a date it cannot read', () => {
+		expect(recentWhen('not a date', NOW, 'en-GB')).toBe('')
+		expect(recentWhen(undefined, NOW, 'en-GB')).toBe('')
+	})
 })
 
 describe('RecentWorkWidget', () => {
@@ -89,5 +130,39 @@ describe('RecentWorkWidget', () => {
 		await flushPromises()
 
 		expect(wrapper.find('[data-testid="recent-work-unavailable"]').exists()).toBe(true)
+	})
+
+	it('says there is nothing when the reader has no activity', async () => {
+		get.mockResolvedValue({ data: { ocs: { data: [] } } })
+		const wrapper = mount(RecentWorkWidget, { props: { content: {} } })
+		await flushPromises()
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="recent-work-empty"]').text()).toBe('Nothing you worked on recently.')
+		expect(wrapper.find('[data-testid="recent-work-unavailable"]').exists()).toBe(false)
+	})
+
+	it('treats 304 as no activity yet, not as a missing app', async () => {
+		get.mockRejectedValue({ response: { status: 304 } })
+		const wrapper = mount(RecentWorkWidget, { props: { content: {} } })
+		await flushPromises()
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="recent-work-empty"]').exists()).toBe(true)
+	})
+
+	it('applies the limit and the apps of its content', async () => {
+		get.mockResolvedValue({ data: { ocs: { data: [
+			{ app: 'files', object_type: 'files', object_id: 1, object_name: '/a.pdf', link: '/f/1', datetime: new Date().toISOString() },
+			{ app: 'deck', object_type: 'card', object_id: 2, object_name: 'Card', link: '/d/2', datetime: new Date().toISOString() },
+			{ app: 'files', object_type: 'files', object_id: 3, object_name: '/b.pdf', link: '/f/3', datetime: new Date().toISOString() },
+		] } } })
+		const wrapper = mount(RecentWorkWidget, { props: { content: { limit: 1, apps: ['files'] } } })
+		await flushPromises()
+		await flushPromises()
+
+		const rows = wrapper.findAll('[data-testid="recent-work-row"]')
+		expect(rows).toHaveLength(1)
+		expect(rows[0].text()).toContain('a.pdf')
 	})
 })

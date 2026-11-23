@@ -10,9 +10,9 @@
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import CnSegmentedControl from '@conduction/nextcloud-vue/src/components/CnSegmentedControl/CnSegmentedControl.vue'
 import DashboardPageHeader, { lastChangedText, rightsText } from '../DashboardPageHeader.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../../utils/headerActionsDock.js'
-import CnSegmentedControl from '@conduction/nextcloud-vue/src/components/CnSegmentedControl/CnSegmentedControl.vue'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),

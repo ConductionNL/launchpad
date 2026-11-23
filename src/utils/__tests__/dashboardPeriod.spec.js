@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { addressWithPeriod, namesPeriod, PERIODS, periodFieldOf, periodStart, readPeriod, withPeriod } from '../dashboardPeriod.js'
+import { addressWithPeriod, namesPeriod, periodFieldOf, PERIODS, periodStart, readPeriod, withPeriod } from '../dashboardPeriod.js'
 
 const NOW = new Date(2026, 10, 23, 14, 30)
 

@@ -90,6 +90,11 @@ class DashboardApiController extends Controller {
 	use RespondsWithErrors;
 
 	/**
+	 * The column counts a dashboard grid may have (the edit bar's Columns).
+	 */
+	private const GRID_COLUMN_OPTIONS = [6, 8, 12];
+
+	/**
 	 * Constructor
 	 *
 	 * @param IRequest             $request The request.
@@ -791,7 +796,9 @@ class DashboardApiController extends Controller {
 	 * The optional `defaultLinkTarget` body field sets the default tile link
 	 * target; an empty string clears it ({@see self::requestedLinkTarget()}).
 	 * The optional `hierarchies` body field sets the hierarchy descriptors of
-	 * the filter bus; an empty list clears them (REQ-CWF-011).
+	 * the filter bus; an empty list clears them (REQ-CWF-011). The optional
+	 * `gridColumns` body field sets the number of grid columns, 6, 8 or 12
+	 * ({@see self::requestedGridColumns()}, REQ-DASH-038).
 	 *
 	 * The look travels in the same body and is read by {@see self::lookParams()}:
 	 * `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the
@@ -820,8 +827,9 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
-		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
-		$look = $this->lookParams();
+		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout,
+		// and so does the number of grid columns (REQ-DASH-038).
+		$look = $this->lookParams() + ['gridColumns' => $this->requestedGridColumns()];
 		$defaultLinkTarget = $this->requestedLinkTarget();
 		// Read raw, so a value that is no list is refused with 400 by the service.
 		$hierarchies = $this->request->getParam(key: 'hierarchies');
@@ -896,6 +904,27 @@ class DashboardApiController extends Controller {
 
 		return $this->context->responseHelper->forbidden();
 	}//end denyCustomCss()
+
+	/**
+	 * The number of grid columns the update body asks for (the edit bar's Columns).
+	 *
+	 * @return int|null The count, or null when absent or not a number.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+	 */
+	private function requestedGridColumns(): ?int {
+		$raw   = $this->request->getParam(key: 'gridColumns', default: 0);
+		$count = 0;
+		if (is_numeric($raw) === true) {
+			$count = (int) $raw;
+		}
+
+		if ($count === 0) {
+			return null;
+		}
+
+		return $count;
+	}//end requestedGridColumns()
 
 	/**
 	 * The default tile link target the update body asks for.
@@ -2347,6 +2376,8 @@ class DashboardApiController extends Controller {
 	 * @param array<string, mixed> $fields The update fields by name, in patch order.
 	 *
 	 * @return array<string, mixed> The non-null update data.
+	 *
+	 * @throws InvalidArgumentException When the grid column count is not 6, 8 or 12.
 	 */
 	private function buildUpdateData(array $fields): array {
 		$data = array_filter(
@@ -2355,6 +2386,12 @@ class DashboardApiController extends Controller {
 				return $value !== null;
 			}
 		);
+
+		if (isset($data['gridColumns']) === true
+			&& in_array(needle: $data['gridColumns'], haystack: self::GRID_COLUMN_OPTIONS, strict: true) === false
+		) {
+			throw new InvalidArgumentException(message: 'Grid columns must be 6, 8 or 12');
+		}
 
 		if (isset($data['parentUuid']) === true
 			&& ($data['parentUuid'] === '__null__' || $data['parentUuid'] === '')

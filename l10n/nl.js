@@ -2366,7 +2366,11 @@ OC.L10N.register(
     "Enter at least one value with a label" : "Vul minstens een waarde met een label in",
     "Enter the axis labels and at least one named series with values" : "Vul de aslabels en minstens een benoemde reeks met waarden in",
     "Pie chart" : "Cirkeldiagram",
-    "Graph" : "Grafiek"
+    "Graph" : "Grafiek",
+    "You are editing {name}" : "Je bewerkt {name}",
+    "Changes are saved straight away" : "Wijzigingen worden direct bewaard",
+    "Dashboard settings" : "Dashboardinstellingen",
+    "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard."
 },
 "nplurals=2; plural=(n != 1);"
 );

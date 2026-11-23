@@ -100,8 +100,8 @@ const stubs = {
 	CnConfirmDialog: passthrough('CnConfirmDialog', {
 		template: '<div class="stub-confirm" />',
 	}),
-	VersionHistoryModal: passthrough('VersionHistoryModal', {
-		props: { open: Boolean },
+	DashboardEditBar: passthrough('DashboardEditBar', {
+		props: { dashboardName: String, columns: Number, canConfigure: Boolean },
 	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
@@ -388,16 +388,42 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		])
 	}, 90000)
 
-	it('the Meer menu\'s "Version history" opens the modal, and its close event shuts it', async () => {
+	it('the Meer menu\'s "Versions" opens the dashboard settings on the Versions tab', async () => {
 		const { wrapper } = await mountViews()
-		const modal = () => wrapper.findComponent({ name: 'VersionHistoryModal' })
-		expect(modal().props('open')).toBe(false)
-
 		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('versionHistory')
-		expect(modal().props('open')).toBe(true)
+		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
+		expect(config.props('open')).toBe(true)
+		expect(config.props('initialTab')).toBe('versions')
+		expect(config.vm.$attrs.canViewVersions).toBe(true)
+	}, 90000)
 
-		await modal().vm.$emit('close')
-		expect(modal().props('open')).toBe(false)
+	it('edit mode shows the edit bar: its settings, columns and Done', async () => {
+		const { wrapper } = await mountViews()
+		const bar = () => wrapper.findComponent({ name: 'DashboardEditBar' })
+		expect(bar().exists()).toBe(false)
+
+		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('toggleEdit')
+		await flushPromises()
+		expect(bar().exists()).toBe(true)
+		expect(bar().props('canConfigure')).toBe(true)
+		expect(bar().props('columns')).toBe(12)
+
+		await bar().vm.$emit('openSettings')
+		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
+		expect(config.props('open')).toBe(true)
+		expect(config.props('initialTab')).toBe('general')
+
+		await bar().vm.$emit('setColumns', 8)
+		await flushPromises()
+		expect(axios.put).toHaveBeenCalledWith(
+			expect.stringMatching(/\/api\/dashboard\/\d+$/),
+			{ gridColumns: 8 },
+		)
+		expect(bar().props('columns')).toBe(8)
+
+		await bar().vm.$emit('done')
+		await flushPromises()
+		expect(bar().exists()).toBe(false)
 	}, 90000)
 
 	it('opening the Meer menu asks once whether the owner\'s dashboard keeps versions', async () => {

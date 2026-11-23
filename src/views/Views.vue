@@ -77,10 +77,10 @@
 		     dock into that row (headerActionsDock.js), right of "Startpagina
 		     aanpassen" as LpStart draws the page's actions. Floating there,
 		     they covered that button. -->
-		<Teleport v-if="!kiosk" :to="headerActionsTarget || 'body'">
+		<Teleport v-if="!kiosk" :to="controlsDock || 'body'">
 			<div
 				class="launchpad-floating-controls"
-				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
+				:class="{ 'launchpad-floating-controls--docked': controlsDock !== null }"
 				data-testid="launchpad-top-controls">
 				<!-- LpVandaag: one "Meer" menu holds the dashboard switcher, the
 				     active dashboard's actions, the start page's destinations
@@ -117,7 +117,7 @@
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
-					@versionHistory="versionHistoryOpen = true"
+					@versionHistory="openVersionsTab"
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
@@ -163,13 +163,6 @@
 			@confirm="confirmDeleteDashboard" />
 
 
-		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
-		<VersionHistoryModal
-			:open="versionHistoryOpen"
-			:dashboardUuid="activeDashboard?.uuid ?? ''"
-			:dashboardName="activeDashboard?.name ?? ''"
-			@close="versionHistoryOpen = false"
-			@restored="onVersionRestored" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -190,6 +183,17 @@
 			:data-dashboard-uuid="activeDashboard?.uuid || null"
 			:style="dashboardLookStyle"
 			data-testid="launchpad-dashboard-region">
+			<!-- Board LpBewerken: the edit bar, with the edit actions. -->
+			<DashboardEditBar
+				v-if="isEditMode && activeDashboard"
+				:dashboardName="activeDashboard.name || ''"
+				:columns="activeDashboard.gridColumns || 12"
+				:canConfigure="canConfigureActiveDashboard"
+				@setColumns="setGridColumns"
+				@addWidget="openWidgetModal"
+				@openSettings="openConfigModal"
+				@done="toggleEditMode"
+				@dock="editBarDock = $event" />
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
@@ -385,11 +389,13 @@
 			:saveError="configSaveError"
 			:canManagePublication="canManagePublication"
 			:canScheduleExports="canEdit"
+			:canViewVersions="canManagePublication"
 			:exportSubjects="exportSubjects"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
-			@setDefault="onModalSetDefault" />
+			@setDefault="onModalSetDefault"
+			@versionRestored="onVersionRestored" />
 
 		<!-- Style editor modal. `extra-icon-options` is gone: CnIconBrowser now
 		     ships the NL Design sets itself (RVO lazily), so passing the pack here
@@ -496,10 +502,11 @@ import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardDiscussion from '../components/Workspace/DashboardDiscussion.vue'
+import DashboardEditBar from '../components/Workspace/DashboardEditBar.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import { embedAdminHref } from '../components/Workspace/DashboardRowActions.vue'
+import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
@@ -511,7 +518,6 @@ import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue
 import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
-import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
@@ -648,6 +654,7 @@ export default {
 		WidgetMovePanel,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
+		DashboardEditBar,
 		DashboardMoreMenu,
 		SidebarBackdrop,
 		DashboardDiscussion,
@@ -660,7 +667,6 @@ export default {
 		DeleteDashboardDialog,
 		CoEditorsBanner,
 		EditLockBanner,
-		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
 
@@ -812,6 +818,8 @@ export default {
 			 * teleported into, or null while they float (headerActionsDock.js).
 			 */
 			headerActionsTarget: null,
+			// The edit bar's end, where the controls dock in edit mode.
+			editBarDock: null,
 			/**
 			 * Sources (`register/schema`) OpenRegister said are not here,
 			 * keyed by source (REQ-TMPL-022).
@@ -899,10 +907,9 @@ export default {
 				onRefused: () => this.onPresenceRefused(),
 			}),
 
-			// dashboard-version-history-ui: the history modal, and per
-			// dashboard uuid whether versioning is supported (read when the
-			// dashboard menu opens; absent means not known yet).
-			versionHistoryOpen: false,
+			// dashboard-version-history-ui: per dashboard uuid whether
+			// versioning is supported (read when the dashboard menu opens;
+			// absent means not known yet).
 			versionSupport: {},
 		}
 	},
@@ -1173,6 +1180,30 @@ export default {
 		canManagePublication() {
 			const dash = this.activeDashboard
 			return !!dash?.uuid && (dash.isOwner === true || this.isAdmin === true)
+		},
+
+		/**
+		 * Where the top-right controls render: in the edit bar while editing,
+		 * in the greeting row when there is one, else floating (null).
+		 *
+		 * @return {HTMLElement|null}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		controlsDock() {
+			return this.isEditMode ? this.editBarDock : this.headerActionsTarget
+		},
+
+		/**
+		 * Whether the dashboard settings open for this person: the owner, or
+		 * whoever may manage the publication (the gate of the former
+		 * "Settings" menu item).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 */
+		canConfigureActiveDashboard() {
+			return isOwnedDashboard(this.activeDashboard, this.activeDashboardSource)
+				|| this.canManagePublication
 		},
 
 		/**
@@ -1811,6 +1842,7 @@ export default {
 			'forkDashboard',
 			'loadDashboards',
 			'updatePlacements',
+			'setGridColumns',
 			'addWidgetToDashboard',
 			'addTileToDashboard',
 			'importBookmarks',
@@ -2685,6 +2717,18 @@ export default {
 		openShareDrawer() {
 			this.configModalMode = 'edit'
 			this.configModalInitialTab = 'sharing'
+			this.isConfigModalOpen = true
+		},
+
+		/**
+		 * Open the dashboard settings on the Versions tab (board LpVersies).
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-039-versions-are-a-tab-of-the-dashboard-settings
+		 */
+		openVersionsTab() {
+			this.configModalMode = 'edit'
+			this.configModalInitialTab = 'versions'
 			this.isConfigModalOpen = true
 		},
 

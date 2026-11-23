@@ -135,18 +135,30 @@
 			"colour": "primary",
 			"appId": "dossiq",
 			"url": "/index.php/apps/dossiq/",
-			"description": "Mijn zaken in dossiq."
+			"description": "Mijn zaken in dossiq.",
+			"countSource": {
+				"register": "dossiq",
+				"schema": "case",
+				"filter": {
+					"assignee": "@me",
+					"isFinalStatus": false
+				}
+			}
 		},
 		"outlook": {
 			"name": "Outlook web",
 			"icon": "Email",
 			"colour": "primary-deep",
-			"url": "https://outlook.office.com/",
-			"description": "E-mail, via inloggen met uw gemeenteaccount."
+			"url": "/index.php/apps/mail/",
+			"description": "E-mail, via inloggen met uw gemeenteaccount.",
+			"appId": "mail",
+			"countSource": {
+				"dashboardWidget": "mail-unread"
+			}
 		},
 		"topdesk": {
 			"name": "TOPdesk",
-			"icon": "Phone",
+			"icon": "Headset",
 			"colour": "accent",
 			"url": "https://zuiddrecht.topdesk.net/",
 			"description": "Meldingen bij de servicedesk."
@@ -175,7 +187,7 @@
 		},
 		"talk": {
 			"name": "Talk",
-			"icon": "MessageTextOutline",
+			"icon": "ForumOutline",
 			"colour": "work-ink",
 			"appId": "spreed",
 			"url": "/index.php/apps/spreed/",
@@ -503,8 +515,7 @@
 					"gridHeight": 2,
 					"iconOnly": true,
 					"fitRows": true,
-					"pinned": true,
-					"badge": 14
+					"pinned": true
 				},
 				{
 					"tile": "outlook",
@@ -514,8 +525,7 @@
 					"gridHeight": 2,
 					"iconOnly": true,
 					"fitRows": true,
-					"pinned": true,
-					"badge": 3
+					"pinned": true
 				},
 				{
 					"tile": "topdesk",
@@ -630,8 +640,7 @@
 					"gridWidth": 1,
 					"gridHeight": 2,
 					"iconOnly": true,
-					"pinned": true,
-					"badge": 14
+					"pinned": true
 				},
 				{
 					"tile": "outlook",
@@ -640,8 +649,7 @@
 					"gridWidth": 1,
 					"gridHeight": 2,
 					"iconOnly": true,
-					"pinned": true,
-					"badge": 3
+					"pinned": true
 				},
 				{
 					"tile": "topdesk",
@@ -780,7 +788,11 @@
 						"widgetId": "mail-unread",
 						"displayMode": "vertical",
 						"showActions": false,
-						"showHeader": false
+						"showHeader": false,
+						"headerLink": {
+							"label": "Mail openen",
+							"href": "/apps/mail/"
+						}
 					}
 				},
 				{
@@ -802,10 +814,6 @@
 						"externalIcsUrls": [],
 						"showTitle": false,
 						"showViewModes": false,
-						"headerLink": {
-							"label": "Open agenda",
-							"href": "/index.php/apps/calendar/"
-						},
 						"showActions": false,
 						"agendaLayout": "list"
 					}

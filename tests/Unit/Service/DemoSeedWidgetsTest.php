@@ -93,16 +93,30 @@ class DemoSeedWidgetsTest extends TestCase {
 	}//end testTileIsALauncherTileInItsTokenColourWithoutAppTileType()
 
 	/**
-	 * Tile of a disabled app is a launcher tile.
+	 * Tile of a disabled app is an app tile, which names the app as not available.
 	 *
 	 * @return void
 	 */
-	public function testTileOfADisabledAppIsALauncherTile(): void {
+	public function testTileOfADisabledAppIsAnAppTile(): void {
 		$result = $this->expander(types: ['app-tile', 'tile'])->expand(entries: [['tile' => 'talk']]);
 
+		$this->assertSame(expected: 'app-tile', actual: $result['placed'][0]['widgetId']);
+		$this->assertSame(expected: 'spreed', actual: $result['placed'][0]['content']['appId']);
+		$this->assertArrayNotHasKey(key: 'tileLinkValue', array: $result['placed'][0]);
+	}//end testTileOfADisabledAppIsAnAppTile()
+
+	/**
+	 * Tile of a disabled app is not placed when the app tile type is missing.
+	 *
+	 * @return void
+	 */
+	public function testTileOfADisabledAppIsSkippedWithoutAppTileType(): void {
+		$result = $this->expander(types: ['tile'])->expand(entries: [['tile' => 'talk'], ['tile' => 'topdesk']]);
+
+		$this->assertCount(expectedCount: 1, haystack: $result['placed']);
 		$this->assertSame(expected: 'tile', actual: $result['placed'][0]['widgetId']);
-		$this->assertSame(expected: '/index.php/apps/spreed/', actual: $result['placed'][0]['tileLinkValue']);
-	}//end testTileOfADisabledAppIsALauncherTile()
+		$this->assertCount(expectedCount: 1, haystack: $result['skipped']);
+	}//end testTileOfADisabledAppIsSkippedWithoutAppTileType()
 
 	/**
 	 * A tile entry marked iconOnly hands the flag to its placement.
@@ -110,7 +124,9 @@ class DemoSeedWidgetsTest extends TestCase {
 	 * @return void
 	 */
 	public function testIconOnlyTileCarriesTheFlagInItsContent(): void {
-		$result = $this->expander(types: ['tile'])->expand(entries: [['tile' => 'topdesk', 'iconOnly' => true, 'fitRows' => true], ['tile' => 'talk']]);
+		$result = $this->expander(types: ['tile'], apps: ['spreed'])->expand(
+			entries: [['tile' => 'topdesk', 'iconOnly' => true, 'fitRows' => true], ['tile' => 'talk']]
+		);
 
 		$this->assertTrue(condition: $result['placed'][0]['content']['iconOnly']);
 		$this->assertTrue(condition: $result['placed'][0]['content']['fitRows']);
@@ -124,7 +140,7 @@ class DemoSeedWidgetsTest extends TestCase {
 	 * @return void
 	 */
 	public function testTileCarriesItsMarks(): void {
-		$result = $this->expander(types: ['tile'])->expand(
+		$result = $this->expander(types: ['tile'], apps: ['spreed'])->expand(
 			entries: [['tile' => 'topdesk', 'pinned' => true, 'badge' => 3, 'status' => 'down'], ['tile' => 'talk', 'badge' => '3']]
 		);
 

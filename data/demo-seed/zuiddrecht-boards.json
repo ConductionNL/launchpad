@@ -721,7 +721,8 @@
 						"title": "Mail",
 						"widgetId": "mail-unread",
 						"displayMode": "vertical",
-						"showActions": false
+						"showActions": false,
+						"showHeader": false
 					}
 				},
 				{

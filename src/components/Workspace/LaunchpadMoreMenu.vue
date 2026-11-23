@@ -3,13 +3,13 @@
   - SPDX-License-Identifier: EUPL-1.2
   -
   - LaunchpadMoreMenu: the one More menu of launchpad, the same on every page
-  - (board LpMeer). A 600 px popover with two columns: Dashboards and the
-  - expandable Settings item on the left, This dashboard on the right; one
-  - column under 960 px, or when there is no dashboard to act on.
+  - (board LpMeer). A 600 px popover with two columns: Dashboards on the
+  - left, This dashboard and below it the expandable Settings item on the
+  - right; one column under 960 px, in that same order.
   -
   - Settings is one menu item (cog, chevron, aria-haspopup, aria-expanded)
-  - that unfolds in place as an indented group with a rule at its start. It
-  - starts folded every time the menu opens.
+  - below a rule. It unfolds in place as an indented group with a rule at its
+  - start, and starts folded every time the menu opens.
   -
   - Keyboard: the arrow keys move through every visible item over both
   - columns, Home and End jump to the first and last, Right unfolds Settings
@@ -40,14 +40,13 @@
 		<div
 			ref="panel"
 			class="lp-more-menu__panel"
-			:class="{ 'lp-more-menu__panel--single': !hasActions }"
+			:class="{ 'lp-more-menu__panel--single': !twoColumns }"
 			role="menu"
 			:aria-label="triggerLabel"
 			data-testid="launchpad-more-menu-panel"
 			@keydown="onKeydown">
-			<div class="lp-more-menu__column">
+			<div v-if="dashboards.length > 0" class="lp-more-menu__column">
 				<div
-					v-if="dashboards.length > 0"
 					class="lp-more-menu__group"
 					role="group"
 					:aria-labelledby="`${domId}-dashboards`"
@@ -57,6 +56,23 @@
 					</span>
 					<LaunchpadMoreMenuItem
 						v-for="item in dashboards"
+						:key="item.id"
+						:item="item"
+						@click="choose($event, item)" />
+				</div>
+			</div>
+			<div v-if="hasEndColumn" class="lp-more-menu__column">
+				<div
+					v-if="hasActions"
+					class="lp-more-menu__group"
+					role="group"
+					:aria-labelledby="`${domId}-actions`"
+					data-testid="launchpad-more-menu-group-this-dashboard">
+					<span :id="`${domId}-actions`" class="lp-more-menu__title">
+						{{ t('launchpad', 'This dashboard') }}
+					</span>
+					<LaunchpadMoreMenuItem
+						v-for="item in actions"
 						:key="item.id"
 						:item="item"
 						@click="choose($event, item)" />
@@ -97,22 +113,6 @@
 							@click="choose($event, item)" />
 					</div>
 				</template>
-			</div>
-			<div v-if="hasActions" class="lp-more-menu__column">
-				<div
-					class="lp-more-menu__group"
-					role="group"
-					:aria-labelledby="`${domId}-actions`"
-					data-testid="launchpad-more-menu-group-this-dashboard">
-					<span :id="`${domId}-actions`" class="lp-more-menu__title">
-						{{ t('launchpad', 'This dashboard') }}
-					</span>
-					<LaunchpadMoreMenuItem
-						v-for="item in actions"
-						:key="item.id"
-						:item="item"
-						@click="choose($event, item)" />
-				</div>
 			</div>
 		</div>
 	</NcPopover>
@@ -199,6 +199,26 @@ export default {
 		 */
 		hasActions() {
 			return this.actions.length > 0
+		},
+
+		/**
+		 * Whether the right column is drawn: This dashboard, Settings or both.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		hasEndColumn() {
+			return this.hasActions || this.settings.length > 0
+		},
+
+		/**
+		 * Whether the menu has two columns: Dashboards beside the right column.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 */
+		twoColumns() {
+			return this.dashboards.length > 0 && this.hasEndColumn
 		},
 	},
 
@@ -443,6 +463,13 @@ export default {
 	border-radius: 0;
 }
 
+/* Settings alone at the top of a column needs no rule above it. */
+.lp-more-menu__column > .lp-more-menu__settings:first-child {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
 .lp-more-menu__subgroup {
 	margin: 0 0 4px 18px;
 	padding-inline-start: 8px;
@@ -486,6 +513,13 @@ export default {
 	.lp-more-menu__panel {
 		grid-template-columns: minmax(0, 1fr);
 		width: min(320px, calc(100vw - 32px));
+	}
+
+	/* Stacked, Settings follows the Dashboards group and keeps its rule. */
+	.lp-more-menu__column + .lp-more-menu__column > .lp-more-menu__settings:first-child {
+		margin-top: 6px;
+		padding-top: 6px;
+		border-top: 1px solid var(--color-border);
 	}
 }
 </style>

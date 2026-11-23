@@ -285,7 +285,7 @@
 		{
 			"uuid": "5d0c3a91-7e2b-4f60-9a1d-2b8e6c4f0a12",
 			"kind": "notice",
-			"title": "Zaaksysteem in onderhoud zaterdag 10 oktober 08:00 tot 12:00",
+			"title": "Zaaksysteem in onderhoud zaterdag van 08:00 tot 12:00",
 			"body": "U kunt dan geen zaken openen of bijwerken. Meldingen van inwoners komen daarna binnen.",
 			"category": "Onderhoud",
 			"level": "warning",
@@ -2280,7 +2280,7 @@
 					"showTitle": 1,
 					"customTitle": "Storingen",
 					"content": {
-						"text": "Geen storingen op dit moment. Zaterdag 10 oktober van 08:00 tot 12:00 onderhoud aan het zaaksysteem.",
+						"text": "Geen storingen op dit moment. Zaterdag van 08:00 tot 12:00 onderhoud aan het zaaksysteem.",
 						"fontSize": "14px",
 						"textAlign": "left",
 						"contentMode": "markdown",

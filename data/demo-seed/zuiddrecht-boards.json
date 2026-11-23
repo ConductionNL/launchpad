@@ -1386,9 +1386,9 @@
 					"gridWidth": 8,
 					"gridHeight": 5,
 					"showTitle": 1,
-					"customTitle": "Aankondiging",
+					"customTitle": "Nieuwe werkwijze Woo-verzoeken vanaf 1 november",
 					"content": {
-						"text": "**Nieuwe werkwijze Woo-verzoeken vanaf 1 november**\n\nVanaf 1 november registreert u elk Woo-verzoek in dossiq, ook als het via de balie of de telefoon binnenkomt. Het team Informatie helpt u op weg.\n\nBevestig voor vrijdag 9 oktober dat u dit gelezen heeft.",
+						"text": "Vanaf 1 november registreert u elk Woo-verzoek in dossiq, ook als het via de balie of de telefoon binnenkomt. Het team informatie toetst daarna binnen twee werkdagen. Lees de werkinstructie voordat u een nieuw verzoek aanneemt.",
 						"contentMode": "markdown",
 						"showActions": false
 					},
@@ -1413,22 +1413,10 @@
 					}
 				},
 				{
-					"widgetId": "section-heading",
-					"gridX": 0,
-					"gridY": 12,
-					"gridWidth": 12,
-					"gridHeight": 1,
-					"showTitle": 0,
-					"content": {
-						"title": "Nieuws en media",
-						"description": "Van zuiddrecht.nl en van Communicatie"
-					}
-				},
-				{
 					"widgetId": "announcements",
 					"gridX": 0,
-					"gridY": 13,
-					"gridWidth": 8,
+					"gridY": 12,
+					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
 					"customTitle": "Nieuws",
@@ -1439,21 +1427,9 @@
 					}
 				},
 				{
-					"widgetId": "section-heading",
-					"gridX": 0,
-					"gridY": 19,
-					"gridWidth": 12,
-					"gridHeight": 1,
-					"showTitle": 0,
-					"content": {
-						"title": "Wegwijs",
-						"description": "Snel naar de vaste plekken van het intranet"
-					}
-				},
-				{
 					"widgetId": "menu",
 					"gridX": 0,
-					"gridY": 20,
+					"gridY": 25,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
@@ -1528,10 +1504,10 @@
 				},
 				{
 					"widgetId": "text",
-					"gridX": 4,
-					"gridY": 20,
-					"gridWidth": 8,
-					"gridHeight": 6,
+					"gridX": 0,
+					"gridY": 31,
+					"gridWidth": 4,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Werken op het stadskantoor",
 					"content": {
@@ -1540,6 +1516,127 @@
 						"textAlign": "left",
 						"contentMode": "markdown",
 						"showActions": false
+					}
+				},
+				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 11,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Nieuws en media",
+						"description": "Van zuiddrecht.nl en van Communicatie"
+					}
+				},
+				{
+					"widgetId": "video",
+					"gridX": 4,
+					"gridY": 12,
+					"gridWidth": 4,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Video",
+					"content": {
+						"sourceType": "url",
+						"videoUrl": "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ",
+						"autoplay": false,
+						"muted": true,
+						"controls": true,
+						"aspectRatio": "16:9",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "image",
+					"gridX": 8,
+					"gridY": 12,
+					"gridWidth": 4,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Afbeelding",
+					"content": {
+						"url": "/index.php/apps/theming/image/background",
+						"alt": "Het stadskantoor van Zuiddrecht",
+						"link": "",
+						"fit": "cover",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 18,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Collega's",
+						"description": "Wie nieuw is, wie jarig is en wie wat weet"
+					}
+				},
+				{
+					"widgetId": "people",
+					"gridX": 0,
+					"gridY": 19,
+					"gridWidth": 4,
+					"gridHeight": 5,
+					"showTitle": 1,
+					"customTitle": "Nieuwe collega's",
+					"content": {
+						"layout": "list",
+						"filters": [],
+						"excludeDisabled": true,
+						"sortBy": "createdAt",
+						"columns": 2,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "people",
+					"gridX": 4,
+					"gridY": 19,
+					"gridWidth": 4,
+					"gridHeight": 5,
+					"showTitle": 1,
+					"customTitle": "Verjaardagen",
+					"content": {
+						"layout": "list",
+						"filters": [],
+						"excludeDisabled": true,
+						"sortBy": "birthday",
+						"columns": 2,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "people",
+					"gridX": 8,
+					"gridY": 19,
+					"gridWidth": 4,
+					"gridHeight": 5,
+					"showTitle": 1,
+					"customTitle": "Vind een collega op expertise",
+					"content": {
+						"layout": "list",
+						"filters": [],
+						"excludeDisabled": true,
+						"sortBy": "displayName",
+						"columns": 2,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 24,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Wegwijs",
+						"description": "Snel naar de vaste plekken van het intranet"
 					}
 				}
 			]

@@ -539,6 +539,7 @@ import { logger } from '../utils/logger.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
+import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -1983,8 +1984,8 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		formatStamp(value) {
-			const parsed = new Date(String(value).replace(' ', 'T'))
-			return Number.isNaN(parsed.getTime())
+			const parsed = parseServerStamp(value)
+			return parsed === null
 				? String(value)
 				: parsed.toLocaleString(undefined, {
 						dateStyle: 'medium',

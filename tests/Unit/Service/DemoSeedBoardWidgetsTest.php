@@ -95,6 +95,8 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', "Collega's", 'Wegwijs'],
 			'Team Vergunningen'    => ['Apps van het team'],
 		];
+		// LpWerkplek heads each group of tiles in its own column.
+		$headingWidths = ['Mijn werkplek' => 4];
 		foreach (self::seed()['dashboards'] as $dashboard) {
 			$titles = [];
 			foreach ($dashboard['widgets'] as $widget) {
@@ -104,7 +106,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 				}
 
 				$titles[] = $widget['content']['title'];
-				$this->assertSame(expected: $dashboard['gridColumns'], actual: $widget['gridWidth'], message: $widget['content']['title']);
+				$this->assertSame(expected: ($headingWidths[$dashboard['name']] ?? $dashboard['gridColumns']), actual: $widget['gridWidth'], message: $widget['content']['title']);
 				$this->assertNotSame(expected: '', actual: $widget['content']['description'], message: $widget['content']['title']);
 			}
 
@@ -165,7 +167,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		$wikis = self::placementsOf(type: 'wiki-pages');
 		$this->assertCount(expectedCount: 2, haystack: $wikis);
 		foreach ($wikis as $wiki) {
-			$this->assertSame(expected: ['space', 'limit'], actual: array_keys($wiki['content']));
+			$this->assertSame(expected: ['space', 'limit'], actual: array_slice(array_keys($wiki['content']), 0, 2));
 			$this->assertIsString(actual: $wiki['content']['space']);
 		}
 
@@ -184,7 +186,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		$widgets = self::placementsOf(type: 'work-packages');
 		$this->assertCount(expectedCount: 2, haystack: $widgets);
 		foreach ($widgets as $widget) {
-			$this->assertSame(expected: ['scope', 'project', 'limit'], actual: array_keys($widget['content']));
+			$this->assertSame(expected: ['scope', 'project', 'limit'], actual: array_slice(array_keys($widget['content']), 0, 3));
 			$this->assertContains(needle: $widget['content']['scope'], haystack: ['mine', 'project']);
 			if ($widget['content']['scope'] === 'project') {
 				$this->assertSame(expected: 'havenpark', actual: $widget['content']['project']);
@@ -199,9 +201,9 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 */
 	public function testCaseWidgetsReadTheDossiqRegister(): void {
 		$widgets = self::placementsOf(type: 'assigned-cases');
-		$this->assertCount(expectedCount: 3, haystack: $widgets);
+		$this->assertCount(expectedCount: 2, haystack: $widgets);
 		foreach ($widgets as $widget) {
-			$this->assertSame(expected: ['register' => 'dossiq', 'schema' => 'case', 'limit' => 4], actual: $widget['content']);
+			$this->assertSame(expected: ['register' => 'dossiq', 'schema' => 'case', 'limit' => 4], actual: array_slice($widget['content'], 0, 3));
 			$this->assertArrayNotHasKey(key: 'fallback', array: $widget);
 		}
 

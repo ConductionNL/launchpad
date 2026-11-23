@@ -174,7 +174,12 @@ class DemoSeedWidgets {
 			'showTitle'  => 0,
 		];
 
-		return [...$layout, ...$this->tileFields(tile: $tile)];
+		$payload = [...$layout, ...$this->tileFields(tile: $tile)];
+		if (($entry['iconOnly'] ?? false) === true) {
+			$payload['content']['iconOnly'] = true;
+		}
+
+		return $payload;
 	}//end tilePayload()
 
 	/**

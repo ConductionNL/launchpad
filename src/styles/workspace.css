@@ -523,6 +523,7 @@
 }
 
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node__label-button {
+	min-height: 0;
 	margin: 0;
 	padding-inline: 0;
 }

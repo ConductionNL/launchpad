@@ -452,3 +452,8 @@
 	color: var(--color-text-maxcontrast);
 	font-size: 13px;
 }
+
+/* The counter pads itself; its card adds no inset. */
+.cn-look-board .launchpad-container .launchpad-widget:has(.cn-stat-widget) .cn-widget-wrapper__content {
+	padding: 0;
+}

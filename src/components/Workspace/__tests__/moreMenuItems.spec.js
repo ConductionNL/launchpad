@@ -118,7 +118,7 @@ describe('dashboardActionItems', () => {
 		expect(items.map((i) => i.label)).toEqual([
 			'Edit',
 			'Add widget',
-			'Share',
+			'Sharing',
 			'Copy link to this dashboard',
 			'Duplicate as new dashboard',
 			'Set as default',
@@ -146,10 +146,10 @@ describe('dashboardActionItems', () => {
 		expect(ids(all)).not.toContain('config')
 	})
 
-	it('names Save dashboard while editing and Default dashboard for the default', () => {
+	it('names Save dashboard while editing and Set as default also for the default (LpMeer)', () => {
 		const items = dashboardActionItems({ ...all, isEditMode: true, isDefault: true })
 		expect(items.find((i) => i.id === 'edit').label).toBe('Save dashboard')
-		expect(items.find((i) => i.id === 'set-default').label).toBe('Default dashboard')
+		expect(items.find((i) => i.id === 'set-default').label).toBe('Set as default')
 	})
 
 	it('reports each chosen action by its event', () => {

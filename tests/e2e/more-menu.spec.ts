@@ -112,7 +112,7 @@ test('This dashboard ends in Delete', async ({ page }) => {
 	expect(labels.map((label) => label.trim())).toEqual([
 		'Edit',
 		'Add widget',
-		'Share',
+		'Sharing',
 		'Copy link to this dashboard',
 		'Duplicate as new dashboard',
 		expect.stringMatching(/Set as default|Default dashboard/),

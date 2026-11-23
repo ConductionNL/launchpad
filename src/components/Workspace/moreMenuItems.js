@@ -444,10 +444,10 @@ function actionRows(options) {
 	return [
 		{ offered: options.canEdit, id: 'edit', label: editing ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit'), icon: editing ? ContentSave : Pencil, event: 'toggleEdit' },
 		{ offered: options.canEdit, id: 'add-widget', label: t('launchpad', 'Add widget'), icon: Plus, event: 'addWidget' },
-		{ offered: options.canShare, id: 'share', label: t('launchpad', 'Share'), icon: ShareVariant, event: 'share' },
+		{ offered: options.canShare, id: 'share', label: t('launchpad', 'Sharing'), icon: ShareVariant, event: 'share' },
 		{ offered: true, id: 'copy-link', label: t('launchpad', 'Copy link to this dashboard'), icon: LinkVariant, event: 'copyLink' },
 		{ offered: options.canDuplicate, id: 'duplicate', label: t('launchpad', 'Duplicate as new dashboard'), icon: ContentCopy, event: 'duplicate' },
-		{ offered: true, id: 'set-default', label: isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
+		{ offered: true, id: 'set-default', label: t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
 		{ offered: options.isOwner, id: 'delete', label: t('launchpad', 'Delete'), icon: TrashCanOutline, event: 'delete', destructive: true },
 	]
 }

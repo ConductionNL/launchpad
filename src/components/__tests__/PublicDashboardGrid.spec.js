@@ -73,4 +73,13 @@ describe('PublicDashboardGrid', () => {
 		expect(titled.attributes('aria-label')).toBeUndefined()
 		expect(titled.text()).toBe('Mail')
 	})
+
+	it('places a card at its column and row, so a narrow column stacks beside a wide card (LpPubliek)', () => {
+		const text = (id, gridX, gridY, gridWidth, gridHeight) => ({ id, widgetId: 'text', gridX, gridY, gridWidth, gridHeight, showTitle: 1, customTitle: String(id), content: { text: 'x' } })
+		const wrapper = mount(PublicDashboardGrid, { props: { placements: [text(1, 0, 0, 8, 8), text(2, 8, 0, 4, 3), text(3, 8, 3, 4, 3)] } })
+		const cells = wrapper.findAll('.public-share-view__cell')
+		expect(cells[0].attributes('style')).toContain('grid-area: 1 / 1 / span 8 / span 8')
+		expect(cells[2].attributes('style')).toContain('grid-area: 4 / 9 / span 3 / span 4')
+	})
 })
+

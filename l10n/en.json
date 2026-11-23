@@ -1744,7 +1744,11 @@
         "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.": "These {count} starter widgets go on it. Apps places one tile per app. You can move or remove everything later.",
         "Welcome to Launchpad, {name} · {date}": "Welcome to Launchpad, {name} · {date}",
         "Welcome to Launchpad · {date}": "Welcome to Launchpad · {date}",
+        "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.": "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.",
+        "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Under Kiosk you make playlists of dashboards for a screen that needs no login.",
+        "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Under Demo data you load example dashboards to try LaunchPad, and remove them again.",
         "Quarter": "Quarter",
-        "Year": "Year"
+        "Year": "Year",
+        "Sign in for employees": "Sign in for employees"
     }
 }

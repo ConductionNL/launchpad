@@ -15,7 +15,12 @@ import { describe, expect, it } from 'vitest'
 const css = readFileSync(resolve(__dirname, '../workspace.css'), 'utf8')
 
 describe('workspace.css and the links widget', () => {
-	it('holds no rule that targets the links widget', () => {
-		expect(css).not.toMatch(/\.cn-links-widget/)
+	it('targets the links widget only inside the board look', () => {
+		const selectors = (css.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+(?=\{)/g) ?? [])
+			.flatMap((list) => list.split(/,(?![^(]*\))/))
+		const linkRules = selectors.filter((selector) => selector.includes('.cn-links-widget'))
+		for (const selector of linkRules) {
+			expect(selector.trim()).toMatch(/^\.cn-look-board /)
+		}
 	})
 })

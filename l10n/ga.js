@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Athainmníodh an deais go %s",
+    "Columns from %1$s to %2$s" : "Colúin ó %1$s go %2$s",
+    "Widget %s added" : "Cuireadh giuirléid %s leis",
+    "Widget %s removed" : "Baineadh giuirléid %s",
+    "Widget %1$s renamed to %2$s" : "Athainmníodh giuirléid %1$s go %2$s",
+    "Widget %s moved" : "Bogadh giuirléid %s",
+    "Widget %s resized" : "Athraíodh méid ghiuirléid %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s agus %n athrú eile", "%s agus %n athrú eile", "%s agus %n athrú eile", "%s agus %n n-athrú eile", "%s agus %n athrú eile"],
     "Admin settings" : "Socruithe riaracháin",
     "Features & roadmap" : "Gnéithe agus treochlár",
     "Maximum dashboards per user" : "Uaslíon deais-chláir in aghaidh an úsáideora",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Scagairí gníomhacha",
     "Pinned filter" : "Scagaire greamaithe",
     "Remove filter: {label}" : "Bain an scagaire: {label}",
-    "Reset filters" : "Athshocraigh na scagairí",,
+    "Reset filters" : "Athshocraigh na scagairí",
     "Personal dashboard" : "Painéal pearsanta",
     "Personal dashboard · opens first" : "Painéal pearsanta · osclaítear ar dtús é",
     "Shared with you" : "Roinnte leat",

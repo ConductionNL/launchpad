@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Dashbord omdøpt til %s",
+    "Columns from %1$s to %2$s" : "Kolonner fra %1$s til %2$s",
+    "Widget %s added" : "Widget %s lagt til",
+    "Widget %s removed" : "Widget %s fjernet",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s omdøpt til %2$s",
+    "Widget %s moved" : "Widget %s flyttet",
+    "Widget %s resized" : "Størrelse på widget %s endret",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s og %n endring til", "%s og %n endringer til"],
     "Admin settings" : "Administrasjonsinnstillinger",
     "Features & roadmap" : "Funksjoner og veikart",
     "Maximum dashboards per user" : "Maksimalt antall dashbord per bruker",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktive filtre",
     "Pinned filter" : "Festet filter",
     "Remove filter: {label}" : "Fjern filter: {label}",
-    "Reset filters" : "Tilbakestill filtre",,
+    "Reset filters" : "Tilbakestill filtre",
     "Personal dashboard" : "Personlig dashbord",
     "Personal dashboard · opens first" : "Personlig dashbord · åpnes først",
     "Shared with you" : "Delt med deg",

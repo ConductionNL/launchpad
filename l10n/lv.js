@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Panelis pārdēvēts par %s",
+    "Columns from %1$s to %2$s" : "Kolonnas no %1$s uz %2$s",
+    "Widget %s added" : "Pievienots logrīks %s",
+    "Widget %s removed" : "Noņemts logrīks %s",
+    "Widget %1$s renamed to %2$s" : "Logrīks %1$s pārdēvēts par %2$s",
+    "Widget %s moved" : "Logrīks %s pārvietots",
+    "Widget %s resized" : "Mainīts logrīka %s izmērs",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s un vēl %n izmaiņu", "%s un vēl %n izmaiņa", "%s un vēl %n izmaiņas"],
     "Admin settings" : "Pārvaldīšanas iestatījumi",
     "Features & roadmap" : "Funkcijas un ceļvedis",
     "Maximum dashboards per user" : "Maksimālais informācijas paneļu skaits uz lietotāju",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktīvie filtri",
     "Pinned filter" : "Piesprausts filtrs",
     "Remove filter: {label}" : "Noņemt filtru: {label}",
-    "Reset filters" : "Atiestatīt filtrus",,
+    "Reset filters" : "Atiestatīt filtrus",
     "Personal dashboard" : "Personīgais informācijas panelis",
     "Personal dashboard · opens first" : "Personīgais informācijas panelis · atveras pirmais",
     "Shared with you" : "Kopīgots ar jums",

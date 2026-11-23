@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Nadzorna ploča preimenovana u %s",
+    "Columns from %1$s to %2$s" : "Stupci iz %1$s u %2$s",
+    "Widget %s added" : "Dodan widget %s",
+    "Widget %s removed" : "Uklonjen widget %s",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s preimenovan u %2$s",
+    "Widget %s moved" : "Widget %s premješten",
+    "Widget %s resized" : "Promijenjena veličina widgeta %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s i još %n promjena", "%s i još %n promjene", "%s i još %n promjena"],
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Značajke i plan razvoja",
     "Maximum dashboards per user" : "Najveći broj nadzornih ploča po korisniku",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktivni filtri",
     "Pinned filter" : "Prikvačeni filtar",
     "Remove filter: {label}" : "Ukloni filtar: {label}",
-    "Reset filters" : "Poništi filtre",,
+    "Reset filters" : "Poništi filtre",
     "Personal dashboard" : "Osobna nadzorna ploča",
     "Personal dashboard · opens first" : "Osobna nadzorna ploča · otvara se prva",
     "Shared with you" : "Podijeljeno s vama",

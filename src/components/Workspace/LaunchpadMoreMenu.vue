@@ -370,6 +370,7 @@ export default {
 /* The More button is 40px high, and open it is tinted with a brand border
    (LpWerkplek, LpVandaag). */
 .lp-more-menu__trigger {
+	--default-clickable-area: 40px;
 	min-height: 40px;
 }
 

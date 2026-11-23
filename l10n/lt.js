@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Skydelis pervadintas į %s",
+    "Columns from %1$s to %2$s" : "Stulpeliai iš %1$s į %2$s",
+    "Widget %s added" : "Pridėtas valdiklis %s",
+    "Widget %s removed" : "Pašalintas valdiklis %s",
+    "Widget %1$s renamed to %2$s" : "Valdiklis %1$s pervadintas į %2$s",
+    "Widget %s moved" : "Valdiklis %s perkeltas",
+    "Widget %s resized" : "Pakeistas valdiklio %s dydis",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s ir dar %n pakeitimas", "%s ir dar %n pakeitimai", "%s ir dar %n pakeitimų"],
     "Admin settings" : "Administravimo nustatymai",
     "Features & roadmap" : "Funkcijos ir planas",
     "Maximum dashboards per user" : "Didžiausias skydelių skaičius vienam naudotojui",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktyvūs filtrai",
     "Pinned filter" : "Prisegtas filtras",
     "Remove filter: {label}" : "Pašalinti filtrą: {label}",
-    "Reset filters" : "Atstatyti filtrus",,
+    "Reset filters" : "Atstatyti filtrus",
     "Personal dashboard" : "Asmeninis skydelis",
     "Personal dashboard · opens first" : "Asmeninis skydelis · atidaromas pirmas",
     "Shared with you" : "Bendrinama su jumis",

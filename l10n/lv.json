@@ -1,5 +1,17 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Panelis pārdēvēts par %s",
+        "Columns from %1$s to %2$s": "Kolonnas no %1$s uz %2$s",
+        "Widget %s added": "Pievienots logrīks %s",
+        "Widget %s removed": "Noņemts logrīks %s",
+        "Widget %1$s renamed to %2$s": "Logrīks %1$s pārdēvēts par %2$s",
+        "Widget %s moved": "Logrīks %s pārvietots",
+        "Widget %s resized": "Mainīts logrīka %s izmērs",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s un vēl %n izmaiņu",
+            "%s un vēl %n izmaiņa",
+            "%s un vēl %n izmaiņas"
+        ],
         "Admin settings": "Pārvaldīšanas iestatījumi",
         "Maximum dashboards per user": "Maksimālais informācijas paneļu skaits uz lietotāju",
         "Maximum widgets per dashboard": "Maksimālais logrīku skaits uz informācijas paneli",

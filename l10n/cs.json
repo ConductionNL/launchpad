@@ -1,5 +1,17 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Nástěnka přejmenována na %s",
+        "Columns from %1$s to %2$s": "Sloupce z %1$s na %2$s",
+        "Widget %s added": "Přidán widget %s",
+        "Widget %s removed": "Odebrán widget %s",
+        "Widget %1$s renamed to %2$s": "Widget %1$s přejmenován na %2$s",
+        "Widget %s moved": "Widget %s přesunut",
+        "Widget %s resized": "Změněna velikost widgetu %s",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s a %n další změna",
+            "%s a %n další změny",
+            "%s a %n dalších změn"
+        ],
         "Admin settings": "Nastavení pro správu",
         "Maximum dashboards per user": "Maximální počet dashboardů na uživatele",
         "Maximum widgets per dashboard": "Maximální počet widgetů na dashboard",

@@ -1,5 +1,16 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Dashboard hernoemd tot %s",
+        "Columns from %1$s to %2$s": "Kolommen van %1$s naar %2$s",
+        "Widget %s added": "Widget %s toegevoegd",
+        "Widget %s removed": "Widget %s verwijderd",
+        "Widget %1$s renamed to %2$s": "Widget %1$s hernoemd tot %2$s",
+        "Widget %s moved": "Widget %s verplaatst",
+        "Widget %s resized": "Widget %s van formaat veranderd",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s en %n andere wijziging",
+            "%s en %n andere wijzigingen"
+        ],
         "Load example data?": "Voorbeeldgegevens laden?",
         "Example data fills the lists, detail pages and dashboards so you can see the app working straight away. Each card has its own Load button. Pick \"None\" on a production install.": "Voorbeeldgegevens vullen de lijsten, detailpagina’s en dashboards, zodat je de app meteen ziet werken. Elke kaart heeft een eigen knop Laden. Kies \"Geen\" op een productieomgeving.",
         "None, I will set this up myself": "Geen, ik richt dit zelf in",

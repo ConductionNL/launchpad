@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Pano %s olarak yeniden adlandırıldı",
+    "Columns from %1$s to %2$s" : "Sütunlar %1$s → %2$s",
+    "Widget %s added" : "%s pencere öğesi eklendi",
+    "Widget %s removed" : "%s pencere öğesi kaldırıldı",
+    "Widget %1$s renamed to %2$s" : "%1$s pencere öğesi %2$s olarak yeniden adlandırıldı",
+    "Widget %s moved" : "%s pencere öğesi taşındı",
+    "Widget %s resized" : "%s pencere öğesi yeniden boyutlandırıldı",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s ve %n değişiklik daha", "%s ve %n değişiklik daha"],
     "Admin settings" : "Yönetim ayarları",
     "Features & roadmap" : "Özellikler ve yol haritası",
     "Maximum dashboards per user" : "Kullanıcı başına en fazla pano",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Etkin filtreler",
     "Pinned filter" : "Sabitlenmiş filtre",
     "Remove filter: {label}" : "Filtreyi kaldır: {label}",
-    "Reset filters" : "Filtreleri sıfırla",,
+    "Reset filters" : "Filtreleri sıfırla",
     "Personal dashboard" : "Kişisel pano",
     "Personal dashboard · opens first" : "Kişisel pano · ilk açılır",
     "Shared with you" : "Sizinle paylaşıldı",

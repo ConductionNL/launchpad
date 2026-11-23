@@ -1,5 +1,16 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Dashboard renamed to %s",
+        "Columns from %1$s to %2$s": "Columns from %1$s to %2$s",
+        "Widget %s added": "Widget %s added",
+        "Widget %s removed": "Widget %s removed",
+        "Widget %1$s renamed to %2$s": "Widget %1$s renamed to %2$s",
+        "Widget %s moved": "Widget %s moved",
+        "Widget %s resized": "Widget %s resized",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s and %n more change",
+            "%s and %n more changes"
+        ],
         "share_not_found": "Share not found",
         "share_expired": "This share has expired",
         "share_password_required": "Password required to access this share",

@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Tavla renumnada en %s",
+    "Columns from %1$s to %2$s" : "Colonnas da %1$s a %2$s",
+    "Widget %s added" : "Widget %s agiuntà",
+    "Widget %s removed" : "Widget %s allontanà",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s renumnà en %2$s",
+    "Widget %s moved" : "Widget %s spustà",
+    "Widget %s resized" : "Grondezza dal widget %s midada",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s ed anc %n midada", "%s ed anc %n midadas"],
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funcziuns e plan da svilup",
     "Maximum dashboards per user" : "Maximum da dashboards per utilisader",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Filters activs",
     "Pinned filter" : "Filter fixà",
     "Remove filter: {label}" : "Allontanar il filter: {label}",
-    "Reset filters" : "Reinizialisar ils filters",,
+    "Reset filters" : "Reinizialisar ils filters",
     "Personal dashboard" : "Dashboard persunal",
     "Personal dashboard · opens first" : "Dashboard persunal · vegn avert sco emprim",
     "Shared with you" : "Partì cun Vus",

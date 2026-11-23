@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Панэль перайменавана ў %s",
+    "Columns from %1$s to %2$s" : "Слупкі: з %1$s на %2$s",
+    "Widget %s added" : "Дададзены віджэт %s",
+    "Widget %s removed" : "Выдалены віджэт %s",
+    "Widget %1$s renamed to %2$s" : "Віджэт %1$s перайменаваны ў %2$s",
+    "Widget %s moved" : "Віджэт %s перамешчаны",
+    "Widget %s resized" : "Зменены памер віджэта %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s і яшчэ %n змена", "%s і яшчэ %n змены", "%s і яшчэ %n змен"],
     "Admin settings" : "Налады адміністравання",
     "Features & roadmap" : "Функцыі і дарожная карта",
     "Maximum dashboards per user" : "Максімальная колькасць дашбордаў на карыстальніка",
@@ -1479,7 +1487,7 @@ OC.L10N.register(
     "Active filters" : "Актыўныя фільтры",
     "Pinned filter" : "Замацаваны фільтр",
     "Remove filter: {label}" : "Выдаліць фільтр: {label}",
-    "Reset filters" : "Скінуць фільтры",,
+    "Reset filters" : "Скінуць фільтры",
     "Personal dashboard" : "Асабістая панэль",
     "Personal dashboard · opens first" : "Асабістая панэль · адкрываецца першай",
     "Shared with you" : "Абагулена з вамі",

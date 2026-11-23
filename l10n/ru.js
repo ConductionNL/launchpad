@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Панель переименована в %s",
+    "Columns from %1$s to %2$s" : "Столбцы: с %1$s на %2$s",
+    "Widget %s added" : "Добавлен виджет %s",
+    "Widget %s removed" : "Удалён виджет %s",
+    "Widget %1$s renamed to %2$s" : "Виджет %1$s переименован в %2$s",
+    "Widget %s moved" : "Виджет %s перемещён",
+    "Widget %s resized" : "Изменён размер виджета %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s и ещё %n изменение", "%s и ещё %n изменения", "%s и ещё %n изменений"],
     "Admin settings" : "Параметры сервера",
     "Features & roadmap" : "Функции и дорожная карта",
     "Maximum dashboards per user" : "Максимальное количество панелей на пользователя",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Активные фильтры",
     "Pinned filter" : "Закреплённый фильтр",
     "Remove filter: {label}" : "Удалить фильтр: {label}",
-    "Reset filters" : "Сбросить фильтры",,
+    "Reset filters" : "Сбросить фильтры",
     "Personal dashboard" : "Личная панель",
     "Personal dashboard · opens first" : "Личная панель · открывается первой",
     "Shared with you" : "Доступно вам",

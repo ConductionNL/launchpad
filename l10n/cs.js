@@ -1,6 +1,14 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Dashboard renamed to %s" : "Nástěnka přejmenována na %s",
+    "Columns from %1$s to %2$s" : "Sloupce z %1$s na %2$s",
+    "Widget %s added" : "Přidán widget %s",
+    "Widget %s removed" : "Odebrán widget %s",
+    "Widget %1$s renamed to %2$s" : "Widget %1$s přejmenován na %2$s",
+    "Widget %s moved" : "Widget %s přesunut",
+    "Widget %s resized" : "Změněna velikost widgetu %s",
+    "_%s and %n more change_::_%s and %n more changes_" : ["%s a %n další změna", "%s a %n další změny", "%s a %n dalších změn"],
     "Admin settings" : "Nastavení pro správu",
     "Features & roadmap" : "Funkce a plán vývoje",
     "Maximum dashboards per user" : "Maximální počet dashboardů na uživatele",
@@ -1488,7 +1496,7 @@ OC.L10N.register(
     "Active filters" : "Aktivní filtry",
     "Pinned filter" : "Připnutý filtr",
     "Remove filter: {label}" : "Odebrat filtr: {label}",
-    "Reset filters" : "Zrušit filtry",,
+    "Reset filters" : "Zrušit filtry",
     "Personal dashboard" : "Osobní nástěnka",
     "Personal dashboard · opens first" : "Osobní nástěnka · otevře se jako první",
     "Shared with you" : "Sdíleno s vámi",

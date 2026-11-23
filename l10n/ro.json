@@ -1,5 +1,17 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Panou redenumit în %s",
+        "Columns from %1$s to %2$s": "Coloane de la %1$s la %2$s",
+        "Widget %s added": "Widget %s adăugat",
+        "Widget %s removed": "Widget %s eliminat",
+        "Widget %1$s renamed to %2$s": "Widget %1$s redenumit în %2$s",
+        "Widget %s moved": "Widget %s mutat",
+        "Widget %s resized": "Widget %s redimensionat",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s și încă %n modificare",
+            "%s și încă %n modificări",
+            "%s și încă %n de modificări"
+        ],
         "Admin settings": "Setări de administrare",
         "Maximum dashboards per user": "Numărul maxim de tablouri de bord per utilizator",
         "Maximum widgets per dashboard": "Numărul maxim de widgeturi per tablou de bord",

@@ -1,5 +1,16 @@
 {
     "translations": {
+        "Dashboard renamed to %s": "Dashboard rinominata in %s",
+        "Columns from %1$s to %2$s": "Colonne da %1$s a %2$s",
+        "Widget %s added": "Widget %s aggiunto",
+        "Widget %s removed": "Widget %s rimosso",
+        "Widget %1$s renamed to %2$s": "Widget %1$s rinominato in %2$s",
+        "Widget %s moved": "Widget %s spostato",
+        "Widget %s resized": "Widget %s ridimensionato",
+        "_%s and %n more change_::_%s and %n more changes_": [
+            "%s e %n altra modifica",
+            "%s e %n altre modifiche"
+        ],
         "Admin settings": "Impostazioni di amministrazione",
         "Maximum dashboards per user": "Numero massimo di dashboard per utente",
         "Maximum widgets per dashboard": "Numero massimo di widget per dashboard",

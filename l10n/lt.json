@@ -1421,6 +1421,9 @@
         "Visible until {when}": "Matoma iki {when}",
         "Choose until when the announcement shows": "Pasirinkite, iki kada rodomas skelbimas",
         "The end time must be after the publish time": "Pabaigos laikas turi būti po paskelbimo laiko",
+        "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.": "Numatytosios reikšmės, nuo kurių prasideda kiekvienas skydelis: kas gali kurti skydelius, teisių lygis ir tinklelis. Ši apžvalga rodoma vieną kartą.",
+        "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Skiltyje Kioskas kuriate skydelių grojaraščius ekranui be prisijungimo.",
+        "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Skiltyje Demonstraciniai duomenys įkeliate pavyzdinius skydelius LaunchPad išbandyti ir vėl juos pašalinate.",
         "Quarter": "Ketvirtis",
         "Year": "Metai"
     }

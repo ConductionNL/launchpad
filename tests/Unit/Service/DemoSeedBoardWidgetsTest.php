@@ -271,7 +271,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 				// The container's inner grid has four columns (REQ-CONT-002).
 				$this->assertSame(expected: 1, actual: $child['gridWidth']);
 				$this->assertLessThan(expected: 4, actual: $child['gridX']);
-				// dossiq's case carries the role of its status (statusType.role), the same for every case type.
+				// A dossiq case carries the role of its status (statusType.role), the same for every case type.
 				$this->assertContains(
 					needle: $child['content']['source']['filter']['statusRole'] ?? null,
 					haystack: ['intake', 'pending-info', 'in-progress', 'review', 'closed', 'stranded']

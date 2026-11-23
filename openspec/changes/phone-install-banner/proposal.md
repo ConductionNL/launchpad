@@ -8,7 +8,7 @@ through the browser's own "Add to home screen" option, but nothing on the page o
 
 ## What changes
 
-- `platform-baseline`: an install banner on a phone (REQ-PLB-008) that uses the browser's install prompt where the
+- `platform-baseline`: an install banner on a phone (REQ-PLB-009) that uses the browser's install prompt where the
   browser has one and explains the steps where it has not. LaunchPad still ships no manifest or service worker of its
   own (REQ-PLB-006).
 

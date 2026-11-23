@@ -1939,7 +1939,11 @@ OC.L10N.register(
     "Read receipts" : "Read receipts",
     "default" : "default",
     "shared" : "shared",
-    "group" : "group"
+    "group" : "group",
+    "Heading" : "Heading",
+    "Explanation" : "Explanation",
+    "One line under the heading. Leave empty for none." : "One line under the heading. Leave empty for none.",
+    "Give the heading a title" : "Give the heading a title"
 },
 "nplurals=2; plural=(n != 1);"
 );

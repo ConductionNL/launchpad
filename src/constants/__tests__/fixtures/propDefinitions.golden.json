@@ -800,6 +800,29 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/SectionHeadingWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/SectionHeadingWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/SectionHeadingWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"title": "",
+			"description": ""
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/StatsBlockHost.vue | content": {
 		"type": "Object",
 		"required": false,

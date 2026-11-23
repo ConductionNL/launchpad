@@ -2,9 +2,11 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The dashboard menu offers "Version history" only when the host says the
- * viewer may see it (owner or administrator, and versioning supported),
- * and asks the host to find out when the menu opens (REQ-VERSUI-001).
+ * The dashboard menu has no "Version history" entry: the versions are the
+ * tab Versions of the dashboard settings (REQ-VERSUI-001, board LpVersies).
+ * The menu still tells the host when it opens.
+ *
+ * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-the-owner-sees-the-version-history-req-versui-001
  */
 
 import { mount } from '@vue/test-utils'
@@ -42,25 +44,18 @@ function mountMenu(props) {
 				StarCheck: true,
 				ShareVariant: true,
 				TrashCanOutline: true,
-				History: true,
 			},
 		},
 	})
 }
 
 describe('DashboardRowActions version history', () => {
-	it('shows the entry and emits versionHistory when allowed', async () => {
-		const wrapper = mountMenu({ canViewHistory: true })
-		const entry = wrapper.find('[data-testid="cog-version-history"]')
-		expect(entry.exists()).toBe(true)
-		await entry.trigger('click')
-		expect(wrapper.emitted('versionHistory')).toHaveLength(1)
-	})
-
-	it('hides the entry by default', () => {
-		expect(
-			mountMenu({}).find('[data-testid="cog-version-history"]').exists(),
-		).toBe(false)
+	it('offers no Version history entry, whatever the host passes', () => {
+		for (const props of [{}, { canViewHistory: true }]) {
+			const wrapper = mountMenu(props)
+			expect(wrapper.find('[data-testid="cog-version-history"]').exists()).toBe(false)
+			expect(wrapper.text()).not.toContain('Version history')
+		}
 	})
 
 	it('tells the host when the menu opens', async () => {

@@ -1420,6 +1420,8 @@
         "After this time the announcement disappears from every dashboard.": "Po této době oznámení zmizí ze všech nástěnek.",
         "Visible until {when}": "Viditelné do {when}",
         "Choose until when the announcement shows": "Zvolte, do kdy se oznámení zobrazuje",
-        "The end time must be after the publish time": "Konec musí být po čase zveřejnění"
+        "The end time must be after the publish time": "Konec musí být po čase zveřejnění",
+        "Quarter": "Čtvrtletí",
+        "Year": "Rok"
     }
 }

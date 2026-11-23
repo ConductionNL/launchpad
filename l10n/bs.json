@@ -1420,6 +1420,8 @@
         "After this time the announcement disappears from every dashboard.": "Nakon tog vremena obavještenje nestaje sa svih kontrolnih ploča.",
         "Visible until {when}": "Vidljivo do {when}",
         "Choose until when the announcement shows": "Odaberite do kada se obavještenje prikazuje",
-        "The end time must be after the publish time": "Vrijeme završetka mora biti nakon vremena objave"
+        "The end time must be after the publish time": "Vrijeme završetka mora biti nakon vremena objave",
+        "Quarter": "Kvartal",
+        "Year": "Godina"
     }
 }

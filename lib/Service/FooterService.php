@@ -620,6 +620,7 @@ class FooterService implements FooterServiceInterface {
 	 * @return array<int, array<int, string>> The matches, in source order.
 	 */
 	private function parseAttributes(string $attrs): array {
+		$found = [];
 		if (preg_match_all(
 			pattern: '#([a-zA-Z][a-zA-Z0-9_-]*)\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))#',
 			subject: $attrs,

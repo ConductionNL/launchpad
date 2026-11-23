@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Quarter" : "Vuosineljännes",
+    "Year" : "Vuosi",
     "Show until" : "Näytä asti",
     "After this time the announcement disappears from every dashboard." : "Tämän jälkeen tiedote katoaa kaikilta koontinäytöiltä.",
     "Visible until {when}" : "Näkyvissä {when} asti",

@@ -276,7 +276,10 @@ class PageControllerIndexTest extends TestCase {
 		$this->assertSame(expected: [], actual: $this->state['layout']);
 		$this->assertNull(actual: $this->state['allowedWidgets']);
 		$this->assertSame(expected: '', actual: $this->state['userTimezone']);
-		$this->assertSame(expected: ['openregister' => false, 'integration_openproject' => false, 'dossiq' => false], actual: $this->state['integrationApps']);
+		$this->assertSame(
+			expected: ['openregister' => false, 'integration_openproject' => false, 'dossiq' => false],
+			actual: $this->state['integrationApps']
+		);
 		$this->assertSame(expected: AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET, actual: $this->state['quicksearchFallbackTarget']);
 	}//end testAGuestGetsTheDefaultPage()
 
@@ -384,10 +387,10 @@ class PageControllerIndexTest extends TestCase {
 		$this->signIn(uid: 'pieter');
 		$this->adminSettings->method('getSettings')->willReturn([]);
 		$this->templates->method('resolvePrimaryGroup')->willReturn('medewerkers');
-		$this->tree->method('resolvePath')->willReturnOnConsecutiveCalls(null, $this->throwException(new RuntimeException(message: 'tree broken')));
-		$this->dashboards->expects($this->exactly(2))->method('resolveActiveDashboard')->willReturn(null);
+		$this->tree->method('resolvePath')->willReturnOnConsecutiveCalls(null, $this->throwException(exception: new RuntimeException(message: 'tree broken')));
+		$this->dashboards->expects($this->exactly(count: 2))->method('resolveActiveDashboard')->willReturn(null);
 		$this->logger->expects($this->once())->method('warning');
-		$this->logger->expects($this->exactly(2))->method('info');
+		$this->logger->expects($this->exactly(count: 2))->method('info');
 
 		$this->controller()->index(deepLink: 'weg');
 		$this->assertSame(expected: '', actual: $this->state['activeDashboardId']);

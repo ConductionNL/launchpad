@@ -774,6 +774,8 @@ class PageController extends Controller {
 	 * Add the `launchpad-main` script and the app stylesheet to the page.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
 	 */
 	protected function addWorkspaceAssets(): void {
 		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');

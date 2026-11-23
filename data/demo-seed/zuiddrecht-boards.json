@@ -51,7 +51,8 @@
 			"groups": [
 				"vergunningen",
 				"medewerkers",
-				"bedrijfsvoering"
+				"bedrijfsvoering",
+				"communicatie"
 			]
 		},
 		{
@@ -781,6 +782,20 @@
 					}
 				},
 				{
+					"widgetId": "weather",
+					"gridX": 8,
+					"gridY": 3,
+					"gridWidth": 4,
+					"gridHeight": 4,
+					"showTitle": 1,
+					"customTitle": "Weer Zuiddrecht",
+					"content": {
+						"location": "",
+						"unitsOverride": "metric",
+						"showActions": false
+					}
+				},
+				{
 					"widgetId": "search",
 					"gridX": 0,
 					"gridY": 5,
@@ -978,7 +993,7 @@
 					"gridX": 0,
 					"gridY": 24,
 					"gridWidth": 8,
-					"gridHeight": 3,
+					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Notities",
 					"content": {
@@ -992,9 +1007,9 @@
 				{
 					"widgetId": "quicklinks",
 					"gridX": 8,
-					"gridY": 3,
+					"gridY": 24,
 					"gridWidth": 4,
-					"gridHeight": 5,
+					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Snelkoppelingen",
 					"content": {
@@ -1039,7 +1054,7 @@
 				{
 					"widgetId": "link",
 					"gridX": 8,
-					"gridY": 24,
+					"gridY": 28,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -1056,7 +1071,7 @@
 				{
 					"widgetId": "menu",
 					"gridX": 0,
-					"gridY": 27,
+					"gridY": 28,
 					"gridWidth": 4,
 					"gridHeight": 8,
 					"showTitle": 1,
@@ -1856,7 +1871,7 @@
 								"type": "stat",
 								"gridX": 0,
 								"gridY": 0,
-								"gridWidth": 3,
+								"gridWidth": 1,
 								"gridHeight": 2,
 								"content": {
 									"label": "In behandeling",
@@ -1878,9 +1893,9 @@
 							},
 							{
 								"type": "stat",
-								"gridX": 3,
+								"gridX": 1,
 								"gridY": 0,
-								"gridWidth": 3,
+								"gridWidth": 1,
 								"gridHeight": 2,
 								"content": {
 									"label": "Wacht op aanvrager",
@@ -1902,9 +1917,9 @@
 							},
 							{
 								"type": "stat",
-								"gridX": 6,
+								"gridX": 2,
 								"gridY": 0,
-								"gridWidth": 3,
+								"gridWidth": 1,
 								"gridHeight": 2,
 								"content": {
 									"label": "Wacht op advies",
@@ -1926,9 +1941,9 @@
 							},
 							{
 								"type": "stat",
-								"gridX": 9,
+								"gridX": 3,
 								"gridY": 0,
-								"gridWidth": 3,
+								"gridWidth": 1,
 								"gridHeight": 2,
 								"content": {
 									"label": "Afgerond deze maand",
@@ -2170,7 +2185,15 @@
 						"tileSource": "pdok",
 						"register": "dossiq",
 						"schema": "case",
-						"showActions": false
+						"showActions": false,
+						"center": [
+							51.92,
+							4.47
+						],
+						"zoom": 12,
+						"height": "100%",
+						"clustering": true,
+						"autoFit": true
 					}
 				},
 				{
@@ -2190,6 +2213,226 @@
 					}
 				}
 			]
+		},
+		{
+			"key": "publiek",
+			"board": "LpPubliek",
+			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000008",
+			"name": "Openbare startpagina",
+			"icon": "Earth",
+			"type": "user",
+			"owner": "communicatie",
+			"gridColumns": 12,
+			"permissionLevel": "view_only",
+			"widgets": [
+				{
+					"widgetId": "header",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 12,
+					"gridHeight": 3,
+					"showTitle": 0,
+					"customTitle": "Gemeente Zuiddrecht",
+					"content": {
+						"title": "Welkom bij Gemeente Zuiddrecht",
+						"subtitle": "Nieuws, openingstijden en storingen van de gemeente",
+						"textAlign": "left",
+						"height": "small",
+						"cta": null
+					}
+				},
+				{
+					"widgetId": "announcements",
+					"gridX": 0,
+					"gridY": 3,
+					"gridWidth": 8,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Nieuws",
+					"content": {
+						"category": "",
+						"limit": 3,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "text",
+					"gridX": 8,
+					"gridY": 3,
+					"gridWidth": 4,
+					"gridHeight": 3,
+					"showTitle": 1,
+					"customTitle": "Openingstijden",
+					"content": {
+						"text": "- Stadskantoor: maandag tot en met vrijdag 08:30 tot 17:00\n- Zaterdag: 09:00 tot 12:00, alleen paspoorten en rijbewijzen",
+						"fontSize": "14px",
+						"textAlign": "left",
+						"contentMode": "markdown",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "text",
+					"gridX": 8,
+					"gridY": 6,
+					"gridWidth": 4,
+					"gridHeight": 3,
+					"showTitle": 1,
+					"customTitle": "Storingen",
+					"content": {
+						"text": "Geen storingen op dit moment. Zaterdag 10 oktober van 08:00 tot 12:00 onderhoud aan het zaaksysteem.",
+						"fontSize": "14px",
+						"textAlign": "left",
+						"contentMode": "markdown",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "text",
+					"gridX": 0,
+					"gridY": 9,
+					"gridWidth": 12,
+					"gridHeight": 2,
+					"showTitle": 1,
+					"customTitle": "Contact",
+					"content": {
+						"text": "Bel 14 0180 of mail naar info@zuiddrecht.nl. Medewerkers loggen rechtsboven in.",
+						"fontSize": "14px",
+						"textAlign": "left",
+						"contentMode": "markdown",
+						"showActions": false
+					}
+				}
+			]
+		},
+		{
+			"key": "kiosk",
+			"board": "LpKiosk",
+			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000009",
+			"name": "Vandaag in Zuiddrecht",
+			"icon": "Television",
+			"type": "user",
+			"owner": "communicatie",
+			"gridColumns": 12,
+			"permissionLevel": "view_only",
+			"widgets": [
+				{
+					"widgetId": "header",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 12,
+					"gridHeight": 3,
+					"showTitle": 0,
+					"customTitle": "Vandaag in Zuiddrecht",
+					"content": {
+						"title": "Vandaag in Zuiddrecht",
+						"subtitle": "Kantine stadskantoor",
+						"textAlign": "left",
+						"height": "small",
+						"cta": null
+					}
+				},
+				{
+					"widgetId": "text",
+					"gridX": 0,
+					"gridY": 3,
+					"gridWidth": 4,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Lunchmenu",
+					"content": {
+						"text": "- Erwtensoep met roggebrood\n- Broodje gezond\n- Salade met geitenkaas\n- Fruit van de dag",
+						"fontSize": "14px",
+						"textAlign": "left",
+						"contentMode": "markdown",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "announcements",
+					"gridX": 4,
+					"gridY": 3,
+					"gridWidth": 4,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Nieuws",
+					"content": {
+						"category": "",
+						"limit": 3,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "weather",
+					"gridX": 8,
+					"gridY": 3,
+					"gridWidth": 4,
+					"gridHeight": 3,
+					"showTitle": 1,
+					"customTitle": "Weer Zuiddrecht",
+					"content": {
+						"location": "",
+						"unitsOverride": "metric",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "livetile",
+					"gridX": 8,
+					"gridY": 6,
+					"gridWidth": 4,
+					"gridHeight": 3,
+					"showTitle": 1,
+					"customTitle": "Wachttijd balie",
+					"content": {
+						"label": "Wachttijd balie",
+						"sourceMode": "url",
+						"url": "https://kcc-api.zuiddrecht.nl/wachttijd",
+						"valueExpr": "minutes",
+						"refresh": 300,
+						"format": {
+							"prefix": "",
+							"suffix": " min",
+							"thousands": false
+						},
+						"showActions": false
+					}
+				}
+			]
 		}
-	]
+	],
+	"adminSettings": {
+		"announcement_editor_groups": [
+			"communicatie",
+			"launchpad-beheer"
+		]
+	},
+	"publishing": {
+		"publisher": "beheer",
+		"startPage": "8a3e5c10-1f2b-4c3d-9e4f-000000000008",
+		"kioskPlaylists": [
+			{
+				"name": "Kantine stadskantoor",
+				"refresh": 300,
+				"entries": [
+					{
+						"dashboardUuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000008",
+						"dwellSeconds": 30
+					},
+					{
+						"dashboardUuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000009",
+						"dwellSeconds": 30
+					},
+					{
+						"dashboardUuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000003",
+						"dwellSeconds": 30
+					},
+					{
+						"dashboardUuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000005",
+						"dwellSeconds": 30
+					}
+				]
+			}
+		]
+	}
 }

@@ -64,12 +64,14 @@ class DemoSeedService {
 	 * @param DemoSeedContent      $content    App catalogue, announcements and allowed sites.
 	 * @param DemoShowcasesService $showcases  Which widget types render; the bundled showcases.
 	 * @param IAppManager          $appManager Which apps are enabled.
+	 * @param DemoSeedPublishing   $publishing Administrator settings, the public start page and kiosk playlists.
 	 */
 	public function __construct(
 		private readonly DemoSeedParts $parts,
 		private readonly DemoSeedContent $content,
 		private readonly DemoShowcasesService $showcases,
 		private readonly IAppManager $appManager,
+		private readonly DemoSeedPublishing $publishing,
 	) {
 	}//end __construct()
 
@@ -184,6 +186,8 @@ class DemoSeedService {
 		$report['announcements'] = $this->content->seedAnnouncements(entries: (array)($seed['announcements'] ?? []));
 		$report['files']         = $this->parts->files->ensureSafely(definition: $seed['files'] ?? null);
 		$report['dashboards']    = $this->seedDashboards(seed: $seed);
+		$this->publishing->mergeAdminSettings(values: (array)($seed['adminSettings'] ?? []));
+		$report['published'] = $this->publish(definition: (array)($seed['publishing'] ?? []));
 		$report['firstRun']      = $this->resetFirstRunUsers(
 			users: (array)($seed['users'] ?? []),
 			tourVersion: (string)($seed['walkthroughSeenVersion'] ?? '')
@@ -191,6 +195,36 @@ class DemoSeedService {
 
 		return $report;
 	}//end load()
+
+	/**
+	 * Publish the seed's public start page and kiosk playlists as its
+	 * publisher, an administrator account of the seed.
+	 *
+	 * @param array<string, mixed> $definition `{publisher, startPage, kioskPlaylists}`.
+	 *
+	 * @return array{startPage: string, kioskPlaylists: array<string, string>} The link and playlist tokens.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	private function publish(array $definition): array {
+		$publisher = (string)($definition['publisher'] ?? '');
+		$published = ['startPage' => '', 'kioskPlaylists' => []];
+		if ($publisher === '') {
+			return $published;
+		}
+
+		$startPage = (string)($definition['startPage'] ?? '');
+		if ($startPage !== '') {
+			$published['startPage'] = $this->publishing->publishStartPage(dashboardUuid: $startPage, publisher: $publisher);
+		}
+
+		foreach ((array)($definition['kioskPlaylists'] ?? []) as $playlist) {
+			$name = (string)($playlist['name'] ?? '');
+			$published['kioskPlaylists'][$name] = $this->publishing->ensurePlaylist(playlist: (array)$playlist, publisher: $publisher);
+		}
+
+		return $published;
+	}//end publish()
 
 	/**
 	 * Ensure the seed's groups and users.

@@ -55,7 +55,7 @@
 		"Klok": "Clock",
 		"Zoeken op internet": "Internet search",
 		"Zoeken op internet (DuckDuckGo)": "Search the web (DuckDuckGo)",
-		"Weer Zuiddrecht": "Weather in Zuiddrecht",
+		"Weer Zuiddrecht": "Weather Zuiddrecht",
 		"Snelkoppelingen": "Shortcuts",
 		"Servicedesk": "Service desk",
 		"Bladwijzers": "Bookmarks",
@@ -199,6 +199,20 @@
 		"Project Havenpark": "Project Havenpark",
 		"Havenpark: planning": "Havenpark: planning",
 		"Mail openen": "Open Mail",
-		"Zoek op internet": "Search the internet"
+		"Zoek op internet": "Search the internet",
+		"Openbare startpagina": "Public start page",
+		"Welkom bij Gemeente Zuiddrecht": "Welcome to the Municipality of Zuiddrecht",
+		"Nieuws, openingstijden en storingen van de gemeente": "News, opening hours and outages of the municipality",
+		"Openingstijden": "Opening hours",
+		"- Stadskantoor: maandag tot en met vrijdag 08:30 tot 17:00\n- Zaterdag: 09:00 tot 12:00, alleen paspoorten en rijbewijzen": "- City office: Monday to Friday 08:30 to 17:00\n- Saturday: 09:00 to 12:00, passports and driving licences only",
+		"Storingen": "Outages",
+		"Geen storingen op dit moment. Zaterdag 10 oktober van 08:00 tot 12:00 onderhoud aan het zaaksysteem.": "No outages right now. Saturday 10 October, 08:00 to 12:00: maintenance of the case system.",
+		"Contact": "Contact",
+		"Bel 14 0180 of mail naar info@zuiddrecht.nl. Medewerkers loggen rechtsboven in.": "Call 14 0180 or mail info@zuiddrecht.nl. Staff log in at the top right.",
+		"Vandaag in Zuiddrecht": "Today in Zuiddrecht",
+		"Kantine stadskantoor": "Canteen, city office",
+		"Lunchmenu": "Lunch menu",
+		"- Erwtensoep met roggebrood\n- Broodje gezond\n- Salade met geitenkaas\n- Fruit van de dag": "- Pea soup with rye bread\n- Healthy sandwich\n- Goat's cheese salad\n- Fruit of the day",
+		"Wachttijd balie": "Waiting time at the desk"
 	}
 }

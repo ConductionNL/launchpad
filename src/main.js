@@ -39,9 +39,7 @@ import {
 	registerTranslations,
 	useAppManifest,
 } from '@conduction/nextcloud-vue'
-import axios from '@nextcloud/axios'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { createPinia } from 'pinia'
 import { createApp, h, reactive } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -57,6 +55,7 @@ import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
+import { runtimeManifestRequest } from './utils/runtimeManifestRequest.js'
 
 import './publicPath.js'
 import './services/widgetBridge.js'
@@ -119,7 +118,8 @@ registerDashboardWidget('nc-widget', {
 // does not expose (it declares no `exports` map) — so the require always threw
 // and the surrounding try/catch silently skipped manifest registration
 // entirely. Importing it from the barrel makes the registration actually run.
-useAppManifest('launchpad', bundledStub)
+// nc-vue's merge and the runtime loader below share one `/api/manifest` request.
+useAppManifest('launchpad', bundledStub, { fetcher: runtimeManifestRequest })
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive
 // breakpoints are now generated dynamically by the engine at init time.
@@ -160,8 +160,7 @@ const manifestLoading = reactive({ value: true })
 
 ;(async () => {
 	try {
-		const url = generateUrl('/apps/launchpad/api/manifest')
-		const response = await axios.get(url)
+		const response = await runtimeManifestRequest()
 
 		if (
 			response

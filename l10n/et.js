@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Oma välimus",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · järgmine {seconds} s pärast",
     "Now showing {name}" : "Praegu kuvatakse: {name}",
     "Put LaunchPad on your home screen" : "Lisa LaunchPad avaekraanile",

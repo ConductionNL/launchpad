@@ -1411,6 +1411,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "V brskalniku izberite Deli in nato Dodaj na začetni zaslon.",
         "Not now": "Ne zdaj",
         "{index} of {total} · next in {seconds} s": "{index} od {total} · naslednja čez {seconds} s",
-        "Now showing {name}": "Zdaj prikazano: {name}"
+        "Now showing {name}": "Zdaj prikazano: {name}",
+        "Own look": "Lasten videz"
     }
 }

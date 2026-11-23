@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Sava išvaizda",
     "{index} of {total} · next in {seconds} s" : "{index} iš {total} · kitas po {seconds} s",
     "Now showing {name}" : "Dabar rodoma: {name}",
     "Put LaunchPad on your home screen" : "Pridėkite LaunchPad prie pradžios ekrano",

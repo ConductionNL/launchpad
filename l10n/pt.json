@@ -1407,6 +1407,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "No navegador, escolha Partilhar e depois Adicionar ao ecrã principal.",
         "Not now": "Agora não",
         "{index} of {total} · next in {seconds} s": "{index} de {total} · seguinte em {seconds} s",
-        "Now showing {name}": "Agora a mostrar: {name}"
+        "Now showing {name}": "Agora a mostrar: {name}",
+        "Own look": "Aspeto próprio"
     }
 }

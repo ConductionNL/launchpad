@@ -1726,6 +1726,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "In your browser, choose Share and then Add to Home Screen.",
         "Not now": "Not now",
         "{index} of {total} · next in {seconds} s": "{index} of {total} · next in {seconds} s",
-        "Now showing {name}": "Now showing {name}"
+        "Now showing {name}": "Now showing {name}",
+        "Own look": "Own look"
     }
 }

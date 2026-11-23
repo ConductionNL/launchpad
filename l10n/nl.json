@@ -2162,6 +2162,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "Kies in uw browser Delen en daarna Zet op beginscherm.",
         "Not now": "Niet nu",
         "{index} of {total} · next in {seconds} s": "{index} van {total} · volgende over {seconds} s",
-        "Now showing {name}": "Nu te zien: {name}"
+        "Now showing {name}": "Nu te zien: {name}",
+        "Own look": "Eigen uitstraling"
     }
 }

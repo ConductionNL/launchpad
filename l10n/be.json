@@ -1409,6 +1409,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "У браўзеры выберыце «Падзяліцца», а потым «На галоўны экран».",
         "Not now": "Не цяпер",
         "{index} of {total} · next in {seconds} s": "{index} з {total} · наступны праз {seconds} с",
-        "Now showing {name}": "Зараз паказваецца: {name}"
+        "Now showing {name}": "Зараз паказваецца: {name}",
+        "Own look": "Уласны выгляд"
     }
 }

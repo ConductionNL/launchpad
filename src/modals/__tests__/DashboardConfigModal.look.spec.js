@@ -36,9 +36,10 @@ function host(look, initialLook = { accent: '', background: '', resource: '' }) 
 }
 
 describe('DashboardConfigModal look', () => {
-	it('gives the owner a Look tab between Languages and Sharing', () => {
+	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('has no separate Look tab: the look is a block on Details', () => {
 		const tabs = computed.tabs.call({ canManageShares: true, dashboard: { uuid: 'u-1' }, localShares: [] })
-		expect(tabs.map((tab) => tab.id)).toEqual(['general', 'languages', 'look', 'sharing'])
+		expect(tabs.map((tab) => tab.id)).toEqual(['general', 'languages', 'sharing'])
 		expect(computed.tabs.call({ canManageShares: false, dashboard: { uuid: 'u-1' }, localShares: [] }).map((tab) => tab.id)).toEqual(['general'])
 	})
 

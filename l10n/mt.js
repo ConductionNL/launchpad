@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Dehra proprja",
     "{index} of {total} · next in {seconds} s" : "{index} minn {total} · li jmiss f'{seconds} s",
     "Now showing {name}" : "Qed jintwera issa: {name}",
     "Put LaunchPad on your home screen" : "Poġġi LaunchPad fuq l-iskrin ewlieni tiegħek",

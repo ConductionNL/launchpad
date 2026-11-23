@@ -1409,6 +1409,7 @@
         "In your browser, choose Share and then Add to Home Screen.": "U pregledniku odaberite Dijeli, a zatim Dodaj na početni ekran.",
         "Not now": "Ne sada",
         "{index} of {total} · next in {seconds} s": "{index} od {total} · sljedeće za {seconds} s",
-        "Now showing {name}": "Sada se prikazuje: {name}"
+        "Now showing {name}": "Sada se prikazuje: {name}",
+        "Own look": "Vlastiti izgled"
     }
 }

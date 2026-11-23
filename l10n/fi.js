@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Oma ulkoasu",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · seuraava {seconds} s kuluttua",
     "Now showing {name}" : "Nyt näytössä: {name}",
     "Put LaunchPad on your home screen" : "Lisää LaunchPad kotinäytölle",

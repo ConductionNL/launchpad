@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Saját megjelenés",
     "{index} of {total} · next in {seconds} s" : "{index}/{total} · a következő {seconds} s múlva",
     "Now showing {name}" : "Most látható: {name}",
     "Put LaunchPad on your home screen" : "Tegye a LaunchPadet a kezdőképernyőre",

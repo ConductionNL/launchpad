@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Vlastní vzhled",
     "{index} of {total} · next in {seconds} s" : "{index} z {total} · další za {seconds} s",
     "Now showing {name}" : "Nyní zobrazeno: {name}",
     "Put LaunchPad on your home screen" : "Přidejte si LaunchPad na plochu",

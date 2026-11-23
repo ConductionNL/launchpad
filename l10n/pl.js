@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own look" : "Własny wygląd",
     "{index} of {total} · next in {seconds} s" : "{index} z {total} · następny za {seconds} s",
     "Now showing {name}" : "Teraz wyświetlane: {name}",
     "Put LaunchPad on your home screen" : "Dodaj LaunchPad do ekranu głównego",

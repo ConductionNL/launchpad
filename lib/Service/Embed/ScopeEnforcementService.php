@@ -157,8 +157,8 @@ final class ScopeEnforcementService {
 
 		$kept = array_filter(
 			$requestFilters,
-			static fn (mixed $value, int|string $dimension): bool => in_array((string)$dimension, $allowed, true) === true,
-			ARRAY_FILTER_USE_BOTH
+			static fn (int|string $dimension): bool => in_array((string)$dimension, $allowed, true) === true,
+			ARRAY_FILTER_USE_KEY
 		);
 
 		return $this->applyFilterContext(requestFilters: $kept, filterContext: $filterContext);

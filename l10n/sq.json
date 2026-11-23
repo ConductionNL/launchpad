@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ky panel mund të marrë edhe {count}. Zgjidhni më pak dosje ose faqeruajtës.",
         "The bookmarks could not be imported.": "Faqeruajtësit nuk mund të importoheshin.",
         "This file holds no bookmarks.": "Skedari nuk përmban faqeruajtës.",
-        "Folders": "Dosjet"
+        "Folders": "Dosjet",
+        "Put LaunchPad on your home screen": "Vendoseni LaunchPad në ekranin bazë",
+        "Then your workplace opens with one tap, like an app": "Atëherë vendi juaj i punës hapet me një prekje, si një aplikacion",
+        "In your browser, choose Share and then Add to Home Screen.": "Në shfletues zgjidhni Ndaj dhe pastaj Shto në ekranin bazë.",
+        "Not now": "Jo tani",
+        "{index} of {total} · next in {seconds} s": "{index} nga {total} · tjetra pas {seconds} s",
+        "Now showing {name}": "Tani shfaqet: {name}",
+        "Own look": "Pamje e vetë",
+        "view only": "vetëm shikim",
+        "you may add widgets": "mund të shtoni widget-e",
+        "{app}, outage": "{app}, ndërprerje",
+        "{app}, {count} open": "{app}, {count} të hapura",
+        "{app}, pinned": "{app}, i fiksuar",
+        "Show until": "Shfaq deri më",
+        "After this time the announcement disappears from every dashboard.": "Pas kësaj kohe njoftimi zhduket nga çdo panel.",
+        "Visible until {when}": "I dukshëm deri më {when}",
+        "Choose until when the announcement shows": "Zgjidhni deri kur shfaqet njoftimi",
+        "The end time must be after the publish time": "Koha e përfundimit duhet të jetë pas kohës së publikimit"
     }
 }

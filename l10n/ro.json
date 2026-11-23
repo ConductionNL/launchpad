@@ -1403,6 +1403,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Acest tablou de bord mai poate primi {count}. Alegeți mai puține dosare sau marcaje.",
         "The bookmarks could not be imported.": "Marcajele nu au putut fi importate.",
         "This file holds no bookmarks.": "Fișierul nu conține marcaje.",
-        "Folders": "Dosare"
+        "Folders": "Dosare",
+        "Put LaunchPad on your home screen": "Adăugați LaunchPad pe ecranul de pornire",
+        "Then your workplace opens with one tap, like an app": "Astfel, spațiul de lucru se deschide cu o atingere, ca o aplicație",
+        "In your browser, choose Share and then Add to Home Screen.": "În browser, alegeți Partajare și apoi Adaugă pe ecranul principal.",
+        "Not now": "Nu acum",
+        "{index} of {total} · next in {seconds} s": "{index} din {total} · următorul în {seconds} s",
+        "Now showing {name}": "Acum se afișează: {name}",
+        "Own look": "Aspect propriu",
+        "view only": "doar vizualizare",
+        "you may add widgets": "puteți adăuga widgeturi",
+        "{app}, outage": "{app}, întrerupere",
+        "{app}, {count} open": "{app}, {count} deschise",
+        "{app}, pinned": "{app}, fixat",
+        "Show until": "Afișează până la",
+        "After this time the announcement disappears from every dashboard.": "După această oră, anunțul dispare de pe toate tablourile de bord.",
+        "Visible until {when}": "Vizibil până la {when}",
+        "Choose until when the announcement shows": "Alegeți până când este afișat anunțul",
+        "The end time must be after the publish time": "Ora de sfârșit trebuie să fie după ora publicării"
     }
 }

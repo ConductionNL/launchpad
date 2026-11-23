@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Aquest tauler admet {count} més. Trieu menys carpetes o adreces d'interès.",
         "The bookmarks could not be imported.": "No s'han pogut importar les adreces d'interès.",
         "This file holds no bookmarks.": "Aquest fitxer no conté adreces d'interès.",
-        "Folders": "Carpetes"
+        "Folders": "Carpetes",
+        "Put LaunchPad on your home screen": "Afegiu LaunchPad a la pantalla d'inici",
+        "Then your workplace opens with one tap, like an app": "Així el vostre lloc de treball s'obre amb un toc, com una aplicació",
+        "In your browser, choose Share and then Add to Home Screen.": "Al navegador, trieu Comparteix i després Afegeix a la pantalla d'inici.",
+        "Not now": "Ara no",
+        "{index} of {total} · next in {seconds} s": "{index} de {total} · el següent d'aquí a {seconds} s",
+        "Now showing {name}": "Ara es mostra: {name}",
+        "Own look": "Aspecte propi",
+        "view only": "només visualització",
+        "you may add widgets": "podeu afegir ginys",
+        "{app}, outage": "{app}, incidència",
+        "{app}, {count} open": "{app}, {count} oberts",
+        "{app}, pinned": "{app}, fixat",
+        "Show until": "Mostra fins al",
+        "After this time the announcement disappears from every dashboard.": "Després d'aquesta hora, l'anunci desapareix de tots els taulers.",
+        "Visible until {when}": "Visible fins al {when}",
+        "Choose until when the announcement shows": "Trieu fins quan es mostra l'anunci",
+        "The end time must be after the publish time": "L'hora de fi ha de ser posterior a la de publicació"
     }
 }

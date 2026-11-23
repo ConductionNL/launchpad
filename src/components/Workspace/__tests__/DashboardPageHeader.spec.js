@@ -10,12 +10,12 @@
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import DashboardPageHeader, { lastChangedText } from '../DashboardPageHeader.vue'
+import DashboardPageHeader, { lastChangedText, rightsText } from '../DashboardPageHeader.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../../utils/headerActionsDock.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
-	getLanguage: () => 'nl',
+	getCanonicalLocale: () => 'nl',
 	t: (_app, text, vars = {}) => text.replace(/\{(\w+)\}/g, (_m, key) => vars[key] ?? ''),
 }))
 
@@ -53,6 +53,37 @@ describe('DashboardPageHeader', () => {
 			dashboard: { name: 'Intranet Zuiddrecht', description: 'Groepsdashboard van Communicatie', updatedAt: new Date().toISOString() },
 		})
 		expect(wrapper.find('.launchpad-page-header__meta').text()).toMatch(/^Groepsdashboard van Communicatie · Last changed today \d\d:\d\d$/)
+	})
+})
+
+// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+describe('the reader\'s rights in the meta line', () => {
+	it('says view only, you may add widgets, and nothing with full rights', () => {
+		expect(rightsText('view_only')).toBe('view only')
+		expect(rightsText('add_only')).toBe('you may add widgets')
+		expect(rightsText('full')).toBe('')
+		expect(rightsText(undefined)).toBe('')
+	})
+
+	it('reads "Groepsdashboard van Bedrijfsvoering · view only · Last changed today 10:45" for a view-only reader', () => {
+		const changed = new Date()
+		changed.setHours(10, 45, 0, 0)
+		const wrapper = mountHeader({
+			source: 'group',
+			permissionLevel: 'view_only',
+			dashboard: { name: 'Managementinformatie', description: 'Groepsdashboard van Bedrijfsvoering', updatedAt: changed.toISOString() },
+		})
+		expect(wrapper.find('.launchpad-page-header__meta').text()).toBe('Groepsdashboard van Bedrijfsvoering · view only · Last changed today 10:45')
+	})
+
+	it('names adding widgets for an add-only reader', () => {
+		const wrapper = mountHeader({ source: 'shared', permissionLevel: 'add_only', dashboard: { name: 'Team', description: '', updatedAt: null } })
+		expect(wrapper.find('.launchpad-page-header__meta').text()).toContain('you may add widgets')
+	})
+
+	it('adds nothing for the owner with full rights', () => {
+		const wrapper = mountHeader({ source: 'user', dashboard: { name: 'Mijn werkplek', description: '', updatedAt: null } })
+		expect(wrapper.find('.launchpad-page-header__meta').text()).toBe('Personal dashboard')
 	})
 })
 

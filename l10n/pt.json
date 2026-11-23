@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Este painel aceita mais {count}. Escolha menos pastas ou marcadores.",
         "The bookmarks could not be imported.": "Não foi possível importar os marcadores.",
         "This file holds no bookmarks.": "Este ficheiro não contém marcadores.",
-        "Folders": "Pastas"
+        "Folders": "Pastas",
+        "Put LaunchPad on your home screen": "Adicione o LaunchPad ao ecrã principal",
+        "Then your workplace opens with one tap, like an app": "Assim o seu local de trabalho abre com um toque, como uma aplicação",
+        "In your browser, choose Share and then Add to Home Screen.": "No navegador, escolha Partilhar e depois Adicionar ao ecrã principal.",
+        "Not now": "Agora não",
+        "{index} of {total} · next in {seconds} s": "{index} de {total} · seguinte em {seconds} s",
+        "Now showing {name}": "Agora a mostrar: {name}",
+        "Own look": "Aspeto próprio",
+        "view only": "só ver",
+        "you may add widgets": "pode adicionar widgets",
+        "{app}, outage": "{app}, falha",
+        "{app}, {count} open": "{app}, {count} em aberto",
+        "{app}, pinned": "{app}, fixado",
+        "Show until": "Mostrar até",
+        "After this time the announcement disappears from every dashboard.": "Depois desta hora, o anúncio desaparece de todos os painéis.",
+        "Visible until {when}": "Visível até {when}",
+        "Choose until when the announcement shows": "Escolha até quando o anúncio é mostrado",
+        "The end time must be after the publish time": "A hora de fim tem de ser posterior à de publicação"
     }
 }

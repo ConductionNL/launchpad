@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ce tableau de bord peut encore en accueillir {count}. Choisissez moins de dossiers ou de favoris.",
         "The bookmarks could not be imported.": "Les favoris n'ont pas pu être importés.",
         "This file holds no bookmarks.": "Ce fichier ne contient aucun favori.",
-        "Folders": "Dossiers"
+        "Folders": "Dossiers",
+        "Put LaunchPad on your home screen": "Ajoutez LaunchPad à votre écran d'accueil",
+        "Then your workplace opens with one tap, like an app": "Votre espace de travail s'ouvre alors d'un seul geste, comme une application",
+        "In your browser, choose Share and then Add to Home Screen.": "Dans votre navigateur, choisissez Partager puis Sur l'écran d'accueil.",
+        "Not now": "Pas maintenant",
+        "{index} of {total} · next in {seconds} s": "{index} sur {total} · suivant dans {seconds} s",
+        "Now showing {name}": "Affiché maintenant : {name}",
+        "Own look": "Apparence propre",
+        "view only": "consultation seule",
+        "you may add widgets": "vous pouvez ajouter des widgets",
+        "{app}, outage": "{app}, panne",
+        "{app}, {count} open": "{app}, {count} ouverts",
+        "{app}, pinned": "{app}, épinglé",
+        "Show until": "Afficher jusqu'au",
+        "After this time the announcement disappears from every dashboard.": "Après cette date, l'annonce disparaît de tous les tableaux de bord.",
+        "Visible until {when}": "Visible jusqu'au {when}",
+        "Choose until when the announcement shows": "Choisissez jusqu'à quand l'annonce s'affiche",
+        "The end time must be after the publish time": "La fin doit être postérieure à la publication"
     }
 }

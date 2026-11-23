@@ -22,6 +22,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import RuntimeShellSearch from '../../components/RuntimeShellSearch.vue'
 import WorkspaceApp from '../WorkspaceApp.vue'
 
+vi.mock('@nextcloud/auth', async (importOriginal) => ({
+	...(await importOriginal()),
+	getCurrentUser: () => ({ uid: 'pieter', displayName: 'Pieter Jansen' }),
+}))
+
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 })
@@ -152,7 +157,8 @@ describe('WorkspaceApp', () => {
 				expect(wrapper.find('.workspace-shell__strip').exists()).toBe(false)
 				expect(wrapper.find('.workspace-shell__hamburger').exists()).toBe(false)
 				expect(wrapper.find('[aria-label="Open menu"]').exists()).toBe(false)
-				expect(wrapper.find('h1').exists()).toBe(false)
+				// Without a dashboard the first-visit page title is the only h1 (LpEersteKeer).
+				expect(wrapper.find('h1').exists()).toBe(activeDashboardId === '')
 				expect(wrapper.text()).not.toContain('Marketing Overview')
 			}
 		})
@@ -178,8 +184,17 @@ describe('WorkspaceApp', () => {
 				wrapper.findAll('.workspace-shell__starter').map((item) => item.text()),
 			).toEqual(['Apps', 'Calendar', 'Mail', 'Files', 'Weather', 'News from the organisation'])
 			expect(wrapper.find('.workspace-shell__empty-note').text()).toBe(
-				'These 6 starter widgets go on it. You can move or remove them later.',
+				'These 6 starter widgets go on it. Apps places one tile per app. You can move or remove everything later.',
 			)
+		})
+
+		it('empty state opens with the page title and a welcome by first name, as board LpEersteKeer draws it', () => {
+			const wrapper = mountShell({
+				inject: { activeDashboardId: '', allowUserDashboards: true },
+			})
+			const header = wrapper.find('[data-testid="workspace-empty-header"]')
+			expect(header.find('h1').text()).toBe('My workspace')
+			expect(header.find('.workspace-shell__empty-welcome').text()).toMatch(/^Welcome to Launchpad, Pieter · \S/)
 		})
 
 		it('empty state without allowUserDashboards hides Create CTA', () => {

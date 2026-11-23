@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Sellele töölauale mahub veel {count}. Vali vähem kaustu või järjehoidjaid.",
         "The bookmarks could not be imported.": "Järjehoidjaid ei õnnestunud importida.",
         "This file holds no bookmarks.": "Failis pole järjehoidjaid.",
-        "Folders": "Kaustad"
+        "Folders": "Kaustad",
+        "Put LaunchPad on your home screen": "Lisa LaunchPad avaekraanile",
+        "Then your workplace opens with one tap, like an app": "Siis avaneb su töökoht ühe puudutusega, nagu rakendus",
+        "In your browser, choose Share and then Add to Home Screen.": "Vali brauseris Jaga ja seejärel Lisa avakuvale.",
+        "Not now": "Mitte praegu",
+        "{index} of {total} · next in {seconds} s": "{index}/{total} · järgmine {seconds} s pärast",
+        "Now showing {name}": "Praegu kuvatakse: {name}",
+        "Own look": "Oma välimus",
+        "view only": "ainult vaatamine",
+        "you may add widgets": "võite lisada vidinaid",
+        "{app}, outage": "{app}, rike",
+        "{app}, {count} open": "{app}, {count} avatud",
+        "{app}, pinned": "{app}, kinnitatud",
+        "Show until": "Näita kuni",
+        "After this time the announcement disappears from every dashboard.": "Pärast seda aega kaob teadaanne kõigilt töölaudadelt.",
+        "Visible until {when}": "Nähtav kuni {when}",
+        "Choose until when the announcement shows": "Vali, kui kaua teadaanne on nähtav",
+        "The end time must be after the publish time": "Lõpuaeg peab olema pärast avaldamisaega"
     }
 }

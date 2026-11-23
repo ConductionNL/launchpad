@@ -257,6 +257,7 @@ export default {
 		 *
 		 * @return {boolean}
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		iconOnly() {
 			return this.content?.iconOnly === true
@@ -267,6 +268,7 @@ export default {
 		 *
 		 * @return {string}
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		badgeText() {
 			const count = Number(this.content?.badge)
@@ -282,13 +284,14 @@ export default {
 		 *
 		 * @return {string}
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		accessibleName() {
 			let name = this.tile.title
 			if (this.content?.status === 'down') {
 				name = t('launchpad', '{app}, outage', { app: name })
 			} else if (this.badgeText !== '') {
-				name = t('launchpad', '{app}, {count} new', { app: name, count: this.badgeText })
+				name = t('launchpad', '{app}, {count} open', { app: name, count: this.badgeText })
 			}
 			return this.content?.pinned === true ? t('launchpad', '{app}, pinned', { app: name }) : name
 		},
@@ -605,22 +608,28 @@ export default {
 	text-decoration: none !important;
 }
 
+/* REQ-ICT-001: the white icon fills about 45% of the square, whatever
+   the column width; a container query unit keeps glyph and emoji in step. */
+.tile-widget.tile-widget--icon-only {
+	container-type: size;
+}
+
 .tile-widget--icon-only .tile-widget__icon {
 	min-width: 0;
-	width: 48px;
-	height: 48px;
-	font-size: 48px;
+	width: 45cqmin;
+	height: 45cqmin;
+	font-size: 45cqmin;
 }
 
 .tile-widget--icon-only .tile-widget__icon :deep(svg) {
-	width: 48px;
-	height: 48px;
+	width: 100%;
+	height: 100%;
 }
 
 .tile-widget--icon-only .tile-widget__icon span.icon {
-	width: 48px;
-	height: 48px;
-	background-size: 48px;
+	width: 100%;
+	height: 100%;
+	background-size: 100%;
 }
 
 /* The marks of an icon-only tile, as CnAppTile draws them. */

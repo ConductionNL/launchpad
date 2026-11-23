@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Den här instrumentpanelen rymmer {count} till. Välj färre mappar eller bokmärken.",
         "The bookmarks could not be imported.": "Bokmärkena kunde inte importeras.",
         "This file holds no bookmarks.": "Filen innehåller inga bokmärken.",
-        "Folders": "Mappar"
+        "Folders": "Mappar",
+        "Put LaunchPad on your home screen": "Lägg till LaunchPad på hemskärmen",
+        "Then your workplace opens with one tap, like an app": "Då öppnas din arbetsplats med ett tryck, precis som en app",
+        "In your browser, choose Share and then Add to Home Screen.": "Välj Dela i webbläsaren och sedan Lägg till på hemskärmen.",
+        "Not now": "Inte nu",
+        "{index} of {total} · next in {seconds} s": "{index} av {total} · nästa om {seconds} s",
+        "Now showing {name}": "Visas nu: {name}",
+        "Own look": "Eget utseende",
+        "view only": "endast visa",
+        "you may add widgets": "du får lägga till widgetar",
+        "{app}, outage": "{app}, driftstörning",
+        "{app}, {count} open": "{app}, {count} öppna",
+        "{app}, pinned": "{app}, fäst",
+        "Show until": "Visa till",
+        "After this time the announcement disappears from every dashboard.": "Efter denna tid försvinner meddelandet från alla instrumentpaneler.",
+        "Visible until {when}": "Synlig till {when}",
+        "Choose until when the announcement shows": "Välj hur länge meddelandet visas",
+        "The end time must be after the publish time": "Sluttiden måste vara efter publiceringstiden"
     }
 }

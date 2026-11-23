@@ -1401,6 +1401,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Dette dashbordet har plass til {count} til. Velg færre mapper eller bokmerker.",
         "The bookmarks could not be imported.": "Bokmerkene kunne ikke importeres.",
         "This file holds no bookmarks.": "Filen inneholder ingen bokmerker.",
-        "Folders": "Mapper"
+        "Folders": "Mapper",
+        "Put LaunchPad on your home screen": "Legg LaunchPad på startskjermen",
+        "Then your workplace opens with one tap, like an app": "Da åpner arbeidsplassen din med ett trykk, akkurat som en app",
+        "In your browser, choose Share and then Add to Home Screen.": "Velg Del i nettleseren og deretter Legg til på Hjem-skjerm.",
+        "Not now": "Ikke nå",
+        "{index} of {total} · next in {seconds} s": "{index} av {total} · neste om {seconds} s",
+        "Now showing {name}": "Vises nå: {name}",
+        "Own look": "Eget utseende",
+        "view only": "bare vise",
+        "you may add widgets": "du kan legge til widgeter",
+        "{app}, outage": "{app}, driftsforstyrrelse",
+        "{app}, {count} open": "{app}, {count} åpne",
+        "{app}, pinned": "{app}, festet",
+        "Show until": "Vis til",
+        "After this time the announcement disappears from every dashboard.": "Etter dette tidspunktet forsvinner kunngjøringen fra alle dashbord.",
+        "Visible until {when}": "Synlig til {when}",
+        "Choose until when the announcement shows": "Velg hvor lenge kunngjøringen vises",
+        "The end time must be after the publish time": "Sluttidspunktet må være etter publiseringstidspunktet"
     }
 }

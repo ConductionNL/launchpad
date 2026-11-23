@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { getLanguage, t } from '@nextcloud/l10n'
+import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../utils/headerActionsDock.js'
@@ -64,12 +64,31 @@ export function lastChangedText(updatedAt, now, locale) {
 }
 
 /**
+ * What the reader may do on the dashboard, for the meta line: "view only"
+ * or "you may add widgets"; nothing extra with full rights.
+ *
+ * @param {string} permissionLevel The reader's level: `full`, `add_only` or `view_only`.
+ * @return {string} The words, or '' with full rights.
+ * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+ */
+export function rightsText(permissionLevel) {
+	if (permissionLevel === 'view_only') {
+		return t('launchpad', 'view only')
+	}
+	if (permissionLevel === 'add_only') {
+		return t('launchpad', 'you may add widgets')
+	}
+	return ''
+}
+
+/**
  * DashboardPageHeader: the page title row of a dashboard without a greeting
  * on the page ground (LpWerkplek, LpIntranet, LpAfdeling, LpManagement): the
  * dashboard name, the docked "Meer" menu as its only action, and a line
  * saying what kind of dashboard it is and when it last changed.
  *
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+ * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
  */
 export default {
 	name: 'DashboardPageHeader',
@@ -92,6 +111,12 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
+		/** The reader's rights on it: `full`, `add_only` or `view_only`. */
+		permissionLevel: {
+			type: String,
+			default: 'full',
+		},
 	},
 
 	/** @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu */
@@ -103,6 +128,7 @@ export default {
 		/**
 		 * @return {string} The kind of dashboard for the chip, '' for a group dashboard.
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 		 */
 		kindLabel() {
 			if (this.source === 'user') {
@@ -119,21 +145,25 @@ export default {
 		/**
 		 * @return {object} The chip icon.
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 		 */
 		kindIcon() {
 			return this.source === 'shared' ? ShareVariant : AccountOutline
 		},
 
 		/**
-		 * The description and the last change, joined as one line.
+		 * The description, what the reader may do and the last change,
+		 * joined as one line.
 		 *
 		 * @return {string}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 		 */
 		metaLine() {
 			const parts = [
 				(this.dashboard.description ?? '').trim(),
-				lastChangedText(this.dashboard.updatedAt, new Date(), getLanguage().replace('_', '-')),
+				rightsText(this.permissionLevel),
+				lastChangedText(this.dashboard.updatedAt, new Date(), getCanonicalLocale()),
 			].filter((part) => part !== '')
 			return parts.join(' · ')
 		},

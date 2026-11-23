@@ -1405,6 +1405,23 @@
         "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Dan id-dashboard jista' jieħu {count} oħra. Agħżel inqas folders jew bookmarks.",
         "The bookmarks could not be imported.": "Il-bookmarks ma setgħux jiġu importati.",
         "This file holds no bookmarks.": "Dan il-fajl ma fih l-ebda bookmark.",
-        "Folders": "Folders"
+        "Folders": "Folders",
+        "Put LaunchPad on your home screen": "Poġġi LaunchPad fuq l-iskrin ewlieni tiegħek",
+        "Then your workplace opens with one tap, like an app": "Imbagħad il-post tax-xogħol tiegħek jinfetaħ b'tapp wieħed, bħal app",
+        "In your browser, choose Share and then Add to Home Screen.": "Fil-browser tiegħek, agħżel Aqsam u mbagħad Żid mal-Iskrin Ewlieni.",
+        "Not now": "Mhux issa",
+        "{index} of {total} · next in {seconds} s": "{index} minn {total} · li jmiss f'{seconds} s",
+        "Now showing {name}": "Qed jintwera issa: {name}",
+        "Own look": "Dehra proprja",
+        "view only": "tara biss",
+        "you may add widgets": "tista' żżid widgets",
+        "{app}, outage": "{app}, waqfa",
+        "{app}, {count} open": "{app}, {count} miftuħa",
+        "{app}, pinned": "{app}, imwaħħal",
+        "Show until": "Uri sa",
+        "After this time the announcement disappears from every dashboard.": "Wara dan il-ħin, it-tħabbira tisparixxi minn kull dashboard.",
+        "Visible until {when}": "Viżibbli sa {when}",
+        "Choose until when the announcement shows": "Agħżel sa meta tidher it-tħabbira",
+        "The end time must be after the publish time": "Il-ħin tat-tmiem għandu jkun wara l-ħin tal-pubblikazzjoni"
     }
 }

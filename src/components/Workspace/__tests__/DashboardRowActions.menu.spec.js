@@ -27,7 +27,7 @@ vi.mock('@nextcloud/vue', () => ({
 	},
 }))
 
-const icons = ['Cog', 'ContentSave', 'Pencil', 'Tune', 'ShapePolygonPlus', 'BookmarkPlusOutline', 'TrashCanOutline', 'Star', 'StarCheck', 'ShareVariant', 'CalendarClock', 'Publish', 'PublishOff', 'History']
+const icons = ['Cog', 'ContentSave', 'Pencil', 'Tune', 'ShapePolygonPlus', 'BookmarkPlusOutline', 'TrashCanOutline', 'Star', 'StarCheck', 'ShareVariant', 'CalendarClock', 'Publish', 'PublishOff']
 const stubs = Object.fromEntries(icons.map((name) => [name, { template: `<i class="icon-${name}" />` }]))
 
 /**
@@ -51,11 +51,11 @@ describe('DashboardRowActions menu', () => {
 	})
 
 	it('offers the owner of a personal dashboard every entry the host allows', () => {
-		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canViewHistory: true })
+		const wrapper = menu({ source: 'user', canEdit: true, canShare: true })
 
 		expect(entries(wrapper)).toEqual([
 			'cog-edit-dashboard', 'cog-dashboard-config', 'cog-add-widget', 'cog-import-bookmarks', 'cog-set-default',
-			'cog-version-history', 'cog-share', 'cog-delete',
+			'cog-share', 'cog-delete',
 		])
 	})
 
@@ -99,13 +99,13 @@ describe('DashboardRowActions menu', () => {
 	})
 
 	it('asks the host for the action of each entry', async () => {
-		const wrapper = menu({ source: 'user', canEdit: true, canShare: true, canViewHistory: true })
+		const wrapper = menu({ source: 'user', canEdit: true, canShare: true })
 		for (const button of wrapper.findAll('button')) {
 			await button.trigger('click')
 		}
 
 		expect(Object.keys(wrapper.emitted())).toEqual(expect.arrayContaining([
-			'toggleEdit', 'openConfig', 'addWidget', 'setDefault', 'versionHistory', 'share', 'delete',
+			'toggleEdit', 'openConfig', 'addWidget', 'setDefault', 'share', 'delete',
 		]))
 	})
 })

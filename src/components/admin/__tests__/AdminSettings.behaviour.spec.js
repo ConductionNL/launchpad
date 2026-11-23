@@ -246,7 +246,7 @@ describe('AdminSettings: title and breadcrumbs', () => {
 
 		expect(wrapper.vm.pageTitle).toBe('Launchpad administration: general')
 		expect(wrapper.vm.breadcrumbs).toEqual([
-			{ label: 'Admin settings', href: '/index.php/settings/admin' },
+			{ label: 'Administration settings', href: '/index.php/settings/admin' },
 			{ label: 'Launchpad' },
 			{ label: 'General' },
 		])
@@ -257,12 +257,27 @@ describe('AdminSettings: title and breadcrumbs', () => {
 		const wrapper = await mountSettings()
 
 		wrapper.vm.onTabChange('roles-permissions')
-		expect(wrapper.vm.pageTitle).toBe('Launchpad administration: roles & permissions')
-		expect(wrapper.vm.breadcrumbs[2]).toEqual({ label: 'Roles & Permissions' })
+		expect(wrapper.vm.pageTitle).toBe('Launchpad administration: roles and permissions')
+		expect(wrapper.vm.breadcrumbs[2]).toEqual({ label: 'Roles and permissions' })
 		expect(wrapper.vm.breadcrumbNote).toBe('')
 
 		wrapper.vm.onTabChange('gone')
 		expect(wrapper.vm.pageTitle).toBe('Launchpad administration: ')
 		expect(wrapper.vm.breadcrumbs).toHaveLength(2)
+	})
+
+	it('asks for the title unescaped, because the template escapes it once already', async () => {
+		const calls = []
+		const spy = (app, text, vars, count, options) => {
+			calls.push({ text, options })
+			return t(app, text, vars)
+		}
+		const wrapper = shallowMount(AdminSettings, {
+			global: { provide: { configuredGroups: ['staff'] }, mocks: { t: spy } },
+		})
+		await flushPromises()
+		void wrapper.vm.pageTitle
+		const title = calls.find((call) => call.text === 'Launchpad administration: {tab}')
+		expect(title.options).toEqual({ escape: false })
 	})
 })

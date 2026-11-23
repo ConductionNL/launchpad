@@ -174,6 +174,14 @@ const RENDERER_OVERRIDES = {
 }
 
 /**
+ * Communal types LaunchPad offers although the app-dashboard set leaves them
+ * out: the map (board LpManagement, "Public space reports on the map").
+ *
+ * @type {string[]}
+ */
+const EXTRA_TYPES = ['map']
+
+/**
  * Types whose form LaunchPad supplies even though the communal entry is
  * `form: null` (renderer-only in OpenBuild). The forms need LaunchPad-injected
  * context, so they live here rather than in the shared registry.
@@ -566,7 +574,7 @@ function decorate(type, entry) {
  */
 function offerableTypes() {
 	const types = new Set(cnListWidgetTypes('app-dashboard'))
-	for (const type of Object.keys(FORM_OVERRIDES)) {
+	for (const type of [...Object.keys(FORM_OVERRIDES), ...EXTRA_TYPES]) {
 		if (cnGetWidgetTypeEntry(type)) {
 			types.add(type)
 		}

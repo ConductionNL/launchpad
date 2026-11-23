@@ -268,8 +268,31 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		foreach ($containers as $container) {
 			foreach ($container['content']['placements'] as $child) {
 				$this->assertSame(expected: 'stat', actual: $child['type'] ?? null);
+				// The container's inner grid has four columns (REQ-CONT-002).
+				$this->assertSame(expected: 1, actual: $child['gridWidth']);
+				$this->assertLessThan(expected: 4, actual: $child['gridX']);
 				$this->assertArrayNotHasKey(key: 'widgetId', array: $child);
 			}
 		}
 	}//end testContainerChildrenNameTheirType()
+
+	/**
+	 * The public start page and every kiosk entry are seeded dashboards, and
+	 * Communications may write announcements (LpPubliek, LpKiosk, LpAankondiging).
+	 *
+	 * @return void
+	 */
+	public function testPublishingNamesSeededDashboards(): void {
+		$seed  = self::seed();
+		$uuids = array_column(array: $seed['dashboards'], column_key: 'uuid');
+		$this->assertContains(needle: $seed['publishing']['startPage'], haystack: $uuids);
+		foreach ($seed['publishing']['kioskPlaylists'] as $playlist) {
+			$this->assertCount(expectedCount: 4, haystack: $playlist['entries']);
+			foreach ($playlist['entries'] as $entry) {
+				$this->assertContains(needle: $entry['dashboardUuid'], haystack: $uuids);
+			}
+		}
+
+		$this->assertContains(needle: 'communicatie', haystack: $seed['adminSettings']['announcement_editor_groups']);
+	}//end testPublishingNamesSeededDashboards()
 }//end class

@@ -285,16 +285,17 @@ This requirement deliberately replaces the former "GridStack auto-position + top
 
 ### Requirement: Grid Responsiveness — concrete breakpoints (REQ-GRID-007)
 
-The GridStack instance MUST be initialised with `columnOpts.breakpoints` containing exactly four entries, each `{w: <viewportWidthPx>, c: <columnCount>}`, applied in descending viewport order:
+The GridStack instance MUST be initialised with `columnOpts.breakpoints` containing exactly three entries, each `{w: <viewportWidthPx>, c: <columnCount>}`, applied in descending viewport order:
 
 | Viewport width >= | Column count |
 |---|---|
 | 1400 px | 12 |
 | 1100 px | 8 |
 | 768 px | 4 |
-| 480 px | 1 |
 
-`columnOpts.layout` MUST be set to `'moveScale'` so widgets scale proportionally when the column count changes (rather than wrapping or collapsing). Below the smallest entry the smallest column count (1) MUST apply.
+Below the smallest entry the smallest column count (4) MUST apply, so a phone keeps four columns (board LpMobiel: app tiles four to a row).
+
+`columnOpts.layout` MUST move and scale widgets proportionally when the column count changes between wider grids. On a grid of four columns or fewer it MUST lay the widgets out in reading order instead: an app tile (one cell wide in the wider layout) belongs to the nearest section heading above it whose columns it falls in, tiles take one cell each and flow as many to a row as fit, and every other widget takes a full row.
 
 The grid MUST also adapt to the container width while maintaining the active column count: column widths recalculate proportionally on resize, widget positions remain in their grid coordinates, and no widget content overflows its cell boundaries.
 
@@ -312,19 +313,20 @@ The grid MUST also adapt to the container width while maintaining the active col
 - THEN GridStack MUST proportionally rescale widget widths via `moveScale`
 - AND a widget originally `{x: 0, w: 6}` (half) MUST become approximately `{x: 0, w: 4}` (still half, in the 8-col grid)
 
-#### Scenario: Single-column on mobile
+#### Scenario: App tiles four to a row on a phone
 
-- GIVEN viewport width is 480 px
+- GIVEN viewport width is 390 px
+- AND the dashboard has the heading "My apps" over six one-cell app tiles, and a clock beside it
 - WHEN the workspace renders
-- THEN the grid MUST use 1 column
-- AND every widget MUST occupy the full row width
-- AND widgets MUST stack vertically
+- THEN the grid MUST use 4 columns
+- AND "My apps" MUST take a full row with its six tiles under it, four in the first row and two in the next
+- AND the clock MUST take a full row after the tiles
 
 #### Scenario: Below smallest breakpoint
 
-- GIVEN viewport width is 320 px (below the 480 entry)
+- GIVEN viewport width is 320 px (below the 768 entry)
 - WHEN the workspace renders
-- THEN the grid MUST use the column count of the smallest matching breakpoint (1 column)
+- THEN the grid MUST use the column count of the smallest matching breakpoint (4 columns)
 
 #### Scenario: Grid fills container width
 - GIVEN the dashboard container is 1200px wide at the 8-column breakpoint

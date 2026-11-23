@@ -28,6 +28,7 @@ export const DASHBOARD_BREAKPOINTS = Object.freeze([
  * @param {{w?: number}} node The GridStack node.
  * @param {number} fromColumns The column count of that layout.
  * @return {boolean}
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 function isCell(node, fromColumns) {
 	return (node.w ?? 1) * 12 <= fromColumns
@@ -38,6 +39,7 @@ function isCell(node, fromColumns) {
  *
  * @param {{h?: number}} node The GridStack node.
  * @return {boolean}
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 function isHeading(node) {
 	return (node.h ?? 1) === 1
@@ -52,6 +54,7 @@ function isHeading(node) {
  * @param {Array<{x?: number, y?: number, w?: number, h?: number}>} nodes The nodes in the wider layout.
  * @param {number} fromColumns The column count of that layout.
  * @return {Array<object>} The nodes in reading order.
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 export function readingOrder(nodes, fromColumns) {
 	const headings = nodes.filter((node) => isHeading(node) && !isCell(node, fromColumns))
@@ -86,6 +89,7 @@ export function readingOrder(nodes, fromColumns) {
  * @param {number} column The narrow column count.
  * @param {number} fromColumns The column count the nodes come from.
  * @return {void}
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 export function flowNarrow(nodes, column, fromColumns) {
 	let x = 0
@@ -127,6 +131,7 @@ export function flowNarrow(nodes, column, fromColumns) {
  * @param {Array<object>} newNodes Where placed nodes go.
  * @param {Array<object>} nodes The nodes to place.
  * @return {void}
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 export function dashboardColumnLayout(column, oldColumn, newNodes, nodes) {
 	if (column <= NARROW_COLUMNS && oldColumn > column) {
@@ -149,6 +154,7 @@ export function dashboardColumnLayout(column, oldColumn, newNodes, nodes) {
  * The `columnOpts` of the dashboard grid.
  *
  * @return {object}
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 export function dashboardGridColumnOpts() {
 	return getDashboardColumnOpts(DASHBOARD_BREAKPOINTS, dashboardColumnLayout)

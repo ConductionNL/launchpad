@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 7;
+	private const BASELINE_VERSION = 8;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -109,6 +109,11 @@ class ApplyActionBaseline implements IRepairStep {
 	 * Each route checks placement ownership first; a Nextcloud administrator
 	 * keeps the right for every dashboard.
 	 *
+	 * v8: reading the organisation menu and where it sits (REQ-ONAV-002). The
+	 * read routes filter the tree by the caller's groups, but the actions were
+	 * seeded admin-only, so every user's start page asked twice and got HTTP
+	 * 403. Writing the menu stays admin-only.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
@@ -136,6 +141,10 @@ class ApplyActionBaseline implements IRepairStep {
 		7 => [
 			'rule.update-rule',
 			'rule.delete-rule',
+		],
+		8 => [
+			'admin-org-navigation.get-org-navigation',
+			'admin-org-navigation.get-position',
 		],
 	];
 

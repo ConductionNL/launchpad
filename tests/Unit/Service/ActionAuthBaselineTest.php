@@ -56,8 +56,6 @@ class ActionAuthBaselineTest extends TestCase {
 	 * @var array<int, string>
 	 */
 	private const ADMIN_ONLY_ACTIONS = [
-		'admin-org-navigation.get-org-navigation',
-		'admin-org-navigation.get-position',
 		'analytics.top-dashboards',
 		'analytics.dashboard-detail',
 		'analytics.instance-summary',
@@ -90,6 +88,9 @@ class ActionAuthBaselineTest extends TestCase {
 	 * @var array<int, string>
 	 */
 	private const BASELINE_ACTIONS = [
+		// REQ-ONAV-002: the organisation menu, filtered by the reader's groups.
+		'admin-org-navigation.get-org-navigation',
+		'admin-org-navigation.get-position',
 		'dashboard.list',
 		'dashboard.visible',
 		'dashboard.get-active',

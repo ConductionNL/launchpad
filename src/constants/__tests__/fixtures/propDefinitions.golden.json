@@ -1192,6 +1192,35 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardPageHeader.vue | dashboard": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/Workspace/DashboardPageHeader.vue | source": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "user"
+	},
+	"../../components/Workspace/DashboardPageHeader.vue | isDefault": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/DashboardPageHeader.vue | permissionLevel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "view_only"
+	},
+	"../../components/Workspace/DashboardPageHeader.vue | isEditMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardReactions.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,

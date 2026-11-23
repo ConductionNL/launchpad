@@ -11,6 +11,7 @@
  * responsibility and are tested there, not re-frozen here.
  */
 
+import { loadLazyComponent } from '@conduction/nextcloud-vue'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 beforeEach(() => {
@@ -153,8 +154,8 @@ describe('widgetRegistry — news is LaunchPad-owned', () => {
 		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
 		const entry = getWidgetTypeEntry('news')
 		expect(entry).toBeTruthy()
-		expect(entry.renderer?.name).toBe('NewsWidget')
-		expect(entry.form?.name).toBe('NewsWidgetForm')
+		expect((await loadLazyComponent(entry.renderer))?.name).toBe('NewsWidget')
+		expect((await loadLazyComponent(entry.form))?.name).toBe('NewsWidgetForm')
 	})
 
 	it('keeps the content shape a pre-move placement was authored with', async () => {
@@ -193,8 +194,8 @@ describe('section-heading (REQ-WDG-031)', () => {
 		expect(listWidgetTypes()).toContain('section-heading')
 		const entry = getWidgetTypeEntry('section-heading')
 		expect(entry.icon).toBe('FormatHeader1')
-		expect(entry.renderer.name).toBe('SectionHeadingWidget')
-		expect(entry.form.name).toBe('SectionHeadingWidgetForm')
+		expect((await loadLazyComponent(entry.renderer)).name).toBe('SectionHeadingWidget')
+		expect((await loadLazyComponent(entry.form)).name).toBe('SectionHeadingWidgetForm')
 		expect(offeredForViewer(entry, {})).toBe(true)
 	})
 })

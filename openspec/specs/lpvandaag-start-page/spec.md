@@ -44,6 +44,13 @@ Instellingen and Launchpad SHALL only show while the navigation panel is left ou
 - **WHEN** they open "Meer"
 - **THEN** Dit dashboard offers "Als standaard instellen", and neither Instellingen of the dashboard nor Verwijderen
 
+#### Scenario: A person switches dashboards from Meer
+
+- **GIVEN** a person who sees two dashboards
+- **WHEN** they open "Meer" and pick the other one under Dashboards
+- **THEN** that dashboard opens and is the checked one in Dashboards
+- **AND** it is still the open dashboard after a reload
+
 ### Requirement: Vandaag eerst is one row
 
 The attention widget with `content.layout: "columns"` SHALL draw its items side by side in one row of

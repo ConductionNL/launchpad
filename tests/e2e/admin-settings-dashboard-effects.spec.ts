@@ -611,10 +611,6 @@ test.describe('REQ-ASET-006 the default grid columns', () => {
 		expect((await readSettings(admin)).defaultGridColumns).toBe(8)
 
 		const created = await createDashboard(alice.api, 'My Dashboard')
-		// SUSPECTED BUG: DashboardFactory::DEFAULT_OPTIONS hardcodes
-		// gridColumns 12 (lib/Service/DashboardFactory.php:37) and
-		// DashboardService::factoryOptions() (lib/Service/DashboardService.php:809)
-		// never passes the admin default, so every new dashboard gets 12.
 		expect(created.gridColumns).toBe(8)
 	})
 
@@ -709,8 +705,6 @@ test.describe('REQ-ASET-009 changing a setting leaves existing dashboards alone'
 				.gridColumns,
 		).toBe(12)
 
-		// SUSPECTED BUG: the same one as "Default grid columns applied" above;
-		// a new dashboard is created with a hardcoded 12.
 		const fresh = await createDashboard(alice.api, `E2E New grid ${Date.now()}`)
 		expect(fresh.gridColumns).toBe(8)
 	})

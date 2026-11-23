@@ -171,7 +171,16 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 		$this->dashboardService->expects($this->once())->method('createDashboard')->with(
 			'alice',
 			'Board',
-			['seedDefaults' => true, 'seedSet' => 'default', 'description' => 'D', 'icon' => 'star', 'parentUuid' => 'p-1', 'slug' => 's', 'sortOrder' => 3]
+			[
+				'seedDefaults' => true,
+				'seedSet' => 'default',
+				'description' => 'D',
+				'icon' => 'star',
+				'parentUuid' => 'p-1',
+				'slug' => 's',
+				'sortOrder' => 3,
+				'gridColumns' => null,
+			]
 		)->willReturn($this->dashboard());
 		$this->dashboardService->method('findPlacements')->with(5)->willReturn([]);
 
@@ -259,27 +268,100 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 			'flat defaults' => [
 				null,
 				[],
-				['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0, 'widgets' => null],
+				[
+					'name' => 'My Dashboard',
+					'description' => null,
+					'icon' => null,
+					'parentUuid' => null,
+					'slug' => null,
+					'sortOrder' => 0,
+					'widgets' => null,
+					'gridColumns' => null,
+				],
 			],
 			'flat values' => [
 				'B',
 				['description' => 'D', 'icon' => 7, 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 2],
-				['name' => 'B', 'description' => 'D', 'icon' => 7, 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 2, 'widgets' => null],
+				[
+					'name' => 'B',
+					'description' => 'D',
+					'icon' => 7,
+					'parentUuid' => 'p',
+					'slug' => 's',
+					'sortOrder' => 2,
+					'widgets' => null,
+					'gridColumns' => null,
+				],
 			],
 			'body typed' => [
 				['name' => 'B', 'description' => 'D', 'icon' => 'i', 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => '4'],
 				[],
-				['name' => 'B', 'description' => 'D', 'icon' => 'i', 'parentUuid' => 'p', 'slug' => 's', 'sortOrder' => 4, 'widgets' => null],
+				[
+					'name' => 'B',
+					'description' => 'D',
+					'icon' => 'i',
+					'parentUuid' => 'p',
+					'slug' => 's',
+					'sortOrder' => 4,
+					'widgets' => null,
+					'gridColumns' => null,
+				],
 			],
 			'body untyped' => [
 				['icon' => 3, 'parentUuid' => 4, 'slug' => 5, 'sortOrder' => 'x', 'widgets' => 1],
 				['slug' => 'ignored'],
-				['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0, 'widgets' => null],
+				[
+					'name' => 'My Dashboard',
+					'description' => null,
+					'icon' => null,
+					'parentUuid' => null,
+					'slug' => null,
+					'sortOrder' => 0,
+					'widgets' => null,
+					'gridColumns' => null,
+				],
+			],
+			'body with an offered column count' => [
+				['name' => 'B', 'gridColumns' => '8'],
+				[],
+				[
+					'name' => 'B',
+					'description' => null,
+					'icon' => null,
+					'parentUuid' => null,
+					'slug' => null,
+					'sortOrder' => 0,
+					'widgets' => null,
+					'gridColumns' => 8,
+				],
+			],
+			'body with a column count not offered' => [
+				['name' => 'B', 'gridColumns' => 5],
+				[],
+				[
+					'name' => 'B',
+					'description' => null,
+					'icon' => null,
+					'parentUuid' => null,
+					'slug' => null,
+					'sortOrder' => 0,
+					'widgets' => null,
+					'gridColumns' => null,
+				],
 			],
 			'body empty' => [
 				[],
 				[],
-				['name' => 'My Dashboard', 'description' => null, 'icon' => null, 'parentUuid' => null, 'slug' => null, 'sortOrder' => 0, 'widgets' => null],
+				[
+					'name' => 'My Dashboard',
+					'description' => null,
+					'icon' => null,
+					'parentUuid' => null,
+					'slug' => null,
+					'sortOrder' => 0,
+					'widgets' => null,
+					'gridColumns' => null,
+				],
 			],
 		];
 	}

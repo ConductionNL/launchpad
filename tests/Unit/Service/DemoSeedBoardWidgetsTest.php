@@ -106,7 +106,8 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 				}
 
 				$titles[] = $widget['content']['title'];
-				$this->assertSame(expected: ($headingWidths[$dashboard['name']] ?? $dashboard['gridColumns']), actual: $widget['gridWidth'], message: $widget['content']['title']);
+				$width = ($headingWidths[$dashboard['name']] ?? $dashboard['gridColumns']);
+				$this->assertSame(expected: $width, actual: $widget['gridWidth'], message: $widget['content']['title']);
 				$this->assertNotSame(expected: '', actual: $widget['content']['description'], message: $widget['content']['title']);
 			}
 

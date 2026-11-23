@@ -25,7 +25,7 @@ import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
  * and a rule below, on the page ground without a card. It spans the grid's
  * full width.
  *
- * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-040-a-section-heading-widget
+ * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-031-a-section-heading-widget
  */
 export default {
 	name: 'SectionHeadingWidget',
@@ -44,7 +44,7 @@ export default {
 		 * The heading, or a placeholder while it has none.
 		 *
 		 * @return {string}
-		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-040-a-section-heading-widget
+		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-031-a-section-heading-widget
 		 */
 		title() {
 			const value = typeof this.content?.title === 'string' ? this.content.title.trim() : ''
@@ -55,7 +55,7 @@ export default {
 		 * The line of explanation, or empty.
 		 *
 		 * @return {string}
-		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-040-a-section-heading-widget
+		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-031-a-section-heading-widget
 		 */
 		description() {
 			return typeof this.content?.description === 'string' ? this.content.description.trim() : ''

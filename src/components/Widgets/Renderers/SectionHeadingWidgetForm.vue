@@ -29,7 +29,7 @@ import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/propDefinit
  * SectionHeadingWidgetForm: the heading and the one line of explanation of
  * a `section-heading` widget.
  *
- * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-040-a-section-heading-widget
+ * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-031-a-section-heading-widget
  */
 export default {
 	name: 'SectionHeadingWidgetForm',
@@ -70,7 +70,7 @@ export default {
 		 *
 		 * @param {object} change The changed keys.
 		 * @return {void}
-		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-040-a-section-heading-widget
+		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-031-a-section-heading-widget
 		 */
 		update(change) {
 			Object.assign(this, change)
@@ -81,7 +81,7 @@ export default {
 		 * Validate the form: a heading needs a title.
 		 *
 		 * @return {string[]} The validation errors.
-		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-040-a-section-heading-widget
+		 * @spec openspec/specs/widgets/spec.md#requirement-req-wdg-031-a-section-heading-widget
 		 */
 		validate() {
 			return this.title.trim() === '' ? [t('launchpad', 'Give the heading a title')] : []

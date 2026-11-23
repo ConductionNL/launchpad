@@ -118,7 +118,7 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 // `section-heading` — "Tussenkop": a full-width heading with one line of
-// explanation over the widgets or tiles that follow it (REQ-WDG-040).
+// explanation over the widgets or tiles that follow it (REQ-WDG-031).
 import SectionHeadingWidget from '../components/Widgets/Renderers/SectionHeadingWidget.vue'
 import SectionHeadingWidgetForm from '../components/Widgets/Renderers/SectionHeadingWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
@@ -367,7 +367,7 @@ registerDashboardWidget('search', {
 	icon: 'Magnify',
 })
 
-// REQ-WDG-040: "Tussenkop" of boards LpIntranet and LpWerkplek, a heading on
+// REQ-WDG-031: "Tussenkop" of boards LpIntranet and LpWerkplek, a heading on
 // the page ground; the label widget's group heading has no line of
 // explanation, so this is a type of its own.
 registerDashboardWidget('section-heading', {

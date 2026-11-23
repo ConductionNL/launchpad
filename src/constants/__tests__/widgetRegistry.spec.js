@@ -186,3 +186,15 @@ describe('offeredForViewer (wiki-widget REQ-WIKI-004)', () => {
 		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: true })).toBe(true)
 	})
 })
+
+describe('section-heading (REQ-WDG-031)', () => {
+	it('is offered to everyone as "Section heading" with the format-header-1 icon', async () => {
+		const { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('section-heading')
+		const entry = getWidgetTypeEntry('section-heading')
+		expect(entry.icon).toBe('FormatHeader1')
+		expect(entry.renderer.name).toBe('SectionHeadingWidget')
+		expect(entry.form.name).toBe('SectionHeadingWidgetForm')
+		expect(offeredForViewer(entry, {})).toBe(true)
+	})
+})

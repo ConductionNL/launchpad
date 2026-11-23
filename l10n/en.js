@@ -1927,7 +1927,11 @@ OC.L10N.register(
     "Changes are saved straight away" : "Changes are saved straight away",
     "Dashboard settings" : "Dashboard settings",
     "The number of columns could not be saved." : "The number of columns could not be saved.",
-    "Versions" : "Versions"
+    "Versions" : "Versions",
+    "Heading" : "Heading",
+    "Explanation" : "Explanation",
+    "One line under the heading. Leave empty for none." : "One line under the heading. Leave empty for none.",
+    "Give the heading a title" : "Give the heading a title"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -585,7 +585,7 @@ OC.L10N.register(
     "Heading text" : "Koptekst",
     "Heading text is required" : "Koptekst is verplicht",
     "Section" : "Sectie",
-    "Section heading" : "Sectiekop",
+    "Section heading" : "Tussenkop",
     "{heading} divider" : "{heading} scheidingslijn",
     "Folder breadcrumb" : "Map kruimelpad",
     "Root" : "Hoofdmap",
@@ -2370,7 +2370,11 @@ OC.L10N.register(
     "You are editing {name}" : "Je bewerkt {name}",
     "Changes are saved straight away" : "Wijzigingen worden direct bewaard",
     "Dashboard settings" : "Dashboardinstellingen",
-    "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard."
+    "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard.",
+    "Heading" : "Kop",
+    "Explanation" : "Toelichting",
+    "One line under the heading. Leave empty for none." : "Eén regel onder de kop. Laat leeg voor geen.",
+    "Give the heading a title" : "Geef de kop een titel"
 },
 "nplurals=2; plural=(n != 1);"
 );

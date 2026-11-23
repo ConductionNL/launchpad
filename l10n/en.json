@@ -1693,6 +1693,10 @@
         "The number of columns could not be saved.": "The number of columns could not be saved.",
         "Versions": "Versions",
         "Add widget": "Add widget",
-        "Done": "Done"
+        "Done": "Done",
+        "Heading": "Heading",
+        "Explanation": "Explanation",
+        "One line under the heading. Leave empty for none.": "One line under the heading. Leave empty for none.",
+        "Give the heading a title": "Give the heading a title"
     }
 }

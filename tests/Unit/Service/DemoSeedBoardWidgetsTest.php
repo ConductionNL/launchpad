@@ -122,8 +122,13 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		foreach (self::seed()['dashboards'] as $dashboard) {
 			$cells = [];
 			foreach ($dashboard['widgets'] as $index => $widget) {
-				$width  = ($widget['gridWidth'] ?? (isset($widget['tile']) === true ? 2 : 0));
-				$height = ($widget['gridHeight'] ?? (isset($widget['tile']) === true ? 2 : 0));
+				$fallback = 0;
+				if (isset($widget['tile']) === true) {
+					$fallback = 2;
+				}
+
+				$width  = ($widget['gridWidth'] ?? $fallback);
+				$height = ($widget['gridHeight'] ?? $fallback);
 				for ($x = $widget['gridX']; $x < $widget['gridX'] + $width; $x++) {
 					for ($y = $widget['gridY']; $y < $widget['gridY'] + $height; $y++) {
 						$key = $x.':'.$y;

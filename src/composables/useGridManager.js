@@ -224,7 +224,7 @@ export const MIN_CELLS = 2
 /**
  * Widget types that may be one row tall, below {@link MIN_CELLS}. A divider
  * is a single line between sections (REQ-DIV-006), a section heading one
- * heading over them (REQ-WDG-040).
+ * heading over them (REQ-WDG-031).
  *
  * @type {ReadonlyArray<string>}
  */

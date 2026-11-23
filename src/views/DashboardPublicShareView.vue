@@ -77,7 +77,6 @@ start page (`startPage`) it carries a bar with the organisation's name and a
 
 <script>
 import axios from '@nextcloud/axios'
-import { getCapabilities } from '@nextcloud/capabilities'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { defineComponent, onMounted, ref } from 'vue'
@@ -89,6 +88,7 @@ import LoginIcon from 'vue-material-design-icons/Login.vue'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { houseEmblem } from '../utils/houseEmblem.js'
 import { isKioskMode } from '../utils/kioskMode.js'
 import { signInUrl } from '../utils/publicStart.js'
 
@@ -241,9 +241,7 @@ export default defineComponent({
 		// The start page's sign-in bar: the instance's name from Nextcloud's
 		// theming, and the login form with direct=1 (REQ-PSP-003).
 		const organisationName = window.OC?.theme?.name || ''
-		// The emblem thematiq publishes for the house style, else Nextcloud's logo.
-		const capabilities = getCapabilities() || {}
-		const emblem = capabilities.nldesign?.logos?.emblem || capabilities.theming?.logo || ''
+		const emblem = houseEmblem()
 		const signInHref = signInUrl(generateUrl)
 
 		return {

@@ -72,12 +72,23 @@
 
 <script>
 import axios from '@nextcloud/axios'
-import { getCapabilities } from '@nextcloud/capabilities'
-import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
+import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import { REQUIRED_TEXT_PROP } from '../constants/propDefinitions.js'
+import { houseEmblem } from '../utils/houseEmblem.js'
 import { hideCursorWhenIdle } from '../utils/kioskMode.js'
+
+/**
+ * The locale Nextcloud renders the page in (`<html data-locale>`), for the
+ * band's clock; undefined lets the browser choose.
+ *
+ * @return {string|undefined}
+ */
+function pageLocale() {
+	const locale = document.documentElement?.dataset?.locale || ''
+	return locale === '' ? undefined : locale.replace('_', '-')
+}
 
 /** A network failure is retried this soon, whatever the refresh interval. */
 const RETRY_MS = 30 * 1000
@@ -151,8 +162,7 @@ export default {
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		emblem() {
-			const capabilities = getCapabilities() || {}
-			return capabilities.nldesign?.logos?.emblem || capabilities.theming?.logo || ''
+			return houseEmblem()
 		},
 
 		/**
@@ -160,7 +170,7 @@ export default {
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		clockTime() {
-			return new Date(this.clockMs).toLocaleTimeString(getCanonicalLocale(), { hour: '2-digit', minute: '2-digit' })
+			return new Date(this.clockMs).toLocaleTimeString(pageLocale(), { hour: '2-digit', minute: '2-digit' })
 		},
 
 		/**
@@ -168,7 +178,7 @@ export default {
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		clockDate() {
-			return new Date(this.clockMs).toLocaleDateString(getCanonicalLocale(), { weekday: 'long', day: 'numeric', month: 'long' })
+			return new Date(this.clockMs).toLocaleDateString(pageLocale(), { weekday: 'long', day: 'numeric', month: 'long' })
 		},
 
 		/**
@@ -199,15 +209,30 @@ export default {
 		},
 	},
 
+	watch: {
+		/**
+		 * The band's clock runs while a dashboard shows.
+		 *
+		 * @param {object|null} entry The entry on screen.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		current(entry) {
+			if (entry && this.clockTimer === null) {
+				this.clockMs = Date.now()
+				this.clockTimer = setInterval(() => {
+					this.clockMs = Date.now()
+				}, 15000)
+			}
+		},
+	},
+
 	/**
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 	 */
 	async mounted() {
 		this.stopCursor = hideCursorWhenIdle(document)
-		this.clockTimer = setInterval(() => {
-			this.clockMs = Date.now()
-		}, 15000)
 		await this.load()
 	},
 

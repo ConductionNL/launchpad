@@ -20,9 +20,25 @@
 				{{ current.dashboard?.name || current.dashboard?.title || '' }}
 			</h1>
 			<PublicDashboardGrid :placements="current.placements || []" />
+			<!-- REQ-KIOSKUI-003: where the playlist is, as text, not a control;
+			     hidden from screen readers, which hear the change below. -->
+			<p
+				v-if="positionText"
+				class="kiosk-player__position"
+				aria-hidden="true"
+				data-testid="kiosk-position">
+				{{ positionText }}
+			</p>
+			<p
+				class="kiosk-player__announce"
+				aria-live="polite"
+				data-testid="kiosk-announcement">
+				{{ announcement }}
+			</p>
 			<p
 				v-if="offline"
 				class="kiosk-player__reconnect"
+				:class="{ 'kiosk-player__reconnect--above': positionText !== '' }"
 				role="status"
 				data-testid="kiosk-reconnecting">
 				{{ t('launchpad', 'Reconnecting…') }}
@@ -78,7 +94,10 @@ export default {
 		token: REQUIRED_TEXT_PROP,
 	},
 
-	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
+	/**
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 */
 	data() {
 		return {
 			entries: [],
@@ -93,6 +112,11 @@ export default {
 			prefetched: null,
 			advancing: false,
 			stopCursor: null,
+			shownAt: 0,
+			dwellMs: 0,
+			nowMs: Date.now(),
+			tickTimer: null,
+			announcement: '',
 		}
 	},
 
@@ -104,17 +128,43 @@ export default {
 		current() {
 			return this.entries[this.index] ?? null
 		},
+
+		/**
+		 * The position line: "2 of 4 · next in 18 s", or '' for a playlist
+		 * of one dashboard or none.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		positionText() {
+			if (this.entries.length <= 1 || !this.current) {
+				return ''
+			}
+			const seconds = Math.max(0, Math.ceil((this.shownAt + this.dwellMs - this.nowMs) / 1000))
+			return t('launchpad', '{index} of {total} · next in {seconds} s', {
+				index: this.index + 1,
+				total: this.entries.length,
+				seconds,
+			})
+		},
 	},
 
-	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
+	/**
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 */
 	async mounted() {
 		this.stopCursor = hideCursorWhenIdle(document)
 		await this.load()
 	},
 
-	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
+	/**
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 */
 	beforeUnmount() {
 		this.stopCursor?.()
+		clearInterval(this.tickTimer)
 		clearTimeout(this.dwellTimer)
 		clearTimeout(this.prefetchTimer)
 		clearTimeout(this.refreshTimer)
@@ -187,15 +237,20 @@ export default {
 		 * shortly before the end, then move on.
 		 *
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		scheduleNext() {
 			clearTimeout(this.dwellTimer)
 			clearTimeout(this.prefetchTimer)
 			this.dwellTimer = null
+			this.syncTick()
 			if (this.entries.length === 0) {
 				return
 			}
 			const dwellMs = Math.max(10, Number(this.current?.dwellSeconds) || 10) * 1000
+			this.dwellMs = dwellMs
+			this.shownAt = Date.now()
+			this.nowMs = this.shownAt
 			const next = (this.index + 1) % this.entries.length
 			this.prefetchTimer = setTimeout(
 				() => this.prefetch(next),
@@ -264,6 +319,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		async advance() {
 			this.dwellTimer = null
@@ -275,14 +331,48 @@ export default {
 				const ready = this.prefetched?.index === index && this.prefetched.uuid === entry?.dashboard?.uuid
 				const fresh = await this.withinEntryTimeout(ready ? this.prefetched.result : this.fetchEntry(entry))
 				if (fresh !== null && this.entries[index]?.dashboard?.uuid === fresh.dashboard?.uuid) {
+					const moved = index !== this.index
 					this.entries.splice(index, 1, fresh)
 					this.index = index
+					if (moved) {
+						this.announce(fresh)
+					}
 					break
 				}
 			}
 			this.prefetched = null
 			this.advancing = false
 			this.scheduleNext()
+		},
+
+		/**
+		 * Count the seconds down only while a playlist of more than one
+		 * dashboard plays; a single dashboard or none needs no clock.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		syncTick() {
+			if (this.entries.length > 1 && this.tickTimer === null) {
+				this.tickTimer = setInterval(() => {
+					this.nowMs = Date.now()
+				}, 1000)
+			} else if (this.entries.length <= 1 && this.tickTimer !== null) {
+				clearInterval(this.tickTimer)
+				this.tickTimer = null
+			}
+		},
+
+		/**
+		 * Tell screen readers, politely, which dashboard now shows.
+		 *
+		 * @param {object} entry The entry now on screen.
+		 * @return {void}
+		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		announce(entry) {
+			const name = entry?.dashboard?.name || entry?.dashboard?.title || ''
+			this.announcement = name === '' ? '' : t('launchpad', 'Now showing {name}', { name })
 		},
 
 		/**
@@ -296,6 +386,7 @@ export default {
 			this.dwellTimer = null
 			this.prefetched = null
 			this.entries = []
+			this.syncTick()
 		},
 	},
 }
@@ -324,6 +415,36 @@ export default {
 	background: var(--color-background-dark);
 	color: var(--color-text-maxcontrast);
 	font-size: 0.875em;
+}
+
+.kiosk-player__announce {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.kiosk-player__reconnect--above {
+	inset-block-end: 52px;
+}
+
+/* REQ-KIOSKUI-003: small, quiet text; the main text colour on the main
+   background keeps AA contrast whatever the dashboard draws behind it. */
+.kiosk-player__position {
+	position: fixed;
+	inset-inline-end: 16px;
+	inset-block-end: 16px;
+	margin: 0;
+	padding: 4px 12px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	font-size: 0.875em;
+	font-variant-numeric: tabular-nums;
+	pointer-events: none;
 }
 
 .kiosk-player__message {

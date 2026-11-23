@@ -1405,6 +1405,8 @@
         "Put LaunchPad on your home screen": "Προσθέστε το LaunchPad στην αρχική οθόνη",
         "Then your workplace opens with one tap, like an app": "Τότε ο χώρος εργασίας σας ανοίγει με ένα πάτημα, σαν εφαρμογή",
         "In your browser, choose Share and then Add to Home Screen.": "Στο πρόγραμμα περιήγησης επιλέξτε Κοινοποίηση και μετά Προσθήκη στην οθόνη Αφετηρίας.",
-        "Not now": "Όχι τώρα"
+        "Not now": "Όχι τώρα",
+        "{index} of {total} · next in {seconds} s": "{index} από {total} · επόμενο σε {seconds} s",
+        "Now showing {name}": "Τώρα εμφανίζεται: {name}"
     }
 }

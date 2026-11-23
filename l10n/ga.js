@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} as {total} · an chéad cheann eile i gceann {seconds} s",
+    "Now showing {name}" : "Á thaispeáint anois: {name}",
     "Put LaunchPad on your home screen" : "Cuir LaunchPad ar do scáileán baile",
     "Then your workplace opens with one tap, like an app" : "Ansin osclaíonn d'ionad oibre le tapáil amháin, díreach cosúil le haip",
     "In your browser, choose Share and then Add to Home Screen." : "I do bhrabhsálaí, roghnaigh Comhroinn agus ansin Cuir le Scáileán Baile.",

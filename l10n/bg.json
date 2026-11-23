@@ -1405,6 +1405,8 @@
         "Put LaunchPad on your home screen": "Добавете LaunchPad към началния екран",
         "Then your workplace opens with one tap, like an app": "Тогава работното ви място се отваря с едно докосване, като приложение",
         "In your browser, choose Share and then Add to Home Screen.": "В браузъра изберете Споделяне и след това Добавяне към началния екран.",
-        "Not now": "Не сега"
+        "Not now": "Не сега",
+        "{index} of {total} · next in {seconds} s": "{index} от {total} · следващо след {seconds} s",
+        "Now showing {name}": "Сега се показва: {name}"
     }
 }

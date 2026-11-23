@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{index} of {total} · next in {seconds} s" : "{index} af {total} · næste om {seconds} s",
+    "Now showing {name}" : "Vises nu: {name}",
     "Put LaunchPad on your home screen" : "Føj LaunchPad til din hjemmeskærm",
     "Then your workplace opens with one tap, like an app" : "Så åbner din arbejdsplads med ét tryk, ligesom en app",
     "In your browser, choose Share and then Add to Home Screen." : "Vælg Del i din browser og derefter Føj til hjemmeskærm.",

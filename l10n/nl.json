@@ -2165,6 +2165,10 @@
         "Now showing {name}": "Nu te zien: {name}",
         "Own look": "Eigen uitstraling",
         "view only": "alleen bekijken",
-        "you may add widgets": "u mag widgets toevoegen"
+        "you may add widgets": "u mag widgets toevoegen",
+        "Administration settings": "Beheerinstellingen",
+        "Controls": "Bediening",
+        "Versions and analytics": "Versies en analyse",
+        "Organisation menu": "Organisatiemenu"
     }
 }

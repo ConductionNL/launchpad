@@ -51,7 +51,8 @@
 						}"
 						:data-test="`config-tab-${tab.id}`"
 						@click="currentTab = tab.id">
-						<component :is="tab.icon" v-if="tab.icon" :size="16" />
+						<!-- LpDashboardInstellingen draws the tabs as words alone, so the
+						     strip fits the dialog without scrolling sideways. -->
 						<span>{{ tab.label }}</span>
 						<span
 							v-if="tab.count"
@@ -648,12 +649,10 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
-		ShareVariant,
 		ContentCopy,
 		Check,
 		Lock,
 		CnIconBrowser,
-		Palette,
 	},
 
 	props: {
@@ -906,7 +905,7 @@ export default {
 		modalTitle() {
 			return this.isCreate
 				? t('launchpad', 'Create dashboard')
-				: t('launchpad', 'Dashboard configuration')
+				: t('launchpad', 'Dashboard settings')
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -1556,7 +1555,7 @@ export default {
    active tab, border underline on hover. */
 .dashboard-config__tabs {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-start;
 	list-style: none;
 	margin: 8px 0 16px;
 	padding: 0;
@@ -1565,7 +1564,7 @@ export default {
 
 .dashboard-config__tab-item {
 	display: flex;
-	flex: 1;
+	flex: none;
 }
 
 .dashboard-config__tab-item:hover {

@@ -60,7 +60,11 @@ class ReadReceiptPeople {
 	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	public function withPeople(array $report, ?string $viewerId): array {
-		$rows    = is_array(value: $report['rows'] ?? null) === true ? $report['rows'] : [];
+		$rows = [];
+		if (is_array(value: $report['rows'] ?? null) === true) {
+			$rows = $report['rows'];
+		}
+
 		$userIds = array_values(array: array_map(array: $rows, callback: static fn (array $row): string => (string)($row['userId'] ?? '')));
 		$field   = $this->departmentField();
 		$departments = [];
@@ -130,8 +134,11 @@ class ReadReceiptPeople {
 	 * @return string
 	 */
 	private function displayName(string $userId): string {
-		$name = $this->userManager->getDisplayName(uid: $userId);
+		$name = (string)$this->userManager->getDisplayName(uid: $userId);
+		if ($name === '') {
+			return $userId;
+		}
 
-		return ($name === null || $name === '') ? $userId : $name;
+		return $name;
 	}//end displayName()
 }//end class

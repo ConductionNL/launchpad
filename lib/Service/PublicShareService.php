@@ -389,7 +389,7 @@ class PublicShareService {
 	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
 	 * @throws DoesNotExistException When the shared dashboard was deleted.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	public function sharedDashboardId(
 		string $token,
@@ -414,7 +414,7 @@ class PublicShareService {
 	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
 	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	private function openShare(
 		string $token,

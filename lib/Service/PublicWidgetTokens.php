@@ -18,7 +18,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 
 declare(strict_types=1);
@@ -33,7 +33,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 /**
  * The dashboards a public share or kiosk playlist token shows.
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 class PublicWidgetTokens {
 	/**
@@ -63,7 +63,7 @@ class PublicWidgetTokens {
 	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
 	 * @throws DoesNotExistException When the shared dashboard was deleted.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	public function shareDashboards(
 		string $token,
@@ -86,7 +86,7 @@ class PublicWidgetTokens {
 	 *
 	 * @throws PlaylistNotFoundException When the token is unknown or revoked.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	public function kioskDashboards(string $token): array {
 		$dashboardIds = $this->kiosk->playlistDashboardIds(token: $token);

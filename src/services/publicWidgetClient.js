@@ -18,7 +18,7 @@ import { generateUrl } from '@nextcloud/router'
  * @param {string} token The share or playlist token.
  * @param {object} headers The request headers.
  * @return {function((number|string)): Promise<{widget: string, data: object}>} The reader.
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 function tokenReader(route, token, headers) {
 	const base = generateUrl('/apps/launchpad') + '/' + route + '/' + encodeURIComponent(token) + '/placements/'
@@ -35,7 +35,7 @@ function tokenReader(route, token, headers) {
  * @param {string} token The share token.
  * @param {string|null} password The share password, when the link has one.
  * @return {function((number|string)): Promise<{widget: string, data: object}>} The reader.
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export function shareWidgetReader(token, password = null) {
 	const headers = password ? { 'X-Share-Password': password } : {}
@@ -47,7 +47,7 @@ export function shareWidgetReader(token, password = null) {
  *
  * @param {string} token The playlist token.
  * @return {function((number|string)): Promise<{widget: string, data: object}>} The reader.
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export function kioskWidgetReader(token) {
 	return tokenReader('kiosk', token, {})

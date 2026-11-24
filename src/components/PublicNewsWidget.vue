@@ -45,7 +45,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
  * published announcements for everyone through the token-scoped read and
  * lists them read-only, without likes or comments (REQ-PSHR-011).
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export default {
 	name: 'PublicNewsWidget',
@@ -85,7 +85,7 @@ export default {
 		 * Load the news items; a failed read shows that news is unavailable.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 */
 		async load() {
 			this.loading = true
@@ -107,7 +107,7 @@ export default {
 		 *
 		 * @param {string} value The ISO date.
 		 * @return {string} The date, or '' when it does not parse.
-		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 */
 		formatDate(value) {
 			const date = new Date(value)

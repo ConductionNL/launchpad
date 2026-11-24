@@ -11,7 +11,7 @@
  * Written from the change's scenario; it runs in the nightly against a
  * live instance.
  *
- * @e2e openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md
+ * @e2e openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md
  */
 
 import type { APIRequestContext } from '@playwright/test'

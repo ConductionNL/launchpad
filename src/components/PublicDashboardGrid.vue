@@ -138,7 +138,7 @@ function placementContent(p) {
  * @param {object} p The placement.
  * @param {boolean} live Whether the grid has a token-scoped read.
  * @return {string} The display kind.
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 function placementKind(p, live) {
 	const widgetId = p.widgetId || ''
@@ -182,7 +182,7 @@ function tileFields(p) {
  * @param {object} p The placement.
  * @param {boolean} live Whether the grid has a token-scoped read.
  * @return {object} The display item.
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 function displayItem(p, live) {
 	const content = placementContent(p)
@@ -217,7 +217,7 @@ function displayItem(p, live) {
  * signed-in users. Shared by the public share page and the kiosk player.
  *
  * @spec openspec/specs/dashboard-kiosk-mode/spec.md
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export default {
 	name: 'PublicDashboardGrid',
@@ -280,7 +280,7 @@ export default {
 		 * read, answering the reading itself.
 		 *
 		 * @return {(function((number|string)): Promise<object>)|null} The reading source.
-		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 */
 		readingSource() {
 			const read = this.readWidget
@@ -301,7 +301,7 @@ export default {
 		 *
 		 * @param {object} item The display item.
 		 * @return {object} The text widget's content.
-		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-text-in-markdown-on-public-screens-req-pshr-012
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-text-in-markdown-on-public-screens-req-pshr-012
 		 */
 		textContent(item) {
 			const placement = this.placements.find((p) => p.id === item.id)
@@ -314,7 +314,7 @@ export default {
 		 *
 		 * @param {object} item The display item.
 		 * @return {object} The placement.
-		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 */
 		placementOf(item) {
 			return this.placements.find((p) => p.id === item.id) ?? { id: item.id }

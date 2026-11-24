@@ -19,7 +19,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 /**
  * Reads a live widget's data for an anonymous visitor of a shared dashboard.
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 class PublicWidgetReadService {
 
@@ -96,7 +96,7 @@ class PublicWidgetReadService {
 	 *
 	 * @throws DoesNotExistException When the placement is not a live widget on a shared dashboard.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	public function read(array $dashboardIds, int $placementId): array {
 		$placement = $this->sharedPlacement(dashboardIds: $dashboardIds, placementId: $placementId);
@@ -130,7 +130,7 @@ class PublicWidgetReadService {
 	 *
 	 * @throws DoesNotExistException When it is not on a shared dashboard or the rules hide it.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	private function sharedPlacement(array $dashboardIds, int $placementId): WidgetPlacement {
 		$placement = $this->placementMapper->find(id: $placementId);
@@ -156,7 +156,7 @@ class PublicWidgetReadService {
 	 *
 	 * @return list<array<string, mixed>> The news items.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	private function news(array $content): array {
 		$category = (string)($content['category'] ?? '');

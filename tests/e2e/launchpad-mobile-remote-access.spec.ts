@@ -5,10 +5,10 @@
  * Playwright e2e for openspec/specs/launchpad-mobile-remote-access, written
  * for e2e-coverage-programme task 4.18.
  *
- * Most of that capability was never built: no `mobileReady` field exists in
- * any registry, manifest or commit, so nothing hides a widget on a phone and
- * there is no "widgets hidden on mobile" notice. Those scenarios carry a
- * `never built` exclusion in the spec. What the spec ALSO says is that the
+ * Hiding widgets on a phone and the notice that names them are proved in
+ * phone-hidden-widgets-named.spec.ts and phone-hidden-widgets-many.spec.ts.
+ * The registry-completeness, manifest and empty-state scenarios were never
+ * built and carry an exclusion in the spec. What the spec ALSO says is that the
  * mobile shell's curated app list needs no new plumbing: an admin places an
  * existing quicklinks widget, scopes it to a role with an existing
  * visibility rule, and a phone shows it. That composition exists today and

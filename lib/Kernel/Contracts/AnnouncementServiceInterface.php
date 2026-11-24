@@ -171,4 +171,17 @@ interface AnnouncementServiceInterface {
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
 	 */
 	public function reachesUser(array $groups, string $userId): bool;
+
+	/**
+	 * Whether a user may change an announcement and read its read
+	 * confirmations: an administrator, or its author while still an author.
+	 *
+	 * @param string       $userId       The user.
+	 * @param Announcement $announcement The announcement.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function mayManage(string $userId, Announcement $announcement): bool;
 }//end interface

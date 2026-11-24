@@ -34,6 +34,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementCommentServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
+use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -52,7 +53,7 @@ class AnnouncementController extends Controller {
 	/**
 	 * The fields an author may send.
 	 */
-	private const FIELDS = ['kind', 'title', 'body', 'category', 'level', 'dismissible', 'targetGroups', 'publishAt', 'expiresAt', 'allowComments'];
+	private const FIELDS = ['kind', 'title', 'body', 'category', 'level', 'dismissible', 'targetGroups', 'publishAt', 'expiresAt', 'allowComments', 'requiresConfirmation', 'confirmBefore'];
 
 	/**
 	 * Constructor.
@@ -62,6 +63,7 @@ class AnnouncementController extends Controller {
 	 * @param RequestGuard        $guard         The session user and the action check.
 	 * @param AnnouncementFollowServiceInterface $follows The followed categories.
 	 * @param AnnouncementCommentServiceInterface|null $reactions Likes and comments through Nextcloud's comments service.
+	 * @param AnnouncementReadConfirmations|null $confirmations The read confirmations (REQ-ANN-007).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -69,6 +71,7 @@ class AnnouncementController extends Controller {
 		private readonly RequestGuard $guard,
 		private readonly AnnouncementFollowServiceInterface $follows,
 		private readonly ?AnnouncementCommentServiceInterface $reactions = null,
+		private readonly ?AnnouncementReadConfirmations $confirmations = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -79,6 +82,7 @@ class AnnouncementController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	#[NoAdminRequired]
 	public function index(): JSONResponse {
@@ -91,6 +95,7 @@ class AnnouncementController extends Controller {
 					'followedCategories' => $this->follows->followedCategories(userId: $userId),
 					'canAuthor' => $this->announcements->isAuthor(userId: $userId),
 					'reactions' => (object) ($this->reactions?->countsFor(userId: $userId, announcements: $visible) ?? []),
+					'readConfirmations' => $this->confirmations?->stateFor(userId: $userId, announcements: $visible) ?? ['confirmed' => [], 'receipts' => []],
 				]
 			);
 		});
@@ -310,6 +315,62 @@ class AnnouncementController extends Controller {
 			)
 		);
 	}//end unlike()
+
+	/**
+	 * POST /api/announcements/{uuid}/read: "I have read this" for the
+	 * signed-in reader, once (REQ-ANN-007).
+	 *
+	 * @param string $uuid The announcement.
+	 *
+	 * @return JSONResponse `{uuid, confirmed, confirmedAt}`, or 400 / 403 / 404.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	#[NoAdminRequired]
+	public function confirmRead(string $uuid): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.read') ?? $this->withConfirmations(
+			run: fn (string $userId, AnnouncementReadConfirmations $confirmations): JSONResponse => new JSONResponse(
+				$confirmations->confirm(userId: $userId, uuid: $uuid)
+			)
+		);
+	}//end confirmRead()
+
+	/**
+	 * GET /api/announcements/{uuid}/receipts: who confirmed and who has not
+	 * yet, for the author or an administrator (REQ-ANN-007).
+	 *
+	 * @param string $uuid The announcement.
+	 *
+	 * @return JSONResponse The report, or 400 / 403 / 404.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	#[NoAdminRequired]
+	public function receipts(string $uuid): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->withConfirmations(
+			run: fn (string $userId, AnnouncementReadConfirmations $confirmations): JSONResponse => new JSONResponse(
+				$confirmations->report(userId: $userId, uuid: $uuid)
+			)
+		);
+	}//end receipts()
+
+	/**
+	 * Run a read confirmation step as the session user, or answer 503 when it is not wired.
+	 *
+	 * @param Closure $run Takes the user id and the confirmations.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	private function withConfirmations(Closure $run): JSONResponse {
+		$confirmations = $this->confirmations;
+		if ($confirmations === null) {
+			return new JSONResponse(['error' => 'Read confirmations are not available'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
+		return $this->asUser(run: fn (string $userId): JSONResponse => $run($userId, $confirmations));
+	}//end withConfirmations()
 
 	/**
 	 * Run a likes-and-comments call as the session user, or 503 when the comments service is not wired.

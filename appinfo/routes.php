@@ -320,6 +320,13 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#like',
 		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-007: "I have read this" and the author's read confirmations.
+		['name' => 'announcement#confirmRead',
+		 'url' => '/api/announcements/{uuid}/read', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#receipts',
+		 'url' => '/api/announcements/{uuid}/receipts', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcement#unlike',
 		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],

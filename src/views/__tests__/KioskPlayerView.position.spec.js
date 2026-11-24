@@ -6,7 +6,7 @@
  * of more than one dashboard, and the polite announcement when it moves on
  * (dashboard-kiosk-mode REQ-KIOSKUI-003, board LpKiosk).
  *
- * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+ * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
  */
 
 import axios from '@nextcloud/axios'

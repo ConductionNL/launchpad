@@ -132,7 +132,7 @@ export default {
 
 	/**
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
-	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 	 */
 	data() {
 		return {
@@ -208,7 +208,7 @@ export default {
 		 * of one dashboard or none.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		positionText() {
 			if (this.entries.length <= 1 || !this.current) {
@@ -243,7 +243,7 @@ export default {
 
 	/**
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
-	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 	 */
 	async mounted() {
 		this.stopCursor = hideCursorWhenIdle(document)
@@ -252,7 +252,7 @@ export default {
 
 	/**
 	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
-	 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 	 */
 	beforeUnmount() {
 		this.stopCursor?.()
@@ -330,7 +330,7 @@ export default {
 		 * shortly before the end, then move on.
 		 *
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
-		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		scheduleNext() {
 			clearTimeout(this.dwellTimer)
@@ -412,7 +412,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
-		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		async advance() {
 			this.dwellTimer = null
@@ -443,7 +443,7 @@ export default {
 		 * dashboard plays; a single dashboard or none needs no clock.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		syncTick() {
 			if (this.entries.length > 1 && this.tickTimer === null) {
@@ -461,7 +461,7 @@ export default {
 		 *
 		 * @param {object} entry The entry now on screen.
 		 * @return {void}
-		 * @spec openspec/changes/kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		announce(entry) {
 			const name = entry?.dashboard?.name || entry?.dashboard?.title || ''

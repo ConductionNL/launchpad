@@ -36,8 +36,6 @@ bundled one at boot.
 
 #### Scenario: Fresh install without OR boots normally
 
-@e2e exclude the GIVEN is an instance with OpenRegister ABSENT, and the Playwright fixture installs it on purpose (`additional-apps: ConductionNL/openregister` in `.github/workflows/code-quality.yml`); one CI job cannot be both. The OR-less server path is pinned in PHPUnit by `tests/Unit/Controller/ManifestControllerCoverageTest.php::testAMissingObjectServiceYieldsAnEmptyManifest` (the container cannot resolve `OCA\OpenRegister\Service\ObjectService`, the manifest still answers 200, with no pages). Note that the same test expects a `warning` log line (`ObjectService unavailable — returning empty manifest`) and `dependencies: ['openregister']` in the body, both at odds with this scenario's THEN; no test asserts the log stays free of such an entry.
-
 - GIVEN a Nextcloud instance with LaunchPad installed but OpenRegister absent
 - WHEN an admin opens LaunchPad
 - THEN the app MUST load without errors
@@ -61,7 +59,7 @@ and check `enabled.value` before issuing any OR API request.
 
 #### Scenario: Widget skips OR fetch when OR is absent
 
-@e2e exclude needs an instance with OpenRegister ABSENT, which the CI fixture is not (it installs OpenRegister via `additional-apps`). Faking absence with `page.route()` would only replay the 5xx case below, which is cited. `useOrFeatureDetect` does not exist anywhere under `src/` (only in `docs/widgets/or-data.md` and `docs/architecture.md`; `git log --all -S useOrFeatureDetect -- src lib` finds no commit), so no test pins it either: spec ahead of code.
+@e2e exclude never built: `useOrFeatureDetect` does not exist anywhere under `src/` (only in `docs/widgets/or-data.md` and `docs/architecture.md`; `git log --all -S useOrFeatureDetect -- src lib` finds no commit), so nothing skips the fetch and no test pins it: spec ahead of code. An OR-less instance is no longer the obstacle: `tests/e2e/or-absent.spec.ts` disables OpenRegister for its length and cites the empty state (`or-absent-empty-state-shown`), but asserting "no request to OpenRegister" there would only measure the missing feature.
 
 - GIVEN a Nextcloud instance without OR installed
 - WHEN an OR-data widget mounts
@@ -133,8 +131,6 @@ absent OR when OR returns a 4xx or 5xx response. The empty state MUST NOT
 show a raw error message or stack trace.
 
 #### Scenario: OR absent — empty state shown
-
-@e2e exclude needs an instance with OpenRegister ABSENT, which the CI fixture is not. The browser-reachable half, that a failing OR fetch leaves a labelled state and no raw error, is cited under `or-5xx-widget-degrades-to-empty-state`. No test renders the widget on an OR-less instance.
 
 - GIVEN OR is not installed
 - WHEN an OR-data widget renders

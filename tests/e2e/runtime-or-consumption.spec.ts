@@ -11,8 +11,8 @@
  * `launchpad/dashboard` objects, and each test watches the browser's request
  * to OpenRegister, or plays OpenRegister's answer with `page.route()` when the
  * scenario's GIVEN is a failure. The CI fixture has OpenRegister installed and
- * enabled, so every scenario whose GIVEN is "OR absent" is excluded in the
- * spec, not here.
+ * enabled; the scenarios whose GIVEN is "OR absent" are in or-absent.spec.ts,
+ * which disables it for its length.
  *
  * Gate-19 @e2e traceability:
  *   @e2e runtime-or-consumption::the-manifest-lists-openregister-only-as-optional

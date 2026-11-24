@@ -1425,6 +1425,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Sadaļā Kiosks veidojat paneļu atskaņošanas sarakstus ekrānam bez pieteikšanās.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Sadaļā Demonstrācijas dati ielādējat paraugpaneļus, lai izmēģinātu LaunchPad, un atkal tos noņemat.",
         "Quarter": "Ceturksnis",
-        "Year": "Gads"
+        "Year": "Gads",
+        "Display": "Attēlojums",
+        "Theme": "Motīvs",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Motīvs ir vienāds visiem informācijas paneļiem. Šī paneļa krāsas iestata sadaļā “Savs izskats”."
     }
 }

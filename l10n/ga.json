@@ -1429,6 +1429,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Faoi Ciosc déanann tú seinmliostaí painéal do scáileán nach gá logáil isteach air.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Faoi Sonraí taispeána lódálann tú painéil shamplacha chun LaunchPad a thriail, agus baineann tú arís iad.",
         "Quarter": "Ráithe",
-        "Year": "Bliain"
+        "Year": "Bliain",
+        "Display": "Taispeáint",
+        "Theme": "Téama",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Is ionann an téama do gach painéal. Socraítear dathanna an phainéil seo faoi “Cuma féin”."
     }
 }

@@ -202,6 +202,26 @@
 				<DetailsTab
 					v-if="!isCreate && canManageShares && dashboard?.uuid"
 					:dashboardUuid="dashboard.uuid" />
+				<!-- Display (REQ-THM-004): the instance theme, read-only; a
+				     dashboard picks no theme and no layout preset. -->
+				<section
+					v-if="!isCreate && canManageShares"
+					class="dashboard-config__display"
+					data-test="config-display">
+					<h3 class="dashboard-config__section-heading">
+						{{ t('launchpad', 'Display') }}
+					</h3>
+					<div class="dashboard-config__field">
+						<NcTextField
+							:modelValue="themeName"
+							:label="t('launchpad', 'Theme')"
+							readonly
+							data-testid="display-theme" />
+						<p class="dashboard-config__hint" data-testid="display-theme-hint">
+							{{ t('launchpad', 'The theme is the same for every dashboard. Set this dashboard\'s own colours under Own look.') }}
+						</p>
+					</div>
+				</section>
 				<!-- Own look (REQ-THM-001/002, board LpDashboardInstellingen):
 				     accent, background colour and background image of THIS
 				     dashboard, a block on Details with the same contrast check
@@ -609,6 +629,7 @@ import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
 import { hierarchyPresets } from '../utils/hierarchyPresets.js'
+import { instanceThemeName } from '../utils/instanceTheme.js'
 import { logger } from '../utils/logger.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
@@ -775,6 +796,16 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The instance theme's name, shown read-only on Details.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+		 */
+		themeName() {
+			return instanceThemeName()
+		},
+
 		/**
 		 * The hierarchies an owner can pick: the presets, then any other
 		 * hierarchy the dashboard stores, so saving does not drop it.

@@ -1423,6 +1423,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Unter Kiosk erstellen Sie Wiedergabelisten von Dashboards für einen Bildschirm ohne Anmeldung.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Unter Demodaten laden Sie Beispiel-Dashboards, um LaunchPad auszuprobieren, und entfernen sie wieder.",
         "Quarter": "Quartal",
-        "Year": "Jahr"
+        "Year": "Jahr",
+        "Display": "Darstellung",
+        "Theme": "Theme",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Das Theme ist für jedes Dashboard gleich. Die eigenen Farben dieses Dashboards legen Sie unter „Eigenes Aussehen“ fest."
     }
 }

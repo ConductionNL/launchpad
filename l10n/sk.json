@@ -1425,6 +1425,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "V časti Kiosk vytvárate zoznamy násteniek pre obrazovku bez prihlásenia.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "V časti Ukážkové údaje načítate ukážkové nástenky na vyskúšanie LaunchPadu a znova ich odstránite.",
         "Quarter": "Štvrťrok",
-        "Year": "Rok"
+        "Year": "Rok",
+        "Display": "Zobrazenie",
+        "Theme": "Motív",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Motív je rovnaký pre každý panel. Vlastné farby tohto panela nastavíte v časti „Vlastný vzhľad“."
     }
 }

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Usiicht",
+    "Theme" : "Theme",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "D'Theme ass fir all Dashboard d'selwecht. Déi eege Faarwe vun dësem Dashboard stellt Dir ënner „Eegene Look“ an.",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "D'Standardastellungen, mat deenen all Dashboard ufänkt: wien Dashboarde maache däerf, den Rechteniveau an de Raster. Dës Tour gëtt eemol gewisen.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Ënner Kiosk maacht Dir Playlisten vun Dashboarde fir e Bildschierm ouni Login.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Ënner Demodaten luet Dir Beispill-Dashboarde fir LaunchPad ze probéieren, a läscht se nees.",

@@ -1423,6 +1423,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Under Kiosk skapar du spellistor med instrumentpaneler för en skärm utan inloggning.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Under Demodata läser du in exempelpaneler för att prova LaunchPad och tar bort dem igen.",
         "Quarter": "Kvartal",
-        "Year": "År"
+        "Year": "År",
+        "Display": "Visning",
+        "Theme": "Tema",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Temat är detsamma för alla instrumentpaneler. Den här panelens egna färger anger du under ”Eget utseende”."
     }
 }

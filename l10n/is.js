@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Birting",
+    "Theme" : "Þema",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Þemað er það sama fyrir öll mælaborð. Eigin liti þessa mælaborðs stillir þú undir „Eigið útlit“.",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Sjálfgildin sem hvert mælaborð byrjar með: hver má búa til mælaborð, heimildastigið og hnitanetið. Þessi kynning birtist einu sinni.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Undir Kiosk býrðu til spilunarlista af mælaborðum fyrir skjá án innskráningar.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Undir Sýnigögn hleðurðu inn dæmamælaborðum til að prófa LaunchPad og fjarlægir þau aftur.",

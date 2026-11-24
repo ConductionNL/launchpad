@@ -1425,6 +1425,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Skiltyje Kioskas kuriate skydelių grojaraščius ekranui be prisijungimo.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Skiltyje Demonstraciniai duomenys įkeliate pavyzdinius skydelius LaunchPad išbandyti ir vėl juos pašalinate.",
         "Quarter": "Ketvirtis",
-        "Year": "Metai"
+        "Year": "Metai",
+        "Display": "Rodinys",
+        "Theme": "Tema",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Tema visoms skydelių lentoms yra ta pati. Šios lentos spalvas nustatote skiltyje „Sava išvaizda“."
     }
 }

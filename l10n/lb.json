@@ -1423,6 +1423,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Ënner Kiosk maacht Dir Playlisten vun Dashboarde fir e Bildschierm ouni Login.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Ënner Demodaten luet Dir Beispill-Dashboarde fir LaunchPad ze probéieren, a läscht se nees.",
         "Quarter": "Quartal",
-        "Year": "Joer"
+        "Year": "Joer",
+        "Display": "Usiicht",
+        "Theme": "Theme",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "D'Theme ass fir all Dashboard d'selwecht. Déi eege Faarwe vun dësem Dashboard stellt Dir ënner „Eegene Look“ an."
     }
 }

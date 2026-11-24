@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Rodinys",
+    "Theme" : "Tema",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Tema visoms skydelių lentoms yra ta pati. Šios lentos spalvas nustatote skiltyje „Sava išvaizda“.",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Numatytosios reikšmės, nuo kurių prasideda kiekvienas skydelis: kas gali kurti skydelius, teisių lygis ir tinklelis. Ši apžvalga rodoma vieną kartą.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Skiltyje Kioskas kuriate skydelių grojaraščius ekranui be prisijungimo.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Skiltyje Demonstraciniai duomenys įkeliate pavyzdinius skydelius LaunchPad išbandyti ir vėl juos pašalinate.",

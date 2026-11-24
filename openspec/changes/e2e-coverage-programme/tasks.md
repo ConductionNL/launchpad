@@ -161,6 +161,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 4.1 `text-display-widget`: 90 scenarios, 9 cited.
   - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 90 scenarios, 89 cited, 1 excluded, 0 uncited (gate-19 report mode, no presence-only or assertion-free citations). All four files listed by `playwright test --list` (87 tests), not yet run.
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 59 scenarios, 40 cited, 19 excluded, 0 uncited (gate-19 report mode). New since 19 Nov: `nextcloud-dashboard-items-come-from-own-news-widgets`, cited in `news-widget.spec.ts`. All files listed by `playwright test --list`, not yet run.
@@ -185,13 +186,16 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/link-button-widget-list.spec.ts` (citation for "An action_id entry is never rendered as a link" corrected to `an-actionid-entry-is-never-rendered-as-a-link`, since gate-19 strips `_`), 49 scenarios cited, 3 excluded with reasons, of 52, not yet run (cloud, 2026-11-24)
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/people-widget.spec.ts`, `people-widget-config.spec.ts`, `people-widget-rendering.spec.ts`, `people-widget-search.spec.ts`, `people-widget-profile-fields.spec.ts`; 8 scenarios excluded with reasons, 50 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 58 scenarios, 50 cited, 8 excluded, 0 uncited (gate-19 report mode). The line above miscounts the spec: 50 cited plus 8 excluded is 58, not 49. All five files listed by `playwright test --list` (48 tests), not yet run.
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
   - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 48 scenarios, 28 cited, 20 excluded, 0 uncited. New since 19 Nov (external-host allow-list, 16d47a87): `allow-listed-external-image-loads`, `external-image-from-a-host-not-on-the-list-is-blocked`, `an-entry-that-is-not-a-host-name-is-refused`, cited in `image-widget-scenarios.spec.ts`. All files listed, not yet run.
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
   - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 37 scenarios, 35 cited, 2 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 36 scenarios, 36 cited, 0 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
   - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.

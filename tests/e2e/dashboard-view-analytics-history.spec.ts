@@ -43,6 +43,7 @@
  *   @e2e dashboard-view-analytics::period-parameter-filters-the-date-range
  *   @e2e dashboard-view-analytics::purge-job-is-automatic-and-idempotent
  *   @e2e dashboard-view-analytics::retention-purge-also-deletes-tile-rows
+ *   @e2e dashboard-view-analytics::daily-salt-is-shared-not-duplicated
  *
  * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
@@ -666,5 +667,53 @@ test.describe('the retention purge', () => {
 		expect([...afterSecond].sort(), 're-running deletes nothing more and restores nothing').toEqual(
 			[...afterFirst].sort(),
 		)
+	})
+})
+
+// ── REQ-TANLT-005: one salt ────────────────────────────────────────────
+
+test.describe('the tile-click salt', () => {
+	// @e2e dashboard-view-analytics::daily-salt-is-shared-not-duplicated
+	test('a tile click rotates and uses analytics_dailysalt itself; there is no second salt and no second rotation job', async () => {
+		const d = await newDashboard('shared salt')
+		const tile = await newTile(d)
+		const before = await appValue(SALT_KEY)
+
+		// The stored salt is dated yesterday, so the first hash of today has to
+		// rotate it. The first hash of today is a tile click's.
+		const dated = await runOcc('config:app:set', 'launchpad', SALT_DATE_KEY, `--value=${utcDate(-1)}`)
+		expect(dated.code, describeRun(dated)).toBe(0)
+		await clickOk(tile)
+
+		const afterClick = await appValue(SALT_KEY)
+		expect(afterClick, 'the tile click rotated launchpad.analytics_dailysalt').toMatch(/^[0-9a-f]{64}$/)
+		expect(afterClick).not.toBe(before)
+		expect(await appValue(SALT_DATE_KEY), 'and dated it today').toBe(utcDate())
+		expect((await clickRowsByDay(tile)).get(utcDate()), 'the click was counted').toEqual([1, 1])
+
+		// A view hashes with the very salt the click wrote: it does not rotate.
+		await viewOk(d.uuid)
+		expect(await appValue(SALT_KEY), 'views and clicks share the one salt').toBe(afterClick)
+
+		const keys = await runOcc('config:list', 'launchpad', '--private')
+		expect(keys.code, describeRun(keys)).toBe(0)
+		const appKeys = Object.keys(
+			((JSON.parse(keys.stdout) as { apps?: Record<string, Record<string, unknown>> }).apps ?? {}).launchpad ?? {},
+		)
+		expect(
+			appKeys.filter((k) => /salt/i.test(k)).sort(),
+			'no separate tile-analytics salt',
+		).toEqual([SALT_KEY, SALT_DATE_KEY].sort())
+
+		const jobs = await runOcc('background-job:list', '--output=json', '--limit=10000')
+		expect(jobs.code, describeRun(jobs)).toBe(0)
+		const saltJobs = [
+			...new Set(
+				(JSON.parse(jobs.stdout) as Array<{ class: string }>)
+					.map((j) => j.class)
+					.filter((c) => c.startsWith('OCA\\LaunchPad\\') && /salt/i.test(c)),
+			),
+		]
+		expect(saltJobs, 'one rotation job').toEqual(['OCA\\LaunchPad\\BackgroundJob\\SaltRotationJob'])
 	})
 })

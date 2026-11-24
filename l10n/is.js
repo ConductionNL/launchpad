@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} og {last}",
+    "{list} and {count} more" : "{list} og {count} í viðbót",
+    "One widget does not work on a phone and is hidden: {names}." : "Ein græja virkar ekki í síma og er falin: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} græjur virka ekki í síma og eru faldar: {names}.",
+    "Which?" : "Hverjar?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Sumar græjur þurfa stærri skjá, svo sími felur þær. Á spjaldtölvu eða tölvu sérðu þær eins og venjulega.",
     "Display" : "Birting",
     "Theme" : "Þema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Þemað er það sama fyrir öll mælaborð. Eigin liti þessa mælaborðs stillir þú undir „Eigið útlit“.",

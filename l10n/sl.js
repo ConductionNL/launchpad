@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} in {last}",
+    "{list} and {count} more" : "{list} in še {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "En gradnik ne deluje na telefonu in je skrit: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Število gradnikov, ki ne delujejo na telefonu in so skriti: {count}. {names}.",
+    "Which?" : "Kateri?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Nekateri gradniki potrebujejo večji zaslon, zato jih telefon skrije. Na tablici ali računalniku jih vidite kot običajno.",
     "Display" : "Prikaz",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Tema je enaka za vse nadzorne plošče. Lastne barve te plošče nastavite pod »Lasten videz«.",

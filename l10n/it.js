@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} e {last}",
+    "{list} and {count} more" : "{list} e altri {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "Un widget non funziona su un telefono ed è nascosto: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} widget non funzionano su un telefono e sono nascosti: {names}.",
+    "Which?" : "Quali?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Alcuni widget richiedono uno schermo più grande, quindi un telefono li nasconde. Su un tablet o un computer li vedi come al solito.",
     "Display" : "Visualizzazione",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Il tema è lo stesso per ogni dashboard. I colori propri di questa dashboard si impostano in «Aspetto proprio».",

@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} e {last}",
+    "{list} and {count} more" : "{list} e anc {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "In widget na funcziuna betg sin in telefon ed è zuppà: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} widgets na funcziunan betg sin in telefon e son zuppads: {names}.",
+    "Which?" : "Tgenins?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Intgins widgets dovran in visur pli grond, perquai als zuppa in telefon. Sin in tablet u in computer als vesais Vus sco usità.",
     "Display" : "Vista",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Il tema è il medem per mintga dashboard. Las atgnas colurs da quest dashboard definischas ti sut «Agen aspect».",

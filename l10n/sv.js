@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} och {last}",
+    "{list} and {count} more" : "{list} och {count} till",
+    "One widget does not work on a phone and is hidden: {names}." : "En widget fungerar inte på en telefon och är dold: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} widgetar fungerar inte på en telefon och är dolda: {names}.",
+    "Which?" : "Vilka?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Vissa widgetar behöver en större skärm, så en telefon döljer dem. På en surfplatta eller dator ser du dem som vanligt.",
     "Display" : "Visning",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Temat är detsamma för alla instrumentpaneler. Den här panelens egna färger anger du under ”Eget utseende”.",

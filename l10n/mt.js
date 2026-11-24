@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} u {last}",
+    "{list} and {count} more" : "{list} u {count} oħra",
+    "One widget does not work on a phone and is hidden: {names}." : "Widget wieħed ma jaħdimx fuq telefon u huwa moħbi: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Għadd ta' widgets li ma jaħdmux fuq telefon u huma moħbija: {count}. {names}.",
+    "Which?" : "Liema?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Xi widgets jeħtieġu skrin akbar, għalhekk telefon jaħbihom. Fuq tablet jew kompjuter tarahom bħas-soltu.",
     "Display" : "Wiri",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "It-tema hija l-istess għal kull dashboard. Il-kuluri proprji ta' dan id-dashboard tissettjahom taħt \"Dehra proprja\".",

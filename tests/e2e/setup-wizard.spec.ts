@@ -44,7 +44,8 @@
  * nightly against a live instance.
  *
  * Ten tests are EXPECTED RED until the product is fixed: they were
- * `test.fixme`, which gate-19 does not count, and now run. The comment on each
+ * `test.fixme`, so although gate-19 counted them through the list below, no
+ * test of theirs ever executed. They now run. The comment on each
  * names the code that disagrees with its scenario. This file is not serial, so
  * a red test does not skip the ones after it; the fresh-instance ones sit
  * before Finish, because only a fresh instance can show them.

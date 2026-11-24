@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Hämta",
     "Embed and fetch" : "Bädda in och hämta",
     "Allowed websites saved." : "Tillåtna webbplatser sparade.",
-    "The allowed websites could not be saved." : "De tillåtna webbplatserna kunde inte sparas."
+    "The allowed websites could not be saved." : "De tillåtna webbplatserna kunde inte sparas.",
+    "Read confirmations: {title}" : "Läsbekräftelser: {title}",
+    "Read confirmations" : "Läsbekräftelser",
+    "Announcement · {dashboard}" : "Meddelande · {dashboard}",
+    "Announcement" : "Meddelande",
+    "{confirmed} of {audience} confirmed" : "{confirmed} av {audience} bekräftade",
+    "{count} to go" : "{count} kvar",
+    "deadline {date}" : "sista dag {date}",
+    "Show" : "Visa",
+    "Confirmed" : "Bekräftad",
+    "Not confirmed yet" : "Inte bekräftad än",
+    "Employee" : "Medarbetare",
+    "Department" : "Avdelning",
+    "Not yet" : "Inte än",
+    "Confirmed {date}" : "Bekräftad {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} av {total} visas. Hämta ger hela listan med datum och tid för varje bekräftelse.",
+    "Department in read confirmations" : "Avdelning i läsbekräftelser",
+    "Could not load the read-receipt report." : "Rapporten över läsbekräftelser kunde inte läsas in."
 },
 "nplurals=2; plural=(n != 1);"
 );

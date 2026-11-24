@@ -1467,6 +1467,23 @@
         "Fetch": "Pobieranie",
         "Embed and fetch": "Osadzanie i pobieranie",
         "Allowed websites saved.": "Zapisano dozwolone witryny.",
-        "The allowed websites could not be saved.": "Nie udało się zapisać dozwolonych witryn."
+        "The allowed websites could not be saved.": "Nie udało się zapisać dozwolonych witryn.",
+        "Read confirmations: {title}": "Potwierdzenia przeczytania: {title}",
+        "Read confirmations": "Potwierdzenia przeczytania",
+        "Announcement · {dashboard}": "Ogłoszenie · {dashboard}",
+        "Announcement": "Ogłoszenie",
+        "{confirmed} of {audience} confirmed": "Potwierdzono {confirmed} z {audience}",
+        "{count} to go": "pozostało {count}",
+        "deadline {date}": "termin {date}",
+        "Show": "Pokaż",
+        "Confirmed": "Potwierdzono",
+        "Not confirmed yet": "Jeszcze nie potwierdzono",
+        "Employee": "Pracownik",
+        "Department": "Dział",
+        "Not yet": "Jeszcze nie",
+        "Confirmed {date}": "Potwierdzono {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Pokazano {shown} z {total}. Pobranie daje pełną listę z datą i godziną każdego potwierdzenia.",
+        "Department in read confirmations": "Dział w potwierdzeniach przeczytania",
+        "Could not load the read-receipt report.": "Nie udało się wczytać raportu potwierdzeń przeczytania."
     }
 }

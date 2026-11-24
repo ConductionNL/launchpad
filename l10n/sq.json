@@ -1465,6 +1465,23 @@
         "Fetch": "Merr",
         "Embed and fetch": "Ngulit dhe merr",
         "Allowed websites saved.": "Sajtet e lejuara u ruajtën.",
-        "The allowed websites could not be saved.": "Sajtet e lejuara nuk u ruajtën dot."
+        "The allowed websites could not be saved.": "Sajtet e lejuara nuk u ruajtën dot.",
+        "Read confirmations: {title}": "Konfirmime leximi: {title}",
+        "Read confirmations": "Konfirmime leximi",
+        "Announcement · {dashboard}": "Njoftim · {dashboard}",
+        "Announcement": "Njoftim",
+        "{confirmed} of {audience} confirmed": "{confirmed} nga {audience} konfirmuan",
+        "{count} to go": "mbeten {count}",
+        "deadline {date}": "afati {date}",
+        "Show": "Shfaq",
+        "Confirmed": "Konfirmuar",
+        "Not confirmed yet": "Ende pa konfirmuar",
+        "Employee": "Punonjës",
+        "Department": "Departament",
+        "Not yet": "Ende jo",
+        "Confirmed {date}": "Konfirmuar më {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Shfaqen {shown} nga {total}. Shkarkimi jep listën e plotë me datën dhe orën e çdo konfirmimi.",
+        "Department in read confirmations": "Departamenti në konfirmimet e leximit",
+        "Could not load the read-receipt report.": "Raporti i konfirmimeve të leximit nuk u ngarkua dot."
     }
 }

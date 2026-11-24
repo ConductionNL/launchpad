@@ -159,6 +159,8 @@
 			v-if="mountedModals.ackReport"
 			:open="ackReportOpen"
 			:announcementKey="ackReportKey"
+			:title="ackReportTitle"
+			:dashboardName="activeDashboard?.name || ''"
 			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
@@ -1219,6 +1221,18 @@ export default {
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 		 * @return {string[]} the announcement keys.
 		 */
+		/**
+		 * The title of the announcement whose read confirmations are open
+		 * (REQ-ACK-010), '' when none is.
+		 *
+		 * @return {string} The widget title.
+		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 */
+		ackReportTitle() {
+			const placement = (this.widgetPlacements || []).find((p) => p.announcementKey === this.ackReportKey)
+			return placement ? resolveWidgetTitle(placement, this.availableWidgets) : ''
+		},
+
 		acknowledgementAnnouncementKeys() {
 			const keys = (this.widgetPlacements || [])
 				.filter(

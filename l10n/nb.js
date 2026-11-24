@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Hent",
     "Embed and fetch" : "Bygg inn og hent",
     "Allowed websites saved." : "Tillatte nettsteder lagret.",
-    "The allowed websites could not be saved." : "De tillatte nettstedene kunne ikke lagres."
+    "The allowed websites could not be saved." : "De tillatte nettstedene kunne ikke lagres.",
+    "Read confirmations: {title}" : "Lesebekreftelser: {title}",
+    "Read confirmations" : "Lesebekreftelser",
+    "Announcement · {dashboard}" : "Kunngjøring · {dashboard}",
+    "Announcement" : "Kunngjøring",
+    "{confirmed} of {audience} confirmed" : "{confirmed} av {audience} bekreftet",
+    "{count} to go" : "{count} gjenstår",
+    "deadline {date}" : "frist {date}",
+    "Show" : "Vis",
+    "Confirmed" : "Bekreftet",
+    "Not confirmed yet" : "Ikke bekreftet ennå",
+    "Employee" : "Medarbeider",
+    "Department" : "Avdeling",
+    "Not yet" : "Ikke ennå",
+    "Confirmed {date}" : "Bekreftet {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} av {total} vist. Last ned gir hele listen med dato og klokkeslett for hver bekreftelse.",
+    "Department in read confirmations" : "Avdeling i lesebekreftelser",
+    "Could not load the read-receipt report." : "Rapporten over lesebekreftelser kunne ikke lastes inn."
 },
 "nplurals=2; plural=(n != 1);"
 );

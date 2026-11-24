@@ -1471,6 +1471,23 @@
         "Fetch": "Faigh",
         "Embed and fetch": "Leabú agus faigh",
         "Allowed websites saved.": "Sábháladh na suíomhanna gréasáin ceadaithe.",
-        "The allowed websites could not be saved.": "Níorbh fhéidir na suíomhanna gréasáin ceadaithe a shábháil."
+        "The allowed websites could not be saved.": "Níorbh fhéidir na suíomhanna gréasáin ceadaithe a shábháil.",
+        "Read confirmations: {title}": "Deimhnithe léite: {title}",
+        "Read confirmations": "Deimhnithe léite",
+        "Announcement · {dashboard}": "Fógra · {dashboard}",
+        "Announcement": "Fógra",
+        "{confirmed} of {audience} confirmed": "{confirmed} as {audience} deimhnithe",
+        "{count} to go": "{count} fós le déanamh",
+        "deadline {date}": "spriocdháta {date}",
+        "Show": "Taispeáin",
+        "Confirmed": "Deimhnithe",
+        "Not confirmed yet": "Gan deimhniú fós",
+        "Employee": "Fostaí",
+        "Department": "Roinn",
+        "Not yet": "Ní fós",
+        "Confirmed {date}": "Deimhnithe {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} as {total} á dtaispeáint. Tugann an íoslódáil an liosta iomlán le dáta agus am gach deimhnithe.",
+        "Department in read confirmations": "Roinn sna deimhnithe léite",
+        "Could not load the read-receipt report.": "Níorbh fhéidir tuarascáil na ndeimhnithe léite a lódáil."
     }
 }

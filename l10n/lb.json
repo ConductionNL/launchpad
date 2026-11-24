@@ -1465,6 +1465,23 @@
         "Fetch": "Ofruffen",
         "Embed and fetch": "Abetten an ofruffen",
         "Allowed websites saved.": "Erlaabt Websäite gespäichert.",
-        "The allowed websites could not be saved.": "Déi erlaabt Websäite konnten net gespäichert ginn."
+        "The allowed websites could not be saved.": "Déi erlaabt Websäite konnten net gespäichert ginn.",
+        "Read confirmations: {title}": "Liesbestätegungen: {title}",
+        "Read confirmations": "Liesbestätegungen",
+        "Announcement · {dashboard}": "Ukënnegung · {dashboard}",
+        "Announcement": "Ukënnegung",
+        "{confirmed} of {audience} confirmed": "{confirmed} vu(n) {audience} bestätegt",
+        "{count} to go": "nach {count}",
+        "deadline {date}": "Frist {date}",
+        "Show": "Weisen",
+        "Confirmed": "Bestätegt",
+        "Not confirmed yet": "Nach net bestätegt",
+        "Employee": "Mataarbechter",
+        "Department": "Departement",
+        "Not yet": "Nach net",
+        "Confirmed {date}": "Bestätegt {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} vu(n) {total} ugewisen. Eroflueden gëtt déi komplett Lëscht mat Datum an Auerzäit vun all Bestätegung.",
+        "Department in read confirmations": "Departement an de Liesbestätegungen",
+        "Could not load the read-receipt report.": "De Rapport vun de Liesbestätegunge konnt net geluede ginn."
     }
 }

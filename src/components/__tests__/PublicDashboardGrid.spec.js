@@ -11,6 +11,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import PublicDashboardGrid from '../PublicDashboardGrid.vue'
 
+// The dashboard's own text widget, not the library stub, so the grid's text is real (REQ-PSHR-012).
+vi.mock('@conduction/nextcloud-vue', async (importOriginal) => ({
+	...(await importOriginal()),
+	CnTextWidget: (await import('@conduction/nextcloud-vue/src/components/CnTextWidget/CnTextWidget.vue')).default,
+}))
+
 vi.mock('@nextcloud/l10n', () => ({ translate: (_app, text) => text }))
 
 describe('PublicDashboardGrid', () => {

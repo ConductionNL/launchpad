@@ -57,11 +57,10 @@
 						class="public-share-view__widget-heading">
 						{{ item.text || item.title }}
 					</h3>
-					<p
+					<CnTextWidget
 						v-else-if="item.kind === 'text'"
-						class="public-share-view__widget-text">
-						{{ item.text }}
-					</p>
+						class="public-share-view__widget-text"
+						:content="textContent(item)" />
 					<img
 						v-else-if="item.kind === 'image' && item.url"
 						class="public-share-view__widget-image"
@@ -91,6 +90,7 @@
 </template>
 
 <script>
+import { CnTextWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { LIST_PROP } from '../constants/propDefinitions.js'
 
@@ -177,7 +177,9 @@ function displayItem(p) {
 /**
  * PublicDashboardGrid: the read-only, anonymous-safe rendering of a
  * dashboard's placements. Tiles and static widgets (label, header, text,
- * image, link, divider) render; any other widget shows that it is only
+ * image, link, divider) render; a text widget renders through the
+ * dashboard's own CnTextWidget, so its Markdown shows as on the dashboard,
+ * sanitised (REQ-PSHR-012). Any other widget shows that it is only
  * visible to signed-in users. Shared by the public share page and the
  * kiosk player.
  *
@@ -185,6 +187,8 @@ function displayItem(p) {
  */
 export default {
 	name: 'PublicDashboardGrid',
+
+	components: { CnTextWidget },
 
 	props: {
 		placements: LIST_PROP,
@@ -228,6 +232,21 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * The content a text widget renders with: the placement's own content,
+		 * as the dashboard passes it to CnTextWidget (its Markdown or HTML,
+		 * sanitised there); a legacy `body` stands in for a missing `text`.
+		 *
+		 * @param {object} item The display item.
+		 * @return {object} The text widget's content.
+		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-text-in-markdown-on-public-screens-req-pshr-012
+		 */
+		textContent(item) {
+			const placement = this.placements.find((p) => p.id === item.id)
+			const content = placement ? placementContent(placement) : {}
+			return { ...content, text: item.text }
+		},
 
 		/**
 		 * Where a cell sits: at its column and row when the placement has
@@ -372,9 +391,11 @@ export default {
 	font-weight: 700;
 }
 
+/* The card already pads its content; the text widget's own inline padding
+   would double it. */
 .public-share-view__widget-text {
 	margin: 0;
-	white-space: pre-wrap;
+	padding: 0 !important;
 }
 
 .public-share-view__widget-image {

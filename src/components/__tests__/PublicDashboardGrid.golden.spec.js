@@ -11,8 +11,14 @@
 import { mount } from '@vue/test-utils'
 import fs from 'node:fs'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import PublicDashboardGrid from '../PublicDashboardGrid.vue'
+
+// The dashboard's own text widget, not the library stub, so the grid's text is real (REQ-PSHR-012).
+vi.mock('@conduction/nextcloud-vue', async (importOriginal) => ({
+	...(await importOriginal()),
+	CnTextWidget: (await import('@conduction/nextcloud-vue/src/components/CnTextWidget/CnTextWidget.vue')).default,
+}))
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/PublicDashboardGrid.golden.json')
 

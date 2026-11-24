@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Services\IInitialState;
 
@@ -32,6 +31,7 @@ use OCP\AppFramework\Services\IInitialState;
  * What the main page reads: initial state, widgets, dashboards and admin templates.
  *
  * @spec openspec/specs/dashboards/spec.md
+ * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
  */
 class PageSources {
 	/**
@@ -39,15 +39,16 @@ class PageSources {
 	 *
 	 * @param IInitialState        $initialState The Nextcloud initial-state service.
 	 * @param WidgetService        $widgetService Available-widgets descriptor formatter.
-	 * @param DashboardService     $dashboardService Dashboard listing + resolver (also exposes the
-	 *                                               `allow_user_dashboards` flag — REQ-ASET-003).
+	 * @param PageDashboards       $dashboards The dashboard service (listing, resolver and the
+	 *                                         `allow_user_dashboards` flag — REQ-ASET-003) and the
+	 *                                         first-load builder.
 	 * @param AdminTemplateService $adminTemplateService Primary-group routing resolver (REQ-TMPL-012,
 	 *                                                   REQ-TMPL-013).
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
 		public readonly WidgetService $widgetService,
-		public readonly DashboardService $dashboardService,
+		public readonly PageDashboards $dashboards,
 		public readonly AdminTemplateService $adminTemplateService,
 	) {
 	}//end __construct()

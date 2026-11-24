@@ -305,6 +305,26 @@ class InitialStateBuilder {
 	}//end setAllowedWidgets()
 
 	/**
+	 * Set the first dashboard load (workspace): `{visible, active}` with the
+	 * payloads of `GET /api/dashboards/visible` and `GET /api/dashboard`, so
+	 * the dashboard store starts from them instead of asking for both again.
+	 * Optional key; null (left out) when the page could not build it.
+	 *
+	 * @param array|null $firstLoad The two payloads, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+	 */
+	public function setDashboardFirstLoad(?array $firstLoad): self {
+		if ($firstLoad !== null) {
+			$this->values['dashboardFirstLoad'] = $firstLoad;
+		}
+
+		return $this;
+	}//end setDashboardFirstLoad()
+
+	/**
 	 * Set the canonical slug-chain path for the active dashboard
 	 * (workspace).
 	 *

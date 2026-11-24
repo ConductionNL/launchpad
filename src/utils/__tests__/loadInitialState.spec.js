@@ -287,3 +287,41 @@ describe('loadInitialState', () => {
 		})
 	})
 })
+
+/**
+ * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+ */
+describe('takeDashboardFirstLoad', () => {
+	it('hands out the first load once, then null', async () => {
+		const firstLoad = { visible: { items: [], quota: null }, active: { dashboard: { uuid: 'a' } } }
+		pushedState = { dashboardFirstLoad: firstLoad }
+
+		const { takeDashboardFirstLoad } = await import('../loadInitialState.js')
+
+		expect(takeDashboardFirstLoad()).toEqual(firstLoad)
+		expect(takeDashboardFirstLoad()).toBeNull()
+	})
+
+	it('is null when the page did not carry it', async () => {
+		const { takeDashboardFirstLoad, loadInitialState } = await import('../loadInitialState.js')
+
+		expect(loadInitialState('workspace').dashboardFirstLoad).toBeNull()
+		expect(takeDashboardFirstLoad()).toBeNull()
+	})
+
+	it('is null for a value without the visible list', async () => {
+		pushedState = { dashboardFirstLoad: { active: null } }
+
+		const { takeDashboardFirstLoad } = await import('../loadInitialState.js')
+
+		expect(takeDashboardFirstLoad()).toBeNull()
+	})
+
+	it('gives a missing active dashboard as null', async () => {
+		pushedState = { dashboardFirstLoad: { visible: [] } }
+
+		const { takeDashboardFirstLoad } = await import('../loadInitialState.js')
+
+		expect(takeDashboardFirstLoad()).toEqual({ visible: [], active: null })
+	})
+})

@@ -11,6 +11,7 @@ import {
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
+import { takeDashboardFirstLoad } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 
@@ -80,6 +81,23 @@ function resolutionRules(state) {
 		inDefault,
 		(d) => d.source === SOURCE_USER,
 	]
+}
+
+/**
+ * The visible-dashboards and active-dashboard answers of a load. The page's
+ * first load comes from its initial state, which carries both payloads
+ * already, so the workspace opens without asking for them again; every
+ * later load, or a page without them, fetches both together.
+ *
+ * @return {Promise<Array<{data: (object|Array|null)}>>} The visible and the active response.
+ * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+ */
+function firstDashboardResponses() {
+	const firstLoad = takeDashboardFirstLoad()
+	if (firstLoad !== null) {
+		return Promise.resolve([{ data: firstLoad.visible }, { data: firstLoad.active }])
+	}
+	return Promise.all([fetchVisibleDashboards(), api.getActiveDashboard()])
 }
 
 /**
@@ -688,7 +706,10 @@ export const useDashboardStore = defineStore('dashboard', {
 			)
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+		 */
 		async loadDashboards() {
 			this.loading = true
 			try {
@@ -698,10 +719,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				// blanks the dashboard list.
 				// The list and the active dashboard do not depend on each
 				// other, so they are asked for together: one round trip, not two.
-				const [visibleResponse, activeResponse] = await Promise.all([
-					fetchVisibleDashboards(),
-					api.getActiveDashboard(),
-				])
+				const [visibleResponse, activeResponse] = await firstDashboardResponses()
 				const payload = visibleResponse.data
 				const quota = quotaOf(payload)
 				if (quota !== null) {

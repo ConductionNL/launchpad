@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\PageDashboards;
 use OCA\LaunchPad\Controller\PageController;
 use OCA\LaunchPad\Controller\PageSettingsSources;
 use OCA\LaunchPad\Controller\PageSources;
@@ -61,7 +62,7 @@ class PageControllerKioskTest extends TestCase {
 			sources: new PageSources(
 				initialState: $this->createMock(originalClassName: IInitialState::class),
 				widgetService: $this->createMock(originalClassName: WidgetService::class),
-				dashboardService: $this->createMock(originalClassName: DashboardService::class),
+				dashboards: new PageDashboards(dashboardService: $this->createMock(originalClassName: DashboardService::class)),
 				adminTemplateService: $this->createMock(originalClassName: AdminTemplateService::class)
 			),
 			userSession: $this->createMock(originalClassName: IUserSession::class),

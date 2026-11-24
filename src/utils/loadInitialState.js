@@ -96,6 +96,10 @@ const PAGE_KEYS = {
 		// which a clock without its own zone shows. Optional key; '' follows
 		// the device.
 		userTimezone: '',
+		// dashboard-first-load-from-initial-state: `{visible, active}`, the
+		// payloads of GET /api/dashboards/visible and GET /api/dashboard the
+		// page already computed. Optional key; `null` makes the store fetch.
+		dashboardFirstLoad: null,
 	},
 	admin: {
 		allGroups: [],
@@ -142,6 +146,32 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * Whether the page's first dashboard load has been handed out.
+ */
+let dashboardFirstLoadTaken = false
+
+/**
+ * The first dashboard load the page carries, `{visible, active}` with the
+ * payloads of `GET /api/dashboards/visible` and `GET /api/dashboard`. Handed
+ * out once: it describes the page as it was served, so every later load
+ * asks the API. Null when the page did not carry it, or once taken.
+ *
+ * @return {{visible: (object|Array), active: (object|null)}|null} The first load, or null.
+ * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+ */
+export function takeDashboardFirstLoad() {
+	if (dashboardFirstLoadTaken) {
+		return null
+	}
+	dashboardFirstLoadTaken = true
+	const firstLoad = readKey('dashboardFirstLoad', null)
+	if (firstLoad === null || typeof firstLoad !== 'object' || !('visible' in firstLoad)) {
+		return null
+	}
+	return { visible: firstLoad.visible, active: firstLoad.active ?? null }
 }
 
 /**

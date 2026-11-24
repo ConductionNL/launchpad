@@ -88,6 +88,40 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testANullAllowListIsPushedAsJsonNull()
 
 	/**
+	 * The first dashboard load reaches the workspace when given, and is left
+	 * out when null, so the store fetches.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheFirstDashboardLoadIsProvidedOnlyWhenGiven(): void {
+		$firstLoad = ['visible' => [], 'active' => null];
+		foreach ([[$firstLoad, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setDashboardFirstLoad($value)
+				->apply();
+
+			$this->assertSame($provided, array_key_exists('dashboardFirstLoad', $sink));
+			if ($provided === true) {
+				$this->assertSame($firstLoad, $sink['dashboardFirstLoad']);
+			}
+		}
+	}//end testTheFirstDashboardLoadIsProvidedOnlyWhenGiven()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject

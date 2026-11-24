@@ -32,6 +32,7 @@ use OCP\AppFramework\Services\IInitialState;
  * What the main page reads: initial state, widgets, dashboards and admin templates.
  *
  * @spec openspec/specs/dashboards/spec.md
+ * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
  */
 class PageSources {
 	/**
@@ -43,12 +44,15 @@ class PageSources {
 	 *                                               `allow_user_dashboards` flag — REQ-ASET-003).
 	 * @param AdminTemplateService $adminTemplateService Primary-group routing resolver (REQ-TMPL-012,
 	 *                                                   REQ-TMPL-013).
+	 * @param DashboardPayloads|null $dashboardPayloads The first dashboard load the page carries
+	 *                                                  (dashboard-first-load-from-initial-state).
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
 		public readonly WidgetService $widgetService,
 		public readonly DashboardService $dashboardService,
 		public readonly AdminTemplateService $adminTemplateService,
+		public readonly ?DashboardPayloads $dashboardPayloads=null,
 	) {
 	}//end __construct()
 }//end class

@@ -22,7 +22,11 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardPayloads;
 use OCA\LaunchPad\Controller\PageController;
+use OCA\LaunchPad\Controller\RequestActor;
+use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Controller\PageSettingsSources;
 use OCA\LaunchPad\Controller\PageSources;
 use OCA\LaunchPad\Db\Dashboard;
@@ -177,9 +181,11 @@ class PageControllerIndexTest extends TestCase {
 	/**
 	 * The controller over the doubles, with the asset loading left out.
 	 *
+	 * @param DashboardPayloads|null $payloads The first-load builder, if the page has one.
+	 *
 	 * @return PageController
 	 */
-	private function controller(): PageController {
+	private function controller(?DashboardPayloads $payloads=null): PageController {
 		$initialState = $this->createMock(originalClassName: IInitialState::class);
 		$initialState->method('provideInitialState')->willReturnCallback(
 			callback: function (string $key, mixed $value): void {
@@ -195,7 +201,8 @@ class PageControllerIndexTest extends TestCase {
 				initialState: $initialState,
 				widgetService: $this->widgets,
 				dashboardService: $this->dashboards,
-				adminTemplateService: $this->templates
+				adminTemplateService: $this->templates,
+				dashboardPayloads: $payloads
 			),
 			userSession: $this->session,
 			settings: new PageSettingsSources(
@@ -351,6 +358,62 @@ class PageControllerIndexTest extends TestCase {
 		$this->assertSame(expected: 'Europe/Amsterdam', actual: $this->state['userTimezone']);
 		$this->assertSame(expected: '.x{}', actual: $this->state['customCss']);
 	}//end testASignedInUserGetsTheirWorkspace()
+
+	/**
+	 * Without the first-load builder the page carries no first load, so the
+	 * store asks the API as before.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+	 */
+	public function testWithoutTheBuilderThereIsNoFirstLoad(): void {
+		$this->signIn(uid: 'pieter');
+		$this->adminSettings->method('getSettings')->willReturn([]);
+
+		$this->controller()->index();
+
+		$this->assertArrayNotHasKey(key: 'dashboardFirstLoad', array: $this->state);
+	}//end testWithoutTheBuilderThereIsNoFirstLoad()
+
+	/**
+	 * The page carries the visible list and the active dashboard the store
+	 * would fetch first, built as the API builds them.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheWorkspaceCarriesTheFirstDashboardLoad(): void {
+		$this->signIn(uid: 'pieter');
+		$this->adminSettings->method('getSettings')->willReturn([]);
+		$active = self::dashboard(id: 7, uuid: 'uuid-7', name: 'Mijn werkdag');
+		$this->dashboards->method('resolveActiveDashboard')
+			->willReturn(['dashboard' => $active, 'source' => Dashboard::SOURCE_USER]);
+		$this->dashboards->method('getVisibleToUser')->willReturn([
+			['dashboard' => $active, 'source' => Dashboard::SOURCE_USER],
+		]);
+		$this->dashboards->method('getEffectiveDashboard')->with('pieter')->willReturn([
+			'dashboard' => $active,
+			'placements' => [],
+			'permissionLevel' => Dashboard::PERMISSION_FULL,
+		]);
+		$payloads = new DashboardPayloads(
+			services: new DashboardApiServices(dashboardService: $this->dashboards),
+			actor: new RequestActor(
+				userSession: $this->session,
+				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
+			)
+		);
+
+		$this->controller(payloads: $payloads)->index();
+
+		$firstLoad = $this->state['dashboardFirstLoad'];
+		$this->assertSame(expected: ['uuid-7'], actual: array_column($firstLoad['visible'], 'uuid'));
+		$this->assertSame(expected: Dashboard::SOURCE_USER, actual: $firstLoad['visible'][0]['source']);
+		$this->assertSame(expected: 'uuid-7', actual: $firstLoad['active']['dashboard']['uuid']);
+		$this->assertSame(expected: Dashboard::PERMISSION_FULL, actual: $firstLoad['active']['permissionLevel']);
+	}//end testTheWorkspaceCarriesTheFirstDashboardLoad()
 
 	/**
 	 * The legacy widget bridge switches the catalogue to every available widget.

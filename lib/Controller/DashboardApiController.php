@@ -172,6 +172,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboards/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
@@ -186,27 +187,11 @@ class DashboardApiController extends Controller {
 			)
 		);
 
-		$serialized = [];
-		foreach ($items as $entry) {
-			$row = $entry['dashboard']->jsonSerialize();
-			$row['source'] = $entry['source'];
-			// Tag ownership so the frontend can route activation correctly:
-			// only personal `user`-type rows owned by the caller take the
-			// legacy id-based `is_active` path; group/default rows (user_id
-			// NULL) are activated via the UUID preference instead.
-			$row['isOwner'] = ($entry['dashboard']->getUserId() === $this->context->userId);
-			$serialized[] = $row;
-		}
-
-		// Dashboard-quota-limits REQ-QUOTA-006: carry the additive quota
-		// envelope on the unioned listing the store consumes, so the
-		// frontend can disable create affordances at the limit without an
-		// extra round-trip. The response shape is now
-		// `{items: [...], quota: {...}}`; clients that read the bare array
-		// are handled by the store's shape-tolerant unwrap. When the quota
-		// service is absent (legacy test doubles) fall back to the
-		// bare-array contract.
-		return $this->withQuota(serialized: $serialized);
+		// The same payload the main page carries in its initial state
+		// (`{items, quota}`, or the bare list without the quota service).
+		return $this->context->responseHelper->success(
+			data: $this->payloads()->visibleList(userId: (string)$this->context->userId, items: $items)
+		);
 	}//end visible()
 
 	/**
@@ -220,6 +205,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
@@ -228,42 +214,15 @@ class DashboardApiController extends Controller {
 			return $refusal;
 		}
 
-		$result = $this->services->dashboardService->getEffectiveDashboard(
-			userId: $this->context->userId
-		);
-
-		if ($result === null) {
+		$envelope = $this->payloads()->active(userId: (string)$this->context->userId);
+		if ($envelope === null) {
 			return $this->context->responseHelper->success(
 				data: ['error' => 'No dashboard available'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		}
 
-		// The effective dashboard can now be a group/default (showcase)
-		// dashboard the user does not own (resolved via the last-used
-		// preference), so tag ownership the same way show() does rather
-		// than letting the client assume the caller owns it.
-		$activeDashboard = $result['dashboard'];
-		$isOwner = ($activeDashboard->getUserId() === $this->context->userId);
-
-		$sharedBy = null;
-		if ($isOwner === false) {
-			$sharedBy = $activeDashboard->getUserId();
-		}
-
-		return $this->context->responseHelper->success(
-			data: [
-				'dashboard' => $activeDashboard->jsonSerialize(),
-				'placements' => $this->renderedPlacements(
-					placements: $result['placements'],
-					permissionLevel: (string)$result['permissionLevel']
-				),
-				'permissionLevel' => $result['permissionLevel'],
-				'isOwner' => $isOwner,
-				'sharedBy' => $sharedBy,
-				'hasVariants' => $this->hasVariants(uuid: (string)$activeDashboard->getUuid()),
-			]
-		);
+		return $this->context->responseHelper->success(data: $envelope);
 	}//end getActive()
 
 	/**
@@ -358,24 +317,13 @@ class DashboardApiController extends Controller {
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	private function renderedPlacements(array $placements, string $permissionLevel): array {
-		$serialized = $this->context->responseHelper->serializeList(entities: $placements);
-		if ($this->services->roleWidgets !== null) {
-			$serialized = $this->services->roleWidgets->hideUnpermittedPlacements(
-				placements: $serialized,
-				userId: (string)$this->context->userId
-			);
-		}
-
-		if ($this->services->visibility === null) {
-			return $serialized;
-		}
-
-		return $this->services->visibility->visiblePlacements(
-			placements: $serialized,
-			userId: (string)$this->context->userId,
-			canEdit: $permissionLevel !== Dashboard::PERMISSION_VIEW_ONLY
+		return $this->payloads()->renderedPlacements(
+			placements: $placements,
+			permissionLevel: $permissionLevel,
+			userId: (string)$this->context->userId
 		);
 	}//end renderedPlacements()
 
@@ -388,14 +336,23 @@ class DashboardApiController extends Controller {
 	 * @return bool True with two or more variants.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	private function hasVariants(string $uuid): bool {
-		if ($this->services->translationService === null || $uuid === '') {
-			return false;
-		}
-
-		return count($this->services->translationService->listVariants(dashboardUuid: $uuid)) > 1;
+		return $this->payloads()->hasVariants(uuid: $uuid);
 	}//end hasVariants()
+
+	/**
+	 * The builder of the visible list and the active envelope, shared with
+	 * the main page's initial state.
+	 *
+	 * @return DashboardPayloads The builder.
+	 *
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 */
+	private function payloads(): DashboardPayloads {
+		return new DashboardPayloads(services: $this->services);
+	}//end payloads()
 
 	/**
 	 * Keep only the visible entries whose dashboards match the

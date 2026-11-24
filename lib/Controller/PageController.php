@@ -115,6 +115,7 @@ class PageController extends Controller {
 	 * @return TemplateResponse The template response.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -193,6 +194,7 @@ class PageController extends Controller {
 			->setIntegrationApps($this->integrationApps())
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
+			->setDashboardFirstLoad($this->sources->dashboardPayloads?->firstLoad(userId: $userId, visible: $visible))
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

@@ -91,12 +91,12 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 */
 	public function testGroupsAreHeadedBySectionHeadings(): void {
 		$expected = [
-			'Mijn werkplek'        => ['Mijn apps', 'Samenwerken'],
+			'Vandaag'              => ['Vandaag aan het werk', 'Kennis en nieuws', "Collega's", 'Wegwijs', 'Mijn apps', 'Samenwerken'],
 			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', "Collega's", 'Wegwijs'],
 			'Team Vergunningen'    => ['Apps van het team'],
 		];
-		// LpWerkplek heads each group of tiles in its own column.
-		$headingWidths = ['Mijn werkplek' => 4];
+		// LpVandaag heads its two groups of tiles side by side, each half the width.
+		$headingWidths = ['Vandaag' => ['Mijn apps' => 6, 'Samenwerken' => 6]];
 		foreach (self::seed()['dashboards'] as $dashboard) {
 			$titles = [];
 			foreach ($dashboard['widgets'] as $widget) {
@@ -106,7 +106,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 				}
 
 				$titles[] = $widget['content']['title'];
-				$width = ($headingWidths[$dashboard['name']] ?? $dashboard['gridColumns']);
+				$width = ($headingWidths[$dashboard['name']][$widget['content']['title']] ?? $dashboard['gridColumns']);
 				$this->assertSame(expected: $width, actual: $widget['gridWidth'], message: $widget['content']['title']);
 				$this->assertNotSame(expected: '', actual: $widget['content']['description'], message: $widget['content']['title']);
 			}
@@ -144,19 +144,50 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	}//end testSizedPlacementsDoNotOverlap()
 
 	/**
-	 * The start page puts its six app tiles straight on the grid, with no
-	 * heading above them (board LpVandaag).
+	 * The start page is the one page of the working day (board LpVandaag):
+	 * the greeting with the counters and the weather, then the work of today,
+	 * then knowledge and the intranet, then the app tiles. It scrolls, so no
+	 * placement asks it to fill the screen, and My workspace repeats none of
+	 * its widgets.
 	 *
 	 * @return void
 	 */
-	public function testTheStartPageTilesHaveNoHeading(): void {
-		$today = array_values(array_filter(self::seed()['dashboards'], static fn (array $d): bool => $d['name'] === 'Vandaag'))[0];
-		$tiles = array_filter($today['widgets'], static fn (array $w): bool => isset($w['tile']) === true);
-		$this->assertCount(expectedCount: 6, haystack: $tiles);
-		foreach ($today['widgets'] as $widget) {
-			$this->assertNotContains(needle: ($widget['widgetId'] ?? null), haystack: ['label', 'section-heading']);
+	public function testTheStartPageHoldsTheWholeWorkingDay(): void {
+		$boards = array_column(array: self::seed()['dashboards'], column_key: null, index_key: 'key');
+		$types  = array_map(callback: static fn (array $w): string => ($w['widgetId'] ?? 'tile'), array: $boards['vandaag']['widgets']);
+		$expected = [
+			'header', 'weather', 'attention', 'nc-widget', 'calendar', 'assigned-cases',
+			'work-packages', 'wiki-pages', 'announcements', 'people', 'menu', 'links',
+		];
+		foreach ($expected as $type) {
+			$this->assertContains(needle: $type, haystack: $types);
 		}
-	}//end testTheStartPageTilesHaveNoHeading()
+
+		$this->assertCount(expectedCount: 12, haystack: array_keys(array: $types, filter_value: 'tile'));
+		$order = [];
+		foreach (['header', 'attention', 'nc-widget', 'wiki-pages', 'tile'] as $type) {
+			$rows = [];
+			foreach ($boards['vandaag']['widgets'] as $widget) {
+				if (($widget['widgetId'] ?? 'tile') === $type) {
+					$rows[] = $widget['gridY'];
+				}
+			}
+
+			$order[] = min($rows);
+		}
+
+		$sorted = $order;
+		sort($sorted);
+		$this->assertSame(expected: $sorted, actual: $order);
+
+		foreach ($boards['vandaag']['widgets'] as $widget) {
+			$this->assertArrayNotHasKey(key: 'fillHeight', array: ($widget['content'] ?? []));
+		}
+
+		$workspace = array_map(callback: static fn (array $w): string => ($w['widgetId'] ?? 'tile'), array: $boards['werkplek']['widgets']);
+		$onTheStartPage = ['weather', 'nc-widget', 'calendar', 'assigned-cases', 'work-packages', 'wiki-pages', 'links', 'tile'];
+		$this->assertSame(expected: [], actual: array_values(array_intersect($workspace, $onTheStartPage)));
+	}//end testTheStartPageHoldsTheWholeWorkingDay()
 
 	/**
 	 * The wiki widgets carry the wiki-pages content: a space ('' reads every

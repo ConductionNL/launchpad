@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Personīgais informācijas panelis · atveras pirmais",
     "Shared with you" : "Kopīgots ar jums",
     "Last changed {when}" : "Pēdējās izmaiņas {when}",
-    "Last changed today {time}" : "Pēdējās izmaiņas šodien {time}"
+    "Last changed today {time}" : "Pēdējās izmaiņas šodien {time}",
+    "Embedded report" : "Iegults pārskats",
+    "Embedded page" : "Iegulta lapa",
+    "Signed in as {name}" : "Pieteicies kā {name}",
+    "Outage" : "Darbības traucējums",
+    "The report could not be loaded" : "Pārskatu neizdevās ielādēt",
+    "The page could not be loaded" : "Lapu neizdevās ielādēt",
+    "Gave an error: {cause}" : "Radās kļūda: {cause}",
+    "Gave an error today at {time}: {cause}" : "Radās kļūda šodien plkst. {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Radās kļūda {date} plkst. {time}: {cause}",
+    "the site refuses to be embedded" : "vietne atsakās tikt iegulta",
+    "the site could not be reached" : "vietne nebija sasniedzama",
+    "the page did not finish loading" : "lapa netika līdz galam ielādēta",
+    "a network error" : "tīkla kļūda",
+    "Reload" : "Pārlādēt",
+    "Open in a new tab" : "Atvērt jaunā cilnē",
+    "Open {title} in a new tab" : "Atvērt {title} jaunā cilnē"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

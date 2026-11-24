@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Tablou de bord personal · se deschide primul",
     "Shared with you" : "Partajat cu dvs.",
     "Last changed {when}" : "Ultima modificare {when}",
-    "Last changed today {time}" : "Ultima modificare astăzi {time}"
+    "Last changed today {time}" : "Ultima modificare astăzi {time}",
+    "Embedded report" : "Raport încorporat",
+    "Embedded page" : "Pagină încorporată",
+    "Signed in as {name}" : "Conectat ca {name}",
+    "Outage" : "Întrerupere",
+    "The report could not be loaded" : "Raportul nu a putut fi încărcat",
+    "The page could not be loaded" : "Pagina nu a putut fi încărcată",
+    "Gave an error: {cause}" : "A apărut o eroare: {cause}",
+    "Gave an error today at {time}: {cause}" : "A apărut o eroare azi la {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "A apărut o eroare pe {date} la {time}: {cause}",
+    "the site refuses to be embedded" : "site-ul refuză să fie încorporat",
+    "the site could not be reached" : "site-ul nu a putut fi accesat",
+    "the page did not finish loading" : "pagina nu s-a încărcat complet",
+    "a network error" : "o eroare de rețea",
+    "Reload" : "Reîncarcă",
+    "Open in a new tab" : "Deschide într-o filă nouă",
+    "Open {title} in a new tab" : "Deschide {title} într-o filă nouă"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

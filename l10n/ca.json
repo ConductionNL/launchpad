@@ -1435,6 +1435,22 @@
         "What do you think of this dashboard?": "Què en penseu d'aquest tauler?",
         "today {time}": "avui {time}",
         "Last updated {when}": "Última actualització {when}",
-        "Last updated by {name}, {when}": "Última actualització per {name}, {when}"
+        "Last updated by {name}, {when}": "Última actualització per {name}, {when}",
+        "Embedded report": "Informe incrustat",
+        "Embedded page": "Pàgina incrustada",
+        "Signed in as {name}": "Sessió iniciada com a {name}",
+        "Outage": "Interrupció",
+        "The report could not be loaded": "No s'ha pogut carregar l'informe",
+        "The page could not be loaded": "No s'ha pogut carregar la pàgina",
+        "Gave an error: {cause}": "Ha donat un error: {cause}",
+        "Gave an error today at {time}: {cause}": "Ha donat un error avui a les {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Ha donat un error el {date} a les {time}: {cause}",
+        "the site refuses to be embedded": "el lloc no permet ser incrustat",
+        "the site could not be reached": "no s'ha pogut accedir al lloc",
+        "the page did not finish loading": "la pàgina no ha acabat de carregar-se",
+        "a network error": "un error de xarxa",
+        "Reload": "Torna a carregar",
+        "Open in a new tab": "Obre en una pestanya nova",
+        "Open {title} in a new tab": "Obre {title} en una pestanya nova"
     }
 }

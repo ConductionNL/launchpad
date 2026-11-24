@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Dashboard personali · jinfetaħ l-ewwel",
     "Shared with you" : "Maqsum miegħek",
     "Last changed {when}" : "L-aħħar bidla {when}",
-    "Last changed today {time}" : "L-aħħar bidla llum {time}"
+    "Last changed today {time}" : "L-aħħar bidla llum {time}",
+    "Embedded report" : "Rapport inkorporat",
+    "Embedded page" : "Paġna inkorporata",
+    "Signed in as {name}" : "Dħalt bħala {name}",
+    "Outage" : "Interruzzjoni",
+    "The report could not be loaded" : "Ir-rapport ma setax jitgħabba",
+    "The page could not be loaded" : "Il-paġna ma setgħetx titgħabba",
+    "Gave an error: {cause}" : "Tat żball: {cause}",
+    "Gave an error today at {time}: {cause}" : "Tat żball illum fil-{time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Tat żball fl-{date} fil-{time}: {cause}",
+    "the site refuses to be embedded" : "is-sit jirrifjuta li jiġi inkorporat",
+    "the site could not be reached" : "is-sit ma setax jintlaħaq",
+    "the page did not finish loading" : "il-paġna ma spiċċatx titgħabba",
+    "a network error" : "żball tan-netwerk",
+    "Reload" : "Għabbi mill-ġdid",
+    "Open in a new tab" : "Iftaħ f'tab ġdida",
+    "Open {title} in a new tab" : "Iftaħ {title} f'tab ġdida"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

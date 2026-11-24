@@ -1996,7 +1996,23 @@ OC.L10N.register(
     "Heading" : "Heading",
     "Explanation" : "Explanation",
     "One line under the heading. Leave empty for none." : "One line under the heading. Leave empty for none.",
-    "Give the heading a title" : "Give the heading a title"
+    "Give the heading a title" : "Give the heading a title",
+    "Embedded report" : "Embedded report",
+    "Embedded page" : "Embedded page",
+    "Signed in as {name}" : "Signed in as {name}",
+    "Outage" : "Outage",
+    "The report could not be loaded" : "The report could not be loaded",
+    "The page could not be loaded" : "The page could not be loaded",
+    "Gave an error: {cause}" : "Gave an error: {cause}",
+    "Gave an error today at {time}: {cause}" : "Gave an error today at {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Gave an error on {date} at {time}: {cause}",
+    "the site refuses to be embedded" : "the site refuses to be embedded",
+    "the site could not be reached" : "the site could not be reached",
+    "the page did not finish loading" : "the page did not finish loading",
+    "a network error" : "a network error",
+    "Reload" : "Reload",
+    "Open in a new tab" : "Open in a new tab",
+    "Open {title} in a new tab" : "Open {title} in a new tab"
 },
 "nplurals=2; plural=(n != 1);"
 );

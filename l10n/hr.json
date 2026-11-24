@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Što mislite o ovoj nadzornoj ploči?",
         "today {time}": "danas {time}",
         "Last updated {when}": "Zadnje ažurirano {when}",
-        "Last updated by {name}, {when}": "Zadnje ažurirao/la {name}, {when}"
+        "Last updated by {name}, {when}": "Zadnje ažurirao/la {name}, {when}",
+        "Embedded report": "Ugrađeno izvješće",
+        "Embedded page": "Ugrađena stranica",
+        "Signed in as {name}": "Prijavljeni kao {name}",
+        "Outage": "Prekid rada",
+        "The report could not be loaded": "Izvješće se nije moglo učitati",
+        "The page could not be loaded": "Stranica se nije mogla učitati",
+        "Gave an error: {cause}": "Došlo je do pogreške: {cause}",
+        "Gave an error today at {time}: {cause}": "Došlo je do pogreške danas u {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Došlo je do pogreške {date} u {time}: {cause}",
+        "the site refuses to be embedded": "web-mjesto odbija ugradnju",
+        "the site could not be reached": "web-mjesto nije bilo dostupno",
+        "the page did not finish loading": "stranica se nije do kraja učitala",
+        "a network error": "mrežna pogreška",
+        "Reload": "Ponovno učitaj",
+        "Open in a new tab": "Otvori u novoj kartici",
+        "Open {title} in a new tab": "Otvori {title} u novoj kartici"
     }
 }

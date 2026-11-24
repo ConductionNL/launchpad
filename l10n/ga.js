@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Painéal pearsanta · osclaítear ar dtús é",
     "Shared with you" : "Roinnte leat",
     "Last changed {when}" : "Athraithe go deireanach {when}",
-    "Last changed today {time}" : "Athraithe go deireanach inniu {time}"
+    "Last changed today {time}" : "Athraithe go deireanach inniu {time}",
+    "Embedded report" : "Tuarascáil leabaithe",
+    "Embedded page" : "Leathanach leabaithe",
+    "Signed in as {name}" : "Sínithe isteach mar {name}",
+    "Outage" : "Briseadh seirbhíse",
+    "The report could not be loaded" : "Níorbh fhéidir an tuarascáil a lódáil",
+    "The page could not be loaded" : "Níorbh fhéidir an leathanach a lódáil",
+    "Gave an error: {cause}" : "Tharla earráid: {cause}",
+    "Gave an error today at {time}: {cause}" : "Tharla earráid inniu ag {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Tharla earráid ar {date} ag {time}: {cause}",
+    "the site refuses to be embedded" : "diúltaíonn an suíomh a bheith leabaithe",
+    "the site could not be reached" : "níorbh fhéidir teacht ar an suíomh",
+    "the page did not finish loading" : "níor chríochnaigh an leathanach ag lódáil",
+    "a network error" : "earráid líonra",
+    "Reload" : "Athlódáil",
+    "Open in a new tab" : "Oscail i gcluaisín nua",
+    "Open {title} in a new tab" : "Oscail {title} i gcluaisín nua"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

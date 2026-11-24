@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Kişisel pano · ilk açılır",
     "Shared with you" : "Sizinle paylaşıldı",
     "Last changed {when}" : "Son değişiklik {when}",
-    "Last changed today {time}" : "Son değişiklik bugün {time}"
+    "Last changed today {time}" : "Son değişiklik bugün {time}",
+    "Embedded report" : "Gömülü rapor",
+    "Embedded page" : "Gömülü sayfa",
+    "Signed in as {name}" : "{name} olarak oturum açıldı",
+    "Outage" : "Kesinti",
+    "The report could not be loaded" : "Rapor yüklenemedi",
+    "The page could not be loaded" : "Sayfa yüklenemedi",
+    "Gave an error: {cause}" : "Hata verdi: {cause}",
+    "Gave an error today at {time}: {cause}" : "Bugün {time} itibarıyla hata verdi: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "{date} {time} itibarıyla hata verdi: {cause}",
+    "the site refuses to be embedded" : "site gömülmeyi reddediyor",
+    "the site could not be reached" : "siteye ulaşılamadı",
+    "the page did not finish loading" : "sayfanın yüklenmesi tamamlanmadı",
+    "a network error" : "bir ağ hatası",
+    "Reload" : "Yeniden yükle",
+    "Open in a new tab" : "Yeni sekmede aç",
+    "Open {title} in a new tab" : "{title} öğesini yeni sekmede aç"
 },
 "nplurals=2; plural=(n != 1);"
 );

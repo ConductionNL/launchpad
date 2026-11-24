@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Lična kontrolna tabla · otvara se prva",
     "Shared with you" : "Podijeljeno s vama",
     "Last changed {when}" : "Zadnja izmjena {when}",
-    "Last changed today {time}" : "Zadnja izmjena danas {time}"
+    "Last changed today {time}" : "Zadnja izmjena danas {time}",
+    "Embedded report" : "Ugrađeni izvještaj",
+    "Embedded page" : "Ugrađena stranica",
+    "Signed in as {name}" : "Prijavljeni kao {name}",
+    "Outage" : "Prekid rada",
+    "The report could not be loaded" : "Izvještaj se nije mogao učitati",
+    "The page could not be loaded" : "Stranica se nije mogla učitati",
+    "Gave an error: {cause}" : "Došlo je do greške: {cause}",
+    "Gave an error today at {time}: {cause}" : "Došlo je do greške danas u {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Došlo je do greške {date} u {time}: {cause}",
+    "the site refuses to be embedded" : "stranica odbija ugrađivanje",
+    "the site could not be reached" : "stranica nije bila dostupna",
+    "the page did not finish loading" : "stranica se nije do kraja učitala",
+    "a network error" : "mrežna greška",
+    "Reload" : "Ponovo učitaj",
+    "Open in a new tab" : "Otvori u novoj kartici",
+    "Open {title} in a new tab" : "Otvori {title} u novoj kartici"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

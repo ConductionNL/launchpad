@@ -1435,6 +1435,22 @@
         "What do you think of this dashboard?": "Wat haalt Dir vun dësem Dashboard?",
         "today {time}": "haut {time}",
         "Last updated {when}": "Lescht aktualiséiert {when}",
-        "Last updated by {name}, {when}": "Lescht aktualiséiert vun {name}, {when}"
+        "Last updated by {name}, {when}": "Lescht aktualiséiert vun {name}, {when}",
+        "Embedded report": "Agebetten Rapport",
+        "Embedded page": "Agebette Säit",
+        "Signed in as {name}": "Ugemellt als {name}",
+        "Outage": "Stéierung",
+        "The report could not be loaded": "De Rapport konnt net geluede ginn",
+        "The page could not be loaded": "D'Säit konnt net geluede ginn",
+        "Gave an error: {cause}": "Feeler: {cause}",
+        "Gave an error today at {time}: {cause}": "Feeler haut um {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Feeler den {date} um {time}: {cause}",
+        "the site refuses to be embedded": "de Site refuséiert agebett ze ginn",
+        "the site could not be reached": "de Site war net erreechbar",
+        "the page did not finish loading": "d'Säit gouf net komplett gelueden",
+        "a network error": "en Netzwierkfeeler",
+        "Reload": "Nei lueden",
+        "Open in a new tab": "An engem neien Tab opmaachen",
+        "Open {title} in a new tab": "{title} an engem neien Tab opmaachen"
     }
 }

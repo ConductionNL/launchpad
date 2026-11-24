@@ -17,6 +17,7 @@
 			:placement="placement"
 			v-bind="rendererProps"
 			@data="onWidgetData"
+			@status="(status) => $emit('status', status)"
 			@edit="$emit('editRequest')"
 			@editRequest="$emit('editRequest')" />
 
@@ -177,7 +178,9 @@ export default {
 		editMode: FLAG_PROP,
 	},
 
-	emits: ['editRequest'],
+	// `status`: a renderer's card-head state (the iframe widget's source line
+	// and outage tag, REQ-IFRAME-005), passed up to WidgetWrapper.
+	emits: ['editRequest', 'status'],
 
 	data() {
 		return {

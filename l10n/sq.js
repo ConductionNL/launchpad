@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Panel personal · hapet i pari",
     "Shared with you" : "Ndarë me ju",
     "Last changed {when}" : "Ndryshuar së fundi {when}",
-    "Last changed today {time}" : "Ndryshuar së fundi sot {time}"
+    "Last changed today {time}" : "Ndryshuar së fundi sot {time}",
+    "Embedded report" : "Raport i ngulitur",
+    "Embedded page" : "Faqe e ngulitur",
+    "Signed in as {name}" : "I identifikuar si {name}",
+    "Outage" : "Ndërprerje",
+    "The report could not be loaded" : "Raporti nuk u ngarkua dot",
+    "The page could not be loaded" : "Faqja nuk u ngarkua dot",
+    "Gave an error: {cause}" : "Dha një gabim: {cause}",
+    "Gave an error today at {time}: {cause}" : "Dha një gabim sot në {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Dha një gabim më {date} në {time}: {cause}",
+    "the site refuses to be embedded" : "sajti refuzon të ngulitet",
+    "the site could not be reached" : "sajti nuk u arrit",
+    "the page did not finish loading" : "faqja nuk përfundoi së ngarkuari",
+    "a network error" : "një gabim rrjeti",
+    "Reload" : "Ringarko",
+    "Open in a new tab" : "Hape në skedë të re",
+    "Open {title} in a new tab" : "Hape {title} në skedë të re"
 },
 "nplurals=2; plural=(n != 1);"
 );

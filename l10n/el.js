@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Προσωπικός πίνακας ελέγχου · ανοίγει πρώτος",
     "Shared with you" : "Κοινοποιήθηκε σε εσάς",
     "Last changed {when}" : "Τελευταία αλλαγή {when}",
-    "Last changed today {time}" : "Τελευταία αλλαγή σήμερα {time}"
+    "Last changed today {time}" : "Τελευταία αλλαγή σήμερα {time}",
+    "Embedded report" : "Ενσωματωμένη αναφορά",
+    "Embedded page" : "Ενσωματωμένη σελίδα",
+    "Signed in as {name}" : "Συνδεδεμένος ως {name}",
+    "Outage" : "Διακοπή",
+    "The report could not be loaded" : "Δεν ήταν δυνατή η φόρτωση της αναφοράς",
+    "The page could not be loaded" : "Δεν ήταν δυνατή η φόρτωση της σελίδας",
+    "Gave an error: {cause}" : "Παρουσιάστηκε σφάλμα: {cause}",
+    "Gave an error today at {time}: {cause}" : "Παρουσιάστηκε σφάλμα σήμερα στις {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Παρουσιάστηκε σφάλμα στις {date} ώρα {time}: {cause}",
+    "the site refuses to be embedded" : "ο ιστότοπος αρνείται την ενσωμάτωση",
+    "the site could not be reached" : "ο ιστότοπος δεν ήταν προσβάσιμος",
+    "the page did not finish loading" : "η σελίδα δεν ολοκλήρωσε τη φόρτωση",
+    "a network error" : "σφάλμα δικτύου",
+    "Reload" : "Επαναφόρτωση",
+    "Open in a new tab" : "Άνοιγμα σε νέα καρτέλα",
+    "Open {title} in a new tab" : "Άνοιγμα του {title} σε νέα καρτέλα"
 },
 "nplurals=2; plural=(n != 1);"
 );

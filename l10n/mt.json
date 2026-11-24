@@ -1439,6 +1439,22 @@
         "What do you think of this dashboard?": "X'taħseb dwar dan id-dashboard?",
         "today {time}": "illum {time}",
         "Last updated {when}": "Aġġornat l-aħħar {when}",
-        "Last updated by {name}, {when}": "Aġġornat l-aħħar minn {name}, {when}"
+        "Last updated by {name}, {when}": "Aġġornat l-aħħar minn {name}, {when}",
+        "Embedded report": "Rapport inkorporat",
+        "Embedded page": "Paġna inkorporata",
+        "Signed in as {name}": "Dħalt bħala {name}",
+        "Outage": "Interruzzjoni",
+        "The report could not be loaded": "Ir-rapport ma setax jitgħabba",
+        "The page could not be loaded": "Il-paġna ma setgħetx titgħabba",
+        "Gave an error: {cause}": "Tat żball: {cause}",
+        "Gave an error today at {time}: {cause}": "Tat żball illum fil-{time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Tat żball fl-{date} fil-{time}: {cause}",
+        "the site refuses to be embedded": "is-sit jirrifjuta li jiġi inkorporat",
+        "the site could not be reached": "is-sit ma setax jintlaħaq",
+        "the page did not finish loading": "il-paġna ma spiċċatx titgħabba",
+        "a network error": "żball tan-netwerk",
+        "Reload": "Għabbi mill-ġdid",
+        "Open in a new tab": "Iftaħ f'tab ġdida",
+        "Open {title} in a new tab": "Iftaħ {title} f'tab ġdida"
     }
 }

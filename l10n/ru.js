@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Личная панель · открывается первой",
     "Shared with you" : "Доступно вам",
     "Last changed {when}" : "Последнее изменение {when}",
-    "Last changed today {time}" : "Последнее изменение сегодня {time}"
+    "Last changed today {time}" : "Последнее изменение сегодня {time}",
+    "Embedded report" : "Встроенный отчёт",
+    "Embedded page" : "Встроенная страница",
+    "Signed in as {name}" : "Вход выполнен как {name}",
+    "Outage" : "Сбой",
+    "The report could not be loaded" : "Не удалось загрузить отчёт",
+    "The page could not be loaded" : "Не удалось загрузить страницу",
+    "Gave an error: {cause}" : "Произошла ошибка: {cause}",
+    "Gave an error today at {time}: {cause}" : "Произошла ошибка сегодня в {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Произошла ошибка {date} в {time}: {cause}",
+    "the site refuses to be embedded" : "сайт запрещает встраивание",
+    "the site could not be reached" : "сайт был недоступен",
+    "the page did not finish loading" : "страница не загрузилась до конца",
+    "a network error" : "сетевая ошибка",
+    "Reload" : "Перезагрузить",
+    "Open in a new tab" : "Открыть в новой вкладке",
+    "Open {title} in a new tab" : "Открыть {title} в новой вкладке"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

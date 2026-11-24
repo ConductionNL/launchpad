@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Personligt dashboard · åbner først",
     "Shared with you" : "Delt med dig",
     "Last changed {when}" : "Sidst ændret {when}",
-    "Last changed today {time}" : "Sidst ændret i dag {time}"
+    "Last changed today {time}" : "Sidst ændret i dag {time}",
+    "Embedded report" : "Indlejret rapport",
+    "Embedded page" : "Indlejret side",
+    "Signed in as {name}" : "Logget ind som {name}",
+    "Outage" : "Driftsforstyrrelse",
+    "The report could not be loaded" : "Rapporten kunne ikke indlæses",
+    "The page could not be loaded" : "Siden kunne ikke indlæses",
+    "Gave an error: {cause}" : "Gav en fejl: {cause}",
+    "Gave an error today at {time}: {cause}" : "Gav en fejl i dag kl. {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Gav en fejl den {date} kl. {time}: {cause}",
+    "the site refuses to be embedded" : "webstedet afviser at blive indlejret",
+    "the site could not be reached" : "webstedet kunne ikke nås",
+    "the page did not finish loading" : "siden blev ikke færdig med at indlæse",
+    "a network error" : "en netværksfejl",
+    "Reload" : "Genindlæs",
+    "Open in a new tab" : "Åbn i en ny fane",
+    "Open {title} in a new tab" : "Åbn {title} i en ny fane"
 },
 "nplurals=2; plural=(n != 1);"
 );

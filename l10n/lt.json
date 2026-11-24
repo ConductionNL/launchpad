@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Ką manote apie šį skydelį?",
         "today {time}": "šiandien {time}",
         "Last updated {when}": "Paskutinį kartą atnaujinta {when}",
-        "Last updated by {name}, {when}": "Paskutinį kartą atnaujino {name}, {when}"
+        "Last updated by {name}, {when}": "Paskutinį kartą atnaujino {name}, {when}",
+        "Embedded report": "Įterpta ataskaita",
+        "Embedded page": "Įterptas puslapis",
+        "Signed in as {name}": "Prisijungta kaip {name}",
+        "Outage": "Sutrikimas",
+        "The report could not be loaded": "Nepavyko įkelti ataskaitos",
+        "The page could not be loaded": "Nepavyko įkelti puslapio",
+        "Gave an error: {cause}": "Įvyko klaida: {cause}",
+        "Gave an error today at {time}: {cause}": "Įvyko klaida šiandien {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Įvyko klaida {date} {time}: {cause}",
+        "the site refuses to be embedded": "svetainė neleidžia būti įterpta",
+        "the site could not be reached": "svetainė buvo nepasiekiama",
+        "the page did not finish loading": "puslapis nebaigė įsikelti",
+        "a network error": "tinklo klaida",
+        "Reload": "Įkelti iš naujo",
+        "Open in a new tab": "Atidaryti naujoje kortelėje",
+        "Open {title} in a new tab": "Atidaryti {title} naujoje kortelėje"
     }
 }

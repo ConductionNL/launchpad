@@ -1435,6 +1435,22 @@
         "What do you think of this dashboard?": "Какво мислите за това табло?",
         "today {time}": "днес {time}",
         "Last updated {when}": "Последна актуализация {when}",
-        "Last updated by {name}, {when}": "Последна актуализация от {name}, {when}"
+        "Last updated by {name}, {when}": "Последна актуализация от {name}, {when}",
+        "Embedded report": "Вграден отчет",
+        "Embedded page": "Вградена страница",
+        "Signed in as {name}": "Влезли сте като {name}",
+        "Outage": "Прекъсване",
+        "The report could not be loaded": "Отчетът не можа да бъде зареден",
+        "The page could not be loaded": "Страницата не можа да бъде заредена",
+        "Gave an error: {cause}": "Възникна грешка: {cause}",
+        "Gave an error today at {time}: {cause}": "Възникна грешка днес в {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Възникна грешка на {date} в {time}: {cause}",
+        "the site refuses to be embedded": "сайтът отказва да бъде вграден",
+        "the site could not be reached": "сайтът беше недостъпен",
+        "the page did not finish loading": "страницата не се зареди докрай",
+        "a network error": "мрежова грешка",
+        "Reload": "Презареждане",
+        "Open in a new tab": "Отваряне в нов раздел",
+        "Open {title} in a new tab": "Отваряне на {title} в нов раздел"
     }
 }

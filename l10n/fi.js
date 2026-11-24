@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Henkilökohtainen kojelauta · avautuu ensimmäisenä",
     "Shared with you" : "Jaettu kanssasi",
     "Last changed {when}" : "Muutettu viimeksi {when}",
-    "Last changed today {time}" : "Muutettu viimeksi tänään {time}"
+    "Last changed today {time}" : "Muutettu viimeksi tänään {time}",
+    "Embedded report" : "Upotettu raportti",
+    "Embedded page" : "Upotettu sivu",
+    "Signed in as {name}" : "Kirjautuneena nimellä {name}",
+    "Outage" : "Häiriö",
+    "The report could not be loaded" : "Raporttia ei voitu ladata",
+    "The page could not be loaded" : "Sivua ei voitu ladata",
+    "Gave an error: {cause}" : "Antoi virheen: {cause}",
+    "Gave an error today at {time}: {cause}" : "Antoi virheen tänään klo {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Antoi virheen {date} klo {time}: {cause}",
+    "the site refuses to be embedded" : "sivusto ei salli upottamista",
+    "the site could not be reached" : "sivustoon ei saatu yhteyttä",
+    "the page did not finish loading" : "sivun lataus ei valmistunut",
+    "a network error" : "verkkovirhe",
+    "Reload" : "Lataa uudelleen",
+    "Open in a new tab" : "Avaa uudessa välilehdessä",
+    "Open {title} in a new tab" : "Avaa {title} uudessa välilehdessä"
 },
 "nplurals=2; plural=(n != 1);"
 );

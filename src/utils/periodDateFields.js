@@ -29,19 +29,34 @@ const cache = new Map()
  */
 export function dateFieldsOf(records) {
 	const verdict = new Map()
-	for (const record of Array.isArray(records) ? records : []) {
-		if (!record || typeof record !== 'object') {
-			continue
-		}
-		for (const [field, value] of Object.entries(record)) {
-			if (field.startsWith('@') || value === null || value === '' || value === undefined) {
-				continue
-			}
-			const isDate = typeof value === 'string' && ISO_DATE.test(value) && !Number.isNaN(Date.parse(value))
-			verdict.set(field, (verdict.get(field) ?? true) && isDate)
-		}
+	const valued = (Array.isArray(records) ? records : [])
+		.filter((record) => record && typeof record === 'object')
+		.flatMap((record) => Object.entries(record))
+		.filter(([field, value]) => !field.startsWith('@') && !isEmpty(value))
+	for (const [field, value] of valued) {
+		verdict.set(field, (verdict.get(field) ?? true) && isDate(value))
 	}
-	return [...verdict.entries()].filter(([, isDate]) => isDate).map(([field]) => field).sort()
+	return [...verdict.entries()].filter(([, date]) => date).map(([field]) => field).sort()
+}
+
+/**
+ * Whether a value is empty: null, undefined or ''.
+ *
+ * @param {*} value The value.
+ * @return {boolean}
+ */
+function isEmpty(value) {
+	return value === null || value === undefined || value === ''
+}
+
+/**
+ * Whether a value reads as an ISO date.
+ *
+ * @param {*} value The value.
+ * @return {boolean}
+ */
+function isDate(value) {
+	return typeof value === 'string' && ISO_DATE.test(value) && !Number.isNaN(Date.parse(value))
 }
 
 /**

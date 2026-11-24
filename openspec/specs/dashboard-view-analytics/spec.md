@@ -37,8 +37,6 @@ The system MUST track dashboard view events in a dedicated relational table with
 
 #### Scenario: Create views table with correct schema
 
-@e2e exclude the migration's schema has no HTTP or UI read. lib/Migration/DashboardViewsTableBuilder.php builds it; no test pins its columns or indexes (tests/Unit/Migration/IdentifierLengthTest.php only checks identifier lengths across all migrations).
-
 - GIVEN the system has no `oc_launchpad_dashboard_views` table
 - WHEN the schema migration runs
 - THEN the system MUST create `oc_launchpad_dashboard_views` with columns:
@@ -60,8 +58,6 @@ The system MUST track dashboard view events in a dedicated relational table with
 
 #### Scenario: Two different days create separate rows
 
-@e2e exclude needs two UTC days, and only today's bucket can be written from outside. tests/Unit/Db/VersionAndViewMapperTest.php::testUpsertView pins insert-a-new-bucket versus update-the-existing-one, against a recorded (not real) connection.
-
 - GIVEN a dashboard "uuid-456" exists
 - WHEN a view event is recorded on 2026-05-01
 - AND another view event is recorded on 2026-05-02
@@ -71,7 +67,7 @@ The system MUST track dashboard view events in a dedicated relational table with
 
 #### Scenario: Schema supports multiple databases
 
-@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL. The PHPUnit job runs on all three (database-test-matrix in .github/workflows/code-quality.yml), so the migration is exercised on each, but no test asserts the unique index refuses a duplicate.
+@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL, and one e2e run is one database. The PHPUnit job runs the migrations on all three (database-test-matrix in .github/workflows/code-quality.yml). On the database the e2e instance runs, tests/e2e/dashboard-view-analytics-history.spec.ts introspects the live table and asserts the composite unique index refuses a second row for the same day; no test asserts that refusal on the other two backends.
 
 - GIVEN the Nextcloud instance may use SQLite, MySQL, or PostgreSQL
 - WHEN the migration runs on any of these databases
@@ -139,8 +135,6 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
   - `uniqueViewerCount = 1` (alice counted once per day)
 
 #### Scenario: Daily salt rotation prevents user re-identification across days
-
-@e2e exclude needs two UTC days on one instance. tests/Unit/Service/UniqueViewerDedupTest.php::testGetSaltForDateRotatesWhenDateIsStale pins a new salt for a new date, ::testHashUserForDateIsDeterministicWithSameSalt the same-salt hash.
 
 - GIVEN user "bob" (userId: 2) loads a dashboard on 2026-05-01 at 11:00 PM
 - AND loads the same dashboard again on 2026-05-02 at 12:00 AM (next day)
@@ -258,8 +252,6 @@ The system MUST expose an admin-only endpoint that returns the most-viewed dashb
 - THEN the system MUST return exactly 5 dashboards (the top 5)
 
 #### Scenario: Period parameter filters date range
-
-@e2e exclude needs view rows on past dates, and only today's bucket can be written from outside. No test pins the boundary: tests/Unit/Service/AnalyticsServiceTest.php::testPeriodToDateRangeReturnsTwoDates only checks the format and order of the two dates.
 
 - GIVEN dashboards have view rows for dates: 2026-04-01, 2026-04-15, 2026-05-01
 - WHEN an admin sends `GET /api/admin/analytics/dashboards/top?period=7d&limit=10`
@@ -390,8 +382,6 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Purge job is automatic and idempotent
 
-@e2e exclude the GIVEN is a purge that deleted old rows, and a row older than the retention cannot be written from outside (view events land in today's bucket only), so no deletion can be watched staying deleted; tests/e2e/dashboard-view-analytics-jobs.spec.ts does run the job repeatedly through occ without error. tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunIsIdempotentWhenNothingToDelete pins the re-run. The daily interval is set in lib/BackgroundJob/PurgeViewsJob.php (setInterval 86400); no test asserts it.
-
 - GIVEN the daily purge job has run once and deleted old rows
 - WHEN it runs again (on the next day or re-triggered)
 - THEN no errors MUST occur
@@ -490,8 +480,6 @@ The system MUST track per-tile (per-widget-placement) click events in a dedicate
 
 #### Scenario: Create tile clicks table with correct schema
 
-@e2e exclude the migration's schema has no HTTP or UI read. lib/Migration/TileClicksTableBuilder.php builds it; no test pins its columns or indexes (tests/Unit/Migration/IdentifierLengthTest.php only checks identifier lengths).
-
 - GIVEN the system has no `oc_launchpad_tile_clicks` table
 - WHEN the schema migration runs
 - THEN the system MUST create `oc_launchpad_tile_clicks` with columns:
@@ -515,7 +503,7 @@ The system MUST track per-tile (per-widget-placement) click events in a dedicate
 
 #### Scenario: Schema supports multiple databases
 
-@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL. The PHPUnit job runs on all three (database-test-matrix in .github/workflows/code-quality.yml), so the migration is exercised on each, but no test asserts the unique index refuses a duplicate.
+@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL, and one e2e run is one database. The PHPUnit job runs the migrations on all three (database-test-matrix in .github/workflows/code-quality.yml). On the database the e2e instance runs, tests/e2e/dashboard-view-analytics-history.spec.ts introspects the live table and asserts the composite unique index refuses a second row for the same day; no test asserts that refusal on the other two backends.
 
 - GIVEN the Nextcloud instance may use SQLite, MySQL, or PostgreSQL
 - WHEN the migration runs on any of these databases
@@ -605,8 +593,6 @@ The system MUST expose admin-only endpoints that report tile usage: a top-tiles 
 
 #### Scenario: Period parameter filters the date range
 
-@e2e exclude needs click rows on past dates, and only today's bucket can be written from outside. tests/Unit/Service/TileAnalyticsServiceTest.php::testGetTopTilesDelegatesToMapperWithDateRange pins that the range reaches the mapper; no test pins the boundary date.
-
 - GIVEN a tile has click rows for 2026-04-01, 2026-04-15, and 2026-05-01
 - WHEN an admin queries top tiles with `period=7d` on 2026-05-01
 - THEN the system MUST sum only rows where `clickBucket >= '2026-04-24'`
@@ -647,8 +633,6 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 - AND the system MUST NOT introduce a separate tile-analytics salt or a second rotation job
 
 #### Scenario: Retention purge also deletes tile rows
-
-@e2e exclude needs tile-click rows older than the retention, and only today's bucket can be written from outside; tests/e2e/dashboard-view-analytics-jobs.spec.ts runs the job through occ and checks the one cutoff it logs for both tables. tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunPurgesBothTablesWithSameCutoff and ::testRunIsIdempotentWhenNothingToDelete pin both tables and the re-run.
 
 - GIVEN the admin has set `launchpad.analytics_retention_days = 90`
 - WHEN the existing analytics purge job runs

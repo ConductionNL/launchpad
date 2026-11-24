@@ -202,6 +202,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-view-analytics.spec.ts, 53 scenarios cited, not yet run (cloud, 2026-11-19), 18 excluded with reasons
   - Spec written: tests/e2e/dashboard-view-analytics-jobs.spec.ts, 5 more scenarios cited (the salt rotation and four retention/purge scenarios, by running the jobs through occ), 13 excluded with reasons, not yet run (cloud, 2026-11-24)
+  - Spec written: tests/e2e/dashboard-view-analytics-history.spec.ts (+ tests/e2e/support/instanceDb.ts), 8 more scenarios cited (both table schemas, two days, the salt across days, both period filters, both purge deletions) by seeding and reading rows through PHP on the instance, 5 excluded with reasons, not yet run (cloud, 2026-11-24)
 - [x] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/background-job-feed-refresh.spec.ts, 6 scenarios cited, not yet run (cloud, 2026-11-19), 50 excluded with reasons
   - Run 20 Nov on development with #1444: 6 of 6 green.

@@ -185,6 +185,21 @@ export async function onInstance(...argv: string[]): Promise<RunResult> {
 }
 
 /**
+ * Run a plain command on the instance with text on its standard input, the
+ * way {@link onInstance} runs one without.
+ *
+ * @param input the text.
+ * @param argv the command and its arguments.
+ * @return the result.
+ */
+export async function onInstanceWithInput(
+	input: string,
+	...argv: string[]
+): Promise<RunResult> {
+	return run(argv, input)
+}
+
+/**
  * The text of one result, for an assertion message.
  *
  * @param result the result.

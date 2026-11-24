@@ -45,7 +45,6 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\IL10N;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -104,10 +103,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *                                                  storage policy), so the `x-openregister-
 	 *                                                  notifications` branch is not wired in.
 	 * @param LoggerInterface      $logger PSR-3 logger.
-	 * @param PersonalLayerService $personalLayers Drops personal-layer entries for removed placements (REQ-DWMS-001).
-	 * @param DashboardVersionService|null $versions Writes the version a re-synced copy gets (REQ-VERSUI-005);
-	 *                                               null writes none.
-	 * @param IL10N|null           $l10n The app's translations for that version's note; null keeps English.
+	 * @param ResyncFollowUps      $followUps What happens to a changed copy: its personal layers are pruned
+	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
 	 *
 	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
@@ -116,9 +113,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,
-		private readonly PersonalLayerService $personalLayers,
-		private readonly ?DashboardVersionService $versions=null,
-		private readonly ?IL10N $l10n=null,
+		private readonly ResyncFollowUps $followUps,
 	) {
 	}//end __construct()
 
@@ -405,10 +400,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	}//end resyncCopy()
 
 	/**
-	 * Write the version a re-synced copy gets: its author is the template
-	 * ("Template {name}") and its note "Updated from the template", instead
-	 * of the administrator who ran the re-sync and a list of widget changes.
-	 * A failure is logged; the re-sync itself already landed.
+	 * Write the version a re-synced copy gets, by the template. A failure is
+	 * logged; the resync itself already landed.
 	 *
 	 * @param Dashboard $copy         The copy that took the change.
 	 * @param string    $templateName The template's name.
@@ -418,16 +411,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	private function recordTemplateVersion(Dashboard $copy, string $templateName): void {
-		if ($this->versions === null) {
-			return;
-		}
-
 		try {
-			$this->versions->captureSnapshot(
-				dashboard: $copy,
-				createdBy: $this->templateAuthor(templateName: $templateName),
-				options: ['note' => $this->translate(text: 'Updated from the template', parameters: []), 'explicit' => true]
-			);
+			$this->followUps->recordTemplateVersion(copy: $copy, templateName: $templateName);
 		} catch (Throwable $t) {
 			$this->logger->warning(
 				message: 'launchpad.template_resync.version_failed',
@@ -435,38 +420,6 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			);
 		}
 	}//end recordTemplateVersion()
-
-	/**
-	 * The author a template-written version carries, cut to the 64
-	 * characters the version table stores.
-	 *
-	 * @param string $templateName The template's name.
-	 *
-	 * @return string "Template {name}".
-	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
-	 */
-	private function templateAuthor(string $templateName): string {
-		$author = $this->translate(text: 'Template %s', parameters: [trim($templateName)]);
-
-		return mb_substr(rtrim($author), 0, 64);
-	}//end templateAuthor()
-
-	/**
-	 * Translate a source string with sprintf parameters.
-	 *
-	 * @param string       $text       The English source string.
-	 * @param list<string> $parameters The values for its placeholders.
-	 *
-	 * @return string The translated text.
-	 */
-	private function translate(string $text, array $parameters): string {
-		if ($this->l10n !== null) {
-			return $this->l10n->t($text, $parameters);
-		}
-
-		return vsprintf($text, $parameters);
-	}//end translate()
 
 	/**
 	 * After a re-sync removed placements, drop the personal-layer entries that named them.
@@ -489,7 +442,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		);
 
 		try {
-			$this->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
+			$this->followUps->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
 		} catch (Throwable $t) {
 			// The re-sync itself landed; a stale layer entry is ignored at render time.
 			$this->logger->warning(

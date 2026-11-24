@@ -1529,6 +1529,25 @@
         "Conversation beside this dashboard": "Pokalbis šalia šio skydelio",
         "Show the conversation beside the dashboard": "Rodyti pokalbį šalia skydelio",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Šis skydelis tik jūsų. Bendrinkite jį su žmonėmis ar grupe, ir pokalbis atsiras ir čia.",
-        "The conversation setting could not be saved.": "Nepavyko įrašyti pokalbio nustatymo."
+        "The conversation setting could not be saved.": "Nepavyko įrašyti pokalbio nustatymo.",
+        "New announcement": "Naujas pranešimas",
+        "Target group": "Tikslinė grupė",
+        "Level": "Lygis",
+        "Readers may dismiss this notice": "Skaitytojai gali uždaryti šį pranešimą",
+        "Allow comments and following": "Leisti komentarus ir sekimą",
+        "Publish on (optional)": "Paskelbti (neprivaloma)",
+        "This is how it looks": "Štai kaip tai atrodo",
+        "Preview as (user id)": "Peržiūrėti kaip (naudotojo ID)",
+        "Check": "Tikrinti",
+        "{user} sees this announcement": "{user} mato šį pranešimą",
+        "{user} does not see this announcement": "{user} nemato šio pranešimo",
+        "Only you see this preview until you publish the announcement.": "Tik jūs matote šią peržiūrą, kol paskelbsite pranešimą.",
+        "Only you see this preview until {when}.": "Tik jūs matote šią peržiūrą iki {when}.",
+        "Shown in the Announcements widget.": "Rodoma valdiklyje Pranešimai.",
+        "Maintenance notice": "Pranešimas apie techninę priežiūrą",
+        "Shown at the top of every dashboard until the end time.": "Rodoma kiekvieno skydelio viršuje iki pabaigos laiko.",
+        "Information": "Informacija",
+        "Warning": "Įspėjimas",
+        "Something went wrong": "Kažkas nepavyko"
     }
 }

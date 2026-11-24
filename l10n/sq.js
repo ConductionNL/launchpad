@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Biseda pranë këtij paneli",
     "Show the conversation beside the dashboard" : "Shfaq bisedën pranë panelit",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Ky panel është vetëm i juaji. Ndajeni me persona ose një grup dhe biseda do të shfaqet edhe këtu.",
-    "The conversation setting could not be saved." : "Cilësimi i bisedës nuk mund të ruhej."
+    "The conversation setting could not be saved." : "Cilësimi i bisedës nuk mund të ruhej.",
+    "New announcement" : "Njoftim i ri",
+    "Target group" : "Grupi i synuar",
+    "Kind" : "Lloji",
+    "Level" : "Niveli",
+    "Readers may dismiss this notice" : "Lexuesit mund ta mbyllin këtë njoftim",
+    "Allow comments and following" : "Lejo komentet dhe ndjekjen",
+    "Publish on (optional)" : "Publiko më (opsionale)",
+    "This is how it looks" : "Kështu duket",
+    "Preview as (user id)" : "Parapamje si (ID e përdoruesit)",
+    "Check" : "Kontrollo",
+    "{user} sees this announcement" : "{user} e sheh këtë njoftim",
+    "{user} does not see this announcement" : "{user} nuk e sheh këtë njoftim",
+    "Only you see this preview until you publish the announcement." : "Vetëm ju e shihni këtë parapamje derisa ta publikoni njoftimin.",
+    "Only you see this preview until {when}." : "Vetëm ju e shihni këtë parapamje deri më {when}.",
+    "Shown in the Announcements widget." : "Shfaqet në widget-in Njoftime.",
+    "Maintenance notice" : "Njoftim mirëmbajtjeje",
+    "Shown at the top of every dashboard until the end time." : "Shfaqet në krye të çdo paneli deri në orën e përfundimit.",
+    "Information" : "Informacion",
+    "Warning" : "Paralajmërim",
+    "Something went wrong" : "Diçka shkoi keq"
 },
 "nplurals=2; plural=(n != 1);"
 );

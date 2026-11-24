@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Беседа рядом с этой панелью",
     "Show the conversation beside the dashboard" : "Показывать беседу рядом с панелью",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Эта панель только ваша. Поделитесь ею с людьми или группой, и беседа появится здесь тоже.",
-    "The conversation setting could not be saved." : "Не удалось сохранить настройку беседы."
+    "The conversation setting could not be saved." : "Не удалось сохранить настройку беседы.",
+    "New announcement" : "Новое объявление",
+    "Target group" : "Целевая группа",
+    "Kind" : "Вид",
+    "Level" : "Уровень",
+    "Readers may dismiss this notice" : "Читатели могут скрыть это уведомление",
+    "Allow comments and following" : "Разрешить комментарии и подписку",
+    "Publish on (optional)" : "Опубликовать (необязательно)",
+    "This is how it looks" : "Вот как это выглядит",
+    "Preview as (user id)" : "Просмотр от имени (ID пользователя)",
+    "Check" : "Проверить",
+    "{user} sees this announcement" : "{user} видит это объявление",
+    "{user} does not see this announcement" : "{user} не видит это объявление",
+    "Only you see this preview until you publish the announcement." : "Только вы видите этот предпросмотр, пока не опубликуете объявление.",
+    "Only you see this preview until {when}." : "Только вы видите этот предпросмотр до {when}.",
+    "Shown in the Announcements widget." : "Показывается в виджете «Объявления».",
+    "Maintenance notice" : "Уведомление о техобслуживании",
+    "Shown at the top of every dashboard until the end time." : "Показывается вверху каждой панели до времени окончания.",
+    "Information" : "Информация",
+    "Warning" : "Предупреждение",
+    "Something went wrong" : "Что-то пошло не так"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

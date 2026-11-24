@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Bu panonun yanında sohbet",
     "Show the conversation beside the dashboard" : "Sohbeti panonun yanında göster",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Bu pano yalnızca sizin. Kişilerle veya bir grupla paylaşın, sohbet burada da görünür.",
-    "The conversation setting could not be saved." : "Sohbet ayarı kaydedilemedi."
+    "The conversation setting could not be saved." : "Sohbet ayarı kaydedilemedi.",
+    "New announcement" : "Yeni duyuru",
+    "Target group" : "Hedef grup",
+    "Kind" : "Tür",
+    "Level" : "Düzey",
+    "Readers may dismiss this notice" : "Okuyucular bu bildirimi kapatabilir",
+    "Allow comments and following" : "Yorumlara ve takip etmeye izin ver",
+    "Publish on (optional)" : "Yayın tarihi (isteğe bağlı)",
+    "This is how it looks" : "İşte böyle görünüyor",
+    "Preview as (user id)" : "Şu kullanıcı olarak önizle (kullanıcı kimliği)",
+    "Check" : "Denetle",
+    "{user} sees this announcement" : "{user} bu duyuruyu görüyor",
+    "{user} does not see this announcement" : "{user} bu duyuruyu görmüyor",
+    "Only you see this preview until you publish the announcement." : "Duyuruyu yayımlayana kadar bu önizlemeyi yalnızca siz görürsünüz.",
+    "Only you see this preview until {when}." : "Bu önizlemeyi {when} tarihine kadar yalnızca siz görürsünüz.",
+    "Shown in the Announcements widget." : "Duyurular widget'ında gösterilir.",
+    "Maintenance notice" : "Bakım bildirimi",
+    "Shown at the top of every dashboard until the end time." : "Bitiş zamanına kadar her panonun en üstünde gösterilir.",
+    "Information" : "Bilgi",
+    "Warning" : "Uyarı",
+    "Something went wrong" : "Bir şeyler ters gitti"
 },
 "nplurals=2; plural=(n != 1);"
 );

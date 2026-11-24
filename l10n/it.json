@@ -1527,6 +1527,25 @@
         "Conversation beside this dashboard": "Conversazione accanto a questa dashboard",
         "Show the conversation beside the dashboard": "Mostra la conversazione accanto alla dashboard",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Questa dashboard è solo tua. Condividila con persone o un gruppo e la conversazione apparirà anche qui.",
-        "The conversation setting could not be saved.": "Impossibile salvare l'impostazione della conversazione."
+        "The conversation setting could not be saved.": "Impossibile salvare l'impostazione della conversazione.",
+        "New announcement": "Nuovo annuncio",
+        "Target group": "Gruppo destinatario",
+        "Level": "Livello",
+        "Readers may dismiss this notice": "I lettori possono chiudere questo avviso",
+        "Allow comments and following": "Consenti commenti e follow",
+        "Publish on (optional)": "Pubblica il (facoltativo)",
+        "This is how it looks": "Ecco come appare",
+        "Preview as (user id)": "Anteprima come (ID utente)",
+        "Check": "Verifica",
+        "{user} sees this announcement": "{user} vede questo annuncio",
+        "{user} does not see this announcement": "{user} non vede questo annuncio",
+        "Only you see this preview until you publish the announcement.": "Solo tu vedi questa anteprima finché non pubblichi l'annuncio.",
+        "Only you see this preview until {when}.": "Solo tu vedi questa anteprima fino al {when}.",
+        "Shown in the Announcements widget.": "Mostrato nel widget Annunci.",
+        "Maintenance notice": "Avviso di manutenzione",
+        "Shown at the top of every dashboard until the end time.": "Mostrato in cima a ogni dashboard fino all'ora di fine.",
+        "Information": "Informazione",
+        "Warning": "Avviso",
+        "Something went wrong": "Qualcosa è andato storto"
     }
 }

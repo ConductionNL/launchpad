@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Samtale ved siden av dette dashbordet",
     "Show the conversation beside the dashboard" : "Vis samtalen ved siden av dashbordet",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dette dashbordet er bare ditt. Del det med personer eller en gruppe, så vises samtalen også her.",
-    "The conversation setting could not be saved." : "Samtaleinnstillingen kunne ikke lagres."
+    "The conversation setting could not be saved." : "Samtaleinnstillingen kunne ikke lagres.",
+    "New announcement" : "Ny kunngjøring",
+    "Target group" : "Målgruppe",
+    "Kind" : "Type",
+    "Level" : "Nivå",
+    "Readers may dismiss this notice" : "Lesere kan avvise denne meldingen",
+    "Allow comments and following" : "Tillat kommentarer og følging",
+    "Publish on (optional)" : "Publiser den (valgfritt)",
+    "This is how it looks" : "Slik ser det ut",
+    "Preview as (user id)" : "Forhåndsvis som (bruker-ID)",
+    "Check" : "Kontroller",
+    "{user} sees this announcement" : "{user} ser denne kunngjøringen",
+    "{user} does not see this announcement" : "{user} ser ikke denne kunngjøringen",
+    "Only you see this preview until you publish the announcement." : "Bare du ser denne forhåndsvisningen til du publiserer kunngjøringen.",
+    "Only you see this preview until {when}." : "Bare du ser denne forhåndsvisningen til {when}.",
+    "Shown in the Announcements widget." : "Vises i widgeten Kunngjøringer.",
+    "Maintenance notice" : "Vedlikeholdsmelding",
+    "Shown at the top of every dashboard until the end time." : "Vises øverst på hvert dashbord frem til sluttidspunktet.",
+    "Information" : "Informasjon",
+    "Warning" : "Advarsel",
+    "Something went wrong" : "Noe gikk galt"
 },
 "nplurals=2; plural=(n != 1);"
 );

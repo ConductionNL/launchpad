@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Pogovor ob tej nadzorni plošči",
     "Show the conversation beside the dashboard" : "Prikaži pogovor ob nadzorni plošči",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Ta nadzorna plošča je samo vaša. Delite jo z osebami ali skupino in pogovor se bo prikazal tudi tukaj.",
-    "The conversation setting could not be saved." : "Nastavitve pogovora ni bilo mogoče shraniti."
+    "The conversation setting could not be saved." : "Nastavitve pogovora ni bilo mogoče shraniti.",
+    "New announcement" : "Novo obvestilo",
+    "Target group" : "Ciljna skupina",
+    "Kind" : "Vrsta",
+    "Level" : "Raven",
+    "Readers may dismiss this notice" : "Bralci lahko to obvestilo opustijo",
+    "Allow comments and following" : "Dovoli komentarje in sledenje",
+    "Publish on (optional)" : "Objavi dne (neobvezno)",
+    "This is how it looks" : "Tako je videti",
+    "Preview as (user id)" : "Predogled kot (ID uporabnika)",
+    "Check" : "Preveri",
+    "{user} sees this announcement" : "{user} vidi to obvestilo",
+    "{user} does not see this announcement" : "{user} ne vidi tega obvestila",
+    "Only you see this preview until you publish the announcement." : "Ta predogled vidite samo vi, dokler obvestila ne objavite.",
+    "Only you see this preview until {when}." : "Ta predogled vidite samo vi do {when}.",
+    "Shown in the Announcements widget." : "Prikazano v gradniku Obvestila.",
+    "Maintenance notice" : "Obvestilo o vzdrževanju",
+    "Shown at the top of every dashboard until the end time." : "Prikazano na vrhu vsake nadzorne plošče do končnega časa.",
+    "Information" : "Informacija",
+    "Warning" : "Opozorilo",
+    "Something went wrong" : "Nekaj je šlo narobe"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

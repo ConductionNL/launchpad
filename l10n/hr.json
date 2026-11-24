@@ -1529,6 +1529,25 @@
         "Conversation beside this dashboard": "Razgovor uz ovu nadzornu ploču",
         "Show the conversation beside the dashboard": "Prikaži razgovor uz nadzornu ploču",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Ova nadzorna ploča samo je vaša. Podijelite je s osobama ili grupom i razgovor će se pojaviti i ovdje.",
-        "The conversation setting could not be saved.": "Postavku razgovora nije moguće spremiti."
+        "The conversation setting could not be saved.": "Postavku razgovora nije moguće spremiti.",
+        "New announcement": "Nova obavijest",
+        "Target group": "Ciljna skupina",
+        "Level": "Razina",
+        "Readers may dismiss this notice": "Čitatelji mogu odbaciti ovu obavijest",
+        "Allow comments and following": "Dopusti komentare i praćenje",
+        "Publish on (optional)": "Objavi dana (neobavezno)",
+        "This is how it looks": "Ovako izgleda",
+        "Preview as (user id)": "Pregled kao (ID korisnika)",
+        "Check": "Provjeri",
+        "{user} sees this announcement": "{user} vidi ovu obavijest",
+        "{user} does not see this announcement": "{user} ne vidi ovu obavijest",
+        "Only you see this preview until you publish the announcement.": "Samo vi vidite ovaj pregled dok ne objavite obavijest.",
+        "Only you see this preview until {when}.": "Samo vi vidite ovaj pregled do {when}.",
+        "Shown in the Announcements widget.": "Prikazuje se u widgetu Obavijesti.",
+        "Maintenance notice": "Obavijest o održavanju",
+        "Shown at the top of every dashboard until the end time.": "Prikazuje se na vrhu svake nadzorne ploče do vremena završetka.",
+        "Information": "Informacija",
+        "Warning": "Upozorenje",
+        "Something went wrong": "Nešto je pošlo po zlu"
     }
 }

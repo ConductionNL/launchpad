@@ -2084,7 +2084,16 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Conversation beside this dashboard",
     "Show the conversation beside the dashboard" : "Show the conversation beside the dashboard",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.",
-    "The conversation setting could not be saved." : "The conversation setting could not be saved."
+    "The conversation setting could not be saved." : "The conversation setting could not be saved.",
+    "Target group" : "Target group",
+    "Allow comments and following" : "Allow comments and following",
+    "Publish on (optional)" : "Publish on (optional)",
+    "This is how it looks" : "This is how it looks",
+    "Only you see this preview until you publish the announcement." : "Only you see this preview until you publish the announcement.",
+    "Only you see this preview until {when}." : "Only you see this preview until {when}.",
+    "Shown in the Announcements widget." : "Shown in the Announcements widget.",
+    "Maintenance notice" : "Maintenance notice",
+    "Shown at the top of every dashboard until the end time." : "Shown at the top of every dashboard until the end time."
 },
 "nplurals=2; plural=(n != 1);"
 );

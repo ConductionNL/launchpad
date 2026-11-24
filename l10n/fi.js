@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Keskustelu tämän koontinäytön vieressä",
     "Show the conversation beside the dashboard" : "Näytä keskustelu koontinäytön vieressä",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Tämä koontinäyttö on vain sinun. Jaa se henkilöiden tai ryhmän kanssa, niin keskustelu näkyy myös täällä.",
-    "The conversation setting could not be saved." : "Keskustelun asetusta ei voitu tallentaa."
+    "The conversation setting could not be saved." : "Keskustelun asetusta ei voitu tallentaa.",
+    "New announcement" : "Uusi tiedote",
+    "Target group" : "Kohderyhmä",
+    "Kind" : "Laji",
+    "Level" : "Taso",
+    "Readers may dismiss this notice" : "Lukijat voivat sulkea tämän ilmoituksen",
+    "Allow comments and following" : "Salli kommentit ja seuraaminen",
+    "Publish on (optional)" : "Julkaisupäivä (valinnainen)",
+    "This is how it looks" : "Tältä se näyttää",
+    "Preview as (user id)" : "Esikatsele käyttäjänä (käyttäjätunnus)",
+    "Check" : "Tarkista",
+    "{user} sees this announcement" : "{user} näkee tämän tiedotteen",
+    "{user} does not see this announcement" : "{user} ei näe tätä tiedotetta",
+    "Only you see this preview until you publish the announcement." : "Vain sinä näet tämän esikatselun, kunnes julkaiset tiedotteen.",
+    "Only you see this preview until {when}." : "Vain sinä näet tämän esikatselun {when} asti.",
+    "Shown in the Announcements widget." : "Näytetään Tiedotteet-pienoisohjelmassa.",
+    "Maintenance notice" : "Huoltoilmoitus",
+    "Shown at the top of every dashboard until the end time." : "Näytetään jokaisen koontinäytön yläosassa päättymisaikaan asti.",
+    "Information" : "Tiedoksi",
+    "Warning" : "Varoitus",
+    "Something went wrong" : "Jokin meni pieleen"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1618,7 +1618,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Разговор покрај оваа контролна табла",
     "Show the conversation beside the dashboard" : "Прикажи го разговорот покрај контролната табла",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Оваа контролна табла е само ваша. Споделете ја со луѓе или група и разговорот ќе се појави и тука.",
-    "The conversation setting could not be saved." : "Поставката за разговорот не може да се зачува."
+    "The conversation setting could not be saved." : "Поставката за разговорот не може да се зачува.",
+    "New announcement" : "Ново соопштение",
+    "Target group" : "Целна група",
+    "Kind" : "Вид",
+    "Level" : "Ниво",
+    "Readers may dismiss this notice" : "Читателите може да го отфрлат ова известување",
+    "Allow comments and following" : "Дозволи коментари и следење",
+    "Publish on (optional)" : "Објави на (незадолжително)",
+    "This is how it looks" : "Вака изгледа",
+    "Preview as (user id)" : "Преглед како (ID на корисник)",
+    "Check" : "Провери",
+    "{user} sees this announcement" : "{user} го гледа ова соопштение",
+    "{user} does not see this announcement" : "{user} не го гледа ова соопштение",
+    "Only you see this preview until you publish the announcement." : "Само вие го гледате овој преглед додека не го објавите соопштението.",
+    "Only you see this preview until {when}." : "Само вие го гледате овој преглед до {when}.",
+    "Shown in the Announcements widget." : "Се прикажува во виџетот Соопштенија.",
+    "Maintenance notice" : "Известување за одржување",
+    "Shown at the top of every dashboard until the end time." : "Се прикажува на врвот на секоја контролна табла до крајното време.",
+    "Information" : "Информација",
+    "Warning" : "Предупредување",
+    "Something went wrong" : "Нешто тргна наопаку"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

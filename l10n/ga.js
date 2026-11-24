@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Comhrá in aice leis an deais seo",
     "Show the conversation beside the dashboard" : "Taispeáin an comhrá in aice leis an deais",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Is leatsa amháin an deais seo. Roinn é le daoine nó le grúpa agus beidh an comhrá le feiceáil anseo freisin.",
-    "The conversation setting could not be saved." : "Níorbh fhéidir socrú an chomhrá a shábháil."
+    "The conversation setting could not be saved." : "Níorbh fhéidir socrú an chomhrá a shábháil.",
+    "New announcement" : "Fógra nua",
+    "Target group" : "Spriocghrúpa",
+    "Kind" : "Cineál",
+    "Level" : "Leibhéal",
+    "Readers may dismiss this notice" : "Is féidir le léitheoirí an fógra seo a dhíbhe",
+    "Allow comments and following" : "Ceadaigh tráchtanna agus leanúint",
+    "Publish on (optional)" : "Foilsigh ar (roghnach)",
+    "This is how it looks" : "Seo mar a bhreathnaíonn sé",
+    "Preview as (user id)" : "Réamhamharc mar (aitheantas úsáideora)",
+    "Check" : "Seiceáil",
+    "{user} sees this announcement" : "Feiceann {user} an fógra seo",
+    "{user} does not see this announcement" : "Ní fheiceann {user} an fógra seo",
+    "Only you see this preview until you publish the announcement." : "Is tusa amháin a fheiceann an réamhamharc seo go dtí go bhfoilseoidh tú an fógra.",
+    "Only you see this preview until {when}." : "Is tusa amháin a fheiceann an réamhamharc seo go dtí {when}.",
+    "Shown in the Announcements widget." : "Taispeántar sa ghiuirléid Fógraí é.",
+    "Maintenance notice" : "Fógra cothabhála",
+    "Shown at the top of every dashboard until the end time." : "Taispeántar ag barr gach deais é go dtí an t-am deiridh.",
+    "Information" : "Faisnéis",
+    "Warning" : "Rabhadh",
+    "Something went wrong" : "Chuaigh rud éigin mícheart"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

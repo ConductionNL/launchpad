@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Conversa al costat d'aquest tauler",
     "Show the conversation beside the dashboard" : "Mostra la conversa al costat del tauler",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Aquest tauler és només vostre. Compartiu-lo amb persones o un grup i la conversa també apareixerà aquí.",
-    "The conversation setting could not be saved." : "No s'ha pogut desar el paràmetre de la conversa."
+    "The conversation setting could not be saved." : "No s'ha pogut desar el paràmetre de la conversa.",
+    "New announcement" : "Anunci nou",
+    "Target group" : "Grup destinatari",
+    "Kind" : "Tipus",
+    "Level" : "Nivell",
+    "Readers may dismiss this notice" : "Els lectors poden descartar aquest avís",
+    "Allow comments and following" : "Permet comentaris i seguiment",
+    "Publish on (optional)" : "Publica el (opcional)",
+    "This is how it looks" : "Així és com es veu",
+    "Preview as (user id)" : "Previsualitza com a (ID d'usuari)",
+    "Check" : "Comprova",
+    "{user} sees this announcement" : "{user} veu aquest anunci",
+    "{user} does not see this announcement" : "{user} no veu aquest anunci",
+    "Only you see this preview until you publish the announcement." : "Només vostè veu aquesta previsualització fins que publiqui l'anunci.",
+    "Only you see this preview until {when}." : "Només vostè veu aquesta previsualització fins al {when}.",
+    "Shown in the Announcements widget." : "Es mostra al giny Anuncis.",
+    "Maintenance notice" : "Avís de manteniment",
+    "Shown at the top of every dashboard until the end time." : "Es mostra a la part superior de cada tauler fins a l'hora de final.",
+    "Information" : "Informació",
+    "Warning" : "Advertència",
+    "Something went wrong" : "Alguna cosa ha anat malament"
 },
 "nplurals=2; plural=(n != 1);"
 );

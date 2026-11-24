@@ -1527,6 +1527,25 @@
         "Conversation beside this dashboard": "Vestlus selle töölaua kõrval",
         "Show the conversation beside the dashboard": "Näita vestlust töölaua kõrval",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "See töölaud on ainult sinu. Jaga seda inimeste või grupiga ja vestlus ilmub ka siia.",
-        "The conversation setting could not be saved.": "Vestluse seadet ei õnnestunud salvestada."
+        "The conversation setting could not be saved.": "Vestluse seadet ei õnnestunud salvestada.",
+        "New announcement": "Uus teadaanne",
+        "Target group": "Sihtrühm",
+        "Level": "Tase",
+        "Readers may dismiss this notice": "Lugejad võivad selle teate sulgeda",
+        "Allow comments and following": "Luba kommentaarid ja jälgimine",
+        "Publish on (optional)": "Avalda kuupäeval (valikuline)",
+        "This is how it looks": "Nii see välja näeb",
+        "Preview as (user id)": "Eelvaade kasutajana (kasutaja ID)",
+        "Check": "Kontrolli",
+        "{user} sees this announcement": "{user} näeb seda teadaannet",
+        "{user} does not see this announcement": "{user} ei näe seda teadaannet",
+        "Only you see this preview until you publish the announcement.": "Ainult sina näed seda eelvaadet, kuni avaldad teadaande.",
+        "Only you see this preview until {when}.": "Ainult sina näed seda eelvaadet kuni {when}.",
+        "Shown in the Announcements widget.": "Kuvatakse vidinas Teadaanded.",
+        "Maintenance notice": "Hooldusteade",
+        "Shown at the top of every dashboard until the end time.": "Kuvatakse iga töölaua ülaosas kuni lõpuajani.",
+        "Information": "Teave",
+        "Warning": "Hoiatus",
+        "Something went wrong": "Midagi läks valesti"
     }
 }

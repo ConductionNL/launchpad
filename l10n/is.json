@@ -1527,6 +1527,25 @@
         "Conversation beside this dashboard": "Samtal við hlið þessa stjórnborðs",
         "Show the conversation beside the dashboard": "Sýna samtalið við hlið stjórnborðsins",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Þetta stjórnborð er aðeins þitt. Deildu því með fólki eða hópi og samtalið birtist líka hér.",
-        "The conversation setting could not be saved.": "Ekki tókst að vista stillingu samtalsins."
+        "The conversation setting could not be saved.": "Ekki tókst að vista stillingu samtalsins.",
+        "New announcement": "Ný tilkynning",
+        "Target group": "Markhópur",
+        "Level": "Stig",
+        "Readers may dismiss this notice": "Lesendur mega loka þessari tilkynningu",
+        "Allow comments and following": "Leyfa athugasemdir og eftirfylgni",
+        "Publish on (optional)": "Birta þann (valfrjálst)",
+        "This is how it looks": "Svona lítur þetta út",
+        "Preview as (user id)": "Forskoða sem (notandaauðkenni)",
+        "Check": "Athuga",
+        "{user} sees this announcement": "{user} sér þessa tilkynningu",
+        "{user} does not see this announcement": "{user} sér ekki þessa tilkynningu",
+        "Only you see this preview until you publish the announcement.": "Aðeins þú sérð þessa forskoðun þar til þú birtir tilkynninguna.",
+        "Only you see this preview until {when}.": "Aðeins þú sérð þessa forskoðun til {when}.",
+        "Shown in the Announcements widget.": "Birt í græjunni Tilkynningar.",
+        "Maintenance notice": "Viðhaldstilkynning",
+        "Shown at the top of every dashboard until the end time.": "Birt efst á hverju stjórnborði fram að lokatíma.",
+        "Information": "Upplýsingar",
+        "Warning": "Viðvörun",
+        "Something went wrong": "Eitthvað fór úrskeiðis"
     }
 }

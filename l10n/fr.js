@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Conversation à côté de ce tableau de bord",
     "Show the conversation beside the dashboard" : "Afficher la conversation à côté du tableau de bord",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Ce tableau de bord n'est qu'à vous. Partagez-le avec des personnes ou un groupe et la conversation apparaîtra ici aussi.",
-    "The conversation setting could not be saved." : "Le réglage de la conversation n'a pas pu être enregistré."
+    "The conversation setting could not be saved." : "Le réglage de la conversation n'a pas pu être enregistré.",
+    "New announcement" : "Nouvelle annonce",
+    "Target group" : "Groupe cible",
+    "Kind" : "Type",
+    "Level" : "Niveau",
+    "Readers may dismiss this notice" : "Les lecteurs peuvent masquer cet avis",
+    "Allow comments and following" : "Autoriser les commentaires et le suivi",
+    "Publish on (optional)" : "Publier le (facultatif)",
+    "This is how it looks" : "Voici à quoi cela ressemble",
+    "Preview as (user id)" : "Aperçu en tant que (identifiant utilisateur)",
+    "Check" : "Vérifier",
+    "{user} sees this announcement" : "{user} voit cette annonce",
+    "{user} does not see this announcement" : "{user} ne voit pas cette annonce",
+    "Only you see this preview until you publish the announcement." : "Vous seul voyez cet aperçu jusqu'à la publication de l'annonce.",
+    "Only you see this preview until {when}." : "Vous seul voyez cet aperçu jusqu'au {when}.",
+    "Shown in the Announcements widget." : "Affiché dans le widget Annonces.",
+    "Maintenance notice" : "Avis de maintenance",
+    "Shown at the top of every dashboard until the end time." : "Affiché en haut de chaque tableau de bord jusqu'à l'heure de fin.",
+    "Information" : "Information",
+    "Warning" : "Avertissement",
+    "Something went wrong" : "Une erreur s'est produite"
 },
 "nplurals=2; plural=(n > 1);"
 );

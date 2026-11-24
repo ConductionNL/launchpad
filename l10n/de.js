@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Unterhaltung neben diesem Dashboard",
     "Show the conversation beside the dashboard" : "Die Unterhaltung neben dem Dashboard anzeigen",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dieses Dashboard gehört nur Ihnen. Teilen Sie es mit Personen oder einer Gruppe, dann erscheint die Unterhaltung auch hier.",
-    "The conversation setting could not be saved." : "Die Einstellung der Unterhaltung konnte nicht gespeichert werden."
+    "The conversation setting could not be saved." : "Die Einstellung der Unterhaltung konnte nicht gespeichert werden.",
+    "New announcement" : "Neue Ankündigung",
+    "Target group" : "Zielgruppe",
+    "Kind" : "Art",
+    "Level" : "Stufe",
+    "Readers may dismiss this notice" : "Leser dürfen diesen Hinweis ausblenden",
+    "Allow comments and following" : "Kommentare und Folgen erlauben",
+    "Publish on (optional)" : "Veröffentlichen am (optional)",
+    "This is how it looks" : "So sieht es aus",
+    "Preview as (user id)" : "Vorschau als (Benutzer-ID)",
+    "Check" : "Prüfen",
+    "{user} sees this announcement" : "{user} sieht diese Ankündigung",
+    "{user} does not see this announcement" : "{user} sieht diese Ankündigung nicht",
+    "Only you see this preview until you publish the announcement." : "Nur Sie sehen diese Vorschau, bis Sie die Ankündigung veröffentlichen.",
+    "Only you see this preview until {when}." : "Nur Sie sehen diese Vorschau bis {when}.",
+    "Shown in the Announcements widget." : "Wird im Widget Ankündigungen angezeigt.",
+    "Maintenance notice" : "Wartungshinweis",
+    "Shown at the top of every dashboard until the end time." : "Wird bis zur Endzeit oben auf jedem Dashboard angezeigt.",
+    "Information" : "Information",
+    "Warning" : "Warnung",
+    "Something went wrong" : "Etwas ist schiefgelaufen"
 },
 "nplurals=2; plural=(n != 1);"
 );

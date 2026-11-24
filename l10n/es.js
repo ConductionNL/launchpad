@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Conversación junto a este panel",
     "Show the conversation beside the dashboard" : "Mostrar la conversación junto al panel",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Este panel es solo suyo. Compártalo con personas o un grupo y la conversación aparecerá aquí también.",
-    "The conversation setting could not be saved." : "No se pudo guardar el ajuste de la conversación."
+    "The conversation setting could not be saved." : "No se pudo guardar el ajuste de la conversación.",
+    "New announcement" : "Nuevo anuncio",
+    "Target group" : "Grupo destinatario",
+    "Kind" : "Tipo",
+    "Level" : "Nivel",
+    "Readers may dismiss this notice" : "Los lectores pueden descartar este aviso",
+    "Allow comments and following" : "Permitir comentarios y seguimiento",
+    "Publish on (optional)" : "Publicar el (opcional)",
+    "This is how it looks" : "Así es como se ve",
+    "Preview as (user id)" : "Vista previa como (ID de usuario)",
+    "Check" : "Comprobar",
+    "{user} sees this announcement" : "{user} ve este anuncio",
+    "{user} does not see this announcement" : "{user} no ve este anuncio",
+    "Only you see this preview until you publish the announcement." : "Solo usted ve esta vista previa hasta que publique el anuncio.",
+    "Only you see this preview until {when}." : "Solo usted ve esta vista previa hasta el {when}.",
+    "Shown in the Announcements widget." : "Se muestra en el widget Anuncios.",
+    "Maintenance notice" : "Aviso de mantenimiento",
+    "Shown at the top of every dashboard until the end time." : "Se muestra en la parte superior de cada panel hasta la hora de fin.",
+    "Information" : "Información",
+    "Warning" : "Advertencia",
+    "Something went wrong" : "Algo salió mal"
 },
 "nplurals=2; plural=(n != 1);"
 );

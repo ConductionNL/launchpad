@@ -1527,6 +1527,25 @@
         "Conversation beside this dashboard": "Conversaziun sper quest dashboard",
         "Show the conversation beside the dashboard": "Mussar la conversaziun sper il dashboard",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Quest dashboard è mo Voss. Partai el cun persunas u cun ina gruppa e la conversaziun cumpara er qua.",
-        "The conversation setting could not be saved.": "La configuraziun da la conversaziun na sa laschava betg memorisar."
+        "The conversation setting could not be saved.": "La configuraziun da la conversaziun na sa laschava betg memorisar.",
+        "New announcement": "Nova annunzia",
+        "Target group": "Gruppa da destinaziun",
+        "Level": "Nivel",
+        "Readers may dismiss this notice": "Lecturs dastgan serrar quest avis",
+        "Allow comments and following": "Permetter commentaris e suandar",
+        "Publish on (optional)": "Publitgar ils (facultativ)",
+        "This is how it looks": "Uschia vesa quai ora",
+        "Preview as (user id)": "Prevista sco (ID d'utilisader)",
+        "Check": "Controllar",
+        "{user} sees this announcement": "{user} vesa questa annunzia",
+        "{user} does not see this announcement": "{user} na vesa betg questa annunzia",
+        "Only you see this preview until you publish the announcement.": "Mo Vus vesais questa prevista fin che Vus publitgais l'annunzia.",
+        "Only you see this preview until {when}.": "Mo Vus vesais questa prevista fin {when}.",
+        "Shown in the Announcements widget.": "Vegn mussà en il widget Annunzias.",
+        "Maintenance notice": "Avis da manutenziun",
+        "Shown at the top of every dashboard until the end time.": "Vegn mussà sisum mintga dashboard fin a l'ura da fin.",
+        "Information": "Infurmaziun",
+        "Warning": "Avertiment",
+        "Something went wrong": "Insatge è ì mal"
     }
 }

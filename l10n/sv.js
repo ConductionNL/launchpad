@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Samtal bredvid den här instrumentpanelen",
     "Show the conversation beside the dashboard" : "Visa samtalet bredvid instrumentpanelen",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Den här instrumentpanelen är bara din. Dela den med personer eller en grupp så visas samtalet här också.",
-    "The conversation setting could not be saved." : "Samtalsinställningen kunde inte sparas."
+    "The conversation setting could not be saved." : "Samtalsinställningen kunde inte sparas.",
+    "New announcement" : "Nytt meddelande",
+    "Target group" : "Målgrupp",
+    "Kind" : "Typ",
+    "Level" : "Nivå",
+    "Readers may dismiss this notice" : "Läsare får avfärda detta meddelande",
+    "Allow comments and following" : "Tillåt kommentarer och följning",
+    "Publish on (optional)" : "Publicera den (valfritt)",
+    "This is how it looks" : "Så här ser det ut",
+    "Preview as (user id)" : "Förhandsgranska som (användar-id)",
+    "Check" : "Kontrollera",
+    "{user} sees this announcement" : "{user} ser detta meddelande",
+    "{user} does not see this announcement" : "{user} ser inte detta meddelande",
+    "Only you see this preview until you publish the announcement." : "Endast du ser denna förhandsgranskning tills du publicerar meddelandet.",
+    "Only you see this preview until {when}." : "Endast du ser denna förhandsgranskning till {when}.",
+    "Shown in the Announcements widget." : "Visas i widgeten Meddelanden.",
+    "Maintenance notice" : "Underhållsmeddelande",
+    "Shown at the top of every dashboard until the end time." : "Visas överst på varje instrumentpanel fram till sluttiden.",
+    "Information" : "Information",
+    "Warning" : "Varning",
+    "Something went wrong" : "Något gick fel"
 },
 "nplurals=2; plural=(n != 1);"
 );

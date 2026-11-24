@@ -1627,7 +1627,27 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Konverzácia vedľa tohto panela",
     "Show the conversation beside the dashboard" : "Zobraziť konverzáciu vedľa panela",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Tento panel patrí len vám. Zdieľajte ho s ľuďmi alebo skupinou a konverzácia sa zobrazí aj tu.",
-    "The conversation setting could not be saved." : "Nastavenie konverzácie sa nepodarilo uložiť."
+    "The conversation setting could not be saved." : "Nastavenie konverzácie sa nepodarilo uložiť.",
+    "New announcement" : "Nové oznámenie",
+    "Target group" : "Cieľová skupina",
+    "Kind" : "Druh",
+    "Level" : "Úroveň",
+    "Readers may dismiss this notice" : "Čitatelia môžu toto upozornenie zavrieť",
+    "Allow comments and following" : "Povoliť komentáre a sledovanie",
+    "Publish on (optional)" : "Zverejniť dňa (voliteľné)",
+    "This is how it looks" : "Takto to vyzerá",
+    "Preview as (user id)" : "Náhľad ako (ID používateľa)",
+    "Check" : "Overiť",
+    "{user} sees this announcement" : "{user} vidí toto oznámenie",
+    "{user} does not see this announcement" : "{user} nevidí toto oznámenie",
+    "Only you see this preview until you publish the announcement." : "Tento náhľad vidíte len vy, kým oznámenie nezverejníte.",
+    "Only you see this preview until {when}." : "Tento náhľad vidíte len vy do {when}.",
+    "Shown in the Announcements widget." : "Zobrazené vo widgete Oznámenia.",
+    "Maintenance notice" : "Upozornenie na údržbu",
+    "Shown at the top of every dashboard until the end time." : "Zobrazené navrchu každého prehľadu až do času ukončenia.",
+    "Information" : "Informácia",
+    "Warning" : "Varovanie",
+    "Something went wrong" : "Niečo sa pokazilo"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

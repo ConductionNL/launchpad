@@ -114,6 +114,36 @@ class DemoSeedWidgetsTest extends TestCase {
 	}//end testTileOfADisabledAppIsLeftOut()
 
 	/**
+	 * The tiles right of a left-out tile move left within its section, so the row has no hole.
+	 *
+	 * @return void
+	 */
+	public function testTilesCloseTheGapOfALeftOutTileWithinTheirSection(): void {
+		$heading = ['widgetId' => 'section-heading', 'gridWidth' => 4, 'gridHeight' => 1, 'gridY' => 0];
+		$result  = $this->expander(types: ['app-tile', 'tile', 'section-heading', 'clock'])->expand(
+			entries: [
+				[...$heading, 'gridX' => 0],
+				[...$heading, 'gridX' => 4],
+				['tile' => 'topdesk', 'gridX' => 3, 'gridY' => 1, 'gridWidth' => 1],
+				['tile' => 'talk', 'gridX' => 4, 'gridY' => 1, 'gridWidth' => 1],
+				['tile' => 'topdesk', 'gridX' => 5, 'gridY' => 1, 'gridWidth' => 1],
+				['tile' => 'topdesk', 'gridX' => 7, 'gridY' => 1, 'gridWidth' => 1],
+				['tile' => 'topdesk', 'gridX' => 5, 'gridY' => 3, 'gridWidth' => 1],
+				['widgetId' => 'clock', 'gridX' => 9, 'gridY' => 0, 'gridWidth' => 3, 'gridHeight' => 3],
+				['tile' => 'topdesk', 'gridX' => 12, 'gridY' => 1, 'gridWidth' => 1],
+			]
+		);
+
+		$cells = array_map(
+			static fn (array $payload): string => $payload['gridX'] . ',' . $payload['gridY'],
+			array_values(array: array_filter(array: $result['placed'], callback: static fn (array $payload): bool => $payload['widgetId'] === 'tile'))
+		);
+		// The Talk gap at 4,1 closes inside the second section; the tile in the
+		// first section, the other row and the tile past the clock stay put.
+		$this->assertSame(expected: ['3,1', '4,1', '6,1', '5,3', '12,1'], actual: $cells);
+	}//end testTilesCloseTheGapOfALeftOutTileWithinTheirSection()
+
+	/**
 	 * Tile of a disabled app whose address opens another app stays a launcher tile.
 	 *
 	 * @return void

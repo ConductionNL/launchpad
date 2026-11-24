@@ -57,6 +57,21 @@
  *   @e2e dashboard-language-content::promote-non-existent-variant-returns-404
  *   @e2e action-authorization::the-owner-may-manage-their-own-dashboards-language-versions
  *
+ * Four tests are EXPECTED RED until the product is fixed. They were
+ * `test.fixme`, so although gate-19 counted them through the list above, no
+ * test of theirs ever executed. They now run; this file is not serial, so a
+ * red one does not skip the tests after it.
+ *   - exact-language-match and language-part-match-prefix-fallback:
+ *     DashboardTranslationApiController::resolveLocaleVariant() passes
+ *     `preferredLanguage: ''`, so the reader's language is never read and
+ *     every request without `?lang=` gets the primary as a fallback.
+ *   - available-languages-list: DashboardTranslationMapper::
+ *     normaliseLanguageCode() collapses `de-DE` to `de` on write.
+ *   - cannot-delete-the-only-remaining-variant: DashboardTranslationService::
+ *     deleteVariant() refuses the primary before it counts, and the only
+ *     variant is always the primary, so the last-variant message is never
+ *     sent.
+ *
  * @spec openspec/specs/dashboard-language-content/spec.md
  */
 
@@ -346,7 +361,7 @@ test.describe('REQ-DASH-038 translation schema', () => {
 })
 
 test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
-	// SUSPECTED BUG: the resolver never reads the viewer's language.
+	// EXPECTED RED: the resolver never reads the viewer's language.
 	// lib/Controller/DashboardTranslationApiController.php:527-531
 	// (resolveLocaleVariant) calls resolveForLocale(preferredLanguage: ''), so
 	// the exact match in DashboardTranslationService::exactVariant always
@@ -355,7 +370,7 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 	// every stored code is collapsed to its base (`de-DE` -> `de`,
 	// DashboardTranslationMapper::normaliseLanguageCode), so
 	// `currentLanguage: 'de-DE'` can never be answered either.
-	test.fixme('a reader in de-DE gets the de-DE variant', async () => {
+	test('a reader in de-DE gets the de-DE variant', async () => {
 		// @e2e dashboard-language-content::exact-language-match
 		const dash = await newDashboard('Exact')
 		await addVariant(dash.uuid, { languageCode: 'nl', name: 'Exact NL' })
@@ -372,9 +387,9 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 		}
 	})
 
-	// SUSPECTED BUG: see above. Nextcloud 32 ships no `nl_BE` LANGUAGE, so
+	// EXPECTED RED: see above. Nextcloud 32 ships no `nl_BE` LANGUAGE, so
 	// the Belgian reader is a Dutch-language account with the `nl_BE` locale.
-	test.fixme('a reader in nl-BE gets the nl variant by its language part', async () => {
+	test('a reader in nl-BE gets the nl variant by its language part', async () => {
 		// @e2e dashboard-language-content::language-part-match-prefix-fallback
 		const dash = await newDashboard('Prefix')
 		await addVariant(dash.uuid, { languageCode: 'nl', name: 'Prefix NL' })
@@ -440,13 +455,13 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 		expect((await resolve(dash.uuid)).status).toBe(200)
 	})
 
-	// SUSPECTED BUG (or a scenario at odds with its own spec): every stored
+	// EXPECTED RED (or a scenario at odds with its own spec): every stored
 	// code is collapsed to its two-letter base on write
 	// (lib/Service/DashboardTranslationService.php:303 unusedLanguageCode via
 	// DashboardTranslationMapper::normaliseLanguageCode,
 	// lib/Db/DashboardTranslationMapper.php:66-78), so `de-DE` is listed as
 	// `de` and the list reads ['de', 'en', 'fr', 'nl'].
-	test.fixme('availableLanguages lists every variant, sorted', async () => {
+	test('availableLanguages lists every variant, sorted', async () => {
 		// @e2e dashboard-language-content::available-languages-list
 		const dash = await newDashboard('Available')
 		await addVariant(dash.uuid, { languageCode: 'nl' })
@@ -774,7 +789,7 @@ test.describe('REQ-DASH-042 delete translation variant', () => {
 		expect(Number((body.translation as Variant).isPrimary)).toBe(1)
 	})
 
-	// SUSPECTED BUG: the last-variant guard is unreachable.
+	// EXPECTED RED: the last-variant guard is unreachable.
 	// DashboardTranslationService::deleteVariant
 	// (lib/Service/DashboardTranslationService.php:426, before the count at
 	// :430) refuses the primary FIRST, and the only
@@ -782,7 +797,7 @@ test.describe('REQ-DASH-042 delete translation variant', () => {
 	// `primary_variant` / "Cannot delete the primary variant; promote another
 	// variant first". The message the scenario names (ERR_LAST_VARIANT, which
 	// also lacks its second sentence) is never sent.
-	test.fixme('the only variant cannot be deleted', async () => {
+	test('the only variant cannot be deleted', async () => {
 		// @e2e dashboard-language-content::cannot-delete-the-only-remaining-variant
 		const dash = await newDashboard('Delete last')
 

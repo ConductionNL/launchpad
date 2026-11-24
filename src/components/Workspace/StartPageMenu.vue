@@ -16,7 +16,7 @@
 		:settings="settings"
 		class="launchpad-start-page-menu"
 		data-walkthrough-id="launchpad-more-menu"
-		data-testid="launchpad-start-page-menu"
+		data-testid="launchpad-more-menu"
 		@open="onOpen" />
 </template>
 

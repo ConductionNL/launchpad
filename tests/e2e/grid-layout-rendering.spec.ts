@@ -15,7 +15,6 @@
  *   @e2e grid-layout::regular-widget-placement-renders-widgetwrapper
  *   @e2e grid-layout::tilewidget-receives-edit-mode-prop
  *   @e2e grid-layout::widgetwrapper-receives-placement-and-widget-data
- *   @e2e grid-layout::12-col-60px-8px-margin-renders-predictable-height
  *
  * @spec openspec/specs/grid-layout/spec.md
  */
@@ -43,7 +42,6 @@ let tileId = 0
 let ncWidget: { id: string; title: string } | null = null
 let ncPlacementId = 0
 let missingPlacementId = 0
-let tallPlacementId = 0
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(120_000)
@@ -112,7 +110,9 @@ test.beforeAll(async () => {
 	expect(missing.status(), await missing.text()).toBe(201)
 	missingPlacementId = Number((await missing.json()).id)
 
-	tallPlacementId = await seedTextWidget(
+	// The fourth item the tests below wait for; the height scenario that
+	// measured it runs in grid-layout-defects.spec.ts, on its own dashboard.
+	await seedTextWidget(
 		api,
 		own.id,
 		{ x: 8, y: 0, w: 4, h: 4 },
@@ -249,18 +249,3 @@ test('a widget id nobody registered still renders its wrapper, without breaking 
 	}
 })
 
-// @e2e grid-layout::12-col-60px-8px-margin-renders-predictable-height
-test.fixme('a four-row widget on the 12-column grid is 4 x 60 + 3 x 8 = 264 px tall', async ({
-	browser,
-}) => {
-	// Product disagrees: GridStack draws a cell `h * cellHeight` tall (240 px)
-	// and insets its content by the 8 px margin on each side (224 px); neither
-	// is 264 px. Views.vue:262-271 passes cellHeight 60 and margin 8.
-	const { context, page } = await openOwnDashboard(browser, own, 4)
-	try {
-		const box = await item(page, tallPlacementId).boundingBox()
-		expect(box!.height).toBeCloseTo(264, 0)
-	} finally {
-		await context.close()
-	}
-})

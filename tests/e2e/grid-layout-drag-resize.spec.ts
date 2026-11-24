@@ -27,7 +27,6 @@
  *   @e2e grid-layout::resize-handles-not-visible-in-view-mode
  *   @e2e grid-layout::save-after-grid-change
  *   @e2e grid-layout::multiple-rapid-changes
- *   @e2e grid-layout::save-failure-with-retry
  *   @e2e grid-layout::concurrent-edits-from-multiple-tabs
  *   @e2e grid-layout::change-event-maps-grid-items-to-placements
  *
@@ -416,42 +415,6 @@ test('three quick repositionings each send their own save', async ({ browser }) 
 					.sort(),
 			)
 			.toEqual([3, 5, 7])
-	} finally {
-		await context.close()
-	}
-})
-
-// @e2e grid-layout::save-failure-with-retry
-test.fixme('a failed layout save is reported and retried up to three times', async ({
-	browser,
-}) => {
-	// Product disagrees: src/stores/dashboard.js:1039-1041 (`updatePlacements`)
-	// only logs a failed save — no notification and no retry. The scenario
-	// itself carries "NOTE: Save failure/retry is NOT currently implemented".
-	const [a] = await seed([{ x: 0, y: 0, w: 4, h: 2 }])
-	const { context, page } = await openEditing(browser, 1)
-	try {
-		let attempts = 0
-		await page.route(
-			new RegExp(`/api/dashboard/${own!.id}(\\?|$)`),
-			async (route) => {
-				if (route.request().method() !== 'PUT') {
-					await route.fallback()
-					return
-				}
-				attempts++
-				await route.fulfill({
-					status: 500,
-					contentType: 'application/json',
-					body: '{"error":"boom"}',
-				})
-			},
-		)
-		await dragBy(page, a, 4, 0)
-		await expect(page.locator('.toastify.toast-error')).toBeVisible({
-			timeout: 15_000,
-		})
-		await expect.poll(() => attempts, { timeout: 30_000 }).toBe(4)
 	} finally {
 		await context.close()
 	}

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Service\AnnouncementInput;
@@ -203,4 +204,64 @@ class AnnouncementInputTest extends TestCase {
 		$this->expectException(exception: InvalidArgumentException::class);
 		$this->input->category(value: '');
 	}//end testCategoryIsTrimmedUpToItsLimit()
+
+	/**
+	 * The end-time rule: an end time is required, and it must lie after the publish time when one is set.
+	 *
+	 * @param string|null $publishAt The publish time.
+	 * @param string|null $expiresAt The end time.
+	 * @param string|null $message   The refusal, or null when accepted.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 */
+	#[DataProvider('endTimes')]
+	public function testTheEndTimeIsRequiredAndAfterThePublishTime(?string $publishAt, ?string $expiresAt, ?string $message): void {
+		$announcement = new Announcement();
+		$announcement->setPublishAt(self::date(value: $publishAt));
+		$announcement->setExpiresAt(self::date(value: $expiresAt));
+
+		if ($message !== null) {
+			$this->expectException(exception: InvalidArgumentException::class);
+			$this->expectExceptionMessage(message: $message);
+		}
+
+		$this->input->assertEndTime(announcement: $announcement);
+		$this->addToAssertionCount(count: 1);
+	}//end testTheEndTimeIsRequiredAndAfterThePublishTime()
+
+	/**
+	 * A date, or null.
+	 *
+	 * @param string|null $value An ISO 8601 date.
+	 *
+	 * @return DateTime|null
+	 */
+	private static function date(?string $value): ?DateTime {
+		if ($value === null) {
+			return null;
+		}
+
+		return new DateTime($value);
+	}//end date()
+
+	/**
+	 * Publish and end times with the expected refusal.
+	 *
+	 * @return array<string, array{0: string|null, 1: string|null, 2: string|null}>
+	 */
+	public static function endTimes(): array {
+		$missing = 'expiresAt is required: an announcement needs a "Show until" end time';
+		$order = 'The end time must be after the publish time';
+
+		return [
+			'no end time' => [null, null, $missing],
+			'no end time, scheduled' => ['2026-11-16T08:00:00+00:00', null, $missing],
+			'end only' => [null, '2026-10-30T17:00:00+00:00', null],
+			'end after start' => ['2026-10-30T08:00:00+00:00', '2026-10-30T17:00:00+00:00', null],
+			'end equals start' => ['2026-10-30T17:00:00+00:00', '2026-10-30T17:00:00+00:00', $order],
+			'end before start' => ['2026-10-31T08:00:00+00:00', '2026-10-30T17:00:00+00:00', $order],
+		];
+	}//end endTimes()
 }//end class

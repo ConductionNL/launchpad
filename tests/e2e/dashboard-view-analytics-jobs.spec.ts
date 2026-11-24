@@ -14,12 +14,11 @@
  * `occ config:app:get`/`config:list --private`, the job's own log line in
  * nextcloud.log, and the analytics API for the rows it must keep.
  *
- * The retention scenarios are judged on the cutoff the purge job logs and on
- * today's view row surviving it. A row older than the cutoff cannot be written
- * from outside (view events land in today's bucket only), so "older rows are
- * deleted" is asserted through the cutoff the job used, not through a deleted
- * row; that boundary is the arithmetic no unit test pins
- * (PurgeViewsJobTest mocks getPurgeCutoffDate()).
+ * The retention scenarios here are judged on the cutoff the purge job logs and
+ * on today's view row surviving it; that boundary is the arithmetic no unit
+ * test pins (PurgeViewsJobTest mocks getPurgeCutoffDate()). Rows older than
+ * the cutoff, and the job deleting them, are seeded and read back in
+ * dashboard-view-analytics-history.spec.ts.
  *
  * Settings this file changes are read first and put back: `analytics_enabled`,
  * `analytics_retention_days`, the personal dashboard flags and `loglevel`

@@ -19,9 +19,10 @@
  *   - the frontend: the view-event a dashboard visit sends, the personal
  *     "Count my visits" switch, and the Tiles report on the admin page.
  *
- * Only today's UTC bucket can be written from outside, so scenarios that need
- * rows on other days, the purge job, the salt rotation job or the schema are
- * excluded in the spec with the unit test that pins them.
+ * Requests only write today's UTC bucket. The scenarios that need rows on
+ * other days or the schema itself are in dashboard-view-analytics-history.spec.ts,
+ * which arranges and reads those rows through PHP on the instance; the two
+ * background jobs are in dashboard-view-analytics-jobs.spec.ts.
  *
  * Every dashboard and tile is created fresh per test, so its counters start at
  * zero and a count read back belongs to this test alone. Instance-wide reads

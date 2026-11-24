@@ -39,7 +39,8 @@
  *   @e2e runtime-shell::a-members-first-visit-shows-no-support-note
  *   @e2e runtime-shell::an-administrators-first-visit-keeps-the-note
  *   @e2e runtime-shell::a-first-visit-starts-the-tour
- *   @e2e runtime-shell::opening-dashboards-advances-the-tour
+ *   @e2e runtime-shell::the-tour-points-at-more
+ *   @e2e runtime-shell::opening-flows-from-more-ends-the-tour
  *   @e2e runtime-shell::a-finished-tour-stays-closed
  *   @e2e runtime-shell::an-administrators-first-visit-to-the-admin-page
  *   @e2e runtime-shell::a-finished-admin-tour-stays-closed

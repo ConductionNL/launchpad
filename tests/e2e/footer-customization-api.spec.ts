@@ -432,23 +432,8 @@ test.describe.serial('structured footer config (REQ-FTR-003)', () => {
 		expect((await readFooter(admin)).footerConfig).toEqual(FULL)
 	})
 
-	// @e2e footer-customization::structured-config-schema-validation
-	test.fixme('the 400 names the keys that are allowed', async () => {
-		/*
-		 * SUSPECTED BUG. lib/Service/FooterService.php assertKnownConfigKeys()
-		 * throws 'footerConfig contains unknown key: <key>' — it names the
-		 * offending key but not the allowed ones (STRUCTURED_CONFIG_KEYS),
-		 * which the scenario requires.
-		 */
-		const refused = await admin.put(FOOTER_SETTINGS, {
-			data: { footerConfig: { organisation: 'ACME', unknownField: 'value' } },
-		})
-		expect(refused.status()).toBe(400)
-		const message = String((await refused.json()).error)
-		for (const key of Object.keys(FULL)) {
-			expect(message).toContain(key)
-		}
-	})
+	// The AND clause (the 400 names the allowed keys) runs, expected red, in
+	// footer-customization-config-defects.spec.ts.
 
 	// @e2e footer-customization::partial-structured-config-optional-fields
 	test('a partial config with only organisation and layoutMode is accepted', async () => {

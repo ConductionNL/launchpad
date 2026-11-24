@@ -328,45 +328,8 @@ test.describe
 	})
 })
 
-test.describe
-	.serial('navigation-editor-org — read access as shipped (REQ-ONAV-002)', () => {
-	let user: Principal | null = null
-
-	test.beforeAll(async () => {
-		user = await createPrincipal(admin, 'e2e-onav-shipped')
-		await assertActingAs(user.api, user.username)
-	})
-
-	test.afterAll(async () => {
-		await removePrincipal(admin, user)
-	})
-
-	// @e2e navigation-editor-org::all-users-tree-is-visible-to-every-user
-	//
-	// SUSPECTED BUG. REQ-ONAV-002 opens the read to "any logged-in user", but
-	// lib/actions.seed.json:9 seeds `admin-org-navigation.get-org-navigation`
-	// as ["admin"] and AdminOrgNavigationController.php:111 refuses through
-	// RequestGuard::actionRefusal, so an ordinary user gets 403
-	// (tests/Unit/Service/ActionAuthBaselineTest.php:59 pins it admin-only).
-	// The same applies to `.get-position` (actions.seed.json:10). This is the
-	// pattern ApplyActionBaseline revision 2 fixed for `admin.get-my-role`.
-	test.fixme('with the matrix the instance ships, a signed-in user reads the tree', async () => {
-		// Put the instance's own matrix back, undoing any grant made above.
-		await restore(admin, snap)
-		const tree = [
-			navNode(`E2E Shipped ${RUN}`, { url: '/apps/launchpad/shipped' }),
-		]
-		await seedTree(admin, tree)
-
-		const read = await readTree(user!.api)
-		expect(read.status, JSON.stringify(read.body)).toBe(200)
-		expect(read.body).toEqual({ tree, language: 'nl' })
-
-		const position = await readPosition(user!.api)
-		expect(position.status, JSON.stringify(position.body)).toBe(200)
-		expect(position.body).toEqual(await readPosition(admin).then((r) => r.body))
-	})
-})
+// The read with the matrix the instance ships (all-users-tree-is-visible-to-every-user)
+// runs in navigation-editor-org-read-defects.spec.ts, outside serial mode.
 
 test.describe
 	.serial('navigation-editor-org — write validation (REQ-ONAV-003)', () => {

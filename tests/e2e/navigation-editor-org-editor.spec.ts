@@ -236,7 +236,8 @@ test.describe.serial('navigation-editor-org — admin editor (REQ-ONAV-007)', ()
 			}
 			// The editor reads the tree through the group-filtered GET, so the
 			// admin has to be in one of the node's groups to see the node at
-			// all; see the fixme below.
+			// all; navigation-editor-org-read-defects.spec.ts covers the case where
+			// the admin is in none of them.
 			await addToGroup(admin, ADMIN_USER, sales)
 		})
 
@@ -292,45 +293,8 @@ test.describe.serial('navigation-editor-org — admin editor (REQ-ONAV-007)', ()
 			expect(stored).toEqual([{ ...node, groupVisibility: null }])
 		})
 
-		// @e2e navigation-editor-org::group-visibility-multi-select
-		//
-		// SUSPECTED BUG. The editor loads its working tree from the same
-		// group-filtered GET every user gets (OrgNavigationEditor.vue:193-196 ->
-		// AdminOrgNavigationController.php:126-130), and
-		// OrgNavigationService::filterTreeByUserGroups (OrgNavigationService.php:182)
-		// has no admin bypass, although src/stores/orgNavigation.js:9-13 says
-		// admins see everything. A node restricted to groups the admin is not in
-		// never reaches the editor, so it cannot be edited, and the next
-		// wholesale Save deletes it.
-		test.fixme('a node restricted to groups the admin is not in still opens in the editor', async ({
-			page,
-		}) => {
-			const hidden = navNode(`E2E Elsewhere ${RUN}`, {
-				groupVisibility: [elsewhere, marketing],
-			})
-			const open = navNode(`E2E Open ${RUN}`)
-			await seedTree(admin, [hidden, open])
-			await openEditor(page)
-
-			const select = visibility(page, hidden.id).locator(
-				'select.org-nav-row__groups',
-			)
-			await expect(select).toBeVisible()
-			const selected = await select
-				.locator('option')
-				.evaluateAll((els) =>
-					els
-						.filter((el) => (el as HTMLOptionElement).selected)
-						.map((el) => (el as HTMLOptionElement).value),
-				)
-			expect(selected.sort()).toEqual([elsewhere, marketing].sort())
-
-			// Saving an unrelated edit must not drop it.
-			await page.locator('[data-test="org-nav-add-link"]').click()
-			expect(await clickSave(page)).toBe(200)
-			await addToGroup(admin, ADMIN_USER, elsewhere)
-			expect((await adminTree(admin)).map((n) => n.id)).toContain(hidden.id)
-		})
+		// A node in groups the admin is not in runs, expected red, in
+		// navigation-editor-org-read-defects.spec.ts.
 	})
 
 	// @e2e navigation-editor-org::save-valid-tree-persists

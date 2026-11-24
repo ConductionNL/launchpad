@@ -155,15 +155,27 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	public function testTheStartPageHoldsTheWholeWorkingDay(): void {
 		$boards = array_column(array: self::seed()['dashboards'], column_key: null, index_key: 'key');
 		$types  = array_map(callback: static fn (array $w): string => ($w['widgetId'] ?? 'tile'), array: $boards['vandaag']['widgets']);
-		foreach (['header', 'weather', 'attention', 'nc-widget', 'calendar', 'assigned-cases', 'work-packages', 'wiki-pages', 'announcements', 'people', 'menu', 'links'] as $type) {
+		$expected = [
+			'header', 'weather', 'attention', 'nc-widget', 'calendar', 'assigned-cases',
+			'work-packages', 'wiki-pages', 'announcements', 'people', 'menu', 'links',
+		];
+		foreach ($expected as $type) {
 			$this->assertContains(needle: $type, haystack: $types);
 		}
 
 		$this->assertCount(expectedCount: 12, haystack: array_keys(array: $types, filter_value: 'tile'));
-		$order = array_map(
-			callback: static fn (string $type): int => min(array_column(array: array_filter($boards['vandaag']['widgets'], static fn (array $w): bool => ($w['widgetId'] ?? 'tile') === $type), column_key: 'gridY')),
-			array: ['header', 'attention', 'nc-widget', 'wiki-pages', 'tile']
-		);
+		$order = [];
+		foreach (['header', 'attention', 'nc-widget', 'wiki-pages', 'tile'] as $type) {
+			$rows = [];
+			foreach ($boards['vandaag']['widgets'] as $widget) {
+				if (($widget['widgetId'] ?? 'tile') === $type) {
+					$rows[] = $widget['gridY'];
+				}
+			}
+
+			$order[] = min($rows);
+		}
+
 		$sorted = $order;
 		sort($sorted);
 		$this->assertSame(expected: $sorted, actual: $order);
@@ -173,7 +185,8 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 		}
 
 		$workspace = array_map(callback: static fn (array $w): string => ($w['widgetId'] ?? 'tile'), array: $boards['werkplek']['widgets']);
-		$this->assertSame(expected: [], actual: array_values(array_intersect($workspace, ['weather', 'nc-widget', 'calendar', 'assigned-cases', 'work-packages', 'wiki-pages', 'links', 'tile'])));
+		$onTheStartPage = ['weather', 'nc-widget', 'calendar', 'assigned-cases', 'work-packages', 'wiki-pages', 'links', 'tile'];
+		$this->assertSame(expected: [], actual: array_values(array_intersect($workspace, $onTheStartPage)));
 	}//end testTheStartPageHoldsTheWholeWorkingDay()
 
 	/**

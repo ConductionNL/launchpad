@@ -214,7 +214,7 @@ class AnnouncementInputTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	#[DataProvider('endTimes')]
 	public function testTheEndTimeIsRequiredAndAfterThePublishTime(?string $publishAt, ?string $expiresAt, ?string $message): void {

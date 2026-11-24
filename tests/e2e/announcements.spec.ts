@@ -48,6 +48,7 @@ async function apiAs(user: string, pass: string): Promise<APIRequestContext> {
 let admin: APIRequestContext
 let member: { username: string; password: string } | null = null
 let dashboardId = 0
+let dashboardUuid = ''
 const announcements: string[] = []
 const tomorrow = () => new Date(Date.now() + 24 * 3600 * 1000).toISOString()
 
@@ -77,6 +78,7 @@ test.beforeAll(async () => {
 	expect(created.status(), await created.text()).toBeLessThan(300)
 	const dash = (await created.json()).dashboard
 	dashboardId = Number(dash.id)
+	dashboardUuid = String(dash.uuid)
 	const widget = await admin.post(`${API}/dashboard/${dash.id}/widgets`, {
 		data: { widgetId: 'announcements', gridX: 0, gridY: 0, gridWidth: 6, gridHeight: 6, content: {} },
 	})
@@ -115,13 +117,9 @@ test('a notice without an end time is not published', async () => {
 	const created = await admin.post(`${API}/announcements`, {
 		data: { kind: 'notice', level: 'warning', title: `Zonder einde ${STAMP}`, dismissible: true },
 	})
-	expect(created.status(), await created.text()).toBe(201)
-	const uuid = (await created.json()).uuid as string
-	announcements.push(uuid)
-
-	const published = await admin.post(`${API}/announcements/${uuid}/publish`)
-	expect(published.status()).toBe(400)
-	expect((await published.json()).message).toBe('A notice needs an end time')
+	// Since announcement-show-until every announcement needs its end time when it is written.
+	expect(created.status(), await created.text()).toBe(400)
+	expect(JSON.stringify(await created.json())).toContain('Show until')
 })
 
 // @e2e announcements::maintenance-banner
@@ -156,7 +154,7 @@ test('a published notice is a banner above the reader\'s dashboard, and a dismis
 test('a reader likes and comments on a news item, and the card counts both', async ({ browser }) => {
 	const title = `Nieuwe werkplekken ${STAMP}`
 	const comment = `Komen er ook sta-bureaus? ${STAMP}`
-	await publishAnnouncement({ kind: 'news', title, body: 'Op de 3e verdieping.', allowComments: true })
+	await publishAnnouncement({ kind: 'news', title, body: 'Op de 3e verdieping.', allowComments: true, expiresAt: tomorrow() })
 
 	const { context, page } = await loginAs(browser, member!.username, member!.password)
 	try {
@@ -183,4 +181,52 @@ test('a reader likes and comments on a news item, and the card counts both', asy
 	const comments = await admin.get(`${API}/announcements/${announcements.at(-1)}/comments`)
 	expect(comments.status(), await comments.text()).toBe(200)
 	expect(JSON.stringify(await comments.json())).toContain(comment)
+})
+
+/**
+ * A `datetime-local` value some days from now.
+ *
+ * @param days Days from now.
+ * @return The value, `YYYY-MM-DDTHH:MM` in local time.
+ */
+function localInput(days: number): string {
+	const at = new Date(Date.now() + days * 24 * 3600 * 1000)
+	const pad = (n: number) => String(n).padStart(2, '0')
+	return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}T${pad(at.getHours())}:${pad(at.getMinutes())}`
+}
+
+// announcement-show-until (REQ-ANN-001): every announcement needs a "Show
+// until"; one set to start later is scheduled. Written from the change's
+// scenarios; runs in the nightly.
+// @e2e announcements::an-end-time-is-required
+// @e2e announcements::scheduling-for-later
+test('the form refuses to publish without Show until, and a scheduled announcement shows Schedule', async ({ page }) => {
+	const active = await admin.post(`${API}/dashboards/active`, { data: { uuid: dashboardUuid } })
+	expect(active.status(), await active.text()).toBeLessThan(300)
+
+	await page.goto('/index.php/apps/launchpad/')
+	await page.locator('[data-test="announcements-new"]').click()
+	const editor = page.locator('[data-test="announcement-editor"]')
+	await expect(editor).toBeVisible({ timeout: 30_000 })
+
+	await editor.locator('[data-test="editor-title"] input').fill(`Inloopspreekuur privacy ${STAMP}`)
+	await editor.locator('[data-test="editor-preview"]').click()
+	// Without "Show until" the form stays on the write step.
+	await expect(editor.locator('[data-test="editor-preview-step"]')).toHaveCount(0)
+	expect(await editor.locator('[data-test="editor-expires-at"]').evaluate((input: HTMLInputElement) => input.validity.valid)).toBe(false)
+
+	await editor.locator('[data-test="editor-publish-at"]').fill(localInput(1))
+	await editor.locator('[data-test="editor-expires-at"]').fill(localInput(3))
+	await editor.locator('[data-test="editor-preview"]').click()
+	await expect(editor.locator('[data-test="editor-preview-step"]')).toBeVisible()
+	await expect(editor.locator('[data-test="editor-publish"]')).toHaveText('Schedule')
+})
+
+// @e2e announcements::an-end-time-is-required
+test('the API refuses an announcement without an end time', async () => {
+	const created = await admin.post(`${API}/announcements`, {
+		data: { kind: 'news', title: `Zonder Tonen tot ${STAMP}`, body: 'x' },
+	})
+	expect(created.status(), await created.text()).toBe(400)
+	expect(JSON.stringify(await created.json())).toContain('Show until')
 })

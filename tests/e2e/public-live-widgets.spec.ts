@@ -23,6 +23,8 @@ import { adminContext, API } from './support/principals.ts'
 const APP = '/index.php/apps/launchpad'
 const PLAYLISTS = `${API}/kiosk/playlists`
 const STAMP = Date.now()
+/** Every announcement needs a "Show until" (REQ-ANN-001). */
+const inTwoDays = new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString()
 
 /** A logged-out browser: no cookies, no local storage. */
 const LOGGED_OUT = { cookies: [], origins: [] }
@@ -114,8 +116,8 @@ test.beforeAll(async () => {
 		content: {},
 	})
 
-	await publish({ kind: 'news', title: `Kantine dicht vrijdag ${STAMP}`, body: 'Verbouwing.' })
-	await publish({ kind: 'news', title: `Alleen voor beheer ${STAMP}`, body: 'Intern.', targetGroups: ['admin'] })
+	await publish({ kind: 'news', title: `Kantine dicht vrijdag ${STAMP}`, body: 'Verbouwing.', expiresAt: inTwoDays })
+	await publish({ kind: 'news', title: `Alleen voor beheer ${STAMP}`, body: 'Intern.', targetGroups: ['admin'], expiresAt: inTwoDays })
 
 	const res = await admin.post(PLAYLISTS, {
 		data: { name: `E2E Kantine ${STAMP}`, entries: [{ dashboardUuid: canteen.uuid, dwellSeconds: 60 }], refreshSeconds: 300 },

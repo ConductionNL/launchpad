@@ -24,6 +24,8 @@
  *   @e2e dashboards::import-dropped
  *   @e2e dashboards::non-administrator-refused
  *   @e2e dashboards::css-cannot-reach-outside-launchpad
+ *   @e2e dashboards::the-theme-of-zuiddrecht
+ *   @e2e dashboards::the-own-look-stays-a-choice
  *
  * @spec openspec/specs/dashboards/spec.md
  */
@@ -448,5 +450,40 @@ test.describe('dashboards — a look of its own and custom CSS (REQ-THM-001..003
 				data: { customCss: '' },
 			})
 		}
+	})
+	// dashboard-theme-readonly (REQ-THM-004): the Details tab shows the
+	// instance theme read-only, has no layout field, and the own look stays a
+	// choice. Written from the change's scenarios; runs in the nightly.
+	// @e2e dashboards::the-theme-of-zuiddrecht
+	// @e2e dashboards::the-own-look-stays-a-choice
+	test('Details shows the theme read-only, no layout field, and an accent under Own look keeps the theme', async ({
+		page,
+	}) => {
+		await activate(green!)
+		await drawn(page, green!.uuid)
+		await openLookTab(page)
+
+		const theme = page.locator('input[data-testid="display-theme"], [data-testid="display-theme"] input').first()
+		await expect(theme).toBeVisible()
+		await expect(theme).toHaveAttribute('readonly', /.*/)
+		const themeName = await theme.inputValue()
+		await expect(page.getByTestId('display-theme-hint')).toBeVisible()
+		await expect(page.locator('[data-test="config-general"] [data-test*="layout"], [data-testid*="layout-preset"]')).toHaveCount(0)
+
+		await accentInput(page).fill(GREEN)
+		const saved = page.waitForResponse(
+			(res) =>
+				res.request().method() === 'PUT'
+				&& res.url().endsWith(`/api/dashboard/${green!.id}`),
+		)
+		await page.getByTestId('dashboard-save-button').click()
+		expect((await saved).status()).toBe(200)
+		const stored = (await readDashboard(admin, green!.id)).dashboard!
+		expect(String(stored.themeAccent).toLowerCase()).toBe(GREEN)
+
+		await openLookTab(page)
+		await expect(
+			page.locator('input[data-testid="display-theme"], [data-testid="display-theme"] input').first(),
+		).toHaveValue(themeName)
 	})
 })

@@ -427,7 +427,7 @@ class AnnouncementServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function testANewAnnouncementNeedsAnEndTimeAfterItsPublishTime(): void {
 		$service = $this->service();
@@ -460,7 +460,7 @@ class AnnouncementServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function testAnAnnouncementStoredWithoutAnEndTimeKeepsShowing(): void {
 		$service = $this->service();
@@ -497,7 +497,7 @@ class AnnouncementServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function testTheAnnouncementDisappearsAfterItsEndTime(): void {
 		$this->now = '2026-10-30T09:00:00+00:00';

@@ -4,4 +4,4 @@
 - [x] Details tab: the look fields of REQ-THM-001 in an Own look block; remove any separate Look tab; no theme select and no layout preset field
 - [x] Translations in every shipped locale
 - [x] Unit tests: the theme name source (thematiq set, not set); the field is read-only; no layout field; the look still saves from the Details tab
-- [ ] Playwright: open Dashboard settings, Details, read the theme name and set an accent under Own look
+- [x] Playwright: open Dashboard settings, Details, read the theme name and set an accent under Own look (written in `tests/e2e/dashboards-look.spec.ts`, runs in nightly)

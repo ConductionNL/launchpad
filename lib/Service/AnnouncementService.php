@@ -185,7 +185,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 * @throws InvalidArgumentException When a field is not valid, the end time is missing or it ends before it starts.
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function create(string $userId, array $input): Announcement {
 		if ($this->isAuthor(userId: $userId) === false) {
@@ -220,7 +220,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 * @throws InvalidArgumentException When a field is not valid, the end time is cleared or it ends before it starts.
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function update(string $userId, string $uuid, array $input): Announcement {
 		$announcement = $this->managed(userId: $userId, uuid: $uuid);

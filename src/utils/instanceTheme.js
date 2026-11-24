@@ -11,7 +11,7 @@ import { getCapabilities } from '@nextcloud/capabilities'
  * without capabilities, such as a test).
  *
  * @return {string} The theme name.
- * @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+ * @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
  */
 export function instanceThemeName() {
 	try {

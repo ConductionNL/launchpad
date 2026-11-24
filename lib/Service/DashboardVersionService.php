@@ -178,6 +178,7 @@ class DashboardVersionService {
 	 *                               suppressed by the debounce window.
 	 *
 	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-each-automatic-version-says-what-changed-req-versui-004
 	 */
 	public function captureSnapshot(Dashboard $dashboard, string $createdBy, array $options=[]): ?DashboardVersion {
 		$options += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
@@ -231,6 +232,8 @@ class DashboardVersionService {
 	 *                             {@see self::captureSnapshot()} takes them.
 	 *
 	 * @return DashboardVersion The unsaved row.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-each-automatic-version-says-what-changed-req-versui-004
 	 */
 	private function newVersion(Dashboard $dashboard, array $options): DashboardVersion {
 		$uuid         = (string)$dashboard->getUuid();
@@ -280,6 +283,8 @@ class DashboardVersionService {
 	 *
 	 * @return string|null The description, or null when there is no previous
 	 *                     version, nothing differs or the lookup fails.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-each-automatic-version-says-what-changed-req-versui-004
 	 */
 	private function describeChange(string $dashboardUuid, string $snapshotJson): ?string {
 		try {

@@ -46,6 +46,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s verplaatst",
     "Widget %s resized" : "Widget %s van formaat veranderd",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s en %n andere wijziging", "%s en %n andere wijzigingen"],
+    "Template %s" : "Sjabloon %s",
+    "Updated from the template" : "Bijgewerkt vanuit het sjabloon",
     "Admin settings" : "Beheerinstellingen",
     "Look" : "Uiterlijk",
     "Accent color" : "Accentkleur",

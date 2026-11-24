@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s imċaqlaq",
     "Widget %s resized" : "Daqs tal-widget %s inbidel",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s u %n bidla oħra", "%s u %n bidliet oħra", "%s u %n bidliet oħra", "%s u %n bidla oħra"],
+    "Template %s" : "Mudell %s",
+    "Updated from the template" : "Aġġornat mill-mudell",
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funzjonijiet u pjan direzzjonali",
     "Maximum dashboards per user" : "Numru massimu ta' dashboards għal kull utent",

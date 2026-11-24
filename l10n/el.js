@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Μετακινήθηκε το γραφικό στοιχείο %s",
     "Widget %s resized" : "Άλλαξε μέγεθος το γραφικό στοιχείο %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s και %n ακόμη αλλαγή", "%s και %n ακόμη αλλαγές"],
+    "Template %s" : "Πρότυπο %s",
+    "Updated from the template" : "Ενημερώθηκε από το πρότυπο",
     "Admin settings" : "Ρυθμίσεις διαχείρισης",
     "Features & roadmap" : "Λειτουργίες και οδικός χάρτης",
     "Maximum dashboards per user" : "Μέγιστος αριθμός πινάκων ανά χρήστη",

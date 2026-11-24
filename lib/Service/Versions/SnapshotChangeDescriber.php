@@ -31,6 +31,7 @@ use OCP\IL10N;
  * Describes the difference between two dashboard snapshots.
  *
  * @spec openspec/specs/dashboard-versioning/spec.md
+ * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-each-automatic-version-says-what-changed-req-versui-004
  */
 class SnapshotChangeDescriber {
 
@@ -64,6 +65,7 @@ class SnapshotChangeDescriber {
 	 *                     there is no previous snapshot or nothing differs.
 	 *
 	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-each-automatic-version-says-what-changed-req-versui-004
 	 */
 	public function describe(?string $previousJson, string $currentJson): ?string {
 		if ($previousJson === null) {

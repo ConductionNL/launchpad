@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widgeti %s u zhvendos",
     "Widget %s resized" : "Widgetit %s iu ndryshua madhësia",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s dhe %n ndryshim tjetër", "%s dhe %n ndryshime të tjera"],
+    "Template %s" : "Shabllon %s",
+    "Updated from the template" : "Përditësuar nga shablloni",
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Veçoritë dhe plani i zhvillimit",
     "Maximum dashboards per user" : "Numri maksimal i paneleve për përdorues",

@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s spustà",
     "Widget %s resized" : "Grondezza dal widget %s midada",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s ed anc %n midada", "%s ed anc %n midadas"],
+    "Template %s" : "Model %s",
+    "Updated from the template" : "Actualisà dal model",
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funcziuns e plan da svilup",
     "Maximum dashboards per user" : "Maximum da dashboards per utilisader",

@@ -52,10 +52,14 @@ final class TemplateResyncTally {
 	 *
 	 * @param array<int, WidgetPlacement> $templatePlacements The template's placements.
 	 * @param string                      $strategy           The resync strategy.
+	 * @param string                      $templateName       The template's name, for the version each copy gets.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function __construct(
 		public readonly array $templatePlacements,
 		public readonly string $strategy,
+		public readonly string $templateName='',
 	) {
 	}//end __construct()
 }//end class

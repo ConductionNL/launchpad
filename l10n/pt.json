@@ -1432,6 +1432,8 @@
         "One widget does not work on a phone and is hidden: {names}.": "Um widget não funciona num telefone e está oculto: {names}.",
         "{count} widgets do not work on a phone and are hidden: {names}.": "{count} widgets não funcionam num telefone e estão ocultos: {names}.",
         "Which?": "Quais?",
-        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Alguns widgets precisam de um ecrã maior, por isso um telefone oculta-os. Num tablet ou computador vê-os como habitualmente."
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Alguns widgets precisam de um ecrã maior, por isso um telefone oculta-os. Num tablet ou computador vê-os como habitualmente.",
+        "Template %s": "Modelo %s",
+        "Updated from the template": "Atualizado a partir do modelo"
     }
 }

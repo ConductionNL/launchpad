@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "%s pencere öğesi taşındı",
     "Widget %s resized" : "%s pencere öğesi yeniden boyutlandırıldı",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s ve %n değişiklik daha", "%s ve %n değişiklik daha"],
+    "Template %s" : "%s şablonu",
+    "Updated from the template" : "Şablondan güncellendi",
     "Admin settings" : "Yönetim ayarları",
     "Features & roadmap" : "Özellikler ve yol haritası",
     "Maximum dashboards per user" : "Kullanıcı başına en fazla pano",

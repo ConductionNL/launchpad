@@ -103,14 +103,17 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *                                                  storage policy), so the `x-openregister-
 	 *                                                  notifications` branch is not wired in.
 	 * @param LoggerInterface      $logger PSR-3 logger.
-	 * @param PersonalLayerService $personalLayers Drops personal-layer entries for removed placements (REQ-DWMS-001).
+	 * @param ResyncFollowUps      $followUps What happens to a changed copy: its personal layers are pruned
+	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function __construct(
 		private readonly ResyncStores $stores,
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,
-		private readonly PersonalLayerService $personalLayers,
+		private readonly ResyncFollowUps $followUps,
 	) {
 	}//end __construct()
 
@@ -356,7 +359,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			templatePlacements: $this->stores->placementMapper->findByDashboardId(
 				dashboardId: $template->getId()
 			),
-			strategy: $request->strategy
+			strategy: $request->strategy,
+			templateName: (string)$template->getName()
 		);
 
 		foreach ($this->stores->dashboardMapper->findByBasedOnTemplate(templateId: $request->templateId) as $copy) {
@@ -391,8 +395,31 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		if ($changed === true && $error === null) {
 			$tally->affected[] = $copy;
 			$this->pruneLayers(copy: $copy, diff: $diff);
+			$this->recordTemplateVersion(copy: $copy, templateName: $tally->templateName);
 		}
 	}//end resyncCopy()
+
+	/**
+	 * Write the version a re-synced copy gets, by the template. A failure is
+	 * logged; the resync itself already landed.
+	 *
+	 * @param Dashboard $copy         The copy that took the change.
+	 * @param string    $templateName The template's name.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	private function recordTemplateVersion(Dashboard $copy, string $templateName): void {
+		try {
+			$this->followUps->recordTemplateVersion(copy: $copy, templateName: $templateName);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: 'launchpad.template_resync.version_failed',
+				context: ['dashboardId' => $copy->getId(), 'exception' => $t]
+			);
+		}
+	}//end recordTemplateVersion()
 
 	/**
 	 * After a re-sync removed placements, drop the personal-layer entries that named them.
@@ -415,7 +442,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		);
 
 		try {
-			$this->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
+			$this->followUps->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
 		} catch (Throwable $t) {
 			// The re-sync itself landed; a stale layer entry is ignored at render time.
 			$this->logger->warning(

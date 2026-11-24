@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "{name} kullanıcısının {field} profil alanı eşleşmiyor",
     "{name} sees this widget: no rule limits who sees it." : "{name} bu widget'ı görür: hiçbir kural kimin göreceğini sınırlamıyor.",
     "{name} sees this widget, because {reasons}." : "{name} bu widget'ı görür, çünkü {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} bu widget'ı görmez, çünkü {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} bu widget'ı görmez, çünkü {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpad yönetimi kendi sayfasında bulunur.",
+    "Open Launchpad administration" : "Launchpad yönetimini aç"
 },
 "nplurals=2; plural=(n != 1);"
 );

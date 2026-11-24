@@ -3,15 +3,9 @@
 /**
  * LaunchPadAdminTest
  *
- * Pins the admin settings form: the initial state it provides (groups,
- * configured group order with its legacy fallback, widgets, the user
- * dashboard switch and link file extensions), the template it renders and
- * the section it registers under.
- *
- * getForm() registers its script through OCP\Util, which reaches the
- * Nextcloud server container. Without a booted Nextcloud those tests run
- * in a separate process with a minimal container standing in, so nothing
- * leaks into the rest of the suite.
+ * Pins Launchpad's entry under Nextcloud's administration settings: one line
+ * and a link to the administration page (REQ-ADM-031), under the Launchpad
+ * section.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Settings
@@ -28,215 +22,65 @@ declare(strict_types=1);
 
 namespace Unit\Settings;
 
-use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\FileService;
-use OCA\LaunchPad\Service\InitialStateBuilder;
-use OCA\LaunchPad\Service\WidgetService;
-use OCA\LaunchPad\Settings\AdminPageSources;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCA\LaunchPad\Settings\LaunchPadAdminSection;
-use OCP\AppFramework\Services\IInitialState;
-use OCP\IGroup;
-use OCP\IGroupManager;
 use OCP\IL10N;
 use OCP\IURLGenerator;
-use OCP\L10N\IFactory;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 
 /**
  * Tests for LaunchPadAdmin.
  *
  * @covers \OCA\LaunchPad\Settings\LaunchPadAdmin
- * @covers \OCA\LaunchPad\Settings\AdminPageSources
- * @covers \OCA\LaunchPad\Settings\AdminFormState
  * @uses   \OCA\LaunchPad\Settings\LaunchPadAdminSection
- * @uses   \OCA\LaunchPad\Service\InitialStateBuilder
- * @uses   \OCA\LaunchPad\Service\InitialState\Page
  */
 class LaunchPadAdminTest extends TestCase {
 
-	/** @var AdminSettingsService&MockObject */
-	private $settingsService;
-	/** @var AdminSettingMapper&MockObject */
-	private $settingMapper;
-	/** @var IGroupManager&MockObject */
-	private $groupManager;
-
 	/**
-	 * Initial state provided, key => value, in order.
-	 *
-	 * @var array<string, mixed>
-	 */
-	private array $provided = [];
-
-	/**
-	 * Build the form with mocked sources.
+	 * The form with a URL generator that answers for the administration page.
 	 *
 	 * @return LaunchPadAdmin
 	 */
 	private function form(): LaunchPadAdmin {
-		$initialState = $this->createMock(IInitialState::class);
-		$initialState->method('provideInitialState')->willReturnCallback(
-			function (string $key, mixed $value): void {
-				$this->provided[$key] = $value;
-			}
+		$urls = $this->createMock(originalClassName: IURLGenerator::class);
+		$urls->method('linkToRoute')->willReturnCallback(
+			static fn (string $route, array $args = []): string => '/index.php/' . $route . '/' . ($args['tab'] ?? '')
 		);
 
-		$this->groupManager = $this->createMock(IGroupManager::class);
-		$this->settingsService = $this->createMock(AdminSettingsService::class);
-		$this->settingMapper = $this->createMock(AdminSettingMapper::class);
-
-		$widgets = $this->createMock(WidgetService::class);
-		$widgets->method('getAvailableWidgets')->willReturn([['id' => 'weather']]);
-		$dashboards = $this->createMock(DashboardService::class);
-		$dashboards->method('getAllowUserDashboards')->willReturn(false);
-		$files = $this->createMock(FileService::class);
-		$files->method('getAllowedExtensions')->willReturn(['docx', 'md']);
-
-		return new LaunchPadAdmin(
-			initialState: $initialState,
-			groupManager: $this->groupManager,
-			sources: new AdminPageSources(
-				widgetService: $widgets,
-				settingMapper: $this->settingMapper,
-				dashboardService: $dashboards,
-				fileService: $files,
-			),
-			settingsService: $this->settingsService,
-		);
+		return new LaunchPadAdmin(urlGenerator: $urls);
 	}//end form()
 
 	/**
-	 * Stand in for the Nextcloud server container that OCP\Util::addScript()
-	 * reaches, when no Nextcloud is booted. Only ever called in a separate
-	 * process.
+	 * The entry renders the short template with the link to the
+	 * administration page on General, and provides no initial state.
 	 *
 	 * @return void
 	 */
-	private function standInForTheServer(): void {
-		if (class_exists('OC') === true) {
-			return;
-		}
+	public function testTheFormLinksToTheAdministrationPage(): void {
+		$response = $this->form()->getForm();
 
-		eval('class OC { public static $server; }');
-		if (class_exists('OC\\AppScriptDependency') === false) {
-			eval(
-				'namespace OC; class AppScriptDependency {'
-				. ' public function __construct(public string $id, public array $deps = []) {}'
-				. ' public function addDep(string $dep): void { $this->deps[] = $dep; } }'
-			);
-		}
-
-		$factory = $this->createMock(IFactory::class);
-		$factory->method('findLanguage')->willReturn('en');
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->with(IFactory::class)->willReturn($factory);
-		\OC::$server = $container;
-	}//end standInForTheServer()
-
-	/**
-	 * A group mock.
-	 *
-	 * @param string $gid  The group id.
-	 * @param string $name The display name.
-	 *
-	 * @return IGroup
-	 */
-	private function group(string $gid, string $name): IGroup {
-		$group = $this->createMock(IGroup::class);
-		$group->method('getGID')->willReturn($gid);
-		$group->method('getDisplayName')->willReturn($name);
-		return $group;
-	}//end group()
-
-	/**
-	 * The form provides every group, the configured order, the widgets, the
-	 * user-dashboard switch and the file extensions, and renders the admin template.
-	 *
-	 * @return void
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState(false)]
-	public function testTheFormProvidesTheAdminInitialState(): void {
-		$this->standInForTheServer();
-		$admin = $this->form();
-		$this->groupManager->expects($this->once())
-			->method('search')
-			->with('')
-			->willReturn([$this->group('admin', 'Admins'), $this->group('staff', 'Staff')]);
-		$this->settingsService->method('getGroupOrder')->willReturn(['staff', 'admin']);
-		$this->settingMapper->expects($this->never())->method('getValue');
-
-		$response = $admin->getForm();
-
-		$this->assertSame('launchpad', $response->getApp());
-		$this->assertSame('settings/admin', $response->getTemplateName());
-		$schema = $this->provided;
-		$this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $schema);
-		unset($schema[InitialStateBuilder::KEY_SCHEMA_VERSION]);
+		$this->assertSame(expected: 'launchpad', actual: $response->getApp());
+		$this->assertSame(expected: 'settings/admin', actual: $response->getTemplateName());
 		$this->assertSame(
-			[
-				'allGroups' => [
-					['id' => 'admin', 'displayName' => 'Admins'],
-					['id' => 'staff', 'displayName' => 'Staff'],
-				],
-				'configuredGroups' => ['staff', 'admin'],
-				'widgets' => [['id' => 'weather']],
-				'allowUserDashboards' => false,
-				'linkCreateFileExtensions' => ['docx', 'md'],
-			],
-			$schema
+			expected: ['adminPageUrl' => '/index.php/launchpad.adminPage.show/general'],
+			actual: $response->getParams()
 		);
-	}//end testTheFormProvidesTheAdminInitialState()
+	}//end testTheFormLinksToTheAdministrationPage()
 
 	/**
-	 * Without a group order the legacy setting is used, keeping only
-	 * non-empty strings and reindexing them.
+	 * The template says where the administration is in one translated line
+	 * and links to it.
 	 *
 	 * @return void
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState(false)]
-	public function testWithoutAGroupOrderTheLegacySettingIsFiltered(): void {
-		$this->standInForTheServer();
-		$admin = $this->form();
-		$this->groupManager->method('search')->willReturn([]);
-		$this->settingsService->method('getGroupOrder')->willReturn([]);
-		$this->settingMapper->expects($this->once())
-			->method('getValue')
-			->with('configured_groups', [])
-			->willReturn(['', 'staff', 7, null, 'admin']);
+	public function testTheTemplateIsOneLineAndALink(): void {
+		$template = (string) file_get_contents(dirname(__DIR__, 3) . '/templates/settings/admin.php');
 
-		$admin->getForm();
-
-		$this->assertSame(['staff', 'admin'], $this->provided['configuredGroups']);
-		$this->assertSame([], $this->provided['allGroups']);
-	}//end testWithoutAGroupOrderTheLegacySettingIsFiltered()
-
-	/**
-	 * A legacy setting that is not a list leaves the configured groups empty.
-	 *
-	 * @return void
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState(false)]
-	public function testANonListLegacySettingGivesNoConfiguredGroups(): void {
-		$this->standInForTheServer();
-		$admin = $this->form();
-		$this->groupManager->method('search')->willReturn([]);
-		$this->settingsService->method('getGroupOrder')->willReturn([]);
-		$this->settingMapper->method('getValue')->willReturn('staff');
-
-		$admin->getForm();
-
-		$this->assertSame([], $this->provided['configuredGroups']);
-	}//end testANonListLegacySettingGivesNoConfiguredGroups()
+		$this->assertStringContainsString(needle: "p(\$l->t('The Launchpad administration is on a page of its own.'))", haystack: $template);
+		$this->assertStringContainsString(needle: 'href="<?php p($adminPageUrl); ?>"', haystack: $template);
+		$this->assertStringContainsString(needle: "p(\$l->t('Open Launchpad administration'))", haystack: $template);
+		$this->assertStringNotContainsString(needle: '<script', haystack: $template);
+	}//end testTheTemplateIsOneLineAndALink()
 
 	/**
 	 * The form registers under the LaunchPad section, with no name of its own
@@ -247,13 +91,13 @@ class LaunchPadAdminTest extends TestCase {
 	public function testTheFormRegistersUnderTheLaunchPadSection(): void {
 		$admin = $this->form();
 		$section = new LaunchPadAdminSection(
-			l: $this->createMock(IL10N::class),
-			urlGenerator: $this->createMock(IURLGenerator::class)
+			l: $this->createMock(originalClassName: IL10N::class),
+			urlGenerator: $this->createMock(originalClassName: IURLGenerator::class)
 		);
 
-		$this->assertSame($section->getID(), $admin->getSection());
-		$this->assertSame(10, $admin->getPriority());
-		$this->assertNull($admin->getName());
-		$this->assertSame([], $admin->getAuthorizedAppConfig());
+		$this->assertSame(expected: $section->getID(), actual: $admin->getSection());
+		$this->assertSame(expected: 10, actual: $admin->getPriority());
+		$this->assertNull(actual: $admin->getName());
+		$this->assertSame(expected: [], actual: $admin->getAuthorizedAppConfig());
 	}//end testTheFormRegistersUnderTheLaunchPadSection()
 }//end class

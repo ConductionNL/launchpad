@@ -76,7 +76,7 @@ import { CONTAINER, occ } from './support/scheduledExports.ts'
 
 const APP = '/index.php/apps/launchpad'
 const PLAYLISTS = `${API}/kiosk/playlists`
-const SETTINGS_URL = '/index.php/settings/admin/launchpad'
+const SETTINGS_URL = '/index.php/apps/launchpad/admin'
 const RUN = Date.now()
 
 /** A logged-out browser: no cookies, no local storage. */

@@ -314,7 +314,7 @@ test.describe('dashboards — a look of its own and custom CSS (REQ-THM-001..003
 		const original = String((await previous.json()).customCss ?? '')
 
 		try {
-			await page.goto('/index.php/settings/admin/launchpad')
+			await page.goto('/index.php/apps/launchpad/admin')
 			const input = page.getByTestId('admin-custom-css-input')
 			await expect(input).toBeEnabled({ timeout: 30_000 })
 			await input.fill(

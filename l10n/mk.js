@@ -1593,7 +1593,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "полето на профилот {field} на {name} не се совпаѓа",
     "{name} sees this widget: no rule limits who sees it." : "{name} го гледа овој виџет: ниедно правило не ограничува кој го гледа.",
     "{name} sees this widget, because {reasons}." : "{name} го гледа овој виџет, затоа што {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} не го гледа овој виџет, затоа што {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} не го гледа овој виџет, затоа што {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Администрацијата на Launchpad е на посебна страница.",
+    "Open Launchpad administration" : "Отвори ја администрацијата на Launchpad"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

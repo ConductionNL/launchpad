@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Every webpack entry that renders library components registers the library
- * catalogue itself. The admin page (src/admin.js) is its own entry: without
- * the call the admin shell chrome reads in English.
+ * catalogue itself. The administration renders inside the main entry
+ * (src/main.js), so that call covers its shell chrome too.
  */
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 describe('the library catalogue', () => {
-	it.each(['main.js', 'admin.js'])('is registered by src/%s', (entry) => {
+	it.each(['main.js'])('is registered by src/%s', (entry) => {
 		const source = readFileSync(resolve(__dirname, '..', entry), 'utf8')
 		expect(source).toMatch(
 			/import\s*\{[^}]*\bregisterTranslations\b[^}]*\}\s*from\s*'@conduction\/nextcloud-vue'/,

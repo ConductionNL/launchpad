@@ -7,9 +7,11 @@
 	<div class="launchpad-admin">
 		<!-- The board look: the shell draws the h1, the path line and the
 		     Documentatie button, and lays its sections out as cards in two
-		     columns (board LpBeheerAlgemeen). This page has no CnAppRoot, so
-		     the shell's own `look` switches the board look on. -->
+		     columns (board LpBeheerAlgemeen). The shell's own `look` switches
+		     the board look on. The open tab is in the page's path
+		     (`/apps/launchpad/admin/<tab>`, REQ-ADM-030), not in `?tab=`. -->
 		<CnAdminSettingsShell
+			ref="shell"
 			appId="launchpad"
 			appName="Launchpad"
 			look="board"
@@ -20,7 +22,7 @@
 			:showVersionCard="false"
 			:tabs="beheerTabs"
 			tabsVariant="underline"
-			tabStorageKey="launchpad.admin.activeTab"
+			tabQueryKey=""
 			lazyTabs
 			@tabChange="onTabChange">
 			<!-- Each tab draws its own content in the shell's `tab-<id>` slot.
@@ -434,6 +436,7 @@ import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import TileLaunchSettings from './TileLaunchSettings.vue'
 import manifest from '../../manifest.json'
 import { api } from '../../services/api.js'
+import { adminTab } from '../../utils/adminPage.js'
 import { adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
 import { logger } from '../../utils/logger.js'
 
@@ -470,8 +473,8 @@ export default {
 		AppCatalogueTab,
 	},
 
-	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
-	// pushes via `LaunchPadAdmin::getForm()`. Treated as a hint for the
+	// REQ-INIT-004: read the initial-state snapshot the administration page
+	// pushes via `AdminPageController::show()`. Treated as a hint for the
 	// initial render only — `loadData()` overwrites with the API truth.
 	inject: {
 		injectedAllGroups: { from: 'allGroups', default: () => [] },
@@ -487,6 +490,20 @@ export default {
 		},
 	},
 
+	props: {
+		/**
+		 * The tab the page's address names (REQ-ADM-030). An unknown or
+		 * empty tab opens General.
+		 */
+		tab: {
+			type: String,
+			default: '',
+		},
+	},
+
+	emits: ['tabChange'],
+
+	/** @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
 	data() {
 		return {
 			loading: true,
@@ -526,7 +543,7 @@ export default {
 			// Setup wizard banner state (REQ-WIZ-001).
 			wizardState: null,
 			showWizard: false,
-			activeTab: 'general',
+			activeTab: adminTab(this.tab),
 			// runtime-shell REQ-SHELL-011: the admin tour, its seen version
 			// (null until loaded) and whether it has been mounted.
 			adminTour: adminTourManifest(manifest),
@@ -671,6 +688,16 @@ export default {
 	/** @spec openspec/specs/admin-settings/spec.md */
 	watch: {
 		/**
+		 * Open the tab the address names when it changes (Back, Forward).
+		 *
+		 * @param {string} tab The tab the address names.
+		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 */
+		tab(tab) {
+			this.showTab(adminTab(tab))
+		},
+
+		/**
 		 * Mount the admin tour once it is ready, and keep it mounted when the
 		 * tab changes so a running tour continues (REQ-SHELL-011).
 		 *
@@ -694,15 +721,37 @@ export default {
 		await this.loadWizardState()
 	},
 
+	/** @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
+	mounted() {
+		this.showTab(this.activeTab)
+	},
+
 	methods: {
 		/**
-		 * Switch the active admin tab.
+		 * Switch the active admin tab, and tell the page so its address
+		 * names the tab.
 		 *
 		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
+		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		onTabChange(id) {
 			this.activeTab = id
+			this.$emit('tabChange', id)
+		},
+
+		/**
+		 * Open a tab without a click: the one the address names.
+		 *
+		 * @param {string} id The tab's id.
+		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 */
+		showTab(id) {
+			this.activeTab = id
+			const shell = this.$refs.shell
+			if (shell && shell.chosenTabId !== id) {
+				shell.chosenTabId = id
+			}
 		},
 
 		/**

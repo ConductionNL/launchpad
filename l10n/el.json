@@ -1502,6 +1502,8 @@
         "the profile field {field} of {name} does not match": "το πεδίο προφίλ {field} του χρήστη {name} δεν ταιριάζει",
         "{name} sees this widget: no rule limits who sees it.": "{name}: βλέπει αυτό το γραφικό στοιχείο· κανένας κανόνας δεν περιορίζει ποιος το βλέπει.",
         "{name} sees this widget, because {reasons}.": "{name}: βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}.",
-        "{name} does not see this widget, because {reasons}.": "{name}: δεν βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}."
+        "{name} does not see this widget, because {reasons}.": "{name}: δεν βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Η διαχείριση του Launchpad βρίσκεται σε δική της σελίδα.",
+        "Open Launchpad administration": "Άνοιγμα διαχείρισης Launchpad"
     }
 }

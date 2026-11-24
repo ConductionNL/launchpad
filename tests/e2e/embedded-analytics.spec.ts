@@ -81,7 +81,7 @@ import { BASE_URL } from './support/baseUrl.ts'
 import { adminContext, API } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
-const SETTINGS_PAGE = `${BASE_URL}/index.php/settings/admin/launchpad`
+const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin`
 const STAMP = Date.now().toString(36)
 const TEXT_MARKER = `Embed marker ${STAMP}`
 
@@ -315,7 +315,7 @@ test('an admin issues an embed token in Admin settings and sees its JWT once', a
 		embedId: String(dashboard?.uuid),
 		embedDashboard: String(dashboard?.id),
 	})
-	await page.goto(`${SETTINGS_PAGE}?${query}`)
+	await page.goto(`${SETTINGS_PAGE}/embeds?${query}`)
 	await adminTab(page, 'embeds').click()
 
 	const form = page.locator('[data-test="embed-token-form"]')

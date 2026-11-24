@@ -256,7 +256,7 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 
 		// The administrator declines it on the admin page, with a note.
 		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
-		await page.goto('/index.php/settings/admin/launchpad')
+		await page.goto('/index.php/apps/launchpad/admin')
 		const tab = adminTab(page, 'app-catalogue')
 		await expect(tab).toBeVisible({ timeout: 20_000 })
 		await tab.click()

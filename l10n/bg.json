@@ -1502,6 +1502,8 @@
         "the profile field {field} of {name} does not match": "полето от профила {field} на {name} не съвпада",
         "{name} sees this widget: no rule limits who sees it.": "{name} вижда тази джаджа: никое правило не ограничава кой я вижда.",
         "{name} sees this widget, because {reasons}.": "{name} вижда тази джаджа, защото {reasons}.",
-        "{name} does not see this widget, because {reasons}.": "{name} не вижда тази джаджа, защото {reasons}."
+        "{name} does not see this widget, because {reasons}.": "{name} не вижда тази джаджа, защото {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Администрирането на Launchpad е на отделна страница.",
+        "Open Launchpad administration": "Отваряне на администрирането на Launchpad"
     }
 }

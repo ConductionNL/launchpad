@@ -77,7 +77,7 @@ const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
+const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin`
 
 /** A date rule that matches today, whatever today is. */
 const MATCHES_TODAY: RuleInput = {

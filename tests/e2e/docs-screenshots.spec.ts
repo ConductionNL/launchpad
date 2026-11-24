@@ -432,7 +432,7 @@ test.describe('docs: user track', () => {
 
 test.describe('docs: admin track', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/settings/admin/launchpad')
+		await page.goto('/apps/launchpad/admin')
 		// Wait for the admin surface itself. `goto` already resolves on load;
 		// `networkidle` on top of it never settles on Nextcloud (ADR-074
 		// rule 4), and every test in this block goes straight on to address

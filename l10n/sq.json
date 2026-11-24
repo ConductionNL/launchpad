@@ -1502,6 +1502,8 @@
         "the profile field {field} of {name} does not match": "fusha e profilit {field} e {name} nuk përputhet",
         "{name} sees this widget: no rule limits who sees it.": "{name} e sheh këtë widget: asnjë rregull nuk kufizon se kush e sheh.",
         "{name} sees this widget, because {reasons}.": "{name} e sheh këtë widget, sepse {reasons}.",
-        "{name} does not see this widget, because {reasons}.": "{name} nuk e sheh këtë widget, sepse {reasons}."
+        "{name} does not see this widget, because {reasons}.": "{name} nuk e sheh këtë widget, sepse {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Administrimi i Launchpad ndodhet në një faqe më vete.",
+        "Open Launchpad administration": "Hap administrimin e Launchpad"
     }
 }

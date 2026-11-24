@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "naudotojo {name} profilio laukas {field} neatitinka",
     "{name} sees this widget: no rule limits who sees it." : "{name} mato šį valdiklį: jokia taisyklė neriboja, kas jį mato.",
     "{name} sees this widget, because {reasons}." : "{name} mato šį valdiklį, nes {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} nemato šio valdiklio, nes {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} nemato šio valdiklio, nes {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpad administravimas yra atskirame puslapyje.",
+    "Open Launchpad administration" : "Atidaryti Launchpad administravimą"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

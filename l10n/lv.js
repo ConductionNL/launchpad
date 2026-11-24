@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "lietotāja {name} profila lauks {field} neatbilst",
     "{name} sees this widget: no rule limits who sees it." : "{name} redz šo logrīku: neviens noteikums neierobežo, kas to redz.",
     "{name} sees this widget, because {reasons}." : "{name} redz šo logrīku, jo {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} neredz šo logrīku, jo {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} neredz šo logrīku, jo {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpad administrēšana atrodas atsevišķā lapā.",
+    "Open Launchpad administration" : "Atvērt Launchpad administrēšanu"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

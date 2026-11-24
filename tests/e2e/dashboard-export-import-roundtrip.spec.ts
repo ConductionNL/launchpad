@@ -59,7 +59,7 @@ const ADMIN = {
 
 const API = '/index.php/apps/launchpad/api'
 const SETTINGS = `${API}/admin/settings`
-const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
+const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
 const APP_URL = '/index.php/apps/launchpad'
 
 const STAMP = Date.now()

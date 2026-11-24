@@ -45,7 +45,7 @@ import {
 } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
-const ADMIN_SETTINGS = '/index.php/settings/admin/launchpad'
+const ADMIN_SETTINGS = '/index.php/apps/launchpad/admin'
 const PREFIX = 'initial-state-launchpad-'
 const RUN = Date.now()
 const NAME = `E2E Initial state ${RUN}`

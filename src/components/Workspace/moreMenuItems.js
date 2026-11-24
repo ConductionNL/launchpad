@@ -9,7 +9,6 @@
 
 import { CnDashboardIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { h, markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
@@ -32,6 +31,7 @@ import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
+import { adminPageUrl } from '../../utils/adminPage.js'
 
 /**
  * The sections of the navigation panel, in the panel's order.
@@ -174,6 +174,7 @@ export function resolveMenuItem(item, openUserSettings) {
  * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
  * @return {Record<string, object[]>} The menu items by section.
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 export function startPageSections(chrome, openUserSettings) {
 	const bySection = Object.fromEntries(SECTIONS.map((s) => [s, []]))
@@ -199,9 +200,8 @@ export function startPageSections(chrome, openUserSettings) {
 		settings.push({
 			id: 'admin-settings-link',
 			label: t('launchpad', 'Admin settings'),
-			href: generateUrl('/settings/admin/{appId}', {
-				appId: 'launchpad',
-			}),
+			// The administration, a Launchpad page (admin-settings REQ-ADM-030).
+			href: adminPageUrl(),
 			external: false,
 		})
 	}
@@ -265,22 +265,6 @@ export function dashboardMeta(isDefault, source) {
 }
 
 /**
- * The Dashboards group: the person's own dashboards, then the shared and
- * group ones, at most DASHBOARD_LIMIT, the open one checked, and "All
- * dashboards" last.
- *
- * @param {object} options The dashboards and what choosing one does.
- * @param {object[]} options.userDashboards The person's own dashboards.
- * @param {object[]} options.groupDashboards The group, default and shared dashboards.
- * @param {object[]} options.sharedDashboards Which of those came through a share.
- * @param {string|number|null} options.activeId The open dashboard's id.
- * @param {string} options.defaultUuid The uuid of the person's default dashboard.
- * @param {(id: string|number, source: string) => void} options.onSwitch Open a dashboard.
- * @param {() => void} options.onOpenAll Open the full list.
- * @return {object[]} The items.
- * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
- */
-/**
  * The glyph a dashboard row shows: the dashboard's own icon (LpMeer draws
  * Today's house, a chart for management information, a megaphone for the
  * intranet), else the default dashboard's house or the generic dashboard.
@@ -307,6 +291,22 @@ export function dashboardIcon(dashboard, isDefault) {
 	})
 }
 
+/**
+ * The Dashboards group: the person's own dashboards, then the shared and
+ * group ones, at most DASHBOARD_LIMIT, the open one checked, and "All
+ * dashboards" last.
+ *
+ * @param {object} options The dashboards and what choosing one does.
+ * @param {object[]} options.userDashboards The person's own dashboards.
+ * @param {object[]} options.groupDashboards The group, default and shared dashboards.
+ * @param {object[]} options.sharedDashboards Which of those came through a share.
+ * @param {string|number|null} options.activeId The open dashboard's id.
+ * @param {string} options.defaultUuid The uuid of the person's default dashboard.
+ * @param {(id: string|number, source: string) => void} options.onSwitch Open a dashboard.
+ * @param {() => void} options.onOpenAll Open the full list.
+ * @return {object[]} The items.
+ * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+ */
 export function dashboardItems({
 	userDashboards = [],
 	groupDashboards = [],

@@ -20,7 +20,7 @@ vi.mock('@conduction/nextcloud-vue', async (importOriginal) => ({
 	NcActionButton: { name: 'NcActionButton', emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' },
 }))
 
-const href = '/index.php/settings/admin/launchpad?tab=embeds&embedType=widget&embedId=5&embedDashboard=7'
+const href = '/index.php/apps/launchpad/admin/embeds?tab=embeds&embedType=widget&embedId=5&embedDashboard=7'
 const stubs = {
 	WidgetRenderer: true,
 	AcknowledgementPrompt: true,

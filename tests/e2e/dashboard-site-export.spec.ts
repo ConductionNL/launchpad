@@ -49,7 +49,7 @@ const ADMIN = {
 }
 
 const API = '/index.php/apps/launchpad/api'
-const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
+const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
 const STAMP = `E2E SiteExport ${Date.now()}`
 
 /** An admin-authenticated request context using HTTP Basic auth. */

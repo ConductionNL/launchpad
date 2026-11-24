@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "il-qasam tal-profil {field} ta' {name} ma jaqbilx",
     "{name} sees this widget: no rule limits who sees it." : "{name} jara dan il-widget: l-ebda regola ma tillimita min jarah.",
     "{name} sees this widget, because {reasons}." : "{name} jara dan il-widget, għax {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} ma jarax dan il-widget, għax {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} ma jarax dan il-widget, għax {reasons}.",
+    "The Launchpad administration is on a page of its own." : "L-amministrazzjoni ta' Launchpad tinsab f'paġna għaliha.",
+    "Open Launchpad administration" : "Iftaħ l-amministrazzjoni ta' Launchpad"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

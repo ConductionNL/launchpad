@@ -56,9 +56,13 @@ class NotifierTest extends TestCase {
 		$factory->method('get')->willReturn($l);
 		$urls = $this->createMock(IURLGenerator::class);
 		$urls->method('linkToRouteAbsolute')->willReturnCallback(
-			static fn (string $routeName, array $arguments = []): string => $routeName === 'settings.AdminSettings.index'
-				? 'https://host/settings/admin/' . ($arguments['section'] ?? '')
-				: 'https://host/apps/launchpad/'
+			static function (string $routeName, array $arguments = []): string {
+				if ($routeName === 'launchpad.adminPage.show') {
+					return 'https://host/apps/launchpad/admin/' . ($arguments['tab'] ?? '');
+				}
+
+				return 'https://host/apps/launchpad/';
+			}
 		);
 		$mapper = $this->createMock(DashboardMapper::class);
 		$mapper->method('find')->willReturnCallback(
@@ -116,7 +120,7 @@ class NotifierTest extends TestCase {
 				'setParsedSubject ["[Token Zeist WOO has been revoked by admin]"]',
 				'setRichMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]",[]]',
 				'setParsedMessage ["[Reason: no_longer_needed]\\n[Notes: In-house now]\\n[Revocation timestamp: 2026-05-22T14:35:00Z]"]',
-				'setLink ["https:\\/\\/host\\/settings\\/admin\\/launchpad"]',
+				'setLink ["https:\\/\\/host\\/apps\\/launchpad\\/admin\\/embeds"]',
 			]],
 			['mentioned_in_comment', 'abc/1', ['alice'], [
 				'setRichSubject ["[alice mentioned you in a dashboard comment]",[]]',
@@ -197,7 +201,7 @@ class NotifierTest extends TestCase {
 				'setParsedSubject ["[Pieter asked for the app Kaartviewer]"]',
 				'setRichMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]",[]]',
 				'setParsedMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]"]',
-				'setLink ["https:\/\/host\/settings\/admin\/launchpad"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/admin\/app-catalogue"]',
 			]],
 			['app_request_decided', ['Kaartviewer', 'approved', ''], [
 				'setRichSubject ["[**Kaartviewer** is now in the app catalogue]",[]]',
@@ -224,7 +228,7 @@ class NotifierTest extends TestCase {
 	}//end testAppCatalogueSubjectsRenderTheirText()
 
 	/**
-	 * A request links to the LaunchPad admin section, a decision to LaunchPad.
+	 * A request links to the App catalogue tab of the administration page, a decision to LaunchPad.
 	 *
 	 * @return void
 	 */
@@ -240,7 +244,7 @@ class NotifierTest extends TestCase {
 		$notifier = new Notifier(l10nFactory: $factory, urlGenerator: $urls, dashboardMapper: $this->createMock(DashboardMapper::class));
 
 		$notifier->prepare(notification: $this->notification(subject: 'app_requested', objectId: 'r', params: ['a', 'b']), languageCode: 'en');
-		$this->assertSame('setLink ["settings.AdminSettings.index?section=launchpad"]', $this->calls[4]);
+		$this->assertSame(expected: 'setLink ["launchpad.adminPage.show?tab=app-catalogue"]', actual: $this->calls[4]);
 
 		$notifier->prepare(notification: $this->notification(subject: 'app_request_decided', objectId: 'r', params: ['b', 'approved']), languageCode: 'en');
 		$this->assertSame('setLink ["launchpad.page.index?"]', $this->calls[4]);

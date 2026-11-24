@@ -369,56 +369,78 @@ class PublicShareService {
 		#[\SensitiveParameter]
 		?string $password = null,
 	): array {
-		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
-
-		// Password gate.
-		if ($this->lacksPassword(share: $share, password: $password) === true) {
-			throw new SharePasswordRequiredException();
-		}
-
-		if ($this->rejectsPassword(share: $share, password: $password) === true) {
-			$this->registerPasswordFailure(ipAddress: $ipAddress);
-			throw new SharePasswordRequiredException();
-		}
+		$share = $this->openShare(token: $token, ipAddress: $ipAddress, password: $password);
 
 		return $this->shareContent(share: $share, visit: new PublicShareVisit(token: $token, ipAddress: $ipAddress));
 	}//end renderShareContent()
 
 	/**
-	 * Whether a password-protected share was opened without a password.
+	 * The id of the dashboard an active share shows, behind the same token
+	 * and password gate as the render, without counting a visit: a widget on
+	 * the shared page reads its data through it (REQ-PSHR-011).
 	 *
-	 * @param PublicShare $share    The active share.
-	 * @param string|null $password The supplied password.
+	 * @param string      $token     The share token.
+	 * @param string      $ipAddress Client IP address for throttling.
+	 * @param string|null $password  Plaintext password supplied by the client.
 	 *
-	 * @return bool True when a password is needed but missing.
+	 * @return integer The shared dashboard's id.
+	 *
+	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
+	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
+	 * @throws DoesNotExistException When the shared dashboard was deleted.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	private function lacksPassword(
-		PublicShare $share,
+	public function sharedDashboardId(
+		string $token,
+		string $ipAddress,
 		#[\SensitiveParameter]
-		?string $password,
-	): bool {
-		return $share->getPasswordHash() !== null && ($password === null || $password === '');
-	}//end lacksPassword()
+		?string $password = null,
+	): int {
+		$share = $this->openShare(token: $token, ipAddress: $ipAddress, password: $password);
+
+		return (int)$this->dashMapper->findByUuid(uuid: (string)$share->getDashboardUuid())->getId();
+	}//end sharedDashboardId()
 
 	/**
-	 * Whether a password-protected share was opened with a wrong password.
+	 * The active share behind a token, once its password gate is passed.
 	 *
-	 * @param PublicShare $share    The active share.
-	 * @param string|null $password The supplied, non-empty password.
+	 * @param string      $token     The share token.
+	 * @param string      $ipAddress Client IP address for throttling.
+	 * @param string|null $password  Plaintext password supplied by the client.
 	 *
-	 * @return bool True when the password does not match.
+	 * @return PublicShare The opened share.
+	 *
+	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
+	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	private function rejectsPassword(
-		PublicShare $share,
+	private function openShare(
+		string $token,
+		string $ipAddress,
 		#[\SensitiveParameter]
 		?string $password,
-	): bool {
-		return $share->getPasswordHash() !== null
-			&& $this->hasher->verify(
-				message: (string)$password,
-				hash: (string)$share->getPasswordHash()
-			) === false;
-	}//end rejectsPassword()
+	): PublicShare {
+		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
+
+		// Password gate: an open share passes, a protected one needs the right password.
+		$hash = $share->getPasswordHash();
+		if ($hash === null) {
+			return $share;
+		}
+
+		if ($password === null || $password === '') {
+			throw new SharePasswordRequiredException();
+		}
+
+		if ($this->hasher->verify(message: $password, hash: $hash) === false) {
+			$this->registerPasswordFailure(ipAddress: $ipAddress);
+			throw new SharePasswordRequiredException();
+		}
+
+		return $share;
+	}//end openShare()
 
 	/**
 	 * Record a failed password attempt for throttling.

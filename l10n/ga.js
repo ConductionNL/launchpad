@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "ní mheaitseálann réimse próifíle {field} de chuid {name}",
     "{name} sees this widget: no rule limits who sees it." : "Feiceann {name} an ghiuirléid seo: níl aon riail ag teorannú cé a fheiceann í.",
     "{name} sees this widget, because {reasons}." : "Feiceann {name} an ghiuirléid seo, mar {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "Ní fheiceann {name} an ghiuirléid seo, mar {reasons}."
+    "{name} does not see this widget, because {reasons}." : "Ní fheiceann {name} an ghiuirléid seo, mar {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Tá riarachán Launchpad ar a leathanach féin.",
+    "Open Launchpad administration" : "Oscail riarachán Launchpad"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

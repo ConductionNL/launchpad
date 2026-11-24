@@ -2063,7 +2063,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "the profile field {field} of {name} does not match",
     "{name} sees this widget: no rule limits who sees it." : "{name} sees this widget: no rule limits who sees it.",
     "{name} sees this widget, because {reasons}." : "{name} sees this widget, because {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} does not see this widget, because {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} does not see this widget, because {reasons}.",
+    "The Launchpad administration is on a page of its own." : "The Launchpad administration is on a page of its own.",
+    "Open Launchpad administration" : "Open Launchpad administration"
 },
 "nplurals=2; plural=(n != 1);"
 );

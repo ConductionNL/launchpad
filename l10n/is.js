@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "prófílsviðið {field} hjá {name} passar ekki",
     "{name} sees this widget: no rule limits who sees it." : "{name} sér þessa græju: engin regla takmarkar hver sér hana.",
     "{name} sees this widget, because {reasons}." : "{name} sér þessa græju, vegna þess að {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} sér ekki þessa græju, vegna þess að {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} sér ekki þessa græju, vegna þess að {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Stjórnun Launchpad er á sérstakri síðu.",
+    "Open Launchpad administration" : "Opna stjórnun Launchpad"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

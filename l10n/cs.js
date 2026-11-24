@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "pole profilu {field} uživatele {name} neodpovídá",
     "{name} sees this widget: no rule limits who sees it." : "{name} vidí tento widget: žádné pravidlo neomezuje, kdo ho vidí.",
     "{name} sees this widget, because {reasons}." : "{name} vidí tento widget, protože {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} nevidí tento widget, protože {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} nevidí tento widget, protože {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Správa Launchpadu má vlastní stránku.",
+    "Open Launchpad administration" : "Otevřít správu Launchpadu"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

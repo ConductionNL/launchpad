@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "pole profilu {field} użytkownika {name} nie pasuje",
     "{name} sees this widget: no rule limits who sees it." : "{name} widzi ten widżet: żadna reguła nie ogranicza, kto go widzi.",
     "{name} sees this widget, because {reasons}." : "{name} widzi ten widżet, ponieważ {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} nie widzi tego widżetu, ponieważ {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} nie widzi tego widżetu, ponieważ {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Administracja Launchpad znajduje się na osobnej stronie.",
+    "Open Launchpad administration" : "Otwórz administrację Launchpad"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

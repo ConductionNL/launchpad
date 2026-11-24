@@ -1593,6 +1593,8 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "поле профілю {field} карыстальніка {name} не супадае",
     "{name} sees this widget: no rule limits who sees it." : "{name} бачыць гэты віджэт: ніводнае правіла не абмяжоўвае, хто яго бачыць.",
     "{name} sees this widget, because {reasons}." : "{name} бачыць гэты віджэт, таму што {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} не бачыць гэты віджэт, таму што {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} не бачыць гэты віджэт, таму што {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Адміністраванне Launchpad знаходзіцца на асобнай старонцы.",
+    "Open Launchpad administration" : "Адкрыць адміністраванне Launchpad"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

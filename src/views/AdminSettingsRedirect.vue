@@ -14,21 +14,17 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
+import { adminPageUrl } from '../utils/adminPage.js'
 
 /**
- * Sends the two admin manifest pages to where the admin surface actually is.
+ * Loads the administration page from the server when it was reached inside
+ * the app, from another page (`AdminPage.vue`).
  *
- * 🔴 LAUNCHPAD'S ADMINISTRATION IS A NEXTCLOUD SETTINGS SECTION, not an in-app
- * page. `lib/Settings/LaunchPadAdmin.php` registers it and `src/admin.js`
- * mounts `AdminSettings.vue` there. The manifest declared `/admin/settings` and
- * `/admin/templates` as pages of this app anyway, naming a component
- * (`AdminSettingsPage`) that has never existed, and `TemplatesPage` — which is
- * a TAB inside that settings section rather than a page.
- *
- * Routing them to half an admin surface beside the real one would be worse than
- * the dead links they were. This resolves the route, so the menu entries work,
- * and lands the operator where the functionality lives.
+ * The administration is a Launchpad page at `/apps/launchpad/admin/<tab>`
+ * (REQ-ADM-030). The server renders it only for a (delegated) administrator,
+ * and only then with the administration's initial state; a route change
+ * inside the app has neither. So the browser goes to that address, on the
+ * tab the route names.
  *
  * The visible anchor is not decoration: a redirect that only runs in `mounted`
  * leaves a blank page for anyone whose navigation is blocked or slow, and gives
@@ -37,16 +33,25 @@ import { generateUrl } from '@nextcloud/router'
 export default {
 	name: 'AdminSettingsRedirect',
 
+	props: {
+		/** The tab to open. */
+		tab: {
+			type: String,
+			default: '',
+		},
+	},
+
 	computed: {
 		/**
-		 * The Nextcloud admin section for this app.
+		 * The administration page on the tab.
 		 *
-		 * @return {string} The settings URL.
+		 * @return {string} The page's URL.
 		 *
 		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-006-a-declared-page-names-a-component-that-exists
+		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		target() {
-			return generateUrl('/settings/admin/launchpad')
+			return adminPageUrl(this.tab)
 		},
 	},
 

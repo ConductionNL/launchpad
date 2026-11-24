@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "câmpul de profil {field} al lui {name} nu se potrivește",
     "{name} sees this widget: no rule limits who sees it." : "{name} vede acest widget: nicio regulă nu limitează cine îl vede.",
     "{name} sees this widget, because {reasons}." : "{name} vede acest widget, deoarece {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} nu vede acest widget, deoarece {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} nu vede acest widget, deoarece {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Administrarea Launchpad se află pe o pagină separată.",
+    "Open Launchpad administration" : "Deschide administrarea Launchpad"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

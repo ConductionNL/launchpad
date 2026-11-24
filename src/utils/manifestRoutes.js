@@ -65,8 +65,8 @@ export function routesFromManifest(manifest, component) {
  *
  * READ IT FOR WHAT IT IS. This stops the page from rendering. It is not an
  * authorization boundary and nothing behind it depends on it: launchpad's
- * two gated pages redirect to a Nextcloud settings section that Nextcloud
- * gates server-side, and its data endpoints check the caller themselves.
+ * administration page is checked by the server before it renders
+ * (`AdminPageController`), and its data endpoints check the caller themselves.
  *
  * @param {object}        to          The route being entered.
  * @param {Array<string>} permissions The permissions the account holds.
@@ -74,6 +74,7 @@ export function routesFromManifest(manifest, component) {
  * @return {boolean|object} True to allow, or the redirect target.
  *
  * @spec openspec/specs/runtime-shell/spec.md
+ * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 export function permissionGuard(to, permissions) {
 	if (permits(to?.meta?.permission, permissions)) {

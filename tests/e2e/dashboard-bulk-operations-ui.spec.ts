@@ -42,7 +42,7 @@ const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const SETTINGS_PAGE = `${BASE_URL}/index.php/settings/admin/launchpad`
+const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin`
 const PREFIX = `E2E BulkUI ${Date.now()}`
 const PANEL = '[data-test="bulk-ops"]'
 

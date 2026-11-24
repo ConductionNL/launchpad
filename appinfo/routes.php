@@ -52,6 +52,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 
+		// The administration, a Launchpad page over the full width (REQ-ADM-030).
+		// `/admin` opens General. Registered before the `/{deepLink}` catch-all.
+		['name' => 'adminPage#show', 'url' => '/admin/{tab}', 'verb' => 'GET',
+		 'defaults' => ['tab' => 'general'], 'requirements' => ['tab' => '[a-z0-9\-]+']],
+
 		// User dashboard endpoints (REQ-DASH-002..010).
 		// NOTE: specific routes (`/visible`, `/group/...`, `/active`, `/{uuid}/fork`) MUST precede the
 		// wildcard `{id}` routes — Symfony matches the first that fits and

@@ -69,7 +69,7 @@ const RUN = Date.now()
 const STAMP = `E2E Shipped ${RUN}`
 const UUID_KEY = 'shipped_template_mijn-werkdag'
 const VERSION_KEY = 'shipped_template_version_mijn-werkdag'
-const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad?tab=templates`
+const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin/templates`
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',

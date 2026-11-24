@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "{name} {field} profilmezője nem egyezik",
     "{name} sees this widget: no rule limits who sees it." : "{name} látja ezt a widgetet: egy szabály sem korlátozza, ki látja.",
     "{name} sees this widget, because {reasons}." : "{name} látja ezt a widgetet, mert {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} nem látja ezt a widgetet, mert {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} nem látja ezt a widgetet, mert {reasons}.",
+    "The Launchpad administration is on a page of its own." : "A Launchpad adminisztrációja külön oldalon található.",
+    "Open Launchpad administration" : "Launchpad-adminisztráció megnyitása"
 },
 "nplurals=2; plural=(n != 1);"
 );

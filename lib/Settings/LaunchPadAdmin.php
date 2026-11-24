@@ -3,11 +3,12 @@
 /**
  * LaunchPadAdmin
  *
- * Admin settings page for LaunchPad. Wires the typed admin initial-state
- * contract via {@see \OCA\LaunchPad\Service\InitialStateBuilder} (REQ-INIT-001,
- * REQ-INIT-002). Direct calls to
- * {@see \OCP\AppFramework\Services\IInitialState::provideInitialState()}
- * are forbidden here by the `lint:initial-state` CI guard.
+ * Launchpad's entry under Nextcloud's administration settings. The
+ * administration itself is a Launchpad page over the full width
+ * (`/apps/launchpad/admin/{tab}`, {@see \OCA\LaunchPad\Controller\AdminPageController});
+ * this entry says so in one line and links to it (REQ-ADM-031). The class
+ * is still the setting Nextcloud's admin delegation grants, which the
+ * administrator endpoints name in `#[AuthorizedAdminSetting]`.
  *
  * @category  Settings
  * @package   OCA\LaunchPad\Settings
@@ -26,61 +27,40 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Settings;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AdminSettingsService;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
-use OCP\IGroupManager;
+use OCP\IURLGenerator;
 use OCP\Settings\IDelegatedSettings;
-use OCP\Util;
 
 class LaunchPadAdmin implements IDelegatedSettings {
 	/**
 	 * Constructor.
 	 *
-	 * @param IInitialState        $initialState The Nextcloud initial-state service.
-	 * @param IGroupManager        $groupManager Group manager (full group list).
-	 * @param AdminPageSources     $sources The widget service, setting mapper, dashboard service and file service.
-	 * @param AdminSettingsService $settingsService Admin-settings service exposing the `group_order` setting
-	 *                                              (REQ-ASET-012).
+	 * @param IURLGenerator $urlGenerator Builds the address of the administration page.
+	 *
+	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
 	 */
 	public function __construct(
-		private readonly IInitialState $initialState,
-		private readonly IGroupManager $groupManager,
-		private readonly AdminPageSources $sources,
-		private readonly AdminSettingsService $settingsService,
+		private readonly IURLGenerator $urlGenerator,
 	) {
 	}//end __construct()
 
 	/**
-	 * Get the admin settings form.
-	 *
-	 * Wires the full admin initial-state contract (REQ-INIT-002) before
-	 * rendering the template — every required key is set on the builder
-	 * so the page never renders with a partial payload.
-	 *
-	 * NOTE: Nextcloud admin-UI registration boilerplate; behaviour defined
-	 * by the OCP\Settings\ISettings contract, not a LaunchPad spec. Intentionally
-	 * left without an `@spec` tag (see
-	 * `openspec/changes/archive/2026-05-03-spec-annotation-pass/design.md`).
+	 * The settings entry: one line and a link to the administration page.
 	 *
 	 * @return TemplateResponse The template response.
+	 *
+	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
 	 */
 	public function getForm(): TemplateResponse {
-		Util::addScript(
-			application: Application::APP_ID,
-			file: 'launchpad-admin'
-		);
-
-		(new AdminFormState(
-			initialState: $this->initialState,
-			groupManager: $this->groupManager,
-			sources: $this->sources,
-			settingsService: $this->settingsService
-		))->provide();
-
 		return new TemplateResponse(
 			appName: Application::APP_ID,
-			templateName: 'settings/admin'
+			templateName: 'settings/admin',
+			params: [
+				'adminPageUrl' => $this->urlGenerator->linkToRoute(
+					routeName: Application::APP_ID . '.adminPage.show',
+					arguments: ['tab' => 'general']
+				),
+			]
 		);
 	}//end getForm()
 

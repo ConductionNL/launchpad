@@ -2491,7 +2491,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "het profielveld {field} van {name} klopt niet",
     "{name} sees this widget: no rule limits who sees it." : "{name} ziet deze widget: geen regel beperkt wie hem ziet.",
     "{name} sees this widget, because {reasons}." : "{name} ziet deze widget, omdat {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} ziet deze widget niet, omdat {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} ziet deze widget niet, omdat {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Het beheer van Launchpad staat op een eigen pagina.",
+    "Open Launchpad administration" : "Open Launchpad-beheer"
 },
 "nplurals=2; plural=(n != 1);"
 );

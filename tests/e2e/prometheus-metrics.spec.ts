@@ -57,7 +57,7 @@ const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 const METRICS = `${API}/metrics`
 const HEALTH = `${API}/health`
 const CONTENT_TYPE = 'text/plain; version=0.0.4; charset=utf-8'
-const SETTINGS_PAGE = `${BASE_URL}/index.php/settings/admin/launchpad`
+const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin`
 const STAMP = Date.now()
 
 /** The HELP and TYPE lines every metric family must keep (REQ-PROM-001). */

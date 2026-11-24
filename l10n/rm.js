@@ -1602,7 +1602,9 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "il champ dal profil {field} da {name} na correspunda betg",
     "{name} sees this widget: no rule limits who sees it." : "{name} vesa quest widget: nagina regla na limitescha tgi che al vesa.",
     "{name} sees this widget, because {reasons}." : "{name} vesa quest widget, perquai che {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} na vesa betg quest widget, perquai che {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} na vesa betg quest widget, perquai che {reasons}.",
+    "The Launchpad administration is on a page of its own." : "L'administraziun da Launchpad è sin ina pagina separada.",
+    "Open Launchpad administration" : "Avrir l'administraziun da Launchpad"
 },
 "nplurals=2; plural=(n != 1);"
 );

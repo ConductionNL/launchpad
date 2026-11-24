@@ -91,8 +91,6 @@ choice, a GroupFolder backend, or the `launchpad:storage:*` commands, and the da
 - **WHEN** an administrator lists the `occ` commands
 - **THEN** no `launchpad:storage:migrate-to-groupfolder` or storage toggle command is listed
 
-@e2e exclude A console (occ) command listing, no HTTP or browser surface and Playwright cannot run occ. The absence holds by construction: lib/Command/ has no storage command class and appinfo/info.xml registers none, but no test asserts the listing.
-
 #### Scenario: A dashboard has no content blob
 
 - **GIVEN** a dashboard with widgets

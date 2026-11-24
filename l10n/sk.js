@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} a {last}",
+    "{list} and {count} more" : "{list} a ďalšie {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "Jeden widget nefunguje na telefóne a je skrytý: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Počet widgetov, ktoré nefungujú na telefóne a sú skryté: {count}. {names}.",
+    "Which?" : "Ktoré?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Niektoré widgety potrebujú väčšiu obrazovku, preto ich telefón skryje. Na tablete alebo počítači ich uvidíte ako zvyčajne.",
     "Display" : "Zobrazenie",
     "Theme" : "Motív",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Motív je rovnaký pre každý panel. Vlastné farby tohto panela nastavíte v časti „Vlastný vzhľad“.",

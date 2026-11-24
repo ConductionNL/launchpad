@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} ja {last}",
+    "{list} and {count} more" : "{list} ja {count} muuta",
+    "One widget does not work on a phone and is hidden: {names}." : "Yksi pienoissovellus ei toimi puhelimessa ja on piilotettu: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} pienoissovellusta ei toimi puhelimessa ja ne on piilotettu: {names}.",
+    "Which?" : "Mitkä?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Jotkin pienoissovellukset tarvitsevat suuremman näytön, joten puhelin piilottaa ne. Tabletilla tai tietokoneella näet ne tavalliseen tapaan.",
     "Display" : "Näyttö",
     "Theme" : "Teema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Teema on sama kaikilla koontinäytöillä. Tämän koontinäytön omat värit asetetaan kohdassa ”Oma ulkoasu”.",

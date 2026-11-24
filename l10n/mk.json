@@ -1426,6 +1426,12 @@
         "Year": "Година",
         "Display": "Приказ",
         "Theme": "Тема",
-        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Темата е иста за секоја контролна табла. Сопствените бои на оваа табла ги поставувате во „Сопствен изглед“."
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Темата е иста за секоја контролна табла. Сопствените бои на оваа табла ги поставувате во „Сопствен изглед“.",
+        "{list} and {last}": "{list} и {last}",
+        "{list} and {count} more": "{list} и уште {count}",
+        "One widget does not work on a phone and is hidden: {names}.": "Еден виџет не работи на телефон и е скриен: {names}.",
+        "{count} widgets do not work on a phone and are hidden: {names}.": "Број на виџети што не работат на телефон и се скриени: {count}. {names}.",
+        "Which?": "Кои?",
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "На некои виџети им треба поголем екран, па телефонот ги скрива. На таблет или компјутер ги гледате како и обично."
     }
 }

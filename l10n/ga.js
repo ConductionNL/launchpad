@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} agus {last}",
+    "{list} and {count} more" : "{list} agus {count} eile",
+    "One widget does not work on a phone and is hidden: {names}." : "Ní oibríonn giuirléid amháin ar fhón agus tá sí i bhfolach: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Líon na ngiuirléidí nach n-oibríonn ar fhón agus atá i bhfolach: {count}. {names}.",
+    "Which?" : "Cé acu?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Teastaíonn scáileán níos mó ó roinnt giuirléidí, mar sin cuireann fón i bhfolach iad. Ar thaibléad nó ar ríomhaire feiceann tú iad mar is gnáth.",
     "Display" : "Taispeáint",
     "Theme" : "Téama",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Is ionann an téama do gach painéal. Socraítear dathanna an phainéil seo faoi “Cuma féin”.",

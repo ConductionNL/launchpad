@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} și {last}",
+    "{list} and {count} more" : "{list} și încă {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "Un widget nu funcționează pe telefon și este ascuns: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Numărul de widgeturi care nu funcționează pe telefon și sunt ascunse: {count}. {names}.",
+    "Which?" : "Care?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Unele widgeturi au nevoie de un ecran mai mare, așa că telefonul le ascunde. Pe o tabletă sau un computer le vedeți ca de obicei.",
     "Display" : "Afișare",
     "Theme" : "Temă",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Tema este aceeași pentru fiecare tablou de bord. Culorile proprii ale acestui tablou se setează la „Aspect propriu”.",

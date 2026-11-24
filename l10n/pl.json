@@ -1428,6 +1428,12 @@
         "Year": "Rok",
         "Display": "Wyświetlanie",
         "Theme": "Motyw",
-        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Motyw jest taki sam dla każdego pulpitu. Własne kolory tego pulpitu ustawisz w sekcji „Własny wygląd”."
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Motyw jest taki sam dla każdego pulpitu. Własne kolory tego pulpitu ustawisz w sekcji „Własny wygląd”.",
+        "{list} and {last}": "{list} i {last}",
+        "{list} and {count} more": "{list} i jeszcze {count}",
+        "One widget does not work on a phone and is hidden: {names}.": "Jeden widżet nie działa na telefonie i jest ukryty: {names}.",
+        "{count} widgets do not work on a phone and are hidden: {names}.": "Liczba widżetów, które nie działają na telefonie i są ukryte: {count}. {names}.",
+        "Which?": "Które?",
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Niektóre widżety potrzebują większego ekranu, więc telefon je ukrywa. Na tablecie lub komputerze widzisz je jak zwykle."
     }
 }

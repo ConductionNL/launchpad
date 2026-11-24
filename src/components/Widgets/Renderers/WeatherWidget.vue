@@ -141,6 +141,19 @@ export default {
 		 * @type {{id?: number|string}|null}
 		 */
 		placement: NULLABLE_OBJECT_PROP,
+
+		/**
+		 * Where the reading comes from instead of LaunchPad's per-placement
+		 * endpoint: a function of the placement id that resolves the reading.
+		 * A public link or kiosk screen passes its token-scoped read here
+		 * (REQ-PSHR-011); null (the default) is the signed-in dashboard.
+		 *
+		 * @type {(function((number|string)): Promise<object>)|null}
+		 */
+		readingSource: {
+			type: Function,
+			default: null,
+		},
 	},
 
 	data() {
@@ -233,12 +246,13 @@ export default {
 		 * reachable from here.
 		 *
 		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-001
+		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 * @return {Promise<void>}
 		 */
 		async load() {
 			await loadPlacementReading(this, {
 				placementId: this.placement?.id,
-				fetch: fetchWeatherReading,
+				fetch: this.readingSource ?? fetchWeatherReading,
 				unsaved: t(
 					'launchpad',
 					'Weather is not available until this tile is saved.',

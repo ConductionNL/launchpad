@@ -245,3 +245,18 @@ describe('KioskPlayerView', () => {
 		expect(document.documentElement.classList.contains('launchpad-kiosk--idle')).toBe(false)
 	})
 })
+
+describe('KioskPlayerView live widgets (REQ-PSHR-011)', () => {
+	it('reads the live widgets through the playlist token', async () => {
+		serve([ok])
+		const wrapper = mountPlayer()
+		await flushPromises()
+		axios.get.mockResolvedValueOnce({ data: { widget: 'livetile', data: { value: 7 } } })
+
+		const result = await wrapper.vm.readWidget(9)
+
+		expect(axios.get).toHaveBeenLastCalledWith('/index.php/apps/launchpad/kiosk/tok/placements/9', { headers: {} })
+		expect(result).toEqual({ widget: 'livetile', data: { value: 7 } })
+		wrapper.unmount()
+	})
+})

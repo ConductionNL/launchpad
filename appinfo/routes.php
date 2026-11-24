@@ -557,6 +557,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// REQ-IMG-006: the external hosts image widgets may load from.
 		['name' => 'imageHost#show', 'url' => '/api/admin/image-hosts', 'verb' => 'GET'],
 		['name' => 'imageHost#update', 'url' => '/api/admin/image-hosts', 'verb' => 'PUT'],
+		// REQ-ASET-021: the outside websites launchpad may embed or fetch from.
+		['name' => 'allowedSites#show', 'url' => '/api/admin/allowed-sites', 'verb' => 'GET'],
+		['name' => 'allowedSites#update', 'url' => '/api/admin/allowed-sites', 'verb' => 'PUT'],
 
 		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the

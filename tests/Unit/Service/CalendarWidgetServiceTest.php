@@ -127,19 +127,48 @@ class CalendarWidgetServiceTest extends TestCase {
 	}
 
 	public function testAllowListRejectsNonMatchingHost(): void {
-		$this->appConfig->method('getValueString')
-			->with('launchpad', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
-			->willReturn(json_encode(['calendar.example.com']));
+		$this->appConfig->method('getValueString')->willReturnCallback(
+			static fn (string $app, string $key, string $default = ''): string => match ($key) {
+				CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS => (string)json_encode(value: ['calendar.example.com']),
+				default => $default,
+			}
+		);
 		$svc = $this->makeServiceWithRealValidator();
 		$this->assertFalse($svc->checkAllowList('https://untrusted.test/cal.ics'));
 	}
 
 	public function testAllowListNoSubdomainExpansion(): void {
-		$this->appConfig->method('getValueString')
-			->with('launchpad', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
-			->willReturn(json_encode(['example.com']));
+		$this->appConfig->method('getValueString')->willReturnCallback(
+			static fn (string $app, string $key, string $default = ''): string => match ($key) {
+				CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS => (string)json_encode(value: ['example.com']),
+				default => $default,
+			}
+		);
 		$svc = $this->makeServiceWithRealValidator();
 		$this->assertFalse($svc->checkAllowList('https://sub.example.com/cal.ics'));
+	}
+
+	/**
+	 * REQ-ASET-021: a host on the allowed websites with purpose fetch passes a
+	 * set calendar list; one with purpose embed only does not.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 */
+	public function testAllowedWebsitesForFetchPassASetCalendarList(): void {
+		$this->appConfig->method('getValueString')->willReturnCallback(
+			static fn (string $app, string $key, string $default = ''): string => match ($key) {
+				CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS => '["calendar.example.com"]',
+				'allowed_sites' => '[{"host":"feeds.example.org","embed":false,"fetch":true},'
+					. '{"host":"embed.example.org","embed":true,"fetch":false}]',
+				default => $default,
+			}
+		);
+		$svc = $this->makeServiceWithRealValidator();
+		$this->assertTrue(condition: $svc->checkAllowList(url: 'https://feeds.example.org/cal.ics'));
+		$this->assertFalse(condition: $svc->checkAllowList(url: 'https://embed.example.org/cal.ics'));
+		$this->assertTrue(condition: $svc->checkAllowList(url: 'https://calendar.example.com/cal.ics'));
 	}
 
 	public function testFetchIcsBodyServesFromCache(): void {

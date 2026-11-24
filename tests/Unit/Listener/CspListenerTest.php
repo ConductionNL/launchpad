@@ -200,7 +200,7 @@ class CspListenerTest extends TestCase {
 	 */
 	public function testAllowListedImageHostIsAddedToImgSrc(): void {
 		$this->iframeService->method('getAllowedHosts')->willReturn([]);
-		$this->imageHosts->method('getAllowedHosts')->willReturn(['example.com', 'cdn.example.org']);
+		$this->imageHosts->method('getPermittedHosts')->willReturn(['example.com', 'cdn.example.org']);
 		$captured = [];
 
 		$this->listener->handle(event: $this->makeEvent(captured: $captured));

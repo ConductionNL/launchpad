@@ -38,10 +38,14 @@ final class HostAllowList {
 	 *
 	 * @param IAppConfig $appConfig The app config holding the list.
 	 * @param string     $configKey The config key of the list.
+	 * @param string     $purpose   The purpose on the allowed-websites list
+	 *                              (`embed` or `fetch`) whose hosts this list
+	 *                              also admits; '' for none (REQ-ASET-021).
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
 		private readonly string $configKey,
+		private readonly string $purpose = '',
 	) {
 	}//end __construct()
 
@@ -60,14 +64,16 @@ final class HostAllowList {
 	}//end hasHttpScheme()
 
 	/**
-	 * Whether a URL's host is on the list (case-insensitive). The list is
-	 * only read once the URL has a host.
+	 * Whether a URL's host is on the list (case-insensitive), or on the
+	 * allowed-websites list for this list's purpose. The lists are only read
+	 * once the URL has a host.
 	 *
 	 * @param string $url The URL to check.
 	 *
 	 * @return boolean True only when the host is explicitly allow-listed.
 	 *
 	 * @spec openspec/specs/service-health-ping/spec.md
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function permits(string $url): bool {
 		$host = parse_url(url: $url, component: PHP_URL_HOST);
@@ -75,24 +81,41 @@ final class HostAllowList {
 			return false;
 		}
 
+		// FAIL-CLOSED — no configured list means no host is allowed.
 		$decoded = json_decode(json: $this->rawList(), associative: true);
-		if (is_array(value: $decoded) === false || $decoded === []) {
-			// FAIL-CLOSED — no configured list means no host is allowed.
-			return false;
+		if (is_array(value: $decoded) === true && $this->listsHost(allowed: $decoded, host: $host) === true) {
+			return true;
 		}
 
-		return $this->listsHost(allowed: $decoded, host: $host);
+		return $this->purpose !== ''
+			&& (new AllowedSitesService(appConfig: $this->appConfig))->permits(url: $url, purpose: $this->purpose);
 	}//end permits()
 
 	/**
 	 * The hosts on the list: trimmed, deduplicated, non-string and blank
-	 * entries dropped. Empty when the list is unset or unparseable.
+	 * entries dropped, then the allowed-websites hosts for this list's
+	 * purpose. Empty when nothing is configured.
 	 *
 	 * @return string[]
 	 *
 	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function hosts(): array {
+		$hosts = $this->ownHosts();
+		if ($this->purpose !== '') {
+			$hosts = array_merge($hosts, (new AllowedSitesService(appConfig: $this->appConfig))->hostsFor(purpose: $this->purpose));
+		}
+
+		return array_values(array: array_unique(array: $hosts));
+	}//end hosts()
+
+	/**
+	 * The hosts stored under this list's own config key.
+	 *
+	 * @return string[]
+	 */
+	private function ownHosts(): array {
 		$decoded = json_decode(json: $this->rawList(), associative: true);
 		if (is_array(value: $decoded) === false) {
 			return [];
@@ -105,8 +128,8 @@ final class HostAllowList {
 			}
 		}
 
-		return array_values(array: array_unique(array: $hosts));
-	}//end hosts()
+		return $hosts;
+	}//end ownHosts()
 
 	/**
 	 * The stored JSON list, '' when unset.

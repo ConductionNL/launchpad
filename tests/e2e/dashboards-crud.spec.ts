@@ -13,13 +13,15 @@
  * nothing else touches. Every refusal is probed by an ordinary logged-in user,
  * re-read as the owner, and paired with the owner succeeding.
  *
- * Tests wrapped in `test.fixme` are written to the scenario and disagree with
- * the product; each one says where.
+ * The scenarios this file used to hold as `test.fixme` now run in
+ * dashboards-refusals-and-guards.spec.ts (another user's delete and
+ * activate, grid columns on update, duplicate names), outside this file's
+ * serial mode, or carry a never-built exclusion in the spec
+ * (create-a-dashboard-with-invalid-grid-columns, name-length-validation).
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboards::create-a-dashboard-with-default-settings
  *   @e2e dashboards::create-a-dashboard-with-custom-settings
- *   @e2e dashboards::create-a-dashboard-with-invalid-grid-columns
  *   @e2e dashboards::create-a-dashboard-without-a-name
  *   @e2e dashboards::list-dashboards-for-a-user-with-multiple-dashboards
  *   @e2e dashboards::list-dashboards-for-a-user-with-no-dashboards
@@ -29,20 +31,15 @@
  *   @e2e dashboards::first-time-user-triggers-template-distribution
  *   @e2e dashboards::update-dashboard-name-and-description
  *   @e2e dashboards::update-another-users-dashboard
- *   @e2e dashboards::update-grid-columns-on-a-dashboard-with-existing-widgets
  *   @e2e dashboards::update-permissionlevel-on-a-user-dashboard
  *   @e2e dashboards::batch-update-placement-positions-via-dashboard-update
  *   @e2e dashboards::delete-a-dashboard
  *   @e2e dashboards::delete-the-active-dashboard
- *   @e2e dashboards::delete-another-users-dashboard
  *   @e2e dashboards::delete-the-last-remaining-dashboard
  *   @e2e dashboards::delete-does-not-check-permission-level
  *   @e2e dashboards::activate-a-dashboard
  *   @e2e dashboards::activate-an-already-active-dashboard
- *   @e2e dashboards::activate-another-users-dashboard
  *   @e2e dashboards::only-one-active-dashboard-per-user
- *   @e2e dashboards::name-length-validation
- *   @e2e dashboards::duplicate-dashboard-names-allowed
  *   @e2e dashboards::empty-name-defaults-to-my-dashboard
  *   @e2e dashboards::users-cannot-create-admintemplate-type-dashboards
  *   @e2e dashboards::admin-creates-a-template-dashboard
@@ -254,24 +251,6 @@ test.describe('REQ-DASH-001 create a personal dashboard', () => {
 			description: 'Data overview',
 			gridColumns: 12,
 		})
-	})
-
-	// @e2e dashboards::create-a-dashboard-with-invalid-grid-columns
-	// FIXME: the product disagrees. DashboardApiController::create()
-	// (lib/Controller/DashboardApiController.php:428-449) takes no grid-columns
-	// parameter at all, so `grid_columns: 0` is ignored and the dashboard is
-	// created with 201; the scenario's own NOTE says the validation was never
-	// built. Written to the scenario.
-	test.fixme('grid columns outside 1..24 are refused with 400', async () => {
-		const alice = await fresh('e2e-dash-gridcols')
-		for (const gridColumns of [0, 25]) {
-			const res = await alice.api.post(`${API}/dashboard`, {
-				data: { name: `Test ${gridColumns}`, grid_columns: gridColumns },
-			})
-			expect(res.status(), await res.text()).toBe(400)
-			expect((await res.json()).error).toBeTruthy()
-		}
-		expect(await listPersonal(alice.api)).toEqual([])
 	})
 
 	// @e2e dashboards::create-a-dashboard-without-a-name
@@ -530,43 +509,6 @@ test.describe('REQ-DASH-004 update a dashboard', () => {
 		)
 	})
 
-	// @e2e dashboards::update-grid-columns-on-a-dashboard-with-existing-widgets
-	// FIXME: the product disagrees. DashboardApiController::update()
-	// (lib/Controller/DashboardApiController.php:608-640) has no `gridColumns`
-	// parameter and does not put it in the update fields, so a personal
-	// dashboard's grid columns can never change; only the group-shared PUT
-	// passes it on (updateGroup, :1215). Written to the scenario.
-	test.fixme('grid columns change to 6 and the widgets stay where they were', async () => {
-		const alice = await fresh('e2e-dash-cols')
-		const { dashboard } = await createPersonal(alice.api, {
-			name: `E2E Columns ${RUN}`,
-		})
-		await addTextWidget(alice.api, dashboard.id, 'wide', { gridX: 8, gridY: 20 })
-		const before = await showDashboard(alice.api, dashboard.id)
-		expect(before.dashboard.gridColumns).toBe(12)
-		expect(before.placements.length).toBeGreaterThanOrEqual(4)
-
-		const res = await alice.api.put(`${API}/dashboard/${dashboard.id}`, {
-			data: { gridColumns: 6 },
-		})
-		expect(res.status(), await res.text()).toBe(200)
-		expect((await res.json()).dashboard.gridColumns).toBe(6)
-
-		const after = await showDashboard(alice.api, dashboard.id)
-		expect(after.dashboard.gridColumns).toBe(6)
-		// No reflow: every placement keeps its position (the scenario's NOTE).
-		const position = (p: Record<string, unknown>) => [
-			p.id,
-			p.gridX,
-			p.gridY,
-			p.gridWidth,
-			p.gridHeight,
-		]
-		expect(after.placements.map(position)).toEqual(
-			before.placements.map(position),
-		)
-	})
-
 	// @e2e dashboards::update-permissionlevel-on-a-user-dashboard
 	test('a permissionLevel in the update body is ignored', async () => {
 		const alice = await fresh('e2e-dash-perm')
@@ -674,30 +616,6 @@ test.describe('REQ-DASH-005 delete a dashboard', () => {
 		])
 	})
 
-	// @e2e dashboards::delete-another-users-dashboard
-	// FIXME: the product disagrees. DashboardService::deleteDashboard()
-	// (lib/Service/DashboardService.php:1019-1021) refuses with a plain
-	// Exception('Access denied'), and DashboardApiController::delete() maps
-	// every Exception through ResponseHelper::error(), whose default status is
-	// 400 (lib/Controller/ResponseHelper.php:100-102). So the refusal is
-	// answered 400, not the 403 the scenario names. Written to the scenario.
-	test.fixme("another user's delete is refused with 403 and deletes nothing", async () => {
-		const alice = await fresh('e2e-dash-del-own')
-		const bob = await fresh('e2e-dash-del-other')
-		const { dashboard } = await createPersonal(alice.api, {
-			name: `E2E Keep ${RUN}`,
-		})
-
-		const refused = await bob.api.delete(`${API}/dashboard/${dashboard.id}`)
-		expect(refused.status(), await refused.text()).toBe(403)
-		expect((await showDashboard(alice.api, dashboard.id)).dashboard.id).toBe(
-			dashboard.id,
-		)
-
-		const allowed = await alice.api.delete(`${API}/dashboard/${dashboard.id}`)
-		expect(allowed.status(), await allowed.text()).toBe(200)
-	})
-
 	// @e2e dashboards::delete-the-last-remaining-dashboard
 	test('deleting the only dashboard leaves an empty list', async () => {
 		const alice = await fresh('e2e-dash-del-last')
@@ -781,33 +699,6 @@ test.describe('REQ-DASH-006 activate a dashboard', () => {
 		).toEqual([[work.dashboard.id, 1]])
 	})
 
-	// @e2e dashboards::activate-another-users-dashboard
-	// FIXME: the product disagrees. DashboardService::activateDashboard()
-	// (lib/Service/DashboardService.php:1245-1249) throws a plain
-	// Exception('Access denied'), which DashboardApiController::activate()
-	// (lib/Controller/DashboardApiController.php:1055-1057) answers through
-	// ResponseHelper::error() with its default 400, not 403. Written to the
-	// scenario.
-	test.fixme("another user's activate is refused with 403", async () => {
-		const alice = await fresh('e2e-dash-act-own')
-		const bob = await fresh('e2e-dash-act-other')
-		const older = await createPersonal(alice.api, { name: `E2E Older ${RUN}` })
-		const newer = await createPersonal(alice.api, { name: `E2E Newer ${RUN}` })
-
-		const refused = await bob.api.post(
-			`${API}/dashboard/${older.dashboard.id}/activate`,
-		)
-		expect(refused.status(), await refused.text()).toBe(403)
-		const rows = await listPersonal(alice.api)
-		expect(byId(rows, older.dashboard.id).isActive).toBe(0)
-		expect(byId(rows, newer.dashboard.id).isActive).toBe(1)
-
-		const allowed = await alice.api.post(
-			`${API}/dashboard/${older.dashboard.id}/activate`,
-		)
-		expect(allowed.status(), await allowed.text()).toBe(200)
-	})
-
 	// @e2e dashboards::only-one-active-dashboard-per-user
 	test('of five dashboards exactly the activated one is active', async () => {
 		const alice = await fresh('e2e-dash-one-active')
@@ -835,54 +726,6 @@ test.describe('REQ-DASH-006 activate a dashboard', () => {
 })
 
 test.describe('REQ-DASH-007 dashboard names', () => {
-	// @e2e dashboards::name-length-validation
-	// FIXME: the product disagrees. Nothing on the create path checks the
-	// name's length (DashboardApiController::resolveCreateParams(),
-	// lib/Controller/DashboardApiController.php:1973-1986, and
-	// DashboardFactory::create()); the scenario's own NOTE says it was never
-	// built. Written to the scenario.
-	test.fixme('a name longer than 255 characters is refused with 400', async () => {
-		const alice = await fresh('e2e-dash-namelen')
-		const res = await alice.api.post(`${API}/dashboard`, {
-			data: { name: 'x'.repeat(256) },
-		})
-		expect(res.status(), await res.text()).toBe(400)
-		expect((await res.json()).error).toBeTruthy()
-		expect(await listPersonal(alice.api)).toEqual([])
-
-		const fits = await alice.api.post(`${API}/dashboard`, {
-			data: { name: 'y'.repeat(255) },
-		})
-		expect(fits.status(), await fits.text()).toBe(201)
-	})
-
-	// @e2e dashboards::duplicate-dashboard-names-allowed
-	// FIXME: the product disagrees. The slug is derived from the name and a
-	// slug "the owner's own root dashboard holds is returned as it is, so the
-	// sibling check refuses it" (DashboardService::freeRootSlug(),
-	// lib/Service/DashboardService.php:878-893); validateSlugUnique()
-	// (lib/Service/DashboardTreeService.php:216-236) then throws and the
-	// second "Work" is answered 400 `Slug must be unique among siblings`.
-	// Written to the scenario.
-	test.fixme('a second dashboard with the same name is created alongside the first', async () => {
-		const alice = await fresh('e2e-dash-dupe')
-		const first = await createPersonal(alice.api, { name: 'Work' })
-		const res = await alice.api.post(`${API}/dashboard`, {
-			data: { name: 'Work' },
-		})
-		expect(res.status(), await res.text()).toBe(201)
-		const second = (await res.json()).dashboard as DashboardRow
-
-		expect(second.id).not.toBe(first.dashboard.id)
-		expect(second.uuid).not.toBe(first.dashboard.uuid)
-		const rows = await listPersonal(alice.api)
-		expect(
-			rows
-				.filter((row) => row.name === 'Work')
-				.map((row) => row.id)
-				.sort(),
-		).toEqual([first.dashboard.id, second.id].sort())
-	})
 })
 
 test.describe('REQ-DASH-008 dashboard types', () => {

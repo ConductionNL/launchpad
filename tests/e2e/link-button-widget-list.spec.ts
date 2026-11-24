@@ -16,7 +16,7 @@
  *   @e2e link-button-widget::single-button-mode-ignores-links-array
  *   @e2e link-button-widget::links-array-can-be-empty-for-button-mode
  *   @e2e link-button-widget::list-item-with-external-link
- *   @e2e link-button-widget::an-action-id-entry-is-never-rendered-as-a-link
+ *   @e2e link-button-widget::an-actionid-entry-is-never-rendered-as-a-link
  *   @e2e link-button-widget::list-item-with-createfile-action
  *   @e2e link-button-widget::list-item-click-suppressed-in-edit-mode
  *   @e2e link-button-widget::custom-icon-url-in-list-item
@@ -347,7 +347,7 @@ test.describe('link button: list actions (REQ-LBLM-003)', () => {
 		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
 	})
 
-	// @e2e link-button-widget::an-action-id-entry-is-never-rendered-as-a-link
+	// @e2e link-button-widget::an-actionid-entry-is-never-rendered-as-a-link
 	test('an action_id list item is dispatched as an action, never opened as a link', async ({
 		context,
 		page,

@@ -84,6 +84,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
   - Spec written: tests/e2e/dashboard-acknowledgements.spec.ts, tests/e2e/dashboard-acknowledgements-template.spec.ts, tests/e2e/dashboard-acknowledgements-ask.spec.ts, 22 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
   - Spec written: tests/e2e/dashboard-acknowledgements.spec.ts (the report test follows the Read confirmations dialog of #1749, whose `ack-count`/`pending-count` it asserted are gone: it now reads the summary, the bar, the status badges, the Not confirmed yet filter and the department column; it also cites the two delta scenarios of the open change `read-receipts-dialog`), 16 scenarios cited in this file (2 new), not yet run (cloud, 2026-11-24)
+  - Recount (cloud, 2026-11-24, gate-19 checker on development): the spec now has 27 scenarios after #1772 synced the archived changes in; 25 cited across the three files above, 2 excluded with a reason, 0 uncited. No new spec needed; the three files wait for a run.
 
 ## 3. Tier 2, core surfaces
 

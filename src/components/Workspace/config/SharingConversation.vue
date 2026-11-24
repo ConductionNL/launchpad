@@ -41,7 +41,7 @@ import { logger } from '../../../utils/logger.js'
  * shows or hides the Talk conversation beside it and is stored at once; an
  * unshared dashboard says the conversation appears once it is shared.
  *
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
  */
 export default {
 	name: 'SharingConversation',
@@ -71,7 +71,7 @@ export default {
 		 * Follow a switch stored elsewhere.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 		 */
 		'dashboard.conversationEnabled': function() {
 			this.enabled = conversationEnabled(this.dashboard)
@@ -86,7 +86,7 @@ export default {
 		 *
 		 * @param {boolean} value Whether the conversation shows.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 		 */
 		async toggle(value) {
 			const before = this.enabled

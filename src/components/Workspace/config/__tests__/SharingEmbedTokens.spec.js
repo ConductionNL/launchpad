@@ -6,7 +6,7 @@
  * only, a new token shown once with the code for the website, and Withdraw
  * through the revocation (REQ-EMB-009).
  *
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

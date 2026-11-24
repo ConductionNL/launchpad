@@ -5,7 +5,7 @@
  * The Sharing tab's embed helpers: which tokens belong to a dashboard and
  * the code a website pastes (REQ-EMB-011).
  *
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
  */
 
 import { describe, expect, it } from 'vitest'

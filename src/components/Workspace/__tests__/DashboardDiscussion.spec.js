@@ -60,7 +60,7 @@ describe('DashboardDiscussion', () => {
 		expect(listShares).not.toHaveBeenCalled()
 	})
 
-	/** @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006 */
+	/** @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006 */
 	it('renders nothing on a shared dashboard whose conversation is switched off', () => {
 		const wrapper = mountDiscussion({ dashboard: { id: 1, uuid: 'g-1', type: 'group_shared', conversationEnabled: 0 } })
 		expect(wrapper.find('[data-testid="dashboard-discussion"]').exists()).toBe(false)

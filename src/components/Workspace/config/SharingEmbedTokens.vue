@@ -137,7 +137,7 @@ import { logger } from '../../../utils/logger.js'
  * uses the token revocation, which every render worker honours within 60
  * seconds (REQ-EMB-009).
  *
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
  */
 export default {
 	name: 'SharingEmbedTokens',
@@ -175,7 +175,7 @@ export default {
 		 * The tokens of this dashboard and its widgets.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		tokens() {
 			return tokensForDashboard(this.allTokens, this.dashboard?.uuid, this.placements.map((placement) => placement.id))
@@ -185,7 +185,7 @@ export default {
 		 * The token whose code is shown.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		selected() {
 			return this.tokens.find((token) => token.id === this.selectedId) ?? null
@@ -195,7 +195,7 @@ export default {
 		 * The code for the website of the selected token, with the JWT while it is at hand.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		code() {
 			const jwt = this.issued?.id === this.selected?.id ? this.issued?.jwt : ''
@@ -206,7 +206,7 @@ export default {
 		 * This dashboard as the one choice of the token form.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		dashboardOption() {
 			return { id: this.dashboard?.id, uuid: this.dashboard?.uuid, name: this.dashboard?.name }
@@ -216,7 +216,7 @@ export default {
 		 * A new token starts on this dashboard.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		formDefaults() {
 			return { subjectType: 'dashboard', subjectId: this.dashboard?.uuid ?? '', dashboardId: this.dashboard?.id ?? null }
@@ -230,7 +230,7 @@ export default {
 			 * Load the tokens of the dashboard that opened.
 			 *
 			 * @return {void}
-			 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+			 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 			 */
 			handler() {
 				this.load()
@@ -245,7 +245,7 @@ export default {
 		 * Load every token and the dashboard's widget placements.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		async load() {
 			if (!this.dashboard?.id) {
@@ -275,7 +275,7 @@ export default {
 		 *
 		 * @param {object} payload The form's payload.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		async create(payload) {
 			this.saving = true
@@ -300,7 +300,7 @@ export default {
 		 *
 		 * @param {{reason: string, notes: string}} choice The reason and notes.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		async revoke({ reason, notes }) {
 			const token = this.revoking
@@ -320,7 +320,7 @@ export default {
 		 *
 		 * @param {boolean} open Whether the dialog stays open.
 		 * @return {void}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		closeRevoke(open) {
 			if (!open) {
@@ -334,7 +334,7 @@ export default {
 		 * @param {string} text The text.
 		 * @param {string} what Which copy button was used.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		async copy(text, what) {
 			try {
@@ -349,7 +349,7 @@ export default {
 		 * The absolute address of the app.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		appUrl() {
 			const origin = typeof window === 'undefined' ? '' : window.location.origin
@@ -361,7 +361,7 @@ export default {
 		 *
 		 * @param {object} token The token.
 		 * @return {string}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		subjectLabel(token) {
 			if (token?.subject?.type !== 'widget') {
@@ -377,7 +377,7 @@ export default {
 		 *
 		 * @param {object} token The token.
 		 * @return {string}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
 		 */
 		stateLabel(token) {
 			const status = tokenStatus(token)

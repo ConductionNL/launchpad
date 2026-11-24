@@ -3974,7 +3974,7 @@ class DashboardService {
 	 *
 	 * @throws InvalidArgumentException When the value is not a boolean or null.
 	 *
-	 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+	 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 	 */
 	private function applyConversationUpdate(Dashboard $dashboard, array $data): void {
 		if (array_key_exists(key: 'conversationEnabled', array: $data) === false) {

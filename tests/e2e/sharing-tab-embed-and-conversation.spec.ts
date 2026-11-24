@@ -17,8 +17,8 @@
  *   @e2e embedded-analytics::create-a-token
  *   @e2e dashboard-talk-leaf::a-personal-dashboard
  *
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'

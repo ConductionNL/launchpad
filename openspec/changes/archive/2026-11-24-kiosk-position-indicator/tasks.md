@@ -4,4 +4,4 @@
 - [x] A polite live region that names the new dashboard when the playlist moves on
 - [x] Translations in every shipped locale
 - [x] Unit tests: the line's text over a dwell time, absent for one dashboard, the announcement on change
-- [ ] Playwright: a two-dashboard playlist shows "1 van 2" and then "2 van 2"
+- [x] Playwright: a two-dashboard playlist shows "1 van 2" and then "2 van 2" (written in `tests/e2e/kiosk-position-indicator.spec.ts`, runs in nightly)

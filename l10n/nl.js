@@ -2523,7 +2523,13 @@ OC.L10N.register(
     "Maintenance notice" : "Onderhoudsmelding",
     "Shown at the top of every dashboard until the end time." : "Getoond bovenaan elk dashboard tot de eindtijd.",
     "Date field for the period" : "Datumveld voor de periode",
-    "None: the widget does not follow the period" : "Geen: de widget volgt de periode niet"
+    "None: the widget does not follow the period" : "Geen: de widget volgt de periode niet",
+    "Ask for read confirmation" : "Vraag om leesbevestiging",
+    "Confirm before" : "Bevestigen vóór",
+    "Confirm before {date}" : "Bevestigen vóór {date}",
+    "You confirmed you have read this" : "U hebt bevestigd dat u dit hebt gelezen",
+    "The confirm-before date must be after the publish time" : "De datum voor bevestiging moet na het publicatiemoment liggen",
+    "Your read confirmation could not be saved" : "Uw leesbevestiging kon niet worden opgeslagen"
 },
 "nplurals=2; plural=(n != 1);"
 );

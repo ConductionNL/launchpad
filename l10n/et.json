@@ -1548,6 +1548,12 @@
         "Warning": "Hoiatus",
         "Something went wrong": "Midagi läks valesti",
         "Date field for the period": "Perioodi kuupäevaväli",
-        "None: the widget does not follow the period": "Puudub: vidin ei järgi perioodi"
+        "None: the widget does not follow the period": "Puudub: vidin ei järgi perioodi",
+        "Ask for read confirmation": "Küsi lugemise kinnitust",
+        "Confirm before": "Kinnita enne",
+        "Confirm before {date}": "Kinnita enne {date}",
+        "You confirmed you have read this": "Olete kinnitanud, et lugesite selle läbi",
+        "The confirm-before date must be after the publish time": "Kinnitamise tähtaeg peab olema pärast avaldamisaega",
+        "Your read confirmation could not be saved": "Teie lugemise kinnitust ei õnnestunud salvestada"
     }
 }

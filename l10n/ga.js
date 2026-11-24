@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Rabhadh",
     "Something went wrong" : "Chuaigh rud éigin mícheart",
     "Date field for the period" : "Réimse dáta don tréimhse",
-    "None: the widget does not follow the period" : "Dada: ní leanann an giuirléid an tréimhse"
+    "None: the widget does not follow the period" : "Dada: ní leanann an giuirléid an tréimhse",
+    "Ask for read confirmation" : "Iarr deimhniú léite",
+    "Confirm before" : "Deimhnigh roimh",
+    "Confirm before {date}" : "Deimhnigh roimh {date}",
+    "You confirmed you have read this" : "Dheimhnigh tú gur léigh tú é seo",
+    "The confirm-before date must be after the publish time" : "Ní mór an dáta deimhnithe a bheith tar éis an ama foilsithe",
+    "Your read confirmation could not be saved" : "Níorbh fhéidir do dheimhniú léite a shábháil"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

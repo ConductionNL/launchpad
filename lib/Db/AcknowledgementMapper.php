@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -179,4 +180,40 @@ class AcknowledgementMapper extends QBMapper {
 
 		return $this->insert(entity: $entity);
 	}//end record()
+
+	/**
+	 * Of the given announcement keys, the ones the user holds a receipt
+	 * for at any version, in one query. Backs the "I have read this" state
+	 * of every card in a list (REQ-ANN-007).
+	 *
+	 * @param string   $userId           The user.
+	 * @param string[] $announcementKeys The keys to look for.
+	 *
+	 * @return string[] The keys the user confirmed.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function findKeysConfirmedBy(string $userId, array $announcementKeys): array {
+		if ($announcementKeys === []) {
+			return [];
+		}
+
+		$qb = $this->selectWhere(match: ['user_id' => $userId]);
+		$qb->andWhere(
+			$qb->expr()->in(
+				x: 'announcement_key',
+				y: $qb->createNamedParameter(
+					value: array_values($announcementKeys),
+					type: IQueryBuilder::PARAM_STR_ARRAY
+				)
+			)
+		);
+
+		$keys = array_map(
+			array: $this->findEntities(query: $qb),
+			callback: static fn (Acknowledgement $receipt): string => (string) $receipt->getAnnouncementKey()
+		);
+
+		return array_values(array_unique($keys));
+	}//end findKeysConfirmedBy()
 }//end class

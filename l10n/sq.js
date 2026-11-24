@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Paralajmërim",
     "Something went wrong" : "Diçka shkoi keq",
     "Date field for the period" : "Fusha e datës për periudhën",
-    "None: the widget does not follow the period" : "Asnjë: widget-i nuk ndjek periudhën"
+    "None: the widget does not follow the period" : "Asnjë: widget-i nuk ndjek periudhën",
+    "Ask for read confirmation" : "Kërko konfirmim leximi",
+    "Confirm before" : "Konfirmo përpara",
+    "Confirm before {date}" : "Konfirmo përpara {date}",
+    "You confirmed you have read this" : "Keni konfirmuar se e keni lexuar këtë",
+    "The confirm-before date must be after the publish time" : "Afati i konfirmimit duhet të jetë pas kohës së publikimit",
+    "Your read confirmation could not be saved" : "Konfirmimi juaj i leximit nuk mund të ruhej"
 },
 "nplurals=2; plural=(n != 1);"
 );

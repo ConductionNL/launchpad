@@ -69,7 +69,34 @@ class AnnouncementInput {
 		$this->applyTextFields(announcement: $announcement, input: $input);
 		$this->applyNoticeFields(announcement: $announcement, input: $input);
 		$this->applyTargetingFields(announcement: $announcement, input: $input);
+		$this->applyConfirmationFields(announcement: $announcement, input: $input);
 	}//end apply()
+
+	/**
+	 * Apply "Ask for read confirmation" and "Confirm before". Without the
+	 * question the deadline is cleared; with it, a deadline must lie after
+	 * the publish time, so readers get time to confirm (REQ-ANN-007).
+	 *
+	 * @param Announcement         $announcement The announcement to change.
+	 * @param array<string, mixed> $input        The fields to apply.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the deadline is not a date or not after the publish time.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	private function applyConfirmationFields(Announcement $announcement, array $input): void {
+		if (array_key_exists('requiresConfirmation', $input) === true) {
+			$announcement->setRequiresConfirmation((int) ($input['requiresConfirmation'] === true));
+		}
+
+		if (array_key_exists('confirmBefore', $input) === true) {
+			$announcement->setConfirmBefore($this->date(value: $input['confirmBefore'], field: 'confirmBefore'));
+		}
+
+		$announcement->settleConfirmation();
+	}//end applyConfirmationFields()
 
 	/**
 	 * The title, text and category.

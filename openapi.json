@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.16-unstable.20261124200000",
+        "version": "1.1.16-unstable.20261124210000",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -102,6 +102,10 @@
         {
             "name": "announcement-groups",
             "description": "The target group picker's list."
+        },
+        {
+            "name": "announcement-read",
+            "description": "The read confirmation endpoints of announcements."
         },
         {
             "name": "attention",
@@ -4780,17 +4784,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             },
@@ -4829,17 +4827,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 },
                 "requestBody": {
@@ -4924,17 +4916,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -4973,17 +4959,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5065,17 +5045,43 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/read-state": {
+            "get": {
+                "operationId": "announcement-read-state",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open",
+                "description": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open. Asked beside the list, not after it. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5115,17 +5121,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             },
@@ -5163,17 +5163,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 },
                 "requestBody": {
@@ -5253,17 +5247,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5303,17 +5291,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5382,17 +5364,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5435,17 +5411,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5486,17 +5456,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5539,17 +5503,99 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/{uuid}/read": {
+            "post": {
+                "operationId": "announcement-read-confirm",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once",
+                "description": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/{uuid}/receipts": {
+            "get": {
+                "operationId": "announcement-read-receipts",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator",
+                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }

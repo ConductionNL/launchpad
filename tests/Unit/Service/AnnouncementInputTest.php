@@ -173,6 +173,18 @@ class AnnouncementInputTest extends TestCase {
 			'groups not an array'  => [['title' => 'X', 'targetGroups' => 'hr'], 'targetGroups must be a list of group ids'],
 			'date not a string'    => [['title' => 'X', 'publishAt' => 20261123], 'publishAt must be an ISO 8601 date'],
 			'date not a date'      => [['title' => 'X', 'expiresAt' => 'next tuesday-ish'], 'expiresAt must be an ISO 8601 date'],
+			'deadline not a date'  => [
+				['title' => 'X', 'requiresConfirmation' => true, 'confirmBefore' => 'before the weekend-ish'],
+				'confirmBefore must be an ISO 8601 date',
+			],
+			'deadline at publish'  => [
+				['title' => 'X', 'requiresConfirmation' => true, 'publishAt' => '2026-10-26T09:00:00+00:00', 'confirmBefore' => '2026-10-26T09:00:00+00:00'],
+				'The confirm-before date must be after the publish time',
+			],
+			'deadline before'      => [
+				['title' => 'X', 'requiresConfirmation' => true, 'publishAt' => '2026-10-31T09:00:00+00:00', 'confirmBefore' => '2026-10-30T23:59:00+00:00'],
+				'The confirm-before date must be after the publish time',
+			],
 		];
 	}//end refusedInputs()
 
@@ -264,4 +276,65 @@ class AnnouncementInputTest extends TestCase {
 			'end before start' => ['2026-10-31T08:00:00+00:00', '2026-10-30T17:00:00+00:00', $order],
 		];
 	}//end endTimes()
+
+	/**
+	 * "Confirm before Friday 30 October": the question and its deadline after the publish time are kept (REQ-ANN-007).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function testAReadConfirmationKeepsItsDeadlineAfterThePublishTime(): void {
+		$announcement = new Announcement();
+		$this->input->apply(
+			announcement: $announcement,
+			input: [
+				'title'                => 'New procedure',
+				'publishAt'            => '2026-10-26T09:00:00+00:00',
+				'requiresConfirmation' => true,
+				'confirmBefore'        => '2026-10-30T23:59:00+00:00',
+			]
+		);
+
+		self::assertSame(expected: 1, actual: $announcement->getRequiresConfirmation());
+		self::assertSame(expected: '2026-10-30', actual: $announcement->getConfirmBefore()?->format('Y-m-d'));
+		self::assertTrue(condition: $announcement->jsonSerialize()['requiresConfirmation']);
+		self::assertSame(expected: '2026-10-30T23:59:00+00:00', actual: $announcement->jsonSerialize()['confirmBefore']);
+	}//end testAReadConfirmationKeepsItsDeadlineAfterThePublishTime()
+
+	/**
+	 * Without the question there is no deadline; only a literal true asks it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function testWithoutTheQuestionTheDeadlineIsCleared(): void {
+		$announcement = new Announcement();
+		$this->input->apply(
+			announcement: $announcement,
+			input: ['title' => 'X', 'requiresConfirmation' => 'yes', 'confirmBefore' => '2026-10-30T23:59:00+00:00']
+		);
+
+		self::assertSame(expected: 0, actual: $announcement->getRequiresConfirmation());
+		self::assertNull(actual: $announcement->getConfirmBefore());
+		self::assertFalse(condition: $announcement->jsonSerialize()['requiresConfirmation']);
+	}//end testWithoutTheQuestionTheDeadlineIsCleared()
+
+	/**
+	 * A read confirmation without a deadline, or without a publish time, is fine.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function testADeadlineIsOptional(): void {
+		$announcement = new Announcement();
+		$this->input->apply(announcement: $announcement, input: ['title' => 'X', 'requiresConfirmation' => true]);
+		self::assertSame(expected: 1, actual: $announcement->getRequiresConfirmation());
+		self::assertNull(actual: $announcement->getConfirmBefore());
+
+		$this->input->apply(announcement: $announcement, input: ['confirmBefore' => '2026-10-30T23:59:00+00:00']);
+		self::assertNotNull(actual: $announcement->getConfirmBefore());
+	}//end testADeadlineIsOptional()
 }//end class

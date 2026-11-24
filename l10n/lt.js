@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Įspėjimas",
     "Something went wrong" : "Kažkas nepavyko",
     "Date field for the period" : "Laikotarpio datos laukas",
-    "None: the widget does not follow the period" : "Nėra: valdiklis neseka laikotarpio"
+    "None: the widget does not follow the period" : "Nėra: valdiklis neseka laikotarpio",
+    "Ask for read confirmation" : "Prašyti patvirtinti perskaitymą",
+    "Confirm before" : "Patvirtinti iki",
+    "Confirm before {date}" : "Patvirtinti iki {date}",
+    "You confirmed you have read this" : "Patvirtinote, kad tai perskaitėte",
+    "The confirm-before date must be after the publish time" : "Patvirtinimo terminas turi būti po paskelbimo laiko",
+    "Your read confirmation could not be saved" : "Nepavyko išsaugoti jūsų perskaitymo patvirtinimo"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

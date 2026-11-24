@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Figyelmeztetés",
     "Something went wrong" : "Valami hiba történt",
     "Date field for the period" : "Dátummező az időszakhoz",
-    "None: the widget does not follow the period" : "Nincs: a widget nem követi az időszakot"
+    "None: the widget does not follow the period" : "Nincs: a widget nem követi az időszakot",
+    "Ask for read confirmation" : "Olvasási visszaigazolás kérése",
+    "Confirm before" : "Visszaigazolás eddig",
+    "Confirm before {date}" : "Visszaigazolás eddig: {date}",
+    "You confirmed you have read this" : "Visszaigazolta, hogy elolvasta",
+    "The confirm-before date must be after the publish time" : "A visszaigazolás határidejének a közzététel után kell lennie",
+    "Your read confirmation could not be saved" : "Az olvasási visszaigazolást nem sikerült menteni"
 },
 "nplurals=2; plural=(n != 1);"
 );

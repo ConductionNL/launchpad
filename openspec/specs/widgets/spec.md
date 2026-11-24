@@ -136,6 +136,7 @@ Users MUST be able to place a discovered widget onto their dashboard with grid c
 - WHEN the user sends POST /api/dashboard/5/widgets with `gridX: 10, gridWidth: 4` (exceeds column count)
 - THEN the system SHOULD return HTTP 400 with a validation error
 - NOTE: Grid bounds validation is NOT currently implemented in the backend. GridStack on the frontend handles constraint enforcement.
+@e2e exclude never built: no bounds check exists, WidgetApiController::addWidget passes the coordinates to PlacementService::addWidget, whose freeSpot() moves a placement that does not fit instead of refusing it (lib/Service/PlacementService.php); placement on a free spot is cited under add-a-widget-to-a-dashboard
 
 #### Scenario: Add widget with non-existent widgetId
 - GIVEN widget "fake_widget" is not registered in Nextcloud
@@ -258,6 +259,7 @@ Widget placements MUST maintain a sort order for consistent rendering and tab na
 - GIVEN dashboard id 5 has placements with sortOrder 1 (weather), 2 (notes), 3 (calendar)
 - WHEN the user rearranges them so calendar is first
 - THEN sortOrder MUST be updated to: calendar (1), weather (2), notes (3)
+@e2e exclude never built: no write path renumbers a placement's sort_order on a rearrange, the batch save (WidgetPlacementMapper::updatePosition) writes only grid_x, grid_y, grid_width and grid_height, `sortOrder` is not an accepted PUT field (RequestDataExtractor) and the grid orders by position; sort_order is set only when a placement is created or copied (PlacementPayloadHydrator, WidgetPlacementMapper clone)
 
 #### Scenario: Sort order used for tab navigation
 - GIVEN a dashboard with multiple placements ordered by sortOrder

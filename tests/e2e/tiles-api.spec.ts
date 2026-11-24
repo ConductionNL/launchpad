@@ -22,7 +22,6 @@
  *   @e2e tiles::tile-placement-defaults
  *   @e2e tiles::tile-placement-on-view-only-dashboard-blocked
  *   @e2e tiles::valid-hex-colors-accepted
- *   @e2e tiles::invalid-color-format-rejected
  *   @e2e tiles::default-colors-when-not-specified
  *   @e2e tiles::script-scheme-is-refused
  *   @e2e tiles::unknown-target-is-refused
@@ -150,25 +149,27 @@ test('an account without tiles gets 200 and an empty list', async () => {
 })
 
 // @e2e tiles::place-a-tile-on-a-dashboard
-test.fixme('a tile posted with the documented body becomes a custom tile placement carrying that data', async () => {
-	// Product disagrees: the server reads `title`, `icon`, `iconType`,
-	// `bgColor`, `textColor`, `linkType`, `linkValue` (lib/Controller/RequestDataExtractor.php:36-45),
-	// not the `tileTitle`/`tileIcon`/... names this scenario posts, so the
-	// placement is stored as "New Tile" with the default icon, colours and link.
+test('a tile posted with the documented body becomes a custom tile placement carrying that data', async () => {
+	// Was test.fixme: the scenario posted the stored names (`tileTitle`,
+	// `tileIcon`, ...), which the endpoint never read. Its body now uses the
+	// request names the endpoint and the frontend use (`title`, `icon`,
+	// `iconType`, `bgColor`, `textColor`, `linkType`, `linkValue`:
+	// RequestDataExtractor::TILE_PARAMS, src/utils/discoveredTile.js), and
+	// the stored placement carries them under the `tile*` names.
 	const { status, body } = await placeTile(own.owner.api, own.id, {
-		tileTitle: 'My Files',
-		tileIcon: 'icon-folder',
-		tileIconType: 'class',
-		tileBackgroundColor: '#3b82f6',
-		tileTextColor: '#ffffff',
-		tileLinkType: 'app',
-		tileLinkValue: '/apps/files',
+		title: 'My Files',
+		icon: 'icon-folder',
+		iconType: 'class',
+		bgColor: '#3b82f6',
+		textColor: '#ffffff',
+		linkType: 'app',
+		linkValue: '/apps/files',
 		gridX: 0,
 		gridY: 0,
 		gridWidth: 2,
 		gridHeight: 2,
 	})
-	expect(status).toBe(201)
+	expect(status, JSON.stringify(body)).toBe(201)
 	expect(body.tileType).toBe('custom')
 	expect(body.widgetId).toMatch(/^tile-[0-9a-f]{13}$/)
 	const stored = (await readPlacements(own.owner.api, own.id)).find(
@@ -337,22 +338,6 @@ test('hex background and text colours are accepted and stored', async () => {
 	)!
 	expect(stored.tileBackgroundColor).toBe('#3b82f6')
 	expect(stored.tileTextColor).toBe('#ffffff')
-})
-
-// @e2e tiles::invalid-color-format-rejected
-test.fixme('a background colour that is not a colour is refused with 400', async () => {
-	// Product disagrees: no colour validation exists — TileUpdater::applyTileConfig
-	// stores `bgColor` as given (lib/Service/TileUpdater.php:66-68). The
-	// scenario itself notes "Color format validation is NOT currently implemented".
-	const before = (await readPlacements(own.owner.api, own.id)).length
-	const { status } = await placeTile(own.owner.api, own.id, {
-		title: `E2E bad colour ${STAMP}`,
-		bgColor: 'not-a-color',
-		linkType: 'url',
-		linkValue: 'https://example.org/',
-	})
-	expect(status).toBe(400)
-	expect(await readPlacements(own.owner.api, own.id)).toHaveLength(before)
 })
 
 // @e2e tiles::default-colors-when-not-specified

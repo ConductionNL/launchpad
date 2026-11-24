@@ -3,37 +3,30 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end tests for the org navigation rail a user sees in the
- * workspace: position, rendering, icons, empty and filtered states, active
- * item detection and the mobile drawer (openspec/specs/navigation-editor-org,
- * REQ-ONAV-004..006 and REQ-ONAV-008..010), written for the
- * e2e-coverage-programme.
+ * workspace: position, rendering, icons, empty and filtered states and the
+ * mobile drawer (openspec/specs/navigation-editor-org, REQ-ONAV-004..006,
+ * REQ-ONAV-008 and REQ-ONAV-010), written for the e2e-coverage-programme.
  *
  * The tree and position are seeded through the API; what is asserted is what
  * renders (`OrgNavigationPanel.vue`, `OrgNavigationItem.vue`).
  *
- * SUSPECTED BUG, AND WHY EVERY TEST HERE IS `test.fixme`. The rail can never
- * appear. `src/views/WorkspaceApp.vue:20` mounts the panel only
- * `v-if="orgNavStore.shouldRender"`, and `shouldRender`
- * (`src/stores/orgNavigation.js:89-94`) is false until a position other than
- * 'hidden' AND a non-empty tree are in the store. The only workspace code that
- * fetches either is the panel's own `mounted()`
- * (`src/components/OrgNavigationPanel.vue:115-119`), which never runs because
- * the panel is never mounted. Nothing else on the workspace page calls
- * `fetchTree` or `fetchPosition` (only the admin editor does). The unit tests
- * miss it because `src/views/__tests__/WorkspaceApp.behaviour.spec.js:24`
- * stubs the store with `shouldRender` set by hand.
+ * These tests were `test.fixme` until 2026-11-24, which gate-19 does not
+ * count. They were written while the rail could never appear: WorkspaceApp
+ * mounted the panel only `v-if="orgNavStore.shouldRender"` and nothing on the
+ * workspace page fetched the tree or the position. 37c354f8 made the shell
+ * load both on mount (`src/views/WorkspaceApp.vue` `mounted()`), so they run
+ * now, unchanged, and assert the scenarios as written.
  *
- * The tests are written to the scenarios, so they go red until that is fixed.
  * The absence scenarios (hidden position, empty tree, filtered to zero) each
  * carry a positive control in the same test: without one they would pass
- * today for the wrong reason.
+ * for the wrong reason.
  *
- * A second finding for the active-item scenarios: the panel only exists on
- * WorkspaceApp's routes (`/` and `/dashboards/:id` in src/manifest.json), so
- * pages such as `/apps/launchpad/policies` or `/apps/launchpad/hubris` render
- * no workspace at all, and these tests will stay red there even after the
- * mount is fixed unless the panel moves up a level or the scenario URLs
- * change.
+ * Two groups live elsewhere, in files without serial mode, so a red there
+ * cannot skip the tests here:
+ *   - the active-item scenarios (REQ-ONAV-009 and active-item-is-highlighted)
+ *     in navigation-editor-org-active-item.spec.ts;
+ *   - icon-name-renders-inline, expected red, in
+ *     navigation-editor-org-icon-name.spec.ts.
  *
  * The trees, the position and the action matrix are recorded in beforeAll and
  * put back in afterAll (support/orgNavigation.ts).
@@ -42,19 +35,13 @@
  *   @e2e navigation-editor-org::admin-changes-position-to-left
  *   @e2e navigation-editor-org::position-hidden-suppresses-rail
  *   @e2e navigation-editor-org::tree-renders-with-icons-and-labels
- *   @e2e navigation-editor-org::active-item-is-highlighted
  *   @e2e navigation-editor-org::child-link-without-url-is-not-clickable
  *   @e2e navigation-editor-org::openinnewtab-respected
  *   @e2e navigation-editor-org::icon-from-url-renders-as-img
- *   @e2e navigation-editor-org::icon-name-renders-inline
  *   @e2e navigation-editor-org::missing-icon-renders-no-icon
  *   @e2e navigation-editor-org::empty-tree-renders-nothing
  *   @e2e navigation-editor-org::filtered-to-zero-nodes-renders-nothing
  *   @e2e navigation-editor-org::partial-filtering-still-renders-visible-nodes
- *   @e2e navigation-editor-org::exact-url-match
- *   @e2e navigation-editor-org::prefix-match-with-path-segment-boundary
- *   @e2e navigation-editor-org::prefix-without-boundary-does-not-match
- *   @e2e navigation-editor-org::parent-auto-expands-if-child-is-active
  *   @e2e navigation-editor-org::mobile-hamburger-visible
  *   @e2e navigation-editor-org::click-hamburger-opens-drawer
  *   @e2e navigation-editor-org::close-drawer-on-selection
@@ -63,18 +50,22 @@
  * @spec openspec/specs/navigation-editor-org/spec.md
  */
 
-import type { APIRequestContext, Locator, Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
 import type { NavNode, Snapshot } from './support/orgNavigation.ts'
 import type { Principal } from './support/principals.ts'
 
-import { mdiBriefcase, mdiFileDocument, mdiFolder } from '@mdi/js'
+import { mdiFileDocument, mdiFolder } from '@mdi/js'
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import {
 	APP_PATH,
 	grantReadsToEveryone,
+	navItem,
 	navNode,
+	navRow,
 	ONAV_POSITION,
+	openWorkspace,
+	RAIL,
 	readPosition,
 	readTree,
 	restore,
@@ -90,7 +81,6 @@ import {
 } from './support/principals.ts'
 
 const RUN = Date.now()
-const RAIL = '.org-nav'
 
 let admin: APIRequestContext
 let snap: Snapshot | null = null
@@ -124,44 +114,6 @@ async function arrange(tree: NavNode[], position = 'left'): Promise<void> {
 }
 
 /**
- * Open a LaunchPad page and wait for the workspace shell.
- *
- * @param page the page.
- * @param path the path below the app.
- * @return nothing.
- */
-async function openWorkspace(page: Page, path = '/'): Promise<void> {
-	await page.goto(`${APP_PATH}${path}`)
-	await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 30_000 })
-}
-
-/**
- * The rail item whose own row carries the label.
- *
- * @param page the page.
- * @param label the node label.
- * @return the item's `<li>`.
- */
-function item(page: Page, label: string): Locator {
-	return page.locator('li.org-nav-item').filter({
-		has: page.locator(':scope > .org-nav-item__rowwrap', { hasText: label }),
-	})
-}
-
-/**
- * The item's own row (link or section button), not its children's.
- *
- * @param page the page.
- * @param label the node label.
- * @return the row.
- */
-function rowOf(page: Page, label: string): Locator {
-	return item(page, label).locator(
-		':scope > .org-nav-item__rowwrap > .org-nav-item__row',
-	)
-}
-
-/**
  * Assert the rail is drawn, on the left half of the viewport.
  *
  * @param page the page.
@@ -182,7 +134,7 @@ async function expectLeftRail(page: Page): Promise<void> {
 
 test.describe.serial('navigation-editor-org — position (REQ-ONAV-004)', () => {
 	// @e2e navigation-editor-org::admin-changes-position-to-left
-	test.fixme('after the admin sets left, every user’s rail is on the left', async ({
+	test('after the admin sets left, every user’s rail is on the left', async ({
 		page,
 		browser,
 	}) => {
@@ -213,7 +165,7 @@ test.describe.serial('navigation-editor-org — position (REQ-ONAV-004)', () => 
 	})
 
 	// @e2e navigation-editor-org::position-hidden-suppresses-rail
-	test.fixme('position hidden draws no rail over a non-empty tree', async ({
+	test('position hidden draws no rail over a non-empty tree', async ({
 		page,
 	}) => {
 		const tree = [
@@ -239,7 +191,7 @@ test.describe.serial('navigation-editor-org — position (REQ-ONAV-004)', () => 
 
 test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () => {
 	// @e2e navigation-editor-org::tree-renders-with-icons-and-labels
-	test.fixme('a section with a folder icon expands to an indented child with a document icon', async ({
+	test('a section with a folder icon expands to an indented child with a document icon', async ({
 		page,
 	}) => {
 		const section = `E2E Company Resources ${RUN}`
@@ -257,18 +209,18 @@ test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () =>
 		])
 		await openWorkspace(page)
 
-		const sectionItem = item(page, section)
+		const sectionItem = navItem(page, section)
 		await expect(sectionItem).toBeVisible({ timeout: 30_000 })
 		await expect(sectionItem).toHaveClass(/org-nav-item--section/)
 		await expect(sectionItem).toHaveAttribute('aria-expanded', 'false')
-		const sectionIcon = rowOf(page, section).locator('svg.org-nav-item__icon')
+		const sectionIcon = navRow(page, section).locator('svg.org-nav-item__icon')
 		await expect(sectionIcon).toHaveAttribute('width', '24')
 		await expect(sectionIcon).toHaveAttribute('height', '24')
 		await expect(sectionIcon.locator('path')).toHaveAttribute('d', mdiFolder)
 		await expect(
-			rowOf(page, section).locator('.org-nav-item__label'),
+			navRow(page, section).locator('.org-nav-item__label'),
 		).toHaveText(section)
-		await expect(item(page, child)).toHaveCount(0)
+		await expect(navItem(page, child)).toHaveCount(0)
 
 		await sectionItem
 			.locator(':scope > .org-nav-item__rowwrap > .org-nav-item__toggle')
@@ -279,38 +231,20 @@ test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () =>
 		)
 		await expect(childItem).toHaveCount(1)
 		await expect(childItem.locator('.org-nav-item__label')).toHaveText(child)
-		const childIcon = rowOf(page, child).locator('svg.org-nav-item__icon')
+		const childIcon = navRow(page, child).locator('svg.org-nav-item__icon')
 		await expect(childIcon.locator('path')).toHaveAttribute('d', mdiFileDocument)
 		await expect(childIcon).toHaveAttribute('width', '24')
 
 		// Indented: the child's indent is wider than the section's.
 		const indent = (label: string) =>
-			item(page, label)
+			navItem(page, label)
 				.locator(':scope > .org-nav-item__rowwrap > .org-nav-item__indent')
 				.evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft))
 		expect(await indent(child)).toBeGreaterThan(await indent(section))
 	})
 
-	// @e2e navigation-editor-org::active-item-is-highlighted
-	test.fixme('the node for the current page carries org-nav-item--active', async ({
-		page,
-	}) => {
-		const sales = `E2E Sales ${RUN}`
-		const other = `E2E Other ${RUN}`
-		await arrange([
-			navNode(sales, { url: `${APP_PATH}/dashboards/sales` }),
-			navNode(other, { url: `${APP_PATH}/dashboards/other` }),
-		])
-		await openWorkspace(page, '/dashboards/sales/overview')
-
-		await expect(item(page, sales)).toHaveClass(/\borg-nav-item--active\b/, {
-			timeout: 30_000,
-		})
-		await expect(item(page, other)).not.toHaveClass(/\borg-nav-item--active\b/)
-	})
-
 	// @e2e navigation-editor-org::child-link-without-url-is-not-clickable
-	test.fixme('a section without a url is a button that expands, never a link', async ({
+	test('a section without a url is a button that expands, never a link', async ({
 		page,
 	}) => {
 		const section = `E2E No url ${RUN}`
@@ -325,11 +259,11 @@ test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () =>
 		])
 		await openWorkspace(page)
 
-		const sectionRow = rowOf(page, section)
+		const sectionRow = navRow(page, section)
 		await expect(sectionRow).toBeVisible({ timeout: 30_000 })
 		expect(await sectionRow.evaluate((el) => el.tagName)).toBe('BUTTON')
 		await expect(
-			item(page, section).locator(':scope > .org-nav-item__rowwrap a'),
+			navItem(page, section).locator(':scope > .org-nav-item__rowwrap a'),
 		).toHaveCount(0)
 		await expect(sectionRow).not.toHaveAttribute('href', /.*/)
 
@@ -337,12 +271,12 @@ test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () =>
 		await sectionRow.hover()
 		await sectionRow.click()
 		expect(page.url()).toBe(before)
-		await expect(item(page, section)).toHaveAttribute('aria-expanded', 'true')
-		await expect(item(page, `E2E Under ${RUN}`)).toBeVisible()
+		await expect(navItem(page, section)).toHaveAttribute('aria-expanded', 'true')
+		await expect(navItem(page, `E2E Under ${RUN}`)).toBeVisible()
 	})
 
 	// @e2e navigation-editor-org::openinnewtab-respected
-	test.fixme('openInNewTab opens the URL in a new tab with noopener noreferrer', async ({
+	test('openInNewTab opens the URL in a new tab with noopener noreferrer', async ({
 		page,
 		context,
 	}) => {
@@ -359,7 +293,7 @@ test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () =>
 		)
 		await openWorkspace(page)
 
-		const link = rowOf(page, label)
+		const link = navRow(page, label)
 		await expect(link).toBeVisible({ timeout: 30_000 })
 		await expect(link).toHaveAttribute('href', 'https://external.com')
 		await expect(link).toHaveAttribute('target', '_blank')
@@ -378,7 +312,7 @@ test.describe.serial('navigation-editor-org — rendering (REQ-ONAV-005)', () =>
 
 test.describe.serial('navigation-editor-org — icons (REQ-ONAV-006)', () => {
 	// @e2e navigation-editor-org::icon-from-url-renders-as-img
-	test.fixme('a URL icon is an <img> left of the label', async ({ page }) => {
+	test('a URL icon is an <img> left of the label', async ({ page }) => {
 		const label = `E2E Portal ${RUN}`
 		await arrange([
 			navNode(label, {
@@ -388,50 +322,20 @@ test.describe.serial('navigation-editor-org — icons (REQ-ONAV-006)', () => {
 		])
 		await openWorkspace(page)
 
-		const img = rowOf(page, label).locator('img')
+		const img = navRow(page, label).locator('img')
 		await expect(img).toHaveCount(1, { timeout: 30_000 })
 		await expect(img).toHaveAttribute('src', '/apps/launchpad/icons/custom.png')
 		await expect(img).toHaveAttribute('width', '24')
 		await expect(img).toHaveAttribute('height', '24')
 		const imgBox = await img.boundingBox()
-		const labelBox = await rowOf(page, label)
+		const labelBox = await navRow(page, label)
 			.locator('.org-nav-item__label')
 			.boundingBox()
 		expect(imgBox!.x + imgBox!.width).toBeLessThanOrEqual(labelBox!.x)
 	})
 
-	// @e2e navigation-editor-org::icon-name-renders-inline
-	//
-	// Also disagrees with the product apart from the mount: a bare name is
-	// mapped to its MDI path (src/services/iconCatalogue.js:44-55) and drawn
-	// as an <svg> by CnDashboardIcon (OrgNavigationItem.vue:53-57), so the
-	// name never appears as text. The scenario's inline-label rule is what
-	// this test holds the product to.
-	test.fixme('a bare icon name appears as inline text left of the label', async ({
-		page,
-	}) => {
-		const label = `E2E Business ${RUN}`
-		await arrange([
-			navNode(label, {
-				icon: 'briefcase',
-				url: `${APP_PATH}/dashboards/onav-business`,
-			}),
-		])
-		await openWorkspace(page)
-
-		const row = rowOf(page, label)
-		await expect(row).toBeVisible({ timeout: 30_000 })
-		const icon = row.locator('.org-nav-item__icon')
-		await expect(icon).toHaveText('briefcase')
-		// Not merely the glyph the name resolves to.
-		await expect(row.locator(`path[d="${mdiBriefcase}"]`)).toHaveCount(0)
-		const iconBox = await icon.boundingBox()
-		const labelBox = await row.locator('.org-nav-item__label').boundingBox()
-		expect(iconBox!.x + iconBox!.width).toBeLessThanOrEqual(labelBox!.x)
-	})
-
 	// @e2e navigation-editor-org::missing-icon-renders-no-icon
-	test.fixme('a null icon draws nothing but the label', async ({ page }) => {
+	test('a null icon draws nothing but the label', async ({ page }) => {
 		const label = `E2E Help ${RUN}`
 		const withIcon = `E2E With icon ${RUN}`
 		await arrange([
@@ -443,13 +347,13 @@ test.describe.serial('navigation-editor-org — icons (REQ-ONAV-006)', () => {
 		])
 		await openWorkspace(page)
 
-		const row = rowOf(page, label)
+		const row = navRow(page, label)
 		await expect(row).toBeVisible({ timeout: 30_000 })
 		await expect(row.locator('.org-nav-item__icon, img, svg')).toHaveCount(0)
 		await expect(row).toHaveText(label)
 		// Control: the neighbour with an icon does draw one.
 		await expect(
-			rowOf(page, withIcon).locator('.org-nav-item__icon'),
+			navRow(page, withIcon).locator('.org-nav-item__icon'),
 		).toHaveCount(1)
 	})
 })
@@ -457,7 +361,7 @@ test.describe.serial('navigation-editor-org — icons (REQ-ONAV-006)', () => {
 test.describe
 	.serial('navigation-editor-org — empty and filtered (REQ-ONAV-008)', () => {
 	// @e2e navigation-editor-org::empty-tree-renders-nothing
-	test.fixme('an empty tree at position left draws no rail', async ({ page }) => {
+	test('an empty tree at position left draws no rail', async ({ page }) => {
 		await arrange([], 'left')
 		expect((await readTree(admin)).body.tree).toEqual([])
 		await openWorkspace(page)
@@ -477,7 +381,7 @@ test.describe
 	})
 
 	// @e2e navigation-editor-org::filtered-to-zero-nodes-renders-nothing
-	test.fixme('a non-admin whose every node is filtered out sees no rail', async ({
+	test('a non-admin whose every node is filtered out sees no rail', async ({
 		page,
 		browser,
 	}) => {
@@ -503,11 +407,11 @@ test.describe
 		// Control: the admin, who may see the node, gets the rail.
 		await openWorkspace(page)
 		await expectLeftRail(page)
-		await expect(item(page, label)).toBeVisible()
+		await expect(navItem(page, label)).toBeVisible()
 	})
 
 	// @e2e navigation-editor-org::partial-filtering-still-renders-visible-nodes
-	test.fixme('a non-admin sees the open section and not the admin one', async ({
+	test('a non-admin sees the open section and not the admin one', async ({
 		browser,
 	}) => {
 		const open = `E2E For all ${RUN}`
@@ -523,74 +427,17 @@ test.describe
 		try {
 			await openWorkspace(session.page)
 			await expectLeftRail(session.page)
-			await expect(item(session.page, open)).toBeVisible()
-			await expect(item(session.page, restricted)).toHaveCount(0)
+			await expect(navItem(session.page, open)).toBeVisible()
+			await expect(navItem(session.page, restricted)).toHaveCount(0)
 		} finally {
 			await session.context.close()
 		}
 	})
 })
 
-test.describe.serial('navigation-editor-org — active item (REQ-ONAV-009)', () => {
-	// @e2e navigation-editor-org::exact-url-match
-	test.fixme('a node whose url is exactly the page is active', async ({
-		page,
-	}) => {
-		const label = `E2E Policies ${RUN}`
-		await arrange([navNode(label, { url: `${APP_PATH}/policies` })])
-		await page.goto(`${APP_PATH}/policies`)
-		expect(new URL(page.url()).pathname).toBe(`${APP_PATH}/policies`)
-		await expect(item(page, label)).toHaveClass(/\borg-nav-item--active\b/, {
-			timeout: 30_000,
-		})
-	})
-
-	// @e2e navigation-editor-org::prefix-match-with-path-segment-boundary
-	test.fixme('a node whose url is a path prefix of the page is active', async ({
-		page,
-	}) => {
-		const label = `E2E Dashboards ${RUN}`
-		await arrange([navNode(label, { url: `${APP_PATH}/dashboards` })])
-		await page.goto(`${APP_PATH}/dashboards/sales/details`)
-		await expect(item(page, label)).toHaveClass(/\borg-nav-item--active\b/, {
-			timeout: 30_000,
-		})
-	})
-
-	// @e2e navigation-editor-org::prefix-without-boundary-does-not-match
-	test.fixme('/hub is not active on /hubris', async ({ page }) => {
-		const label = `E2E Hub ${RUN}`
-		await arrange([navNode(label, { url: `${APP_PATH}/hub` })])
-		await page.goto(`${APP_PATH}/hubris`)
-		// Rendered, so the missing class is the match rule and not an absent node.
-		await expect(item(page, label)).toBeVisible({ timeout: 30_000 })
-		await expect(item(page, label)).not.toHaveClass(/\borg-nav-item--active\b/)
-	})
-
-	// @e2e navigation-editor-org::parent-auto-expands-if-child-is-active
-	test.fixme('the section holding the active child opens by itself', async ({
-		page,
-	}) => {
-		const parent = `E2E Dashboards section ${RUN}`
-		const child = `E2E Sales Dashboard ${RUN}`
-		await arrange([
-			navNode(parent, {
-				children: [navNode(child, { url: `${APP_PATH}/dashboards/sales` })],
-			}),
-		])
-		await page.goto(`${APP_PATH}/dashboards/sales`)
-
-		await expect(item(page, parent)).toHaveAttribute('aria-expanded', 'true', {
-			timeout: 30_000,
-		})
-		await expect(item(page, child)).toBeVisible()
-		await expect(item(page, child)).toHaveClass(/\borg-nav-item--active\b/)
-	})
-})
-
 test.describe.serial('navigation-editor-org — mobile layout (REQ-ONAV-010)', () => {
 	// @e2e navigation-editor-org::mobile-hamburger-visible
-	test.fixme('at 600px a hamburger shows and the rail does not', async ({
+	test('at 600px a hamburger shows and the rail does not', async ({
 		page,
 	}) => {
 		await arrange([
@@ -609,7 +456,7 @@ test.describe.serial('navigation-editor-org — mobile layout (REQ-ONAV-010)', (
 	})
 
 	// @e2e navigation-editor-org::click-hamburger-opens-drawer
-	test.fixme('the hamburger opens a side drawer over the content with the whole tree', async ({
+	test('the hamburger opens a side drawer over the content with the whole tree', async ({
 		page,
 	}) => {
 		const a = `E2E Drawer A ${RUN}`
@@ -633,12 +480,12 @@ test.describe.serial('navigation-editor-org — mobile layout (REQ-ONAV-010)', (
 		await expect(
 			drawer.getByRole('button', { name: 'Close navigation' }),
 		).toBeVisible()
-		await expect(item(page, a)).toBeVisible()
-		await expect(item(page, b)).toBeVisible()
+		await expect(navItem(page, a)).toBeVisible()
+		await expect(navItem(page, b)).toBeVisible()
 	})
 
 	// @e2e navigation-editor-org::close-drawer-on-selection
-	test.fixme('choosing a link in the drawer navigates and closes the drawer', async ({
+	test('choosing a link in the drawer navigates and closes the drawer', async ({
 		page,
 	}) => {
 		const label = `E2E Target ${RUN}`
@@ -649,7 +496,7 @@ test.describe.serial('navigation-editor-org — mobile layout (REQ-ONAV-010)', (
 
 		await page.locator('.org-nav__hamburger').click()
 		await expect(page.locator('.org-nav__panel--drawer-open')).toBeVisible()
-		await rowOf(page, label).click()
+		await navRow(page, label).click()
 		await page.waitForURL(`**${target}`)
 		expect(new URL(page.url()).pathname).toBe(target)
 		await expect(page.locator('.org-nav__panel--drawer-open')).toHaveCount(0)
@@ -660,7 +507,7 @@ test.describe.serial('navigation-editor-org — mobile layout (REQ-ONAV-010)', (
 	})
 
 	// @e2e navigation-editor-org::desktop-rail-visible-at-800px
-	test.fixme('at 800px the full rail is on the left and no hamburger shows', async ({
+	test('at 800px the full rail is on the left and no hamburger shows', async ({
 		page,
 	}) => {
 		await arrange(

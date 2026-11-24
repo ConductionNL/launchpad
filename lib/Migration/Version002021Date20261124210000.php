@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Version002020Date20261124190000
+ * Version002021Date20261124210000
  *
  * Adds `requires_confirmation` and `confirm_before` to
  * `launchpad_announcements`: whether an announcement asks its audience to
@@ -39,7 +39,7 @@ use OCP\Migration\SimpleMigrationStep;
  *
  * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
-class Version002020Date20261124190000 extends SimpleMigrationStep {
+class Version002021Date20261124210000 extends SimpleMigrationStep {
 
 	/**
 	 * Add the two columns, each once.

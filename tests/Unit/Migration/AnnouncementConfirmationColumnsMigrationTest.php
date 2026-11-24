@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Unit\Migration;
 
-use OCA\LaunchPad\Migration\Version002020Date20261124190000;
+use OCA\LaunchPad\Migration\Version002021Date20261124210000;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Schema\IColumn;
 use OCP\DB\Schema\ITable;
@@ -26,9 +26,9 @@ use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for Version002020Date20261124190000.
+ * Tests for Version002021Date20261124210000.
  *
- * @covers \OCA\LaunchPad\Migration\Version002020Date20261124190000
+ * @covers \OCA\LaunchPad\Migration\Version002021Date20261124210000
  */
 class AnnouncementConfirmationColumnsMigrationTest extends TestCase {
 
@@ -40,7 +40,7 @@ class AnnouncementConfirmationColumnsMigrationTest extends TestCase {
 	 * @return ISchemaWrapper|null What the step answered.
 	 */
 	private function migrate(ISchemaWrapper $schema): ?ISchemaWrapper {
-		return (new Version002020Date20261124190000())->changeSchema(
+		return (new Version002021Date20261124210000())->changeSchema(
 			$this->createMock(originalClassName: IOutput::class),
 			static fn (): ISchemaWrapper => $schema,
 			[]

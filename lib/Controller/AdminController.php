@@ -321,7 +321,7 @@ class AdminController extends Controller {
 	 * Push an updated admin template to its already-provisioned user
 	 * copies (REQ-RESYNC-001).
 	 *
-	 * Body: `{strategy: "overwrite"|"merge", dryRun: bool}`. Dry-run
+	 * Body: `{strategy: "overwrite"|"merge"|"add_only", dryRun: bool}`. Dry-run
 	 * (the default) computes and returns the plan — affected copies plus
 	 * per-copy add/update/remove/preserve counts — without mutating
 	 * anything. A real run (`dryRun: false`) applies inline for small
@@ -334,7 +334,7 @@ class AdminController extends Controller {
 	 * controller's other mutating admin actions (export/import/footer).
 	 *
 	 * @param int $id The admin template's dashboard ID.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
+	 * @param string $strategy `'overwrite'`, `'merge'` or `'add_only'`.
 	 * @param bool $dryRun When true (default), report without
 	 *                     mutating.
 	 *

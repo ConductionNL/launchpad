@@ -22,6 +22,7 @@ The system MUST register a divider widget with the Nextcloud Dashboard Widget AP
 - AND the widget MUST NOT fetch any data on discovery — it is fully client-side
 
 #### Scenario: Widget registration via IManager
+@e2e exclude never built: no `DividerWidgetProvider` exists and nothing calls `IManager::registerWidget` for the divider (`git log --all -S DividerWidgetProvider -- src lib appinfo templates` returns nothing); the divider is a client-side type registered by nc-vue's `registerDashboardWidget('divider', …)`, so an app boot registers nothing to observe. Same verdict as "Widget discovery works via standard widget API" under REQ-DIV-009. Its client-side discovery is cited by tests/e2e/divider-widget-discovery.spec.ts (widget-appears-in-discovery).
 - GIVEN `OCP\Dashboard\IManager` is available in the Nextcloud container
 - WHEN the LaunchPad app boots (appinfo/app.php or service provider)
 - THEN the app MUST register the divider widget by calling `$manager->registerWidget(new DividerWidgetProvider())`
@@ -215,7 +216,7 @@ The system MUST render dividers entirely client-side and MUST NOT require any ba
 - AND the widget MUST use only the `widgetContent` JSON stored in the placement record to configure its render
 
 #### Scenario: Widget discovery works via standard widget API
-@e2e exclude never built: the divider is not registered with OCP\Dashboard\IManager, so `IManager::getWidgets()` (lib/Service/WidgetService.php:80, behind GET /api/widgets) never returns it; it is a client-side type registered by nc-vue's `registerDashboardWidget('divider', …)`. `git log --all -S DividerWidgetProvider -- src lib appinfo templates` returns nothing. Client-side discovery is cited by tests/e2e/spec-coverage/spec-coverage.spec.ts (widget-appears-in-discovery).
+@e2e exclude never built: the divider is not registered with OCP\Dashboard\IManager, so `IManager::getWidgets()` (lib/Service/WidgetService.php:80, behind GET /api/widgets) never returns it; it is a client-side type registered by nc-vue's `registerDashboardWidget('divider', …)`. `git log --all -S DividerWidgetProvider -- src lib appinfo templates` returns nothing. Client-side discovery is cited by tests/e2e/divider-widget-discovery.spec.ts (widget-appears-in-discovery).
 - GIVEN the user opens the widget picker
 - WHEN the system calls `IManager::getWidgets()`
 - THEN the divider widget metadata MUST be returned

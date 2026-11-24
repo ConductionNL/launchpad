@@ -12,9 +12,6 @@
  *   @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
  *   @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
  *   @e2e dashboard-switcher::click-invokes-create-flow
- *   @e2e divider-widget::widget-appears-in-discovery
- *   @e2e divider-widget::widget-registration-via-imanager
- *   @e2e divider-widget::widget-appears-alongside-standard-widgets
  *   @e2e grid-layout::initialize-grid-with-default-12-column-layout
  *   @e2e grid-layout::initialize-grid-with-custom-column-count
  *   @e2e grid-layout::initialize-grid-with-no-widget-placements
@@ -361,41 +358,6 @@ test.describe('dashboard-switcher sidebar', () => {
 		}
 		// If dialog IS visible, the create flow is working.
 	}
-})
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Divider Widget — discovery in the Add-Widget picker
-// ─────────────────────────────────────────────────────────────────────────────
-
-test.describe('divider widget discovery', () => {
-	// @e2e divider-widget::widget-appears-in-discovery
-	// @e2e divider-widget::widget-registration-via-imanager
-	// @e2e divider-widget::widget-appears-alongside-standard-widgets
-	test('divider widget appears in the Add-Widget modal picker', async ({
-		page,
-	}) => {
-		await gotoLaunchPad(page)
-		await openAddWidgetModal(page)
-
-		// The modal lists all registered widgets in a <select> / combobox.
-		// "Divider" (or NL "Scheidingslijn") must be one of the options.
-		const widgetType = page.getByLabel(/widget type/i).first()
-		await expect(widgetType).toBeVisible({ timeout: 5_000 })
-
-		const dividerOption = page.getByRole('option', {
-			name: /divider|scheidingslijn/i,
-		})
-		await expect(dividerOption).toBeAttached({ timeout: 5_000 })
-
-		// At least two other widget types must also exist in the same select,
-		// confirming the modal lists multiple widgets.
-		const optionCount = await page
-			.locator('select[aria-label*="Widget type"] option, #widget-type option')
-			.count()
-		// Fall back to counting combobox options if we can't find the select directly.
-		const comboCount = await page.locator('option').count()
-		expect(optionCount + comboCount).toBeGreaterThan(2)
-	})
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

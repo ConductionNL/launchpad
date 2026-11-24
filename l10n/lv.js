@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Attēlojums",
+    "Theme" : "Motīvs",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Motīvs ir vienāds visiem informācijas paneļiem. Šī paneļa krāsas iestata sadaļā “Savs izskats”.",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Noklusējumi, ar kuriem sākas katrs panelis: kas drīkst veidot paneļus, atļauju līmenis un režģis. Šī ekskursija tiek rādīta vienreiz.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Sadaļā Kiosks veidojat paneļu atskaņošanas sarakstus ekrānam bez pieteikšanās.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Sadaļā Demonstrācijas dati ielādējat paraugpaneļus, lai izmēģinātu LaunchPad, un atkal tos noņemat.",

@@ -1425,6 +1425,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "В разделе «Киоск» вы составляете плейлисты панелей для экрана без входа.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "В разделе «Демо-данные» вы загружаете примеры панелей, чтобы попробовать LaunchPad, и снова удаляете их.",
         "Quarter": "Квартал",
-        "Year": "Год"
+        "Year": "Год",
+        "Display": "Отображение",
+        "Theme": "Тема",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Тема одинакова для всех панелей. Собственные цвета этой панели задаются в разделе «Собственный вид»."
     }
 }

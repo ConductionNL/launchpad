@@ -80,6 +80,7 @@ describe('DashboardConfigModal look', () => {
 		expect(self.lookUploading).toBe(false)
 	})
 
+	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
 	it('emits the changed look with the save', async () => {
 		const emitted = []
 		const self = host({ accent: '#1f5c3a', background: '', resource: '' })

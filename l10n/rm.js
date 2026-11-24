@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Vista",
+    "Theme" : "Tema",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Il tema è il medem per mintga dashboard. Las atgnas colurs da quest dashboard definischas ti sut «Agen aspect».",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Las predefiniziuns cun las qualas mintga dashboard cumenza: tgi che dastga crear dashboards, il nivel da permissiun e la grilla. Questa tura vegn mussada ina giada.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Sut Kiosk fas Vus glistas da reproducziun da dashboards per in visur senza annunzia.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Sut Datas da demo chargias Vus dashboards d'exempel per empruvar LaunchPad e las allontanais puspè.",

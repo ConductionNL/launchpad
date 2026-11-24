@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Приказ",
+    "Theme" : "Тема",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Темата е иста за секоја контролна табла. Сопствените бои на оваа табла ги поставувате во „Сопствен изглед“.",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Стандардните поставки на секоја контролна табла: кој смее да создава табли, нивото на дозволи и мрежата. Оваа тура се прикажува еднаш.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Под Киоск правите листи за репродукција на табли за екран без најава.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Под Демо податоци вчитувате примерни табли за да го пробате LaunchPad и повторно ги отстранувате.",

@@ -2185,6 +2185,8 @@
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Onder Demogegevens laadt u voorbeelddashboards om LaunchPad te proberen, en haalt u ze weer weg.",
         "Quarter": "Kwartaal",
         "Year": "Jaar",
-        "Sign in for employees": "Inloggen voor medewerkers"
+        "Sign in for employees": "Inloggen voor medewerkers",
+        "Theme": "Thema",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Het thema is voor elk dashboard hetzelfde. De eigen kleuren van dit dashboard stelt u in onder Eigen uitstraling."
     }
 }

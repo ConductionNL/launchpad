@@ -18,6 +18,9 @@ vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (p) => `/index.php${p}` }))
+vi.mock('@nextcloud/capabilities', () => ({
+	getCapabilities: () => ({ nldesign: { tokenSet: { name: 'Huisstijl Zuiddrecht' } }, theming: { name: 'Nextcloud' } }),
+}))
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, key) => key }))
 
 vi.mock('../../services/api.js', () => ({
@@ -191,6 +194,26 @@ describe('DashboardConfigModal tab split', () => {
 		expect(look.find('[data-testid="look-image-input"]').exists()).toBe(true)
 		expect(general.text()).not.toMatch(/layout of this dashboard|Indeling van dit dashboard/i)
 		expect(wrapper.find('[data-test="config-panel-look"]').exists()).toBe(false)
+	})
+
+	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+	it('shows the instance theme read-only under Display, with no theme choice or layout field', () => {
+		const wrapper = mountModal()
+		const general = wrapper.find('[data-test="config-panel-general"]')
+		const display = general.find('[data-test="config-display"]')
+		expect(display.exists()).toBe(true)
+		expect(display.text()).toContain('Display')
+		const theme = display.find('[data-testid="display-theme"]')
+		expect(theme.attributes('readonly')).toBeDefined()
+		expect(wrapper.vm.themeName).toBe('Huisstijl Zuiddrecht')
+		expect(display.find('[data-testid="display-theme-hint"]').text()).toContain('Own look')
+		expect(display.find('.nc-select-stub').exists()).toBe(false)
+		expect(general.text()).not.toMatch(/layout of this dashboard|Indeling van dit dashboard/i)
+	})
+
+	it('shows no theme field while creating a dashboard', () => {
+		const wrapper = mountModal({ dashboard: null })
+		expect(wrapper.find('[data-test="config-display"]').exists()).toBe(false)
 	})
 
 	it('offers no Own look while creating a dashboard', () => {

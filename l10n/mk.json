@@ -1423,6 +1423,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Под Киоск правите листи за репродукција на табли за екран без најава.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Под Демо податоци вчитувате примерни табли за да го пробате LaunchPad и повторно ги отстранувате.",
         "Quarter": "Квартал",
-        "Year": "Година"
+        "Year": "Година",
+        "Display": "Приказ",
+        "Theme": "Тема",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Темата е иста за секоја контролна табла. Сопствените бои на оваа табла ги поставувате во „Сопствен изглед“."
     }
 }

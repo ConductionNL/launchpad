@@ -1427,6 +1427,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Pod Kiosk ustvarite sezname predvajanja plošč za zaslon brez prijave.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Pod Predstavitveni podatki naložite vzorčne plošče za preizkus LaunchPada in jih znova odstranite.",
         "Quarter": "Četrtletje",
-        "Year": "Leto"
+        "Year": "Leto",
+        "Display": "Prikaz",
+        "Theme": "Tema",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Tema je enaka za vse nadzorne plošče. Lastne barve te plošče nastavite pod »Lasten videz«."
     }
 }

@@ -1749,6 +1749,9 @@
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Under Demo data you load example dashboards to try LaunchPad, and remove them again.",
         "Quarter": "Quarter",
         "Year": "Year",
-        "Sign in for employees": "Sign in for employees"
+        "Sign in for employees": "Sign in for employees",
+        "Display": "Display",
+        "Theme": "Theme",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "The theme is the same for every dashboard. Set this dashboard's own colours under Own look."
     }
 }

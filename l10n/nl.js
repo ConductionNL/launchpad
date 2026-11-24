@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Theme" : "Thema",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Het thema is voor elk dashboard hetzelfde. De eigen kleuren van dit dashboard stelt u in onder Eigen uitstraling.",
     "Sign in for employees" : "Inloggen voor medewerkers",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "De standaarden waarmee elk dashboard begint: wie dashboards mag maken, het rechtenniveau en het raster. Deze rondleiding ziet u één keer.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Onder Kiosk maakt u afspeellijsten van dashboards voor een scherm zonder inloggen.",

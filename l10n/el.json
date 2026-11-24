@@ -1423,6 +1423,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Στο Περίπτερο φτιάχνετε λίστες αναπαραγωγής πινάκων για μια οθόνη χωρίς σύνδεση.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Στα Δεδομένα επίδειξης φορτώνετε παραδείγματα πινάκων για να δοκιμάσετε το LaunchPad και τα αφαιρείτε ξανά.",
         "Quarter": "Τρίμηνο",
-        "Year": "Έτος"
+        "Year": "Έτος",
+        "Display": "Εμφάνιση",
+        "Theme": "Θέμα",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Το θέμα είναι ίδιο για κάθε πίνακα. Τα δικά του χρώματα αυτού του πίνακα ορίζονται στο «Δική του εμφάνιση»."
     }
 }

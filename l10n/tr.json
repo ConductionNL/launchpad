@@ -1423,6 +1423,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "Kiosk altında, oturum açma gerektirmeyen bir ekran için pano oynatma listeleri oluşturursunuz.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "Demo verileri altında LaunchPad'i denemek için örnek panolar yükler ve sonra yeniden kaldırırsınız.",
         "Quarter": "Çeyrek",
-        "Year": "Yıl"
+        "Year": "Yıl",
+        "Display": "Görünüm",
+        "Theme": "Tema",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Tema her pano için aynıdır. Bu panonun kendi renklerini \"Kendi görünümü\" altında ayarlarsınız."
     }
 }

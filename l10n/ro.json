@@ -1425,6 +1425,9 @@
         "Under Kiosk you make playlists of dashboards for a screen that needs no login.": "La Chioșc creați liste de redare cu tablouri de bord pentru un ecran fără autentificare.",
         "Under Demo data you load example dashboards to try LaunchPad, and remove them again.": "La Date demo încărcați tablouri de exemplu pentru a încerca LaunchPad și le eliminați din nou.",
         "Quarter": "Trimestru",
-        "Year": "An"
+        "Year": "An",
+        "Display": "Afișare",
+        "Theme": "Temă",
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Tema este aceeași pentru fiecare tablou de bord. Culorile proprii ale acestui tablou se setează la „Aspect propriu”."
     }
 }

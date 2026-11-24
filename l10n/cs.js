@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Zobrazení",
+    "Theme" : "Motiv",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Motiv je stejný pro každou nástěnku. Vlastní barvy této nástěnky nastavíte v části „Vlastní vzhled“.",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Výchozí nastavení každé nástěnky: kdo smí vytvářet nástěnky, úroveň oprávnění a mřížka. Tato prohlídka se zobrazí jednou.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "V části Kiosk vytváříte seznamy nástěnek pro obrazovku bez přihlášení.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "V části Ukázková data načtete ukázkové nástěnky k vyzkoušení LaunchPadu a zase je odstraníte.",

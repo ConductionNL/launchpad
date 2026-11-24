@@ -1,6 +1,9 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Display" : "Wiri",
+    "Theme" : "Tema",
+    "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "It-tema hija l-istess għal kull dashboard. Il-kuluri proprji ta' dan id-dashboard tissettjahom taħt \"Dehra proprja\".",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "Is-settings default li bihom jibda kull dashboard: min jista' joħloq dashboards, il-livell tal-permess u l-grilja. Dan it-tour jintwera darba.",
     "Under Kiosk you make playlists of dashboards for a screen that needs no login." : "Taħt Kiosk tagħmel playlists ta' dashboards għal skrin li ma jeħtieġx login.",
     "Under Demo data you load example dashboards to try LaunchPad, and remove them again." : "Taħt Data tad-demo ttella' dashboards ta' eżempju biex tipprova LaunchPad, u tneħħihom mill-ġdid.",

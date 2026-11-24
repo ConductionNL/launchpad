@@ -883,6 +883,10 @@ export default {
 		// widgets follow, from the address; read-only, never stored.
 		const dashboardPeriod = ref(readPeriod(typeof window === 'undefined' ? '' : window.location.search))
 		provide('dashboardPeriod', dashboardPeriod)
+		// The widget forms offer "Date field for the period" on their register
+		// source here, because this dashboard has a period (nextcloud-vue
+		// period-field-on-register-forms; REQ-DPD-002).
+		provide('cnOffersPeriodField', true)
 
 		return { canEditRef, grid, personalLayer, filterSession, dashboardPeriod }
 	},

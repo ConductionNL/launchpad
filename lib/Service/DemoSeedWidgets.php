@@ -103,11 +103,21 @@ class DemoSeedWidgets {
 		$placed    = [];
 		$skipped   = [];
 		$fallbacks = [];
+		$gaps      = [];
+		$tiles     = [];
 		foreach (array_values(array: $entries) as $order => $entry) {
 			$payload = $this->resolve(entry: $entry);
 			if ($payload === null) {
 				$skipped[] = $this->labelOf(entry: $entry);
+				if (isset($entry['tile']) === true) {
+					$gaps[] = ['x' => (int)($entry['gridX'] ?? 0), 'y' => (int)($entry['gridY'] ?? 0), 'w' => (int)($entry['gridWidth'] ?? 2)];
+				}
+
 				continue;
+			}
+
+			if (isset($entry['tile']) === true) {
+				$tiles[] = count($placed);
 			}
 
 			if ($payload['widgetId'] !== ($entry['widgetId'] ?? $payload['widgetId'])) {
@@ -117,6 +127,8 @@ class DemoSeedWidgets {
 			$payload['sortOrder'] = $order;
 			$placed[] = $payload;
 		}
+
+		$placed = (new DemoSeedTileGaps())->close(placed: $placed, tiles: $tiles, gaps: $gaps);
 
 		return ['placed' => $placed, 'skipped' => $skipped, 'fallbacks' => $fallbacks];
 	}//end expand()

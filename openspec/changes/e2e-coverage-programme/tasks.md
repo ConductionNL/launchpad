@@ -148,18 +148,23 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 59 scenarios, 40 cited, 19 excluded, 0 uncited (gate-19 report mode). New since 19 Nov: `nextcloud-dashboard-items-come-from-own-news-widgets`, cited in `news-widget.spec.ts`. All files listed by `playwright test --list`, not yet run.
 - [x] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/files-widget.spec.ts`, `files-widget-listing.spec.ts`, `files-widget-navigation.spec.ts`, `files-widget-actions.spec.ts`, `files-widget-access.spec.ts`; 6 scenarios excluded with reasons, 51 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 51 of 51 green, every listed test run (checked against `playwright test --list`).
+  - Recount (cloud, 2026-11-24): 58 scenarios, 52 cited, 6 excluded, 0 uncited. One scenario postdates the green run: `upload-is-off-by-default`, cited in `files-widget-access.spec.ts`, not yet run.
 - [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
   - Spec written: `tests/e2e/header-widget.spec.ts`, `header-widget-content.spec.ts`, `header-widget-a11y.spec.ts`, `header-widget-form.spec.ts`; 7 scenarios excluded with reasons, 49 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 54 scenarios, 47 cited, 7 excluded, 0 uncited. The four `height-*` scenarios became `a-preset-sets-the-starting-height` (`header-widget-form.spec.ts`), and `the-banner-fills-its-cell` (`header-widget-content.spec.ts`) is new. All files listed, not yet run.
 - [x] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/calendar-widget.spec.ts`, `calendar-widget-sources.spec.ts`, `calendar-widget-rendering.spec.ts`, `calendar-widget-config.spec.ts`; 13 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 39 of 39 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.6 `links-widget`: 52 scenarios, 0 cited.
   - Spec written: `tests/e2e/links-widget.spec.ts`, `links-widget-grid-navigation.spec.ts`, `links-widget-config.spec.ts`, `links-widget-editor.spec.ts`; 0 scenarios excluded, 52 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 53 scenarios, 53 cited, 0 excluded, 0 uncited. New since 19 Nov: `nextcloud-dashboard-items-come-from-own-links-widgets`, cited in `links-widget.spec.ts`. All files listed, not yet run.
 - [ ] 4.7 `video-widget`: 51 scenarios, 0 cited.
   - Spec written: `tests/e2e/video-widget.spec.ts`, `video-widget-files.spec.ts` (with `fixtures/tiny.webm`); 18 scenarios excluded with reasons, 33 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 51 scenarios, 35 cited, 16 excluded, 0 uncited. `url-parsing-endpoint-is-available` and `invalid-url-format-is-rejected-early` lost their exclusions when the parse endpoint was built (16300d2e) and are cited in `video-widget.spec.ts`. All files listed, not yet run.
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
   - Spec written: `tests/e2e/link-button-widget.spec.ts`, `link-button-widget-list.spec.ts`, `link-button-widget-form.spec.ts`; 3 scenarios excluded with reasons, 48 scenarios cited, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/link-button-widget-list.spec.ts` (citation for "An action_id entry is never rendered as a link" corrected to `an-actionid-entry-is-never-rendered-as-a-link`, since gate-19 strips `_`), 49 scenarios cited, 3 excluded with reasons, of 52, not yet run (cloud, 2026-11-24)
@@ -167,6 +172,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/people-widget.spec.ts`, `people-widget-config.spec.ts`, `people-widget-rendering.spec.ts`, `people-widget-search.spec.ts`, `people-widget-profile-fields.spec.ts`; 8 scenarios excluded with reasons, 50 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
   - Spec written: `tests/e2e/image-widget-scenarios.spec.ts` (new) with `image-widget.spec.ts` and `image-widget-clickthrough.spec.ts`; 20 scenarios excluded with reasons, 25 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 48 scenarios, 28 cited, 20 excluded, 0 uncited. New since 19 Nov (external-host allow-list, 16d47a87): `allow-listed-external-image-loads`, `external-image-from-a-host-not-on-the-list-is-blocked`, `an-entry-that-is-not-a-host-name-is-refused`, cited in `image-widget-scenarios.spec.ts`. All files listed, not yet run.
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
   - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.

@@ -42,6 +42,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 
@@ -337,6 +338,23 @@ class AnnouncementService implements AnnouncementServiceInterface {
 
 		return $groups === [] || array_intersect($groups, $this->userGroups->getUserGroupIdsFor($userId)) !== [];
 	}//end reachesUser()
+
+	/**
+	 * The groups an author can pick as the target group, by display name.
+	 *
+	 * @return list<array{id: string, displayName: string}>
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 */
+	public function targetGroups(): array {
+		$groups = array_map(
+			static fn (IGroup $group): array => ['id' => $group->getGID(), 'displayName' => $group->getDisplayName()],
+			$this->groupManager->search('')
+		);
+		usort($groups, static fn (array $one, array $two): int => strcasecmp($one['displayName'], $two['displayName']));
+
+		return $groups;
+	}//end targetGroups()
 
 	/**
 	 * An announcement the user may change.

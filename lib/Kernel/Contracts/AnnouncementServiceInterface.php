@@ -171,4 +171,13 @@ interface AnnouncementServiceInterface {
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
 	 */
 	public function reachesUser(array $groups, string $userId): bool;
+
+	/**
+	 * The groups an author can pick as the target group, by display name.
+	 *
+	 * @return list<array{id: string, displayName: string}>
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 */
+	public function targetGroups(): array;
 }//end interface

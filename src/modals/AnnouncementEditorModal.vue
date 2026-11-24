@@ -10,99 +10,134 @@
 		:name="t('launchpad', 'New announcement')"
 		@close="$emit('close')">
 		<div class="announcement-editor" data-test="announcement-editor">
-			<h2>{{ step === 'write' ? t('launchpad', 'New announcement') : t('launchpad', 'Preview') }}</h2>
+			<h2>{{ t('launchpad', 'New announcement') }}</h2>
 
-			<form v-if="step === 'write'" class="announcement-editor__form" @submit.prevent="toPreview">
-				<NcSelect
-					v-model="form.kind"
-					:options="kindOptions"
-					:inputLabel="t('launchpad', 'Kind')"
-					:reduce="(option) => option.value"
-					label="label"
-					:clearable="false"
-					data-test="editor-kind" />
-				<NcTextField v-model="form.title" :label="t('launchpad', 'Title')" :required="true" data-test="editor-title" />
-				<NcTextArea v-model="form.body" :label="t('launchpad', 'Text')" data-test="editor-body" />
-				<NcTextField v-model="form.category" :label="t('launchpad', 'Category')" data-test="editor-category" />
-				<NcSelect
-					v-model="form.targetGroups"
-					:options="[]"
-					:multiple="true"
-					:taggable="true"
-					:inputLabel="t('launchpad', 'Target groups (empty for everyone)')"
-					data-test="editor-groups" />
-				<template v-if="form.kind === 'notice'">
+			<div class="announcement-editor__columns">
+				<form
+					id="announcement-editor-form"
+					class="announcement-editor__form"
+					data-test="announcement-editor-form"
+					@submit.prevent="submit">
+					<NcTextField v-model="form.title" :label="t('launchpad', 'Title')" :required="true" data-test="editor-title" />
+					<NcTextArea v-model="form.body" :label="t('launchpad', 'Text')" data-test="editor-body" />
 					<NcSelect
-						v-model="form.level"
-						:options="levelOptions"
-						:inputLabel="t('launchpad', 'Level')"
-						:reduce="(option) => option.value"
-						label="label"
-						:clearable="false"
-						data-test="editor-level" />
-					<NcCheckboxRadioSwitch v-model="form.dismissible" data-test="editor-dismissible">
-						{{ t('launchpad', 'Readers may dismiss this notice') }}
-					</NcCheckboxRadioSwitch>
-				</template>
-				<NcCheckboxRadioSwitch v-else v-model="form.allowComments" data-test="editor-comments">
-					{{ t('launchpad', 'Allow comments') }}
-				</NcCheckboxRadioSwitch>
-				<label class="announcement-editor__label">
-					{{ t('launchpad', 'Publish at (empty for when you publish)') }}
-					<input v-model="form.publishAt" type="datetime-local" data-test="editor-publish-at">
-				</label>
-				<!-- REQ-ANN-001 (board LpAankondiging): every announcement has an
-				     end time, "Show until". -->
-				<label class="announcement-editor__label">
-					{{ t('launchpad', 'Show until') }}
-					<input
-						v-model="form.expiresAt"
-						type="datetime-local"
-						required
-						aria-describedby="announcement-editor-show-until-hint"
-						data-test="editor-expires-at">
-				</label>
-				<p id="announcement-editor-show-until-hint" class="announcement-editor__hint" data-test="editor-show-until-hint">
-					{{ t('launchpad', 'After this time the announcement disappears from every dashboard.') }}
-				</p>
-				<div class="announcement-editor__actions">
-					<NcButton type="submit" variant="primary" :disabled="busy || form.title.trim() === ''" data-test="editor-preview">
-						{{ t('launchpad', 'Preview') }}
-					</NcButton>
-				</div>
-			</form>
+						v-model="form.targetGroups"
+						:options="groupOptions"
+						:multiple="true"
+						:reduce="(option) => option.id"
+						label="displayName"
+						:inputLabel="t('launchpad', 'Target group')"
+						:placeholder="t('launchpad', 'Everyone')"
+						data-test="editor-groups" />
 
-			<div v-else class="announcement-editor__preview" data-test="editor-preview-step">
-				<NoticeBanner v-if="form.kind === 'notice'" :notice="previewItem" :preview="true" />
-				<AnnouncementCard v-else :announcement="previewItem" :preview="true" />
-				<p v-if="visibleUntil" data-test="editor-visible-until">
-					{{ t('launchpad', 'Visible until {when}', { when: visibleUntil }) }}
-				</p>
-				<p data-test="editor-reach">
-					{{ n('launchpad', 'Reaches {count} person', 'Reaches {count} people', reach, { count: reach }) }}
-				</p>
-				<form class="announcement-editor__preview-as" @submit.prevent="checkPreviewAs">
-					<NcTextField v-model="previewAs" :label="t('launchpad', 'Preview as (user id)')" data-test="editor-preview-as" />
-					<NcButton type="submit" variant="secondary" :disabled="previewAs.trim() === ''">
-						{{ t('launchpad', 'Check') }}
-					</NcButton>
+					<!-- REQ-ANN-006 (board LpAankondiging): the kind as two choice cards. -->
+					<fieldset class="announcement-editor__kinds" data-test="editor-kind">
+						<legend>{{ t('launchpad', 'Kind') }}</legend>
+						<label
+							v-for="option in kindOptions"
+							:key="option.value"
+							class="announcement-editor__kind"
+							:class="{ 'announcement-editor__kind--chosen': form.kind === option.value }"
+							:data-test="`editor-kind-${option.value}`">
+							<input
+								v-model="form.kind"
+								class="announcement-editor__kind-input"
+								type="radio"
+								name="announcement-kind"
+								:value="option.value">
+							<span class="announcement-editor__kind-label">{{ option.label }}</span>
+							<span class="announcement-editor__kind-hint">{{ option.hint }}</span>
+						</label>
+					</fieldset>
+
+					<template v-if="form.kind === 'notice'">
+						<NcSelect
+							v-model="form.level"
+							:options="levelOptions"
+							:inputLabel="t('launchpad', 'Level')"
+							:reduce="(option) => option.value"
+							label="label"
+							:clearable="false"
+							data-test="editor-level" />
+						<NcCheckboxRadioSwitch v-model="form.dismissible" data-test="editor-dismissible">
+							{{ t('launchpad', 'Readers may dismiss this notice') }}
+						</NcCheckboxRadioSwitch>
+					</template>
+					<template v-else>
+						<NcTextField v-model="form.category" :label="t('launchpad', 'Category')" data-test="editor-category" />
+						<NcCheckboxRadioSwitch v-model="form.allowComments" data-test="editor-comments">
+							{{ t('launchpad', 'Allow comments and following') }}
+						</NcCheckboxRadioSwitch>
+					</template>
+
+					<div class="announcement-editor__times">
+						<label class="announcement-editor__label">
+							{{ t('launchpad', 'Publish on (optional)') }}
+							<input v-model="form.publishAt" type="datetime-local" data-test="editor-publish-at">
+						</label>
+						<!-- REQ-ANN-001 (board LpAankondiging): every announcement has an
+						     end time, "Show until". -->
+						<label class="announcement-editor__label">
+							{{ t('launchpad', 'Show until') }}
+							<input
+								v-model="form.expiresAt"
+								type="datetime-local"
+								required
+								aria-describedby="announcement-editor-show-until-hint"
+								data-test="editor-expires-at">
+						</label>
+					</div>
+					<p id="announcement-editor-show-until-hint" class="announcement-editor__hint" data-test="editor-show-until-hint">
+						{{ t('launchpad', 'After this time the announcement disappears from every dashboard.') }}
+					</p>
 				</form>
-				<p v-if="previewAsAnswer !== null" data-test="editor-preview-as-answer">
-					{{ previewAsAnswer ? t('launchpad', '{user} sees this announcement', { user: previewAsUser }) : t('launchpad', '{user} does not see this announcement', { user: previewAsUser }) }}
-				</p>
-				<div class="announcement-editor__actions">
-					<NcButton variant="secondary" :disabled="busy" @click="step = 'write'">
-						{{ t('launchpad', 'Back') }}
-					</NcButton>
-					<NcButton variant="primary" :disabled="busy" data-test="editor-publish" @click="publish">
-						{{ scheduled ? t('launchpad', 'Schedule') : t('launchpad', 'Publish') }}
-					</NcButton>
-				</div>
+
+				<!-- REQ-ANN-006: "This is how it looks", a live preview that follows every field. -->
+				<aside class="announcement-editor__preview" :aria-label="t('launchpad', 'This is how it looks')" data-test="editor-preview-pane">
+					<h3 class="announcement-editor__preview-title">
+						{{ t('launchpad', 'This is how it looks') }}
+					</h3>
+					<NoticeBanner v-if="form.kind === 'notice'" :notice="previewItem" :preview="true" />
+					<AnnouncementCard v-else :announcement="previewItem" :preview="true" />
+					<p class="announcement-editor__hint" data-test="editor-preview-note">
+						{{ previewNote }}
+					</p>
+					<p v-if="visibleUntil" data-test="editor-visible-until">
+						{{ t('launchpad', 'Visible until {when}', { when: visibleUntil }) }}
+					</p>
+					<p data-test="editor-reach">
+						{{ n('launchpad', 'Reaches {count} person', 'Reaches {count} people', reach, { count: reach }) }}
+					</p>
+					<form class="announcement-editor__preview-as" @submit.prevent="checkPreviewAs">
+						<NcTextField v-model="previewAs" :label="t('launchpad', 'Preview as (user id)')" data-test="editor-preview-as" />
+						<NcButton type="submit" variant="secondary" :disabled="previewAs.trim() === ''">
+							{{ t('launchpad', 'Check') }}
+						</NcButton>
+					</form>
+					<p v-if="previewAsAnswer !== null" data-test="editor-preview-as-answer">
+						{{ previewAsAnswer ? t('launchpad', '{user} sees this announcement', { user: previewAsUser }) : t('launchpad', '{user} does not see this announcement', { user: previewAsUser }) }}
+					</p>
+				</aside>
 			</div>
 
 			<p v-if="error" class="announcement-editor__error" role="alert" data-test="editor-error">
 				{{ error }}
 			</p>
+
+			<!-- REQ-ANN-006: Cancel and one primary action, Schedule (Publish
+			     when Publish on is empty or past). -->
+			<div class="announcement-editor__actions">
+				<NcButton variant="tertiary" :disabled="busy" data-test="editor-cancel" @click="$emit('close')">
+					{{ t('launchpad', 'Cancel') }}
+				</NcButton>
+				<NcButton
+					variant="primary"
+					:disabled="busy || form.title.trim() === ''"
+					data-test="editor-publish"
+					@click="submit">
+					{{ scheduled ? t('launchpad', 'Schedule') : t('launchpad', 'Publish') }}
+				</NcButton>
+			</div>
 		</div>
 	</NcModal>
 </template>
@@ -173,12 +208,47 @@ export function visibleUntilText(expiresAt, locale) {
 }
 
 /**
- * AnnouncementEditorModal — write an announcement, see it as readers will
- * (the same card or banner component), with the number of people its
- * targeting reaches and "Preview as" one person, then publish as a separate
- * step (REQ-ANN-004). Going to the preview saves a draft, which only authors
- * and administrators see.
+ * The note under the preview: only the author sees it until the
+ * publication time, named when there is one (REQ-ANN-006).
  *
+ * @param {string} publishAt The publish time (`datetime-local`), '' for when it is published.
+ * @param {string} [locale] BCP 47 locale.
+ * @return {string}
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ */
+export function previewNoteText(publishAt, locale) {
+	const when = visibleUntilText(publishAt, locale)
+	return when === ''
+		? t('launchpad', 'Only you see this preview until you publish the announcement.')
+		: t('launchpad', 'Only you see this preview until {when}.', { when })
+}
+
+/**
+ * The groups the target group picker offers, with the chosen ones that
+ * the list does not hold kept, so a stored choice never disappears.
+ *
+ * @param {Array<object>} groups `{id, displayName}` from the server.
+ * @param {Array<string>} chosen The chosen group ids.
+ * @return {Array<object>}
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ */
+export function groupChoices(groups, chosen) {
+	const known = new Set(groups.map((group) => group.id))
+	return [
+		...groups,
+		...chosen.filter((id) => !known.has(id)).map((id) => ({ id, displayName: id })),
+	]
+}
+
+/**
+ * AnnouncementEditorModal — one dialog as board LpAankondiging draws it: the
+ * form on the left, "This is how it looks" on the right, a live preview of
+ * the same card or banner readers get that follows every field without
+ * saving, with the number of people the targeting reaches and "Preview as"
+ * one person (REQ-ANN-004). It ends with Cancel and one primary action:
+ * Schedule, or Publish when Publish on is empty or past (REQ-ANN-006).
+ *
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
  * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
@@ -191,8 +261,8 @@ export default {
 
 	data() {
 		return {
-			step: 'write',
 			busy: false,
+			groups: [],
 			error: '',
 			uuid: '',
 			reach: 0,
@@ -215,12 +285,33 @@ export default {
 	},
 
 	computed: {
-		/** @return {Array<object>} */
+		/**
+		 * The kind as two choice cards (REQ-ANN-006).
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
 		kindOptions() {
 			return [
-				{ value: 'news', label: t('launchpad', 'News') },
-				{ value: 'notice', label: t('launchpad', 'Notice') },
+				{ value: 'news', label: t('launchpad', 'News'), hint: t('launchpad', 'Shown in the Announcements widget.') },
+				{ value: 'notice', label: t('launchpad', 'Maintenance notice'), hint: t('launchpad', 'Shown at the top of every dashboard until the end time.') },
 			]
+		},
+
+		/**
+		 * @return {Array<object>} The target group picker's options.
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		groupOptions() {
+			return groupChoices(this.groups, this.form.targetGroups)
+		},
+
+		/**
+		 * @return {string} Who sees the preview, and until when.
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		previewNote() {
+			return previewNoteText(this.form.publishAt, getCanonicalLocale())
 		},
 
 		/** @return {Array<object>} */
@@ -276,17 +367,35 @@ export default {
 		},
 	},
 
+	watch: {
+		'form.targetGroups': {
+			handler() {
+				this.loadReach()
+			},
+			deep: true,
+		},
+	},
+
+	mounted() {
+		this.loadGroups()
+		this.loadReach()
+	},
+
 	methods: {
 		n,
 		t,
 
 		/**
-		 * Save the draft and show the preview with its reach.
+		 * Save the announcement and publish it, or schedule it for its
+		 * publish time, in one step (REQ-ANN-006).
 		 *
-		 * @spec openspec/changes/engagement-announcements/tasks.md#task-8
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 		 */
-		async toPreview() {
+		async submit() {
+			if (this.busy || this.form.title.trim() === '') {
+				return
+			}
 			const problem = endTimeProblem(this.form.publishAt, this.form.expiresAt, new Date())
 			if (problem !== '') {
 				this.error = problem
@@ -297,9 +406,38 @@ export default {
 					? await announcementsApi.update(this.uuid, this.payload)
 					: await announcementsApi.create(this.payload)
 				this.uuid = saved.uuid
-				this.reach = await announcementsApi.reach(this.payload.targetGroups)
-				this.step = 'preview'
+				const published = await announcementsApi.publish(this.uuid)
+				this.$emit('published', published)
 			})
+		},
+
+		/**
+		 * Count the people the target groups reach; the preview keeps the
+		 * last count when the server does not answer.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
+		 */
+		async loadReach() {
+			try {
+				this.reach = (await announcementsApi.reach(this.form.targetGroups)) ?? 0
+			} catch (error) {
+				logger.error('Announcement reach failed:', error)
+			}
+		},
+
+		/**
+		 * Load the groups the target group picker offers.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		async loadGroups() {
+			try {
+				this.groups = (await announcementsApi.groups()) ?? []
+			} catch (error) {
+				logger.error('Announcement groups failed:', error)
+			}
 		},
 
 		/** @spec openspec/changes/engagement-announcements/tasks.md#task-8 */
@@ -309,14 +447,6 @@ export default {
 				const { reachesUser } = await announcementsApi.reachFor(this.payload.targetGroups, user)
 				this.previewAsUser = user
 				this.previewAsAnswer = reachesUser === true
-			})
-		},
-
-		/** @spec openspec/changes/engagement-announcements/tasks.md#task-8 */
-		async publish() {
-			await this.run(async () => {
-				const published = await announcementsApi.publish(this.uuid)
-				this.$emit('published', published)
 			})
 		},
 
@@ -350,11 +480,82 @@ export default {
 	padding: 16px;
 }
 
+.announcement-editor__columns {
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	gap: 24px;
+	align-items: start;
+}
+
 .announcement-editor__form,
 .announcement-editor__preview {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+}
+
+.announcement-editor__preview {
+	padding: 12px;
+	border-radius: var(--border-radius-large);
+	background: var(--color-background-dark);
+}
+
+.announcement-editor__preview-title {
+	margin: 0;
+	font-size: 1em;
+}
+
+.announcement-editor__kinds {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.announcement-editor__kinds legend {
+	margin-bottom: 4px;
+}
+
+.announcement-editor__kind {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px;
+	border: 2px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	cursor: pointer;
+}
+
+.announcement-editor__kind--chosen {
+	border-color: var(--color-primary-element);
+}
+
+.announcement-editor__kind:focus-within {
+	outline: 2px solid var(--color-main-text);
+	outline-offset: 2px;
+}
+
+.announcement-editor__kind-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.announcement-editor__kind-label {
+	font-weight: bold;
+}
+
+.announcement-editor__kind-hint {
+	color: var(--color-text-maxcontrast);
+}
+
+.announcement-editor__times {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
 }
 
 .announcement-editor__label {
@@ -368,14 +569,30 @@ export default {
 	color: var(--color-text-maxcontrast);
 }
 
-.announcement-editor__preview-as,
-.announcement-editor__actions {
+.announcement-editor__preview .announcement-editor__hint {
+	margin: 0;
+}
+
+.announcement-editor__preview-as {
 	display: flex;
 	align-items: flex-end;
 	gap: 8px;
 }
 
+.announcement-editor__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
 .announcement-editor__error {
 	color: var(--color-error-text, var(--color-error));
+}
+
+@media (max-width: 720px) {
+	.announcement-editor__columns,
+	.announcement-editor__times {
+		grid-template-columns: 1fr;
+	}
 }
 </style>

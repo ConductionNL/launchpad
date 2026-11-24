@@ -67,6 +67,13 @@ class AnnouncementServiceTest extends TestCase {
 	];
 
 	/**
+	 * The groups the group manager's search answers.
+	 *
+	 * @var list<IGroup>
+	 */
+	private array $searchedGroups = [];
+
+	/**
 	 * The stored announcements, by uuid.
 	 *
 	 * @var array<string, Announcement>
@@ -143,6 +150,8 @@ class AnnouncementServiceTest extends TestCase {
 			}, $members));
 			return $group;
 		});
+
+		$groupManager->method('search')->willReturnCallback(fn (): array => $this->searchedGroups);
 
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturnCallback(fn (): DateTime => new DateTime($this->now));
@@ -369,6 +378,45 @@ class AnnouncementServiceTest extends TestCase {
 		$this->assertSame(2, $service->reach(['Medewerkers', 'Burgerzaken']));
 		$this->assertSame(0, $service->reach(['Bestaat-niet']));
 	}//end testReachCountsEachPersonOnce()
+
+	/**
+	 * The target group picker lists every group by display name, sorted.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 */
+	public function testTargetGroupsAreSortedByDisplayName(): void {
+		$this->searchedGroups = [
+			$this->group('wonen', 'Wonen'),
+			$this->group('burgerzaken', 'burgerzaken'),
+			$this->group('medewerkers', 'Medewerkers'),
+		];
+
+		$this->assertSame(
+			[
+				['id' => 'burgerzaken', 'displayName' => 'burgerzaken'],
+				['id' => 'medewerkers', 'displayName' => 'Medewerkers'],
+				['id' => 'wonen', 'displayName' => 'Wonen'],
+			],
+			$this->service()->targetGroups()
+		);
+	}//end testTargetGroupsAreSortedByDisplayName()
+
+	/**
+	 * A group double with an id and display name.
+	 *
+	 * @param string $gid         The group id.
+	 * @param string $displayName The display name.
+	 *
+	 * @return IGroup
+	 */
+	private function group(string $gid, string $displayName): IGroup {
+		$group = $this->createMock(IGroup::class);
+		$group->method('getGID')->willReturn($gid);
+		$group->method('getDisplayName')->willReturn($displayName);
+		return $group;
+	}//end group()
 
 	/**
 	 * Deleting needs the author or an administrator; afterwards it is gone.

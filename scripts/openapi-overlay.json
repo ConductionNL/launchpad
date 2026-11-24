@@ -526,6 +526,9 @@
         "GET /announcements": {
             "description": "GET /api/announcements: the announcements the user sees now, their drafts when they author, and the categories they follow."
         },
+        "GET /announcements/groups": {
+            "description": "GET /api/announcements/groups: the groups the announcement form offers as the target group, by display name. Announcement editors only."
+        },
         "GET /announcements/reach": {
             "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only.",
             "parameters": [

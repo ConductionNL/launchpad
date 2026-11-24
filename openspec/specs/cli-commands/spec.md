@@ -628,7 +628,6 @@ The command MUST print the template's UUID, its version, its groups and whether 
 - AND no template MUST be added
 
 #### Scenario: An operator updates the installed template and reads what changed
-@e2e exclude Needs an installed mijn-werkdag older than the shipped version, and an instance only ever has the version it ships, so the diff cannot be staged from e2e. Pinned by tests/Unit/Command/TemplateInstallCommandTest.php::testUpdatePrintsWhatChanges and ::testADryRunSaysNothingWasWritten.
 - GIVEN `mijn-werkdag` is installed at version 2 and LaunchPad ships version 3
 - WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --dry-run`
 - THEN the command MUST exit 0, print "Dry run, nothing written." and one line per widget added, removed and changed

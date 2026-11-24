@@ -15,6 +15,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 1.1 `admin-settings`: 83 scenarios, 2 cited, blanket. Access requirements in progress 2026-09-11. Its settings-behaviour scenarios stay open under this task.
   - Spec written: `tests/e2e/admin-settings-api.spec.ts`, `tests/e2e/admin-settings-dashboard-effects.spec.ts`, `tests/e2e/admin-settings-groups.spec.ts`, `tests/e2e/admin-settings-ui.spec.ts` (helper `tests/e2e/support/adminSettings.ts`), 58 scenarios cited, 13 excluded with a reason, blanket removed, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/allowed-websites-list.spec.ts` (REQ-ASET-021: the Embed half, a host added with Embed takes an embedded page and refuses a live tile, and the upgrade merge of the per-feature lists, run through `occ maintenance:repair`), 2 scenarios cited (new), admin-settings now 62 of 75 cited, 13 excluded with a reason, 0 uncited, not yet run (cloud, 2026-11-24)
 - [x] 1.2 `admin-roles`: 55 scenarios, 0 cited, blanket. In progress 2026-09-11.
   - Spec written: `tests/e2e/admin-roles.spec.ts`, `tests/e2e/admin-roles-enforcement.spec.ts` (helper `tests/e2e/support/roles.ts`), 55 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 43 of 43 green, every listed test run (checked against `playwright test --list`).
@@ -93,6 +94,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
   - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/responsive-grid-breakpoints.spec.ts` (new scenario app-tiles-four-to-a-row-on-a-phone from the four-column phone step; the one-column phone asserts, cited by a scenario that no longer exists, now read four columns), 2 scenarios cited (app-tiles-four-to-a-row-on-a-phone, below-smallest-breakpoint, which was cited by a 1600 px test), not yet run (cloud, 2026-11-24)
+  - Spec written: `tests/e2e/widget-collision-placement.spec.ts` (four citations of slugs no grid-layout scenario carries removed; the occupied-grid test now asserts the bottom-append rule, that no existing widget moves, instead of the retired push-down), 0 scenarios cited, not yet run (cloud, 2026-11-24)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
@@ -117,6 +119,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
   - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/dashboard-kiosk-mode.spec.ts`, `tests/e2e/kiosk-position-indicator.spec.ts` (synced in by #1766), 30 scenarios in the spec now, 26 cited, 4 excluded with a reason (playlist read-only marker, shared throttle bucket, refresh clamp with no input, watchdog never built), 0 uncited; not yet run (cloud, 2026-11-24)
 - [x] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
   - Spec written: tests/e2e/dashboard-switcher.spec.ts (new), 19 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
@@ -130,6 +133,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 3.19 `effective-default-marker`: 5 scenarios, 0 cited.
   - Written: `tests/e2e/effective-default-marker.spec.ts` cites all 5 scenarios, and their exclusions are removed from the spec. Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
+  - Spec written: `tests/e2e/effective-default-marker.spec.ts`, 5 scenarios cited, 0 excluded; "the pin wins over a group fallback" no longer skips when no group dashboard is on screen but asserts one is (SeedDefaultDashboard provisions it), so it can fail; not yet run (cloud, 2026-11-24)
 
 ## 4. Tier 3, widgets
 
@@ -202,12 +206,14 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-view-analytics.spec.ts, 53 scenarios cited, not yet run (cloud, 2026-11-19), 18 excluded with reasons
   - Spec written: tests/e2e/dashboard-view-analytics-jobs.spec.ts, 5 more scenarios cited (the salt rotation and four retention/purge scenarios, by running the jobs through occ), 13 excluded with reasons, not yet run (cloud, 2026-11-24)
+  - Spec written: tests/e2e/dashboard-view-analytics-history.spec.ts (+ tests/e2e/support/instanceDb.ts), 8 more scenarios cited (both table schemas, two days, the salt across days, both period filters, both purge deletions) by seeding and reading rows through PHP on the instance, 5 excluded with reasons, not yet run (cloud, 2026-11-24)
 - [x] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/background-job-feed-refresh.spec.ts, 6 scenarios cited, not yet run (cloud, 2026-11-19), 50 excluded with reasons
   - Run 20 Nov on development with #1444: 6 of 6 green.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
   - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Spec written: tests/e2e/cli-commands.spec.ts (+ tests/e2e/support/occ.ts), 39 scenarios cited, 21 excluded with reasons, not yet run (cloud, 2026-11-24). The old "Playwright cannot run occ" reason was wrong: the suite already runs occ on the instance.
+  - Spec written: tests/e2e/cli-commands.spec.ts, 1 more scenario cited (an operator updates the installed template: an older install staged through occ and tests/e2e/support/instanceDb.ts), 40 cited, 20 excluded with reasons, not yet run (cloud, 2026-11-24)
 - [x] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/activity-feed-integration.spec.ts, 21 scenarios cited, not yet run (cloud, 2026-11-19), 39 excluded with reasons
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
@@ -222,6 +228,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green.
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.
   - Spec written: tests/e2e/launchpad-adopt-or-abstractions.spec.ts (+ tests/e2e/support/orWidget.ts), 3 new scenarios cited (4 with manifest-boot.spec.ts), 16 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Spec written: tests/e2e/or-absent.spec.ts, 2 more scenarios cited (install and sharing on an OR-less instance, made by disabling openregister/openconnector through occ for the file), 6 cited, 14 excluded with reasons, not yet run (cloud, 2026-11-24)
 - [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
@@ -233,6 +240,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/runtime-or-consumption.spec.ts (+ tests/e2e/support/orWidget.ts), 7 scenarios cited, 4 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Spec written: tests/e2e/or-absent.spec.ts, 2 more scenarios cited (boot without OR, the OR-data widget's empty state without OR), 8 cited, 2 excluded with reasons (both never built), not yet run (cloud, 2026-11-24)
 - [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.

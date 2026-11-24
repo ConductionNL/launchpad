@@ -63,8 +63,6 @@ The manifest MUST set:
 This is a structural policy. LaunchPad MUST be installable and runnable
 on a Nextcloud instance that has neither OR nor OC enabled.
 
-@e2e exclude two of these read checked-in files (`appinfo/info.xml`, `composer.json`) and have no runtime surface at all. The third needs an instance with OpenRegister ABSENT, and the Playwright fixture is deliberately the opposite: `.github/workflows/code-quality.yml` installs `ConductionNL/openregister` via `additional-apps` precisely so the suite exercises the OR-backed paths, and one CI job cannot be two instances. The OR-less boot path does have a running regression floor — `tests/e2e/ci/boot-and-manifest.spec.ts` exists because every route once returned 500 on an OR-less instance — but it necessarily runs against the OR-present fixture, so it cannot stand behind this scenario's GIVEN.
-
 #### Scenario: Install on OR-less Nextcloud
 
 - GIVEN a Nextcloud install with OR not present and OC not present
@@ -78,6 +76,8 @@ on a Nextcloud instance that has neither OR nor OC enabled.
 
 #### Scenario: appinfo.xml dependency check
 
+@e2e exclude reads a checked-in file (`appinfo/info.xml`) and has no runtime surface at all; nothing on a running instance can show what the file declares. The runtime consequence, LaunchPad enabling and running without OpenRegister or OpenConnector, is cited as `install-on-or-less-nextcloud` in `tests/e2e/or-absent.spec.ts`.
+
 - GIVEN `appinfo/info.xml`
 - WHEN reading `<dependencies>` and `<types>` blocks
 - THEN no `<dependencies><app>openregister</app>...</app>` or
@@ -86,6 +86,8 @@ on a Nextcloud instance that has neither OR nor OC enabled.
   required
 
 #### Scenario: Composer dependency check
+
+@e2e exclude reads a checked-in file (`composer.json`) and the PHP import graph, neither of which has a runtime surface. The runtime consequence, no LaunchPad class failing for want of an `OCA\OpenRegister` class, is asserted on an OR-less instance by `install-on-or-less-nextcloud` and by `runtime-or-consumption::fresh-install-without-or-boots-normally` (its log check) in `tests/e2e/or-absent.spec.ts`.
 
 - GIVEN `composer.json`
 - WHEN reading `require` and `require-dev`
@@ -102,7 +104,7 @@ state when OR is absent or returns 5xx.
 
 #### Scenario: OR-backed widget on OR-less install
 
-@e2e exclude the GIVEN is an instance with OpenRegister NOT installed, and the Playwright fixture installs it on purpose (`additional-apps` in `.github/workflows/code-quality.yml`); one CI job cannot be two instances. The THEN is also unbuilt: `useOrFeatureDetect` occurs nowhere under `src/` (only in `docs/widgets/or-data.md` and `docs/architecture.md`; `git log --all -S useOrFeatureDetect -- src lib` finds no commit), so no unit test pins it either. The OR-present half of this requirement (a 503) is cited in `tests/e2e/launchpad-adopt-or-abstractions.spec.ts`.
+@e2e exclude the THEN is unbuilt: `useOrFeatureDetect` occurs nowhere under `src/` (only in `docs/widgets/or-data.md` and `docs/architecture.md`; `git log --all -S useOrFeatureDetect -- src lib` finds no commit), so there is no `enabled.value` to read and nothing stops the request to OpenRegister; no unit test pins it either. The GIVEN itself can be staged: `tests/e2e/or-absent.spec.ts` disables OpenRegister and cites the widget's empty state as `runtime-or-consumption::or-absent-empty-state-shown` and in `install-on-or-less-nextcloud`. The OR-present half of this requirement (a 503) is cited in `tests/e2e/launchpad-adopt-or-abstractions.spec.ts`.
 
 - GIVEN OR is not installed on the Nextcloud instance
 - AND an operator has placed an OR-backed widget on a dashboard
@@ -198,8 +200,6 @@ OR per-object RBAC delegation MAY be wired as an OPTIONAL runtime
 delegation when a dashboard's `permissions.delegate` field
 references an OR object UUID and OR is enabled.
 
-@e2e exclude the first scenario requires an instance with OpenRegister ABSENT, and the Playwright fixture installs it on purpose (`additional-apps` in `.github/workflows/code-quality.yml`). Its OR-independent outcome — an `add_only` recipient can add widgets but not change the dashboard — runs on the OR-present fixture in `tests/e2e/dashboard-permission-levels.spec.ts` ("an add-only user can add, restyle and remove a widget they added"), and sharing itself in `tests/e2e/dashboard-sharing.spec.ts`, which `playwright.config.ts` no longer withholds. The second scenario is a MAY whose trigger was never built: no `permissions.delegate` field and no call to OpenRegister's `/can?action=read` occurs in `lib/` or `src/` (`permissions.delegate` appears only in `docs/architecture.md`).
-
 #### Scenario: Sharing on OR-less install
 
 - GIVEN OR is not installed
@@ -212,6 +212,8 @@ references an OR object UUID and OR is enabled.
   permissions
 
 #### Scenario: Optional delegation when OR enabled
+
+@e2e exclude a MAY whose trigger was never built: no `permissions.delegate` field and no call to OpenRegister's `/can?action=read` occurs in `lib/` or `src/` (`permissions.delegate` appears only in `docs/architecture.md`). No test pins it.
 
 - GIVEN OR is enabled
 - AND a dashboard's `permissions.delegate.objectUuid = "abc-123"`

@@ -4,4 +4,4 @@
 - [x] Outage state: tag in the head, the cause and its time, Reload and Open in a new tab
 - [x] Translations in every shipped locale
 - [x] Unit tests: outage with and without a known cause
-- [ ] Playwright: a refused frame shows the outage state
+- [x] Playwright: a refused frame shows the outage state (written in `tests/e2e/iframe-embed-widget.spec.ts`, runs in nightly)

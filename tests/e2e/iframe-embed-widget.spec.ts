@@ -957,3 +957,47 @@ test('a loading indicator shows first, and network or URL errors end in the fall
 		await removeSeededDashboard(admin, dashboard)
 	}
 })
+
+// embed-outage-state (REQ-IFRAME-005): a refused frame shows the outage state,
+// with the "Outage" tag in the card head, the cause with its time, Reload and
+// Open in a new tab. Written from the change's scenario; runs in the nightly.
+// @e2e iframe-embed-widget::token-expired
+test('a refused frame shows the outage state with its cause, Reload and Open in a new tab', async ({
+	page,
+}) => {
+	const host = 'app.powerbi.com'
+	const reportUrl = `https://${host}/reportEmbed?reportId=e2e-outage-${STAMP}`
+	await setHosts([host])
+	const dashboard = await seedActiveDashboard(admin, `Iframe outage ${STAMP}`)
+	try {
+		const id = await seedIframe(dashboard, {
+			url: reportUrl,
+			title: `Outage ${STAMP}`,
+			sandbox: ['allow-scripts'],
+			allowListChecked: true,
+		})
+		await answerProbe(page, false)
+		await gotoLaunchPad(page)
+
+		const cell = page.locator(`[data-placement-id="${id}"]`)
+		const outage = cell.getByTestId('iframe-widget-outage')
+		await expect(outage).toBeVisible({ timeout: 30_000 })
+		await expect(cell.getByTestId('widget-outage-tag')).toBeVisible()
+		// The cause names the time it was seen, as HH:MM.
+		await expect(cell.getByTestId('iframe-widget-outage-cause')).toHaveText(/\d{1,2}[:.]\d{2}/)
+		await expect(cell.getByTestId('iframe-widget-reload')).toBeVisible()
+		const link = outage.locator('a.iframe-widget__fallback-link')
+		await expect(link).toHaveAttribute('href', reportUrl)
+		await expect(link).toHaveAttribute('target', '_blank')
+		await expect(cell.locator('iframe')).toHaveCount(0)
+
+		// Reload asks again; once the target frames, the outage is gone.
+		await answerProbe(page, true)
+		await serveTarget(page, `https://${host}`, `Report body ${STAMP}`)
+		await cell.getByTestId('iframe-widget-reload').click()
+		await expect(cell.locator('iframe.iframe-widget__frame')).toBeVisible({ timeout: 30_000 })
+		await expect(cell.getByTestId('widget-outage-tag')).toHaveCount(0)
+	} finally {
+		await removeSeededDashboard(admin, dashboard)
+	}
+})

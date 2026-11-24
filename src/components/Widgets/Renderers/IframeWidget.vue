@@ -279,7 +279,7 @@ export default {
 		 * to an unconfigured embed or one the administrator no longer permits.
 		 *
 		 * @return {boolean} True when the outage state shows.
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		isOutage() {
 			return this.state === 'failed' && OUTAGE_REASONS.includes(this.failureReason)
@@ -287,7 +287,7 @@ export default {
 
 		/**
 		 * @return {string} "The report could not be loaded" or the page variant.
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		outageMessage() {
 			return isReport(this.content)
@@ -297,7 +297,7 @@ export default {
 
 		/**
 		 * @return {string} The cause and its time, or '' when no cause is known.
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		outageCause() {
 			return outageCauseLine(
@@ -316,7 +316,7 @@ export default {
 		 * title and whether the "Outage" tag is up.
 		 *
 		 * @return {{subtitle: string, outage: boolean}} The head status.
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		headStatus() {
 			return {
@@ -344,13 +344,13 @@ export default {
 		 * Tell the card head (WidgetWrapper) the source line and the outage
 		 * tag whenever either changes.
 		 *
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		headStatus: {
 			/**
 			 * @param {{subtitle: string, outage: boolean}} status The head status.
 			 * @return {void}
-			 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+			 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 			 */
 			handler(status) {
 				this.$emit('status', status)
@@ -481,7 +481,7 @@ export default {
 		 *
 		 * @param {string} reason The failure reason.
 		 * @return {void}
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		fail(reason) {
 			this.state = 'failed'

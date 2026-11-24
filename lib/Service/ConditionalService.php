@@ -89,7 +89,7 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return bool `true` when the placement is visible for the user.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function checkRulesForPlacement(int $placementId, string $userId): bool {
 		$placement = $this->placementMapper->find(id: $placementId);
@@ -128,7 +128,7 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return array<int, array<string, mixed>> The placements to render, in order.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
 		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
@@ -200,7 +200,7 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	public function previewRules(array $rules, string $userId, RuleSetContext $context): array {
 		return $this->visibilityChecker->evaluateRuleSet(

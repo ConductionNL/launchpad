@@ -105,7 +105,7 @@ class VisibilityPreviewController extends Controller {
 	 *                      person is not allowed.
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 *
 	 * @no-admin-idor-exempt no object is addressed. Both parameters are the
 	 * candidate rule set and an evaluation context taken from the request
@@ -166,7 +166,7 @@ class VisibilityPreviewController extends Controller {
 	 *
 	 * @return string|null The user id to evaluate as, null for none.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	private static function viewedAs(array $context): ?string {
 		$userId = $context['userId'] ?? null;
@@ -186,7 +186,7 @@ class VisibilityPreviewController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null to go on.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	private function refuseViewingAs(?string $subject): ?JSONResponse {
 		if ($subject === null || $subject === $this->userId) {
@@ -230,7 +230,7 @@ class VisibilityPreviewController extends Controller {
 	 *
 	 * @throws InvalidArgumentException When the context or the mode is malformed.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	private function ruleSetContext(array $context, ?string $subject): RuleSetContext {
 		$match = $this->request->getParam(key: 'match');
@@ -254,7 +254,7 @@ class VisibilityPreviewController extends Controller {
 	 *
 	 * @throws InvalidArgumentException When `groups` is malformed.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	private function groupsFor(array $context, ?string $subject): ?array {
 		if ($subject !== null) {
@@ -273,7 +273,7 @@ class VisibilityPreviewController extends Controller {
 	 *
 	 * @throws InvalidArgumentException On any other value.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private static function matchMode(mixed $match): string {
 		if ($match === null) {

@@ -1242,7 +1242,7 @@ export default {
 		 * The placement whose "Who sees this widget?" dialog is open.
 		 *
 		 * @return {object|null} The placement, null when none is open.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		visibilityPlacement() {
 			return (this.widgetPlacements || []).find((p) => p.id === this.visibilityPlacementId) || null
@@ -1252,7 +1252,7 @@ export default {
 		 * The title of the widget whose visibility dialog is open.
 		 *
 		 * @return {string} The widget title, '' when none is open.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		visibilityWidgetTitle() {
 			return this.visibilityPlacement ? resolveWidgetTitle(this.visibilityPlacement, this.availableWidgets) : ''
@@ -1262,7 +1262,7 @@ export default {
 		 * How the open widget's include rules combine.
 		 *
 		 * @return {string} `all` or `any`.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 		 */
 		visibilityRuleMatch() {
 			return this.visibilityPlacement?.ruleMatch === 'all' ? 'all' : 'any'
@@ -2480,7 +2480,7 @@ export default {
 		 *
 		 * @param {object} placement the placement whose rules to edit
 		 * @spec openspec/specs/conditional-visibility/spec.md
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
 		 */
 		handleContextMenuVisibilityRules(placement) {
 			if (!placement?.id) {
@@ -2567,7 +2567,7 @@ export default {
 		 * and ask again which widgets the rules hide for viewers.
 		 *
 		 * @param {string} mode `all` or `any`.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 		 */
 		onRuleMatchChanged(mode) {
 			const store = useDashboardStore()

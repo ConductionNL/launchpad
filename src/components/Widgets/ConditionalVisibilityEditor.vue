@@ -388,7 +388,7 @@ export default {
 		 * The two choice cards: all rules or one rule must match.
 		 *
 		 * @return {Array<{id: string, label: string}>} the modes.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		matchModes() {
 			return [
@@ -402,7 +402,7 @@ export default {
 		 * that follow the match mode (REQ-CVUI-003).
 		 *
 		 * @return {Array<{id: string, heading: string, rules: Array<object>}>} the sections.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		sections() {
 			return [
@@ -421,7 +421,7 @@ export default {
 		 * Display name per group id, for the chips and the sentence.
 		 *
 		 * @return {{[key: string]: string}} the names.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		groupNames() {
 			return Object.fromEntries(toGroupOptions(this.availableGroups).map((group) => [group.id, group.displayName]))
@@ -454,7 +454,7 @@ export default {
 		 * sees the widget at the moment, and why.
 		 *
 		 * @return {string} the sentence, empty before a preview.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		sentence() {
 			if (!this.preview.state.result || !this.previewSubject) {
@@ -488,7 +488,7 @@ export default {
 		 * Follow the placement's mode when it changes outside the dialog.
 		 *
 		 * @param {string} mode the stored mode.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		ruleMatch(mode) {
 			this.matchMode = mode === 'all' ? 'all' : 'any'
@@ -623,7 +623,7 @@ export default {
 		 * @param {object} row The persisted rule row.
 		 * @param {object} payload Rule fields to write.
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		async updateSavedRule(row, payload) {
 			const { data } = await api.updateRule(row.id, payload)
@@ -691,7 +691,7 @@ export default {
 		 * the placement; on a failed save the previous choice comes back.
 		 *
 		 * @param {string} mode `all` or `any`.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		async setMatchMode(mode) {
 			if (mode === this.matchMode || !MATCH_MODES.includes(mode)) {
@@ -719,7 +719,7 @@ export default {
 		 * focus there, as in a radio group.
 		 *
 		 * @param {KeyboardEvent} event the key press.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		async onModeKeydown(event) {
 			if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
@@ -738,7 +738,7 @@ export default {
 		 *
 		 * @param {object} row The rule row.
 		 * @return {boolean} true when the editor shows.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		isEditing(row) {
 			return row.id === null || row.id === undefined || !!this.editingKeys[this.rowKey(row)]
@@ -748,7 +748,7 @@ export default {
 		 * Open or close a saved rule's editor.
 		 *
 		 * @param {object} row The rule row.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		toggleEdit(row) {
 			const key = this.rowKey(row)
@@ -760,7 +760,7 @@ export default {
 		 *
 		 * @param {object} row The rule row.
 		 * @return {string} Groups, Times, Period or Profile field.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		kindLabel(row) {
 			return ruleKindLabel(row)
@@ -771,7 +771,7 @@ export default {
 		 *
 		 * @param {object} row The rule row.
 		 * @return {string[]} the group names.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		groupNamesOf(row) {
 			return ruleGroupNames(row, this.groupNames)
@@ -782,7 +782,7 @@ export default {
 		 *
 		 * @param {object} row The rule row.
 		 * @return {string} the value.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		valueOf(row) {
 			return ruleValue(row)
@@ -793,7 +793,7 @@ export default {
 		 * The server ignores one-letter searches.
 		 *
 		 * @param {string} query The typed text.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		async onPersonSearch(query) {
 			const trimmed = (query || '').trim()
@@ -821,7 +821,7 @@ export default {
 		 * sentence.
 		 *
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		async runPreview() {
 			const person = this.previewPerson

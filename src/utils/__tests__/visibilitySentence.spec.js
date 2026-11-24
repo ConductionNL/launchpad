@@ -6,7 +6,7 @@
  * kind and value, and the View as sentence for a person who does and who
  * does not see the widget (conditional-visibility-editor REQ-CVUI-006).
  *
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 
 import { describe, expect, it, vi } from 'vitest'

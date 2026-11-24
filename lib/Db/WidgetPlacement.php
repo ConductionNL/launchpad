@@ -597,7 +597,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 *
 	 * @return string `all` or `any`; anything else stored reads as `any`.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function getRuleMatch(): string {
 		return self::normalRuleMatch(value: $this->ruleMatch);
@@ -610,7 +610,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 *
 	 * @return string `all` or `any`.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public static function normalRuleMatch(mixed $value): string {
 		if ($value === self::RULE_MATCH_ALL) {
@@ -624,7 +624,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * Serialize to JSON.
 	 *
 	 * @return array The serialized widget placement.
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function jsonSerialize(): array {
 		$data = $this->placementFields() + $this->acknowledgementFields() + [
@@ -646,7 +646,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * The widget, grid, style and content fields of the wire format.
 	 *
 	 * @return array<string, mixed> The fields, in wire order.
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function placementFields(): array {
 		return [

@@ -210,7 +210,7 @@ class ConditionalServiceRenderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function testThePlacementsMatchModeIsUsed(): void {
 		$this->rules->method('findByPlacementIds')->willReturn(

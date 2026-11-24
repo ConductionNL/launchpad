@@ -7,7 +7,7 @@
  * how the rules combine, each rule is a card with Edit and Delete, and View
  * as previews the rules for a person at a moment and says so in a sentence.
  *
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

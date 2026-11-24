@@ -103,7 +103,7 @@ export default {
 		 * of the two is known.
 		 *
 		 * @return {string} the line, empty when neither is known.
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		subtitle() {
 			return [this.widgetTitle, this.dashboardName].filter((part) => part).join(' · ')

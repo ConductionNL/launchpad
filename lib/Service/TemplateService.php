@@ -268,7 +268,7 @@ class TemplateService {
 	 * @param int $dashboardId The target dashboard ID.
 	 *
 	 * @return WidgetPlacement The cloned placement entity.
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function clonePlacement(
 		WidgetPlacement $source,

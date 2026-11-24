@@ -41,7 +41,7 @@ function dayLabel(day) {
  *
  * @param {object} rule A rule `{ruleType, ruleConfig, isInclude}`.
  * @return {string} The translated kind, empty for an unknown type.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function ruleKindLabel(rule) {
 	const kinds = {
@@ -59,7 +59,7 @@ export function ruleKindLabel(rule) {
  * @param {object} rule A group rule.
  * @param {{[key: string]: string}} [groupNames] Display name per group id.
  * @return {string[]} The names, in rule order.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function ruleGroupNames(rule, groupNames = {}) {
 	const groups = Array.isArray(rule?.ruleConfig?.groups) ? rule.ruleConfig.groups : []
@@ -72,7 +72,7 @@ export function ruleGroupNames(rule, groupNames = {}) {
  *
  * @param {string[]} days The stored days.
  * @return {string} The days, empty when none are set (every day).
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function dayRanges(days) {
 	const indexes = WEEK.map((day, index) => (days.includes(day) ? index : -1)).filter((index) => index !== -1)
@@ -108,7 +108,7 @@ function runLabel(from, to) {
  *
  * @param {object} rule A rule `{ruleType, ruleConfig}`.
  * @return {string} The value, e.g. "Mon–Fri 08:00–17:00".
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function ruleValue(rule) {
 	const config = rule?.ruleConfig || {}
@@ -145,7 +145,7 @@ function operatorLabel(operator) {
  * @param {Date|string} moment The moment.
  * @param {string} [locale] The reader's language, e.g. `en` or `nl`.
  * @return {string} The moment in words, empty for an invalid moment.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function formatMoment(moment, locale = 'en') {
 	const date = moment instanceof Date ? moment : new Date(moment)
@@ -163,7 +163,7 @@ export function formatMoment(moment, locale = 'en') {
  * @param {string[]} items The items.
  * @param {boolean} [orList] Join the last item with "or" instead of "and".
  * @return {string} The list.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function joinList(items, orList = false) {
 	if (items.length <= 1) {
@@ -183,7 +183,7 @@ export function joinList(items, orList = false) {
  * @param {{rule: object, matched: boolean}} deciding The rule, and whether it matched for the person.
  * @param {{name: string, moment: string, groupNames: {[key: string]: string}}} who The person, moment and group names.
  * @return {string} The reason.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function ruleReason({ rule, matched }, who) {
 	const vars = {
@@ -209,7 +209,7 @@ export function ruleReason({ rule, matched }, who) {
  * @param {Array<object>} rules The rules, each with the `id` the preview echoes.
  * @param {{visible: boolean, matchedIncludeRuleIds: Array, matchedExcludeRuleIds: Array}} result The preview result.
  * @return {Array<{rule: object, matched: boolean}>} The deciding rules.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function decidingRules(rules, result) {
 	const included = new Set(result.matchedIncludeRuleIds || [])
@@ -235,7 +235,7 @@ export function decidingRules(rules, result) {
  * @param {object} input.result The preview result `{visible, matchedIncludeRuleIds, matchedExcludeRuleIds}`.
  * @param {{[key: string]: string}} [input.groupNames] Display name per group id.
  * @return {string} The sentence, empty without a result or a reason.
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function visibilitySentence({ name, moment, rules, result, groupNames = {} }) {
 	if (!result) {

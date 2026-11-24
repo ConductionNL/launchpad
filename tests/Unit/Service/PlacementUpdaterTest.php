@@ -189,7 +189,7 @@ class PlacementUpdaterTest extends TestCase {
 	 * The match mode is set when given, `all` kept and anything else stored
 	 * as `any`; absent, it is left as it is (REQ-VIS-014).
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 *
 	 * @return void
 	 */
@@ -209,7 +209,7 @@ class PlacementUpdaterTest extends TestCase {
 	/**
 	 * Export carries the mode and import reads it back, defaulting to `any`.
 	 *
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 *
 	 * @return void
 	 */

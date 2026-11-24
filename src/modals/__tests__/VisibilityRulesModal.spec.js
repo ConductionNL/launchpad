@@ -105,7 +105,7 @@ describe('VisibilityRulesModal', () => {
 })
 
 describe('VisibilityRulesModal — Who sees this widget?', () => {
-	// @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	// @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	it('is titled Who sees this widget? with the widget and the dashboard under it', () => {
 		const wrapper = mountModal({ widgetTitle: 'News', dashboardName: 'Home', ruleMatch: 'all' })
 		expect(wrapper.find('[data-test="visibility-rules-title"]').text()).toBe('Who sees this widget?')

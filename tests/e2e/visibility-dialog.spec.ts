@@ -14,7 +14,7 @@
  * Written from the change's scenarios; it runs in the nightly against a
  * live instance.
  *
- * @e2e openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md
+ * @e2e openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

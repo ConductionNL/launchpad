@@ -140,7 +140,7 @@ class PageController extends Controller {
 		$visible = [];
 		$active = null;
 		if ($userId !== '') {
-			$isAdmin = $this->sources->dashboardService->isAdmin(userId: $userId);
+			$isAdmin = $this->sources->dashboards->dashboardService->isAdmin(userId: $userId);
 			// Active first: resolving it can hand a first-time user their copy
 			// of an admin template (REQ-TMPL-019), and the list read after it
 			// must hold that copy or the switcher opens without it.
@@ -149,7 +149,7 @@ class PageController extends Controller {
 				deepLink: $deepLink,
 				primaryGroupId: $primaryGroupId
 			);
-			$visible = $this->sources->dashboardService->getVisibleToUser(userId: $userId);
+			$visible = $this->sources->dashboards->dashboardService->getVisibleToUser(userId: $userId);
 		}
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
@@ -170,7 +170,7 @@ class PageController extends Controller {
 			->setDashboardSource($activeState['dashboardSource'])
 			->setGroupDashboards($descriptors['group'])
 			->setUserDashboards($descriptors['user'])
-			->setAllowUserDashboards($this->sources->dashboardService->getAllowUserDashboards());
+			->setAllowUserDashboards($this->sources->dashboards->dashboardService->getAllowUserDashboards());
 
 		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
 		// no-match fallback target. `getSettings()` already resolves the
@@ -192,7 +192,7 @@ class PageController extends Controller {
 			->setIntegrationApps($this->integrationApps())
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
-			->setDashboardFirstLoad($this->sources->dashboardPayloads?->firstLoad(userId: $userId, visible: $visible))
+			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass
@@ -486,7 +486,7 @@ class PageController extends Controller {
 			return $active;
 		}
 
-		return $this->sources->dashboardService->resolveActiveDashboard(
+		return $this->sources->dashboards->dashboardService->resolveActiveDashboard(
 			userId: $userId,
 			primaryGroupId: $primaryGroupId
 		);
@@ -511,7 +511,7 @@ class PageController extends Controller {
 		try {
 			$resolved = $this->settings->treeService->resolvePath(path: $deepLink);
 			if ($resolved !== null) {
-				$active = $this->sources->dashboardService->getDashboardForUser(
+				$active = $this->sources->dashboards->dashboardService->getDashboardForUser(
 					dashboardId: $resolved->getId(),
 					userId: $userId
 				);

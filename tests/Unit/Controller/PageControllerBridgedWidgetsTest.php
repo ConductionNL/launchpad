@@ -63,7 +63,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 			sources: new PageSources(
 				initialState: $this->createMock(IInitialState::class),
 				widgetService: $widgetService,
-				dashboards: new PageDashboards(dashboardService: $this->createMock(DashboardService::class)),
+				dashboards: new PageDashboards(dashboardService: $this->createMock(originalClassName: DashboardService::class)),
 				adminTemplateService: $this->createMock(AdminTemplateService::class)
 			),
 			userSession: $this->createMock(IUserSession::class),

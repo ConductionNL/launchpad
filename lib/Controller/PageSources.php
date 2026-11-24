@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Services\IInitialState;
 
@@ -36,36 +35,21 @@ use OCP\AppFramework\Services\IInitialState;
  */
 class PageSources {
 	/**
-	 * Dashboard listing + resolver (also exposes the `allow_user_dashboards`
-	 * flag — REQ-ASET-003).
-	 *
-	 * @var DashboardService
-	 */
-	public readonly DashboardService $dashboardService;
-
-	/**
-	 * The first dashboard load the page carries, or null to let the store fetch.
-	 *
-	 * @var DashboardPayloads|null
-	 */
-	public readonly ?DashboardPayloads $dashboardPayloads;
-
-	/**
 	 * Constructor.
 	 *
 	 * @param IInitialState        $initialState The Nextcloud initial-state service.
 	 * @param WidgetService        $widgetService Available-widgets descriptor formatter.
-	 * @param PageDashboards       $dashboards The dashboard service and the first-load builder.
+	 * @param PageDashboards       $dashboards The dashboard service (listing, resolver and the
+	 *                                         `allow_user_dashboards` flag — REQ-ASET-003) and the
+	 *                                         first-load builder.
 	 * @param AdminTemplateService $adminTemplateService Primary-group routing resolver (REQ-TMPL-012,
 	 *                                                   REQ-TMPL-013).
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
 		public readonly WidgetService $widgetService,
-		PageDashboards $dashboards,
+		public readonly PageDashboards $dashboards,
 		public readonly AdminTemplateService $adminTemplateService,
 	) {
-		$this->dashboardService = $dashboards->dashboardService;
-		$this->dashboardPayloads = $dashboards->payloads;
 	}//end __construct()
 }//end class

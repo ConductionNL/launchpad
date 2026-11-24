@@ -34,10 +34,14 @@
  * So the identity is asserted FIRST, and every absence assertion is paired
  * with a presence assertion that fails if the shell did not render.
  *
- * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::admin-menu-entries-are-hidden-from-non-admins
- *   @e2e runtime-shell::admin-routes-redirect-non-admins
- *   @e2e runtime-shell::admin-menu-entries-render-for-admins
+ * Gate-19 traceability: this file cites no scenario. It used to carry three
+ * runtime-shell slugs (admin-menu-entries-are-hidden-from-non-admins,
+ * admin-routes-redirect-non-admins, admin-menu-entries-render-for-admins)
+ * that match no heading in openspec/specs/runtime-shell/spec.md, or in any
+ * other spec, at any point in its history: the rule came in with #587
+ * without a scenario. The tests stay, because they are the only run of the
+ * real permission filter; the rule needs a scenario of its own (a spec
+ * change) before this file can cite it.
  *
  * @spec openspec/specs/runtime-shell/spec.md
  */

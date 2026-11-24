@@ -118,6 +118,25 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/PublicDashboardGrid.vue | readWidget": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/PublicNewsWidget.vue | placementId": {
+		"type": [
+			"Number",
+			"String"
+		],
+		"required": true,
+		"validator": false
+	},
+	"../../components/PublicNewsWidget.vue | readWidget": {
+		"type": "Function",
+		"required": true,
+		"validator": false
+	},
 	"../../components/RuntimeShellSearch.vue | items": {
 		"type": "Array",
 		"required": false,
@@ -705,6 +724,12 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/Widgets/Renderers/LiveTileWidget.vue | readingSource": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Widgets/Renderers/LiveTileWidgetForm.vue | editingWidget": {
 		"type": "Object",
 		"required": false,
@@ -941,6 +966,12 @@
 	},
 	"../../components/Widgets/Renderers/WeatherWidget.vue | placement": {
 		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/WeatherWidget.vue | readingSource": {
+		"type": "Function",
 		"required": false,
 		"validator": false,
 		"default": null

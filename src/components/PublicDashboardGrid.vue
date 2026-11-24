@@ -57,6 +57,20 @@
 						class="public-share-view__widget-heading">
 						{{ item.text || item.title }}
 					</h3>
+					<WeatherWidget
+						v-else-if="item.kind === 'weather'"
+						:content="placementOf(item).content || {}"
+						:placement="placementOf(item)"
+						:readingSource="readingSource" />
+					<LiveTileWidget
+						v-else-if="item.kind === 'livetile'"
+						:content="placementOf(item).content || {}"
+						:placement="placementOf(item)"
+						:readingSource="readingSource" />
+					<PublicNewsWidget
+						v-else-if="item.kind === 'announcements'"
+						:placementId="item.id"
+						:readWidget="readWidget" />
 					<CnTextWidget
 						v-else-if="item.kind === 'text'"
 						class="public-share-view__widget-text"
@@ -92,9 +106,19 @@
 <script>
 import { CnTextWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
+import { defineAsyncComponent } from 'vue'
 import { LIST_PROP } from '../constants/propDefinitions.js'
 
+// The live widgets load only when a shared dashboard has one, so a public
+// page without them does not download their code (ADR-124).
+const LiveTileWidget = defineAsyncComponent(() => import('./Widgets/Renderers/LiveTileWidget.vue'))
+const PublicNewsWidget = defineAsyncComponent(() => import('./PublicNewsWidget.vue'))
+const WeatherWidget = defineAsyncComponent(() => import('./Widgets/Renderers/WeatherWidget.vue'))
+
 const STATIC_WIDGET_KINDS = ['label', 'header', 'text', 'image', 'link', 'divider']
+
+/** The live widgets that read their data through the link's or playlist's token (REQ-PSHR-011). */
+const LIVE_WIDGET_KINDS = ['announcements', 'weather', 'livetile']
 
 /**
  * A placement's content when it is an object, else an empty object.
@@ -107,16 +131,22 @@ function placementContent(p) {
 }
 
 /**
- * How a placement renders: a tile, one of the static widget kinds, or
- * restricted (only visible to signed-in users).
+ * How a placement renders: a tile, one of the static widget kinds, a live
+ * widget when the grid can read it through a token, or restricted (only
+ * visible to signed-in users).
  *
  * @param {object} p The placement.
+ * @param {boolean} live Whether the grid has a token-scoped read.
  * @return {string} The display kind.
+ * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
-function placementKind(p) {
+function placementKind(p, live) {
 	const widgetId = p.widgetId || ''
 	if (widgetId.startsWith('tile-') || p.tileType) {
 		return 'tile'
+	}
+	if (live && LIVE_WIDGET_KINDS.includes(widgetId)) {
+		return widgetId
 	}
 	return STATIC_WIDGET_KINDS.includes(widgetId) ? widgetId : 'restricted'
 }
@@ -150,13 +180,15 @@ function tileFields(p) {
  * A placement normalised for display.
  *
  * @param {object} p The placement.
+ * @param {boolean} live Whether the grid has a token-scoped read.
  * @return {object} The display item.
+ * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
-function displayItem(p) {
+function displayItem(p, live) {
 	const content = placementContent(p)
 	return {
 		id: p.id,
-		kind: placementKind(p),
+		kind: placementKind(p, live),
 		gridX: Number.isFinite(Number(p.gridX)) ? Number(p.gridX) : null,
 		gridY: Number.isFinite(Number(p.gridY)) ? Number(p.gridY) : null,
 		gridWidth: p.gridWidth || 4,
@@ -179,16 +211,18 @@ function displayItem(p) {
  * dashboard's placements. Tiles and static widgets (label, header, text,
  * image, link, divider) render; a text widget renders through the
  * dashboard's own CnTextWidget, so its Markdown shows as on the dashboard,
- * sanitised (REQ-PSHR-012). Any other widget shows that it is only
- * visible to signed-in users. Shared by the public share page and the
- * kiosk player.
+ * sanitised (REQ-PSHR-012). With a token-scoped read (`readWidget`) the
+ * news, weather and live data widgets render with their data too
+ * (REQ-PSHR-011). Any other widget shows that it is only visible to
+ * signed-in users. Shared by the public share page and the kiosk player.
  *
  * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export default {
 	name: 'PublicDashboardGrid',
 
-	components: { CnTextWidget },
+	components: { CnTextWidget, LiveTileWidget, PublicNewsWidget, WeatherWidget },
 
 	props: {
 		placements: LIST_PROP,
@@ -202,6 +236,17 @@ export default {
 		 */
 		embedContext: {
 			type: Object,
+			default: null,
+		},
+
+		/**
+		 * The token-scoped read of a live widget: placement id to
+		 * `{widget, data}` (REQ-PSHR-011). Set by the public share page and
+		 * the kiosk player; without it (null, the default) the news, weather
+		 * and live data widgets show that they need a sign-in.
+		 */
+		readWidget: {
+			type: Function,
 			default: null,
 		},
 	},
@@ -226,7 +271,23 @@ export default {
 				(p) => p.isVisible !== 0 && p.isVisible !== false,
 			)
 			list.sort((a, b) => a.gridY - b.gridY || a.gridX - b.gridX)
-			return list.map(displayItem)
+			const live = this.readWidget !== null
+			return list.map((p) => displayItem(p, live))
+		},
+
+		/**
+		 * The weather and live data widgets' reading source: the token-scoped
+		 * read, answering the reading itself.
+		 *
+		 * @return {(function((number|string)): Promise<object>)|null} The reading source.
+		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 */
+		readingSource() {
+			const read = this.readWidget
+			if (read === null) {
+				return null
+			}
+			return async (placementId) => (await read(placementId))?.data ?? {}
 		},
 	},
 
@@ -246,6 +307,17 @@ export default {
 			const placement = this.placements.find((p) => p.id === item.id)
 			const content = placement ? placementContent(placement) : {}
 			return { ...content, text: item.text }
+		},
+
+		/**
+		 * The placement a display item came from.
+		 *
+		 * @param {object} item The display item.
+		 * @return {object} The placement.
+		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 */
+		placementOf(item) {
+			return this.placements.find((p) => p.id === item.id) ?? { id: item.id }
 		},
 
 		/**

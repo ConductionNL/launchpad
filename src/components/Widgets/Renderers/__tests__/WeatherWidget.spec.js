@@ -175,3 +175,33 @@ describe('WeatherWidget — REQ-WEATHER-002 stale + error degradation', () => {
 		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(false)
 	})
 })
+
+describe('WeatherWidget — REQ-PSHR-011 a public screen passes its own reading source', () => {
+	it('reads through readingSource instead of the signed-in endpoint', async () => {
+		const readingSource = vi.fn().mockResolvedValue({
+			location: 'Zuiddrecht',
+			tempValue: 12,
+			units: 'metric',
+			condition: 'rain',
+			conditionText: 'Light rain',
+			stale: false,
+		})
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 2 }, readingSource },
+		})
+		await flushPromises()
+		expect(readingSource).toHaveBeenCalledWith(2)
+		expect(fetchWeatherReading).not.toHaveBeenCalled()
+		expect(wrapper.vm.reading.tempValue).toBe(12)
+	})
+
+	it('shows the error state when the token-scoped read is refused', async () => {
+		const readingSource = vi.fn().mockRejectedValue(new Error('404'))
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 2 }, readingSource },
+		})
+		await flushPromises()
+		expect(wrapper.vm.reading).toBeNull()
+		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(true)
+	})
+})

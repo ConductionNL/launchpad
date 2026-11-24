@@ -42,7 +42,7 @@ interface SetupWizardServiceInterface {
 	 *
 	 * Shape: `{complete: bool, currentRecommendedStep: int,
 	 *         stepStatuses: array<string,string>}`. Step 1 is always
-	 * `'done'`; Step 6 stays `'pending'` until the admin clicks Finish.
+	 * `'done'`; Step 5 stays `'pending'` until the admin clicks Finish.
 	 *
 	 * @return array{complete: bool, currentRecommendedStep: int, stepStatuses: array<int,string>}
 	 *                                                                                             The wizard state payload.

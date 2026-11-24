@@ -948,9 +948,6 @@
         "Admin roles": "Skrbniške vloge",
         "Assign the \"Dashboard Admin\" role to a Nextcloud group to delegate LaunchPad administration.": "Dodelite vlogo »Skrbnik nadzorne plošče« skupini Nextcloud za prenos skrbništva LaunchPad.",
         "The admin-roles capability is not yet available; this step will activate once it ships.": "Zmožnost admin-roles še ni na voljo; ta korak se bo aktiviral, ko bo dobavljena.",
-        "Footer configuration": "Konfiguracija noge",
-        "Customize the footer content and appearance for your intranet.": "Prilagodite vsebino in videz noge za svoj intranet.",
-        "The footer-customization capability is not yet available; this step will activate once it ships.": "Zmožnost footer-customization še ni na voljo; ta korak se bo aktiviral, ko bo dobavljena.",
         "All set": "Vse pripravljeno",
         "Your setup is complete. Click Finish to save changes and dismiss the setup banner.": "Vaša namestitev je končana. Kliknite Dokončaj za shranjevanje sprememb in skritje pasice namestitve.",
         "Back": "Nazaj",
@@ -1356,7 +1353,7 @@
         "Personal settings": "Personal settings",
         "Reports": "Reports",
         "Flows": "Flows",
-        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Konfigurirajte svojo instanco LaunchPad z razvrščanjem skupin, demo podatki, skrbniškimi vlogami in nastavitvami noge.",
+        "This setup sets the groups, the example dashboards and the roles, in five steps. Existing dashboards stay as they are.": "Ta nastavitev v petih korakih določi skupine, primere nadzornih plošč in vloge. Obstoječe nadzorne plošče ostanejo nespremenjene.",
         "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Zaženite svoj intranet: konfigurirajte skupine, namestite demo podatke in nastavite skrbniške vloge.",
         "A dashboard is shared with you": "Z vami je deljena nadzorna plošča",
         "A dashboard for your group is published": "Objavljena je nadzorna plošča za vašo skupino",
@@ -1430,6 +1427,14 @@
         "Year": "Leto",
         "Display": "Prikaz",
         "Theme": "Tema",
-        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Tema je enaka za vse nadzorne plošče. Lastne barve te plošče nastavite pod »Lasten videz«."
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Tema je enaka za vse nadzorne plošče. Lastne barve te plošče nastavite pod »Lasten videz«.",
+        "{list} and {last}": "{list} in {last}",
+        "{list} and {count} more": "{list} in še {count}",
+        "One widget does not work on a phone and is hidden: {names}.": "En gradnik ne deluje na telefonu in je skrit: {names}.",
+        "{count} widgets do not work on a phone and are hidden: {names}.": "Število gradnikov, ki ne delujejo na telefonu in so skriti: {count}. {names}.",
+        "Which?": "Kateri?",
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Nekateri gradniki potrebujejo večji zaslon, zato jih telefon skrije. Na tablici ali računalniku jih vidite kot običajno.",
+        "Template %s": "Predloga %s",
+        "Updated from the template": "Posodobljeno iz predloge"
     }
 }

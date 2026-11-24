@@ -944,9 +944,6 @@
         "Admin roles": "Administratorroller",
         "Assign the \"Dashboard Admin\" role to a Nextcloud group to delegate LaunchPad administration.": "Tildel rollen «Dashbordadministrator» til en Nextcloud-gruppe for å delegere LaunchPad-administrasjon.",
         "The admin-roles capability is not yet available; this step will activate once it ships.": "Administratorroller-funksjonen er ikke tilgjengelig ennå; dette trinnet aktiveres når den lanseres.",
-        "Footer configuration": "Bunntekstkonfigurasjon",
-        "Customize the footer content and appearance for your intranet.": "Tilpass bunntekstinnholdet og utseendet for intranettet ditt.",
-        "The footer-customization capability is not yet available; this step will activate once it ships.": "Funksjonen for bunnteksttilpasning er ikke tilgjengelig ennå; dette trinnet aktiveres når den lanseres.",
         "All set": "Alt klart",
         "Your setup is complete. Click Finish to save changes and dismiss the setup banner.": "Oppsettet ditt er fullført. Klikk Fullfør for å lagre endringene og lukke oppsettsbanneret.",
         "Back": "Tilbake",
@@ -1352,7 +1349,7 @@
         "Personal settings": "Personal settings",
         "Reports": "Reports",
         "Flows": "Flows",
-        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Konfigurer LaunchPad-instansen din med grupperekkefølge, demodata, administratorroller og bunntekstinnstillinger.",
+        "This setup sets the groups, the example dashboards and the roles, in five steps. Existing dashboards stay as they are.": "Dette oppsettet angir gruppene, eksempeldashbordene og rollene i fem trinn. Eksisterende dashbord forblir som de er.",
         "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Kom i gang med intranettet ditt: konfigurer grupper, installer demodata og sett opp administratorroller.",
         "A dashboard is shared with you": "Et dashbord deles med deg",
         "A dashboard for your group is published": "Et dashbord for gruppen din publiseres",
@@ -1426,6 +1423,14 @@
         "Year": "År",
         "Display": "Visning",
         "Theme": "Tema",
-        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Temaet er det samme for alle dashbord. Dette dashbordets egne farger angir du under «Eget utseende»."
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Temaet er det samme for alle dashbord. Dette dashbordets egne farger angir du under «Eget utseende».",
+        "{list} and {last}": "{list} og {last}",
+        "{list} and {count} more": "{list} og {count} til",
+        "One widget does not work on a phone and is hidden: {names}.": "En widget fungerer ikke på en telefon og er skjult: {names}.",
+        "{count} widgets do not work on a phone and are hidden: {names}.": "{count} widgeter fungerer ikke på en telefon og er skjult: {names}.",
+        "Which?": "Hvilke?",
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Noen widgeter trenger en større skjerm, så en telefon skjuler dem. På et nettbrett eller en datamaskin ser du dem som vanlig.",
+        "Template %s": "Mal %s",
+        "Updated from the template": "Oppdatert fra malen"
     }
 }

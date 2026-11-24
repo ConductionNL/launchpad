@@ -1492,6 +1492,13 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/Workspace/PhoneHiddenNotice.vue | titles": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/Workspace/config/DetailsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": true,

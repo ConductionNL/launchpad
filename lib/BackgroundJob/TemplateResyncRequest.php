@@ -35,7 +35,7 @@ final class TemplateResyncRequest {
 	public readonly int $templateId;
 
 	/**
-	 * `overwrite` or `merge` (empty when missing).
+	 * `overwrite`, `merge` or `add_only` (empty when missing).
 	 *
 	 * @var string
 	 */

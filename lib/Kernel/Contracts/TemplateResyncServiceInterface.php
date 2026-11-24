@@ -46,7 +46,7 @@ interface TemplateResyncServiceInterface {
 	 * and the provisioned-copy count.
 	 *
 	 * @param int $templateId The admin template's dashboard ID.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
+	 * @param string $strategy `'overwrite'`, `'merge'` or `'add_only'`.
 	 * @param bool $dryRun When true, compute and return the plan
 	 *                     without mutating anything.
 	 * @param string $actingAdminId The acting admin's NC user ID (for the
@@ -81,7 +81,7 @@ interface TemplateResyncServiceInterface {
 	 * and from {@see TemplateResyncJob::run()} (large target groups).
 	 *
 	 * @param int $templateId The admin template's dashboard ID.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
+	 * @param string $strategy `'overwrite'`, `'merge'` or `'add_only'`.
 	 * @param string $actingAdminId The acting admin's NC user ID.
 	 *
 	 * @return array<string, mixed> `{templateId, strategy, dryRun: false,

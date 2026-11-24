@@ -179,6 +179,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
+  - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.
 - [x] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
   - Spec written: tests/e2e/clock-weather-widgets.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 16 green; the remaining test is the existing fixme for a requirement that was never built.
@@ -199,16 +200,19 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 14 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 14 per-scenario verdicts. `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); the existing `calendar` widget reads LaunchPad's own events endpoint, not CalDAV or decidesk.
+  - Recount (cloud, 2026-11-24): 14 scenarios, 14 excluded, 0 uncited. Still never built: `meeting-actions` is in neither `src/constants/widgetRegistry.js`, `lib/widget-types.json` nor `src/manifest.json`. One correction to the line above: since c1be6d0d and 3b33c019 the `calendar` widget does read Nextcloud's CalDAV calendars, but it is still not this widget and has no decidesk path.
 - [x] 4.21 `label-widget`: 12 scenarios, 11 cited.
   - Spec written: tests/e2e/label-widget-content-edit.spec.ts, 1 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 2 of 2 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 12 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 12 per-scenario verdicts. `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); opening a file from the existing `files` widget belongs to the files-widget spec.
+  - Recount (cloud, 2026-11-24): 12 scenarios, 12 excluded, 0 uncited. Still never built: no `file-access` widget type in the registry, `lib/widget-types.json` or the manifest.
 - [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/container-widget.spec.ts, tests/e2e/container-tile-sorting.spec.ts, 11 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): container-widget 7 of 7 and container-tile-sorting 6 of 6 green.
 - [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 4 scenarios, 4 cited, 0 excluded, 0 uncited. Spec updated with the picker changes of 907dd48e; listed by `playwright test --list`, not yet run.
 
 ## 5. Tier 4, admin, operations and integrations
 

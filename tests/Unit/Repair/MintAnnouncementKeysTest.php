@@ -42,7 +42,7 @@ class MintAnnouncementKeysTest extends TestCase {
 		$second = new WidgetPlacement();
 		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
 		$mapper->method('findAcknowledgedWithoutKey')->willReturn([$first, $second]);
-		$mapper->expects($this->exactly(2))->method('update')->willReturnArgument(0);
+		$mapper->expects($this->exactly(count: 2))->method('update')->willReturnArgument(0);
 		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('info')->with('2 widget(s) got an announcement key.');
 

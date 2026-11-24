@@ -99,6 +99,8 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return bool True when a key was given.
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) UuidV4 is a pure generator of random v4 UUIDs.
+	 *
 	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public static function ensureAnnouncementKey(Entity $placement): bool {
@@ -281,7 +283,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @throws InvalidArgumentException When the entity is not a widget placement.
 	 *
-	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-req-vis-011
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-rule-cascade-deletion-req-vis-011
 	 */
 	public function delete(Entity $entity): Entity {
 		if (($entity instanceof WidgetPlacement) === false) {

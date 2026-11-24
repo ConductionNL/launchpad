@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Varování",
     "Something went wrong" : "Něco se pokazilo",
     "Date field for the period" : "Datové pole pro období",
-    "None: the widget does not follow the period" : "Žádné: widget nesleduje období"
+    "None: the widget does not follow the period" : "Žádné: widget nesleduje období",
+    "Ask for read confirmation" : "Požádat o potvrzení přečtení",
+    "Confirm before" : "Potvrdit do",
+    "Confirm before {date}" : "Potvrdit do {date}",
+    "You confirmed you have read this" : "Potvrdili jste, že jste si to přečetli",
+    "The confirm-before date must be after the publish time" : "Termín potvrzení musí být po čase zveřejnění",
+    "Your read confirmation could not be saved" : "Vaše potvrzení přečtení se nepodařilo uložit"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

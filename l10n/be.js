@@ -1639,6 +1639,12 @@ OC.L10N.register(
     "Warning" : "Папярэджанне",
     "Something went wrong" : "Нешта пайшло не так",
     "Date field for the period" : "Поле даты для перыяду",
-    "None: the widget does not follow the period" : "Няма: віджэт не ідзе за перыядам"
+    "None: the widget does not follow the period" : "Няма: віджэт не ідзе за перыядам",
+    "Ask for read confirmation" : "Папрасіць пацвярджэння прачытання",
+    "Confirm before" : "Пацвердзіць да",
+    "Confirm before {date}" : "Пацвердзіць да {date}",
+    "You confirmed you have read this" : "Вы пацвердзілі, што прачыталі гэта",
+    "The confirm-before date must be after the publish time" : "Тэрмін пацвярджэння павінен быць пазней за час публікацыі",
+    "Your read confirmation could not be saved" : "Не ўдалося захаваць ваша пацвярджэнне прачытання"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

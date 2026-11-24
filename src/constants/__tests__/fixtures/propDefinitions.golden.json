@@ -50,6 +50,18 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Announcements/AnnouncementCard.vue | confirmed": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Announcements/AnnouncementCard.vue | canReport": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Announcements/NoticeBanner.vue | notice": {
 		"type": "Object",
 		"required": true,
@@ -1936,6 +1948,12 @@
 		"default": false
 	},
 	"../../modals/AcknowledgementReportModal.vue | announcementKey": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/AcknowledgementReportModal.vue | announcementUuid": {
 		"type": "String",
 		"required": false,
 		"validator": false,

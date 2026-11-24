@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Avviso",
     "Something went wrong" : "Qualcosa è andato storto",
     "Date field for the period" : "Campo data per il periodo",
-    "None: the widget does not follow the period" : "Nessuno: il widget non segue il periodo"
+    "None: the widget does not follow the period" : "Nessuno: il widget non segue il periodo",
+    "Ask for read confirmation" : "Richiedi conferma di lettura",
+    "Confirm before" : "Conferma entro il",
+    "Confirm before {date}" : "Conferma entro il {date}",
+    "You confirmed you have read this" : "Hai confermato di aver letto questo",
+    "The confirm-before date must be after the publish time" : "La data di conferma deve essere successiva alla data di pubblicazione",
+    "Your read confirmation could not be saved" : "Non è stato possibile salvare la tua conferma di lettura"
 },
 "nplurals=2; plural=(n != 1);"
 );

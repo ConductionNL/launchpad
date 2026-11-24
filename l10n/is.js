@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Viðvörun",
     "Something went wrong" : "Eitthvað fór úrskeiðis",
     "Date field for the period" : "Dagsetningarreitur fyrir tímabilið",
-    "None: the widget does not follow the period" : "Ekkert: græjan fylgir ekki tímabilinu"
+    "None: the widget does not follow the period" : "Ekkert: græjan fylgir ekki tímabilinu",
+    "Ask for read confirmation" : "Biðja um lesstaðfestingu",
+    "Confirm before" : "Staðfesta fyrir",
+    "Confirm before {date}" : "Staðfesta fyrir {date}",
+    "You confirmed you have read this" : "Þú hefur staðfest að þú hafir lesið þetta",
+    "The confirm-before date must be after the publish time" : "Staðfestingarfresturinn verður að vera eftir birtingartímanum",
+    "Your read confirmation could not be saved" : "Ekki tókst að vista lesstaðfestinguna þína"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

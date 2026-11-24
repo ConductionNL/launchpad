@@ -1550,6 +1550,12 @@
         "Warning": "Upozorenje",
         "Something went wrong": "Nešto je pošlo po zlu",
         "Date field for the period": "Polje datuma za razdoblje",
-        "None: the widget does not follow the period": "Nijedno: widget ne prati razdoblje"
+        "None: the widget does not follow the period": "Nijedno: widget ne prati razdoblje",
+        "Ask for read confirmation": "Zatraži potvrdu čitanja",
+        "Confirm before": "Potvrdi do",
+        "Confirm before {date}": "Potvrdi do {date}",
+        "You confirmed you have read this": "Potvrdili ste da ste ovo pročitali",
+        "The confirm-before date must be after the publish time": "Rok za potvrdu mora biti nakon vremena objave",
+        "Your read confirmation could not be saved": "Vašu potvrdu čitanja nije bilo moguće spremiti"
     }
 }

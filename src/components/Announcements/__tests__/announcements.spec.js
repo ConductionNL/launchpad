@@ -11,9 +11,10 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import AnnouncementEditorModal, { endTimeProblem, groupChoices, previewNoteText, toIso, visibleUntilText } from '../../../modals/AnnouncementEditorModal.vue'
-import AnnouncementsWidget from '../../Widgets/Renderers/AnnouncementsWidget.vue'
+import AnnouncementEditorModal, { confirmBeforeIso, confirmBeforeProblem, endTimeProblem, groupChoices, previewNoteText, toIso, visibleUntilText } from '../../../modals/AnnouncementEditorModal.vue'
+import AnnouncementsWidget, { readConfirmationState } from '../../Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../../Widgets/Renderers/AnnouncementsWidgetForm.vue'
+import AnnouncementCard, { confirmBeforeLabel } from '../AnnouncementCard.vue'
 import NoticeBanner from '../NoticeBanner.vue'
 import NoticeBannerRegion, { TICK_MS } from '../NoticeBannerRegion.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
@@ -40,6 +41,9 @@ vi.mock('../../../services/announcementsApi.js', () => ({
 		reach: vi.fn(),
 		reachFor: vi.fn(),
 		groups: vi.fn(),
+		confirmRead: vi.fn(),
+		readState: vi.fn(),
+		receipts: vi.fn(),
 		dismissedNotices: vi.fn(),
 		saveDismissedNotices: vi.fn(),
 	},
@@ -65,6 +69,7 @@ const stubs = {
 	NcTextArea: field('nc-text-area'),
 	NcCheckboxRadioSwitch: { props: ['modelValue'], emits: ['update:modelValue'], template: '<label><slot /></label>' },
 	NcModal: { emits: ['close'], template: '<div class="nc-modal-stub"><slot /></div>' },
+	AcknowledgementReportModal: { name: 'AcknowledgementReportModal', props: ['open', 'announcementUuid', 'title'], template: '<div class="report-stub" />' },
 }
 const mountWith = (component, props = {}) => mount(component, { props, global: { stubs } })
 
@@ -76,6 +81,7 @@ const NEWS = [
 
 beforeEach(() => {
 	vi.clearAllMocks()
+	announcementsApi.readState.mockResolvedValue({ confirmed: [], receipts: [] })
 	announcementsApi.list.mockResolvedValue({
 		announcements: NEWS,
 		reactions: { a: { likes: 0, comments: 0, liked: false } },
@@ -510,5 +516,137 @@ describe('AnnouncementEditorModal', () => {
 		expect(toIso('')).toBeNull()
 		expect(toIso('nonsense')).toBeNull()
 		expect(toIso('2026-11-14T12:00')).toBe(new Date('2026-11-14T12:00').toISOString())
+	})
+})
+
+describe('Read confirmation (REQ-ANN-007)', () => {
+	const ASKING = { uuid: 'r', kind: 'news', title: 'New procedure', requiresConfirmation: true, confirmBefore: '2026-10-30T22:59:00Z', publishAt: '2026-10-26T08:00:00Z' }
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('Confirm before Friday: the card shows "I have read this" and the date, then that the reader confirmed', async () => {
+		const wrapper = mountWith(AnnouncementCard, { announcement: ASKING, canReport: true })
+		expect(wrapper.find('[data-test="announcement-confirm-before"]').text()).toMatch(/^Confirm before .*30/)
+		await wrapper.find('[data-test="announcement-confirm-read"]').trigger('click')
+		expect(wrapper.emitted('confirmRead')).toEqual([['r']])
+		await wrapper.find('[data-test="announcement-receipts"]').trigger('click')
+		expect(wrapper.emitted('openReceipts')).toEqual([['r']])
+
+		await wrapper.setProps({ confirmed: true, canReport: false })
+		expect(wrapper.find('[data-test="announcement-confirm-read"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="announcement-confirmed"]').text()).toBe('You confirmed you have read this')
+		expect(wrapper.find('[data-test="announcement-receipts"]').exists()).toBe(false)
+
+		const plain = mountWith(AnnouncementCard, { announcement: NEWS[0] })
+		expect(plain.find('[data-test="announcement-confirmation"]').exists()).toBe(false)
+		expect(confirmBeforeLabel(null)).toBe('')
+		expect(confirmBeforeLabel('not a date')).toBe('')
+	})
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('the widget confirms, marks the card, and opens the read confirmations for the author', async () => {
+		announcementsApi.list.mockResolvedValue({
+			announcements: [ASKING],
+			reactions: {},
+			followedCategories: [],
+			canAuthor: true,
+		})
+		announcementsApi.readState.mockResolvedValue({ confirmed: [], receipts: ['r'] })
+		announcementsApi.confirmRead.mockResolvedValue({ uuid: 'r', confirmed: true })
+		const wrapper = mountWith(AnnouncementsWidget)
+		await flushPromises()
+
+		await wrapper.find('[data-test="announcement-confirm-read"]').trigger('click')
+		await flushPromises()
+		expect(announcementsApi.confirmRead).toHaveBeenCalledWith('r')
+		expect(wrapper.find('[data-test="announcement-confirmed"]').exists()).toBe(true)
+
+		await wrapper.find('[data-test="announcement-receipts"]').trigger('click')
+		const report = wrapper.findComponent({ name: 'AcknowledgementReportModal' })
+		expect(report.props()).toEqual({ open: true, announcementUuid: 'r', title: 'New procedure' })
+		report.vm.$emit('close')
+		await flushPromises()
+		expect(wrapper.findComponent({ name: 'AcknowledgementReportModal' }).props('open')).toBe(false)
+	})
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('a failed confirmation says so and leaves the button', async () => {
+		announcementsApi.list.mockResolvedValue({ announcements: [ASKING], reactions: {}, followedCategories: [], canAuthor: false })
+		announcementsApi.readState.mockRejectedValue(new Error('offline'))
+		announcementsApi.confirmRead.mockRejectedValue(new Error('offline'))
+		const wrapper = mountWith(AnnouncementsWidget)
+		await flushPromises()
+		// Without the read state the list still shows, every question unconfirmed.
+		expect(wrapper.find('[data-test="announcement-confirm-read"]').exists()).toBe(true)
+		expect(announcementsApi.list).toHaveBeenCalledTimes(1)
+
+		await wrapper.vm.confirmRead('r')
+		expect(wrapper.vm.error).toBe('Your read confirmation could not be saved')
+		expect(wrapper.vm.readConfirmations.confirmed).toEqual([])
+		expect(readConfirmationState({ confirmed: ['a', 5], receipts: 'x' })).toEqual({ confirmed: ['a'], receipts: [] })
+	})
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('the form asks for it with a date, and the preview shows "I have read this" and "Confirm before"', async () => {
+		announcementsApi.groups.mockResolvedValue([])
+		announcementsApi.reach.mockResolvedValue(4)
+		const wrapper = mountWith(AnnouncementEditorModal)
+		await flushPromises()
+		expect(wrapper.text()).toContain('Ask for read confirmation')
+		expect(wrapper.find('[data-test="editor-confirm-before"]').exists()).toBe(false)
+		expect(wrapper.vm.payload.requiresConfirmation).toBe(false)
+		expect(wrapper.vm.payload.confirmBefore).toBeNull()
+
+		Object.assign(wrapper.vm.form, { title: 'New procedure', requiresConfirmation: true })
+		await flushPromises()
+		await wrapper.find('[data-test="editor-confirm-before"]').setValue('2099-10-30')
+
+		const preview = wrapper.find('[data-test="editor-preview-pane"]')
+		expect(preview.find('[data-test="announcement-confirm-read"]').text()).toBe('I have read this')
+		expect(preview.find('[data-test="announcement-confirm-read"]').attributes('disabled')).toBeDefined()
+		expect(preview.find('[data-test="announcement-confirm-before"]').text()).toMatch(/^Confirm before .*30/)
+		expect(wrapper.vm.payload.requiresConfirmation).toBe(true)
+		expect(wrapper.vm.payload.confirmBefore).toBe(toIso('2099-10-30T23:59'))
+
+		wrapper.vm.form.kind = 'notice'
+		expect(wrapper.vm.payload.requiresConfirmation).toBe(false)
+		expect(wrapper.vm.payload.confirmBefore).toBeNull()
+	})
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('refuses a confirm-before date that is not after the publish time, before any call', async () => {
+		announcementsApi.groups.mockResolvedValue([])
+		announcementsApi.reach.mockResolvedValue(4)
+		const wrapper = mountWith(AnnouncementEditorModal)
+		Object.assign(wrapper.vm.form, {
+			title: 'New procedure',
+			publishAt: '2099-11-02T08:00',
+			expiresAt: '2099-11-30T17:00',
+			requiresConfirmation: true,
+			confirmBefore: '2099-11-01',
+		})
+		await wrapper.vm.submit()
+
+		expect(wrapper.find('[data-test="editor-error"]').text()).toBe('The confirm-before date must be after the publish time')
+		expect(announcementsApi.create).not.toHaveBeenCalled()
+
+		const now = new Date('2099-11-01T12:00:00Z')
+		expect(confirmBeforeProblem('', null, now)).toBe('')
+		expect(confirmBeforeProblem('', '2099-11-02T00:00:00Z', now)).toBe('')
+		expect(confirmBeforeProblem('', '2099-11-01T10:00:00Z', now)).toBe('The confirm-before date must be after the publish time')
+		expect(confirmBeforeIso('')).toBeNull()
+	})
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('sends the question and its deadline with the announcement', async () => {
+		announcementsApi.groups.mockResolvedValue([])
+		announcementsApi.reach.mockResolvedValue(4)
+		announcementsApi.create.mockResolvedValue({ uuid: 'new' })
+		announcementsApi.publish.mockResolvedValue({ uuid: 'new', status: 'published' })
+		const wrapper = mountWith(AnnouncementEditorModal)
+		Object.assign(wrapper.vm.form, { title: 'New procedure', expiresAt: '2099-11-30T17:00', requiresConfirmation: true, confirmBefore: '2099-11-20' })
+		await wrapper.vm.submit()
+
+		expect(announcementsApi.create).toHaveBeenCalledWith(expect.objectContaining({ requiresConfirmation: true, confirmBefore: toIso('2099-11-20T23:59') }))
+		expect(wrapper.emitted('published')).toHaveLength(1)
 	})
 })

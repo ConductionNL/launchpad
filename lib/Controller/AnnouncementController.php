@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use Closure;
-use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
@@ -36,7 +34,6 @@ use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -48,11 +45,26 @@ use OCP\IRequest;
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 class AnnouncementController extends Controller {
+	use AnswersAnnouncementRequests;
+
 
 	/**
 	 * The fields an author may send.
 	 */
-	private const FIELDS = ['kind', 'title', 'body', 'category', 'level', 'dismissible', 'targetGroups', 'publishAt', 'expiresAt', 'allowComments'];
+	private const FIELDS = [
+		'kind',
+		'title',
+		'body',
+		'category',
+		'level',
+		'dismissible',
+		'targetGroups',
+		'publishAt',
+		'expiresAt',
+		'allowComments',
+		'requiresConfirmation',
+		'confirmBefore',
+	];
 
 	/**
 	 * Constructor.
@@ -314,13 +326,13 @@ class AnnouncementController extends Controller {
 	/**
 	 * Run a likes-and-comments call as the session user, or 503 when the comments service is not wired.
 	 *
-	 * @param Closure $run Receives the user id and the comments service.
+	 * @param callable $run Receives the user id and the comments service.
 	 *
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
 	 */
-	private function withReactions(Closure $run): JSONResponse {
+	private function withReactions(callable $run): JSONResponse {
 		$reactions = $this->reactions;
 		if ($reactions === null) {
 			return new JSONResponse(['error' => 'Likes and comments are not available'], Http::STATUS_SERVICE_UNAVAILABLE);
@@ -328,32 +340,6 @@ class AnnouncementController extends Controller {
 
 		return $this->asUser(run: fn (string $userId): JSONResponse => $run($userId, $reactions));
 	}//end withReactions()
-
-	/**
-	 * Run an endpoint as the session user, mapping refusals to their status. The
-	 * caller has checked its ADR-023 action first.
-	 *
-	 * @param Closure $run `(string $userId): JSONResponse`.
-	 *
-	 * @return JSONResponse
-	 */
-	private function asUser(Closure $run): JSONResponse {
-		$user = $this->guard->sessionUser();
-		if ($user instanceof JSONResponse) {
-			return $user;
-		}
-
-		try {
-			return $run($user->getUID());
-		} catch (DoesNotExistException) {
-			return new JSONResponse(['error' => 'Announcement not found'], Http::STATUS_NOT_FOUND);
-		} catch (ForbiddenException $e) {
-			return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
-		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(['status' => 'error', 'error' => 'invalid_argument', 'message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-		}
-	}//end asUser()
-
 	/**
 	 * The author's fields from the request, only those that were sent.
 	 *

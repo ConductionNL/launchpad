@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Ostrzeżenie",
     "Something went wrong" : "Coś poszło nie tak",
     "Date field for the period" : "Pole daty dla okresu",
-    "None: the widget does not follow the period" : "Brak: widżet nie podąża za okresem"
+    "None: the widget does not follow the period" : "Brak: widżet nie podąża za okresem",
+    "Ask for read confirmation" : "Poproś o potwierdzenie przeczytania",
+    "Confirm before" : "Potwierdź do",
+    "Confirm before {date}" : "Potwierdź do {date}",
+    "You confirmed you have read this" : "Potwierdzono, że to przeczytałeś",
+    "The confirm-before date must be after the publish time" : "Termin potwierdzenia musi przypadać po czasie publikacji",
+    "Your read confirmation could not be saved" : "Nie udało się zapisać potwierdzenia przeczytania"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

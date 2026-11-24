@@ -80,6 +80,39 @@ export const announcementsApi = {
 	 * @return {Promise<Array<object>>} `{id, displayName}`, sorted by name.
 	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	 */
+	/**
+	 * Which announcements the reader confirmed, and which read
+	 * confirmations the reader may open (REQ-ANN-007).
+	 *
+	 * @return {Promise<{confirmed: Array<string>, receipts: Array<string>}>}
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	async readState() {
+		return (await axios.get(`${base()}/read-state`)).data
+	},
+
+	/**
+	 * "I have read this" for the signed-in reader (REQ-ANN-007).
+	 *
+	 * @param {string} uuid The announcement.
+	 * @return {Promise<object>} `{uuid, confirmed, confirmedAt}`.
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	async confirmRead(uuid) {
+		return (await axios.post(`${base()}/${uuid}/read`)).data
+	},
+
+	/**
+	 * Who confirmed and who has not yet, for the author (REQ-ANN-007).
+	 *
+	 * @param {string} uuid The announcement.
+	 * @return {Promise<object>} The report the Read confirmations dialog shows.
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	async receipts(uuid) {
+		return (await axios.get(`${base()}/${uuid}/receipts`)).data
+	},
+
 	async groups() {
 		return (await axios.get(`${base()}/groups`)).data.groups ?? []
 	},

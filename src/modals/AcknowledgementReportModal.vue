@@ -108,7 +108,7 @@
 
 			<div class="launchpad-ack-report__actions">
 				<NcButton
-					v-if="report"
+					v-if="report && csvUrl"
 					:href="csvUrl"
 					download
 					variant="secondary"
@@ -126,6 +126,7 @@
 <script>
 import { NcButton, NcLoadingIcon, NcModal } from '@conduction/nextcloud-vue'
 import { FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
+import { announcementsApi } from '../services/announcementsApi.js'
 import { api } from '../services/api.js'
 import { filterReceipts, FILTERS, initialsOf, receiptCounts, receiptDate } from '../utils/readReceipts.js'
 
@@ -142,6 +143,12 @@ export default {
 		open: FLAG_PROP,
 
 		announcementKey: TEXT_PROP,
+
+		/**
+		 * An announcement's uuid: read its confirmations from the
+		 * announcements API instead of a widget placement's (REQ-ANN-007).
+		 */
+		announcementUuid: TEXT_PROP,
 
 		/** The announcement's title, e.g. "New procedure for Woo requests". */
 		title: TEXT_PROP,
@@ -169,7 +176,7 @@ export default {
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 		 */
 		csvUrl() {
-			return api.getAcknowledgementReportCsvUrl(this.announcementKey)
+			return this.announcementUuid ? '' : api.getAcknowledgementReportCsvUrl(this.announcementKey)
 		},
 
 		/**
@@ -265,7 +272,7 @@ export default {
 			 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 			 */
 			handler(isOpen) {
-				if (isOpen && this.announcementKey) {
+				if (isOpen && (this.announcementKey || this.announcementUuid)) {
 					this.filter = 'everyone'
 					this.loadReport()
 				}
@@ -281,6 +288,19 @@ export default {
 		 */
 		announcementKey(key) {
 			if (this.open && key) {
+				this.loadReport()
+			}
+		},
+
+		/**
+		 * Reload the report when the targeted announcement changes.
+		 *
+		 * @param {string} uuid the new announcement uuid.
+		 * @return {void}
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 */
+		announcementUuid(uuid) {
+			if (this.open && uuid) {
 				this.loadReport()
 			}
 		},
@@ -303,20 +323,21 @@ export default {
 		},
 
 		/**
-		 * Fetch the audience-scoped read-receipt report (REQ-ACK-004).
+		 * Fetch the audience-scoped read-receipt report (REQ-ACK-004), of an
+		 * announcement when its uuid is given (REQ-ANN-007).
 		 *
 		 * @return {Promise<void>} resolves once the report is loaded.
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		async loadReport() {
 			this.loading = true
 			this.error = ''
 			this.report = null
 			try {
-				const response = await api.getAcknowledgementReport(
-					this.announcementKey,
-				)
-				this.report = response.data
+				this.report = this.announcementUuid
+					? await announcementsApi.receipts(this.announcementUuid)
+					: (await api.getAcknowledgementReport(this.announcementKey)).data
 			} catch {
 				this.error = t(
 					'launchpad',

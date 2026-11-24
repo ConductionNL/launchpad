@@ -51,6 +51,11 @@ class DashboardPayloadsTest extends TestCase {
 	/** @var IUserSession&MockObject */
 	private $userSession;
 
+	/**
+	 * Fresh doubles for every test.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
 		$this->dashboardService = $this->createMock(originalClassName: DashboardService::class);
 		$this->actionAuth = $this->createMock(originalClassName: ActionAuthService::class);
@@ -109,11 +114,11 @@ class DashboardPayloadsTest extends TestCase {
 			]
 		);
 
-		self::assertCount(2, $list);
-		self::assertSame('user', $list[0]['source']);
-		self::assertTrue($list[0]['isOwner']);
-		self::assertSame('group', $list[1]['source']);
-		self::assertFalse($list[1]['isOwner']);
+		self::assertCount(expectedCount: 2, haystack: $list);
+		self::assertSame(expected: 'user', actual: $list[0]['source']);
+		self::assertTrue(condition: $list[0]['isOwner']);
+		self::assertSame(expected: 'group', actual: $list[1]['source']);
+		self::assertFalse(condition: $list[1]['isOwner']);
 	}//end testVisibleListWithoutQuotaIsTheBareList()
 
 	/**
@@ -130,8 +135,8 @@ class DashboardPayloadsTest extends TestCase {
 			items: [['dashboard' => $this->dashboard(uuid: 'a', userId: 'alice'), 'source' => 'user']]
 		);
 
-		self::assertSame(['maxDashboards' => 5], $list['quota']);
-		self::assertCount(1, $list['items']);
+		self::assertSame(expected: ['maxDashboards' => 5], actual: $list['quota']);
+		self::assertCount(expectedCount: 1, haystack: $list['items']);
 	}//end testVisibleListWithQuotaCarriesTheEnvelope()
 
 	/**
@@ -142,7 +147,7 @@ class DashboardPayloadsTest extends TestCase {
 	public function testActiveIsNullWithoutADashboard(): void {
 		$this->dashboardService->method('getEffectiveDashboard')->willReturn(null);
 
-		self::assertNull($this->payloads()->active(userId: 'alice'));
+		self::assertNull(actual: $this->payloads()->active(userId: 'alice'));
 	}//end testActiveIsNullWithoutADashboard()
 
 	/**
@@ -162,12 +167,12 @@ class DashboardPayloadsTest extends TestCase {
 
 		$envelope = $this->payloads()->active(userId: 'alice');
 
-		self::assertSame('g', $envelope['dashboard']['uuid']);
-		self::assertSame([['id' => 7]], $envelope['placements']);
-		self::assertSame(Dashboard::PERMISSION_VIEW_ONLY, $envelope['permissionLevel']);
-		self::assertFalse($envelope['isOwner']);
-		self::assertSame('bob', $envelope['sharedBy']);
-		self::assertFalse($envelope['hasVariants']);
+		self::assertSame(expected: 'g', actual: $envelope['dashboard']['uuid']);
+		self::assertSame(expected: [['id' => 7]], actual: $envelope['placements']);
+		self::assertSame(expected: Dashboard::PERMISSION_VIEW_ONLY, actual: $envelope['permissionLevel']);
+		self::assertFalse(condition: $envelope['isOwner']);
+		self::assertSame(expected: 'bob', actual: $envelope['sharedBy']);
+		self::assertFalse(condition: $envelope['hasVariants']);
 	}//end testActiveEnvelopeTagsOwnershipAndPlacements()
 
 	/**
@@ -183,8 +188,8 @@ class DashboardPayloadsTest extends TestCase {
 			visible: [['dashboard' => $this->dashboard(uuid: 'a', userId: 'alice'), 'source' => 'user']]
 		);
 
-		self::assertCount(1, $firstLoad['visible']);
-		self::assertNull($firstLoad['active']);
+		self::assertCount(expectedCount: 1, haystack: $firstLoad['visible']);
+		self::assertNull(actual: $firstLoad['active']);
 	}//end testFirstLoadCarriesBothPayloads()
 
 	/**
@@ -197,7 +202,7 @@ class DashboardPayloadsTest extends TestCase {
 		$this->actionAuth->method('requireAction')->willThrowException(new OCSForbiddenException());
 		$this->dashboardService->expects(self::never())->method('getEffectiveDashboard');
 
-		self::assertNull($this->payloads()->firstLoad(userId: 'alice', visible: []));
+		self::assertNull(actual: $this->payloads()->firstLoad(userId: 'alice', visible: []));
 	}//end testFirstLoadIsNullWhenTheActionIsRefused()
 
 	/**
@@ -206,7 +211,7 @@ class DashboardPayloadsTest extends TestCase {
 	 * @return void
 	 */
 	public function testFirstLoadIsNullWithoutActorOrUser(): void {
-		self::assertNull($this->payloads(withActor: false)->firstLoad(userId: 'alice', visible: []));
-		self::assertNull($this->payloads()->firstLoad(userId: '', visible: []));
+		self::assertNull(actual: $this->payloads(withActor: false)->firstLoad(userId: 'alice', visible: []));
+		self::assertNull(actual: $this->payloads()->firstLoad(userId: '', visible: []));
 	}//end testFirstLoadIsNullWithoutActorOrUser()
 }//end class

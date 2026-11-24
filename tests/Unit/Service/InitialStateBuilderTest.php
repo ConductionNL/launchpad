@@ -99,7 +99,7 @@ class InitialStateBuilderTest extends TestCase {
 		$firstLoad = ['visible' => [], 'active' => null];
 		foreach ([[$firstLoad, true], [null, false]] as [$value, $provided]) {
 			$sink = [];
-			(new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::WORKSPACE))
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
 				->setWidgets([])
 				->setLayout([])
 				->setPrimaryGroup('g')
@@ -114,9 +114,9 @@ class InitialStateBuilderTest extends TestCase {
 				->setDashboardFirstLoad($value)
 				->apply();
 
-			$this->assertSame($provided, array_key_exists('dashboardFirstLoad', $sink));
+			$this->assertSame(expected: $provided, actual: array_key_exists('dashboardFirstLoad', $sink));
 			if ($provided === true) {
-				$this->assertSame($firstLoad, $sink['dashboardFirstLoad']);
+				$this->assertSame(expected: $firstLoad, actual: $sink['dashboardFirstLoad']);
 			}
 		}
 	}//end testTheFirstDashboardLoadIsProvidedOnlyWhenGiven()

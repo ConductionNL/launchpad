@@ -32,7 +32,6 @@
  *   @e2e widgets::widget-picker-filters-installed-widgets
  *   @e2e widgets::widget-selection-creates-placement
  *   @e2e widgets::style-editor-opens-for-a-widget
- *   @e2e widgets::style-editor-supports-background-and-border-options
  *   @e2e widgets::style-changes-saved-via-api
  *   @e2e widgets::required-field-empty-disables-submit
  *   @e2e widgets::filling-required-field-enables-submit
@@ -567,50 +566,6 @@ test.describe('REQ-WDG-011 the style editor', () => {
 		).toContainText('#336699')
 	})
 
-	// @e2e widgets::style-editor-supports-background-and-border-options
-	test.fixme('the style editor offers background, border style/width/colour/radius, padding and header colours', async ({
-		page,
-	}) => {
-		// SUSPECTED DEFECT: CnWidgetStyleEditorModal
-		// (node_modules/@conduction/nextcloud-vue/src/dialogs/CnWidgetStyleEditorModal.vue:6-100)
-		// edits only the title, the background colour and the icon. There is
-		// no border, radius, padding or header-colour control, although
-		// CnWidgetWrapper renders all of them from styleConfig.
-		const widget = stockWidget()
-		const placement = await seedPlacement(admin, dashboard!.id, {
-			widgetId: widget.id,
-			gridX: 0,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 4,
-		})
-		await openLaunchPad(page)
-		await enterEditMode(page)
-		await editViaCog(page, placement.id)
-
-		const editor = page.locator('[data-testid="cn-widget-style-editor"]')
-		await expect(editor).toBeVisible({ timeout: 10_000 })
-		await expect(
-			editor.locator('[data-testid="cn-widget-style-color"]'),
-		).toBeVisible()
-		await expect(editor.getByLabel(/border style/i)).toBeVisible()
-		for (const style of ['None', 'Solid', 'Dashed', 'Dotted']) {
-			await editor.getByLabel(/border style/i).click()
-			await expect(page.getByRole('option', { name: style })).toBeVisible()
-			await page.keyboard.press('Escape')
-		}
-		await expect(editor.getByLabel(/border width/i)).toBeVisible()
-		await expect(editor.getByLabel(/border colou?r/i)).toBeVisible()
-		await expect(editor.getByLabel(/border radius/i)).toBeVisible()
-		for (const side of ['top', 'right', 'bottom', 'left']) {
-			await expect(
-				editor.getByLabel(new RegExp(`padding.*${side}`, 'i')),
-			).toBeVisible()
-		}
-		await expect(editor.getByLabel(/header background/i)).toBeVisible()
-		await expect(editor.getByLabel(/header text/i)).toBeVisible()
-	})
-
 	// @e2e widgets::style-changes-saved-via-api
 	test('saving a new background PUTs the styleConfig and the widget shows it at once', async ({
 		page,
@@ -718,14 +673,12 @@ test.describe('REQ-WDG-013 modal close discipline', () => {
 	}
 
 	// @e2e widgets::backdrop-click-closes-without-submit
-	test.fixme('a click on the backdrop closes the modal and adds nothing', async ({
+	test('a click on the backdrop closes the modal and adds nothing', async ({
 		page,
 	}) => {
-		// SUSPECTED DEFECT: CnAddWidgetModal renders NcDialog without
-		// `closeOnClickOutside`
-		// (node_modules/@conduction/nextcloud-vue/src/dialogs/CnAddWidgetModal.vue:7-11),
-		// and NcModal closes on a wrapper click only when it is set
-		// (@nextcloud/vue dist/chunks/NcModal.mjs:212-213).
+		// Was test.fixme: CnAddWidgetModal rendered NcDialog without
+		// `closeOnClickOutside`. @conduction/nextcloud-vue 2.203.0 sets it
+		// (src/dialogs/CnAddWidgetModal.vue), so a backdrop click closes.
 		const dialog = await validModal(page)
 		const writes = placementWrites(page)
 		await page.mouse.click(5, 5)

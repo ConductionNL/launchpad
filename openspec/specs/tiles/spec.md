@@ -162,8 +162,9 @@ Users MUST be able to place tile data onto a dashboard, creating a widget placem
 - GIVEN user "alice" has dashboard id 5
 - WHEN she sends POST /api/dashboard/5/tile with body:
   ```json
-  {"tileTitle": "My Files", "tileIcon": "icon-folder", "tileIconType": "class", "tileBackgroundColor": "#3b82f6", "tileTextColor": "#ffffff", "tileLinkType": "app", "tileLinkValue": "/apps/files", "gridX": 0, "gridY": 0, "gridWidth": 2, "gridHeight": 2}
+  {"title": "My Files", "icon": "icon-folder", "iconType": "class", "bgColor": "#3b82f6", "textColor": "#ffffff", "linkType": "app", "linkValue": "/apps/files", "gridX": 0, "gridY": 0, "gridWidth": 2, "gridHeight": 2}
   ```
+- NOTE: the request names are `title`, `icon`, `iconType`, `bgColor`, `textColor`, `linkType` and `linkValue` (RequestDataExtractor::TILE_PARAMS, sent so by the frontend); the placement stores them as `tileTitle`, `tileIcon`, `tileIconType`, `tileBackgroundColor`, `tileTextColor`, `tileLinkType` and `tileLinkValue`. The body used to show the stored names, which the endpoint never read.
 - THEN the system MUST create a widget placement record with `tileType` set to `"custom"`
 - AND `widgetId` MUST be set to `'tile-' + uniqid()` (NOT null)
 - AND the tile data MUST be stored inline on the placement via `TileUpdater::applyTileConfig()`
@@ -236,6 +237,7 @@ Tile colors MUST be validated to ensure proper display and accessibility.
 - WHEN the tile is created
 - THEN the system SHOULD return HTTP 400 with a validation error
 - NOTE: Color format validation is NOT currently implemented
+@e2e exclude never built: no colour validation exists, TileUpdater::applyTileConfig() stores `bgColor` and `textColor` as given (lib/Service/TileUpdater.php) and no unit test pins a format check; the default colours are cited under default-colors-when-not-specified
 
 #### Scenario: Default colors when not specified
 - GIVEN a tile creation request without `backgroundColor` or `textColor`

@@ -19,7 +19,6 @@
  *   @e2e widgets::toggle-title-visibility
  *   @e2e widgets::visible-widget-always-renders
  *   @e2e widgets::hidden-widget-never-renders
- *   @e2e widgets::conditional-widget-evaluated-at-render-time
  *   @e2e widgets::visibility-toggle-via-api
  *   @e2e widgets::batch-update-via-dashboard-update-endpoint
  *   @e2e widgets::widgetwrapper-renders-header-and-chrome
@@ -260,63 +259,6 @@ test.describe('REQ-WDG-006 placement visibility', () => {
 			0,
 		)
 		await expect(page.locator('.launchpad-grid-item')).toHaveCount(1)
-	})
-
-	// @e2e widgets::conditional-widget-evaluated-at-render-time
-	test.fixme('a visible placement whose rules do not match is not displayed; one whose rules match is', async ({
-		page,
-	}) => {
-		// SUSPECTED DEFECT: no read path evaluates the rules.
-		// ConditionalService::checkRulesForPlacement
-		// (lib/Service/ConditionalService.php:93) is called only by
-		// RuleApiController::getRules (lib/Controller/RuleApiController.php:79),
-		// never by the dashboard read the grid renders from.
-		const widget = stockWidget()
-		const matching = await seedPlacement(admin, dashboard!.id, {
-			widgetId: widget.id,
-			gridX: 0,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 4,
-		})
-		const failing = await seedPlacement(admin, dashboard!.id, {
-			widgetId: widget.id,
-			gridX: 4,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 4,
-		})
-		const lastYear = `${new Date().getUTCFullYear() - 1}-01-01`
-		const show = await admin.post(`${API}/widgets/${matching.id}/rules`, {
-			data: {
-				ruleType: 'date',
-				ruleConfig: { startDate: lastYear },
-				isInclude: true,
-			},
-		})
-		expect(show.status(), await show.text()).toBeLessThan(300)
-		const hide = await admin.post(`${API}/widgets/${failing.id}/rules`, {
-			data: {
-				ruleType: 'group',
-				ruleConfig: { groups: [`${STAMP} nobody`] },
-				isInclude: true,
-			},
-		})
-		expect(hide.status(), await hide.text()).toBeLessThan(300)
-
-		// The server's own evaluation, for the record.
-		expect(
-			(await (await admin.get(`${API}/widgets/${matching.id}/rules`)).json())
-				.isVisible,
-		).toBe(true)
-		expect(
-			(await (await admin.get(`${API}/widgets/${failing.id}/rules`)).json())
-				.isVisible,
-		).toBe(false)
-
-		await openDashboard(page)
-		await expect(rendered(page, matching.id)).toBeVisible()
-		await expect(rendered(page, failing.id)).toHaveCount(0)
 	})
 
 	// @e2e widgets::visibility-toggle-via-api

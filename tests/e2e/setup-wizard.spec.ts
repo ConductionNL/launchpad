@@ -43,8 +43,24 @@
  * scenarios of the change setup-five-steps-and-admin-tour and runs in the
  * nightly against a live instance.
  *
- * Tests marked `test.fixme` are written to their scenario and fail against the
- * product; the comment on each names the file and line that disagrees.
+ * Ten tests are EXPECTED RED until the product is fixed: they were
+ * `test.fixme`, which gate-19 does not count, and now run. The comment on each
+ * names the code that disagrees with its scenario. This file is not serial, so
+ * a red test does not skip the ones after it; the fresh-instance ones sit
+ * before Finish, because only a fresh instance can show them.
+ *   - Step 1 on open, and the fresh state: SetupWizardModal.vue loadState()
+ *     jumps to `currentRecommendedStep`, and SetupWizardService
+ *     computeStepStatuses() reports steps 3 and 4 `skipped` from the start,
+ *     so the recommendation is 2 and "Run setup wizard" opens at Step 2.
+ *   - Step 3 demo checkboxes (four scenarios): AdminDemoData.vue renders each
+ *     showcase as a card with its own Install/Uninstall button; nothing is
+ *     checked and nothing installs on the wizard's Next.
+ *   - Step 4 group selector (three scenarios): SetupWizardModal.vue renders a
+ *     "not yet available" note (data-test="admin-roles-stub") and no selector,
+ *     although POST /api/admin/roles exists.
+ * The demo tests take real showcases from GET /api/admin/demo-showcases: the
+ * scenarios' "Engineering Demo" and "Sales Demo" are examples, and no shipped
+ * showcase carries those names.
  *
  * Gate-19 @e2e traceability:
  *   @e2e setup-wizard::fresh-instance-shows-banner
@@ -484,12 +500,12 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		)
 	})
 
-	// SUSPECTED BUG: src/modals/SetupWizardModal.vue:185 jumps to
+	// EXPECTED RED: src/modals/SetupWizardModal.vue loadState() jumps to
 	// `currentRecommendedStep` whenever `complete` is false, and on a fresh
-	// instance that is never 1 (lib/Service/SetupWizardService.php:168 returns
-	// the first non-done step, and step 2 is pending). So "Run setup wizard"
-	// opens at Step 2, not at Step 1 (Welcome).
-	test.fixme('the banner call-to-action opens the wizard at Step 1', async ({
+	// instance that is never 1 (SetupWizardService::resolveRecommendedStep()
+	// returns the first non-done step, and step 2 is pending). So "Run setup
+	// wizard" opens at Step 2, not at Step 1 (Welcome).
+	test('the banner call-to-action opens the wizard at Step 1', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::banner-has-explicit-run-setup-wizard-call-to-action
@@ -499,8 +515,8 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		await expectStep(root, 1)
 	})
 
-	// SUSPECTED BUG: same cause as above, SetupWizardModal.vue:185.
-	test.fixme('the wizard starts at Step 1 with counter 1 / 5', async ({
+	// EXPECTED RED: same cause as above, SetupWizardModal.vue loadState().
+	test('the wizard starts at Step 1 with counter 1 / 5', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::wizard-starts-at-step-1
@@ -531,10 +547,12 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		expect((await readState()).complete).toBe(false)
 	})
 
-	// SUSPECTED BUG: lib/Service/SetupWizardService.php:154-160 reports steps
+	// EXPECTED RED: SetupWizardService::computeStepStatuses() reports steps
 	// 3 and 4 as "skipped" from the start (not "pending"), and
-	// resolveRecommendedStep (:168) therefore answers 2, not 1.
-	test.fixme('the state endpoint on a fresh instance', async () => {
+	// resolveRecommendedStep() therefore answers 2, not 1. The scenario's
+	// example still lists a sixth step; the wizard has five (REQ-WIZ-012), so
+	// this asserts five, all but Step 1 pending.
+	test('the state endpoint on a fresh instance', async () => {
 		// @e2e setup-wizard::endpoint-returns-complete-state-on-fresh-instance
 		test.skip(!fresh, NOT_FRESH)
 
@@ -991,10 +1009,10 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect(await readJson<Showcase[]>(SHOWCASES_API)).toEqual(showcasesBefore)
 	})
 
-	// SUSPECTED BUG (spec vs product): src/components/admin/AdminDemoData.vue:36-100
+	// EXPECTED RED (spec vs product): src/components/admin/AdminDemoData.vue
 	// renders each showcase as a card with an Install/Uninstall button; there is
 	// no checkbox per package.
-	test.fixme('Step 3 embeds the demo showcases with a checkbox each', async ({
+	test('Step 3 embeds the demo showcases with a checkbox each', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::step-3-embeds-demo-data-showcases-admin-component
@@ -1024,103 +1042,130 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect(await readJson<Showcase[]>(SHOWCASES_API)).toEqual(before)
 	})
 
-	// SUSPECTED BUG (spec vs product): no "Engineering Demo" / "Sales Demo"
-	// checkboxes exist; AdminDemoData.vue:82 installs one showcase immediately
-	// from its own button, not on the wizard's Next.
-	test.fixme('checked demos are installed on Next', async ({ page }) => {
+	/**
+	 * Two showcases not installed yet, for the demo-checkbox scenarios. The
+	 * scenarios' "Engineering Demo" and "Sales Demo" are examples; any two
+	 * shipped showcases stand in for them.
+	 *
+	 * @param showcases the current showcase list.
+	 * @return the first two that are not installed.
+	 */
+	function twoUninstalled(showcases: Showcase[]): Showcase[] {
+		const free = showcases.filter((s) => !s.isInstalled)
+		expect(
+			free.length,
+			'two showcases that are not installed yet',
+		).toBeGreaterThanOrEqual(2)
+		return free.slice(0, 2)
+	}
+
+	/**
+	 * The checkbox on a showcase's card in Step 3.
+	 *
+	 * @param root the wizard root.
+	 * @param showcase the showcase.
+	 * @return its checkbox.
+	 */
+	function demoCheckbox(root: Locator, showcase: Showcase): Locator {
+		return root
+			.locator(`[data-test="showcase-card-${showcase.id}"]`)
+			.getByRole('checkbox')
+	}
+
+	// EXPECTED RED (spec vs product): AdminDemoData.vue has no checkbox per
+	// showcase; it installs one showcase immediately from its own button, not
+	// on the wizard's Next.
+	test('checked demos are installed on Next', async ({ page }) => {
 		// @e2e setup-wizard::checked-demos-are-installed-on-next
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
+		const picked = twoUninstalled(before)
 		try {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			await root.getByRole('checkbox', { name: 'Engineering Demo' }).check()
-			await root.getByRole('checkbox', { name: 'Sales Demo' }).check()
-			const installs: string[] = []
-			page.on('response', (r) => {
-				if (
-					r.request().method() === 'POST'
-					&& /\/demo-showcases\/[^/]+\/install$/.test(r.url())
-				) {
-					installs.push(r.url())
-				}
-			})
+			for (const showcase of picked) {
+				await demoCheckbox(root, showcase).check()
+			}
+			// Checking alone installs nothing; Next does.
+			expect(
+				(await readJson<Showcase[]>(SHOWCASES_API))
+					.filter((s) => s.isInstalled)
+					.map((s) => s.id),
+			).toEqual(before.filter((s) => s.isInstalled).map((s) => s.id))
+
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 4)
-			await expect.poll(() => installs.length, { timeout: 30_000 }).toBe(2)
-			const after = await readJson<Showcase[]>(SHOWCASES_API)
-			expect(
-				after.find((s) => s.name === 'Engineering Demo')?.isInstalled,
-			).toBe(true)
-			expect(after.find((s) => s.name === 'Sales Demo')?.isInstalled).toBe(
-				true,
-			)
+			await expect
+				.poll(
+					async () =>
+						(await readJson<Showcase[]>(SHOWCASES_API))
+							.filter((s) => picked.some((p) => p.id === s.id))
+							.every((s) => s.isInstalled),
+					{ timeout: 60_000 },
+				)
+				.toBe(true)
 		} finally {
 			await uninstallNewShowcases(before)
 		}
 	})
 
-	// SUSPECTED BUG (spec vs product): as above, no demo checkboxes to persist.
-	test.fixme('the demo selection survives Back without a second install', async ({
+	// EXPECTED RED (spec vs product): as above, no demo checkboxes to keep.
+	test('the demo selection survives Back without a second install', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::demo-selection-is-persisted
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
+		const [first] = twoUninstalled(before)
 		try {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			const engineering = root.getByRole('checkbox', {
-				name: 'Engineering Demo',
-			})
-			await engineering.check()
+			await demoCheckbox(root, first).check()
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 4)
 			const writes = await writesDuring(page, async () => {
 				await root.locator('[data-test="setup-wizard-back"]').click()
 				await expectStep(root, 3)
 			})
-			await expect(engineering).toBeChecked()
+			await expect(demoCheckbox(root, first)).toBeChecked()
 			expect(writes.filter((w) => w.endsWith('/install'))).toEqual([])
 		} finally {
 			await uninstallNewShowcases(before)
 		}
 	})
 
-	// SUSPECTED BUG (spec vs product): no "engineering-demo" package and no
-	// checkboxes in Step 3 (AdminDemoData.vue:36-100).
-	test.fixme('a re-run does not re-install an installed demo', async ({
-		page,
-	}) => {
+	// EXPECTED RED (spec vs product): no checkboxes in Step 3
+	// (AdminDemoData.vue), so there is nothing to uncheck.
+	test('a re-run does not re-install an installed demo', async ({ page }) => {
 		// @e2e setup-wizard::re-running-does-not-re-install-demo-packages
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
+		const installed =
+			before.find((s) => s.isInstalled) ?? twoUninstalled(before)[0]
 		try {
-			const engineering = before.find((s) => s.id === 'engineering-demo')
-			expect(engineering).toBeDefined()
-			const install = await admin.post(
-				`${SHOWCASES_API}/engineering-demo/install`,
-			)
-			expect(install.status()).toBe(200)
+			if (!installed.isInstalled) {
+				const install = await admin.post(
+					`${SHOWCASES_API}/${encodeURIComponent(installed.id)}/install`,
+				)
+				expect(install.status(), await install.text()).toBe(200)
+			}
 
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			await root.getByRole('checkbox', { name: engineering!.name }).uncheck()
+			await demoCheckbox(root, installed).uncheck()
 			const writes = await writesDuring(page, async () => {
 				await root.locator('[data-test="setup-wizard-next"]').click()
 				await expectStep(root, 4)
 			})
 			expect(writes.filter((w) => w.includes('/demo-showcases'))).toEqual([])
 			const after = await readJson<Showcase[]>(SHOWCASES_API)
-			expect(after.find((s) => s.id === 'engineering-demo')?.isInstalled).toBe(
-				true,
-			)
+			expect(after.find((s) => s.id === installed.id)?.isInstalled).toBe(true)
 		} finally {
 			await uninstallNewShowcases(before)
 		}
 	})
 
-	// SUSPECTED BUG (spec vs product): Step 4 is a stub. src/modals/SetupWizardModal.vue:61-80
+	// EXPECTED RED (spec vs product): Step 4 is a stub. SetupWizardModal.vue
 	// renders a "not yet available" note (data-test="admin-roles-stub") and no
 	// group selector, although the admin-roles endpoints exist (/api/admin/roles).
-	test.fixme('Step 4 lists every group for the Dashboard Admin role', async ({
+	test('Step 4 lists every group for the Dashboard Admin role', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::step-4-shows-group-selector-for-admin-role
@@ -1140,8 +1185,8 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// SUSPECTED BUG (spec vs product): Step 4 stub, SetupWizardModal.vue:61-80.
-	test.fixme('selecting one group on Step 4 gives it the admin role', async ({
+	// EXPECTED RED (spec vs product): Step 4 stub, SetupWizardModal.vue.
+	test('selecting one group on Step 4 gives it the admin role', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::admin-can-select-one-group-for-dashboard-admin-role
@@ -1167,8 +1212,8 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// SUSPECTED BUG (spec vs product): Step 4 stub, SetupWizardModal.vue:61-80.
-	test.fixme('one wizard run gives the admin role to one group only', async ({
+	// EXPECTED RED (spec vs product): Step 4 stub, SetupWizardModal.vue.
+	test('one wizard run gives the admin role to one group only', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::only-one-group-can-have-admin-role-per-wizard-run

@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Отримання даних",
     "Embed and fetch" : "Вбудовування й отримання даних",
     "Allowed websites saved." : "Дозволені сайти збережено.",
-    "The allowed websites could not be saved." : "Не вдалося зберегти дозволені сайти."
+    "The allowed websites could not be saved." : "Не вдалося зберегти дозволені сайти.",
+    "Read confirmations: {title}" : "Підтвердження прочитання: {title}",
+    "Read confirmations" : "Підтвердження прочитання",
+    "Announcement · {dashboard}" : "Оголошення · {dashboard}",
+    "Announcement" : "Оголошення",
+    "{confirmed} of {audience} confirmed" : "Підтвердили {confirmed} з {audience}",
+    "{count} to go" : "залишилося {count}",
+    "deadline {date}" : "термін {date}",
+    "Show" : "Показати",
+    "Confirmed" : "Підтверджено",
+    "Not confirmed yet" : "Ще не підтверджено",
+    "Employee" : "Працівник",
+    "Department" : "Відділ",
+    "Not yet" : "Ще ні",
+    "Confirmed {date}" : "Підтверджено {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Показано {shown} з {total}. Завантаження дає повний список із датою й часом кожного підтвердження.",
+    "Department in read confirmations" : "Відділ у підтвердженнях прочитання",
+    "Could not load the read-receipt report." : "Не вдалося завантажити звіт про підтвердження прочитання."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

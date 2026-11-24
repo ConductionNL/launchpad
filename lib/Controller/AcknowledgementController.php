@@ -174,12 +174,17 @@ class AcknowledgementController extends Controller {
 	 * @param string $operation       The operation name for the log line.
 	 *
 	 * @return array|JSONResponse The report, or the error response.
+	 *
+	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	private function fetchReport(string $announcementKey, string $operation): array|JSONResponse {
 		try {
-			return $this->tools->acknowledgements->report(
+			$report = $this->tools->acknowledgements->report(
 				announcementKey: $announcementKey
 			);
+
+			// REQ-ACK-010: each row with the person's name and department.
+			return $this->tools->people?->withPeople(report: $report, viewerId: $this->context->userId) ?? $report;
 		} catch (DoesNotExistException) {
 			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {

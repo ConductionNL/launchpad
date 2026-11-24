@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Obté",
     "Embed and fetch" : "Incrusta i obté",
     "Allowed websites saved." : "S'han desat els llocs web permesos.",
-    "The allowed websites could not be saved." : "No s'han pogut desar els llocs web permesos."
+    "The allowed websites could not be saved." : "No s'han pogut desar els llocs web permesos.",
+    "Read confirmations: {title}" : "Confirmacions de lectura: {title}",
+    "Read confirmations" : "Confirmacions de lectura",
+    "Announcement · {dashboard}" : "Anunci · {dashboard}",
+    "Announcement" : "Anunci",
+    "{confirmed} of {audience} confirmed" : "{confirmed} de {audience} confirmats",
+    "{count} to go" : "en falten {count}",
+    "deadline {date}" : "termini {date}",
+    "Show" : "Mostra",
+    "Confirmed" : "Confirmat",
+    "Not confirmed yet" : "Encara sense confirmar",
+    "Employee" : "Empleat",
+    "Department" : "Departament",
+    "Not yet" : "Encara no",
+    "Confirmed {date}" : "Confirmat el {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} de {total} mostrats. La baixada dona la llista completa amb la data i l'hora de cada confirmació.",
+    "Department in read confirmations" : "Departament a les confirmacions de lectura",
+    "Could not load the read-receipt report." : "No s'ha pogut carregar l'informe de confirmacions de lectura."
 },
 "nplurals=2; plural=(n != 1);"
 );

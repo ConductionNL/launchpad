@@ -1465,6 +1465,23 @@
         "Fetch": "Sækja",
         "Embed and fetch": "Ívefja og sækja",
         "Allowed websites saved.": "Leyfð vefsvæði vistuð.",
-        "The allowed websites could not be saved.": "Ekki tókst að vista leyfð vefsvæði."
+        "The allowed websites could not be saved.": "Ekki tókst að vista leyfð vefsvæði.",
+        "Read confirmations: {title}": "Lestrarstaðfestingar: {title}",
+        "Read confirmations": "Lestrarstaðfestingar",
+        "Announcement · {dashboard}": "Tilkynning · {dashboard}",
+        "Announcement": "Tilkynning",
+        "{confirmed} of {audience} confirmed": "{confirmed} af {audience} staðfest",
+        "{count} to go": "{count} eftir",
+        "deadline {date}": "frestur {date}",
+        "Show": "Sýna",
+        "Confirmed": "Staðfest",
+        "Not confirmed yet": "Ekki staðfest enn",
+        "Employee": "Starfsmaður",
+        "Department": "Deild",
+        "Not yet": "Ekki enn",
+        "Confirmed {date}": "Staðfest {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} af {total} sýnd. Niðurhal gefur allan listann með dagsetningu og tíma hverrar staðfestingar.",
+        "Department in read confirmations": "Deild í lestrarstaðfestingum",
+        "Could not load the read-receipt report.": "Ekki tókst að hlaða skýrslu um lestrarstaðfestingar."
     }
 }

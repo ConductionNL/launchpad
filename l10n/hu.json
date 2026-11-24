@@ -1465,6 +1465,23 @@
         "Fetch": "Lekérés",
         "Embed and fetch": "Beágyazás és lekérés",
         "Allowed websites saved.": "Az engedélyezett webhelyek mentve.",
-        "The allowed websites could not be saved.": "Az engedélyezett webhelyeket nem sikerült menteni."
+        "The allowed websites could not be saved.": "Az engedélyezett webhelyeket nem sikerült menteni.",
+        "Read confirmations: {title}": "Olvasási visszaigazolások: {title}",
+        "Read confirmations": "Olvasási visszaigazolások",
+        "Announcement · {dashboard}": "Közlemény · {dashboard}",
+        "Announcement": "Közlemény",
+        "{confirmed} of {audience} confirmed": "{audience} főből {confirmed} igazolta",
+        "{count} to go": "még {count}",
+        "deadline {date}": "határidő {date}",
+        "Show": "Megjelenítés",
+        "Confirmed": "Visszaigazolva",
+        "Not confirmed yet": "Még nincs visszaigazolva",
+        "Employee": "Munkatárs",
+        "Department": "Osztály",
+        "Not yet": "Még nem",
+        "Confirmed {date}": "Visszaigazolva: {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{total} közül {shown} látható. A letöltés a teljes listát adja minden visszaigazolás dátumával és idejével.",
+        "Department in read confirmations": "Osztály az olvasási visszaigazolásokban",
+        "Could not load the read-receipt report.": "Az olvasási visszaigazolások jelentését nem sikerült betölteni."
     }
 }

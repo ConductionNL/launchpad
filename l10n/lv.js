@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Iegūt",
     "Embed and fetch" : "Iegult un iegūt",
     "Allowed websites saved." : "Atļautās vietnes saglabātas.",
-    "The allowed websites could not be saved." : "Atļautās vietnes neizdevās saglabāt."
+    "The allowed websites could not be saved." : "Atļautās vietnes neizdevās saglabāt.",
+    "Read confirmations: {title}" : "Izlasīšanas apstiprinājumi: {title}",
+    "Read confirmations" : "Izlasīšanas apstiprinājumi",
+    "Announcement · {dashboard}" : "Paziņojums · {dashboard}",
+    "Announcement" : "Paziņojums",
+    "{confirmed} of {audience} confirmed" : "Apstiprināti {confirmed} no {audience}",
+    "{count} to go" : "atlikuši {count}",
+    "deadline {date}" : "termiņš {date}",
+    "Show" : "Rādīt",
+    "Confirmed" : "Apstiprināts",
+    "Not confirmed yet" : "Vēl nav apstiprināts",
+    "Employee" : "Darbinieks",
+    "Department" : "Nodaļa",
+    "Not yet" : "Vēl nē",
+    "Confirmed {date}" : "Apstiprināts {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Parādīti {shown} no {total}. Lejupielāde dod pilnu sarakstu ar katra apstiprinājuma datumu un laiku.",
+    "Department in read confirmations" : "Nodaļa izlasīšanas apstiprinājumos",
+    "Could not load the read-receipt report." : "Izlasīšanas apstiprinājumu pārskatu neizdevās ielādēt."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

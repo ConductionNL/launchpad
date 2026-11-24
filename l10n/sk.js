@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Načítavať",
     "Embed and fetch" : "Vkladať a načítavať",
     "Allowed websites saved." : "Povolené weby uložené.",
-    "The allowed websites could not be saved." : "Povolené weby sa nepodarilo uložiť."
+    "The allowed websites could not be saved." : "Povolené weby sa nepodarilo uložiť.",
+    "Read confirmations: {title}" : "Potvrdenia o prečítaní: {title}",
+    "Read confirmations" : "Potvrdenia o prečítaní",
+    "Announcement · {dashboard}" : "Oznámenie · {dashboard}",
+    "Announcement" : "Oznámenie",
+    "{confirmed} of {audience} confirmed" : "Potvrdené {confirmed} z {audience}",
+    "{count} to go" : "zostáva {count}",
+    "deadline {date}" : "termín {date}",
+    "Show" : "Zobraziť",
+    "Confirmed" : "Potvrdené",
+    "Not confirmed yet" : "Zatiaľ nepotvrdené",
+    "Employee" : "Zamestnanec",
+    "Department" : "Oddelenie",
+    "Not yet" : "Zatiaľ nie",
+    "Confirmed {date}" : "Potvrdené {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Zobrazené {shown} z {total}. Stiahnutie dá úplný zoznam s dátumom a časom každého potvrdenia.",
+    "Department in read confirmations" : "Oddelenie v potvrdeniach o prečítaní",
+    "Could not load the read-receipt report." : "Prehľad potvrdení o prečítaní sa nepodarilo načítať."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Preuzimanje",
     "Embed and fetch" : "Ugradnja i preuzimanje",
     "Allowed websites saved." : "Dozvoljene web stranice su sačuvane.",
-    "The allowed websites could not be saved." : "Dozvoljene web stranice nije bilo moguće sačuvati."
+    "The allowed websites could not be saved." : "Dozvoljene web stranice nije bilo moguće sačuvati.",
+    "Read confirmations: {title}" : "Potvrde čitanja: {title}",
+    "Read confirmations" : "Potvrde čitanja",
+    "Announcement · {dashboard}" : "Obavještenje · {dashboard}",
+    "Announcement" : "Obavještenje",
+    "{confirmed} of {audience} confirmed" : "Potvrđeno {confirmed} od {audience}",
+    "{count} to go" : "preostalo {count}",
+    "deadline {date}" : "rok {date}",
+    "Show" : "Prikaži",
+    "Confirmed" : "Potvrđeno",
+    "Not confirmed yet" : "Još nije potvrđeno",
+    "Employee" : "Uposlenik",
+    "Department" : "Odjel",
+    "Not yet" : "Još ne",
+    "Confirmed {date}" : "Potvrđeno {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Prikazano {shown} od {total}. Preuzimanje daje cijelu listu s datumom i vremenom svake potvrde.",
+    "Department in read confirmations" : "Odjel u potvrdama čitanja",
+    "Could not load the read-receipt report." : "Izvještaj o potvrdama čitanja nije se mogao učitati."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

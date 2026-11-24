@@ -92,6 +92,7 @@ describe('ProfileFieldsTab', () => {
 						searchable: true,
 						shownInWidget: true,
 						visibility: 'everyone',
+						department: false,
 					},
 				],
 			},

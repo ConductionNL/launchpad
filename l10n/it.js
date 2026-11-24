@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Recupera",
     "Embed and fetch" : "Incorpora e recupera",
     "Allowed websites saved." : "Siti web consentiti salvati.",
-    "The allowed websites could not be saved." : "Impossibile salvare i siti web consentiti."
+    "The allowed websites could not be saved." : "Impossibile salvare i siti web consentiti.",
+    "Read confirmations: {title}" : "Conferme di lettura: {title}",
+    "Read confirmations" : "Conferme di lettura",
+    "Announcement · {dashboard}" : "Annuncio · {dashboard}",
+    "Announcement" : "Annuncio",
+    "{confirmed} of {audience} confirmed" : "{confirmed} di {audience} confermati",
+    "{count} to go" : "ne mancano {count}",
+    "deadline {date}" : "scadenza {date}",
+    "Show" : "Mostra",
+    "Confirmed" : "Confermato",
+    "Not confirmed yet" : "Non ancora confermato",
+    "Employee" : "Dipendente",
+    "Department" : "Reparto",
+    "Not yet" : "Non ancora",
+    "Confirmed {date}" : "Confermato il {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} di {total} mostrati. Il download fornisce l'elenco completo con data e ora di ogni conferma.",
+    "Department in read confirmations" : "Reparto nelle conferme di lettura",
+    "Could not load the read-receipt report." : "Impossibile caricare il rapporto delle conferme di lettura."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1469,6 +1469,23 @@
         "Fetch": "Pridobivanje",
         "Embed and fetch": "Vdelava in pridobivanje",
         "Allowed websites saved.": "Dovoljena spletna mesta so shranjena.",
-        "The allowed websites could not be saved.": "Dovoljenih spletnih mest ni bilo mogoče shraniti."
+        "The allowed websites could not be saved.": "Dovoljenih spletnih mest ni bilo mogoče shraniti.",
+        "Read confirmations: {title}": "Potrditve branja: {title}",
+        "Read confirmations": "Potrditve branja",
+        "Announcement · {dashboard}": "Obvestilo · {dashboard}",
+        "Announcement": "Obvestilo",
+        "{confirmed} of {audience} confirmed": "Potrjenih {confirmed} od {audience}",
+        "{count} to go": "še {count}",
+        "deadline {date}": "rok {date}",
+        "Show": "Prikaži",
+        "Confirmed": "Potrjeno",
+        "Not confirmed yet": "Še ni potrjeno",
+        "Employee": "Zaposleni",
+        "Department": "Oddelek",
+        "Not yet": "Še ne",
+        "Confirmed {date}": "Potrjeno {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Prikazanih {shown} od {total}. Prenos da celoten seznam z datumom in uro vsake potrditve.",
+        "Department in read confirmations": "Oddelek v potrditvah branja",
+        "Could not load the read-receipt report.": "Poročila o potrditvah branja ni bilo mogoče naložiti."
     }
 }

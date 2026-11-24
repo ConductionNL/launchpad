@@ -42,7 +42,7 @@ export function dateFieldsOf(records) {
 /**
  * Whether a value is empty: null, undefined or ''.
  *
- * @param {*} value The value.
+ * @param {unknown} value The value.
  * @return {boolean}
  */
 function isEmpty(value) {
@@ -52,7 +52,7 @@ function isEmpty(value) {
 /**
  * Whether a value reads as an ISO date.
  *
- * @param {*} value The value.
+ * @param {unknown} value The value.
  * @return {boolean}
  */
 function isDate(value) {

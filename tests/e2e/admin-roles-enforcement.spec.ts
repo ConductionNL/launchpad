@@ -498,9 +498,10 @@ test.describe('what each LaunchPad role may do', () => {
 		expect((await read(bob!.api, Number(dashboard.id))).dashboard.uuid).toBe(
 			dashboard.uuid,
 		)
-		// plain shares a group with bob and still cannot see it.
+		// plain shares a group with bob and still cannot see it: a dashboard
+		// that exists but is not shared with the caller is refused (REQ-SHARE-003).
 		const other = await plain!.api.get(`${API}/dashboard/${dashboard.id}`)
-		expect(other.status(), await other.text()).toBe(404)
+		expect(other.status(), await other.text()).toBe(403)
 	})
 
 	// @e2e admin-roles::editor-can-edit-personal-dashboard-within-their-own-context

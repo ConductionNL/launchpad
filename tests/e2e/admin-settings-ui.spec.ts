@@ -167,7 +167,8 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		await entry.click()
 		await expect(page).toHaveURL(/\/settings\/admin\/launchpad/)
 		await page.getByTestId('launchpad-admin-settings-link').getByRole('link').click()
-		await expect(page).toHaveURL(/\/apps\/launchpad\/admin\/general/)
+		// /admin opens General; the router leaves the default tab out of the link.
+		await expect(page).toHaveURL(/\/apps\/launchpad\/admin(\/general)?(\?|#|$)/)
 		await adminTab(page, 'general').click()
 		await expect(page.getByTestId('admin-default-settings')).toBeVisible({
 			timeout: 30_000,

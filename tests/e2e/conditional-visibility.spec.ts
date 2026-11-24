@@ -722,10 +722,12 @@ test.describe('REQ-VIS-011 rules go with their placement', () => {
 		const res = await alice!.api.delete(`${API}/dashboard/${dashId}`)
 		expect(res.status(), await res.text()).toBeLessThan(300)
 		const gone = await alice!.api.get(`${API}/dashboard/${dashId}`)
+		// A deleted dashboard no longer exists, so the read is a 404, not
+		// the 403 of an existing dashboard the caller cannot see.
 		expect(
 			gone.status(),
 			'CONTROL: the dashboard is gone',
-		).toBeGreaterThanOrEqual(400)
+		).toBe(404)
 
 		expect(
 			await orphanedRuleCount(admin),

@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Retschaiver",
     "Embed and fetch" : "Integrar e retschaiver",
     "Allowed websites saved." : "Websites permessas memorisadas.",
-    "The allowed websites could not be saved." : "Las websites permessas n'han betg pudì vegnir memorisadas."
+    "The allowed websites could not be saved." : "Las websites permessas n'han betg pudì vegnir memorisadas.",
+    "Read confirmations: {title}" : "Confermaziuns da lectura: {title}",
+    "Read confirmations" : "Confermaziuns da lectura",
+    "Announcement · {dashboard}" : "Communicaziun · {dashboard}",
+    "Announcement" : "Communicaziun",
+    "{confirmed} of {audience} confirmed" : "{confirmed} da {audience} confermà",
+    "{count} to go" : "anc {count}",
+    "deadline {date}" : "termin {date}",
+    "Show" : "Mussar",
+    "Confirmed" : "Confermà",
+    "Not confirmed yet" : "Anc betg confermà",
+    "Employee" : "Collavuratur",
+    "Department" : "Departament",
+    "Not yet" : "Anc betg",
+    "Confirmed {date}" : "Confermà ils {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} da {total} mussads. La telechargiada dat la glista cumpletta cun data ed ura da mintga confermaziun.",
+    "Department in read confirmations" : "Departament en las confermaziuns da lectura",
+    "Could not load the read-receipt report." : "Il rapport da las confermaziuns da lectura n'ha betg pudì vegnir chargià."
 },
 "nplurals=2; plural=(n != 1);"
 );

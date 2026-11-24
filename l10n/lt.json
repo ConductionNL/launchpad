@@ -1467,6 +1467,23 @@
         "Fetch": "Gauti",
         "Embed and fetch": "Įterpti ir gauti",
         "Allowed websites saved.": "Leidžiamos svetainės išsaugotos.",
-        "The allowed websites could not be saved.": "Nepavyko išsaugoti leidžiamų svetainių."
+        "The allowed websites could not be saved.": "Nepavyko išsaugoti leidžiamų svetainių.",
+        "Read confirmations: {title}": "Perskaitymo patvirtinimai: {title}",
+        "Read confirmations": "Perskaitymo patvirtinimai",
+        "Announcement · {dashboard}": "Pranešimas · {dashboard}",
+        "Announcement": "Pranešimas",
+        "{confirmed} of {audience} confirmed": "Patvirtino {confirmed} iš {audience}",
+        "{count} to go": "liko {count}",
+        "deadline {date}": "terminas {date}",
+        "Show": "Rodyti",
+        "Confirmed": "Patvirtinta",
+        "Not confirmed yet": "Dar nepatvirtinta",
+        "Employee": "Darbuotojas",
+        "Department": "Skyrius",
+        "Not yet": "Dar ne",
+        "Confirmed {date}": "Patvirtinta {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Rodoma {shown} iš {total}. Atsisiuntę gausite visą sąrašą su kiekvieno patvirtinimo data ir laiku.",
+        "Department in read confirmations": "Skyrius perskaitymo patvirtinimuose",
+        "Could not load the read-receipt report.": "Nepavyko įkelti perskaitymo patvirtinimų ataskaitos."
     }
 }

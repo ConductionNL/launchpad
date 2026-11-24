@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Извличане",
     "Embed and fetch" : "Вграждане и извличане",
     "Allowed websites saved." : "Разрешените уебсайтове са запазени.",
-    "The allowed websites could not be saved." : "Разрешените уебсайтове не можаха да бъдат запазени."
+    "The allowed websites could not be saved." : "Разрешените уебсайтове не можаха да бъдат запазени.",
+    "Read confirmations: {title}" : "Потвърждения за прочитане: {title}",
+    "Read confirmations" : "Потвърждения за прочитане",
+    "Announcement · {dashboard}" : "Съобщение · {dashboard}",
+    "Announcement" : "Съобщение",
+    "{confirmed} of {audience} confirmed" : "Потвърдили {confirmed} от {audience}",
+    "{count} to go" : "остават {count}",
+    "deadline {date}" : "срок {date}",
+    "Show" : "Показване",
+    "Confirmed" : "Потвърдено",
+    "Not confirmed yet" : "Все още не е потвърдено",
+    "Employee" : "Служител",
+    "Department" : "Отдел",
+    "Not yet" : "Все още не",
+    "Confirmed {date}" : "Потвърдено на {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Показани {shown} от {total}. Изтеглянето дава пълния списък с датата и часа на всяко потвърждение.",
+    "Department in read confirmations" : "Отдел в потвържденията за прочитане",
+    "Could not load the read-receipt report." : "Отчетът за потвържденията за прочитане не можа да бъде зареден."
 },
 "nplurals=2; plural=(n != 1);"
 );

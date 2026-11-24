@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Gauti",
     "Embed and fetch" : "Įterpti ir gauti",
     "Allowed websites saved." : "Leidžiamos svetainės išsaugotos.",
-    "The allowed websites could not be saved." : "Nepavyko išsaugoti leidžiamų svetainių."
+    "The allowed websites could not be saved." : "Nepavyko išsaugoti leidžiamų svetainių.",
+    "Read confirmations: {title}" : "Perskaitymo patvirtinimai: {title}",
+    "Read confirmations" : "Perskaitymo patvirtinimai",
+    "Announcement · {dashboard}" : "Pranešimas · {dashboard}",
+    "Announcement" : "Pranešimas",
+    "{confirmed} of {audience} confirmed" : "Patvirtino {confirmed} iš {audience}",
+    "{count} to go" : "liko {count}",
+    "deadline {date}" : "terminas {date}",
+    "Show" : "Rodyti",
+    "Confirmed" : "Patvirtinta",
+    "Not confirmed yet" : "Dar nepatvirtinta",
+    "Employee" : "Darbuotojas",
+    "Department" : "Skyrius",
+    "Not yet" : "Dar ne",
+    "Confirmed {date}" : "Patvirtinta {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Rodoma {shown} iš {total}. Atsisiuntę gausite visą sąrašą su kiekvieno patvirtinimo data ir laiku.",
+    "Department in read confirmations" : "Skyrius perskaitymo patvirtinimuose",
+    "Could not load the read-receipt report." : "Nepavyko įkelti perskaitymo patvirtinimų ataskaitos."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

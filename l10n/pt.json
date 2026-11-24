@@ -1465,6 +1465,23 @@
         "Fetch": "Obter",
         "Embed and fetch": "Incorporar e obter",
         "Allowed websites saved.": "Sites permitidos guardados.",
-        "The allowed websites could not be saved.": "Não foi possível guardar os sites permitidos."
+        "The allowed websites could not be saved.": "Não foi possível guardar os sites permitidos.",
+        "Read confirmations: {title}": "Confirmações de leitura: {title}",
+        "Read confirmations": "Confirmações de leitura",
+        "Announcement · {dashboard}": "Anúncio · {dashboard}",
+        "Announcement": "Anúncio",
+        "{confirmed} of {audience} confirmed": "{confirmed} de {audience} confirmados",
+        "{count} to go": "faltam {count}",
+        "deadline {date}": "prazo {date}",
+        "Show": "Mostrar",
+        "Confirmed": "Confirmado",
+        "Not confirmed yet": "Ainda não confirmado",
+        "Employee": "Colaborador",
+        "Department": "Departamento",
+        "Not yet": "Ainda não",
+        "Confirmed {date}": "Confirmado a {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} de {total} mostrados. A transferência dá a lista completa com a data e a hora de cada confirmação.",
+        "Department in read confirmations": "Departamento nas confirmações de leitura",
+        "Could not load the read-receipt report.": "Não foi possível carregar o relatório de confirmações de leitura."
     }
 }

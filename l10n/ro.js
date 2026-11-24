@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Preluare",
     "Embed and fetch" : "Încorporare și preluare",
     "Allowed websites saved." : "Site-urile permise au fost salvate.",
-    "The allowed websites could not be saved." : "Site-urile permise nu au putut fi salvate."
+    "The allowed websites could not be saved." : "Site-urile permise nu au putut fi salvate.",
+    "Read confirmations: {title}" : "Confirmări de citire: {title}",
+    "Read confirmations" : "Confirmări de citire",
+    "Announcement · {dashboard}" : "Anunț · {dashboard}",
+    "Announcement" : "Anunț",
+    "{confirmed} of {audience} confirmed" : "{confirmed} din {audience} au confirmat",
+    "{count} to go" : "mai rămân {count}",
+    "deadline {date}" : "termen {date}",
+    "Show" : "Afișează",
+    "Confirmed" : "Confirmat",
+    "Not confirmed yet" : "Neconfirmat încă",
+    "Employee" : "Angajat",
+    "Department" : "Departament",
+    "Not yet" : "Încă nu",
+    "Confirmed {date}" : "Confirmat pe {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Se afișează {shown} din {total}. Descărcarea oferă lista completă cu data și ora fiecărei confirmări.",
+    "Department in read confirmations" : "Departament în confirmările de citire",
+    "Could not load the read-receipt report." : "Raportul confirmărilor de citire nu a putut fi încărcat."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

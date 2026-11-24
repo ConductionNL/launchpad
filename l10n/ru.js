@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Получение данных",
     "Embed and fetch" : "Встраивание и получение данных",
     "Allowed websites saved." : "Разрешённые сайты сохранены.",
-    "The allowed websites could not be saved." : "Не удалось сохранить разрешённые сайты."
+    "The allowed websites could not be saved." : "Не удалось сохранить разрешённые сайты.",
+    "Read confirmations: {title}" : "Подтверждения прочтения: {title}",
+    "Read confirmations" : "Подтверждения прочтения",
+    "Announcement · {dashboard}" : "Объявление · {dashboard}",
+    "Announcement" : "Объявление",
+    "{confirmed} of {audience} confirmed" : "Подтвердили {confirmed} из {audience}",
+    "{count} to go" : "осталось {count}",
+    "deadline {date}" : "срок {date}",
+    "Show" : "Показать",
+    "Confirmed" : "Подтверждено",
+    "Not confirmed yet" : "Ещё не подтверждено",
+    "Employee" : "Сотрудник",
+    "Department" : "Отдел",
+    "Not yet" : "Ещё нет",
+    "Confirmed {date}" : "Подтверждено {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Показано {shown} из {total}. При скачивании вы получите полный список с датой и временем каждого подтверждения.",
+    "Department in read confirmations" : "Отдел в подтверждениях прочтения",
+    "Could not load the read-receipt report." : "Не удалось загрузить отчёт о подтверждениях прочтения."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

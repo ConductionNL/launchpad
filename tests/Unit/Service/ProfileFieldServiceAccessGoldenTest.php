@@ -97,6 +97,7 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 			'searchable' => false,
 			'shownInWidget' => false,
 			'visibility' => 'everyone',
+			'department' => false,
 		]], $saved);
 	}
 

@@ -1467,6 +1467,23 @@
         "Fetch": "Načítat",
         "Embed and fetch": "Vkládat a načítat",
         "Allowed websites saved.": "Povolené weby uloženy.",
-        "The allowed websites could not be saved.": "Povolené weby se nepodařilo uložit."
+        "The allowed websites could not be saved.": "Povolené weby se nepodařilo uložit.",
+        "Read confirmations: {title}": "Potvrzení o přečtení: {title}",
+        "Read confirmations": "Potvrzení o přečtení",
+        "Announcement · {dashboard}": "Oznámení · {dashboard}",
+        "Announcement": "Oznámení",
+        "{confirmed} of {audience} confirmed": "Potvrzeno {confirmed} z {audience}",
+        "{count} to go": "zbývá {count}",
+        "deadline {date}": "termín {date}",
+        "Show": "Zobrazit",
+        "Confirmed": "Potvrzeno",
+        "Not confirmed yet": "Zatím nepotvrzeno",
+        "Employee": "Zaměstnanec",
+        "Department": "Oddělení",
+        "Not yet": "Zatím ne",
+        "Confirmed {date}": "Potvrzeno {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Zobrazeno {shown} z {total}. Stažení dá úplný seznam s datem a časem každého potvrzení.",
+        "Department in read confirmations": "Oddělení v potvrzeních o přečtení",
+        "Could not load the read-receipt report.": "Přehled potvrzení o přečtení se nepodařilo načíst."
     }
 }

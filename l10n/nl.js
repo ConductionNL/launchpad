@@ -2455,7 +2455,23 @@ OC.L10N.register(
     "Fetch" : "Ophalen",
     "Embed and fetch" : "Insluiten en ophalen",
     "Allowed websites saved." : "Toegestane websites opgeslagen.",
-    "The allowed websites could not be saved." : "De toegestane websites konden niet worden opgeslagen."
+    "The allowed websites could not be saved." : "De toegestane websites konden niet worden opgeslagen.",
+    "Read confirmations: {title}" : "Leesbevestigingen: {title}",
+    "Read confirmations" : "Leesbevestigingen",
+    "Announcement · {dashboard}" : "Aankondiging · {dashboard}",
+    "Announcement" : "Aankondiging",
+    "{confirmed} of {audience} confirmed" : "{confirmed} van {audience} bevestigd",
+    "{count} to go" : "nog {count}",
+    "deadline {date}" : "deadline {date}",
+    "Show" : "Tonen",
+    "Confirmed" : "Bevestigd",
+    "Not confirmed yet" : "Nog niet bevestigd",
+    "Employee" : "Medewerker",
+    "Department" : "Afdeling",
+    "Not yet" : "Nog niet",
+    "Confirmed {date}" : "Bevestigd {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} van {total} getoond. Downloaden geeft de volledige lijst met datum en tijd van elke bevestiging.",
+    "Department in read confirmations" : "Afdeling in leesbevestigingen"
 },
 "nplurals=2; plural=(n != 1);"
 );

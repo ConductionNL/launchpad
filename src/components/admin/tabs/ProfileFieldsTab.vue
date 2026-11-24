@@ -86,6 +86,15 @@
 					<input v-model="field.shownInWidget" type="checkbox" />
 					{{ t('launchpad', 'Shown on the card') }}
 				</label>
+				<!-- REQ-ACK-010: one field is the Department of read confirmations. -->
+				<label class="profile-fields-tab__check">
+					<input
+						:checked="field.department === true"
+						type="checkbox"
+						data-testid="profile-field-department"
+						@change="setDepartment(index, $event.target.checked)" />
+					{{ t('launchpad', 'Department in read confirmations') }}
+				</label>
 				<NcButton variant="tertiary" @click="remove(index)">
 					{{ t('launchpad', 'Remove field') }}
 				</NcButton>
@@ -167,7 +176,24 @@ export default {
 				searchable: true,
 				shownInWidget: true,
 				visibility: 'everyone',
+				department: false,
 			})
+		},
+
+		/**
+		 * Mark one field as the department of read confirmations; marking it
+		 * unmarks every other field, so at most one is (REQ-ACK-010).
+		 *
+		 * @param {number} index Position in the list.
+		 * @param {boolean} checked Whether it is now the department.
+		 * @return {void}
+		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 */
+		setDepartment(index, checked) {
+			this.fields = this.fields.map((field, position) => ({
+				...field,
+				department: position === index ? checked : (checked ? false : field.department === true),
+			}))
 		},
 
 		/**

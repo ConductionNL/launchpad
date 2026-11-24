@@ -1465,6 +1465,23 @@
         "Fetch": "Hae",
         "Embed and fetch": "Upota ja hae",
         "Allowed websites saved.": "Sallitut sivustot tallennettu.",
-        "The allowed websites could not be saved.": "Sallittuja sivustoja ei voitu tallentaa."
+        "The allowed websites could not be saved.": "Sallittuja sivustoja ei voitu tallentaa.",
+        "Read confirmations: {title}": "Lukukuittaukset: {title}",
+        "Read confirmations": "Lukukuittaukset",
+        "Announcement · {dashboard}": "Tiedote · {dashboard}",
+        "Announcement": "Tiedote",
+        "{confirmed} of {audience} confirmed": "{confirmed}/{audience} kuitattu",
+        "{count} to go": "{count} jäljellä",
+        "deadline {date}": "määräaika {date}",
+        "Show": "Näytä",
+        "Confirmed": "Kuitattu",
+        "Not confirmed yet": "Ei vielä kuitattu",
+        "Employee": "Työntekijä",
+        "Department": "Osasto",
+        "Not yet": "Ei vielä",
+        "Confirmed {date}": "Kuitattu {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown}/{total} näytetään. Lataus antaa koko luettelon jokaisen kuittauksen päivämäärällä ja kellonajalla.",
+        "Department in read confirmations": "Osasto lukukuittauksissa",
+        "Could not load the read-receipt report.": "Lukukuittausraporttia ei voitu ladata."
     }
 }

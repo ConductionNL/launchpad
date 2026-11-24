@@ -43,7 +43,7 @@ class DashboardSerializeGoldenTest extends TestCase {
 		$this->assertSame(
 			[
 				'id', 'uuid', 'name', 'description', 'icon', 'type', 'userId', 'groupId', 'basedOnTemplate', 'gridColumns',
-				'permissionLevel', 'targetGroups', 'isDefault', 'isActive', 'commentsEnabled', 'reactionsEnabled',
+				'permissionLevel', 'targetGroups', 'isDefault', 'isActive', 'commentsEnabled', 'reactionsEnabled', 'conversationEnabled',
 				'createdAt', 'updatedAt', 'parentUuid', 'slug', 'sortOrder', 'publicationStatus', 'publishAt',
 				'publishedAt', 'unpublishAt', 'dashboardFooterMode', 'dashboardFooterHtml', 'defaultLinkTarget', 'hierarchies', 'templateCategory',
 				'templateDescription', 'templatePreviewImage', 'themeAccent', 'themeBackgroundColor',
@@ -53,7 +53,7 @@ class DashboardSerializeGoldenTest extends TestCase {
 		);
 		$this->assertSame(
 			json_encode([
-				3, 'u-3', 'Home', null, null, 'user', 'alice', null, null, 12, 'full', ['staff'], 0, 0, null, null,
+				3, 'u-3', 'Home', null, null, 'user', 'alice', null, null, 12, 'full', ['staff'], 0, 0, null, null, null,
 				null, null, null, 'home', 0, 'published', null, null, null, 'custom', null, null, [], 'team', null, null,
 				null, null, null, null, null,
 			]),
@@ -65,7 +65,7 @@ class DashboardSerializeGoldenTest extends TestCase {
 		$data = self::dashboard()->toViewerArray();
 		$this->assertArrayNotHasKey('userId', $data);
 		$this->assertArrayNotHasKey('templateCategory', $data);
-		$this->assertCount(expectedCount: 32, haystack: $data);
+		$this->assertCount(expectedCount: 33, haystack: $data);
 		$this->assertArrayHasKey('defaultLinkTarget', $data);
 		$this->assertSame(expected: [], actual: $data['hierarchies']);
 	}

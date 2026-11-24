@@ -143,6 +143,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     get LaunchPad as default app too, but only when no default app
 			     is configured at all. -->
 			<step>OCA\LaunchPad\Repair\SetDefaultApp</step>
+			<!-- REQ-ASET-021: the per-feature host lists are merged into the
+			     one allowed websites list with their purpose, once. -->
+			<step>OCA\LaunchPad\Repair\MergeAllowedSites</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>

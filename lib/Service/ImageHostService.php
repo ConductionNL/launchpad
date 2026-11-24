@@ -73,6 +73,23 @@ class ImageHostService {
 	}//end getAllowedHosts()
 
 	/**
+	 * The hosts images may load from: this list and the allowed websites
+	 * with purpose embed (REQ-ASET-021). The admin editor reads
+	 * {@see self::getAllowedHosts()}; the CSP reads this.
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 */
+	public function getPermittedHosts(): array {
+		return (new HostAllowList(
+			appConfig: $this->appConfig,
+			configKey: self::CONFIG_KEY_ALLOWED_HOSTS,
+			purpose: AllowedSitesService::PURPOSE_EMBED
+		))->hosts();
+	}//end getPermittedHosts()
+
+	/**
 	 * Replace the allow-list. Every entry must be a bare hostname, optionally
 	 * with a port; entries are lower-cased, blanks dropped and duplicates merged.
 	 *

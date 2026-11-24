@@ -583,16 +583,23 @@ class HealthPingService {
 	}//end offlineAfterFailures()
 
 	/**
-	 * Check a URL's host against `healthping_allowed_hosts`. FAIL-CLOSED:
+	 * Check a URL's host against `healthping_allowed_hosts` and the allowed websites with
+	 * purpose fetch (REQ-ASET-021). FAIL-CLOSED:
 	 * an empty, missing, or unparseable allow-list permits NO host — the
 	 * admin must explicitly opt hosts in.
 	 *
 	 * @param string $url The URL to check.
 	 *
 	 * @return boolean True only when the host is explicitly allow-listed.
+	 *
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	private function isHostAllowed(string $url): bool {
-		$allowList = new HostAllowList(appConfig: $this->settings->appConfig, configKey: self::CONFIG_KEY_ALLOWED_HOSTS);
+		$allowList = new HostAllowList(
+			appConfig: $this->settings->appConfig,
+			configKey: self::CONFIG_KEY_ALLOWED_HOSTS,
+			purpose: AllowedSitesService::PURPOSE_FETCH
+		);
 		return $allowList->permits(url: $url);
 	}//end isHostAllowed()
 

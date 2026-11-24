@@ -275,30 +275,19 @@ class IframeService {
 	 * FAIL-CLOSED (REQ-IFRAME-002, REQ-IFRAME-003 "Non-allow-listed hosts
 	 * are never added").
 	 *
+	 * Also holds the allowed websites with purpose embed (REQ-ASET-021).
+	 *
 	 * @return string[] Lower-case-safe hostnames (original casing preserved), deduplicated.
 	 *
 	 * @spec openspec/specs/iframe-embed-widget/spec.md
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function getAllowedHosts(): array {
-		$raw = $this->appConfig->getValueString(
-			app: Application::APP_ID,
-			key: self::CONFIG_KEY_ALLOWED_HOSTS,
-			default: ''
-		);
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === false || $decoded === []) {
-			return [];
-		}
-
-		$hosts = [];
-		foreach ($decoded as $host) {
-			if (is_string(value: $host) === true && trim(string: $host) !== '') {
-				$hosts[] = trim(string: $host);
-			}
-		}
-
-		return array_values(array: array_unique(array: $hosts));
+		return (new HostAllowList(
+			appConfig: $this->appConfig,
+			configKey: self::CONFIG_KEY_ALLOWED_HOSTS,
+			purpose: AllowedSitesService::PURPOSE_EMBED
+		))->hosts();
 	}//end getAllowedHosts()
 
 	/**

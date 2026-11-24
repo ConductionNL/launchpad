@@ -84,6 +84,10 @@
             "description": "Surfaces the per-widget conditional-visibility overview for the admin Beheer ▸ Versioning & Audit tab (conditional-visibility spec)."
         },
         {
+            "name": "allowed-sites",
+            "description": "`GET` and `PUT /api/admin/allowed-sites`, for LaunchPad administrators only."
+        },
+        {
             "name": "analytics",
             "description": "Admin-only controller for dashboard view-analytics endpoints."
         },
@@ -751,6 +755,86 @@
                                             "null"
                                         ],
                                         "description": "The purpose; omitted keeps the recorded one."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/allowed-sites": {
+            "get": {
+                "operationId": "allowed-sites-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The allowed websites",
+                "description": "The allowed websites. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "allowed-sites"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "allowed-sites-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Replace the list; an entry that is not a host, or has no purpose, is refused with 400",
+                "description": "Replace the list; an entry that is not a host, or has no purpose, is refused with 400. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "allowed-sites"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "sites": {
+                                        "description": "The sites, each `{host, embed, fetch}`."
                                     }
                                 }
                             }

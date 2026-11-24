@@ -588,16 +588,24 @@ class CalendarWidgetService implements CalendarWidgetServiceInterface {
 	 *
 	 * @param string $url The URL to check.
 	 *
+	 * A host the allowed websites list for fetch (REQ-ASET-021) also passes
+	 * when the calendar's own list is set and does not hold it. An empty own
+	 * list stays open as before, so no feed that worked stops working.
+	 *
 	 * @return bool True when the host passes the allow-list.
 	 *
 	 * @spec openspec/specs/calendar-widget/spec.md
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function checkAllowList(string $url): bool {
-		return $this->fetch->urlValidator->checkAllowList(
+		$ownListPasses = $this->fetch->urlValidator->checkAllowList(
 			url: $url,
 			appId: Application::APP_ID,
 			configKey: self::CONFIG_KEY_ALLOWED_HOSTS
 		);
+
+		return $ownListPasses === true
+			|| (new AllowedSitesService(appConfig: $this->appConfig))->permits(url: $url, purpose: AllowedSitesService::PURPOSE_FETCH);
 	}//end checkAllowList()
 
 	/**

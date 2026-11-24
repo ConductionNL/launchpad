@@ -80,6 +80,7 @@ class CspListener implements IEventListener {
 	 *
 	 * @spec openspec/specs/iframe-embed-widget/spec.md
 	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof AddContentSecurityPolicyEvent) === false || $this->isLaunchPadRequest() === false) {
@@ -88,7 +89,7 @@ class CspListener implements IEventListener {
 
 		try {
 			$frameHosts = $this->iframeService->getAllowedHosts();
-			$imageHosts = $this->imageHosts->getAllowedHosts();
+			$imageHosts = $this->imageHosts->getPermittedHosts();
 			if ($frameHosts === [] && $imageHosts === []) {
 				// FAIL-CLOSED — no configured host means nothing is added,
 				// matching the save/render-time allow-list behaviour

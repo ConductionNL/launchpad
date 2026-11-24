@@ -89,7 +89,7 @@ function resolutionRules(state) {
  * already, so the workspace opens without asking for them again; every
  * later load, or a page without them, fetches both together.
  *
- * @return {Promise<Array<{data: *}>>} The visible and the active response.
+ * @return {Promise<Array<{data: (object|Array|null)}>>} The visible and the active response.
  * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
  */
 function firstDashboardResponses() {

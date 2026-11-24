@@ -111,12 +111,27 @@ test('a two-dashboard playlist shows 1 van 2 and then 2 van 2', async ({ browser
 })
 
 // @e2e dashboard-kiosk-mode::one-dashboard
+//
+// An absent line alone proves nothing: `positionText` is also empty while no
+// entry is current, so a playlist that never loaded would pass. The test
+// therefore (1) shows on the same build that the line renders for two
+// dashboards, so the selector is live; (2) requires the band to name the one
+// dashboard, so its entry IS current; and (3) waits out a dwell time, so a
+// line that appears on the first rotation tick is caught too.
 test('a playlist of one dashboard shows no position line', async ({ browser }) => {
 	const context = await browser.newContext({ storageState: LOGGED_OUT })
 	const page = await context.newPage()
 	try {
+		await page.goto(`${APP}/kiosk/${twoToken}`)
+		await expect(page.getByTestId('kiosk-position')).toHaveText(/^\s*1 (van|of) 2 · /, { timeout: 30_000 })
+
 		await page.goto(`${APP}/kiosk/${oneToken}`)
-		await expect(page.getByTestId('kiosk-dashboard')).toBeVisible({ timeout: 30_000 })
+		const title = page.getByTestId('kiosk-dashboard').getByRole('heading', { level: 1 })
+		await expect(title).toHaveText(`E2E Positie Eerste ${STAMP}`, { timeout: 30_000 })
+		await expect(page.getByTestId('kiosk-position')).toHaveCount(0)
+
+		await page.waitForTimeout((DWELL + 2) * 1000)
+		await expect(title).toHaveText(`E2E Positie Eerste ${STAMP}`)
 		await expect(page.getByTestId('kiosk-position')).toHaveCount(0)
 	} finally {
 		await context.close()

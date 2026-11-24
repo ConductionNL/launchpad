@@ -349,7 +349,7 @@ class TemplateRolloutChoicesTest extends TestCase {
 		$layout    = new PlacementLayout();
 		$placement = $this->placement(1, 100, ['x' => 2, 'y' => 3, 'w' => 5, 'h' => 6]);
 
-		$this->assertSame('2,3,5,6', $layout->of($placement));
+		$this->assertSame('2,3,5,6', $layout->layoutOf($placement));
 		$this->assertFalse($layout->ownerMoved($placement));
 
 		$layout->stamp($placement);

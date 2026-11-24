@@ -52,7 +52,7 @@ class PlacementLayout {
 	 *
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
-	public function of(WidgetPlacement $placement): string {
+	public function layoutOf(WidgetPlacement $placement): string {
 		return implode(
 			separator: ',',
 			array: [
@@ -62,7 +62,7 @@ class PlacementLayout {
 				(int)$placement->getGridHeight(),
 			]
 		);
-	}//end of()
+	}//end layoutOf()
 
 	/**
 	 * The placement's layout as a rectangle.
@@ -92,7 +92,7 @@ class PlacementLayout {
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	public function stamp(WidgetPlacement $placement): void {
-		$placement->setSyncedLayout($this->of(placement: $placement));
+		$placement->setSyncedLayout($this->layoutOf(placement: $placement));
 	}//end stamp()
 
 	/**
@@ -111,7 +111,7 @@ class PlacementLayout {
 			return false;
 		}
 
-		return $baseline !== $this->of(placement: $placement);
+		return $baseline !== $this->layoutOf(placement: $placement);
 	}//end ownerMoved()
 
 	/**

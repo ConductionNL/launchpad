@@ -80,26 +80,39 @@ class TemplateRolloutSummary {
 			}
 		}
 
-		$gained = [];
-		foreach ($templatePlacements as $templatePlacement) {
-			if ($copies !== [] && $held[(int)$templatePlacement->getId()] === 0) {
-				$gained[] = $this->nameOf(placement: $templatePlacement);
-			}
-		}
-
-		$changed = 0;
-		foreach ($copies as $placements) {
-			if ($this->ownerChanged(placements: $placements, held: $held) === true) {
-				$changed++;
-			}
-		}
+		$changed = count(
+			array_filter(
+				$copies,
+				fn (array $placements): bool => $this->ownerChanged(placements: $placements, held: $held)
+			)
+		);
 
 		return [
-			'gained'              => $gained,
+			'gained'              => $this->gained(templatePlacements: $templatePlacements, held: $held, hasCopies: ($copies !== [])),
 			'lost'                => array_values($lost),
 			'changedByOwnerCount' => $changed,
 		];
 	}//end summarize()
+
+	/**
+	 * The names of the template widgets no copy holds yet.
+	 *
+	 * @param WidgetPlacement[] $templatePlacements The template's placements.
+	 * @param array<int, int>   $held               Per template placement id, the number of copies holding it.
+	 * @param bool              $hasCopies          Whether the template has copies at all.
+	 *
+	 * @return array<int, string> The names.
+	 */
+	private function gained(array $templatePlacements, array $held, bool $hasCopies): array {
+		$gained = [];
+		foreach ($templatePlacements as $templatePlacement) {
+			if ($hasCopies === true && $held[(int)$templatePlacement->getId()] === 0) {
+				$gained[] = $this->nameOf(placement: $templatePlacement);
+			}
+		}
+
+		return $gained;
+	}//end gained()
 
 	/**
 	 * A copy's template-origin placements by the template placement they came from.

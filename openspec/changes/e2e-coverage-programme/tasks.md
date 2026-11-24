@@ -145,6 +145,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/video-widget.spec.ts`, `video-widget-files.spec.ts` (with `fixtures/tiny.webm`); 18 scenarios excluded with reasons, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
   - Spec written: `tests/e2e/link-button-widget.spec.ts`, `link-button-widget-list.spec.ts`, `link-button-widget-form.spec.ts`; 3 scenarios excluded with reasons, 48 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/link-button-widget-list.spec.ts` (citation for "An action_id entry is never rendered as a link" corrected to `an-actionid-entry-is-never-rendered-as-a-link`, since gate-19 strips `_`), 49 scenarios cited, 3 excluded with reasons, of 52, not yet run (cloud, 2026-11-24)
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/people-widget.spec.ts`, `people-widget-config.spec.ts`, `people-widget-rendering.spec.ts`, `people-widget-search.spec.ts`, `people-widget-profile-fields.spec.ts`; 8 scenarios excluded with reasons, 50 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.

@@ -21,7 +21,6 @@
  * Gate-19 @e2e traceability:
  *   @e2e admin-templates::template-list-in-admin-settings
  *   @e2e admin-templates::create-template-via-admin-ui
- *   @e2e admin-templates::group-selection-in-template-editor
  *   @e2e admin-templates::first-match-wins-by-admin-configured-priority
  *   @e2e admin-templates::user-in-no-active-group-falls-through-to-default-sentinel
  *   @e2e admin-templates::empty-grouporder-always-returns-default
@@ -247,22 +246,6 @@ test.describe('the Templates page (REQ-TMPL-011)', () => {
 		expect(stored?.description).toBe('Made by the e2e suite')
 		expect(stored?.permissionLevel).toBe('add_only')
 		expect(stored?.isDefault).toBe(0)
-	})
-
-	// @e2e admin-templates::group-selection-in-template-editor
-	// Blocked by the product: the field is an NcSelectTags
-	// (src/modals/TemplateEditorModal.vue:67-69) with `availableGroups: []`
-	// (line 161). NcSelectTags fetches system tags, so no Nextcloud group is
-	// offered. The scenario's NOTE records the same.
-	test.fixme('the target groups field offers the Nextcloud groups', async ({
-		page,
-	}) => {
-		const g = await group('pickable')
-		await openTemplatesPage(page)
-		await page.locator('[data-testid="admin-create-template"]').click()
-		const editor = page.locator('[data-testid="admin-template-editor"]')
-		await editor.getByRole('combobox', { name: 'Target groups' }).click()
-		await expect(page.getByRole('option', { name: g })).toBeVisible()
 	})
 })
 

@@ -94,6 +94,7 @@ Nextcloud administrators MUST be able to create dashboard templates for distribu
 - THEN the system MUST return HTTP 400 with a validation error
 - AND only `view_only`, `add_only`, and `full` MUST be accepted
 - NOTE: Permission level validation is NOT currently implemented -- any string is accepted
+@e2e exclude never built: no permission-level check exists, AdminController::createTemplate passes `permissionLevel` to AdminTemplateService::createTemplate, which calls setPermissionLevel with the raw string (lib/Service/AdminTemplateService.php, createTemplate and updateTemplate); storing the valid levels `add_only` and `view_only` is cited under create-a-template-targeting-specific-groups and create-a-default-template-for-all-users (tests/e2e/admin-templates-crud.spec.ts)
 
 #### Scenario: Create template with UUID generation
 - GIVEN a Nextcloud admin user
@@ -122,6 +123,7 @@ Administrators MUST be able to view all existing templates with their configurat
 - THEN the template object SHOULD include a widget_count field showing 6
 - AND this helps admins understand the template's complexity at a glance
 - NOTE: Widget count is NOT currently included in the list response
+@e2e exclude never built: AdminController::listTemplates serialises the bare Dashboard entities (serializeList), which carry no widget count; the only `widgetCount` is on the template gallery entries (AdminTemplateService gallery, WidgetPlacementMapper::countByDashboardId), a different endpoint
 
 #### Scenario: Empty template list
 - GIVEN no admin templates have been created
@@ -297,6 +299,7 @@ Administrators MUST be able to manage widget placements on templates using the s
 - WHEN the admin arranges widgets on the template via the grid
 - THEN the positions MUST be saved as the template's widget placements
 - AND new user copies MUST receive these exact positions
+@e2e exclude never built: no page opens an admin template on the grid, src/ has no route or view that loads a dashboard of type `admin_template` (TemplatesPage.vue edits metadata only, TemplateEditorModal.vue has no grid); positioning a template's widgets through the placement API is cited under update-template-widget-layout (tests/e2e/admin-templates-template-widgets.spec.ts)
 
 #### Scenario: Template placements include tile data
 - GIVEN the admin adds a tile placement to template id 1 with inline tile data (tileTitle, tileIcon, etc.)

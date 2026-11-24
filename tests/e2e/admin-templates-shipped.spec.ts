@@ -18,8 +18,11 @@
  * read first and written back in afterAll, so a later suite meets it as it
  * was.
  *
+ * an-administrator-adds-the-shipped-template-and-gives-it-to-a-group runs in
+ * admin-templates-group-picker.spec.ts: it is expected red (the editor offers
+ * no groups) and this file runs serially.
+ *
  * Gate-19 @e2e traceability:
- *   @e2e admin-templates::an-administrator-adds-the-shipped-template-and-gives-it-to-a-group
  *   @e2e admin-templates::installing-twice-adds-one-template
  *   @e2e admin-templates::a-template-deleted-by-the-administrator-can-be-added-again
  *   @e2e admin-templates::the-listing-names-widgets-no-app-registers-here
@@ -39,7 +42,6 @@ import type {
 import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
-import { loginAs } from './fixtures/secondary-user.ts'
 import {
 	activeDashboard,
 	addTitledTextWidget,
@@ -192,80 +194,6 @@ async function openTemplatesPage(page: Page): Promise<void> {
 }
 
 test.describe('adding a shipped template (REQ-TMPL-018)', () => {
-	// @e2e admin-templates::an-administrator-adds-the-shipped-template-and-gives-it-to-a-group
-	// Blocked by the product: the editor's "Target groups" field is an
-	// NcSelectTags (src/modals/TemplateEditorModal.vue:67-69) with
-	// `availableGroups: []` (line 161). NcSelectTags fetches SYSTEM TAGS, not
-	// groups, so a Nextcloud group cannot be picked on the Templates page.
-	test.fixme('the admin adds mijn-werkdag on the Templates page and gives it to a group', async ({
-		page,
-		browser,
-	}) => {
-		const medewerkers = await createGroup(admin, `e2e-medewerkers-${RUN}`)
-		groups.push(medewerkers)
-		const sanne = await createPrincipal(admin, 'e2e-shipped-sanne')
-		principals.push(sanne)
-		await addToGroup(admin, sanne.username, medewerkers)
-		await writeAppConfig(admin, UUID_KEY, '')
-		expect((await shippedRow()).isInstalled).toBe(false)
-
-		await openTemplatesPage(page)
-		const shipped = page.locator(
-			'[data-testid="admin-shipped-template-mijn-werkdag"]',
-		)
-		const pending = page.waitForResponse((r) =>
-			r.url().includes('/shipped/mijn-werkdag/install'),
-		)
-		await shipped.locator('[data-testid="admin-shipped-template-add"]').click()
-		expect((await pending).status()).toBe(201)
-		await expect(
-			shipped.locator('[data-testid="admin-shipped-template-added"]'),
-		).toBeVisible()
-		const installedUuid = (await shippedRow()).installedUuid
-		const installed = (await listTemplates(admin)).find(
-			(t) => t.uuid === installedUuid,
-		)!
-		templates.push(installed.id)
-
-		const row = page.locator(
-			'.launchpad-admin__templates .launchpad-admin__template',
-			{
-				hasText: 'Mijn werkdag',
-			},
-		)
-		await row.getByRole('button', { name: 'Edit' }).first().click()
-		const editor = page.locator('[data-testid="admin-template-editor"]')
-		await expect(editor).toBeVisible()
-		await editor.getByRole('combobox', { name: 'Target groups' }).click()
-		await page.getByRole('option', { name: medewerkers }).click()
-		await editor.getByRole('button', { name: 'Save' }).click()
-		await expect(editor).toBeHidden()
-		await expect(row.filter({ hasText: medewerkers })).toHaveCount(1)
-		expect(
-			(await listTemplates(admin)).find((t) => t.id === installed.id)
-				?.targetGroups,
-		).toEqual([medewerkers])
-
-		const { context, page: memberPage } = await loginAs(
-			browser,
-			sanne.username,
-			sanne.password,
-		)
-		try {
-			await memberPage.goto('/index.php/apps/launchpad/')
-			await expect(
-				memberPage.getByText('Mijn werkdag', { exact: true }).first(),
-			).toBeVisible({ timeout: 45_000 })
-		} finally {
-			await context.close()
-		}
-		const copy = await activeDashboard(sanne.api)
-		expect(copy.dashboard.basedOnTemplate).toBe(installed.id)
-		const compulsory = copy.placements
-			.filter((p) => p.isCompulsory === 1)
-			.map((p) => p.widgetId)
-		expect(compulsory).toEqual(expect.arrayContaining(['header', 'attention']))
-	})
 
 	// @e2e admin-templates::installing-twice-adds-one-template
 	test('a second install without force adds nothing and names the same template', async () => {

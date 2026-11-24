@@ -28,7 +28,12 @@
  * this costs nothing there.
  */
 
-import type { APIRequestContext, APIResponse } from '@playwright/test'
+import type {
+	APIRequestContext,
+	APIResponse,
+	Locator,
+	Page,
+} from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { randomUUID } from 'node:crypto'
@@ -296,4 +301,45 @@ export async function restore(
 	await seedTree(api, snap.en, 'en')
 	await setPosition(api, snap.position)
 	await writeMatrix(api, snap.matrix)
+}
+
+/** The rail's root element (`OrgNavigationPanel.vue`). */
+export const RAIL = '.org-nav'
+
+/**
+ * Open a LaunchPad page and wait for the workspace shell.
+ *
+ * @param page the page.
+ * @param path the path below the app.
+ * @return nothing.
+ */
+export async function openWorkspace(page: Page, path = '/'): Promise<void> {
+	await page.goto(`${APP_PATH}${path}`)
+	await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 30_000 })
+}
+
+/**
+ * The rail item whose own row carries the label.
+ *
+ * @param page the page.
+ * @param label the node label.
+ * @return the item's `<li>`.
+ */
+export function navItem(page: Page, label: string): Locator {
+	return page.locator('li.org-nav-item').filter({
+		has: page.locator(':scope > .org-nav-item__rowwrap', { hasText: label }),
+	})
+}
+
+/**
+ * The item's own row (link or section button), not its children's.
+ *
+ * @param page the page.
+ * @param label the node label.
+ * @return the row.
+ */
+export function navRow(page: Page, label: string): Locator {
+	return navItem(page, label).locator(
+		':scope > .org-nav-item__rowwrap > .org-nav-item__row',
+	)
 }

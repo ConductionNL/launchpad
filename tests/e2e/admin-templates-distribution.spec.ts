@@ -11,9 +11,12 @@
  * page, in which case the member logs in and opens LaunchPad.
  *
  * Templates with widgets are seeded through the dashboard importer: the
- * widget API has no path to a template (see support/adminTemplates.ts), which
- * is also why the scenarios whose ACTION is "the admin adds a widget to the
- * template" are written to the scenario and marked fixme below.
+ * widget API has no path to a template (see support/adminTemplates.ts). The
+ * scenarios whose ACTION is "the admin adds, moves or removes a template
+ * widget" run in admin-templates-template-widgets.spec.ts, expected red until
+ * the admin may write a template's placements. configure-template-grid-layout
+ * carries a never-built exclusion in the spec: no page opens a template on
+ * the grid.
  *
  * Settings this file flips (allowUserDashboards, the default template, the
  * recorded shipped install of mijn-werkdag) are read first and restored in
@@ -22,18 +25,13 @@
  * Gate-19 @e2e traceability:
  *   @e2e admin-templates::update-template-target-groups
  *   @e2e admin-templates::update-template-permission-level
- *   @e2e admin-templates::update-template-widget-layout
  *   @e2e admin-templates::delete-a-template-with-existing-user-copies
  *   @e2e admin-templates::first-time-user-receives-default-template
  *   @e2e admin-templates::first-time-user-receives-group-targeted-template
  *   @e2e admin-templates::template-already-distributed-to-user
  *   @e2e admin-templates::multiple-templates-match-the-user
  *   @e2e admin-templates::user-modifies-their-template-copy
- *   @e2e admin-templates::admin-updates-template-after-distribution
  *   @e2e admin-templates::admin-deletes-template-after-distribution
- *   @e2e admin-templates::add-widget-to-template
- *   @e2e admin-templates::remove-widget-from-template
- *   @e2e admin-templates::configure-template-grid-layout
  *   @e2e admin-templates::template-placements-include-tile-data
  *   @e2e admin-templates::user-added-to-a-target-group-after-template-creation
  *   @e2e admin-templates::user-removed-from-a-target-group-after-receiving-template
@@ -183,25 +181,6 @@ async function forceInstallShipped(targetGroups: string[]): Promise<number> {
 	})
 	expect(put.status()).toBe(200)
 	return id
-}
-
-/**
- * The admin adds a widget to a template through the widget API, as
- * REQ-TMPL-007 describes. Asserted, because the scenarios below depend on it.
- */
-async function adminAddsWidgetToTemplate(
-	templateId: number,
-	widget: SeedWidget,
-): Promise<number> {
-	const res = await admin.post(`${API}/dashboard/${templateId}/widgets`, {
-		data: widget,
-	})
-	expect(
-		res.status(),
-		`adding a widget to the template answered ${res.status()}`,
-	).toBe(201)
-	const body = await res.json()
-	return Number(body.id ?? body.placement?.id)
 }
 
 /** Log in, open LaunchPad, and wait for the text to show. */
@@ -468,146 +447,9 @@ test.describe('updating and deleting after distribution (REQ-TMPL-003, -004, -00
 		)
 		expect(await placementsOf(bob.api, bCopy.dashboard.id)).toEqual(bobBefore)
 	})
-
-	// @e2e admin-templates::admin-updates-template-after-distribution
-	// Blocked by the product: an admin template has no owner (userId null),
-	// and PermissionService::canAddWidget resolves access by ownership or
-	// share only (lib/Service/PermissionService.php:214-225, 521-530), so
-	// `POST /api/dashboard/{templateId}/widgets` answers 403 for the admin.
-	test.fixme('a widget the admin adds later reaches new copies only', async () => {
-		const g = await group('later')
-		const tpl = await seedTemplate('Later', {
-			widgets: [textWidget(`${STAMP} later`, { x: 0, y: 0 })],
-			targetGroups: [g],
-		})
-		const early = await member('later-early', [g])
-		const earlyCopy = await activeDashboard(early.api)
-
-		await adminAddsWidgetToTemplate(
-			tpl.id,
-			textWidget(`${STAMP} later new`, { x: 4, y: 0 }),
-		)
-
-		const titles = (await placementsOf(early.api, earlyCopy.dashboard.id)).map(
-			(p) => p.customTitle,
-		)
-		expect(titles).not.toContain(`${STAMP} later new`)
-		const late = await member('later-late', [g])
-		expect(
-			(await activeDashboard(late.api)).placements.map((p) => p.customTitle),
-		).toContain(`${STAMP} later new`)
-	})
-
-	// @e2e admin-templates::update-template-widget-layout
-	// Blocked by the same 403 (lib/Service/PermissionService.php:214-251).
-	test.fixme('adding and repositioning template widgets leaves existing copies as they were', async () => {
-		const g = await group('layout')
-		const tpl = await seedTemplate('Layout', {
-			widgets: [0, 1, 2, 3].map((i) =>
-				textWidget(`${STAMP} layout ${i}`, { x: i * 3, y: 0 }),
-			),
-			targetGroups: [g],
-		})
-		const alice = await member('layout', [g])
-		const copy = await activeDashboard(alice.api)
-		const copyBefore = sortedLayout(copy.placements)
-
-		await adminAddsWidgetToTemplate(
-			tpl.id,
-			textWidget(`${STAMP} layout new`, { x: 0, y: 4 }),
-		)
-		const first = (await getTemplate(admin, tpl.id)).placements[0]
-		const moved = await admin.put(`${API}/widgets/${first.id}`, {
-			data: { gridY: 6 },
-		})
-		expect(moved.status()).toBe(200)
-
-		const template = await getTemplate(admin, tpl.id)
-		expect(template.placements).toHaveLength(5)
-		expect(template.placements.find((p) => p.id === first.id)?.gridY).toBe(6)
-		expect(
-			sortedLayout(await placementsOf(alice.api, copy.dashboard.id)),
-		).toEqual(copyBefore)
-	})
 })
 
 test.describe('template widgets (REQ-TMPL-007)', () => {
-	// @e2e admin-templates::add-widget-to-template
-	// Blocked by the product: lib/Service/PermissionService.php:214-225 gives
-	// the admin no access level on an owner-less template, so the widget API
-	// answers 403; WidgetService::addWidget also never reads `isCompulsory`.
-	test.fixme('the admin adds a compulsory widget to a template', async () => {
-		const tpl = await createOwned({ name: `${STAMP} Add widget` })
-		const res = await admin.post(`${API}/dashboard/${tpl.id}/widgets`, {
-			data: {
-				...textWidget(`${STAMP} added`, { x: 0, y: 0 }),
-				isCompulsory: 1,
-			},
-		})
-		expect(res.status()).toBe(201)
-		const placements = (await getTemplate(admin, tpl.id)).placements
-		expect(placements).toHaveLength(1)
-		expect(placements[0].dashboardId).toBe(tpl.id)
-		expect(placements[0].isCompulsory).toBe(1)
-	})
-
-	// @e2e admin-templates::remove-widget-from-template
-	// Blocked by the product: canRemoveWidget resolves no level for the admin
-	// on an owner-less template (lib/Service/PermissionService.php:237-251).
-	test.fixme('the admin removes a widget from a template and copies keep theirs', async () => {
-		const g = await group('remove')
-		const tpl = await seedTemplate('Remove widget', {
-			widgets: [
-				textWidget(`${STAMP} rm keep`, { x: 0, y: 0 }),
-				textWidget(`${STAMP} rm gone`, { x: 4, y: 0 }),
-			],
-			targetGroups: [g],
-		})
-		const alice = await member('remove', [g])
-		const copy = await activeDashboard(alice.api)
-		const gone = (await getTemplate(admin, tpl.id)).placements.find(
-			(p) => p.customTitle === `${STAMP} rm gone`,
-		)!
-
-		const res = await admin.delete(`${API}/widgets/${gone.id}`)
-		expect(res.status()).toBe(200)
-		expect(
-			(await getTemplate(admin, tpl.id)).placements.map((p) => p.id),
-		).not.toContain(gone.id)
-		expect(
-			(await placementsOf(alice.api, copy.dashboard.id)).map(
-				(p) => p.customTitle,
-			),
-		).toContain(`${STAMP} rm gone`)
-	})
-
-	// @e2e admin-templates::configure-template-grid-layout
-	// Blocked by the product: an admin template cannot be opened on the grid
-	// (no page lists or opens an `admin_template`; grep src/ for it), and the
-	// placement API refuses the admin (lib/Service/PermissionService.php:214-251).
-	test.fixme('positions the admin arranges are what new copies receive', async () => {
-		const g = await group('grid')
-		const tpl = await createOwned({ name: `${STAMP} Grid`, targetGroups: [g] })
-		const id = await adminAddsWidgetToTemplate(
-			tpl.id,
-			textWidget(`${STAMP} grid`, { x: 0, y: 0 }),
-		)
-		const moved = await admin.put(`${API}/widgets/${id}`, {
-			data: { gridX: 6, gridY: 3, gridWidth: 6, gridHeight: 3 },
-		})
-		expect(moved.status()).toBe(200)
-
-		const alice = await member('grid', [g])
-		const copy = await activeDashboard(alice.api)
-		expect(
-			copy.placements.map((p) => [
-				p.gridX,
-				p.gridY,
-				p.gridWidth,
-				p.gridHeight,
-			]),
-		).toEqual([[6, 3, 6, 3]])
-	})
 
 	// @e2e admin-templates::template-placements-include-tile-data
 	test('a tile placement is cloned with its inline tile data and renders the same', async ({

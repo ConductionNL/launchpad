@@ -13,8 +13,9 @@
  * template and the copy now differ", the difference is made on the COPY by
  * its member: a widget removed, a widget moved, a widget of their own added.
  * The re-sync sees the same diff either way. The one scenario whose GIVEN
- * cannot be reached like that (a template widget the admin DELETED) is
- * written to the scenario and marked fixme.
+ * cannot be reached like that (a template widget the admin DELETED) runs in
+ * admin-templates-template-widgets.spec.ts, expected red until the admin may
+ * delete a template's widget.
  *
  * Audit records are read from the Activity stream and notifications from the
  * Notifications API; both apps ship with Nextcloud and are on by default.
@@ -28,7 +29,6 @@
  *   @e2e admin-templates::dry-run-on-an-up-to-date-template-reports-no-changes
  *   @e2e admin-templates::merge-keeps-user-additions-while-applying-template-changes
  *   @e2e admin-templates::overwrite-replaces-the-layout
- *   @e2e admin-templates::template-widget-removed-by-admin-is-removed-under-merge
  *   @e2e admin-templates::compulsory-widget-restored-under-merge
  *   @e2e admin-templates::compulsory-widget-position-aligned-under-both-strategies
  *   @e2e admin-templates::re-sync-is-idempotent
@@ -463,44 +463,6 @@ test.describe('strategies (REQ-RESYNC-003, -004)', () => {
 			sortedLayout((await getTemplate(admin, template.id)).placements),
 		)
 		expect(after.map((p) => p.customTitle)).not.toContain(`${STAMP} bob own`)
-	})
-
-	// @e2e admin-templates::template-widget-removed-by-admin-is-removed-under-merge
-	// The GIVEN cannot be reached: deleting a template's widget needs
-	// `DELETE /api/widgets/{id}` on the template, which PermissionService
-	// refuses the admin because the template has no owner
-	// (lib/Service/PermissionService.php:237-251, 521-530).
-	test.fixme('a widget the admin deleted from the template leaves the copies, own widgets stay', async () => {
-		const links = `${STAMP} Links`
-		const { template, copies } = await distributed(
-			'removed',
-			[
-				textWidget(`${STAMP} removed one`, { x: 0, y: 0 }),
-				textWidget(links, { x: 4, y: 0 }),
-			],
-			2,
-		)
-		for (const c of copies) {
-			await memberAdds(c, `${STAMP} removed own ${c.who.username}`, 6)
-		}
-		const link = byTitle(
-			(await getTemplate(admin, template.id)).placements,
-			links,
-		)
-		expect((await admin.delete(`${API}/widgets/${link.id}`)).status()).toBe(200)
-
-		expect(
-			(
-				await resync(template.id, { strategy: 'merge', dryRun: false })
-			).status(),
-		).toBe(200)
-		for (const c of copies) {
-			const titles = (await placementsOf(c.who.api, c.dashboardId)).map(
-				(p) => p.customTitle,
-			)
-			expect(titles).not.toContain(links)
-			expect(titles).toContain(`${STAMP} removed own ${c.who.username}`)
-		}
 	})
 
 	// @e2e admin-templates::compulsory-widget-restored-under-merge

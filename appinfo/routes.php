@@ -296,6 +296,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
 		['name' => 'announcement#reach', 'url' => '/api/announcements/reach', 'verb' => 'GET'],
 		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
+		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
 		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],
 		['name' => 'announcement#unfollow', 'url' => '/api/announcements/follows/{category}', 'verb' => 'DELETE'],
 		['name' => 'announcement#show',

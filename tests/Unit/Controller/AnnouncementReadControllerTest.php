@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AnnouncementReadController;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
+use OCA\LaunchPad\Service\ReadReceiptPeople;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http\JSONResponse;
@@ -59,7 +60,7 @@ class AnnouncementReadControllerTest extends TestCase {
 	 * @return void
 	 */
 	protected function setUp(): void {
-		$this->confirmations = $this->createMock(AnnouncementReadConfirmations::class);
+		$this->confirmations = $this->createMock(originalClassName: AnnouncementReadConfirmations::class);
 	}//end setUp()
 
 	/**
@@ -71,17 +72,33 @@ class AnnouncementReadControllerTest extends TestCase {
 	 * @return AnnouncementReadController
 	 */
 	private function controller(array $refused = [], bool $signedIn = true): AnnouncementReadController {
-		$user = $this->createMock(IUser::class);
+		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('pieter');
 
-		$guard = $this->createMock(RequestGuard::class);
+		$guard = $this->createMock(originalClassName: RequestGuard::class);
 		$guard->method('actionRefusal')->willReturnCallback(function (string $action) use ($refused): ?JSONResponse {
 			$this->checked[] = $action;
-			return in_array($action, $refused, true) ? new JSONResponse(['error' => 'Forbidden'], 403) : null;
-		});
-		$guard->method('sessionUser')->willReturn($signedIn ? $user : new JSONResponse(['error' => 'Not signed in'], 401));
+			if (in_array(needle: $action, haystack: $refused, strict: true) === true) {
+				return new JSONResponse(['error' => 'Forbidden'], 403);
+			}
 
-		return new AnnouncementReadController($this->createMock(IRequest::class), $this->confirmations, $guard);
+			return null;
+		});
+		$session = new JSONResponse(['error' => 'Not signed in'], 401);
+		if ($signedIn === true) {
+			$session = $user;
+		}
+
+		$guard->method('sessionUser')->willReturn($session);
+		$people = $this->createMock(originalClassName: ReadReceiptPeople::class);
+		$people->method('withPeople')->willReturnCallback(static fn (array $report): array => $report + ['departmentLabel' => '']);
+
+		return new AnnouncementReadController(
+			request: $this->createMock(originalClassName: IRequest::class),
+			confirmations: $this->confirmations,
+			people: $people,
+			guard: $guard
+		);
 	}//end controller()
 
 	/**
@@ -92,17 +109,17 @@ class AnnouncementReadControllerTest extends TestCase {
 	public function testConfirmAnswersTheReceiptOrTheRefusal(): void {
 		$this->confirmations->method('confirm')->with('pieter', self::UUID)->willReturnOnConsecutiveCalls(
 			['uuid' => self::UUID, 'confirmed' => true, 'confirmedAt' => '2026-10-27 09:15:00'],
-			$this->throwException(new InvalidArgumentException('This announcement does not ask for a read confirmation')),
-			$this->throwException(new ForbiddenException(message: 'This announcement is not addressed to you')),
-			$this->throwException(new DoesNotExistException('gone'))
+			$this->throwException(exception: new InvalidArgumentException('This announcement does not ask for a read confirmation')),
+			$this->throwException(exception: new ForbiddenException(message: 'This announcement is not addressed to you')),
+			$this->throwException(exception: new DoesNotExistException('gone'))
 		);
 		$controller = $this->controller();
 
-		$this->assertTrue($controller->confirm(self::UUID)->getData()['confirmed']);
-		$this->assertSame(400, $controller->confirm(self::UUID)->getStatus());
-		$this->assertSame(403, $controller->confirm(self::UUID)->getStatus());
-		$this->assertSame(404, $controller->confirm(self::UUID)->getStatus());
-		$this->assertSame(['announcement.read', 'announcement.read', 'announcement.read', 'announcement.read'], $this->checked);
+		$this->assertTrue(condition: $controller->confirm(self::UUID)->getData()['confirmed']);
+		$this->assertSame(expected: 400, actual: $controller->confirm(self::UUID)->getStatus());
+		$this->assertSame(expected: 403, actual: $controller->confirm(self::UUID)->getStatus());
+		$this->assertSame(expected: 404, actual: $controller->confirm(self::UUID)->getStatus());
+		$this->assertSame(expected: ['announcement.read', 'announcement.read', 'announcement.read', 'announcement.read'], actual: $this->checked);
 	}//end testConfirmAnswersTheReceiptOrTheRefusal()
 
 	/**
@@ -113,9 +130,22 @@ class AnnouncementReadControllerTest extends TestCase {
 	public function testReceiptsAreTheAuthorsReport(): void {
 		$this->confirmations->method('report')->with('pieter', self::UUID)->willReturn(['pendingCount' => 2]);
 
-		$this->assertSame(['pendingCount' => 2], $this->controller()->receipts(self::UUID)->getData());
-		$this->assertSame(['announcement.manage'], $this->checked);
-		$this->assertSame(403, $this->controller(refused: ['announcement.manage'])->receipts(self::UUID)->getStatus());
-		$this->assertSame(401, $this->controller(signedIn: false)->receipts(self::UUID)->getStatus());
+		$this->assertSame(expected: ['pendingCount' => 2, 'departmentLabel' => ''], actual: $this->controller()->receipts(self::UUID)->getData());
+		$this->assertSame(expected: ['announcement.manage'], actual: $this->checked);
+		$this->assertSame(expected: 403, actual: $this->controller(refused: ['announcement.manage'])->receipts(self::UUID)->getStatus());
+		$this->assertSame(expected: 401, actual: $this->controller(signedIn: false)->receipts(self::UUID)->getStatus());
 	}//end testReceiptsAreTheAuthorsReport()
+
+	/**
+	 * The read state of what the reader sees, through the read check.
+	 *
+	 * @return void
+	 */
+	public function testStateAnswersWhatTheReaderConfirmed(): void {
+		$this->confirmations->method('stateOfVisible')->with('pieter')->willReturn(['confirmed' => ['u1'], 'receipts' => []]);
+
+		$this->assertSame(expected: ['confirmed' => ['u1'], 'receipts' => []], actual: $this->controller()->state()->getData());
+		$this->assertSame(expected: ['announcement.read'], actual: $this->checked);
+		$this->assertSame(expected: 403, actual: $this->controller(refused: ['announcement.read'])->state()->getStatus());
+	}//end testStateAnswersWhatTheReaderConfirmed()
 }//end class

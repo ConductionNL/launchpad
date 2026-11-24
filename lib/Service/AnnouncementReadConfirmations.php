@@ -29,13 +29,13 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Db\AcknowledgementMapper;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
-use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\Exception as DbException;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -65,16 +65,12 @@ class AnnouncementReadConfirmations {
 	 * @param AcknowledgementMapper        $receipts      The stored receipts.
 	 * @param IGroupManager                $groupManager  The members of a target group.
 	 * @param IUserManager                 $userManager   Everyone, for an announcement to all.
-	 * @param ReadReceiptPeople            $people        Names and departments on the report rows.
-	 * @param ITimeFactory                 $time          Today, for an overdue deadline.
 	 */
 	public function __construct(
 		private readonly AnnouncementServiceInterface $announcements,
 		private readonly AcknowledgementMapper $receipts,
 		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
-		private readonly ReadReceiptPeople $people,
-		private readonly ITimeFactory $time,
 	) {
 	}//end __construct()
 
@@ -167,10 +163,23 @@ class AnnouncementReadConfirmations {
 	}//end stateFor()
 
 	/**
+	 * The read confirmation state of everything the reader sees now.
+	 *
+	 * @param string $userId The reader.
+	 *
+	 * @return array{confirmed: string[], receipts: string[]} Uuids.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function stateOfVisible(string $userId): array {
+		return $this->stateFor(userId: $userId, announcements: $this->announcements->visibleTo(userId: $userId));
+	}//end stateOfVisible()
+
+	/**
 	 * The read confirmations of an announcement for its author or an
 	 * administrator: one row per person in the audience, confirmed with the
 	 * moment or not yet, in the report shape the Read confirmations dialog
-	 * reads (REQ-ACK-010), with names and departments.
+	 * reads (REQ-ACK-010); the controller adds names and departments.
 	 *
 	 * @param string $userId The author or administrator.
 	 * @param string $uuid   The announcement.
@@ -216,12 +225,12 @@ class AnnouncementReadConfirmations {
 		$done     = array_values(array_filter($rows, static fn (array $row): bool => $row['status'] === 'acknowledged'));
 		$pending  = array_values(array_filter($rows, static fn (array $row): bool => $row['status'] === 'pending'));
 
-		$report = [
+		return [
 			'announcementKey'   => $key,
 			'title'             => $announcement->getTitle(),
 			'contentVersion'    => self::CONTENT_VERSION,
 			'deadline'          => $deadline,
-			'overdue'           => $deadline !== null && $deadline < $this->time->getDateTime()->format('Y-m-d'),
+			'overdue'           => $deadline !== null && $deadline < (new DateTimeImmutable('today'))->format('Y-m-d'),
 			'acknowledgedCount' => count($done),
 			'pendingCount'      => count($pending),
 			'pending'           => array_column($pending, 'userId'),
@@ -231,8 +240,6 @@ class AnnouncementReadConfirmations {
 			),
 			'rows'              => $rows,
 		];
-
-		return $this->people->withPeople(report: $report, viewerId: $userId);
 	}//end report()
 
 	/**

@@ -25,8 +25,6 @@ use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
-use OCA\LaunchPad\Service\ReadReceiptPeople;
-use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\Exception as DbException;
 use OCP\IGroup;
 use OCP\IGroupManager;
@@ -81,30 +79,23 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 * @return void
 	 */
 	protected function setUp(): void {
-		$this->announcements = $this->createMock(AnnouncementServiceInterface::class);
-		$this->receipts      = $this->createMock(AcknowledgementMapper::class);
-		$this->groupManager  = $this->createMock(IGroupManager::class);
-		$this->userManager   = $this->createMock(IUserManager::class);
+		$this->announcements = $this->createMock(originalClassName: AnnouncementServiceInterface::class);
+		$this->receipts      = $this->createMock(originalClassName: AcknowledgementMapper::class);
+		$this->groupManager  = $this->createMock(originalClassName: IGroupManager::class);
+		$this->userManager   = $this->createMock(originalClassName: IUserManager::class);
 	}//end setUp()
 
 	/**
-	 * The service, with names passed through and today fixed at 29 October.
+	 * The service.
 	 *
 	 * @return AnnouncementReadConfirmations
 	 */
 	private function service(): AnnouncementReadConfirmations {
-		$people = $this->createMock(ReadReceiptPeople::class);
-		$people->method('withPeople')->willReturnCallback(static fn (array $report): array => $report + ['departmentLabel' => '']);
-		$time = $this->createMock(ITimeFactory::class);
-		$time->method('getDateTime')->willReturn(new DateTime('2026-10-29T12:00:00+00:00'));
-
 		return new AnnouncementReadConfirmations(
-			$this->announcements,
-			$this->receipts,
-			$this->groupManager,
-			$this->userManager,
-			$people,
-			$time
+			announcements: $this->announcements,
+			receipts: $this->receipts,
+			groupManager: $this->groupManager,
+			userManager: $this->userManager
 		);
 	}//end service()
 
@@ -119,7 +110,13 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 *
 	 * @return Announcement
 	 */
-	private function announcement(bool $asks = true, array $groups = ['Medewerkers'], string $status = 'published', string $uuid = self::UUID, string $author = 'pieter'): Announcement {
+	private function announcement(
+		bool $asks = true,
+		array $groups = ['Medewerkers'],
+		string $status = 'published',
+		string $uuid = self::UUID,
+		string $author = 'pieter'
+	): Announcement {
 		$announcement = new Announcement();
 		$announcement->setAuthorId($author);
 		$announcement->setUuid($uuid);
@@ -165,7 +162,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 
 		$answer = $this->service()->confirm(userId: 'anna', uuid: self::UUID);
 
-		$this->assertSame(['uuid' => self::UUID, 'confirmed' => true, 'confirmedAt' => '2026-10-27 09:15:00'], $answer);
+		$this->assertSame(expected: ['uuid' => self::UUID, 'confirmed' => true, 'confirmedAt' => '2026-10-27 09:15:00'], actual: $answer);
 	}//end testAReaderInTheAudienceConfirms()
 
 	/**
@@ -179,7 +176,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$this->receipts->method('findOneFor')->willReturn($this->receipt(userId: 'anna'));
 		$this->receipts->expects($this->never())->method('record');
 
-		$this->assertTrue($this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmed']);
+		$this->assertTrue(condition: $this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmed']);
 	}//end testASecondConfirmationAnswersTheFirst()
 
 	/**
@@ -191,11 +188,11 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
 		$this->announcements->method('reachesUser')->willReturn(true);
 		$this->receipts->method('findOneFor')->willReturnOnConsecutiveCalls(null, $this->receipt(userId: 'anna'));
-		$exception = $this->createMock(DbException::class);
+		$exception = $this->createMock(originalClassName: DbException::class);
 		$exception->method('getReason')->willReturn(DbException::REASON_UNIQUE_CONSTRAINT_VIOLATION);
 		$this->receipts->method('record')->willThrowException($exception);
 
-		$this->assertSame('2026-10-27 09:15:00', $this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmedAt']);
+		$this->assertSame(expected: '2026-10-27 09:15:00', actual: $this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmedAt']);
 	}//end testARaceAnswersTheWinningRow()
 
 	/**
@@ -213,9 +210,9 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		foreach ([1, 2] as $attempt) {
 			try {
 				$this->service()->confirm(userId: 'anna', uuid: self::UUID);
-				$this->fail('Attempt ' . $attempt . ' was accepted');
+				$this->fail(message: 'Attempt ' . $attempt . ' was accepted');
 			} catch (InvalidArgumentException $exception) {
-				$this->assertSame('This announcement does not ask for a read confirmation', $exception->getMessage());
+				$this->assertSame(expected: 'This announcement does not ask for a read confirmation', actual: $exception->getMessage());
 			}
 		}
 	}//end testOnlyAPublishedQuestionCanBeConfirmed()
@@ -230,7 +227,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$this->announcements->method('reachesUser')->willReturn(false);
 		$this->receipts->expects($this->never())->method('record');
 
-		$this->expectException(ForbiddenException::class);
+		$this->expectException(exception: ForbiddenException::class);
 		$this->service()->confirm(userId: 'admin', uuid: self::UUID);
 	}//end testSomeoneOutsideTheAudienceCannotConfirm()
 
@@ -256,7 +253,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 			]
 		);
 
-		$this->assertSame(['confirmed' => [$other], 'receipts' => [self::UUID]], $state);
+		$this->assertSame(expected: ['confirmed' => [$other], 'receipts' => [self::UUID]], actual: $state);
 	}//end testTheStatePerListAsksOnce()
 
 	/**
@@ -275,17 +272,17 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 
 		$report = $this->service()->report(userId: 'pieter', uuid: self::UUID);
 
-		$this->assertSame('New procedure', $report['title']);
-		$this->assertSame('2026-10-30', $report['deadline']);
-		$this->assertFalse($report['overdue']);
-		$this->assertSame(1, $report['acknowledgedCount']);
-		$this->assertSame(['jan'], $report['pending']);
+		$this->assertSame(expected: 'New procedure', actual: $report['title']);
+		$this->assertSame(expected: '2026-10-30', actual: $report['deadline']);
+		$this->assertTrue(condition: $report['overdue']);
+		$this->assertSame(expected: 1, actual: $report['acknowledgedCount']);
+		$this->assertSame(expected: ['jan'], actual: $report['pending']);
 		$this->assertSame(
-			[
+			expected: [
 				['userId' => 'anna', 'status' => 'acknowledged', 'acknowledgedAt' => '2026-10-27 09:15:00'],
 				['userId' => 'jan', 'status' => 'pending', 'acknowledgedAt' => null],
 			],
-			$report['rows']
+			actual: $report['rows']
 		);
 	}//end testTheAuthorReadsWhoConfirmed()
 
@@ -304,7 +301,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		});
 		$this->receipts->method('findByAnnouncement')->willReturn([]);
 
-		$this->assertSame(['bram', 'zoe'], $this->service()->report(userId: 'admin', uuid: self::UUID)['pending']);
+		$this->assertSame(expected: ['bram', 'zoe'], actual: $this->service()->report(userId: 'admin', uuid: self::UUID)['pending']);
 	}//end testAnAnnouncementToEveryoneReportsEveryone()
 
 	/**
@@ -319,14 +316,46 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 
 		try {
 			$this->service()->report(userId: 'anna', uuid: self::UUID);
-			$this->fail('A reader read the report');
+			$this->fail(message: 'A reader read the report');
 		} catch (ForbiddenException) {
-			$this->addToAssertionCount(1);
+			$this->addToAssertionCount(count: 1);
 		}
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(exception: InvalidArgumentException::class);
 		$this->service()->report(userId: 'pieter', uuid: self::UUID);
 	}//end testTheReportIsGuarded()
+
+	/**
+	 * The state of what the reader sees now comes from the visible announcements.
+	 *
+	 * @return void
+	 */
+	public function testTheStateOfWhatTheReaderSees(): void {
+		$this->announcements->method('visibleTo')->with('anna')->willReturn([$this->announcement(author: 'pieter')]);
+		$this->receipts->method('findKeysConfirmedBy')->willReturn(['announcement-' . self::UUID]);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+
+		$this->assertSame(
+			expected: ['confirmed' => [self::UUID], 'receipts' => []],
+			actual: $this->service()->stateOfVisible(userId: 'anna')
+		);
+	}//end testTheStateOfWhatTheReaderSees()
+
+	/**
+	 * A deadline still ahead is not overdue.
+	 *
+	 * @return void
+	 */
+	public function testADeadlineAheadIsNotOverdue(): void {
+		$announcement = $this->announcement();
+		$announcement->setConfirmBefore(new DateTime('+3 days'));
+		$this->announcements->method('findFor')->willReturn($announcement);
+		$this->groupManager->method('isAdmin')->willReturn(true);
+		$this->groupManager->method('get')->willReturn(null);
+		$this->receipts->method('findByAnnouncement')->willReturn([]);
+
+		$this->assertFalse(condition: $this->service()->report(userId: 'admin', uuid: self::UUID)['overdue']);
+	}//end testADeadlineAheadIsNotOverdue()
 
 	/**
 	 * A group of the given members.
@@ -336,7 +365,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 * @return IGroup
 	 */
 	private function group(array $members): IGroup {
-		$group = $this->createMock(IGroup::class);
+		$group = $this->createMock(originalClassName: IGroup::class);
 		$group->method('getUsers')->willReturn(array_map(fn (string $uid): IUser => $this->user(uid: $uid), $members));
 
 		return $group;
@@ -350,7 +379,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 * @return IUser
 	 */
 	private function user(string $uid): IUser {
-		$user = $this->createMock(IUser::class);
+		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn($uid);
 
 		return $user;

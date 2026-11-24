@@ -137,8 +137,8 @@ test('a reader confirms "I have read this" once, and the author reads who confir
 	const again = await reader!.api.post(`${API}/announcements/${uuid}/read`)
 	expect((await again.json()).confirmedAt).toBe((await first.json()).confirmedAt)
 
-	const list = await reader!.api.get(`${API}/announcements`)
-	expect((await list.json()).readConfirmations.confirmed).toContain(uuid)
+	const state = await reader!.api.get(`${API}/announcements/read-state`)
+	expect((await state.json()).confirmed).toContain(uuid)
 
 	// Only the author or an administrator reads the confirmations.
 	const refused = await reader!.api.get(`${API}/announcements/${uuid}/receipts`)

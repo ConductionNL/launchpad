@@ -185,16 +185,26 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/changes/engagement-announcements/tasks.md#task-7 */
+		/**
+		 * @spec openspec/changes/engagement-announcements/tasks.md#task-7
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 */
 		async load() {
 			this.loading = true
 			try {
-				const data = await announcementsApi.list()
+				// The read state is asked beside the list, never after it (REQ-ANN-007).
+				const [data, readState] = await Promise.all([
+					announcementsApi.list(),
+					announcementsApi.readState().catch((error) => {
+						logger.error('Failed to load the read confirmations:', error)
+						return null
+					}),
+				])
 				this.announcements = Array.isArray(data.announcements) ? data.announcements : []
 				this.reactions = data.reactions ?? {}
 				this.followed = Array.isArray(data.followedCategories) ? data.followedCategories : []
 				this.canAuthor = data.canAuthor === true
-				this.readConfirmations = readConfirmationState(data.readConfirmations)
+				this.readConfirmations = readConfirmationState(readState)
 				this.error = ''
 			} catch (error) {
 				logger.error('Failed to load announcements:', error)

@@ -23,7 +23,6 @@ use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AnnouncementCommentService;
 use OCA\LaunchPad\Service\AnnouncementFollowService;
-use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -72,7 +71,7 @@ class AnnouncementControllerTest extends TestCase {
 	 *
 	 * @return AnnouncementController
 	 */
-	private function controller(array $params = [], array $refused = [], ?AnnouncementCommentService $reactions = null, ?AnnouncementReadConfirmations $confirmations = null): AnnouncementController {
+	private function controller(array $params = [], array $refused = [], ?AnnouncementCommentService $reactions = null): AnnouncementController {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParams')->willReturn($params);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default));
@@ -87,7 +86,7 @@ class AnnouncementControllerTest extends TestCase {
 		});
 		$guard->method('sessionUser')->willReturn($user);
 
-		return new AnnouncementController($request, $this->service, $guard, $this->follows, $reactions, $confirmations);
+		return new AnnouncementController($request, $this->service, $guard, $this->follows, $reactions);
 	}//end controller()
 
 	/**
@@ -313,22 +312,4 @@ class AnnouncementControllerTest extends TestCase {
 		$this->assertSame(503, $this->controller()->like(uuid: $uuid)->getStatus());
 		$this->assertSame(503, $this->controller()->comments(uuid: $uuid)->getStatus());
 	}//end testARefusedOrUnwiredCommentEndpoint()
-
-	/**
-	 * The list carries the reader's read confirmation state; without the service it is empty.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	public function testIndexCarriesTheReadConfirmationState(): void {
-		$this->service->method('visibleTo')->willReturn([$this->announcement()]);
-		$this->service->method('draftsFor')->willReturn([]);
-		$this->follows->method('followedCategories')->willReturn([]);
-		$confirmations = $this->createMock(AnnouncementReadConfirmations::class);
-		$confirmations->method('stateFor')->with('pieter', $this->anything())->willReturn(['confirmed' => ['u1'], 'receipts' => []]);
-
-		$this->assertSame(['confirmed' => ['u1'], 'receipts' => []], $this->controller(confirmations: $confirmations)->index()->getData()['readConfirmations']);
-		$this->assertSame(['confirmed' => [], 'receipts' => []], $this->controller()->index()->getData()['readConfirmations']);
-	}//end testIndexCarriesTheReadConfirmationState()
 }//end class

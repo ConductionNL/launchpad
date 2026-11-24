@@ -26,17 +26,14 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementCommentServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
-use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -48,6 +45,8 @@ use OCP\IRequest;
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 class AnnouncementController extends Controller {
+	use AnswersAnnouncementRequests;
+
 
 	/**
 	 * The fields an author may send.
@@ -75,7 +74,6 @@ class AnnouncementController extends Controller {
 	 * @param RequestGuard        $guard         The session user and the action check.
 	 * @param AnnouncementFollowServiceInterface $follows The followed categories.
 	 * @param AnnouncementCommentServiceInterface|null $reactions Likes and comments through Nextcloud's comments service.
-	 * @param AnnouncementReadConfirmations|null $confirmations The read confirmations (REQ-ANN-007).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -83,7 +81,6 @@ class AnnouncementController extends Controller {
 		private readonly RequestGuard $guard,
 		private readonly AnnouncementFollowServiceInterface $follows,
 		private readonly ?AnnouncementCommentServiceInterface $reactions = null,
-		private readonly ?AnnouncementReadConfirmations $confirmations = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -94,7 +91,6 @@ class AnnouncementController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	#[NoAdminRequired]
 	public function index(): JSONResponse {
@@ -107,7 +103,6 @@ class AnnouncementController extends Controller {
 					'followedCategories' => $this->follows->followedCategories(userId: $userId),
 					'canAuthor' => $this->announcements->isAuthor(userId: $userId),
 					'reactions' => (object) ($this->reactions?->countsFor(userId: $userId, announcements: $visible) ?? []),
-					'readConfirmations' => $this->confirmations?->stateFor(userId: $userId, announcements: $visible) ?? ['confirmed' => [], 'receipts' => []],
 				]
 			);
 		});
@@ -345,32 +340,6 @@ class AnnouncementController extends Controller {
 
 		return $this->asUser(run: fn (string $userId): JSONResponse => $run($userId, $reactions));
 	}//end withReactions()
-
-	/**
-	 * Run an endpoint as the session user, mapping refusals to their status. The
-	 * caller has checked its ADR-023 action first.
-	 *
-	 * @param callable $run `(string $userId): JSONResponse`.
-	 *
-	 * @return JSONResponse
-	 */
-	private function asUser(callable $run): JSONResponse {
-		$user = $this->guard->sessionUser();
-		if ($user instanceof JSONResponse) {
-			return $user;
-		}
-
-		try {
-			return $run($user->getUID());
-		} catch (DoesNotExistException) {
-			return new JSONResponse(['error' => 'Announcement not found'], Http::STATUS_NOT_FOUND);
-		} catch (ForbiddenException $e) {
-			return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
-		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(['status' => 'error', 'error' => 'invalid_argument', 'message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-		}
-	}//end asUser()
-
 	/**
 	 * The author's fields from the request, only those that were sent.
 	 *

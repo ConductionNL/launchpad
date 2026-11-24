@@ -4784,17 +4784,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             },
@@ -4833,17 +4827,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 },
                 "requestBody": {
@@ -4928,17 +4916,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -4977,17 +4959,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5069,17 +5045,43 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/read-state": {
+            "get": {
+                "operationId": "announcement-read-state",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open",
+                "description": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open. Asked beside the list, not after it. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5119,17 +5121,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             },
@@ -5167,17 +5163,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 },
                 "requestBody": {
@@ -5257,17 +5247,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5307,17 +5291,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5386,17 +5364,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5439,17 +5411,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5490,17 +5456,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     },
                     "503": {
                         "$ref": "#/components/responses/Problem503"
@@ -5543,17 +5503,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5593,17 +5547,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
@@ -5643,17 +5591,11 @@
                             }
                         }
                     },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
-                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }

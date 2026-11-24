@@ -81,6 +81,17 @@ export const announcementsApi = {
 	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	 */
 	/**
+	 * Which announcements the reader confirmed, and which read
+	 * confirmations the reader may open (REQ-ANN-007).
+	 *
+	 * @return {Promise<{confirmed: Array<string>, receipts: Array<string>}>}
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	async readState() {
+		return (await axios.get(`${base()}/read-state`)).data
+	},
+
+	/**
 	 * "I have read this" for the signed-in reader (REQ-ANN-007).
 	 *
 	 * @param {string} uuid The announcement.

@@ -42,6 +42,7 @@ vi.mock('../../../services/announcementsApi.js', () => ({
 		reachFor: vi.fn(),
 		groups: vi.fn(),
 		confirmRead: vi.fn(),
+		readState: vi.fn(),
 		receipts: vi.fn(),
 		dismissedNotices: vi.fn(),
 		saveDismissedNotices: vi.fn(),
@@ -80,6 +81,7 @@ const NEWS = [
 
 beforeEach(() => {
 	vi.clearAllMocks()
+	announcementsApi.readState.mockResolvedValue({ confirmed: [], receipts: [] })
 	announcementsApi.list.mockResolvedValue({
 		announcements: NEWS,
 		reactions: { a: { likes: 0, comments: 0, liked: false } },
@@ -547,8 +549,8 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 			reactions: {},
 			followedCategories: [],
 			canAuthor: true,
-			readConfirmations: { confirmed: [], receipts: ['r'] },
 		})
+		announcementsApi.readState.mockResolvedValue({ confirmed: [], receipts: ['r'] })
 		announcementsApi.confirmRead.mockResolvedValue({ uuid: 'r', confirmed: true })
 		const wrapper = mountWith(AnnouncementsWidget)
 		await flushPromises()
@@ -569,9 +571,13 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('a failed confirmation says so and leaves the button', async () => {
 		announcementsApi.list.mockResolvedValue({ announcements: [ASKING], reactions: {}, followedCategories: [], canAuthor: false })
+		announcementsApi.readState.mockRejectedValue(new Error('offline'))
 		announcementsApi.confirmRead.mockRejectedValue(new Error('offline'))
 		const wrapper = mountWith(AnnouncementsWidget)
 		await flushPromises()
+		// Without the read state the list still shows, every question unconfirmed.
+		expect(wrapper.find('[data-test="announcement-confirm-read"]').exists()).toBe(true)
+		expect(announcementsApi.list).toHaveBeenCalledTimes(1)
 
 		await wrapper.vm.confirmRead('r')
 		expect(wrapper.vm.error).toBe('Your read confirmation could not be saved')

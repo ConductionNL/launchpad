@@ -124,12 +124,12 @@ class AcknowledgementMapperTest extends TestCase {
 		];
 		$mapper = new AcknowledgementMapper($recorder->connection());
 
-		$this->assertSame(['announcement-a'], $mapper->findKeysConfirmedBy('alice', ['announcement-a', 'announcement-b']));
-		$this->assertContains('qb1.where("eq(\\"user_id\\", \\":p1\\", null)")', $recorder->calls);
-		$this->assertContains('qb1.createNamedParameter(["announcement-a","announcement-b"], 102, null)', $recorder->calls);
+		$this->assertSame(expected: ['announcement-a'], actual: $mapper->findKeysConfirmedBy('alice', ['announcement-a', 'announcement-b']));
+		$this->assertContains(needle: 'qb1.where("eq(\\"user_id\\", \\":p1\\", null)")', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.createNamedParameter(["announcement-a","announcement-b"], 102, null)', haystack: $recorder->calls);
 
 		$empty = new QueryRecorder(test: $this);
-		$this->assertSame([], (new AcknowledgementMapper($empty->connection()))->findKeysConfirmedBy('alice', []));
-		$this->assertSame([], $empty->calls);
+		$this->assertSame(expected: [], actual: (new AcknowledgementMapper($empty->connection()))->findKeysConfirmedBy('alice', []));
+		$this->assertSame(expected: [], actual: $empty->calls);
 	}//end testFindKeysConfirmedByAsksOnceForAllKeys()
 }//end class

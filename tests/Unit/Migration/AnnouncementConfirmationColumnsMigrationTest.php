@@ -71,7 +71,7 @@ class AnnouncementConfirmationColumnsMigrationTest extends TestCase {
 		$added = [];
 		$table = $this->createMock(originalClassName: ITable::class);
 		$table->method('hasColumn')->willReturn(false);
-		$table->expects($this->exactly(2))->method('addColumn')->willReturnCallback(
+		$table->expects($this->exactly(count: 2))->method('addColumn')->willReturnCallback(
 			function (string $name, string $type, array $options) use (&$added): IColumn {
 				$added[$name] = [$type, $options];
 				return $this->createMock(originalClassName: IColumn::class);

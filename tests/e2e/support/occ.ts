@@ -318,3 +318,103 @@ export async function sizeOnInstance(file: string): Promise<number> {
 	}
 	return Number.parseInt(result.stdout.trim().split(/\s+/)[0] ?? '0', 10) || 0
 }
+
+/**
+ * Run `body` with Nextcloud logging at info level, so lines written with
+ * `$logger->info()` (the CLI audit line, the analytics jobs' summaries) reach
+ * the log, and hand back the messages logged meanwhile. The previous
+ * `loglevel` is put back afterwards, or removed when there was none.
+ *
+ * @param body what to run.
+ * @return the new log messages.
+ */
+export async function logDuring(body: () => Promise<void>): Promise<string[]> {
+	const before = await runOcc('config:system:get', 'loglevel')
+	const previous = before.code === 0 ? before.stdout.trim() : null
+	const set = await runOcc(
+		'config:system:set',
+		'loglevel',
+		'--value=1',
+		'--type=integer',
+	)
+	if (set.code !== 0) {
+		throw new Error(`could not lower loglevel to info\n${describeRun(set)}`)
+	}
+	try {
+		const logFile = await logFileOnInstance()
+		const offset = await sizeOnInstance(logFile)
+		await body()
+		return await logMessagesSince(logFile, offset)
+	} finally {
+		if (previous === null) {
+			await runOcc('config:system:delete', 'loglevel')
+		} else {
+			await runOcc(
+				'config:system:set',
+				'loglevel',
+				`--value=${previous}`,
+				'--type=integer',
+			)
+		}
+	}
+}
+
+/**
+ * Execute a background job once, now, whatever its interval says, through
+ * `occ background-job:execute --force-execute`.
+ *
+ * @param jobClass the job class, e.g. `OCA\\LaunchPad\\BackgroundJob\\PurgeViewsJob`.
+ * @return the run.
+ */
+export async function executeJobNow(jobClass: string): Promise<RunResult> {
+	const listed = await runOcc(
+		'background-job:list',
+		`--class=${jobClass}`,
+		'--output=json',
+	)
+	if (listed.code !== 0) {
+		throw new Error(`occ background-job:list failed\n${describeRun(listed)}`)
+	}
+	const jobs = JSON.parse(listed.stdout) as Array<{ id: number | string }>
+	if (jobs.length === 0) {
+		throw new Error(`${jobClass} is not registered as a background job`)
+	}
+	return runOcc('background-job:execute', '--force-execute', String(jobs[0].id))
+}
+
+/**
+ * Read a launchpad app value through occ, or null when it is not set.
+ *
+ * @param key the key.
+ * @return the value.
+ */
+export async function appValue(key: string): Promise<string | null> {
+	const result = await runOcc('config:app:get', 'launchpad', key)
+	return result.code === 0 ? result.stdout.replace(/\n$/, '') : null
+}
+
+/**
+ * Write a launchpad app value as an integer through occ, or delete it (null).
+ *
+ * @param key the key.
+ * @param value the value, or null to delete it.
+ * @return nothing.
+ */
+export async function setIntAppValue(
+	key: string,
+	value: number | null,
+): Promise<void> {
+	const result =
+		value === null
+			? await runOcc('config:app:delete', 'launchpad', key)
+			: await runOcc(
+					'config:app:set',
+					'launchpad',
+					key,
+					`--value=${value}`,
+					'--type=integer',
+				)
+	if (value !== null && result.code !== 0) {
+		throw new Error(`could not set ${key}=${value}\n${describeRun(result)}`)
+	}
+}

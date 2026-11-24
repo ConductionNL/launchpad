@@ -175,8 +175,6 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
 
 #### Scenario: Salt rotation discards previous salt with no history retained
 
-@e2e exclude SaltRotationJob is a background job; a rotation cannot be triggered or observed over HTTP. tests/Unit/Service/UniqueViewerDedupTest.php::testRotateSaltOverwritesPreviousValueWithoutHistory and tests/Unit/BackgroundJob/SaltRotationJobTest.php::testRunRotatesTodaysSaltAndLogsTheDate pin it.
-
 - GIVEN `SaltRotationJob` ran on 2026-05-01 and stored `dailySalt_A` in `launchpad.analytics_dailysalt`
 - AND viewer hashes for 2026-05-01 were computed using `dailySalt_A`
 - WHEN `SaltRotationJob` runs at 00:00 UTC on 2026-05-02
@@ -368,8 +366,6 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Default retention is 365 days
 
-@e2e exclude PurgeViewsJob is a background job with no HTTP trigger or read. No test pins the 365-day default or the cutoff arithmetic: tests/Unit/BackgroundJob/PurgeViewsJobTest.php mocks getPurgeCutoffDate().
-
 - GIVEN a fresh installation with no explicit retention setting
 - WHEN the daily purge job runs
 - THEN rows with `viewBucket < CURRENT_DATE - 365 days` MUST be deleted
@@ -377,16 +373,12 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Admin can configure retention period
 
-@e2e exclude the setting only takes effect in PurgeViewsJob, a background job with no HTTP trigger or read. tests/Unit/Service/AnalyticsServiceTest.php::testGetRetentionDaysReturnsValueInRange pins the read and tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunPurgesBothTablesWithSameCutoff the delete with the cutoff.
-
 - GIVEN an admin sets `launchpad.analytics_retention_days = 90`
 - WHEN the purge job runs
 - THEN only rows with `viewBucket < CURRENT_DATE - 90 days` MUST be deleted
 - AND the new retention becomes effective on the next job run
 
 #### Scenario: Retention minimum and maximum bounds
-
-@e2e exclude there is no HTTP surface that sets or reads the retention; the clamp is service logic pinned by tests/Unit/Service/AnalyticsServiceTest.php::testGetRetentionDaysClampsBelowMinimum, ::testGetRetentionDaysClampsAboveMaximum and ::testSetRetentionDaysClampsAndPersists.
 
 - GIVEN the admin attempts to set `launchpad.analytics_retention_days = 10` (below minimum 30)
 - THEN the system MUST either:
@@ -398,7 +390,7 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Purge job is automatic and idempotent
 
-@e2e exclude a background job with no HTTP trigger; tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunIsIdempotentWhenNothingToDelete pins the re-run. The daily interval is set in lib/BackgroundJob/PurgeViewsJob.php (setInterval 86400); no test asserts it.
+@e2e exclude the GIVEN is a purge that deleted old rows, and a row older than the retention cannot be written from outside (view events land in today's bucket only), so no deletion can be watched staying deleted; tests/e2e/dashboard-view-analytics-jobs.spec.ts does run the job repeatedly through occ without error. tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunIsIdempotentWhenNothingToDelete pins the re-run. The daily interval is set in lib/BackgroundJob/PurgeViewsJob.php (setInterval 86400); no test asserts it.
 
 - GIVEN the daily purge job has run once and deleted old rows
 - WHEN it runs again (on the next day or re-triggered)
@@ -407,8 +399,6 @@ The system MUST automatically purge view-count rows older than a configurable re
 - NOTE: Job MUST be registered with Nextcloud scheduler and run daily at a fixed time (e.g., 02:00 UTC)
 
 #### Scenario: Purge logs execution
-
-@e2e exclude log output of a background job; tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunLogsAggregateCountsOnly pins the counts, the cutoff and the absence of user data.
 
 - GIVEN the daily purge job runs
 - WHEN rows are deleted
@@ -658,7 +648,7 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 
 #### Scenario: Retention purge also deletes tile rows
 
-@e2e exclude PurgeViewsJob is a background job with no HTTP trigger; tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunPurgesBothTablesWithSameCutoff and ::testRunIsIdempotentWhenNothingToDelete pin both tables and the re-run.
+@e2e exclude needs tile-click rows older than the retention, and only today's bucket can be written from outside; tests/e2e/dashboard-view-analytics-jobs.spec.ts runs the job through occ and checks the one cutoff it logs for both tables. tests/Unit/BackgroundJob/PurgeViewsJobTest.php::testRunPurgesBothTablesWithSameCutoff and ::testRunIsIdempotentWhenNothingToDelete pin both tables and the re-run.
 
 - GIVEN the admin has set `launchpad.analytics_retention_days = 90`
 - WHEN the existing analytics purge job runs

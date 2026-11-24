@@ -625,8 +625,6 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 
 #### Scenario: Daily salt is shared, not duplicated
 
-@e2e exclude which salt a hash uses is internal. tests/Unit/Service/TileAnalyticsServiceTest.php::testRecordClickReusesSharedDedupScopedByPlacement pins that tile clicks go through the one UniqueViewerDedup (and so the one launchpad.analytics_dailysalt).
-
 - GIVEN `SaltRotationJob` has stored `launchpad.analytics_dailysalt`
 - WHEN the system computes a tile-click unique-actor hash
 - THEN it MUST use the SAME `launchpad.analytics_dailysalt` value

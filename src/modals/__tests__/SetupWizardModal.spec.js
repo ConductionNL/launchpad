@@ -81,7 +81,7 @@ describe('SetupWizardModal', () => {
 		expect(api.getSetupWizardState).toHaveBeenCalledOnce()
 	})
 
-	it('REQ-WIZ-002: starts at step 1 with the counter rendered', async () => {
+	it('REQ-WIZ-012: starts at step 1 with the counter rendered', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
@@ -91,7 +91,7 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.find('[data-test="setup-wizard-counter"]').exists()).toBe(
 			true,
 		)
-		expect(wrapper.vm.totalSteps).toBe(6)
+		expect(wrapper.vm.totalSteps).toBe(5)
 	})
 
 	it('REQ-WIZ-002: Next advances; Back returns; counter updates', async () => {
@@ -120,12 +120,12 @@ describe('SetupWizardModal', () => {
 		)
 	})
 
-	it('REQ-WIZ-002: Step 6 Next is labelled Finish and calls completeSetupWizard', async () => {
+	it('REQ-WIZ-012: Step 5 Next is labelled Finish and calls completeSetupWizard', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
-		// Jump straight to step 6 to keep the test focused.
-		wrapper.vm.currentStep = 6
+		// Jump straight to step 5 to keep the test focused.
+		wrapper.vm.currentStep = 5
 		await flush()
 
 		// The Vue mixin's t() stub returns the bare key; the component
@@ -148,6 +148,38 @@ describe('SetupWizardModal', () => {
 
 		await wrapper.find('[data-test="setup-wizard-skip"]').trigger('click')
 		expect(wrapper.vm.currentStep).toBe(5)
+		expect(wrapper.vm.isFinalStep).toBe(true)
 		expect(api.completeSetupWizard).not.toHaveBeenCalled()
+	})
+
+	it('REQ-WIZ-012: no step shows the footer editor', async () => {
+		const wrapper = mountWizard()
+		await flush()
+
+		for (let step = 1; step <= 5; step++) {
+			wrapper.vm.currentStep = step
+			await flush()
+			expect(wrapper.find('[data-test="footer-stub"]').exists()).toBe(false)
+			expect(wrapper.text()).not.toContain('Footer configuration')
+		}
+	})
+
+	it('REQ-WIZ-012: the welcome step names groups, example dashboards and roles', async () => {
+		const wrapper = mountWizard()
+		await flush()
+
+		expect(wrapper.text()).toContain(
+			'This setup sets the groups, the example dashboards and the roles, in five steps. Existing dashboards stay as they are.',
+		)
+	})
+
+	it('REQ-WIZ-012: a recommended step past five opens the last step', async () => {
+		api.getSetupWizardState.mockResolvedValueOnce({
+			data: { complete: false, currentRecommendedStep: 6 },
+		})
+		const wrapper = mountWizard()
+		await flush()
+
+		expect(wrapper.vm.currentStep).toBe(5)
 	})
 })

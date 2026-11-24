@@ -272,7 +272,7 @@ export function embedAdminSearch(subjectType, subjectId, dashboardId = null) {
  * @param {string} dashboardUuid The dashboard's uuid.
  * @param {Array<string|number>} placementIds The ids of the dashboard's widget placements.
  * @return {Array<object>}
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
  */
 export function tokensForDashboard(tokens, dashboardUuid, placementIds = []) {
 	const placements = new Set((placementIds ?? []).map((id) => String(id)))
@@ -291,7 +291,7 @@ export function tokensForDashboard(tokens, dashboardUuid, placementIds = []) {
  *
  * @param {string} value The value.
  * @return {string}
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
  */
 function attribute(value) {
 	return String(value ?? '')
@@ -310,7 +310,7 @@ function attribute(value) {
  * @param {string} appUrl The absolute address of the app (`https://host/index.php/apps/launchpad`).
  * @param {string} [jwt] The issued JWT, when it is still at hand.
  * @return {string}
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
  */
 export function embedCode(token, appUrl, jwt = '') {
 	const type = token?.subject?.type === 'widget' ? 'widget' : 'dashboard'

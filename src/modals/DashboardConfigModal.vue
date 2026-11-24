@@ -958,7 +958,7 @@ export default {
 		 * Whether the dashboard is shared: a group dashboard or one with stored shares.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 		 */
 		isSharedDashboard() {
 			return isCollaborative({ dashboard: this.dashboard, ownShares: this.serverShares })
@@ -1175,7 +1175,7 @@ export default {
 		 *
 		 * @param {number} value 1 shows the conversation, 0 hides it.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 		 */
 		async onConversationChanged(value) {
 			// Loaded on use: the store module reads the user's language on import.

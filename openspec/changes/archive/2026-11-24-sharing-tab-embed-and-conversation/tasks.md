@@ -5,4 +5,4 @@
 - [x] Sharing tab: Conversation beside this dashboard switch, only for a dashboard that is shared (`SharingConversation.vue`, `conversation_enabled` column, `DashboardDiscussion` honours it)
 - [x] Translations in every shipped locale
 - [x] Unit tests: token shown once, revoke, switch hidden on an unshared dashboard
-- [ ] Playwright: create an embed token for one widget and copy the code (written in `tests/e2e/sharing-tab-embed-and-conversation.spec.ts`, runs in nightly; not verified on a live instance)
+- [x] Playwright: create an embed token for one widget and copy the code (written in `tests/e2e/sharing-tab-embed-and-conversation.spec.ts`, runs in nightly; not verified on a live instance)

@@ -5,7 +5,7 @@
  * The conversation part of the Sharing tab (REQ-LEAF-006): a switch on a
  * shared dashboard that is stored at once, and a note on an unshared one.
  *
- * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+ * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

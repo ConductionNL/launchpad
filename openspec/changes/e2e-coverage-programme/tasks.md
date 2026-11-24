@@ -227,6 +227,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
 - [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/service-health-ping.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with reasons
+  - Spec written: tests/e2e/service-health-ping.spec.ts, the last scenario (background refresh) now cited by running HealthPingRefreshJob through occ, 0 excluded, not yet run (cloud, 2026-11-24)
 - [x] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/initial-state-contract.spec.ts, 2 scenarios cited, 9 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.

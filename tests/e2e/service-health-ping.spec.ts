@@ -21,8 +21,10 @@
  * that refuses local addresses (`allow_local_remote_servers` off) never
  * reaches it; the tests that need the upstream then skip and say so.
  *
- * The background refresh job has no HTTP read of its own and carries an
- * `@e2e exclude` in the spec.
+ * The background refresh job is run on demand through
+ * `occ background-job:execute --force-execute` (support/occ.ts). It needs no
+ * badge read to be observed: the fixture's request count shows which tiles
+ * the job itself pinged.
  *
  * Gate-19 @e2e traceability:
  *   @e2e service-health-ping::enable-ping-with-a-health-url
@@ -36,6 +38,7 @@
  *   @e2e service-health-ping::endpoint-serves-the-cached-badge
  *   @e2e service-health-ping::caller-authorization
  *   @e2e service-health-ping::cached-within-ttl
+ *   @e2e service-health-ping::background-refresh-of-due-entries
  *   @e2e service-health-ping::stale-fallback-on-refresh-failure
  *   @e2e service-health-ping::badge-is-not-colour-only
  *   @e2e service-health-ping::accessible-detail-on-demand
@@ -53,6 +56,7 @@ import { expect, test } from '@playwright/test'
 import { createServer } from 'node:http'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { describeRun, executeJobNow } from './support/occ.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -66,6 +70,7 @@ const CONFIG = '/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/launchpad'
 const ALLOWED_HOSTS = 'healthping_allowed_hosts'
 const LATENCY_THRESHOLD = 'healthping_latency_threshold_ms'
 const OFFLINE_AFTER = 'healthping_offline_after_failures'
+const JOB = 'OCA\\LaunchPad\\BackgroundJob\\HealthPingRefreshJob'
 const FIXTURE_HOST = process.env.HEALTH_PING_FIXTURE_HOST || process.env.LIVE_TILE_FIXTURE_HOST || '127.0.0.1'
 const STAMP = `${Date.now()}`
 const UPSTREAM_BODY = `UPSTREAM-BODY-${STAMP}`
@@ -672,6 +677,55 @@ test('a second read inside the interval is served from cache without a new upstr
 	expect(second.body).toEqual(first.body)
 	expect(hitsFor(url), 'the cached badge re-pinged the upstream').toBe(1)
 	await author!.api.delete(`${API}/widgets/${id}`)
+})
+
+// @e2e service-health-ping::background-refresh-of-due-entries
+test('the refresh job pings the due ping-enabled tiles only, and skips a host off the allow-list', async () => {
+	test.skip(!reachable, UNREACHABLE)
+	test.setTimeout(150_000)
+	await allowFixtureHost()
+	const dueUrl = `${upstreamBase}/ok?p=job-due`
+	const freshUrl = `${upstreamBase}/ok?p=job-fresh`
+	const offUrl = `${upstreamBase}/ok?p=job-off`
+	const due = await pingTile(`Job due ${STAMP}`, dueUrl, { pingInterval: 15 })
+	const fresh = await pingTile(`Job fresh ${STAMP}`, freshUrl, { pingInterval: 3600 })
+	const off = await pingTile(`Job off ${STAMP}`, offUrl, { healthPingEnabled: false })
+	try {
+		// One read each caches a reading; the ping-off tile is never read.
+		expect((await badge(author!.api, due)).body.state).toBe('online')
+		expect((await badge(author!.api, fresh)).body.state).toBe('online')
+		expect(hitsFor(dueUrl)).toBe(1)
+		expect(hitsFor(freshUrl)).toBe(1)
+
+		// The 15-second tile's reading ages past its interval; the other's does not.
+		await new Promise((resolve) => setTimeout(resolve, 16_500))
+		const run = await executeJobNow(JOB)
+		expect(run.code, describeRun(run)).toBe(0)
+		expect(hitsFor(dueUrl), 'the job refreshed the due tile, with no badge read').toBe(2)
+		expect(hitsFor(freshUrl), 'the job pinged a tile inside its interval').toBe(1)
+		expect(hitsFor(offUrl), 'the job pinged a tile with the ping off').toBe(0)
+
+		// The endpoint now serves the job's reading without pinging again.
+		const served = await badge(author!.api, due)
+		expect(served.body.state).toBe('online')
+		expect(served.body.stale).toBe(false)
+		expect(hitsFor(dueUrl), 'the read after the job re-pinged').toBe(2)
+
+		// Due again, but its host is no longer allow-listed: the job contacts nothing.
+		await new Promise((resolve) => setTimeout(resolve, 16_500))
+		await writeAppValue(ALLOWED_HOSTS, JSON.stringify([`elsewhere-${STAMP}.example.invalid`]))
+		try {
+			const refused = await executeJobNow(JOB)
+			expect(refused.code, describeRun(refused)).toBe(0)
+			expect(hitsFor(dueUrl), 'the job pinged a host off the allow-list').toBe(2)
+		} finally {
+			await allowFixtureHost()
+		}
+	} finally {
+		for (const id of [due, fresh, off]) {
+			await author!.api.delete(`${API}/widgets/${id}`)
+		}
+	}
 })
 
 // @e2e service-health-ping::stale-fallback-on-refresh-failure
